@@ -2,7 +2,6 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 
@@ -10,11 +9,15 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.DataStructures.Maps;
 
+
 public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 {
     protected readonly ConcurrentDictionary<TK, TV> ConcurrentDictionary = new();
-    private readonly IRecycler personalRecycler = new Recycler();
-    protected readonly object SyncLock = new();
+
+    // Do NOT make this static each dictionary needs it's own private instance as the enumerator must belong to this instant
+    private readonly IRecycler myRecycler = new Recycler();
+
+    // protected readonly object SyncLock = new();
 
     public ConcurrentMap() { }
 
@@ -25,11 +28,10 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
         get => ConcurrentDictionary[key];
         set
         {
-            lock (SyncLock)
-            {
-                ConcurrentDictionary.AddOrUpdate(key, value!, (_, _) => value!);
-                OnUpdated();
-            }
+            var (insert, update) = GetInsertUpdateCallbacks(key, value);
+            ConcurrentDictionary.AddOrUpdate(key, insert.InsertCallback, update.UpdateCallback);
+            insert.DecrementRefCount();
+            update.DecrementRefCount();
         }
     }
 
@@ -57,34 +59,37 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public TV AddOrUpdate(TK key, TV value)
     {
-        var newValue = ConcurrentDictionary.AddOrUpdate(key, value!, (_, _) => value!);
-        OnUpdated();
+        var (insert, update) = GetInsertUpdateCallbacks(key, value);
+        
+        var newValue = ConcurrentDictionary.AddOrUpdate(key, insert.InsertCallback, update.UpdateCallback);
+        insert.DecrementRefCount();
+        update.DecrementRefCount();
         return newValue;
     }
 
-    public bool Add(TK key, TV value)
+    // for dictionary initializer
+    public void Add(TK key, TV value)
     {
-        lock (SyncLock)
-        {
-            if (ConcurrentDictionary.TryAdd(key, value))
-            {
-                OnUpdated();
-                return true;
-            }
+        TryAdd(key, value);
+    }
 
-            return false;
+    public bool TryAdd(TK key, TV value)
+    {
+        if (ConcurrentDictionary.TryAdd(key, value))
+        {
+            OnUpdated(key, value, MapUpdateType.Create);
+            return true;
         }
+
+        return false;
     }
 
     public bool Remove(TK key)
     {
-        lock (SyncLock)
+        if (ConcurrentDictionary.TryRemove(key, out var valueRemoved))
         {
-            if (ConcurrentDictionary.TryRemove(key, out _))
-            {
-                OnUpdated();
-                return true;
-            }
+            OnUpdated(key, valueRemoved, MapUpdateType.Remove);
+            return true;
         }
 
         return false;
@@ -92,10 +97,19 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public void Clear()
     {
-        lock (SyncLock)
+        var keyValuePairs = myRecycler.Borrow<ReusableList<KeyValuePair<TK, TV>>>();
+        foreach (var keyValuePair in ConcurrentDictionary)
         {
-            ConcurrentDictionary.Clear();
-            OnUpdated();
+            keyValuePairs.Add(keyValuePair);
+        }
+        ConcurrentDictionary.Clear();
+        foreach (var keyValuePair in keyValuePairs)
+        {
+            OnUpdated(keyValuePair.Key, keyValuePair.Value, MapUpdateType.Remove);
+            if (keyValuePair.Value is RecyclableObject valueRecyclableObject)
+            {
+                valueRecyclableObject.DecrementRefCount();
+            }
         }
     }
 
@@ -105,9 +119,10 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public virtual IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
     {
-        var existingOrNew = personalRecycler
+        var existingOrNew = myRecycler
             .Borrow<ReusableWrappingEnumerator<KeyValuePair<TK, TV>>>();
         existingOrNew.ProxiedEnumerator ??= ConcurrentDictionary.GetEnumerator();
+        existingOrNew.Reset();
         return existingOrNew;
     }
 
@@ -117,10 +132,128 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public IMap<TK, TV> Clone() => new ConcurrentMap<TK, TV>(this);
 
-    public event Action<IEnumerable<KeyValuePair<TK, TV>>>? Updated;
+    public event Action<TK, TV, MapUpdateType, IMap<TK, TV>>? Updated;
 
-    protected void OnUpdated()
+    protected  virtual void OnUpdated(TK key, TV value, MapUpdateType updateType)
     {
-        Updated?.Invoke(ConcurrentDictionary);
+        Updated?.Invoke(key, value, updateType, this);
+    }
+
+    protected (InsertActionCallback, UpdateActionCallback) GetInsertUpdateCallbacks(TK key, TV value)
+    {
+        var insertCallback = myRecycler.Borrow<InsertActionCallback>().Initialize(this, key, value);
+        var updateCallback = myRecycler.Borrow<UpdateActionCallback>().Initialize(this, key, value);
+        return (insertCallback, updateCallback);
+    }
+
+    protected abstract class InsertOrUpdateEntryCallback : RecyclableObject
+    {
+        protected ConcurrentMap<TK, TV> Map = null!;
+
+        protected bool WasCalled;
+        protected TK   Key       = default!;
+        protected TV   Value     = default!;
+
+        public virtual InsertOrUpdateEntryCallback Initialize(ConcurrentMap<TK, TV> toInsertMap, TK keyToInsert, TV valueToInsert)
+        {
+            WasCalled = false;
+
+            Map   = toInsertMap;
+            Key   = keyToInsert;
+            Value = valueToInsert;
+
+            return this;
+        }
+
+        public override int DecrementRefCount()
+        {
+            if (WasCalled)
+            {
+                NotifyActionType();
+            }
+            return base.DecrementRefCount();
+        }
+
+        protected virtual void NotifyActionType()
+        {
+            Map.OnUpdated(Key, Value, MapUpdateType.Create);
+        }
+
+        public override void StateReset()
+        {
+            Map       = null!;
+            WasCalled = false;
+
+            base.StateReset();
+        }
+    }
+
+    protected class InsertActionCallback : InsertOrUpdateEntryCallback
+    {
+        public readonly Func<TK, TV> InsertCallback;
+
+        public InsertActionCallback()
+        {
+            InsertCallback = ExecuteInsert;
+        }
+
+        public override InsertActionCallback Initialize(ConcurrentMap<TK, TV> toInsertMap, TK keyToInsert, TV valueToInsert)
+        {
+            base.Initialize(toInsertMap, keyToInsert, valueToInsert);
+
+            return this;
+        }
+
+        protected override void NotifyActionType()
+        {
+            Map.OnUpdated(Key, Value, MapUpdateType.Create);
+        }
+
+        private TV ExecuteInsert(TK keyToInsert)
+        {
+            WasCalled = true;
+            if (Value is IRecyclableObject recyclableObject)
+            {
+                recyclableObject.IncrementRefCount();
+            }
+            return Value;
+        }
+    }
+
+    protected class UpdateActionCallback : InsertOrUpdateEntryCallback
+    {
+        public readonly Func<TK, TV, TV> UpdateCallback;
+
+        public UpdateActionCallback() => UpdateCallback = ExecuteUpdate;
+
+
+        public override UpdateActionCallback Initialize(ConcurrentMap<TK, TV> toInsertMap, TK keyToInsert, TV valueToInsert)
+        {
+            base.Initialize(toInsertMap, keyToInsert, valueToInsert);
+
+            return this;
+        }
+
+        protected override void NotifyActionType()
+        {
+            Map.OnUpdated(Key, Value, MapUpdateType.Update);
+        }
+
+        private TV ExecuteUpdate(TK keyToInsert, TV oldValue)
+        {
+            if (!ReferenceEquals(oldValue, Value))
+            {
+                WasCalled = true;
+                if (Value is IRecyclableObject recyclableObjectNewValue)
+                {
+                    recyclableObjectNewValue.IncrementRefCount();
+                }
+                if (oldValue is IRecyclableObject recyclableObjectOldValue)
+                {
+                    recyclableObjectOldValue.DecrementRefCount();
+                }
+            }
+            return Value;
+        }
     }
 }

@@ -16,19 +16,16 @@ public class ReusableWrappingEnumerator<T> : AutoRecycledObject, IEnumerator<T>
         var canMoveNext = ProxiedEnumerator!.MoveNext();
         if (!canMoveNext)
             if (AutoRecycleAtRefCountZero)
-            {
-                if (AutoRecycleAtRefCountZero)
-                    DecrementRefCount();
-                else
-                    Reset();
-            }
+                DecrementRefCount();
+            else
+                Reset();
 
         return canMoveNext;
     }
 
     public void Reset()
     {
-        ProxiedEnumerator!.Reset();
+        ProxiedEnumerator?.Reset();
     }
 
     object? IEnumerator.Current => Current;

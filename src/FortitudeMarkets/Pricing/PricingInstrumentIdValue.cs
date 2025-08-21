@@ -700,14 +700,14 @@ public static class PricingInstrumentIdExtensions
         {
             var pricingInstrumentId
                 = new PricingInstrumentIdValue(id.SourceId, id.InstrumentId, new PeriodInstrumentTypePair(id.InstrumentType, id.CoveringPeriod));
-            PricingInstrumentIdLookup.Add(id.SourceInstrumentId, pricingInstrumentId);
+            PricingInstrumentIdLookup.TryAdd(id.SourceInstrumentId, pricingInstrumentId);
         }
         if (!SingleStringShortNameLookup.TryGetValue(id.SourceInstrumentId, out var shortName))
             if (id.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue &&
                 id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
-                SingleStringShortNameLookup.Add(id.SourceInstrumentId, shortName);
+                SingleStringShortNameLookup.TryAdd(id.SourceInstrumentId, shortName);
                 return true;
             }
         return false;
@@ -720,7 +720,7 @@ public static class PricingInstrumentIdExtensions
                 id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
-                SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
+                SingleStringShortNameLookup.TryAdd(id.SourceTickerId, shortName);
                 return true;
             }
         return false;
@@ -736,7 +736,7 @@ public static class PricingInstrumentIdExtensions
                 id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
-                SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
+                SingleStringShortNameLookup.TryAdd(id.SourceTickerId, shortName);
             }
             else
             {

@@ -19,29 +19,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    // public TExt WhenNonNullAddFiltered<TFmtStruct>(string fieldName, TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-    //   , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
-    //     value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
-
     public TExt WhenNonNullAddFiltered<TStruct>
         (string fieldName, TStruct[]? value, OrderedCollectionPredicate<TStruct> filterPredicate
           , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, customTypeStyler) : stb.StyleTypeBuilder;
 
-    // public TExt WhenNonNullAddFiltered<TStruct>
-    //     (string fieldName, TStruct?[]? value, OrderedCollectionPredicate<TStruct?> filterPredicate
-    //       , StructStyler<TStruct> structToString) where TStruct : struct =>
-    //     value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, structToString) : stb.StyleTypeBuilder;
-
     public TExt WhenNonNullAddFiltered
     (string fieldName, string?[]? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddFiltered<TStyledObj>(string fieldName, TStyledObj[]? value
-      , OrderedCollectionPredicate<TStyledObj> filterPredicate)
-        where TStyledObj : class, IStyledToStringObject => 
-        value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
     (string fieldName, ICharSequence?[]? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate) =>
@@ -50,6 +36,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenNonNullAddFiltered
     (string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddFiltered<TStyledObj>(string fieldName, TStyledObj[]? value
+      , OrderedCollectionPredicate<TStyledObj> filterPredicate)
+        where TStyledObj : class, IStyledToStringObject => 
+        value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddFiltered<T, TBase1, TBase2>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase1> filterPredicate
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : class, TBase1, TBase2  where TBase1: class where TBase2: class   => 
+        value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, customTypeStyler) : stb.StyleTypeBuilder;
 
     
     [CallsObjectToString]
@@ -70,30 +65,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    // public TExt WhenNonNullAddFiltered<TFmtStruct>
-    // (string fieldName, IReadOnlyList<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-    //   , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
-    //     value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
-
     public TExt WhenNonNullAddFiltered<TStruct>
         (string fieldName, IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filterPredicate
           , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, customTypeStyler) : stb.StyleTypeBuilder;
 
-    // public TExt WhenNonNullAddFiltered<TStruct>
-    //     (string fieldName, IReadOnlyList<TStruct?>? value, OrderedCollectionPredicate<TStruct?> filterPredicate
-    //       , StructStyler<TStruct> structToString) where TStruct : struct =>
-    //     value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, structToString) : stb.StyleTypeBuilder;
-
     public TExt WhenNonNullAddFiltered
     (string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddFiltered<TStyledObj>(string fieldName, IReadOnlyList<TStyledObj>? value
-      , OrderedCollectionPredicate<TStyledObj> filterPredicate)
-        where TStyledObj : class, IStyledToStringObject  => 
-        value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
     (string fieldName, IReadOnlyList<ICharSequence?>? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate) =>
@@ -101,6 +81,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt WhenNonNullAddFiltered
     (string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) =>
+        value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddFiltered<TStyledObj, TBase>(string fieldName, IReadOnlyList<TStyledObj?>? value
+      , OrderedCollectionPredicate<TBase?> filterPredicate)
+        where TStyledObj : class, IStyledToStringObject, TBase where TBase : class  => 
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     

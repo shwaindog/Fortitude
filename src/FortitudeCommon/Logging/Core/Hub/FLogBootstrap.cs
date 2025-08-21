@@ -8,16 +8,6 @@ namespace FortitudeCommon.Logging.Core.Hub;
 
 public class FLogBootstrap
 {
-    private const string DefaultFLogConfigJsonPath       = ".";
-    private const string DefaultFLogConfigFileNamePrefix = "FLog";
-    private const string DefaultFLogConfigFileNameExt    = "json";
-    private const string OnePartTemplate                 = "-{0}";
-    private const string TwoPartTemplate                 = "-{0}-{1}";
-    private const string DefaultFLogConfigFileName       = $"{DefaultFLogConfigFileNamePrefix}.{DefaultFLogConfigFileNameExt}";
-
-    private const string DefaultFLogHostnameConfigFileNameTemplate        = $"{DefaultFLogConfigFileNamePrefix}{OnePartTemplate}.json";
-    private const string DefaultFLogHostAndUsernameConfigFileNameTemplate = $"{DefaultFLogConfigFileNamePrefix}{TwoPartTemplate}.json";
-
     private static FLogBootstrap? singletonInstance;
 
     private static readonly object SyncLock = new();
@@ -38,15 +28,13 @@ public class FLogBootstrap
         set => singletonInstance = value;
     }
 
-    private string Join(string path, string fileName) => Path.Combine(path, fileName);
-
-    public FLogContext StartFlog(FLogContext toStart)
+    public FLogContext StartFlogSetAsCurrentContext(FLogContext toStart)
     {
         if (!toStart.HasStarted)
         {
             toStart.AsyncRegistry.StartAsyncQueues();
-
-            // ...
+        
+            FLoggerRoot.ImmortalInstance.InitializeFinalStepSetContext(toStart);
 
             toStart.HasStarted = true;
         }
@@ -55,40 +43,30 @@ public class FLogBootstrap
 
     public FLogContext DefaultInitializeContext(FLogContext toInitialize)
     {
-        var defaultMachineConfigFilePath = Join(DefaultFLogConfigJsonPath, DefaultFLogHostnameConfigFileNameTemplate.Format(Environment.MachineName));
+        var defaultMachineConfigFilePath = FLogConfigFile.ConfigHostFileName(Environment.MachineName);
         if (File.Exists(defaultMachineConfigFilePath))
         {
             Console.Out.WriteLine("Found FLog config " + defaultMachineConfigFilePath);
         }
 
-        var defaultUserMachineConfigFilePath =
-            Join(DefaultFLogConfigJsonPath
-               , DefaultFLogHostAndUsernameConfigFileNameTemplate.Format(Environment.UserName, Environment.MachineName));
+        var defaultUserMachineConfigFilePath = FLogConfigFile.ConfigLoginHostFullFilePath(Environment.UserName, Environment.MachineName);
         if (File.Exists(defaultMachineConfigFilePath))
         {
             Console.Out.WriteLine("Found FLog config " + defaultMachineConfigFilePath);
         }
-        var defaultFlogConfigFilePath = Join(DefaultFLogConfigJsonPath, DefaultFLogConfigFileName);
-        var fLogAppConfig = LoadMandatoryFileConfig([defaultFlogConfigFilePath], defaultMachineConfigFilePath, defaultUserMachineConfigFilePath);
-
-
-        // check for FLoggerConfig.json, FLogger-Username-Config.json, FLogger-Machine-Config.json, FLogger-Username-Machine-Config.json, 
-
-        // check Web / App.config
-
-        // Do Default config
+        var flogResolvedConfigFilePath = FLogConfigFile.ConfigFullFilePath;
+        var fileInfo = new FileInfo(flogResolvedConfigFilePath);
+        var fLogAppConfig = LoadMandatoryFileConfig(null, [flogResolvedConfigFilePath], defaultMachineConfigFilePath, defaultUserMachineConfigFilePath);
 
         return Initialize(fLogAppConfig, toInitialize);
     }
 
-    private FLogAppConfig LoadMandatoryFileConfig
-    (string[] mustFindOneOfFiles,
-        params string[] allOptionalOverrideFiles)
+    private FLogAppConfig LoadMandatoryFileConfig(string? workingDirPath, string[] mustFindOneOfFiles, params string[] allOptionalOverrideFiles)
     {
         FLogAppConfig fLogAppConfig;
-
-        var existsMandatory = mustFindOneOfFiles.Where(fPath => File.Exists(fPath)).ToList();
-        var existsOptional  = allOptionalOverrideFiles.Where(fPath => File.Exists(fPath)).ToList();
+        
+        var existsMandatory = mustFindOneOfFiles.Where(fPath => File.Exists(fPath)).Select(fPath => new FileInfo(fPath)).ToList();
+        var existsOptional  = allOptionalOverrideFiles.Where(fPath => File.Exists(fPath)).Select(fPath => new FileInfo(fPath)).ToList();
         if (existsMandatory.Any())
         {
             foreach (var mandatoryFile in existsMandatory.Concat(existsOptional))
@@ -97,8 +75,12 @@ public class FLogBootstrap
             }
 
             IConfigurationBuilder configBuilder = new ConfigurationBuilder();
-            existsMandatory.Aggregate(configBuilder, (cfgBld, mandFile) => cfgBld.AddJsonFile(mandFile));
-            existsOptional.Aggregate(configBuilder, (cfgBld, optFile) => cfgBld.AddJsonFile(optFile, true));
+            if (workingDirPath != null)
+            {
+                configBuilder.SetBasePath(workingDirPath);
+            }
+            existsMandatory.Aggregate(configBuilder, (cfgBld, mandFile) => cfgBld.AddJsonFile(mandFile.FullName));
+            existsOptional.Aggregate(configBuilder, (cfgBld, optFile) => cfgBld.AddJsonFile(optFile.FullName, true));
 
             var config = configBuilder.Build();
             if (config.GetChildren().All(cs => cs.Key != IFLogAppConfig.DefaultFLogAppConfigPath))
@@ -122,28 +104,33 @@ public class FLogBootstrap
         return fLogAppConfig;
     }
 
+    public virtual FLogContext InitializeContextFromWorkingDirFilePath(FLogContext toInitialize, string workingDirPath, string filePath)
+    {
+        var fLogAppConfig = LoadMandatoryFileConfig( workingDirPath, [filePath]);
+
+        return Initialize(fLogAppConfig, toInitialize);
+    }
+
     public virtual FLogContext InitializeContextFromFile(FLogContext toInitialize, string filePath)
     {
-        var fLogAppConfig = LoadMandatoryFileConfig([filePath]);
+        var fLogAppConfig = LoadMandatoryFileConfig( null, [filePath]);
 
         return Initialize(fLogAppConfig, toInitialize);
     }
 
-    public virtual FLogContext InitializeContextFromFiles
-    (FLogContext toInitialize
-      , string[] atLeastOneMandatoryConfigFiles, params string[] allOptionalOverrideFiles)
+    public virtual FLogContext InitializeContextFromFiles (FLogContext toInitialize, string[] atLeastOneMandatoryConfigFiles
+      , params string[] allOptionalOverrideFiles)
     {
-        var fLogAppConfig = LoadMandatoryFileConfig(atLeastOneMandatoryConfigFiles, allOptionalOverrideFiles);
+        var fLogAppConfig = LoadMandatoryFileConfig(null, atLeastOneMandatoryConfigFiles, allOptionalOverrideFiles);
 
         return Initialize(fLogAppConfig, toInitialize);
     }
 
-    public virtual FLogContext DefaultInitializeContext(FLogContext toInitialize, IFLogAppConfig config)
+    public virtual FLogContext InitializeContextFromConfig(FLogContext toInitialize, IFLogAppConfig config)
     {
         return Initialize((IMutableFLogAppConfig)config, toInitialize);
     }
-
-
+    
     protected virtual FLogContext Initialize(IMutableFLogAppConfig config, FLogContext toBeUpdated)
     {
         toBeUpdated.ConfigRegistry = toBeUpdated.ConfigRegistry?.UpdateConfig(config) ?? FLogCreate.MakeConfigRegistry(config);
@@ -179,12 +166,29 @@ public static class FLogBootstrapExtensions
 {
     public static IFLogContext DefaultInitializeContext(this IFLogContext toInitialize)
     {
-        return FLogBootstrap.Instance.DefaultInitializeContext((FLogContext)toInitialize);
+        if (toInitialize.IsInitialized)
+        {
+            throw new InvalidOperationException("Attempting to initialize an already initialized context");
+        }
+        return  FLogBootstrap.Instance.DefaultInitializeContext((FLogContext)toInitialize);
     }
 
     public static IFLogContext InitializeContextFromFile(this IFLogContext toInitialize, string filePath)
     {
+        if (toInitialize.IsInitialized)
+        {
+            throw new InvalidOperationException("Attempting to initialize an already initialized context");
+        }
         return FLogBootstrap.Instance.InitializeContextFromFile((FLogContext)toInitialize, filePath);
+    }
+
+    public static IFLogContext InitializeContextFromConfig(this IFLogContext toInitialize, IFLogAppConfig config)
+    {
+        if (toInitialize.IsInitialized)
+        {
+            throw new InvalidOperationException("Attempting to initialize an already initialized context");
+        }
+        return FLogBootstrap.Instance.InitializeContextFromConfig((FLogContext)toInitialize, config);
     }
 
     public static IFLogContext InitializeContextFromFiles(this IFLogContext toInitialize, string filePath, params string[] optionalOverrideFiles)
@@ -192,9 +196,44 @@ public static class FLogBootstrapExtensions
         return FLogBootstrap.Instance.InitializeContextFromFiles((FLogContext)toInitialize, [filePath], optionalOverrideFiles);
     }
 
-    public static IFLogContext InitializeContextFromFiles
-    (this IFLogContext toInitialize
-      , string[] atLeastOneMandatoryConfigFiles
+    public static IFLogContext InitializeContextFromWorkingDirFilePath(this IFLogContext toInitialize, string workingDirPath, string filePath)
+    {
+        return FLogBootstrap.Instance.InitializeContextFromWorkingDirFilePath((FLogContext)toInitialize, workingDirPath, filePath);
+    }
+
+    public static IFLogContext StartFlogSetAsCurrentContext(this IFLogContext toStart)
+    {
+        if (!toStart.IsInitialized)
+        {
+            throw new InvalidOperationException("Attempting to start an uninitialized FLog context");
+        }
+        return !toStart.HasStarted ? FLogBootstrap.Instance.StartFlogSetAsCurrentContext((FLogContext)toStart) : toStart;
+    }
+
+    public static IFLogContext InitializeStartAndSetAsCurrentContext(this IFLogContext toInitializeAndStart)
+    {
+        if (!toInitializeAndStart.IsInitialized)
+        {
+            toInitializeAndStart.DefaultInitializeContext();
+        }
+        if (!toInitializeAndStart.HasStarted)
+        {
+            toInitializeAndStart.StartFlogSetAsCurrentContext();
+        }
+        return toInitializeAndStart;
+    }
+    
+    public static IFLogContext InitializeStartAndSetAsCurrentContext(this IFLogContext toInitializeAndStart, IFLogAppConfig config)
+    {
+        if (toInitializeAndStart.IsInitialized)
+        {
+            throw new InvalidOperationException("Attempting to initialize an already initialized context");
+        }
+        toInitializeAndStart.InitializeContextFromConfig(config);
+        return FLogBootstrap.Instance.StartFlogSetAsCurrentContext((FLogContext)toInitializeAndStart);
+    }
+
+    public static IFLogContext InitializeContextFromFiles (this IFLogContext toInitialize, string[] atLeastOneMandatoryConfigFiles
       , params string[] optionalOverrideFiles)
     {
         return FLogBootstrap.Instance.InitializeContextFromFiles

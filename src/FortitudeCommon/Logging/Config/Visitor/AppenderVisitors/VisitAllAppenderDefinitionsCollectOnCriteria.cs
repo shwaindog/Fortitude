@@ -4,6 +4,7 @@
 using System.Collections;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
+using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 
@@ -89,7 +90,7 @@ public class VisitAllAppenderDefinitionsCollectOnCriteria<T, TAppendConfig>
         }
         foreach (var childLogger in childLoggersConfig)
         {
-            return childLogger.Value.Visit(Me);
+            childLogger.Value.Visit(Me);
         }
         return Me;
     }
@@ -125,7 +126,7 @@ public class VisitAllAppenderDefinitionsCollectOnCriteria<T, TAppendConfig>
         }
         foreach (var childAppender in appendersCollectionConfig)  
         {
-            return childAppender.Value.Visit(Me);
+            childAppender.Value.Visit(Me);
         }
         return Me;
     }
@@ -151,6 +152,16 @@ public class VisitAllAppenderDefinitionsCollectOnCriteria<T, TAppendConfig>
         
         if(bufferingAppenderConfig is TAppendConfig toAdd && meets(toAdd)) found.Add(toAdd);
         bufferingAppenderConfig.ForwardToAppenders?.Visit(Me);
+        return Me;
+    }
+    
+    public override T Accept(IMutableFileAppenderConfig fileAppenderConfig)
+    {
+        if (FoundRootAppConfig == null)
+        {
+            return fileAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
+        }
+        if(fileAppenderConfig is TAppendConfig toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 

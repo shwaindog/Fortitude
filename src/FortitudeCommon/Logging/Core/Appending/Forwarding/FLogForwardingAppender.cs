@@ -2,6 +2,7 @@
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
+using static FortitudeCommon.Logging.Config.Appending.FLoggerBuiltinAppenderType;
 
 namespace FortitudeCommon.Logging.Core.Appending.Forwarding;
 
@@ -29,7 +30,7 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
         : base(forwardingAppenderConfig, context)
     {
         AppenderRegistry = context.AppenderRegistry;
-        AppenderType     = $"{nameof(FLoggerBuiltinAppenderType.Forwarding)}";
+        AppenderType     = $"{nameof(ForwardingAppender)}";
 
         ParseAppenderConfig(forwardingAppenderConfig, AppenderRegistry);
     }
@@ -37,14 +38,12 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
     protected virtual void ParseAppenderConfig(IForwardingAppenderConfig forwardingAppenderConfig, IFLogAppenderRegistry fLogAppenderRegistry)
     {
         var forwardingAppendersLookupConfig = forwardingAppenderConfig.ForwardToAppenders;
-        var newAppenderForwardToList = new List<KeyValuePair<int, List<IAppenderClient>>>();
         foreach (var downStreamAppenderRef in forwardingAppendersLookupConfig)
         {
             var appenderName   = downStreamAppenderRef.Value.AppenderName;
             var appenderClient = fLogAppenderRegistry.GetAppenderClient(appenderName, this);
             AddAppender(appenderClient);
         }
-        allForwardToAppendersCache = newAppenderForwardToList;
     }
 
     protected override IAppenderForwardingAsyncClient CreateAppenderAsyncClient
@@ -84,16 +83,15 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
     {
         var forwardToList = allForwardToAppendersCache;
         var onQueue       = newAppender.ReceiveOnAsyncQueueNumber;
-        var foundQueueNumList =
-            forwardToList
-                .FirstOrDefault(kvp => kvp.Key == onQueue);
-        if (Equals(foundQueueNumList, null))
+        var foundQueueNumList = forwardToList.Any(kvp => kvp.Key == onQueue);
+        if (!foundQueueNumList)
         {
             forwardToList.Add(new KeyValuePair<int, List<IAppenderClient>>(onQueue, [newAppender]));
         }
         else
         {
-            foundQueueNumList.Value.Add(newAppender);
+            var existing = forwardToList.FirstOrDefault(kvp => kvp.Key == onQueue);
+            existing.Value.Add(newAppender);
         }
     }
 

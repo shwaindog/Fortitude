@@ -46,7 +46,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
     public GarbageAndLockFreeMap(GarbageAndLockFreeMap<TK, TV> toClone)
     {
         keyComparison = toClone.keyComparison;
-        foreach (var keyValuePair in toClone) Add(keyValuePair.Key, keyValuePair.Value);
+        foreach (var keyValuePair in toClone) TryAdd(keyValuePair.Key, keyValuePair.Value);
     }
 
     public TV this[TK key]
@@ -136,7 +136,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         if (!TryGetValue(key, out var value))
         {
             value = createFunc(key);
-            Add(key, value);
+            TryAdd(key, value);
         }
 
         return value!;
@@ -156,7 +156,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         newContainer.KeyValuePair = kvPair;
         reusableListOfKeyValuePairs.Clear();
         reusableListOfKeyValuePairs.Add(kvPair);
-        Updated?.Invoke(reusableListOfKeyValuePairs);
+        Updated?.Invoke(key, value, MapUpdateType.Create, this);
         queueWithElements.ReturnBorrowed(newContainer);
         var foundItemTime = 0;
         foreach (var container in queueWithElements)
@@ -169,12 +169,14 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         return value;
     }
 
-    public bool Add(KeyValuePair<TK, TV> item)
+
+    // for dictionary initializer
+    public void Add(TK key, TV value)
     {
-        return Add(item.Key, item.Value);
+        TryAdd(key, value);
     }
 
-    public bool Add(TK key, TV value)
+    public bool TryAdd(TK key, TV value)
     {
         foreach (var container in queueWithElements)
             if (keyComparison(container.KeyValuePair.Key, key))
@@ -184,7 +186,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         newContainer.KeyValuePair = kvPair;
         reusableListOfKeyValuePairs.Clear();
         reusableListOfKeyValuePairs.Add(kvPair);
-        Updated?.Invoke(reusableListOfKeyValuePairs);
+        Updated?.Invoke(key, value, MapUpdateType.Create, this);
         queueWithElements.ReturnBorrowed(newContainer);
         var foundItemTime = 0;
         foreach (var container in queueWithElements)
@@ -241,7 +243,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         return false;
     }
 
-    public event Action<IEnumerable<KeyValuePair<TK, TV>>>? Updated;
+    public event Action<TK, TV, MapUpdateType, IMap<TK, TV>>? Updated;
 
     public IDisposableEnumerable<KeyValuePair<TK, TV>> DisposableEnumerableEnumerator() =>
         enumeratorPool.Borrow().SourceEnumerator(queueWithElements.GetEnumerator());

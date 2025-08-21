@@ -27,6 +27,8 @@ public interface IFLogAppConfig : IFLoggerMatchedAppenders, IInterfacesComparabl
     IFLogInitializationConfig Initialization { get; }
 
     IFLoggerRootConfig RootLogger { get; }
+    
+    string ConfigRootPath { get; }
 }
 
 public interface IMutableFLogAppConfig : IFLogAppConfig, IMutableFLoggerMatchedAppenders
@@ -148,6 +150,8 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
             value.ParentConfig = this;
         }
     }
+
+    public string ConfigRootPath => Path;
 
     public override T Visit<T>(T visitor)  => visitor.Accept(this);
 

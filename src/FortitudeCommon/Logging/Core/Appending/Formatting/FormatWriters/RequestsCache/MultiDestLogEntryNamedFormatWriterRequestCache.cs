@@ -1,49 +1,83 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-using FortitudeCommon.AsyncProcessing;
+﻿using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.RequestsCache;
 
-public record TargetRequestCacheExpiry
-(
-    SingleDestBufferedFormatWriterRequestCache DestRequestCache
-  , DateTime CloseTime)
+public record TargetRequestCacheExpiry(SingleDestBufferedFormatWriterRequestCache DestRequestCache, DateTime CloseTime)
 {
     public ITimerUpdate? CloseDestinationTimerHandle { get; set; }
 }
 
-public class MultiDestLogEntryNamedFormatWriterRequestCache : IFormatWriterRequestCache
+public class MultiDestLogEntryNamedFormatWriterRequestCache : IBufferedFormatWriterRequestCache
 {
     private IMultiDestinationFormattingAppender owningAppender = null!;
 
-    private IFLogContext createContext;
+    private IFLogContext createContext = null!;
 
     private int attemptLogToClosedDestinationCount;
 
-    private object CreateFileDestSyncLock = new();
+    private readonly object createFileDestSyncLock = new();
 
-    private CharSpanAcceptingStringMap<TargetRequestCacheExpiry> targetToCacheMap = new();
-    private CharSpanAcceptingStringMap<DateTime> closeTargetToCacheMap = new();
+    private bool bufferingEnabled;
 
-    private   Action<TargetRequestCacheExpiry?>           RunCloseDestinationAfterExpiryAction;
-    
+    private readonly CharSpanAcceptingStringMap<TargetRequestCacheExpiry> targetToCacheMap = new();
+
+    private readonly CharSpanAcceptingStringMap<DateTime> closeTargetToCacheMap = new();
+
+    protected Action<TargetRequestCacheExpiry?> RunCloseDestinationAfterExpiryAction;
+
     protected Action<IBlockingFormatWriterResolverHandle> CloseRequestHandleDisposed;
-    
-    protected PassThroughSyncLock closedDestDummySyncLock = new();
 
-    public MultiDestLogEntryNamedFormatWriterRequestCache Initialize(IMultiDestinationFormattingAppender owningAppender, IFLogContext context)
+    private readonly PassThroughSyncLock closedDestDummySyncLock = new();
+
+    public MultiDestLogEntryNamedFormatWriterRequestCache()
     {
-        this.owningAppender = owningAppender;
-        createContext       = context;
+        CloseRequestHandleDisposed           = FinishedWithDummyHandle;
+        RunCloseDestinationAfterExpiryAction = DestinationCloseCallback;
+    }
+
+    public MultiDestLogEntryNamedFormatWriterRequestCache Initialize(IMultiDestinationFormattingAppender owningMultiDestAppender, IFLogContext context)
+    {
+        this.owningAppender = owningMultiDestAppender;
+
+        createContext = context;
 
         RunCloseDestinationAfterExpiryAction = DestinationCloseCallback;
-        
+
         return this;
+    }
+
+    public bool BufferingEnabled
+    {
+        get => bufferingEnabled;
+        set
+        {
+            if (value == bufferingEnabled) return;
+            bufferingEnabled = value;
+            foreach (var keyValuePair in targetToCacheMap)
+            {
+                keyValuePair.Value.DestRequestCache.BufferingEnabled = value;
+            }
+        }
+    }
+
+    public void FlushBufferToAppender(IBufferedFormatWriter toFlush)
+    {
+        if (targetToCacheMap.TryGetValue(toFlush.TargetName, out var targetRequestCacheExpiry))
+        {
+            targetRequestCacheExpiry!.DestRequestCache.FlushBufferToAppender(toFlush);
+        }
+        if (closeTargetToCacheMap.TryGetValue(toFlush.TargetName, out var closeAtRequestCache))
+        {
+            Console.Out.WriteLine($"Attempted to flush a format writer to a target that was closed at {closeAtRequestCache} for target : {toFlush.TargetName}");
+        }
+        Console.Out.WriteLine($"Attempted to flush a format writer to a target with that no longer or never existed : {toFlush.TargetName}");
     }
 
     private void DestinationCloseCallback(TargetRequestCacheExpiry? toClose)
@@ -62,7 +96,7 @@ public class MultiDestLogEntryNamedFormatWriterRequestCache : IFormatWriterReque
         }
     }
 
-    private void DestinationCloseCallback(IBlockingFormatWriterResolverHandle dummyHandle)
+    private void FinishedWithDummyHandle(IBlockingFormatWriterResolverHandle dummyHandle)
     {
         dummyHandle.DecrementRefCount();
     }
@@ -73,15 +107,14 @@ public class MultiDestLogEntryNamedFormatWriterRequestCache : IFormatWriterReque
         var destPath     = pathResolver.ResolvePathFor(logEntry);
         if (!targetToCacheMap.TryGetValue(destPath, out var cacheEntry))
         {
-            lock (CreateFileDestSyncLock)
+            lock (createFileDestSyncLock)
             {
-                if (closeTargetToCacheMap.TryGetValue(destPath, out var closedAt))
+                if (closeTargetToCacheMap.TryGetValue(destPath, out _))
                 {
-                    
                     var requestHandle =
                         Recycler.ThreadStaticRecycler
-                            .Borrow<BlockingFormatWriterResolverHandle>()
-                            .Initialize(logEntry, owningAppender, CloseRequestHandleDisposed, closedDestDummySyncLock, null);
+                                .Borrow<BlockingFormatWriterResolverHandle>()
+                                .Initialize(logEntry, owningAppender, CloseRequestHandleDisposed, closedDestDummySyncLock);
                     requestHandle.IssueRequestAborted();
                     pathResolver.DecrementRefCount();
                     attemptLogToClosedDestinationCount++;
@@ -94,10 +127,11 @@ public class MultiDestLogEntryNamedFormatWriterRequestCache : IFormatWriterReque
                     var destCache     = owningAppender.GetWriterRequestCache(materializedPathName);
                     var pathTimeParts = pathResolver.GetPathDateTimePartFlags();
                     var expiryTime    = pathTimeParts.NextDifferenceFlagTime(logEntry.LogDateTime) ?? DateTime.MaxValue;
-                    var closeTime     = expiryTime.Add(owningAppender.ExpiryToCloseDelay);
+                    var closeTime     = expiryTime != DateTime.MaxValue ? expiryTime.Add(owningAppender.ExpiryToCloseDelay) : expiryTime;
 
                     cacheEntry = new TargetRequestCacheExpiry(destCache, closeTime);
-                    cacheEntry.CloseDestinationTimerHandle = createContext.AsyncRegistry.LoggerTimers.RunAt(closeTime, cacheEntry, RunCloseDestinationAfterExpiryAction);
+                    cacheEntry.CloseDestinationTimerHandle
+                        = createContext.AsyncRegistry.LoggerTimers.RunAt(closeTime, cacheEntry, RunCloseDestinationAfterExpiryAction);
                     targetToCacheMap.AddOrUpdate(materializedPathName, cacheEntry);
                 }
             }
@@ -123,7 +157,11 @@ public class MultiDestLogEntryNamedFormatWriterRequestCache : IFormatWriterReque
     {
         if (!targetToCacheMap.TryGetValue(toReturn.TargetName, out var cacheEntry))
         {
-            Console.Out.WriteLine($"Attempted to return a format writer to a target that doesn't or no longer exists {toReturn.TargetName}");
+            if (!closeTargetToCacheMap.TryGetValue(toReturn.TargetName, out var closedAtRequestCache))
+            {
+                Console.Out.WriteLine($"Attempted to return a format writer to a target that doesn't exist {toReturn.TargetName}");
+            }
+            Console.Out.WriteLine($"Attempted to return a format writer to a target that was closed at {closedAtRequestCache} for target : {toReturn.TargetName}");
             return;
         }
         cacheEntry!.DestRequestCache.TryToReturnUsedFormatWriter(toReturn);

@@ -8,6 +8,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
+using static FortitudeCommon.Logging.Config.Appending.FLoggerBuiltinAppenderType;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
 
@@ -28,7 +29,7 @@ public interface IMutableForwardingAppenderConfig : IForwardingAppenderConfig, I
 
 public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwardingAppenderConfig
 {
-    private const string SyncForwardingAppenderType = $"{nameof(FLoggerBuiltinAppenderType.Forwarding)}";
+    private const string ForwardingAppenderType = $"{nameof(ForwardingAppender)}";
 
     private IAppendableNamedAppendersLookupConfig?  appendersConfig;
 
@@ -59,7 +60,7 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
 
     public override string AppenderType
     {
-        get => this[nameof(AppenderType)] ?? SyncForwardingAppenderType;
+        get => this[nameof(AppenderType)] ?? ForwardingAppenderType;
         set => this[nameof(AppenderType)] = value;
     }
 
@@ -89,7 +90,7 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         {
             if (appendersConfig == null)
             {
-                if (GetSection(nameof(ForwardToAppenders)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
+                if (GetSection(nameof(ForwardToAppenders)).GetChildren().Any())
                 {
                     return appendersConfig = new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(ForwardToAppenders)}")
                     {

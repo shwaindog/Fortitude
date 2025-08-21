@@ -107,7 +107,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage, new()
                 updateEnt = freshInstanceFactory(tickerInfo);
 
                 updateEnt.PQSequenceId = uint.MaxValue;
-                lastPubEntities.Add(tickerInfo.SourceInstrumentId, updateEnt);
+                lastPubEntities.TryAdd(tickerInfo.SourceInstrumentId, updateEnt);
                 // publish identical quote leaving next quote to also be zero.
                 var quote = quoteFactory(tickerInfo);
                 quote.PQSequenceId = uint.MaxValue;

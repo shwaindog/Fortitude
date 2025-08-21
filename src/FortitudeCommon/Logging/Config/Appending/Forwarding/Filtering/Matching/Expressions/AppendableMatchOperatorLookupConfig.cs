@@ -27,7 +27,7 @@ public interface IAppendableMatchOperatorLookupConfig : IMutableFLogConfig, IMat
 
     new int Count { get; }
 
-    new IMutableMatchOperatorExpressionConfig this[ushort evaluateOrder] { get; set; }
+    new IMutableMatchOperatorExpressionConfig this[ushort appenderName] { get; set; }
 
     new bool ContainsKey(ushort evaluateOrder);
 
@@ -204,13 +204,13 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     public IEnumerator<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> GetEnumerator() => OrderedConfigSources.GetEnumerator();
 
-    public IMutableMatchOperatorExpressionConfig this[ushort priorityOrder]
+    public IMutableMatchOperatorExpressionConfig this[ushort appenderName]
     {
-        get => CheckConfigGetConfigSourcesDict[priorityOrder];
-        set => CheckConfigGetConfigSourcesDict[priorityOrder] = value;
+        get => CheckConfigGetConfigSourcesDict[appenderName];
+        set => CheckConfigGetConfigSourcesDict[appenderName] = value;
     }
 
-    IMatchOperatorExpressionConfig IReadOnlyDictionary<ushort, IMatchOperatorExpressionConfig>.this[ushort priorityOrder] => this[priorityOrder];
+    IMatchOperatorExpressionConfig IReadOnlyDictionary<ushort, IMatchOperatorExpressionConfig>.this[ushort appenderName] => this[appenderName];
 
     public IEnumerable<ushort> Keys => OrderedConfigSources.Select(kvp => kvp.Key);
 

@@ -48,7 +48,7 @@ public class ReusableDictionary<TK, TV> : ReusableObject<IReusableDictionary<TK,
         {
             valueRecyclable.IncrementRefCount();
         }
-        backingDictionary.Add(item);
+        backingDictionary.Add(item.Key, item.Value);
     }
 
     public void Clear()
@@ -125,7 +125,7 @@ public class ReusableDictionary<TK, TV> : ReusableObject<IReusableDictionary<TK,
         {
             valueRecyclable.IncrementRefCount();
         }
-        backingDictionary.Add(key, value);
+        backingDictionary.TryAdd(key, value);
     }
 
     public bool ContainsKey(TK key) => backingDictionary.ContainsKey(key);

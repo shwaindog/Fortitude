@@ -26,7 +26,6 @@ public static class FLogCreate
         MakeAppender       = DefaultCreatedAppenderFromConfig;
 
         MakeLogger     = DefaultCreateLogger;
-        MakeRootLogger = DefaultCreateRootLogger;
 
         MakeDescendantLoggerConfig       = DefaultCreateDescendantLoggerConfig;
         MakeClonedDescendantLoggerConfig = DefaultClonedDescendantLoggerConfig;
@@ -61,8 +60,6 @@ public static class FLogCreate
     public static Func<IConfigurationRoot, string, IMutableFLoggerDescendantConfig> MakeDescendantLoggerConfig { get; set; }
 
     public static Func<IFLoggerTreeCommonConfig, string, IMutableFLoggerDescendantConfig> MakeClonedDescendantLoggerConfig { get; set; }
-
-    public static Func<IMutableFLoggerRootConfig, IFLogLoggerRegistry, IMutableFLoggerRoot> MakeRootLogger { get; set; }
 
     public static Func<IConfigurationRoot, string, IMutableFLoggerRootConfig> MakeRootLoggerConfig { get; set; }
 

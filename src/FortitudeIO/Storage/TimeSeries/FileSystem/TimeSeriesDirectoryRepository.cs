@@ -217,7 +217,7 @@ public class TimeSeriesDirectoryRepository : TimeSeriesDirectoryRepositoryBase, 
         if (!InstrumentFilesMap.TryGetValue(instrument, out var fileList))
         {
             fileList = new InstrumentRepoFileSet();
-            InstrumentFilesMap.Add(instrument, fileList);
+            InstrumentFilesMap.TryAdd(instrument, fileList);
         }
         switch (eventArgs.PathUpdateType)
         {
@@ -242,7 +242,7 @@ public class TimeSeriesDirectoryRepository : TimeSeriesDirectoryRepositoryBase, 
             if (!parsingFileDetails.TryGetValue(instrumentDetails.Instrument, out var fileList))
             {
                 fileList = new InstrumentRepoFileSet();
-                parsingFileDetails.Add(instrumentDetails.Instrument, fileList);
+                parsingFileDetails.TryAdd(instrumentDetails.Instrument, fileList);
             }
             fileList!.Add(instrumentDetails);
 

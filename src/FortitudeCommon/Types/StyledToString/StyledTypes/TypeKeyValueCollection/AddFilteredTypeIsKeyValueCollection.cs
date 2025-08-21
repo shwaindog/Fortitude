@@ -9,16 +9,18 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollectio
 
 public partial class KeyValueCollectionBuilder
 {
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
+    public KeyValueCollectionBuilder AddFiltered<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKey : TKBase where TValue : TVBase =>
         AddFilteredEnumerate(value, filterPredicate, valueFormatString, keyFormatString);
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
+    public KeyValueCollectionBuilder AddFiltered<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKey : TKBase where TValue : TVBase 
     {
         if (value != null)
         {
@@ -38,10 +40,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
+    public KeyValueCollectionBuilder AddFiltered<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKey : TKBase where TValue : TVBase 
     {
         if (value != null)
         {
@@ -61,10 +64,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase 
     {
         if (value != null)
         {
@@ -84,10 +88,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase 
     {
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -114,17 +119,17 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
+    public KeyValueCollectionBuilder AddFiltered<TKey, TValue, TKBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , KeyValuePredicate<TKBase, TValue> filterPredicate 
       , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct =>
+        where TKey : TKBase where TValue : struct =>
         AddFilteredEnumerate(value, filterPredicate, valueStyler, keyFormatString);
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
+    public KeyValueCollectionBuilder AddFiltered<TKey, TValue, TKBase>(KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKBase, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TKey : TKBase where TValue : struct
     {
         if (value != null)
         {
@@ -142,11 +147,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>
+    public KeyValueCollectionBuilder AddFiltered<TKey, TValue, TKBase>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
+          , KeyValuePredicate<TKBase, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TKey : TKBase where TValue : struct
     {
         if (value != null)
         {
@@ -164,11 +169,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue> (IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue, TKBase> (IEnumerable<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TValue> filterPredicate 
           , CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TKey : TKBase where TValue : struct
     {
         if (value != null)
         {
@@ -186,10 +191,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate,  CustomTypeStyler<TValue> valueStyler
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue, TKBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TValue> filterPredicate,  CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TKey : TKBase where TValue : struct
     {
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)

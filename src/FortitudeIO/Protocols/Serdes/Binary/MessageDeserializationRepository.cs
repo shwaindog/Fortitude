@@ -114,7 +114,7 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
             if (forceOverride || CascadingFallbackDeserializationRepo == null ||
                 !CascadingFallbackDeserializationRepo.IsRegistered(msgId))
             {
-                RegisteredDeserializers.Add(msgId, messageDeserializer);
+                RegisteredDeserializers.TryAdd(msgId, messageDeserializer);
                 MessageDeserializerRegistered?.Invoke(messageDeserializer);
                 return messageDeserializer;
             }
@@ -136,7 +136,7 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
             return messageDeserializer;
         }
 
-        if (RegisteredDeserializers.Add(msgId, messageDeserializer))
+        if (RegisteredDeserializers.TryAdd(msgId, messageDeserializer))
         {
             MessageDeserializerRegistered?.Invoke(messageDeserializer);
             return messageDeserializer;

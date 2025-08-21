@@ -6,10 +6,11 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueColl
 
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : StyledTypeBuilder
 {
-    public TExt AlwaysWithSelectKeys<TKey, TValue>
-        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
+    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived>
+        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKDerived : TKey
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -44,10 +45,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
+    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKDerived : TKey
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -82,10 +84,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
+    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKDerived : TKey
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -120,10 +123,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
+    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKDerived : TKey
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -157,10 +161,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>
-        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
+    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived>
+        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKDerived : TKey
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -198,10 +203,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , CustomTypeStyler<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
+      , CustomTypeStyler<TValue> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TValue : struct where TKDerived : TKey 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -233,10 +238,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue>
-        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
+    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived>
+        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
           , CustomTypeStyler<TValue> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TValue : struct where TKDerived : TKey  
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -269,10 +275,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
+    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
       , CustomTypeStyler<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TValue : struct where TKDerived : TKey  
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -305,9 +312,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys, CustomTypeStyler<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, CustomTypeStyler<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TValue : struct where TKDerived : TKey  
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -339,9 +347,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKey> selectKeys, CustomTypeStyler<TValue> valueStyler 
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
+      , IEnumerator<TKDerived> selectKeys, CustomTypeStyler<TValue> valueStyler 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TValue : struct where TKDerived : TKey  
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -379,7 +388,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
+        where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -411,7 +421,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     }
 
     public TExt AlwaysWithSelectKeys<TKey, TValue>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
+        where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -444,7 +455,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
+        where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -476,7 +488,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>
         (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
+        where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -508,7 +521,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
+        where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);

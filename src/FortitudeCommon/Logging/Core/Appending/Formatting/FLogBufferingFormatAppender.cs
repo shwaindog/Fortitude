@@ -37,8 +37,8 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
 {
     // protected IBufferedFormatWriter? ToFlush;
 
-    protected FLogBufferingFormatAppender(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig, IFLogContext context)
-        : base(bufferingFormatAppenderConfig, context)
+    protected FLogBufferingFormatAppender(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig, IFLogContext context, bool isSingleDestinationAppender = true)
+        : base(bufferingFormatAppenderConfig, context, isSingleDestinationAppender)
     {
         CharBufferSize       = bufferingFormatAppenderConfig.CharBufferSize;
         UsingDoubleBuffering = bufferingFormatAppenderConfig.EnableDoubleBufferToggling;

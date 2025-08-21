@@ -28,7 +28,7 @@ public interface IMutableNamedChildLoggersLookupConfig : INamedChildLoggersLooku
 
     new int Count { get; }
 
-    new IMutableFLoggerDescendantConfig this[string loggerName] { get; set; }
+    new IMutableFLoggerDescendantConfig this[string appenderName] { get; set; }
 
     new bool ContainsKey(string key);
 
@@ -137,13 +137,13 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
 
     public int Count => CheckConfigGetLoggersDict.Count;
 
-    public new IMutableFLoggerDescendantConfig this[string loggerName]
+    public new IMutableFLoggerDescendantConfig this[string appenderName]
     {
-        get => CheckConfigGetLoggersDict[loggerName];
-        set => CheckConfigGetLoggersDict[loggerName] = value;
+        get => CheckConfigGetLoggersDict[appenderName];
+        set => CheckConfigGetLoggersDict[appenderName] = value;
     }
 
-    IFLoggerDescendantConfig IReadOnlyDictionary<string, IFLoggerDescendantConfig>.this[string loggerName] => this[loggerName];
+    IFLoggerDescendantConfig IReadOnlyDictionary<string, IFLoggerDescendantConfig>.this[string appenderName] => this[appenderName];
 
     IEnumerable<string> IReadOnlyDictionary<string, IMutableFLoggerDescendantConfig>.Keys => CheckConfigGetLoggersDict.Keys;
 

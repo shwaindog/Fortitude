@@ -16,22 +16,15 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
     {
         Initialize(externalTypeBuilder, typeBuilderPortableState);
 
-        ValueInComplexType = isComplex && typeBuilderPortableState.OwningAppender.Style.AllowsUnstructured();
+        ValueInComplexType          = isComplex && typeBuilderPortableState.OwningAppender.Style.AllowsUnstructured();
+        OnFinishedWithStringBuilder = FinishUsingStringBuilder;
         
         return this;
     }
-
-    public void ConditionalCollectionPrefix()
-    {
-        if (ValueInComplexType)
-        {
-            Sb.Append("_value: ");
-        }
-    }
+    
+    private Action<IScopeDelimitedStringBuilder>? OnFinishedWithStringBuilder { get; set; }
 
     public bool NotJson => Style.IsNotJson();
-    
-    public IStringBuilder StringBuilder(string nonJsonFieldName) => NotJson ? this.FieldNameJoin(nonJsonFieldName) : Sb ;
 
     public TExt FieldValueNext(string nonJsonfieldName, bool value)
     {
@@ -70,6 +63,21 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         else
         {
             customTypeStyler(value.Value, OwningAppender);
+        }
+        return ConditionalCollectionSuffix();
+    }
+
+    public TExt FieldValueNext<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class 
+    {
+        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
+        if (value == null)
+        {
+            Sb.Append(OwningAppender.NullStyle);
+        }
+        else
+        {
+            customTypeStyler(value, OwningAppender);
         }
         return ConditionalCollectionSuffix();
     }
@@ -120,6 +128,19 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
+    public IScopeDelimitedStringBuilder StartDelimitedStringBuilder()
+    {
+        if (Style.IsJson()) Sb.Append("\"");
+        var scopedSb = (IScopeDelimitedStringBuilder)Sb;
+        scopedSb.OnScopeEndedAction = OnFinishedWithStringBuilder;
+        return scopedSb;
+    }
+
+    private void FinishUsingStringBuilder(IScopeDelimitedStringBuilder finishedBuilding)
+    {
+        if (Style.IsJson()) finishedBuilding.Append("\"");
+    }
+
     public TExt FieldValueNext(string nonJsonfieldName, string? value, int startIndex, int length)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
@@ -160,18 +181,6 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext(string nonJsonfieldName, ICharSequence? value, int startIndex, int length)
-    {
-        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            var capStart = Math.Clamp(startIndex, 0, value.Length);
-            var capEnd   = Math.Clamp(length, 0, value.Length);
-            Sb.Append(value, capStart, capEnd);
-        }
-        return ConditionalCollectionSuffix();
-    }
-
     public TExt FieldValueNext(string nonJsonfieldName, ICharSequence? value, string defaultValue)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
@@ -186,19 +195,15 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext(string nonJsonfieldName, IStyledToStringObject? value, string defaultValue = "")
+    public TExt FieldValueNext(string nonJsonfieldName, ICharSequence? value, int startIndex, int length)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
         if (value != null)
         {
-            value.ToString(OwningAppender);
+            var capStart = Math.Clamp(startIndex, 0, value.Length);
+            var capEnd   = Math.Clamp(length, 0, value.Length);
+            Sb.Append(value, capStart, capEnd);
         }
-        else
-        {
-            Sb.Append(defaultValue);
-        }
-        Sb.Append("\"");
         return ConditionalCollectionSuffix();
     }
 
@@ -215,18 +220,6 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
             Sb.Append(defaultValue);
         }
         Sb.Append("\"");
-        return ConditionalCollectionSuffix();
-    }
-
-    public TExt FieldValueNext(string nonJsonfieldName, StringBuilder? value, int startIndex, int length)
-    {
-        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            var capStart = Math.Clamp(startIndex, 0, value.Length);
-            var capEnd   = Math.Clamp(length, 0, value.Length);
-            Sb.Append(value, capStart, capEnd);
-        }
         return ConditionalCollectionSuffix();
     }
 
@@ -253,6 +246,52 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         if (value != null)
         {
             Sb.Append(value, startIndex, length);
+        }
+        else
+        {
+            Sb.Append(defaultValue);
+        }
+        Sb.Append("\"");
+        return ConditionalCollectionSuffix();
+    }
+
+    public TExt FieldValueNext(string nonJsonfieldName, StringBuilder? value, int startIndex, int length)
+    {
+        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
+        if (value != null)
+        {
+            var capStart = Math.Clamp(startIndex, 0, value.Length);
+            var capEnd   = Math.Clamp(length, 0, value.Length);
+            Sb.Append(value, capStart, capEnd);
+        }
+        return ConditionalCollectionSuffix();
+    }
+
+    public TExt FieldStringNext(string nonJsonfieldName, IStyledToStringObject? value, string defaultValue = "")
+    {
+        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
+        Sb.Append("\"");
+        if (value != null)
+        {
+            value.ToString(OwningAppender);
+        }
+        else
+        {
+            Sb.Append(defaultValue);
+        }
+        Sb.Append("\"");
+        return ConditionalCollectionSuffix();
+    }
+
+    public TExt FieldStringNext<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler, string defaultValue = "")
+    where T : class, TBase
+    where TBase : class
+    {
+        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
+        Sb.Append("\"");
+        if (value != null)
+        {
+            customTypeStyler(value, OwningAppender);
         }
         else
         {

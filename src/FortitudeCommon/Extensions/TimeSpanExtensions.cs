@@ -16,19 +16,18 @@ public static class TimeSpanExtensions
     public static StyledTypeBuildResult FormatTimeSpanAsStringAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
         var tb = sbc.StartSimpleValueType(nameof(TimeSpan));
-        var sb = tb.StringBuilder("_TimeSpanAsString");
+        using(var sb = tb.StartDelimitedStringBuilder())
+        {
+            IStringBuilder? setSb = null;
+            if (timeSpan.Days != 0) setSb = sb.AppendFormat("{0:N0}", timeSpan.Days).Append(":");
 
-        IStringBuilder? setSb = null;
-        sb.Append("\"");
-        if (timeSpan.Days != 0) setSb = sb.AppendFormat("{0:N0}", timeSpan.Days).Append(":");
+            if (timeSpan.Hours != 0 || setSb != null) setSb   = sb.AppendFormat("{0:00}", timeSpan.Hours).Append(":");
+            if (timeSpan.Minutes != 0 || setSb != null) setSb = sb.AppendFormat("{0:00}", timeSpan.Minutes).Append(":");
+            if (timeSpan.Seconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:00}", timeSpan.Seconds).Append(".");
 
-        if (timeSpan.Hours != 0 || setSb != null) setSb   = sb.AppendFormat("{0:00}", timeSpan.Hours).Append(":");
-        if (timeSpan.Minutes != 0 || setSb != null) setSb = sb.AppendFormat("{0:00}", timeSpan.Minutes).Append(":");
-        if (timeSpan.Seconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:00}", timeSpan.Seconds).Append(".");
-
-        if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Milliseconds);
-        if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Microseconds).Append(":");
-        sb.Append("\"");
+            if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Milliseconds);
+            if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Microseconds).Append(":");
+        }
         
         return tb.Complete();
     }

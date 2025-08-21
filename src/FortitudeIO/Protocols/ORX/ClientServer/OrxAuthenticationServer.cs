@@ -67,7 +67,7 @@ public class OrxAuthenticationServer
                 new PassThroughDeserializedNotifier<OrxLogonRequest>($"{nameof(OrxAuthenticationServer)}.{nameof(OnLogonRequest)}", OnLogonRequest));
         lock (pendingAuths)
         {
-            pendingAuths.Add(cx, TimeContext.UtcNow);
+            pendingAuths.TryAdd(cx, TimeContext.UtcNow);
             if (pendingAuths.Count == 1)
                 ThreadPool.RegisterWaitForSingleObject(paAre, (s, t) => CheckAuthsTimeout(), null, 1000, true);
         }
@@ -173,7 +173,7 @@ public class OrxAuthenticationServer
                 request.Login, repoSess.Id);
             socketSessionContext.SocketConnection!.IsAuthenticated = true;
 
-            loggedInSessions.Add(repoSess, TimeContext.UtcNow);
+            loggedInSessions.TryAdd(repoSess, TimeContext.UtcNow);
             var orxLogonResponse = Recycler.Borrow<OrxLogonResponse>();
             repoSess.Send(orxLogonResponse);
             orxLogonResponse.DecrementRefCount();

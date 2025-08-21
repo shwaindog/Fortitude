@@ -7,6 +7,13 @@ using FortitudeCommon.Types;
 
 namespace FortitudeCommon.DataStructures.Maps;
 
+public enum MapUpdateType
+{
+    Create
+  , Update
+  , Remove
+}
+
 public interface IMap<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>, ICloneable<IMap<TK, TV>> where TK : notnull
 {
     ICollection<TK> Keys { get; }
@@ -16,12 +23,13 @@ public interface IMap<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>, ICloneable<IM
     TV?  GetValue(TK key);
     bool TryGetValue(TK key, out TV? value);
     TV   AddOrUpdate(TK key, TV value);
-    bool Add(TK key, TV value);
+    void Add(TK key, TV value); // for initialization
+    bool TryAdd(TK key, TV value);
     bool Remove(TK key);
     void Clear();
     bool ContainsKey(TK key);
 
     TV GetOrPut(TK key, Func<TK, TV> createFunc);
 
-    event Action<IEnumerable<KeyValuePair<TK, TV>>> Updated;
+    event Action<TK, TV, MapUpdateType, IMap<TK, TV>> Updated;
 }

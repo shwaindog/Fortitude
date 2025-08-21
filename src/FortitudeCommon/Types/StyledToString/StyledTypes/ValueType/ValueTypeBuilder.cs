@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
@@ -13,8 +14,24 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
         return this;
     }
     
-    protected override string TypeOpeningDelimiter => Stb.ValueInComplexType ? "{" : "";
-    protected override string TypeClosingDelimiter => Stb.ValueInComplexType ? "}" : "";
+    public override void Start()
+    {
+        if ( !CompAccess.StyleTypeBuilder.Style.IsJson()
+          && !PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeNameFlag()
+          && PortableState.TypeName.IsNotNullOrEmpty())
+        {
+            CompAccess.Sb.Append(PortableState.TypeName);
+        }
+        if (!PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeStartFlag())
+        {
+            CompAccess.Sb.Append(TypeOpeningDelimiter);
+            CompAccess.IncrementIndent();
+        }
+    }
+    
+    protected override string TypeOpeningDelimiter => Stb.ValueInComplexType && CompAccess.StyleTypeBuilder.Style.IsNotJson() ? "." : "";
+    
+    protected override string TypeClosingDelimiter => "";
 
     protected ValueBuilderCompAccess<TExt> Stb => (ValueBuilderCompAccess<TExt>)CompAccess;
 
@@ -48,6 +65,11 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
       , CustomTypeStyler<T> customTypeStyler, T defaultValue = default) where T : struct =>
         Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
 
+    public TExt StructAsValue<T, TBase>(string nonJsonfieldName, T? value
+      , CustomTypeStyler<TBase> customTypeStyler, T defaultValue = default) 
+        where T : class, TBase where TBase : class =>
+        Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
+
     public TExt StructAsString<T>(string nonJsonfieldName, T value
       , CustomTypeStyler<T> customTypeStyler) where T : struct  =>
         Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler);
@@ -68,16 +90,20 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
     public TExt String(string nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = "") =>
         Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, defaultValue);
     
-    public TExt String(string nonJsonfieldName, IStyledToStringObject? value, string defaultValue = "") =>
-        Stb.FieldStringNext(nonJsonfieldName, value, defaultValue);
-    
     public TExt String(string nonJsonfieldName, ICharSequence? value, string defaultValue = "") => 
         Stb.FieldStringNext(nonJsonfieldName, value, defaultValue);
 
     public TExt String(string nonJsonfieldName, StringBuilder? value, string defaultValue = "") =>
         Stb.FieldStringNext(nonJsonfieldName, value, defaultValue);
     
-    public IStringBuilder StringBuilder(string nonJsonFieldName) => Stb.StringBuilder(nonJsonFieldName);
+    public TExt String(string nonJsonfieldName, IStyledToStringObject? value, string defaultValue = "") =>
+        Stb.FieldStringNext(nonJsonfieldName, value, defaultValue);
+    
+    public TExt String<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler, string defaultValue = "")
+        where T : class, TBase where TBase : class =>
+        Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler, defaultValue);
+    
+    public IScopeDelimitedStringBuilder StartDelimitedStringBuilder()  => Stb.StartDelimitedStringBuilder();
 
     public TExt ValueFromString(string nonJsonfieldName, ReadOnlySpan<char> value)  =>
         Stb.FieldValueNext(nonJsonfieldName, value);

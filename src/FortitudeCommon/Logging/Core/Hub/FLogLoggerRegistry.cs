@@ -56,7 +56,7 @@ public interface IFLogLoggerRegistry
 
 public interface IMutableFLogLoggerRegistry : IFLogLoggerRegistry
 {
-    new IMutableFLoggerRoot? Root { get; set; }
+    new IMutableFLoggerRoot Root { get; set; }
 
     void NotifyLoggerConfigUpdate(IMutableFLoggerDescendantConfig potentialUpdate);
 
@@ -77,7 +77,7 @@ public class FLogLoggerRegistry : IMutableFLogLoggerRegistry
 
         logEntryPoolRegistry = entryPoolReg;
 
-        root = new FLoggerRoot(rootConfig.Clone(), this);
+        root = FLoggerRoot.ImmortalInstance;
 
         RegisterLoggerCallback = RegisterLogger;
     }
@@ -102,7 +102,7 @@ public class FLogLoggerRegistry : IMutableFLogLoggerRegistry
         root.HandleRootLoggerConfigUpdate(newRootLoggerState);
     }
 
-    IMutableFLoggerRoot? IMutableFLogLoggerRegistry.Root
+    IMutableFLoggerRoot IMutableFLogLoggerRegistry.Root
     {
         get => root;
         set

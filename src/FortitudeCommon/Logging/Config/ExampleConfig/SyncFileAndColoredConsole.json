@@ -2,21 +2,19 @@
   "FLog": {
     "Appenders": {
       "ForwardingAppender": {
-        "AppenderType": "Forwarding",
+        "AppenderType": "ForwardingAppender",
         "ForwardToAppenders": {
           "AppLogFileAppender": {
             "AppenderType": "FileUnbounded",
-            "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN:-3%' '%MSG%''%NL%'",
+            "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:ss.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN,3:00%' '%MSG%''%NL%'",
             "DisableBuffering": true,
             "FilePath": "Logs/",
             "FileName": "'%StartAssemblyName%'-'%TS:MMdd%'.log"
           },
           "ColoredConsole" : {
             "AppenderType": "ConsoleOut",
-            "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN:-3%' '%MSG%''%NL%'",
-            "DisableBuffering": true,
-            "FilePath": "Logs/",
-            "FileName": "'%StartAssemblyName%'-'%TS:MMdd%'.log"
+            "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:ss.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN,3:00%' '%MSG%''%NL%'",
+            "DisableBuffering": true
           }
         }
       }

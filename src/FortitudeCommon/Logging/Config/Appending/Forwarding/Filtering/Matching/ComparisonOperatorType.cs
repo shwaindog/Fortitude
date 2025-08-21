@@ -33,28 +33,27 @@ public static class ComparisonOperatorTypedExtensions
     public static StyledTypeBuildResult FormatComparisonOperatorTypeAppender(this ComparisonOperatorType matchOnField, IStyledTypeStringAppender sbc)
     {
         var tb = sbc.StartSimpleValueType(nameof(ComparisonOperatorType));
-        var sb = tb.StringBuilder("_ComparisonOperatorTypeAsString");
-
-        sb.Append("\"");
-        switch (matchOnField)
+        using (var sb = tb.StartDelimitedStringBuilder())
         {
-            case GreaterThanOrEqualTo: sb.Append($"{nameof(GreaterThanOrEqualTo)}"); break;
-            case LessThanOrEqualsTo:   sb.Append($"{nameof(LessThanOrEqualsTo)}"); break;
-            case GreaterThan:          sb.Append($"{nameof(GreaterThan)}"); break;
-            case LessThan:             sb.Append($"{nameof(LessThan)}"); break;
-            case NotEquals:            sb.Append($"{nameof(NotEquals)}"); break;
-            case IsNull:               sb.Append($"{nameof(IsNull)}"); break;
-            case IsNotNull:            sb.Append($"{nameof(IsNotNull)}"); break;
-            case IsEmpty:              sb.Append($"{nameof(IsEmpty)}"); break;
-            case IsNotEmpty:           sb.Append($"{nameof(IsNotEmpty)}"); break;
-            case IsNullOrEmpty:        sb.Append($"{nameof(IsNullOrEmpty)}"); break;
-            case IsNotNullOrEmpty:     sb.Append($"{nameof(IsNotNullOrEmpty)}"); break;
-            
-            case ComparisonOperatorType.Equals: sb.Append($"{nameof(ComparisonOperatorType.Equals)}"); break;
+            switch (matchOnField)
+            {
+                case GreaterThanOrEqualTo: sb.Append($"{nameof(GreaterThanOrEqualTo)}"); break;
+                case LessThanOrEqualsTo:   sb.Append($"{nameof(LessThanOrEqualsTo)}"); break;
+                case GreaterThan:          sb.Append($"{nameof(GreaterThan)}"); break;
+                case LessThan:             sb.Append($"{nameof(LessThan)}"); break;
+                case NotEquals:            sb.Append($"{nameof(NotEquals)}"); break;
+                case IsNull:               sb.Append($"{nameof(IsNull)}"); break;
+                case IsNotNull:            sb.Append($"{nameof(IsNotNull)}"); break;
+                case IsEmpty:              sb.Append($"{nameof(IsEmpty)}"); break;
+                case IsNotEmpty:           sb.Append($"{nameof(IsNotEmpty)}"); break;
+                case IsNullOrEmpty:        sb.Append($"{nameof(IsNullOrEmpty)}"); break;
+                case IsNotNullOrEmpty:     sb.Append($"{nameof(IsNotNullOrEmpty)}"); break;
 
-            default: sb.Append($"{nameof(GreaterThanOrEqualTo)}"); break;
+                case ComparisonOperatorType.Equals: sb.Append($"{nameof(ComparisonOperatorType.Equals)}"); break;
+
+                default: sb.Append($"{nameof(GreaterThanOrEqualTo)}"); break;
+            }
         }
-        sb.Append("\"");
         return tb.Complete();
     }
 }

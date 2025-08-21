@@ -2,6 +2,7 @@
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
+using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
@@ -277,6 +278,15 @@ public class FlogConfigVisitChildrenCollect<T, TCollect>(List<TCollect> found, P
     public override T Accept(IMutableFlushBufferConfig flushBufferConfig)
     {
         if(flushBufferConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        return Me;
+    }
+
+    public override T Accept(IMutableFileAppenderConfig fileAppenderConfig)
+    {
+        if(fileAppenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        fileAppenderConfig.FlushConfig.Visit(Me);
+        fileAppenderConfig.InheritsFrom?.Visit(Me);
+        fileAppenderConfig.Defines?.Visit(Me);
         return Me;
     }
 

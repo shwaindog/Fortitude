@@ -171,7 +171,7 @@ public static class SourceTickerIdentifierExtensions
             if (id.SourceName != NoSourceNameValue && id.InstrumentName != NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}";
-                SingleStringShortNameLookup.Add(id.SourceInstrumentId, shortName);
+                SingleStringShortNameLookup.TryAdd(id.SourceInstrumentId, shortName);
             }
         return shortName!;
     }
@@ -181,7 +181,7 @@ public static class SourceTickerIdentifierExtensions
         if (!IdToSourceNameLookup.ContainsKey(id.SourceId)) IdToSourceNameLookup.AddOrUpdate(id.SourceId, id.SourceName);
         if (!IdsToTickerNameLookup.TryGetValue(id.SourceInstrumentId, out var tickerMap))
         {
-            IdsToTickerNameLookup.Add(id.SourceInstrumentId, id.InstrumentName);
+            IdsToTickerNameLookup.TryAdd(id.SourceInstrumentId, id.InstrumentName);
             return true;
         }
         return false;
@@ -192,7 +192,7 @@ public static class SourceTickerIdentifierExtensions
         if (!IdToSourceNameLookup.ContainsKey(id.SourceId)) IdToSourceNameLookup.AddOrUpdate(id.SourceId, id.SourceName);
         if (!IdsToTickerNameLookup.TryGetValue(id.SourceTickerId, out var tickerMap))
         {
-            IdsToTickerNameLookup.Add(id.SourceTickerId, id.InstrumentName);
+            IdsToTickerNameLookup.TryAdd(id.SourceTickerId, id.InstrumentName);
             return true;
         }
         return false;
@@ -223,7 +223,7 @@ public static class SourceTickerIdentifierExtensions
             if (id.SourceName != NoSourceNameValue && id.InstrumentName != NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}";
-                SingleStringShortNameLookup.Add(id.SourceInstrumentId, shortName);
+                SingleStringShortNameLookup.TryAdd(id.SourceInstrumentId, shortName);
             }
             else
             {
@@ -240,7 +240,7 @@ public static class SourceTickerIdentifierExtensions
             if (id.SourceName != NoSourceNameValue && id.InstrumentName != NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}";
-                SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
+                SingleStringShortNameLookup.TryAdd(id.SourceTickerId, shortName);
             }
             else
             {

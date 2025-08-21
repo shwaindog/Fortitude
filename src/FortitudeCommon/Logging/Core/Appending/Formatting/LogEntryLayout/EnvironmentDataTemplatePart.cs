@@ -3,11 +3,11 @@ using System.Reflection;
 using System.Text;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
+using static FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout.FLogEntryLayoutTokens;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
@@ -48,24 +48,24 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
     {
         switch (tokenFormatting.TokenName)
         {
-            case $"{nameof(FLogEntryLayoutTokens.StartAssemblyName)}":
+            case $"{nameof(STARTASSEMBLYNAME)}":
                 sb.Append(Assembly.GetEntryAssembly()?.GetName().Name ?? "UnmanagedLaunched");
                 break;
-            case $"{nameof(FLogEntryLayoutTokens.StartAssemblyDirPath)}": sb.Append(Assembly.GetEntryAssembly()?.Location ?? "."); break;
-            case $"{nameof(FLogEntryLayoutTokens.HostName)}":             sb.Append(Environment.MachineName); break;
-            case $"{nameof(FLogEntryLayoutTokens.LoginDomainName)}":      sb.Append(Environment.UserDomainName); break;
-            case $"{nameof(FLogEntryLayoutTokens.Login)}":                sb.Append(Environment.UserName); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg0)}":     AppendCommandLineArg(sb, 0); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg1)}":     AppendCommandLineArg(sb, 1); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg2)}":     AppendCommandLineArg(sb, 2); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg3)}":     AppendCommandLineArg(sb, 3); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg4)}":     AppendCommandLineArg(sb, 4); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg5)}":     AppendCommandLineArg(sb, 5); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg6)}":     AppendCommandLineArg(sb, 6); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg7)}":     AppendCommandLineArg(sb, 7); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg8)}":     AppendCommandLineArg(sb, 8); break;
-            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg9)}":     AppendCommandLineArg(sb, 9); break;
-            case $"{nameof(FLogEntryLayoutTokens.Env)}":
+            case $"{nameof(STARTASSEMBLYDIRPATH)}": sb.Append(Assembly.GetEntryAssembly()?.Location ?? "."); break;
+            case $"{nameof(HOSTNAME)}":             sb.Append(Environment.MachineName); break;
+            case $"{nameof(LOGINDOMAINNAME)}":      sb.Append(Environment.UserDomainName); break;
+            case $"{nameof(LOGIN)}":                sb.Append(Environment.UserName); break;
+            case $"{nameof(STARTCOMMANDARG0)}":     AppendCommandLineArg(sb, 0); break;
+            case $"{nameof(STARTCOMMANDARG1)}":     AppendCommandLineArg(sb, 1); break;
+            case $"{nameof(STARTCOMMANDARG2)}":     AppendCommandLineArg(sb, 2); break;
+            case $"{nameof(STARTCOMMANDARG3)}":     AppendCommandLineArg(sb, 3); break;
+            case $"{nameof(STARTCOMMANDARG4)}":     AppendCommandLineArg(sb, 4); break;
+            case $"{nameof(STARTCOMMANDARG5)}":     AppendCommandLineArg(sb, 5); break;
+            case $"{nameof(STARTCOMMANDARG6)}":     AppendCommandLineArg(sb, 6); break;
+            case $"{nameof(STARTCOMMANDARG7)}":     AppendCommandLineArg(sb, 7); break;
+            case $"{nameof(STARTCOMMANDARG8)}":     AppendCommandLineArg(sb, 8); break;
+            case $"{nameof(STARTCOMMANDARG9)}":     AppendCommandLineArg(sb, 9); break;
+            case $"{nameof(ENV)}":
                 var formatAsSpan = tokenFormatting.FormatString.AsSpan();
                 var envVarName   = formatAsSpan.ExtractStringFormatStageOnly();
                 envVariables ??= BuildExpandedEnvironmentVariables();
@@ -91,7 +91,7 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
         var allEnvVariablesExpanded = new CharSpanAcceptingStringMap<string>();
         foreach (DictionaryEntry envVar in Environment.GetEnvironmentVariables())
         {
-            allEnvVariablesExpanded.Add(envVar.Key.ToString(), Environment.ExpandEnvironmentVariables(envVar.Value?.ToString() ?? ""));
+            allEnvVariablesExpanded.TryAdd(envVar.Key.ToString(), Environment.ExpandEnvironmentVariables(envVar.Value?.ToString() ?? ""));
         }
         return allEnvVariablesExpanded;
     }

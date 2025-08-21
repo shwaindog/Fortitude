@@ -33,12 +33,6 @@ public static class FLogCommonDefaultFactoryImplementations
         return new AsyncQueueLocator(asyncQueuesConfig);
     }
 
-    public static IMutableFLoggerRoot DefaultCreateRootLogger
-        (IMutableFLoggerRootConfig rootLoggerConfig, IFLogLoggerRegistry loggerRegistry)
-    {
-        return new FLoggerRoot(rootLoggerConfig, loggerRegistry);
-    }
-
     public static IMutableFLoggerRootConfig DefaultCreateRootLoggerConfig(IConfigurationRoot configRoot, string configPath)
     {
         return new FLoggerRootConfig(configRoot, configPath);

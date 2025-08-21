@@ -9,7 +9,7 @@ namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 public interface IFormattingAppenderConfig : IAppenderDefinitionConfig, ICloneable<IFormattingAppenderConfig>
 {
     const string DefaultStringFormattingTemplate
-        = "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN:-3%' '%MSG%''%NL%'";
+        = "'%TS:yyyy-MM-dd HH:mm:ss.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN,3:00%' '%MSG%''%NL%'";
 
     string LogEntryFormatLayout { get; }
 

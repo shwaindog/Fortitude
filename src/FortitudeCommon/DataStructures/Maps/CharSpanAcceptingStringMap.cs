@@ -4,11 +4,18 @@ namespace FortitudeCommon.DataStructures.Maps;
 
 public class CharSpanAcceptingStringMap<TV> : ConcurrentMap<string, TV>
 {
+    private List<string> keys = new();
     public CharSpanAcceptingStringMap() { }
 
     public CharSpanAcceptingStringMap(IMap<string, TV> toClone) : base(toClone)
     {
-        
+        foreach (var kvp in toClone)
+        {
+            if (TryAdd(kvp.Key, kvp.Value))
+            {
+                keys.Add(kvp.Key);                
+            }
+        }
     }
     
     public TV this[ReadOnlySpan<char> key]
@@ -17,40 +24,52 @@ public class CharSpanAcceptingStringMap<TV> : ConcurrentMap<string, TV>
         set
         {
             var hasExisting =  FindExistingKey(key);
-            lock (SyncLock)
+            if (hasExisting != null)
             {
-                if (hasExisting != null)
+                if (Equals(value, null))
                 {
-                    if (Equals(value, null))
+                    if(ConcurrentDictionary.TryRemove(hasExisting.Value.Key, out var removedValued))
                     {
-                        ConcurrentDictionary.TryRemove(hasExisting.Value.Key, out _);
-                        OnUpdated();
+                        OnUpdated(hasExisting.Value.Key, removedValued, MapUpdateType.Remove);
                     }
-                    else
-                    {
-                        ConcurrentDictionary.AddOrUpdate(hasExisting.Value.Key, value, (_, newVal) => newVal);
-                    }
-                    return;
                 }
-                if (Equals(value, null)) return;
-                var newKey = new String(key);
-                base[newKey] = value;
+                else
+                {
+                    base.AddOrUpdate(hasExisting.Value.Key, value);
+                }
+                return;
             }
+            if (Equals(value, null)) return;
+            var newKey = new String(key);
+            base[newKey] = value;
         }
+    }
+
+    protected override void OnUpdated(string key, TV value, MapUpdateType updateType)
+    {
+        if (updateType == MapUpdateType.Create)
+        {
+            keys.Add(key);
+        }
+        if (updateType == MapUpdateType.Remove)
+        {
+            keys.Remove(key);
+        }
+        base.OnUpdated(key, value, updateType);
     }
 
     private KeyValuePair<string, TV>? FindExistingKey(ReadOnlySpan<char> check)
     {
-        foreach (var kvp in ConcurrentDictionary)
+        foreach (var key in keys)
         {
-            if (check.SequenceMatches(kvp.Key)) return kvp;
+            if (check.SequenceMatches(key)) return new KeyValuePair<string, TV>(key, base[key]);
         }
         return null;
     }
 
     public TV? GetValue(ReadOnlySpan<char> key)
     {
-        return FindExistingKey(key)!.Value.Value;;
+        return FindExistingKey(key)!.Value.Value;
     }
 
     public bool TryGetValue(ReadOnlySpan<char> key, out TV? value)
@@ -69,14 +88,11 @@ public class CharSpanAcceptingStringMap<TV> : ConcurrentMap<string, TV>
     {
         if (!TryGetValue(key, out var value))
         {
-            lock (SyncLock)
+            var newKey = new String(key);
+            value = createFunc(newKey);
+            if (ConcurrentDictionary.TryAdd(newKey, value))
             {
-                var newKey = new String(key);
-                value = createFunc(newKey);
-                if (ConcurrentDictionary.TryAdd(newKey, value))
-                {
-                    OnUpdated();
-                }
+                OnUpdated(newKey, value, MapUpdateType.Create);
             }
         }
 
@@ -88,39 +104,21 @@ public class CharSpanAcceptingStringMap<TV> : ConcurrentMap<string, TV>
         var existing = FindExistingKey(key);
         if (existing != null)
         {
-            lock (SyncLock)
-            {
-                ConcurrentDictionary.AddOrUpdate(existing.Value.Key, value!, (_, _) => value!);
-                return value;
-            }
+            return base.AddOrUpdate(existing.Value.Key, value);
         }
         var newKey = new String(key);
-        lock (SyncLock)
-        {
-            ConcurrentDictionary.AddOrUpdate(newKey, value!, (_, _) => value!);
-            OnUpdated();
-        }
-        return value;
+        return base.AddOrUpdate(newKey, value);
     }
 
-    public bool Add(ReadOnlySpan<char> key, TV value)
+    public bool TryAdd(ReadOnlySpan<char> key, TV value)
     {
         var existing = FindExistingKey(key);
         if (existing != null)
         {
             return false;
-        }
-        lock (SyncLock)
-        {   
-            var newKey = new String(key);
-            if (ConcurrentDictionary.TryAdd(newKey, value))
-            {
-                OnUpdated();
-                return true;
-            }
-
-            return false;
-        }
+        }   
+        var newKey = new String(key);
+        return base.TryAdd(newKey, value);
     }
 
     public bool Remove(ReadOnlySpan<char> key)
@@ -128,16 +126,8 @@ public class CharSpanAcceptingStringMap<TV> : ConcurrentMap<string, TV>
         var existing = FindExistingKey(key);
         if (existing != null)
         {
-            lock (SyncLock)
-            {
-                if (ConcurrentDictionary.TryRemove(existing.Value.Key, out _))
-                {
-                    OnUpdated();
-                    return true;
-                }
-            }
+            return base.Remove(existing.Value.Key);
         }
-
         return false;
     }
 }

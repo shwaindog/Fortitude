@@ -336,7 +336,7 @@ public static class PricingIndicatorExtensions
         var instrumentId = ConstructIndicatorSourceTickerId(pricingInstrumentId.SourceInstrumentId, indicatorId);
         if (PricingIndicatorLookup.ContainsKey(instrumentId)) return new PricingIndicatorId(PricingIndicatorLookup[instrumentId], coveringPeriod);
         var register = new PricingIndicatorId(indicatorId, pricingInstrumentId, coveringPeriod);
-        PricingIndicatorLookup.Add(register.IndicatorSourceTickerId, register);
+        PricingIndicatorLookup.TryAdd(register.IndicatorSourceTickerId, register);
         return register;
     }
 
@@ -356,11 +356,11 @@ public static class PricingIndicatorExtensions
             {
                 var shortName
                     = $"{pricingIndicator.Source}-{pricingIndicator.Ticker}_{pricingIndicator.IndicatorName}-{pricingIndicator.CoveringPeriod.ShortName()}";
-                PricingInstrumentShortNameLookup.Add(pricingIndicator.IndicatorSourceTickerId, shortName);
+                PricingInstrumentShortNameLookup.TryAdd(pricingIndicator.IndicatorSourceTickerId, shortName);
                 returnResult = true;
             }
         if (!PricingIndicatorLookup.ContainsKey(pricingIndicator.IndicatorSourceTickerId))
-            PricingIndicatorLookup.Add(pricingIndicator.IndicatorSourceTickerId, pricingIndicator);
+            PricingIndicatorLookup.TryAdd(pricingIndicator.IndicatorSourceTickerId, pricingIndicator);
 
         return returnResult;
     }
@@ -376,13 +376,13 @@ public static class PricingIndicatorExtensions
             {
                 var shortName
                     = $"{pricingIndicator.SourceName}-{pricingIndicator.InstrumentName}_{pricingIndicator.IndicatorName}-{pricingIndicator.CoveringPeriod.ShortName()}";
-                PricingInstrumentShortNameLookup.Add(pricingIndicator.IndicatorSourceTickerId, shortName);
+                PricingInstrumentShortNameLookup.TryAdd(pricingIndicator.IndicatorSourceTickerId, shortName);
                 returnResult = true;
             }
         if (!PricingIndicatorLookup.ContainsKey(pricingIndicator.IndicatorSourceTickerId))
         {
             var pricingIndicatorId = new PricingIndicatorId(pricingIndicator);
-            PricingIndicatorLookup.Add(pricingIndicator.IndicatorSourceTickerId, pricingIndicatorId);
+            PricingIndicatorLookup.TryAdd(pricingIndicator.IndicatorSourceTickerId, pricingIndicatorId);
         }
 
         return returnResult;

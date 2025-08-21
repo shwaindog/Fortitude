@@ -97,7 +97,7 @@ public class PQPricingServerQuotePublisherRule : Rule
             sendToSerializer.AutoRecycleAtRefCountZero  = false;
             sendToSerializer.Recycler                   = Context.PooledRecycler;
             sendToSerializer.CopyFrom(quoteToPublish, CopyMergeFlags.Default);
-            publishedQuotesMap.Add(tickerInfo.SourceInstrumentId, sendToSerializer);
+            publishedQuotesMap.TryAdd(tickerInfo.SourceInstrumentId, sendToSerializer);
             if (quoteToPublish.TickerQuoteDetailLevel.LessThan(sendToSerializer!.TickerQuoteDetailLevel))
             {
                 Logger.Warn("Received a quote lower than the published level.  This would result in unset fields and so wil NOT be published");

@@ -35,7 +35,7 @@ public interface IAppendableOrderedConfigSourcesLookupConfig : IMutableFLogConfi
 
     new int Count { get; }
 
-    new IMutableFlogConfigSource this[ushort priorityOrder] { get; set; }
+    new IMutableFlogConfigSource this[ushort appenderName] { get; set; }
 
     new bool ContainsKey(ushort priority);
 
@@ -240,13 +240,13 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
     public IEnumerator<KeyValuePair<ushort, IMutableFlogConfigSource>> GetEnumerator() => 
         OrderedConfigSources.GetEnumerator();
 
-    public IMutableFlogConfigSource this[ushort priorityOrder]
+    public IMutableFlogConfigSource this[ushort appenderName]
     {
-        get => CheckConfigGetConfigSourcesDict[priorityOrder];
-        set => CheckConfigGetConfigSourcesDict[priorityOrder] = value;
+        get => CheckConfigGetConfigSourcesDict[appenderName];
+        set => CheckConfigGetConfigSourcesDict[appenderName] = value;
     }
 
-    IFlogConfigSource IReadOnlyDictionary<ushort, IFlogConfigSource>.this[ushort priorityOrder] => this[priorityOrder];
+    IFlogConfigSource IReadOnlyDictionary<ushort, IFlogConfigSource>.this[ushort appenderName] => this[appenderName];
 
     public IEnumerable<ushort> Keys => OrderedConfigSources.Select(kvp => kvp.Key);
 

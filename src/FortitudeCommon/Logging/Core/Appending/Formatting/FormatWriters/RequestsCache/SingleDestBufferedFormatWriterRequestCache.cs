@@ -7,11 +7,9 @@ using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.RequestsCache;
 
-public interface IBufferedFormatWriterRequestCache : IFormatWriterRequestCache
+public interface IBufferedTargetDestinationFormatWriterRequestCache : IBufferedFormatWriterRequestCache
 {
     string TargetName { get; }
-    
-    bool BufferingEnabled { get; set; }
     
     bool HasUnflushedBufferedWriters { get; }
     
@@ -22,11 +20,9 @@ public interface IBufferedFormatWriterRequestCache : IFormatWriterRequestCache
     TimeSpan AutoFlushIntervalTimeSpan { get; set; }
 
     DateTime LastFlushAt { get; set; }
-
-    void FlushBufferToAppender(IBufferedFormatWriter toFlush);
 }
 
-public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormatWriterRequestCache, IBufferedFormatWriterRequestCache
+public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormatWriterRequestCache, IBufferedTargetDestinationFormatWriterRequestCache
 {
     private const string SingleTargetFirstBufferedAppenderName  = "SingleTargetBuffer1";
     private const string SingleTargetSecondBufferedAppenderName = "SingleTargetBuffer2";
@@ -37,7 +33,7 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
     private IBufferedFormatWriter? buffer1;
     private IBufferedFormatWriter? buffer2;
 
-    private IFLogContext? startUpContext;
+    private bool initializing  = true;
     
     private TimeSpan autoFlushIntervalTimeSpan;
 
@@ -59,23 +55,14 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
         base.Initialize(owningAppender, context);
         TargetName = targetName;
         
-        startUpContext = context;
-        BufferingEnabled = !owningAppender.GetAppenderConfig().DisableBuffering;
+        bufferingEnabled = !owningAppender.GetAppenderConfig().DisableBuffering;
 
-        WriteTriggeredFlushIntervalTimeSpan = owningAppender.GetAppenderConfig().FlushConfig.WriteTriggeredAfterTimeSpan.ToTimeSpan();
-
-        if (autoFlushIntervalTimeSpan > TimeSpan.Zero)
-        {
-            autoFlushTimer?.Cancel();
-            autoFlushTimer = context.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
-        }
         
         checkWaitingFormatWriterRequests      = CheckHasFormatWriterRequests;
         TimerCheckWaitingFormatWriterRequests = TimerTriggeredCheckFormatWriterRequests;
 
         CreateFormatWriters(targetName, context);
-        AutoFlushIntervalTimeSpan = owningAppender.GetAppenderConfig().FlushConfig.AutoTriggeredAfterTimeSpan.ToTimeSpan();
-        startUpContext            = null;
+        initializing = false;
         
         return this;
     }
@@ -108,6 +95,14 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
                 buffer2 = onCreateBuffer2Instance
                     = OwningTypeAppender.CreateBufferedFormatWriter(bufferFlusherWriter, targetName, 2, OnReturningFormatWriter);;
             }
+            WriteTriggeredFlushIntervalTimeSpan = OwningTypeAppender.GetAppenderConfig().FlushConfig.WriteTriggeredAfterTimeSpan.ToTimeSpan();
+
+            if (autoFlushIntervalTimeSpan > TimeSpan.Zero)
+            {
+                autoFlushTimer?.Cancel();
+                autoFlushTimer = context.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
+            }
+            AutoFlushIntervalTimeSpan = OwningTypeAppender.GetAppenderConfig().FlushConfig.AutoTriggeredAfterTimeSpan.ToTimeSpan();
         }
         else
         {
@@ -129,7 +124,7 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
                 {
                     autoFlushTimer = FLogContext.Context.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
                 }
-                CreateFormatWriters(TargetName, startUpContext ?? FLogContext.Context);
+                CreateFormatWriters(TargetName, FLogContext.Context);
             }
             else
             {
@@ -168,7 +163,7 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
 
     protected override IFormatWriter? TrgGetFormatWriter(IFLogEntry fLogEntry)
     {
-        if (OwningTypeAppender.BufferingEnabled)
+        if (BufferingEnabled)
         {
             return TryGetSpecificBufferedWriter(currentBufferCounter);
         }
@@ -218,7 +213,7 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
     {
         return setReadyOrFlush.BufferedChars > FlushWhenBufferLength
             || (LastFlushAt + WriteTriggeredFlushIntervalTimeSpan) < TimeContext.UtcNow
-            || !OwningTypeAppender.BufferingEnabled;
+            || !BufferingEnabled;
     }
 
     protected void CheckHasFormatWriterRequests()
@@ -231,7 +226,7 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
     
     private void CheckAnyQueuedRequesterOrReturnWriter(IBufferedFormatWriter toReturn)
     {
-        if (OwningTypeAppender.BufferingEnabled && TrySendFormatWriteToNextIfAny(toReturn) != null) return;
+        if (BufferingEnabled && TrySendFormatWriteToNextIfAny(toReturn) != null) return;
         TryToReturnUsedFormatWriter(toReturn);
     }
 
@@ -247,7 +242,7 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
 
     protected override ISyncLock GetFormatWriterRequesterWaitStrategy()
     {
-        if (OwningTypeAppender.BufferingEnabled)
+        if (BufferingEnabled)
         {
             return RequesterRecycler.Borrow<SpinLockLight>();
         }

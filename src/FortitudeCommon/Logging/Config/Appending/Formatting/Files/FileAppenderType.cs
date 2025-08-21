@@ -21,16 +21,15 @@ public static class FileAppenderTypeExtensions
     public static StyledTypeBuildResult FormatFileAppenderTypeAppender(this FileAppenderType asyncProcessingType, IStyledTypeStringAppender sbc)
     {
         var tb = sbc.StartSimpleValueType(nameof(FileAppenderType));
-        var sb = tb.StringBuilder("_FileAppenderTypeAsString");
-
-        sb.Append("\"");
-        switch (asyncProcessingType)
+        using (var sb = tb.StartDelimitedStringBuilder())
         {
-            case FileAppenderType.RollingLogFile: sb.Append($"{nameof(FileAppenderType.RollingLogFile)}"); break;
+            switch (asyncProcessingType)
+            {
+                case FileAppenderType.RollingLogFile: sb.Append($"{nameof(FileAppenderType.RollingLogFile)}"); break;
 
-            default: sb.Append($"{nameof(FileAppenderType.Unbounded)}"); break;
+                default: sb.Append($"{nameof(FileAppenderType.Unbounded)}"); break;
+            }
         }
-        sb.Append("\"");
         return tb.Complete();
     }
 }
