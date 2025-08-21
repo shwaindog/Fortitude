@@ -44,7 +44,7 @@ public interface IAppendableNamedAppendersLookupConfig : INamedAppendersLookupCo
 
     IAppendableNamedAppendersLookupConfig Add(IMutableAppenderReferenceConfig value);
 
-    new IMutableAppenderReferenceConfig this[string loggerName] { get; set; }
+    new IMutableAppenderReferenceConfig this[string appenderName] { get; set; }
 
     new bool ContainsKey(string appenderName);
 
@@ -149,6 +149,10 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
                     if (FLogCreate.MakeAppenderConfig(ConfigRoot, $"{configurationSection.Path}") is { } appenderConfig)
                     {
                         appenderConfig.ParentConfig = this;
+                        if (appenderConfig.AppenderName != configurationSection.Key)
+                        {
+                            appenderConfig.AppenderName = configurationSection.Key;
+                        }
                         AppendersByName.TryAdd(configurationSection.Key, appenderConfig);
                     }
                 }
@@ -178,10 +182,14 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
         (
             List<TEither> cachedAppenderReferences
           , Dictionary<string, IMutableAppenderReferenceConfig> appendersByName
-          , IConfigurationRoot configRoot, string path)
+          , IConfigurationRoot configRoot, string path, string appenderName)
         {
             if (FLogCreate.MakeAppenderConfig(configRoot, path) is { } appenderConfig)
             {
+                if (appenderConfig.AppenderName != appenderName)
+                {
+                    appenderConfig.AppenderName = appenderName;
+                }
                 appendersByName.Add(appenderConfig.AppenderName, appenderConfig);
                 if (appenderConfig is TEither appenderEitherConfig)
                 {
@@ -208,7 +216,7 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
                 else
                 {
                     AppendersByName.Remove(appenderRefs.Key);
-                    var appenderConfig = LoadNewConfig(list, AppendersByName, ConfigRoot, appenderRefPath);
+                    var appenderConfig = LoadNewConfig(list, AppendersByName, ConfigRoot, appenderRefPath, appenderRefs.Key);
                     if (appenderConfig != null)
                     {
                         appenderConfig.ParentConfig = this;
@@ -217,7 +225,7 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
             }
             else
             {
-                var appenderConfig = LoadNewConfig(list, AppendersByName, ConfigRoot, appenderRefPath);
+                var appenderConfig = LoadNewConfig(list, AppendersByName, ConfigRoot, appenderRefPath, appenderRefs.Key);
                 if (appenderConfig != null)
                 {
                     appenderConfig.ParentConfig = this;
@@ -256,15 +264,15 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
 
     public IEnumerator<KeyValuePair<string, IMutableAppenderReferenceConfig>> GetEnumerator() => CheckConfigGetAppendersDict.GetEnumerator();
 
-    public new IMutableAppenderReferenceConfig this[string loggerName]
+    public new IMutableAppenderReferenceConfig this[string appenderName]
     {
-        get => CheckConfigGetAppendersDict[loggerName];
-        set => CheckConfigGetAppendersDict[loggerName] = value;
+        get => CheckConfigGetAppendersDict[appenderName];
+        set => CheckConfigGetAppendersDict[appenderName] = value;
     }
 
     public IAppenderReferenceConfig this[int toCountIndex] => OrderAppenders[toCountIndex];
 
-    IAppenderReferenceConfig INamedAppendersLookupConfig.this[string loggerName] => this[loggerName];
+    IAppenderReferenceConfig INamedAppendersLookupConfig.this[string appenderName] => this[appenderName];
 
     IEnumerable<string> IReadOnlyDictionary<string, IMutableAppenderReferenceConfig>.Keys => CheckConfigGetAppendersDict.Keys;
 
@@ -314,8 +322,14 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
             foreach (var nameKey in NameKeys)
             {
                 var myConfig    = this[nameKey];
-                var otherConfig = other[nameKey];
-                if (!myConfig.AreEquivalent(otherConfig, exactTypes))
+                if (other.TryGetValue(nameKey, out var otherConfig))
+                {
+                    if (!myConfig.AreEquivalent(otherConfig, exactTypes))
+                    {
+                        return false;
+                    }
+                }
+                else
                 {
                     return false;
                 }

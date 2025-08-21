@@ -1,13 +1,33 @@
+using FortitudeCommon.DataStructures.Lists;
+
 namespace FortitudeCommon.DataStructures.Maps;
 
 public class LinkedListCache<TK, TV> : LinkedListMap<TK, TV> where TK : notnull
 {
-    private IEnumerable<KeyValuePair<TK, TV>> values = Array.Empty<KeyValuePair<TK, TV>>();
+    private object syncLock = new object();
+    private ReusableList<KeyValuePair<TK, TV>> keyValues = new ();
 
     public LinkedListCache()
     {
-        Updated += v => { values = v.ToArray(); };
+        Updated += (key, value, action, map) =>
+        {
+            lock (syncLock)
+            {
+                keyValues.Clear();
+                foreach (var kvp in map)
+                {
+                    keyValues.Add(kvp);
+                }    
+            }
+        };
     }
 
-    public override IEnumerator<KeyValuePair<TK, TV>> GetEnumerator() => values.GetEnumerator();
+    public override IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
+    {
+        lock (syncLock)
+        {
+            return keyValues.GetEnumerator();
+        }
+    }
+    
 }

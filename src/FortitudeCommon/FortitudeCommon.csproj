@@ -29,4 +29,13 @@
     <Folder Include="Logging\Core\AsyncDispatch\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Logging\Config\ExampleConfig\AsyncDailyDblBufferedFile.json" />
+    <EmbeddedResource Include="Logging\Config\ExampleConfig\AsyncDailyDblBufferedFile.json" />
+    <None Remove="Logging\Config\ExampleConfig\SyncDailyFile.json" />
+    <EmbeddedResource Include="Logging\Config\ExampleConfig\SyncDailyFile.json" />
+    <None Remove="Logging\Config\ExampleConfig\SyncFileAndColoredConsole.json" />
+    <EmbeddedResource Include="Logging\Config\ExampleConfig\SyncFileAndColoredConsole.json" />
+  </ItemGroup>
+
 </Project>

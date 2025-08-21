@@ -26,19 +26,18 @@ public static class TriggeringLogEntriesExtensions
     public static StyledTypeBuildResult FormatTriggeringLogEntriesAppender(this TriggeringLogEntries triggeringLogEntries, IStyledTypeStringAppender sbc)
     {
         var tb = sbc.StartSimpleValueType(nameof(TriggeringLogEntries));
-        var sb = tb.StringBuilder("_TriggeringLogEntriesAsString");
-
-        sb.Append("\"");
-        switch (triggeringLogEntries)
+        using (var sb = tb.StartDelimitedStringBuilder())
         {
-            case None:       sb.Append($"{nameof(None)}"); break;
-            case All:        sb.Append($"{nameof(All)}"); break;
-            case First:      sb.Append($"{nameof(First)}"); break;
-            case Last:       sb.Append($"{nameof(Last)}"); break;
+            switch (triggeringLogEntries)
+            {
+                case None:  sb.Append($"{nameof(None)}"); break;
+                case All:   sb.Append($"{nameof(All)}"); break;
+                case First: sb.Append($"{nameof(First)}"); break;
+                case Last:  sb.Append($"{nameof(Last)}"); break;
 
-            default: sb.Append($"{nameof(All)}"); break;
+                default: sb.Append($"{nameof(All)}"); break;
+            }
         }
-        sb.Append("\"");
         return tb.Complete();
     }
 }

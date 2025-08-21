@@ -6,18 +6,20 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueColl
 
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : StyledTypeBuilder
 {
-    public TExt AlwaysAddFiltered<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueFormatString, keyFormatString);
-
-    public TExt AlwaysAddFiltered<TKey, TValue>
-    (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase =>
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueFormatString, keyFormatString);
+
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase>
+    (string fieldName, KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -52,11 +54,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase
     {
         bool foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -91,9 +94,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase, TVBase>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase
     {
         bool foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -128,11 +132,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase, TVBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -171,20 +176,20 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
+      , KeyValuePredicate<TKBase, TValue> filterPredicate
       , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct=>
+        where TValue : struct where TKey : TKBase =>
         AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueStyler, keyFormatString);
 
-    public TExt AlwaysAddFiltered<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
+      , KeyValuePredicate<TKBase, TValue> filterPredicate
       , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TValue : struct where TKey : TKBase 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -217,12 +222,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
+      , KeyValuePredicate<TKBase, TValue> filterPredicate
       , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TValue : struct where TKey : TKBase 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -255,12 +260,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
+      , KeyValuePredicate<TKBase, TValue> filterPredicate
       , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TValue : struct where TKey : TKBase 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -293,12 +298,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TValue : struct where TKey : TKBase 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);

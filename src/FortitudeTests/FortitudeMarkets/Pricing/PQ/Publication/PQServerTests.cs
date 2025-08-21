@@ -298,7 +298,7 @@ public class PQServerTests
                                     .Verifiable();
         moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() => { isInQuoteSyncLock = false; }).Verifiable();
 
-        replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqTickInstant.Object);
+        replaceWithPQServerInstance.TryAdd(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqTickInstant.Object);
         
         NonPublicInvocator.SetInstanceField(pqServer, "lastPubEntities", replaceWithPQServerInstance);
 
@@ -333,7 +333,7 @@ public class PQServerTests
         };
         moqQuoteSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
-        replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, ticker1RegisteredPqTickInstant);
+        replaceWithPQServerInstance.TryAdd(sourceTickerInfo1.SourceInstrumentId, ticker1RegisteredPqTickInstant);
         
         
         NonPublicInvocator.SetInstanceField(pqServer, "lastPubEntities", replaceWithPQServerInstance);
@@ -389,7 +389,7 @@ public class PQServerTests
         moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom(pubTickInstant, CopyMergeFlags.Default));
         moqQuoteSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
-        replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqTickInstant.Object);
+        replaceWithPQServerInstance.TryAdd(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqTickInstant.Object);
         
         NonPublicInvocator.SetInstanceField(pqServer, "lastPubEntities", replaceWithPQServerInstance);
         var isInHeartBeatSyncLock = false;
@@ -471,7 +471,7 @@ public class PQServerTests
         moqRegisteredPqTickInstant.SetupProperty(ti => ti.HasUpdates, true);
         moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
-        replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqTickInstant.Object);
+        replaceWithPQServerInstance.TryAdd(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqTickInstant.Object);
         
         NonPublicInvocator.SetInstanceField(pqServer, "lastPubEntities", replaceWithPQServerInstance);
 
@@ -550,7 +550,7 @@ public class PQServerTests
         moqRegisteredPqLevel1Quote.SetupProperty(l1Q => l1Q.HasUpdates, true);
         moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
-        replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqLevel1Quote.Object);
+        replaceWithPQServerInstance.TryAdd(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqLevel1Quote.Object);
         
         NonPublicInvocator.SetInstanceField(pqServer, "lastPubEntities", replaceWithPQServerInstance);
 

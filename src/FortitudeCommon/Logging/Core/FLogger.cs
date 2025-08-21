@@ -205,7 +205,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
             receivedTypes.Add(receivedType);
         }
         var logEntry        = LogEntryPool.SourceLogEntry();
-        var logEntryContext = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, level);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -225,7 +225,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
             receivedTypes.Add(receivedType);
         }
         var logEntry        = LogEntryPool.SourceLogEntry();
-        var logEntryContext = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, level);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -238,7 +238,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, level);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -257,7 +257,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         }
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Trace);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -270,7 +270,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Trace);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -281,7 +281,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Trace);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -299,7 +299,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         }
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Debug);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -312,7 +312,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Debug);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -323,7 +323,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Debug);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -341,7 +341,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         }
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Info);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -354,7 +354,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Info);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -365,7 +365,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Info);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -383,7 +383,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         }
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Warn);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -396,7 +396,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Warn);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -407,7 +407,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Warn);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -425,7 +425,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         }
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Error);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -438,7 +438,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Error);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }
@@ -449,7 +449,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();
-        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, LogLevel);
+        var logEntryContext  = new LoggerEntryContext(this, logEntryPublishEndpoint, logEntryLocation, FLogLevel.Error);
         logEntry.Initialize(logEntryContext);
         return logEntry;
     }

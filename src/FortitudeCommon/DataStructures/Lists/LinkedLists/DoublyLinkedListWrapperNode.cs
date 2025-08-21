@@ -15,6 +15,13 @@ public class DoublyLinkedListWrapperNode<T> : RecyclableObject, IDoublyLinkedLis
 
     public DoublyLinkedListWrapperNode(T payload) => Payload = payload;
 
+    public DoublyLinkedListWrapperNode<T> Initialize(T payload)
+    {
+        Payload = payload;
+
+        return this;
+    }
+
     public T                               Payload  { get; set; }
     public DoublyLinkedListWrapperNode<T>? Previous { get; set; }
     public DoublyLinkedListWrapperNode<T>? Next     { get; set; }

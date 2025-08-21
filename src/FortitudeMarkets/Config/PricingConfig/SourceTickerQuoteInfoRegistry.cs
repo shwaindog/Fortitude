@@ -62,7 +62,7 @@ public class SourceTickerInfoRegistry : ISourceTickerInfoRegistry
             if (!sourceTickerMap.TryGetValue(sourceTickerInfo.SourceName, out sourceTickerList))
             {
                 sourceTickerList = new List<ISourceTickerInfo> { sourceTickerInfo };
-                sourceTickerMap.Add(sourceTickerInfo.SourceName, sourceTickerList);
+                sourceTickerMap.TryAdd(sourceTickerInfo.SourceName, sourceTickerList);
             }
             else
             {

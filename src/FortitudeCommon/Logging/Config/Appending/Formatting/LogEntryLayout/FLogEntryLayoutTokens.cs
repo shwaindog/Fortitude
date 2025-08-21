@@ -125,26 +125,26 @@ public enum FLogEntryLayoutTokens
   , CS
 
     // launching assemblby name 
-  , StartAssemblyName
-  , StartAssemblyDirPath
-  , StartCommandArg0
-  , StartCommandArg1
-  , StartCommandArg2
-  , StartCommandArg3
-  , StartCommandArg4
-  , StartCommandArg5
-  , StartCommandArg6
-  , StartCommandArg7
-  , StartCommandArg8
-  , StartCommandArg9
+  , STARTASSEMBLYNAME
+  , STARTASSEMBLYDIRPATH
+  , STARTCOMMANDARG0
+  , STARTCOMMANDARG1
+  , STARTCOMMANDARG2
+  , STARTCOMMANDARG3
+  , STARTCOMMANDARG4
+  , STARTCOMMANDARG5
+  , STARTCOMMANDARG6
+  , STARTCOMMANDARG7
+  , STARTCOMMANDARG8
+  , STARTCOMMANDARG9
     // Environment.HostName
-  , HostName
+  , HOSTNAME
     // Environment.Login
-  , Login
-  , LoginDomainName
+  , LOGIN
+  , LOGINDOMAINNAME
 
     // followed by : is the name of an environment variable to inject
-  , Env
+  , ENV
 
     // ReSharper restore InconsistentNaming
 }
@@ -221,21 +221,21 @@ public static class FLogEntryLayoutTokensExtensions
     public static bool IsEnvironmentTokenName(this string checkName) =>
         checkName switch
         {
-            $"{nameof(StartAssemblyName)}"
-             or $"{nameof(StartAssemblyDirPath)}"
-             or $"{nameof(StartCommandArg0)}"
-             or $"{nameof(StartCommandArg1)}"
-             or $"{nameof(StartCommandArg2)}"
-             or $"{nameof(StartCommandArg3)}"
-             or $"{nameof(StartCommandArg4)}"
-             or $"{nameof(StartCommandArg5)}"
-             or $"{nameof(StartCommandArg6)}"
-             or $"{nameof(StartCommandArg7)}"
-             or $"{nameof(StartCommandArg8)}"
-             or $"{nameof(StartCommandArg9)}"
-             or $"{nameof(HostName)}"
-             or $"{nameof(Login)}"
-             or $"{nameof(LoginDomainName)}" => true
+            $"{nameof(STARTASSEMBLYNAME)}"
+             or $"{nameof(STARTASSEMBLYDIRPATH)}"
+             or $"{nameof(STARTCOMMANDARG0)}"
+             or $"{nameof(STARTCOMMANDARG1)}"
+             or $"{nameof(STARTCOMMANDARG2)}"
+             or $"{nameof(STARTCOMMANDARG3)}"
+             or $"{nameof(STARTCOMMANDARG4)}"
+             or $"{nameof(STARTCOMMANDARG5)}"
+             or $"{nameof(STARTCOMMANDARG6)}"
+             or $"{nameof(STARTCOMMANDARG7)}"
+             or $"{nameof(STARTCOMMANDARG8)}"
+             or $"{nameof(STARTCOMMANDARG9)}"
+             or $"{nameof(HOSTNAME)}"
+             or $"{nameof(LOGIN)}"
+             or $"{nameof(LOGINDOMAINNAME)}" => true
           , _ => false
         };
 

@@ -1,6 +1,7 @@
 ﻿using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
+using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
@@ -112,6 +113,9 @@ public class FlogConfigVisitParent<T> : FLogConfigVisitor<T> where T : FlogConfi
 
     public override T Accept(IMutableFlushBufferConfig flushBufferConfig) => 
         flushBufferConfig.ParentConfig?.Visit(Me) ?? Me;
+
+    public override T Accept(IMutableFileAppenderConfig fileAppenderConfig) => 
+        fileAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
 }
 
 public class FlogConfigVisitParent : FlogConfigVisitParent<FlogConfigVisitParent> { }

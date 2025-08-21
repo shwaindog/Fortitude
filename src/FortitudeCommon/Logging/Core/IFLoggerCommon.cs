@@ -65,6 +65,20 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
 
     protected IMutableFLoggerTreeCommonConfig Config = null!;
 
+    protected FLoggerBase()
+    {
+    }
+
+    protected void ReInitializeRoot(IMutableFLoggerTreeCommonConfig loggerConfig, IFLogLoggerRegistry loggerRegistry)
+    {
+        HandleConfigUpdate(loggerConfig, loggerRegistry.AppenderRegistry);
+
+        LogLevel = loggerConfig.LogLevel;
+        LogEntryPool = loggerRegistry.SourceFLogEntryPool(loggerConfig.LogEntryPool ?? DefaultLoggerEntryPoolConfig);
+        
+        
+    }
+
     protected FLoggerBase(IMutableFLoggerTreeCommonConfig loggerConfig, IFLogLoggerRegistry loggerRegistry)
     {
         Name     = loggerConfig.Name;
@@ -77,13 +91,13 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
         LogEntryPool = loggerRegistry.SourceFLogEntryPool(loggerConfig.LogEntryPool ?? DefaultLoggerEntryPoolConfig);
     }
 
-    public string Name { get; protected set; }
+    public string Name { get; protected set; } = null!;
 
-    public string FullName { get; protected set; }
+    public string FullName { get; protected set; } = null!;
 
     public FLogLevel LogLevel { get; internal set; }
 
-    public FLogEntryPool LogEntryPool { get; private set; }
+    public FLogEntryPool LogEntryPool { get; private set; } = null!;
 
     IMutableFLoggerTreeCommonConfig IMutableFLoggerCommon.ResolvedConfig
     {
@@ -107,15 +121,6 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
 
         lock (Appenders)
         {
-            foreach (var appenderConfig in newLoggerState.Appenders)
-            {
-                if (Appenders.All(a => a.BackingAppender.AppenderName != appenderConfig.Key))
-                {
-                    AppendersUpdatedFlag = true;
-                    var appenderClient = appenderRegistry.GetAppenderClient(appenderConfig.Key, this);
-                    LoggerAppenders.Add(appenderClient);
-                }
-            }
             for (var i = 0; i < Appenders.Count; i++)
             {
                 var existingAppender = Appenders[i];
@@ -124,6 +129,15 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
                     AppendersUpdatedFlag = true;
                     LoggerAppenders.RemoveAt(i);
                     i--;
+                }
+            }
+            foreach (var appenderConfig in newLoggerState.Appenders)
+            {
+                if (Appenders.All(a => a.BackingAppender.AppenderName != appenderConfig.Key))
+                {
+                    AppendersUpdatedFlag = true;
+                    var appenderClient = appenderRegistry.GetAppenderClient(appenderConfig.Key, this);
+                    LoggerAppenders.Add(appenderClient);
                 }
             }
         }

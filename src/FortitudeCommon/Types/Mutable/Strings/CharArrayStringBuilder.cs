@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -14,7 +13,7 @@ using FortitudeCommon.Framework.System;
 
 namespace FortitudeCommon.Types.Mutable.Strings;
 
-public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IStringBuilder
+public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IScopeDelimitedStringBuilder
 {
     private static readonly IRecycler recycler = new Recycler();
 
@@ -60,6 +59,8 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         ca ??= size.SourceRecyclingCharArray();
         return this;
     }
+    
+    Action<IScopeDelimitedStringBuilder>? IScopeDelimitedStringBuilder.OnScopeEndedAction { get; set; }
 
     public int Capacity
     {
@@ -1439,6 +1440,15 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         base.StateReset();
     }
 
+    public void Dispose()
+    {
+        var onEndAction = ((IScopeDelimitedStringBuilder)this).OnScopeEndedAction;
+        if (onEndAction != null)
+        {
+            onEndAction(this);
+            ((IScopeDelimitedStringBuilder)this).OnScopeEndedAction = null;
+        }
+    }
 
     IStringBuilder ICloneable<IStringBuilder>.Clone() => Clone();
 

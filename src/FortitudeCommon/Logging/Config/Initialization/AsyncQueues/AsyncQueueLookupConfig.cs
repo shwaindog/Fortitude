@@ -31,7 +31,7 @@ public interface IAppendableAsyncQueueLookupConfig : IMutableFLogConfig, IAsyncQ
 
     new int Count { get; }
 
-    new IMutableAsyncQueueConfig this[byte queueNumber] { get; set; }
+    new IMutableAsyncQueueConfig this[byte appenderName] { get; set; }
 
     new bool ContainsKey(byte queueNumber);
 
@@ -216,13 +216,13 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
 
     public IEnumerator<KeyValuePair<byte, IMutableAsyncQueueConfig>> GetEnumerator() => AsyncQueuesConfig.GetEnumerator();
 
-    public IMutableAsyncQueueConfig this[byte queueNumber]
+    public IMutableAsyncQueueConfig this[byte appenderName]
     {
-        get => CheckConfigGetConfigByQueueNumberDict[queueNumber];
-        set => CheckConfigGetConfigByQueueNumberDict[queueNumber] = value;
+        get => CheckConfigGetConfigByQueueNumberDict[appenderName];
+        set => CheckConfigGetConfigByQueueNumberDict[appenderName] = value;
     }
 
-    IAsyncQueueConfig IReadOnlyDictionary<byte, IAsyncQueueConfig>.this[byte queueNumber] => this[queueNumber];
+    IAsyncQueueConfig IReadOnlyDictionary<byte, IAsyncQueueConfig>.this[byte appenderName] => this[appenderName];
 
     public IEnumerable<byte> Keys => AsyncQueuesConfig.Select(kvp => kvp.Key);
 

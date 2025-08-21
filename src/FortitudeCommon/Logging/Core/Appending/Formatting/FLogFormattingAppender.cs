@@ -34,13 +34,16 @@ public abstract class FLogFormattingAppender : FLogAppender, IMutableFLogFormatt
 {
     protected IFormatWriterRequestCache FormatWriterRequestCache;
 
-    protected FLogFormattingAppender(IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context)
+    protected FLogFormattingAppender(IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context, bool isSingleDestinationAppender = true)
         : base(formattingAppenderConfig, context)
     {
         Formatter = new FLogEntryFormatter(formattingAppenderConfig.LogEntryFormatLayout, this);
         IsOpen = true;
 
-        FormatWriterRequestCache = CreateFormatWriterRequestCache(formattingAppenderConfig, context);
+        if (isSingleDestinationAppender)
+        {
+            FormatWriterRequestCache = CreateFormatWriterRequestCache(formattingAppenderConfig, context);
+        }
     }
 
     protected virtual IFormatWriterRequestCache CreateFormatWriterRequestCache(IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context) => 

@@ -159,25 +159,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TStyledObj>(string fieldName, TStyledObj[]? value)
-        where TStyledObj : class, IStyledToStringObject 
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartCollection();
-            for (var i = 0; i < value.Length; i++)
-            {
-                stb.AppendOrNull(value[i]);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
     public TExt AlwaysAddAll(string fieldName, ICharSequence?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
@@ -211,6 +192,44 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 _ = formatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(value[i], formatString)
                     : stb.AppendOrNull(value[i]);
+                stb.GoToNextCollectionItemStart();
+            }
+            stb.EndCollection();
+        }
+        else
+            stb.Sb.Append(stb.OwningAppender.NullStyle);
+        return stb.Sb.AddGoToNext(stb);
+    }
+    
+    public TExt AlwaysAddAll<TStyledObj>(string fieldName, TStyledObj[]? value)
+        where TStyledObj : class, IStyledToStringObject 
+    {
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.StartCollection();
+            for (var i = 0; i < value.Length; i++)
+            {
+                stb.AppendOrNull(value[i]);
+                stb.GoToNextCollectionItemStart();
+            }
+            stb.EndCollection();
+        }
+        else
+            stb.Sb.Append(stb.OwningAppender.NullStyle);
+        return stb.Sb.AddGoToNext(stb);
+    }
+
+    public TExt AlwaysAddAll<T, TBase>(string fieldName, T[]? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase: class 
+    {
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.StartCollection();
+            for (var i = 0; i < value.Length; i++)
+            {
+                stb.AppendOrNull(value[i], customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -363,8 +382,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.Sb.Append(stb.OwningAppender.NullStyle);
         return stb.Sb.AddGoToNext(stb);
     }
-
-
+    
     public TExt AlwaysAddAll(string fieldName, IReadOnlyList<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
@@ -428,6 +446,45 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
     
+    public TExt AlwaysAddAll<TStyledObj>(string fieldName, IReadOnlyList<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject 
+    {
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.StartCollection();
+            for (var i = 0; i < value.Count; i++)
+            {
+                stb.AppendOrNull(value[i]);
+                stb.GoToNextCollectionItemStart();
+            }
+            stb.EndCollection();
+        }
+        else
+            stb.Sb.Append(stb.OwningAppender.NullStyle);
+        return stb.Sb.AddGoToNext(stb);
+    }
+
+    public TExt AlwaysAddAll<T, TBase>(string fieldName, IReadOnlyList<T?>? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase: class 
+    {
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.StartCollection();
+            for (var i = 0; i < value.Count; i++)
+            {
+                stb.AppendOrNull(value[i], customTypeStyler);
+                stb.GoToNextCollectionItemStart();
+            }
+            stb.EndCollection();
+        }
+        else
+            stb.Sb.Append(stb.OwningAppender.NullStyle);
+        return stb.Sb.AddGoToNext(stb);
+    }
+
+    
     [CallsObjectToString]
     public TExt AlwaysAddAllMatch<T>(string fieldName, IReadOnlyList<T>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -442,25 +499,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 _ = formatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(value[i], formatString)
                     : stb.AppendOrNull(value[i]);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TStyledObj>(string fieldName, IReadOnlyList<TStyledObj>? value)
-        where TStyledObj : class, IStyledToStringObject 
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartCollection();
-            for (var i = 0; i < value.Count; i++)
-            {
-                stb.AppendOrNull(value[i]);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -654,7 +692,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.Sb.Append(stb.OwningAppender.NullStyle);
         return stb.Sb.AddGoToNext(stb);
     }
-
+    
     public TExt AlwaysAddAllEnumerate<TStyledObj>(string fieldName, IEnumerable<TStyledObj>? value)
         where TStyledObj : class, IStyledToStringObject 
     {
@@ -665,6 +703,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             foreach (var item in value)
             {
                 stb.AppendOrNull(item);
+                stb.GoToNextCollectionItemStart();
+            }
+            stb.EndCollection();
+        }
+        else
+            stb.Sb.Append(stb.OwningAppender.NullStyle);
+        return stb.Sb.AddGoToNext(stb);
+    }
+
+    public TExt AlwaysAddAllEnumerate<T, TBase>(string fieldName, IEnumerable<T?>? value, CustomTypeStyler<TBase?> customTypeStyler)
+        where T : class, TBase where TBase: class 
+    {
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.StartCollection();
+            foreach (var item in value)
+            {
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -829,8 +886,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.Sb.Append(stb.OwningAppender.NullStyle);
         return stb.Sb.AddGoToNext(stb);
     }
-
-
+    
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
@@ -911,6 +967,27 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             while (hasValue)
             {
                 stb.AppendOrNull(value!.Current);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart();
+            }
+            stb.EndCollection();
+        }
+        else
+            stb.Sb.Append(stb.OwningAppender.NullStyle);
+        return stb.Sb.AddGoToNext(stb);
+    }
+
+    public TExt AlwaysAddAllEnumerate<T, TBase>(string fieldName, IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase: class 
+    {
+        stb.FieldNameJoin(fieldName);
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            stb.StartCollection();
+            while (hasValue)
+            {
+                stb.AppendOrNull(value!.Current, customTypeStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }

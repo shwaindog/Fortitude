@@ -17,8 +17,7 @@ public class FLogContextTests
     [TestMethod]
     public void DefaultContextStartsAndLogsToConsole()
     {
-        var context        = FLogContext.NullOnUnstartedContext.SetAsNewNewDefaultConfigContext();
-        var startedContext = FLogContext.Context;
+        var startedContext = FLogContext.NewUninitializedContext.InitializeStartAndSetAsCurrentContext();
 
         var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
         var appReg = (IMutableFLogAppenderRegistry)startedContext.AppenderRegistry;

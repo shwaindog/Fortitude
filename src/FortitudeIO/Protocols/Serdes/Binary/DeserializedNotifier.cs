@@ -120,7 +120,7 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
     {
         if (DeserializedIsResponseMessage && responseValueSource.ResponseType == typeof(TM))
         {
-            ExpectedRequestResponses.Add(requestId, responseValueSource);
+            ExpectedRequestResponses.TryAdd(requestId, responseValueSource);
             SubscriberCount++;
         }
         else
@@ -195,7 +195,7 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
         base(registrationLocation, deserializeNotifyType)
     {
         foreach (var receiverListenContext in registerAllReceiverListenContexts)
-            registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
+            registeredReceiverContexts.TryAdd(receiverListenContext.Name, receiverListenContext);
     }
 
     public PassThroughDeserializedNotifier(PassThroughDeserializedNotifier<TM> toClone) : base(toClone)
@@ -203,7 +203,7 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
         receiverConversationMessageReceivedHandler = toClone.receiverConversationMessageReceivedHandler;
         receiverMessageDeserializedHandler         = toClone.receiverMessageDeserializedHandler;
         foreach (var kvpRReceiverContexts in toClone.registeredReceiverContexts)
-            registeredReceiverContexts.Add(kvpRReceiverContexts.Key, kvpRReceiverContexts.Value.Clone());
+            registeredReceiverContexts.TryAdd(kvpRReceiverContexts.Key, kvpRReceiverContexts.Value.Clone());
     }
 
     public override ConversationMessageReceivedHandler<TM>? AttachToDeserializerConversationHandler =>
@@ -236,7 +236,7 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
     public bool Add(IReceiverListenContext<TM> receiverListenContext)
     {
         var oldReceiverListenCount = registeredReceiverContexts.Count;
-        var wasAdded               = registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
+        var wasAdded               = registeredReceiverContexts.TryAdd(receiverListenContext.Name, receiverListenContext);
         SubscriberCount += registeredReceiverContexts.Count - oldReceiverListenCount;
         return wasAdded;
     }
@@ -244,7 +244,7 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
     public void AddRequestExpected(int requestId, IReusableAsyncResponseSource<TM> responseValueTaskSource)
     {
         if (DeserializedIsResponseMessage)
-            ExpectedRequestResponses.Add(requestId, responseValueTaskSource);
+            ExpectedRequestResponses.TryAdd(requestId, responseValueTaskSource);
         else
             throw new ArgumentException("Attempting to add a responseValueTaskSource to a message that can not source a request Id ");
     }
@@ -274,14 +274,14 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
                 if ((copyMergeFlags & CopyMergeFlags.JustDifferences) > 0)
                 {
                     if (!registeredReceiverContexts.TryGetValue(kvpReceiverContexts.Key, out preExisting))
-                        registeredReceiverContexts.Add(kvpReceiverContexts.Key, kvpReceiverContexts.Value.Clone());
+                        registeredReceiverContexts.TryAdd(kvpReceiverContexts.Key, kvpReceiverContexts.Value.Clone());
                     else
                         preExisting!.CopyFrom(kvpReceiverContexts.Value);
                 }
 
                 if ((copyMergeFlags & CopyMergeFlags.AppendMissing) > 0)
                     if (!registeredReceiverContexts.TryGetValue(kvpReceiverContexts.Key, out preExisting))
-                        registeredReceiverContexts.Add(kvpReceiverContexts.Key, kvpReceiverContexts.Value.Clone());
+                        registeredReceiverContexts.TryAdd(kvpReceiverContexts.Key, kvpReceiverContexts.Value.Clone());
             }
             else
             {
@@ -387,7 +387,7 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
         Converter = converter;
 
         foreach (var receiverListenContext in registerAllReceiverListenContexts)
-            registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
+            registeredReceiverContexts.TryAdd(receiverListenContext.Name, receiverListenContext);
     }
 
     public ConvertingDeserializedNotifier(ConvertingDeserializedNotifier<TM, TR> toClone) : base(toClone)
@@ -397,7 +397,7 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
         receiverConversationMessageReceivedHandler = toClone.receiverConversationMessageReceivedHandler;
         receiverMessageOnlyDeserializedHandler     = toClone.receiverMessageOnlyDeserializedHandler;
         foreach (var kvpRReceiverContexts in toClone.registeredReceiverContexts)
-            registeredReceiverContexts.Add(kvpRReceiverContexts.Key, kvpRReceiverContexts.Value.Clone());
+            registeredReceiverContexts.TryAdd(kvpRReceiverContexts.Key, kvpRReceiverContexts.Value.Clone());
         registeredReceiverContexts = toClone.registeredReceiverContexts.Clone();
 
         Converter = toClone.Converter;
@@ -436,7 +436,7 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     public bool Add(IReceiverListenContext<TR> receiverListenContext)
     {
         var oldReceiverListenCount = registeredReceiverContexts.Count;
-        var wasAdded               = registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
+        var wasAdded               = registeredReceiverContexts.TryAdd(receiverListenContext.Name, receiverListenContext);
         SubscriberCount += registeredReceiverContexts.Count - oldReceiverListenCount;
         return wasAdded;
     }
@@ -449,7 +449,7 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     {
         if (DeserializedIsResponseMessage || convertedIsResponseMessage)
         {
-            ExpectedRequestResponses.Add(requestId, responseValueTaskSource);
+            ExpectedRequestResponses.TryAdd(requestId, responseValueTaskSource);
             SubscriberCount++;
         }
         else
@@ -477,14 +477,14 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
                 if ((copyMergeFlags & CopyMergeFlags.JustDifferences) > 0)
                 {
                     if (!registeredReceiverContexts.TryGetValue(kvpReceiverContexts.Key, out preExisting))
-                        registeredReceiverContexts.Add(kvpReceiverContexts.Key, kvpReceiverContexts.Value.Clone());
+                        registeredReceiverContexts.TryAdd(kvpReceiverContexts.Key, kvpReceiverContexts.Value.Clone());
                     else
                         preExisting!.CopyFrom(kvpReceiverContexts.Value);
                 }
 
                 if ((copyMergeFlags & CopyMergeFlags.AppendMissing) > 0)
                     if (!registeredReceiverContexts.TryGetValue(kvpReceiverContexts.Key, out preExisting))
-                        registeredReceiverContexts.Add(kvpReceiverContexts.Key, kvpReceiverContexts.Value.Clone());
+                        registeredReceiverContexts.TryAdd(kvpReceiverContexts.Key, kvpReceiverContexts.Value.Clone());
             }
             else
             {

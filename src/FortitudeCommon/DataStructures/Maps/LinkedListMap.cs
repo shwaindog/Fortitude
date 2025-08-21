@@ -1,9 +1,11 @@
 #region
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
+using FortitudeCommon.DataStructures.Memory;
+
+// ReSharper disable InconsistentlySynchronizedField
 
 #endregion
 
@@ -13,14 +15,17 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
 {
     private readonly object sync = new();
 
+    private static readonly IRecycler MyRecycler = new Recycler();
+
     protected DoublyLinkedList<
-        DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>> Chain = new();
+        DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>> Chain = 
+        MyRecycler.Borrow<DoublyLinkedList<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>>();
 
     public LinkedListMap() { }
 
     public LinkedListMap(IMap<TK, TV> toClone)
-    {
-        foreach (var keyValuePair in toClone) Add(keyValuePair.Key, keyValuePair.Value);
+    {        
+        foreach (var keyValuePair in toClone) TryAdd(keyValuePair.Key, keyValuePair.Value);
     }
 
     public TV this[TK key]
@@ -37,20 +42,17 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
         set => AddOrUpdate(key, value!);
     }
 
+    public Func<ReusableList<TK>> KeysListFactory { get; set; } = MyRecycler.Borrow<ReusableList<TK>>;
+
+    public Func<ReusableList<TV>> ValuesListFactory { get; set; } = MyRecycler.Borrow<ReusableList<TV>>;
     
-    public Func<ReusableList<TK>> KeysListFactory { get; set; } = () => new ReusableList<TK>();
-
-    public Func<ReusableList<TV>> ValuesListFactory { get; set; } = () => new ReusableList<TV>();
-
-
     public ICollection<TK> Keys
     {
         get
         {
             var keysList    = KeysListFactory();
             var currentNode = Chain.Head;
-            for (; currentNode != null; currentNode = currentNode.Next)
-                keysList.Add(currentNode.Payload.Key);
+            for (; currentNode != null; currentNode = currentNode.Next) keysList.Add(currentNode.Payload.Key);
             return keysList;
         }
     }
@@ -59,10 +61,9 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
     {
         get
         {
-            var valuesList = ValuesListFactory();
+            var valuesList  = ValuesListFactory();
             var currentNode = Chain.Head;
-            for (; currentNode != null; currentNode = currentNode.Next)
-                valuesList.Add(currentNode.Payload.Value);
+            for (; currentNode != null; currentNode = currentNode.Next) valuesList.Add(currentNode.Payload.Value);
             return valuesList;
         }
     }
@@ -92,7 +93,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
         if (!TryGetValue(key, out var value))
         {
             value = createFunc(key);
-            Add(key, value);
+            TryAdd(key, value);
         }
 
         return value!;
@@ -100,105 +101,190 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public TV AddOrUpdate(TK key, TV value)
     {
+        var foundInExisting = false;
+        var wasChanged      = false;
+        
+        DoublyLinkedList<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>> toReplace;
         lock (sync)
         {
-            var duplicate =
-                new DoublyLinkedList<DoublyLinkedListWrapperNode<
-                    KeyValuePair<TK, TV>>>();
+            toReplace = Chain;
+            var duplicate   = MyRecycler.Borrow<DoublyLinkedList<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>>();
             var currentNode = Chain.Head;
-            var foundInExisting = false;
             for (; currentNode != null; currentNode = currentNode.Next)
                 if (currentNode.Payload.Key.Equals(key))
                 {
-                    duplicate.AddFirst(
-                        new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
-                            new KeyValuePair<TK, TV>(key, value)));
+                    var updatedNode = MyRecycler.Borrow<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>()
+                                                .Initialize(new KeyValuePair<TK, TV>(key, value));
+                    wasChanged = !ReferenceEquals(currentNode.Payload.Value, value);
+                    if (wasChanged && value is IRecyclableObject valueRecyclable)
+                    {
+                        valueRecyclable.IncrementRefCount();
+                        if (currentNode.Payload.Value is IRecyclableObject oldValueRecyclable)
+                        {
+                            oldValueRecyclable.DecrementRefCount();
+                        }
+                    }
+                    duplicate.AddFirst(updatedNode);
                     foundInExisting = true;
                 }
                 else
                 {
-                    duplicate.AddFirst(
-                        new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
-                            currentNode.Payload));
+                    var copyNode = MyRecycler.Borrow<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>().Initialize(currentNode.Payload);
+                    duplicate.AddFirst(copyNode);
                 }
 
             if (!foundInExisting)
             {
-                duplicate.AddFirst(
-                    new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
-                        new KeyValuePair<TK, TV>(key, value)));
-
-                Updated?.Invoke(duplicate.Select(wn => wn.Payload));
-                Chain = duplicate;
+                var newNode = MyRecycler.Borrow<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>().Initialize(new KeyValuePair<TK, TV>(key, value));
+                duplicate.AddFirst(newNode);
             }
 
-            return value;
+            Chain = duplicate;
         }
-    }
-
-    public bool Add(TK key, TV value)
-    {
-        lock (sync)
+        if (foundInExisting)
         {
-            var duplicate =
-                new DoublyLinkedList<DoublyLinkedListWrapperNode<
-                    KeyValuePair<TK, TV>>>();
-            var currentNode = Chain.Head;
-            var foundInExisting = false;
+            if(wasChanged) Updated?.Invoke(key, value, MapUpdateType.Update, this);
+        }
+        else
+        {
+            Updated?.Invoke(key, value, MapUpdateType.Create, this);
+        }
+        lock (toReplace)
+        {
+            var currentNode = toReplace.Head;
             for (; currentNode != null; currentNode = currentNode.Next)
             {
-                if (currentNode.Payload.Key.Equals(key)) foundInExisting = true;
-
-                duplicate.AddFirst(
-                    new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
-                        currentNode.Payload));
+                currentNode.DecrementRefCount();
             }
-
-            if (!foundInExisting)
-            {
-                duplicate.AddFirst(
-                    new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
-                        new KeyValuePair<TK, TV>(key, value)));
-
-                Updated?.Invoke(duplicate.Select(wn => wn.Payload));
-                Chain = duplicate;
-                return true;
-            }
-
-            return false;
         }
+        toReplace.DecrementRefCount();
+
+        return value;
+    }
+
+    // for dictionary initializer
+    public void Add(TK key, TV value)
+    {
+        TryAdd(key, value);
+    }
+
+    public bool TryAdd(TK key, TV value)
+    {
+        var foundInExisting = false;
+
+        DoublyLinkedList<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>> toReplace;
+        lock (sync)
+        {
+            toReplace = Chain;
+            var duplicate   = MyRecycler.Borrow<DoublyLinkedList<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>>();
+            var currentNode = Chain.Head;
+            for (; currentNode != null; currentNode = currentNode.Next)
+            {
+                if (currentNode.Payload.Key.Equals(key))
+                {
+                    foundInExisting = true;
+                }
+
+                var copyNode = MyRecycler.Borrow<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>().Initialize(currentNode.Payload);
+                duplicate.AddFirst(copyNode);
+            }
+            if (foundInExisting)
+            {
+                currentNode = duplicate.Head;
+                for (; currentNode != null; currentNode = currentNode.Next)
+                {
+                    currentNode.DecrementRefCount();
+                }
+                duplicate.DecrementRefCount();
+                return false;
+            }
+
+            var newNode = MyRecycler.Borrow<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>().Initialize(new KeyValuePair<TK, TV>(key, value));
+            duplicate.AddFirst(newNode);
+            Chain = duplicate;
+        }
+        Updated?.Invoke(key, value, MapUpdateType.Create, this);
+        
+        lock (toReplace)
+        {
+            var currentNode = toReplace.Head;
+            for (; currentNode != null; currentNode = currentNode.Next)
+            {
+                currentNode.DecrementRefCount();
+            }
+        }
+        toReplace.DecrementRefCount();
+        return !foundInExisting;
     }
 
     public bool Remove(TK key)
     {
-        var foundKey = false;
+        var foundKey   = false;
+        TV? foundValue = default;
+
+        DoublyLinkedList<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>> toReplace;
         lock (sync)
         {
-            var duplicate = new DoublyLinkedList<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>();
-            var currentNode = Chain.Head;
-
+            toReplace = Chain;
+            var duplicate   = MyRecycler.Borrow<DoublyLinkedList<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>>();
+            var currentNode = toReplace.Head;
             for (; currentNode != null; currentNode = currentNode.Next)
                 if (!(currentNode.Payload.Key.Equals(key)))
-                    duplicate.AddFirst(new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(currentNode.Payload));
+                {
+                    var copyNode = MyRecycler.Borrow<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>().Initialize(currentNode.Payload);
+                    duplicate.AddFirst(copyNode);
+                }
                 else
-                    foundKey = true;
+                {
+                    foundValue = currentNode.Payload.Value;
+                    if (foundValue is IRecyclableObject removeValueRecyclable)
+                    {
+                        removeValueRecyclable.DecrementRefCount();
+                    }
+                    foundKey   = true;
+                }
 
-            Updated?.Invoke(duplicate.Select(wn => wn.Payload));
             Chain = duplicate;
         }
+        if (foundKey && !Equals(foundValue, null))
+        {
+            Updated?.Invoke(key, foundValue, MapUpdateType.Create, this);
+        }
+        lock (toReplace)
+        {
+            var currentNode = toReplace.Head;
+            for (; currentNode != null; currentNode = currentNode.Next)
+            {
+                currentNode.DecrementRefCount();
+            }
+        }
+        toReplace.DecrementRefCount();
 
         return foundKey;
     }
 
     public void Clear()
     {
+        var removedKeyValuePairs = MyRecycler.Borrow<ReusableList<KeyValuePair<TK, TV>>>();
         lock (sync)
         {
-            Chain =
-                new DoublyLinkedList<DoublyLinkedListWrapperNode<
-                    KeyValuePair<TK, TV>>>();
-            Updated?.Invoke(Chain.Select(wn => wn.Payload));
+            var currentNode          = Chain.Head;
+            for (; currentNode != null; currentNode = currentNode.Next)
+            {
+                removedKeyValuePairs.Add(currentNode.Payload);
+                currentNode.DecrementRefCount();
+            }
+            Chain = MyRecycler.Borrow<DoublyLinkedList<DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>>>();
         }
+        foreach (var removedKvp in removedKeyValuePairs)
+        {
+            Updated?.Invoke(removedKvp.Key, removedKvp.Value, MapUpdateType.Remove, this);
+            if (removedKvp.Value is IRecyclableObject removeValueRecyclable)
+            {
+                removeValueRecyclable.DecrementRefCount();
+            }
+        }
+        removedKeyValuePairs.DecrementRefCount();
     }
 
     public int Count => Chain.Count();
@@ -208,7 +294,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
         return TryGetValue(key, out _);
     }
 
-    public event Action<IEnumerable<KeyValuePair<TK, TV>>>? Updated;
+    public event Action<TK, TV, MapUpdateType, IMap<TK, TV>>? Updated;
 
     object ICloneable.Clone() => Clone();
 

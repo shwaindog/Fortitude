@@ -37,11 +37,11 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
 
     private string combinedFullConfigFilePath;
 
-    private Encoding fileEncoding;
-    private string   configPath;
-    private string   configFileName;
+    private Encoding? fileEncoding;
+    private string?   configPath;
+    private string?   configFileName;
 
-    public FLogFileAppender(IFileAppenderConfig fileAppenderConfig, IFLogContext context) : base(fileAppenderConfig, context)
+    public FLogFileAppender(IFileAppenderConfig fileAppenderConfig, IFLogContext context) : base(fileAppenderConfig, context, false)
     {
         configPath         = fileAppenderConfig.FilePath;
         configFileName     = fileAppenderConfig.FileName;
@@ -49,6 +49,8 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
         ExpiryToCloseDelay = TimeSpan.FromMilliseconds(fileAppenderConfig.CloseDelayMs);
 
         combinedFullConfigFilePath = Path.Combine(configPath, configFileName);
+
+        FormatWriterRequestCache = new MultiDestLogEntryNamedFormatWriterRequestCache().Initialize(this, context);
     }
 
     public LogEntryPathResolver PathResolver =>
@@ -82,10 +84,10 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
 
     public Encoding FileEncoding
     {
-        get => fileEncoding;
+        get => fileEncoding ??= Encoding.UTF8; 
         set
         {
-            if (fileEncoding.EncodingName == value.EncodingName) return;
+            if (fileEncoding?.EncodingName == value.EncodingName) return;
             fileEncoding = value;
             FileEncoder  = fileEncoding.GetEncoder();
         }
@@ -103,8 +105,7 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
             case FileEncodingTypes.Latin1:  return Encoding.Latin1;
 
             case FileEncodingTypes.Utf8:
-            default:
-                return Encoding.UTF8;
+            default: return Encoding.UTF8;
         }
     }
 

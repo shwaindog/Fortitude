@@ -1,6 +1,8 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using static FortitudeCommon.Types.StyledToString.StringBuildingStyle;
 
 namespace FortitudeCommon.Types.StyledToString;
@@ -18,6 +20,32 @@ public enum StringBuildingStyle
 
 public static class StringBuildingStyleExtensions
 { // ReSharper disable UnusedMember.Global
+    
+    
+    public static CustomTypeStyler<StringBuildingStyle> StringBuildingStyleStyler
+        = FormatFileAppenderTypeAppender;
+    
+    public static CustomTypeStyler<StringBuildingStyle> Styler(this StringBuildingStyle stringBuildingStyle)
+        => StringBuildingStyleStyler;
+
+    public static StyledTypeBuildResult FormatFileAppenderTypeAppender(this StringBuildingStyle stringBuildingStyle, IStyledTypeStringAppender sbc)
+    {
+        var tb = sbc.StartSimpleValueType(nameof(StringBuildingStyle));
+        using (var sb = tb.StartDelimitedStringBuilder())
+        {
+            switch (stringBuildingStyle)
+            {
+                case PlainText: sb.Append($"{nameof(PlainText)}"); break;
+                case Compact:   sb.Append($"{nameof(Compact)}"); break;
+                case Pretty:    sb.Append($"{nameof(Pretty)}"); break;
+                case Log:       sb.Append($"{nameof(Log)}"); break;
+                case Json:      sb.Append($"{nameof(Json)}"); break;
+                default:        sb.Append($"{nameof(Default)}"); break;
+            }
+        }
+        return tb.Complete();
+    }
+    
     public static bool IsDefault(this StringBuildingStyle style) => style.IsExactly(Default);
 
     public static bool IsJustLogCompact(this StringBuildingStyle style) => style.IsExactly(Log | Pretty);

@@ -32,7 +32,7 @@ public interface IAppendableExtractedMessageKeyValuesConfig : IExtractedMessageK
 
     new int Count { get; }
 
-    new IMutableExtractKeyExpressionConfig this[string keyName] { get; set; }
+    new IMutableExtractKeyExpressionConfig this[string appenderName] { get; set; }
 
     new bool ContainsKey(string keyName);
 
@@ -132,13 +132,13 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public int Count => CheckConfigGetLoggersDict.Count;
 
-    public new IMutableExtractKeyExpressionConfig this[string loggerName]
+    public new IMutableExtractKeyExpressionConfig this[string appenderName]
     {
-        get => CheckConfigGetLoggersDict[loggerName];
-        set => CheckConfigGetLoggersDict[loggerName] = value;
+        get => CheckConfigGetLoggersDict[appenderName];
+        set => CheckConfigGetLoggersDict[appenderName] = value;
     }
 
-    IExtractKeyExpressionConfig IReadOnlyDictionary<string, IExtractKeyExpressionConfig>.this[string loggerName] => this[loggerName];
+    IExtractKeyExpressionConfig IReadOnlyDictionary<string, IExtractKeyExpressionConfig>.this[string appenderName] => this[appenderName];
 
     IEnumerable<string> IReadOnlyDictionary<string, IMutableExtractKeyExpressionConfig>.Keys => CheckConfigGetLoggersDict.Keys;
 

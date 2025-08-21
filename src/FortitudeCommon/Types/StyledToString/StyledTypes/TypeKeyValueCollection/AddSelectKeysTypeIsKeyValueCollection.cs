@@ -9,10 +9,11 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollectio
 
 public partial class KeyValueCollectionBuilder
 {
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived>
+        (IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull 
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKDerived : TKey 
     {
         if (value != null)
         {
@@ -32,10 +33,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived>
+    (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKDerived : TKey 
     {
         if (value != null)
         {
@@ -55,10 +57,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived>
+    (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKDerived : TKey 
     {
         if (value != null)
         {
@@ -78,10 +81,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived>
+    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)  
+        where TKDerived : TKey 
     {
         if (value != null)
         {
@@ -100,10 +104,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
-        (IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived>
+        (IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)   
+        where TKDerived : TKey 
     {
         var hasValue = selectKeys.MoveNext();
         while(hasValue && value != null) 
@@ -126,10 +131,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived>
+    (IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
       , CustomTypeStyler<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKDerived : TKey where TValue : struct 
     {
         if (value != null)
         {
@@ -146,10 +152,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived>
+        (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
           , CustomTypeStyler<TValue> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+        where TKDerived : TKey  where TValue : struct 
     {
         if (value != null)
         {
@@ -167,10 +174,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived>
+    (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
       , CustomTypeStyler<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)  
+        where TKDerived : TKey  where TValue : struct 
     {
         if (value != null)
         {
@@ -188,9 +196,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys, CustomTypeStyler<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived>
+    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, CustomTypeStyler<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)   
+        where TKDerived : TKey  where TValue : struct 
     {
         if (value != null)
         {
@@ -207,9 +216,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKey> selectKeys, CustomTypeStyler<TValue> valueStyler 
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived>(IReadOnlyDictionary<TKey, TValue>? value
+      , IEnumerator<TKDerived> selectKeys, CustomTypeStyler<TValue> valueStyler 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)    
+        where TKDerived : TKey  where TValue : struct 
     {
         var hasValue = selectKeys.MoveNext();
         while(hasValue && value != null) 

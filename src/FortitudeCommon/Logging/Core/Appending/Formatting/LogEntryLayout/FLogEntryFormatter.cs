@@ -53,7 +53,6 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
     {
         if (template != FormattingTemplate)
         {
-            templateParts.Clear();
             FormattingTemplate = template;
         }
         formatWriterResolver = writerResolver;
@@ -106,7 +105,6 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
         {
             if (value == formattingTemplate) return;
             formattingTemplate = value;
-            templateParts.Clear();
             BuildTemplateParts();
         }
     }

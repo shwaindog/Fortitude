@@ -29,23 +29,22 @@ public static class FLoggerEntryMatchTypeExtensions
     public static StyledTypeBuildResult FormatEntryMatchTypeAppender(this FLoggerEntryMatchType entryMatchType, IStyledTypeStringAppender sbc)
     {
         var tb = sbc.StartSimpleValueType(nameof(FLoggerEntryMatchType));
-        var sb = tb.StringBuilder("_FLoggerEntryMatchTypeAsString");
-
-        sb.Append("\"");
-        switch (entryMatchType)
+        using (var sb = tb.StartDelimitedStringBuilder())
         {
-            case Unknown: sb.Append($"{nameof(Unknown)}"); break;
+            switch (entryMatchType)
+            {
+                case Unknown: sb.Append($"{nameof(Unknown)}"); break;
 
-            case EntryContainsString:      sb.Append($"{nameof(EntryContainsString)}"); break;
-            case MessageSequenceCompletes: sb.Append($"{nameof(MessageSequenceCompletes)}"); break;
-            case SequenceKeysComparison:   sb.Append($"{nameof(SequenceKeysComparison)}"); break;
+                case EntryContainsString:      sb.Append($"{nameof(EntryContainsString)}"); break;
+                case MessageSequenceCompletes: sb.Append($"{nameof(MessageSequenceCompletes)}"); break;
+                case SequenceKeysComparison:   sb.Append($"{nameof(SequenceKeysComparison)}"); break;
 
-            case MessageSequenceExpiresIncomplete: sb.Append($"{nameof(MessageSequenceExpiresIncomplete)}"); break;
+                case MessageSequenceExpiresIncomplete: sb.Append($"{nameof(MessageSequenceExpiresIncomplete)}"); break;
 
-            default: sb.Append($"{nameof(Unknown)}"); break;
+                default: sb.Append($"{nameof(Unknown)}"); break;
+            }
         }
-        sb.Append("\"");
-        
+
         return tb.Complete();
     }
 

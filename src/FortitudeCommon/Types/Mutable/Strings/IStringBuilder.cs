@@ -22,6 +22,11 @@ public interface IStringBuilder : ICharSequence, IMutableStringBuilder<IStringBu
     new IStringBuilder Clone();
 }
 
+public interface IScopeDelimitedStringBuilder : IStringBuilder, IDisposable
+{
+    Action<IScopeDelimitedStringBuilder>? OnScopeEndedAction { get; set; }
+}
+
 public static class IStringBuilderExtensions
 {
     public static IStringBuilder ReplaceAtRange(this IStringBuilder toMutate, Range rangeToReplace, ICharSequence? replaceWith)

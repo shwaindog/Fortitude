@@ -23,7 +23,7 @@ public class TypeInstanceCounter
         if (registeredTypes.TryGetValue(type, out var instanceCountContainer))
             return instanceCountContainer!.Increment();
         instanceCountContainer = new InstanceCountContainer();
-        registeredTypes.Add(type, instanceCountContainer);
+        registeredTypes.TryAdd(type, instanceCountContainer);
         return instanceCountContainer!.Increment();
     }
 
@@ -32,7 +32,7 @@ public class TypeInstanceCounter
         if (registeredTypes.TryGetValue(typeof(T), out var instanceCountContainer))
             return instanceCountContainer!.Increment();
         instanceCountContainer = new InstanceCountContainer();
-        registeredTypes.Add(typeof(T), instanceCountContainer);
+        registeredTypes.TryAdd(typeof(T), instanceCountContainer);
         return instanceCountContainer!.Increment();
     }
 }

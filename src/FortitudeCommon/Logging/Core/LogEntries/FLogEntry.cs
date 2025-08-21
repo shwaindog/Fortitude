@@ -301,11 +301,15 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
                .Field.AlwaysAdd(nameof(InstanceNumber), InstanceNumber)
                .Field.AlwaysAdd(nameof(RefCount), RefCount)
                .Field.WhenNonDefaultAdd(nameof(CorrelationId), CorrelationId)
-               .Field.AlwaysAdd(nameof(LogDateTime), LogDateTime, "{0:HH:mm:ss.ffffff}")
+               .Field.AlwaysAdd(nameof(LogDateTime), LogDateTime, "{0:yyyy-MM-ddTHH:mm:ss.ffffff}")
                .Field.AlwaysAdd(nameof(LogLevel), LogLevel, LogLevel.Styler())
                .Field.AlwaysAdd(nameof(LogLocation), LogLocation, LogLocation.Styler())
-               .Field.WhenNonDefaultAdd(nameof(Logger), (Logger?.FullName[^25..] ?? "".AsSpan()))
-               .Field.AlwaysAdd(nameof(Message), messageBuilder, 0, 40, "\"{0}...\"");
+               .Field.WhenNonDefaultAdd(nameof(Logger), Logger.FullName)
+               .Field.WhenNonNullAdd(nameof(Style), Style, Style.Styler())
+               .Field.WhenNonNullAdd("Thread.Id", Thread?.ManagedThreadId)
+               .Field.WhenNonNullAdd("Thread.Name", Thread?.Name)
+               .Field.AlwaysAdd(nameof(Message), messageBuilder)
+               .Field.WhenNonNullAdd(nameof(CallerContextObject), CallerContextObject);
 
         return tb.Complete();
     }

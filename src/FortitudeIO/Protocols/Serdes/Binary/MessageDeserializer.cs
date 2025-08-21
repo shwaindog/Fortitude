@@ -115,7 +115,7 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
     protected MessageDeserializer(MessageDeserializer<TM> toClone)
     {
         foreach (var cloneRegisteredNotifier in toClone.registeredNotifiers)
-            registeredNotifiers.Add(cloneRegisteredNotifier.Key, cloneRegisteredNotifier.Value.Clone());
+            registeredNotifiers.TryAdd(cloneRegisteredNotifier.Key, cloneRegisteredNotifier.Value.Clone());
     }
 
     public bool RemoveOnZeroNotifiers { get; set; }
@@ -198,7 +198,7 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
 
     public IDeserializedNotifier<TM, TR> AddDeserializedNotifier<TR>(IDeserializedNotifier<TM, TR> deserializedNotifier)
     {
-        registeredNotifiers.Add(deserializedNotifier.Name, deserializedNotifier);
+        registeredNotifiers.TryAdd(deserializedNotifier.Name, deserializedNotifier);
         deserializedNotifier.RegisterMessageDeserializer(this);
         return deserializedNotifier;
     }

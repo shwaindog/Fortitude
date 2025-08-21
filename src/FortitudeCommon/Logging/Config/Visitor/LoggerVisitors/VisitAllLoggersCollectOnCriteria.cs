@@ -65,7 +65,7 @@ public class VisitAllLoggersCollectOnCriteria<T>(List<IMutableFLoggerDescendantC
         }
         foreach (var childLogger in childLoggersConfig)
         {
-            return childLogger.Value.Visit(Me);
+            childLogger.Value.Visit(Me);
         }
         return Me;
     }

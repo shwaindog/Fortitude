@@ -10,7 +10,7 @@ using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 
-public class SourceOrCreateLoggerVisitor(string loggerFullName, IFLogContext flogContext) : LoggerVisitor<SourceOrCreateLoggerVisitor>
+public class SourceOrCreateLoggerVisitor(string loggerFullName, IFLogContext flogContext, string flogAppConfigPath) : LoggerVisitor<SourceOrCreateLoggerVisitor>
 {
     private readonly MutableString loggerNameScratch = new();
 
@@ -55,7 +55,7 @@ public class SourceOrCreateLoggerVisitor(string loggerFullName, IFLogContext flo
                     .Append(ancestorLogger.FullName.IsNotNullOrEmpty() ? "." : "").Append(firstNamePart).ToString();
             var configPathBuilder =
                 loggerNameScratch
-                    .Clear().Append(IFLogAppConfig.DefaultFLogAppConfigPath).Append(ConfigSection.KeySeparator)
+                    .Clear().Append(flogAppConfigPath).Append(ConfigSection.KeySeparator)
                     .Append(nameof(FLogAppConfig.RootLogger)).Append(ConfigSection.KeySeparator)
                     .Append(nameof(FLoggerTreeCommonConfig.DescendantLoggers)).Append(ConfigSection.KeySeparator);
             foreach (var ancestorGeneration in ancestorFullName.Split(".").Where(s => s.IsNotEmpty()))
@@ -91,6 +91,4 @@ public class SourceOrCreateLoggerVisitor(string loggerFullName, IFLogContext flo
         }
         return false;
     }
-
-    public override SourceOrCreateLoggerVisitor Accept(IMutableFLoggerDescendant node) => this;
 }

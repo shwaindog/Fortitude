@@ -5,6 +5,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
+using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
@@ -80,6 +81,8 @@ public interface IFLogConfigVisitor<TBase> : IReusableObject<IFLogConfigVisitor<
     TBase Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig);
 
     TBase Accept(IMutableFlushBufferConfig flushBufferConfig);
+
+    TBase Accept(IMutableFileAppenderConfig fileAppenderConfig);
 }
 
 public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLogConfigVisitor<T> 
@@ -148,6 +151,8 @@ public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLog
     public virtual T Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig) => (T)this;
 
     public virtual T Accept(IMutableFlushBufferConfig flushBufferConfig) => (T)this;
+
+    public virtual T Accept(IMutableFileAppenderConfig fileAppenderConfig) => (T)this;
 
     public override IFLogConfigVisitor<T> Clone() => 
         Recycler?.Borrow<FLogConfigVisitor<T>>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new FLogConfigVisitor<T>();

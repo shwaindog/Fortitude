@@ -16,7 +16,7 @@ using FortitudeCommon.Extensions;
 namespace FortitudeCommon.Types.Mutable.Strings;
 
 [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
-public sealed class MutableString : ReusableObject<IMutableString>, IMutableString, ITransferState<MutableString>
+public sealed class MutableString : ReusableObject<IMutableString>, IMutableString, ITransferState<MutableString>, IScopeDelimitedStringBuilder
 {
     private static readonly Recycler EnumeratorPool = new();
 
@@ -57,6 +57,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
             return this;
         }
     }
+
+    Action<IScopeDelimitedStringBuilder>? IScopeDelimitedStringBuilder.OnScopeEndedAction { get; set; }
 
     public bool ThrowOnMutateAttempt
     {
@@ -1527,6 +1529,16 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     // ReSharper disable once UnusedMember.Global
     public IFrozenString NewFrozenString => new FrozenMutableStringWrapper((MutableString)(Clone().Freeze));
+
+    public void Dispose()
+    {
+        var onEndAction = ((IScopeDelimitedStringBuilder)this).OnScopeEndedAction;
+        if (onEndAction != null)
+        {
+            onEndAction(this);
+            ((IScopeDelimitedStringBuilder)this).OnScopeEndedAction = null;
+        }
+    }
 
     IStringBuilder ICloneable<IStringBuilder>.Clone() => Clone();
 

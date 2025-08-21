@@ -731,107 +731,6 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-
-    public TExt AddAll<TStyledObj>(TStyledObj[]? value)
-        where TStyledObj : class, IStyledToStringObject
-    {
-        stb.ConditionalCollectionPrefix();
-        var any      = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        any |= stb.ConditionalCollectionSuffix();
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
-    }
-
-    public TExt AddAll<TStyledObj>(ReadOnlySpan<TStyledObj> value)
-        where TStyledObj : class, IStyledToStringObject
-    {
-        stb.ConditionalCollectionPrefix();
-        var any      = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        any |= stb.ConditionalCollectionSuffix();
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
-    }
-
-    public TExt AddAll<TStyledObj>(IReadOnlyList<TStyledObj>? value)
-        where TStyledObj : class, IStyledToStringObject
-    {
-        stb.ConditionalCollectionPrefix();
-        var any      = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Count; i++)
-            {
-                var item = value[i];
-                
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        any |= stb.ConditionalCollectionSuffix();
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
-    }
-
-    public TExt AddAllEnumerate<TStyledObj>(IEnumerable<TStyledObj>? value)
-        where TStyledObj : class, IStyledToStringObject 
-    {
-        stb.ConditionalCollectionPrefix();
-        var any      = false;
-        if (value != null)
-        {
-            foreach (var item in value)
-            {
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        any |= stb.ConditionalCollectionSuffix();
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
-    }
-
-    public TExt AddAllEnumerate<TStyledObj>(IEnumerator<TStyledObj>? value)
-        where TStyledObj : class, IStyledToStringObject 
-    {
-        stb.ConditionalCollectionPrefix();
-        var any      = false;
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
-        {
-            while (hasValue)
-            {
-                var item = value!.Current;
-                
-                any = true;
-                stb.AppendOrNull(item);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        any |= stb.ConditionalCollectionSuffix();
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
-    }
-
     public TExt AddAll(ICharSequence?[]? value)
     {
         stb.ConditionalCollectionPrefix();
@@ -1002,6 +901,206 @@ public partial class OrderedCollectionBuilder<TExt>
     }
 
     public TExt AddAllEnumerate(IEnumerator<StringBuilder?>? value)
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            while (hasValue)
+            {
+                var item = value!.Current;
+                
+                any = true;
+                stb.AppendOrNull(item);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAll<TStyledObj>(TStyledObj[]? value)
+        where TStyledObj : class, IStyledToStringObject
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAll<TStyledObj>(ReadOnlySpan<TStyledObj> value)
+        where TStyledObj : class, IStyledToStringObject
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAll<TStyledObj>(IReadOnlyList<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllEnumerate<TStyledObj>(IEnumerable<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject 
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        if (value != null)
+        {
+            foreach (var item in value)
+            {
+                any = true;
+                stb.AppendOrNull(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllEnumerate<TStyledObj>(IEnumerator<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject 
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            while (hasValue)
+            {
+                var item = value!.Current;
+                
+                any = true;
+                stb.AppendOrNull(item);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+    
+    public TExt AddAll<T, TBase>(T[]? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase: class
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item, customTypeStyler);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAll<T, TBase>(ReadOnlySpan<T> value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase: class
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item, customTypeStyler);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAll<T, TBase>(IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase: class
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item, customTypeStyler);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllEnumerate<T, TBase>(IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase: class 
+    {
+        stb.ConditionalCollectionPrefix();
+        var any      = false;
+        if (value != null)
+        {
+            foreach (var item in value)
+            {
+                any = true;
+                stb.AppendOrNull(item, customTypeStyler);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        any |= stb.ConditionalCollectionSuffix();
+        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllEnumerate<T, TBase>(IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase: class 
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;

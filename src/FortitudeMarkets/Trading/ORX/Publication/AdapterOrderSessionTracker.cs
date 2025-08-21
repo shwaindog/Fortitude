@@ -38,16 +38,16 @@ public class AdapterOrderSessionTracker
             {
                 sessionOrders = surplusOrderMaps.Borrow();
                 sessionOrders.Clear();
-                orderFromSessionCache.Add(repositorySession, sessionOrders);
+                orderFromSessionCache.TryAdd(repositorySession, sessionOrders);
             }
 
-            sessionOrders?.Add(orderKey, order);
+            sessionOrders?.TryAdd(orderKey, order);
             order.IncrementRefCount();
         }
 
         lock (sessionFromOrderIdCache)
         {
-            sessionFromOrderIdCache.Add(orderKey, (IConversationRequester)repositorySession);
+            sessionFromOrderIdCache.TryAdd(orderKey, (IConversationRequester)repositorySession);
         }
     }
 

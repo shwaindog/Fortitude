@@ -5,6 +5,7 @@ using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
+using static FortitudeCommon.Logging.Config.Appending.FLoggerBuiltinAppenderType;
 
 namespace FortitudeCommon.Logging.Config.Appending;
 
@@ -12,12 +13,12 @@ namespace FortitudeCommon.Logging.Config.Appending;
 public interface INullAppenderConfig : IAppenderDefinitionConfig
 {
     const string NullAppenderName = "NullAppender";
-    const string NullAppenderType = $"{nameof(FLoggerBuiltinAppenderType.Null)}";
+    const string NullAppenderType = $"{nameof(Null)}";
 }
 
 public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
 {
-    private const string SyncForwardingAppenderType = $"{nameof(FLoggerBuiltinAppenderType.Forwarding)}";
+    private const string NullAppenderType = $"{nameof(Null)}";
 
     public NullAppenderConfig(IConfigurationRoot root, string path) 
         : base(root, path, INullAppenderConfig.NullAppenderName, INullAppenderConfig.NullAppenderType ) { }
@@ -34,7 +35,7 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
 
     public override string AppenderType
     {
-        get => this[nameof(AppenderType)] ?? SyncForwardingAppenderType;
+        get => this[nameof(AppenderType)] ?? NullAppenderType;
         set => this[nameof(AppenderType)] = value;
     }
 

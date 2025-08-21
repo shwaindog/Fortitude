@@ -80,7 +80,7 @@ public abstract class FactorySerializationRepository : IMessageSerializationRepo
             {
                 var sourcedMessageSerializer = messageSerializer ?? SourceMessageSerializer<TM>(msgId);
                 if (sourcedMessageSerializer == null) return false;
-                registeredSerializers.Add(msgId, sourcedMessageSerializer);
+                registeredSerializers.TryAdd(msgId, sourcedMessageSerializer);
                 return true;
             }
 
@@ -105,7 +105,7 @@ public abstract class FactorySerializationRepository : IMessageSerializationRepo
             if (cascadingFallbackMsgSerializationRepo1 == null ||
                 !cascadingFallbackMsgSerializationRepo1.IsRegistered(msgId))
             {
-                registeredSerializers.Add(msgId, messageSerializer);
+                registeredSerializers.TryAdd(msgId, messageSerializer);
                 return true;
             }
 
@@ -140,7 +140,7 @@ public abstract class FactorySerializationRepository : IMessageSerializationRepo
             if ((copyMergeFlags & CopyMergeFlags.AppendMissing) > 0)
             {
                 if (!TryGetSerializer(kvpMessageDeserializerEntry.Key, out var preExisting))
-                    registeredSerializers.Add(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value);
+                    registeredSerializers.TryAdd(kvpMessageDeserializerEntry.Key, kvpMessageDeserializerEntry.Value);
             }
             else
             {

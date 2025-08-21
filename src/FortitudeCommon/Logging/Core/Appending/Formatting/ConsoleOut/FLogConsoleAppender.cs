@@ -4,6 +4,7 @@ using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Hub;
+using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 
@@ -20,6 +21,28 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
         (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback) =>
         new ConsoleFormatWriter().Initialize(this, onWriteCompleteCallback);
 
+    public override void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
+    {
+        if (!IsOpen) return;
+        if (logEntryEvent.LogEntryEventType == LogEntryEventType.SingleEntry)
+        {
+            var fLogEntry = logEntryEvent.LogEntry;
+            if (fLogEntry != null)
+            {
+                Formatter.ApplyFormatting(fLogEntry);
+            }
+        }
+        else
+        {
+            var logEntriesBatch = logEntryEvent.LogEntriesBatch;
+            var count           = logEntriesBatch?.Count ?? 0;
+            for (var i = 0; i < count; i++)
+            {
+                var flogEntry = logEntriesBatch![i];
+                Formatter.ApplyFormatting(flogEntry);
+            }
+        }
+    }
 
     public override FormattingAppenderSinkType FormatAppenderType => FormattingAppenderSinkType.Console;
 

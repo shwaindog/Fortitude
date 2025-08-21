@@ -54,7 +54,7 @@ public sealed class PQClientQuoteDeserializerRepository
     public IPQMessageDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : class, IPQMessage
     {
         IPQMessageDeserializer quoteDeserializer = new PQMessageDeserializer<T>(streamPubConfig);
-        RegisteredDeserializers.Add(streamPubConfig.SourceTickerInfo.SourceInstrumentId, quoteDeserializer);
+        RegisteredDeserializers.TryAdd(streamPubConfig.SourceTickerInfo.SourceInstrumentId, quoteDeserializer);
         return quoteDeserializer;
     }
 

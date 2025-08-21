@@ -18,22 +18,50 @@ public interface IFLoggerRoot : IFLoggerCommon
 public interface IMutableFLoggerRoot : IFLoggerRoot, IMutableFLoggerCommon
 {
     void HandleRootLoggerConfigUpdate(IMutableFLoggerRootConfig newRootLoggerState);
-    
+
     new IMutableFLoggerRootConfig ResolvedConfig { get; }
 }
 
 public class FLoggerRoot : FLoggerBase, IMutableFLoggerRoot
 {
-    private readonly IFLogLoggerRegistry   loggerRegistry;
+    private static FLoggerRoot? irreplacableInstance;
 
-    public FLoggerRoot(IMutableFLoggerRootConfig rootLoggerConfig, IFLogLoggerRegistry loggerRegistry) 
-        : base(rootLoggerConfig, loggerRegistry)
+    private static readonly object SyncLock = new();
+
+    public static FLoggerRoot ImmortalInstance
     {
-        this.loggerRegistry = loggerRegistry;
-        FullName       = Name;
-        Name           = "";
+        get
+        {
+            if (irreplacableInstance != null) return irreplacableInstance;
+            lock (SyncLock)
+            {
+                irreplacableInstance ??= new FLoggerRoot();
+            }
+            return irreplacableInstance;
+        }
+    }
 
-        // rootConfig          = ((ExplicitRootConfigNode)rootLoggerConfig.DeclaredConfigNodes.First()).DeclaredRootConfig;
+    private IFLogContext? currentContext;
+
+    internal static IFLogContext? CurrentContext => ImmortalInstance.currentContext;
+
+    internal void InitializeFinalStepSetContext(IFLogContext flogContext)
+    {
+        currentContext = flogContext; 
+        FLogContext.NextInitializingContext = null;
+        
+        loggerRegistry = flogContext.LoggerRegistry;
+        ReInitializeRoot((IMutableFLoggerRootConfig)flogContext.ConfigRegistry.AppConfig.RootLogger, loggerRegistry);
+        
+        Visit(new UpdateLoggerConfigVisitor(flogContext.ConfigRegistry.AppConfig.ConfigRootPath, flogContext));
+    }
+
+    private IFLogLoggerRegistry loggerRegistry = null!;
+
+    private FLoggerRoot()
+    {
+        Name     = null!;
+        FullName = "";
     }
 
     public override IFLoggerRootConfig ResolvedConfig => (IFLoggerRootConfig)Config;
@@ -57,10 +85,10 @@ public class FLoggerRoot : FLoggerBase, IMutableFLoggerRoot
         Config = newRootLoggerState;
         Visit(new UpdateEmbodiedChildrenLoggerConfig(newRootLoggerState.AllLoggers(), appenderRegistry));
     }
-    
+
     public IFLogger GetOrCreateLogger(string loggerFullName, IFLogContext flogContext)
     {
-        var sourceLogger = Visit(new SourceOrCreateLoggerVisitor(loggerFullName, flogContext));
+        var sourceLogger = Visit(new SourceOrCreateLoggerVisitor(loggerFullName, flogContext, flogContext.ConfigRegistry.AppConfig.ConfigRootPath));
         if (sourceLogger.SourcedLogger == null)
         {
             throw new ArgumentException($"Was not able to create a logger for {loggerFullName}");
@@ -68,7 +96,7 @@ public class FLoggerRoot : FLoggerBase, IMutableFLoggerRoot
         return sourceLogger.SourcedLogger;
     }
 
-    public override T Visit<T>(T visitor) 
+    public override T Visit<T>(T visitor)
     {
         return visitor.Accept(this);
     }

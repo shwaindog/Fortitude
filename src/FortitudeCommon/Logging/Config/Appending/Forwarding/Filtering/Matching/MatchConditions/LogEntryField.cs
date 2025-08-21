@@ -28,21 +28,20 @@ public static class LogEntryFieldExtensions
     public static StyledTypeBuildResult FormatMatchOnLogEntryFieldAppender(this LogEntryField matchOnField, IStyledTypeStringAppender sbc)
     {
         var tb = sbc.StartSimpleValueType(nameof(LogEntryField));
-        var sb = tb.StringBuilder("_LogEntryFieldAsString");
-
-        sb.Append("\"");
-        switch (matchOnField)
+        using (var sb = tb.StartDelimitedStringBuilder())
         {
-            case Nothing:     sb.Append($"{nameof(Nothing)}"); break;
-            case MessageBody: sb.Append($"{nameof(MessageBody)}"); break;
-            case LoggerName:  sb.Append($"{nameof(LoggerName)}"); break;
-            case SourceFile:  sb.Append($"{nameof(SourceFile)}"); break;
-            case MemberName:  sb.Append($"{nameof(MemberName)}"); break;
-            case Any:         sb.Append($"{nameof(Any)}"); break;
+            switch (matchOnField)
+            {
+                case Nothing:     sb.Append($"{nameof(Nothing)}"); break;
+                case MessageBody: sb.Append($"{nameof(MessageBody)}"); break;
+                case LoggerName:  sb.Append($"{nameof(LoggerName)}"); break;
+                case SourceFile:  sb.Append($"{nameof(SourceFile)}"); break;
+                case MemberName:  sb.Append($"{nameof(MemberName)}"); break;
+                case Any:         sb.Append($"{nameof(Any)}"); break;
 
-            default: sb.Append($"{nameof(MessageBody)}"); break;
+                default: sb.Append($"{nameof(MessageBody)}"); break;
+            }
         }
-        sb.Append("\"");
         return tb.Complete();
     }
 }

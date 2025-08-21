@@ -125,7 +125,7 @@ public class ListenerRegistry
             if (!Listeners.TryGetValue(listeningAddress, out var ruleListeners))
             {
                 ruleListeners = [];
-                Listeners.Add(listeningAddress, ruleListeners);
+                Listeners.TryAdd(listeningAddress, ruleListeners);
             }
 
             ruleListeners!.Add(subscribePayload);
