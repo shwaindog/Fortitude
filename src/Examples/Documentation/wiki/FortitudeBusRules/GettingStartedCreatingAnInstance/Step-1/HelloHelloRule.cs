@@ -4,6 +4,8 @@
 #region
 
 using FortitudeBusRules.Rules;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 
 #endregion
 
@@ -11,13 +13,15 @@ namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted
 
 public class HelloHelloRule : Rule
 {
+    private static IVersatileFLogger logger = FLog.FLoggerForType.As<IVersatileFLogger>();
+    
     public override void Start()
     {
-        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - I say Hello");
+        logger.Inf("I say Hello");
     }
 
     public override void Stop()
     {
-        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - And you Goodbye");
+        logger.Inf("And you Goodbye");
     }
 }

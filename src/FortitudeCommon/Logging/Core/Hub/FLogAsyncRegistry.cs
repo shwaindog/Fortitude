@@ -22,6 +22,8 @@ public interface IFLoggerAsyncRegistry
     void ScheduleRecycleDecrement(IRecyclableObject toDecrementRecyclableObject);
 
     void StartAsyncQueues();
+
+    void ShutdownAsyncQueues();
 }
 
 public interface IMutableFLoggerAsyncRegistry : IFLoggerAsyncRegistry
@@ -110,6 +112,11 @@ public class FLogAsyncRegistry : IMutableFLoggerAsyncRegistry
     public void StartAsyncQueues()
     {
         AsyncQueueLocator.StartAsyncQueues();
+    }
+
+    public void ShutdownAsyncQueues()
+    {
+        AsyncQueueLocator.ShutdownAllAsyncQueues();
     }
 }
 

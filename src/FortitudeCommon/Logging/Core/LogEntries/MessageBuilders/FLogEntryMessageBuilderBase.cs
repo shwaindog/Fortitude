@@ -26,14 +26,14 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
     protected Action<IStringBuilder?> OnComplete = null!;
 
     protected FLogEntry LogEntry = null!;
-    
+
     static FLogEntryMessageBuilder()
     {
         myType = typeof(FLogEntryMessageBuilder);
 
         MyNonPubStaticMethods = myType.GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
     }
-    
+
 
     public virtual FLogEntryMessageBuilder Initialize(FLogEntry flogEntry, Action<IStringBuilder?> onCompleteHandler)
     {
@@ -153,8 +153,8 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
     {
         styledObj?.ToString(styledTypeStringAppender);
     }
-    
-    
+
+
     public IStyledTypeStringAppender TempStyledTypeAppender
     {
         get
@@ -206,13 +206,14 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
             case ICharSequence valueCharSeq:           stringBuilder.Append(valueCharSeq); break;
             case StringBuilder valueStringBuilder:     stringBuilder.Append(valueStringBuilder); break;
             case IStyledToStringObject valueStyledObj: AppendStyledObject(valueStyledObj, toAppendTo); break;
-            
+
             default:
                 if (value is ISpanFormattable spanFormattableValue)
                 {
                     stringBuilder.AppendSpanFormattable("{0}", spanFormattableValue);
                 }
-                BuildCacheCallGenericAppend(value, toAppendTo); break;
+                BuildCacheCallGenericAppend(value, toAppendTo);
+                break;
         }
     }
 
@@ -242,12 +243,9 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
                 matchedInvoker(value, toAppendTo);
                 return;
             }
-            
         }
         if (type.IsGenericType)
         {
-            Action<T, IStyledTypeStringAppender>? matchedInvoker;
-
             var genericType = type.GetGenericTypeDefinition();
 
             if (genericType == typeof(ValueTuple<,>))
@@ -256,25 +254,25 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
                 var item1Type = arguments[0];
                 var item2Type = arguments[1];
 
-                matchedInvoker = CheckSingleFieldFor2ItemTupleInvoker(value, type, item1Type, item2Type);
-                if (matchedInvoker != null)
+                var singleMatchedInvoker = CheckSingleFieldFor2ItemTupleInvoker(value, type, item1Type, item2Type);
+                if (singleMatchedInvoker != null)
                 {
-                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(matchedInvoker, LogEntry.LogLocation);
-                    matchedInvoker(value, toAppendTo);
+                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(singleMatchedInvoker, LogEntry.LogLocation);
+                    singleMatchedInvoker(value, toAppendTo);
                     return;
                 }
-                matchedInvoker = CheckCollectionFor2ItemTupleInvoker(value, type, item1Type, item2Type);
-                if (matchedInvoker != null)
+                var collectionMatchedInvoker = CheckCollectionFor2ItemTupleInvoker(value, type, item1Type, item2Type);
+                if (collectionMatchedInvoker != null)
                 {
-                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(matchedInvoker, LogEntry.LogLocation);
-                    matchedInvoker(value, toAppendTo);
+                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(collectionMatchedInvoker, LogEntry.LogLocation);
+                    collectionMatchedInvoker(value, toAppendTo);
                     return;
                 }
-                matchedInvoker = CheckKeyedCollectionFor2ItemTupleInvoker(value, type, item1Type, item2Type);
-                if (matchedInvoker != null)
+                var keyedCollectionMatchedInvoker = CheckKeyedCollectionFor2ItemTupleInvoker(value, type, item1Type, item2Type);
+                if (keyedCollectionMatchedInvoker != null)
                 {
-                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(matchedInvoker, LogEntry.LogLocation);
-                    matchedInvoker(value, toAppendTo);
+                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(keyedCollectionMatchedInvoker, LogEntry.LogLocation);
+                    keyedCollectionMatchedInvoker(value, toAppendTo);
                     return;
                 }
             }
@@ -285,25 +283,25 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
                 var item2Type = arguments[1];
                 var item3Type = arguments[2];
 
-                matchedInvoker = CheckSingleFieldFor3ItemTupleInvoker(value, type, item1Type, item2Type, item3Type);
-                if (matchedInvoker != null)
+                var singleMatchedInvoker = CheckSingleFieldFor3ItemTupleInvoker(value, type, item1Type, item2Type, item3Type);
+                if (singleMatchedInvoker != null)
                 {
-                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(matchedInvoker, LogEntry.LogLocation);
-                    matchedInvoker(value, toAppendTo);
+                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(singleMatchedInvoker, LogEntry.LogLocation);
+                    singleMatchedInvoker(value, toAppendTo);
                     return;
                 }
-                matchedInvoker = CheckCollectionFor3ItemTupleInvoker(value, type, item1Type, item2Type, item3Type);
-                if (matchedInvoker != null)
+                var collectionMatchedInvoker = CheckCollectionFor3ItemTupleInvoker(value, type, item1Type, item2Type, item3Type);
+                if (collectionMatchedInvoker != null)
                 {
-                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(matchedInvoker, LogEntry.LogLocation);
-                    matchedInvoker(value, toAppendTo);
+                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(collectionMatchedInvoker, LogEntry.LogLocation);
+                    collectionMatchedInvoker(value, toAppendTo);
                     return;
                 }
-                matchedInvoker = CheckKeyedCollectionFor3ItemTupleInvoker(value, type, item1Type, item2Type, item3Type);
-                if (matchedInvoker != null)
+                var keyedCollectionMatchedInvoker = CheckKeyedCollectionFor3ItemTupleInvoker(value, type, item1Type, item2Type, item3Type);
+                if (keyedCollectionMatchedInvoker != null)
                 {
-                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(matchedInvoker, LogEntry.LogLocation);
-                    matchedInvoker(value, toAppendTo);
+                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(keyedCollectionMatchedInvoker, LogEntry.LogLocation);
+                    keyedCollectionMatchedInvoker(value, toAppendTo);
                     return;
                 }
             }
@@ -315,11 +313,11 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
                 var item3Type = arguments[2];
                 var item4Type = arguments[3];
 
-                matchedInvoker = CheckKeyedCollectionFor4ItemTupleInvoker(value, type, item1Type, item2Type, item3Type, item4Type);
-                if (matchedInvoker != null)
+                var singleMatchedInvoker = CheckKeyedCollectionFor4ItemTupleInvoker(value, type, item1Type, item2Type, item3Type, item4Type);
+                if (singleMatchedInvoker != null)
                 {
-                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(matchedInvoker, LogEntry.LogLocation);
-                    matchedInvoker(value, toAppendTo);
+                    FLogStringSerializerRegistry.AutoRegisterSerializerFor(singleMatchedInvoker, LogEntry.LogLocation);
+                    singleMatchedInvoker(value, toAppendTo);
                     return;
                 }
             }
@@ -327,7 +325,7 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
         Action<object?, IStyledTypeStringAppender> unknownAppender = AppendObject;
 
         CreateWarningMessageAppender()?
-            .Append("Created auto serializer call object for type '") .Append(type.Name).Append("' at ").FinalAppend(LogEntry.LogLocation);
+            .Append("Created auto serializer call object for type '").Append(type.Name).Append("' at ").FinalAppend(LogEntry.LogLocation);
 
         FLogStringSerializerRegistry.AutoRegisterSerializerFor(unknownAppender, LogEntry.LogLocation);
         unknownAppender(value, toAppendTo);
@@ -352,19 +350,14 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
     {
         var tupleParameter           = Expression.Parameter(appendType, "firstParam");
         var styledTypeStringAppender = Expression.Parameter(typeof(IStyledTypeStringAppender), "typeStringAppenderSecondParam");
-        
-        var typedInvokeMethod = genDefMethodInfo.MakeGenericMethod(methodGenericArg);
-        
-        var block = Expression.Block
-            (
-             [tupleParameter, styledTypeStringAppender],
-             Expression.Call(typedInvokeMethod, tupleParameter, styledTypeStringAppender)
-            );
 
-        Expression<Action<TToAppend, IStyledTypeStringAppender>> invoke =
-            Expression.Lambda<Action<TToAppend, IStyledTypeStringAppender>>(block, tupleParameter, styledTypeStringAppender);
-        var tupleInvoker = invoke.Compile();
-        return tupleInvoker;
+        var typedInvokeMethod = genDefMethodInfo.MakeGenericMethod(methodGenericArg);
+
+        var callMethodExpression = Expression.Call(typedInvokeMethod, tupleParameter, styledTypeStringAppender);
+
+        var invoke =
+            Expression.Lambda<Action<TToAppend, IStyledTypeStringAppender>>(callMethodExpression, tupleParameter, styledTypeStringAppender).Compile();
+        return invoke;
     }
 
     protected Action<TToAppend, IStyledTypeStringAppender> CreateTwoGenericArgsMethodInvoker<TToAppend>
@@ -372,21 +365,15 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
     {
         var tupleParameter           = Expression.Parameter(appendType, "firstParam");
         var styledTypeStringAppender = Expression.Parameter(typeof(IStyledTypeStringAppender), "typeStringAppenderSecondParam");
-        
-        var typedInvokeMethod = genDefMethodInfo.MakeGenericMethod(firstGenericArg, secondGenericArg);
-        
-        var block = Expression.Block
-            (
-             [tupleParameter, styledTypeStringAppender],
-             Expression.Call(typedInvokeMethod, tupleParameter, styledTypeStringAppender)
-            );
 
-        Expression<Action<TToAppend, IStyledTypeStringAppender>> invoke =
-            Expression.Lambda<Action<TToAppend, IStyledTypeStringAppender>>(block, tupleParameter, styledTypeStringAppender);
-        var tupleInvoker = invoke.Compile();
-        return tupleInvoker;
+        var typedInvokeMethod = genDefMethodInfo.MakeGenericMethod(firstGenericArg, secondGenericArg);
+
+        var callMethodExpression = Expression.Call(typedInvokeMethod, tupleParameter, styledTypeStringAppender);
+
+        var invoke =
+            Expression.Lambda<Action<TToAppend, IStyledTypeStringAppender>>(callMethodExpression, tupleParameter, styledTypeStringAppender).Compile();
+        return invoke;
     }
-    
 }
 
 public abstract partial class FLogEntryMessageBuilderBase<TMessageEntry> : FLogEntryMessageBuilder
@@ -426,11 +413,11 @@ public static class MessageBuilderExtensions
         checkIsFormatterType == typeof(string) ||
         (checkIsFormatterType.IsGenericType
       && checkIsFormatterType.GetGenericTypeDefinition() == typeof(CustomTypeStyler<>));
-    
+
     public static bool IsOrderedCollectionFilterPredicate(this Type checkIsFormatterType) =>
         (checkIsFormatterType.IsGenericType
       && checkIsFormatterType.GetGenericTypeDefinition() == typeof(OrderedCollectionPredicate<>));
-    
+
     public static bool IsKeyValueFilterPredicate(this Type checkIsFormatterType) =>
         (checkIsFormatterType.IsGenericType
       && checkIsFormatterType.GetGenericTypeDefinition() == typeof(KeyValuePredicate<,>));
@@ -440,5 +427,4 @@ public static class MessageBuilderExtensions
         baseType.IsValueType && (formatterType.IsGenericType
                               && formatterType.GetGenericTypeDefinition() == typeof(CustomTypeStyler<>)
                               && formatterType.GenericTypeArguments[0].IsAssignableFrom(baseType));
-    
 }

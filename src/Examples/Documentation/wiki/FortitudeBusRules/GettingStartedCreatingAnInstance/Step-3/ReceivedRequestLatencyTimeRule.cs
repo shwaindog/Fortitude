@@ -5,6 +5,8 @@
 
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 
 #endregion
 
@@ -12,6 +14,8 @@ namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted
 
 public class ReceivedRequestLatencyTimeRule : Rule
 {
+    private static IVersatileFLogger logger = FLog.FLoggerForType.As<IVersatileFLogger>();
+    
     public const string TimeSentRequestListenAddress = "Time.Sent.Request.Listen.Address";
 
     public override async ValueTask StartAsync()
@@ -23,7 +27,7 @@ public class ReceivedRequestLatencyTimeRule : Rule
 
     public override ValueTask StopAsync()
     {
-        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Closing ReceivedRequestLatencyTimeRule");
+        logger.Inf("Closing ReceivedRequestLatencyTimeRule");
         return base.StopAsync();
     }
 }

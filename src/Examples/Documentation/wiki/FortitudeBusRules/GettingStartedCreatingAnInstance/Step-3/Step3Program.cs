@@ -7,6 +7,11 @@ using FortitudeBusRules;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Config.ExampleConfig;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.Hub;
+using FortitudeCommon.Logging.Core.LoggerViews;
 
 #endregion
 
@@ -25,23 +30,33 @@ public class Step3Program
 
     public static void Main(string[] args)
     {
-        Console.Write($"{DateTime.Now:hh:mm:ss.ffffff} - Started Step3 application in ");
+        Thread.CurrentThread.Name = "MainThread";
+        FLogConfigExtractor.SyncFileAndColoredConsoleExample.ExtractExampleTo();
+        var context =
+            FLogContext
+                .NewUninitializedContext
+                .InitializeContextFromWorkingDirFilePath(Environment.CurrentDirectory, FLogConfigFile.DefaultConfigFullFilePath)
+                .StartFlogSetAsCurrentContext();
+
+        var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
+        
+        var appender = logger.InfApnd("Started Step3 application in ");
         #if DEBUG
-        Console.WriteLine("Debug build.");
+        appender?.Args("Debug build.");
         #else
-        Console.WriteLine("Release build.");
+        appender?.Args("Release build.");
         #endif
         var busRulesConfig
             = new BusRulesConfig
-                (new QueuesConfig
+                ("Step3SingleRequestResponse", new QueuesConfig
                     (EventQueueSize, DefaultQueueSize, maxEventQueues: 1, maxWorkerQueues: 1
                    , requiredCustomQueues: 1, emptyEventQueueSleepMs: 0, defaultEmptyQueueSleepMs: 0));
         var busRules   = new BusRules();
         var messageBus = busRules.GetOrCreateMessageBus(busRulesConfig);
-        Console.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Finished creating message bus");
+        logger.Inf("Finished creating message bus");
 
         messageBus.Start();
-        Console.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Finished starting message bus");
+        logger.Inf("Finished starting message bus");
         messageBus.DeployDaemonRule(new StartingBootstrapRule()
                                   , new DeploymentOptions(messageGroupType: MessageQueueType.Custom));
 

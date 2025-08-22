@@ -90,12 +90,16 @@ public abstract partial class FLogEntryMessageBuilder
             if (genericParams.Length != 1) continue;
             var methodParams = mi.GetParameters();
             if (methodParams.Length != 2) continue;
-            if (methodParams[1].ParameterType.IsNotString()) continue;
-            var firstParamType  = methodParams[0].ParameterType;
-            var p1IsNullable = item1Type.IsGenericType && item1Type.GetGenericTypeDefinition() == typeof(Nullable<>);
-            if(p1IsNullable != item1IsNullable) continue;
-            var p1IsSpanFormattable = firstParamType.IsSpanFormattable();
-            if (p1IsNullable)
+            if (methodParams[1].ParameterType != typeof(IStyledTypeStringAppender)) continue;
+            var firstParamType = methodParams[0].ParameterType;
+            var fpItem1Type    = firstParamType.GenericTypeArguments[0];
+            var fpItem2Type    = firstParamType.GenericTypeArguments[1];
+            if (fpItem2Type.IsNotString()) continue;
+            if(!firstParamType.IsGenericType || firstParamType.GetGenericTypeDefinition() != typeof(ValueTuple<,>) ) continue;
+            var p1Item1IsNullable = fpItem1Type.IsGenericType && fpItem1Type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            if(p1Item1IsNullable != item1IsNullable) continue;
+            var p1IsSpanFormattable = fpItem1Type.IsSpanFormattable();
+            if (p1Item1IsNullable)
             {
                 p1IsSpanFormattable = firstParamType.GenericTypeArguments[0].IsSpanFormattable();
             }

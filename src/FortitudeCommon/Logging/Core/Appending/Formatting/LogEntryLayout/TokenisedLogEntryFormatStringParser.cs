@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using FortitudeCommon.Extensions;
+﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConditionalFormattingCommands;
@@ -10,10 +9,11 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
 public interface ITokenisedLogEntryFormatStringParser
 {
-    List<ITemplatePart> BuildTemplateParts(string tokenisedFormatString, List<ITemplatePart>? toPopulate = null
-                                                                        , ITokenFormattingValidator? tokenFormattingValidator = null);
+    List<ITemplatePart> BuildTemplateParts
+    (string tokenisedFormatString, List<ITemplatePart>? toPopulate = null, ITokenFormattingValidator? tokenFormattingValidator = null);
 
-    IEnumerable<ITemplatePart> GetAppenderTypeSubTokens(string tokenFormatting);
+    void GetAppenderTypeSubTokens(string tokenFormatting, List<ITemplatePart> toPopulate
+      , ITokenFormattingValidator? tokenFormattingValidator = null);
 
     List<ITemplatePart> EnsureConsoleColorsReset(List<ITemplatePart> checkIsReset);
 }
@@ -32,10 +32,7 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
             {
                 lock (SyncLock)
                 {
-                    if (singletonInstance == null)
-                    {
-                        singletonInstance = new TokenisedLogEntryFormatStringParser();
-                    }
+                    singletonInstance ??= new TokenisedLogEntryFormatStringParser();
                 }
             }
             return singletonInstance;
@@ -92,10 +89,7 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
                 default:
                     if (part[0] == '{' && part[^1] == '}')
                     {
-                        var tokenFormattingReplace = new TokenFormatting(part, tokenFormattingValidator);
-                        toPopulate.Add(tokenFormattingReplace.TokenName.IsEnvironmentTokenName()
-                                       ? new EnvironmentDataTemplatePart(tokenFormattingReplace)
-                                       : new LogEntryDataTemplatePart(tokenFormattingReplace));
+                        GetAppenderTypeSubTokens(part, toPopulate, tokenFormattingValidator);
                     }
                     else
                     {
@@ -107,46 +101,25 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
         return toPopulate;
     }
 
-    public IEnumerable<ITemplatePart> GetAppenderTypeSubTokens(string tokenFormatting)
+    public void GetAppenderTypeSubTokens(string tokenFormatting, List<ITemplatePart> toPopulate
+      , ITokenFormattingValidator? tokenFormattingValidator = null)
     {
-        var tokenSpan = tokenFormatting.AsSpan();
-        tokenSpan.ExtractStringFormatStages(out var identifier, out var padding, out var subTokenFormatting);
-        Span<char> upperParam = stackalloc char[identifier.Length];
-        identifier.ToUpper(upperParam, CultureInfo.InvariantCulture);
-        var identifierName = new String(upperParam);
-
-        var capStringLength = int.MaxValue;
-        var paddingInt      = 0;
-        if (padding.Length > 0)
+        var tokenFormattingReplace = new TokenFormatting(tokenFormatting, tokenFormattingValidator);
+        if (tokenFormattingReplace.TokenName.IsLogEntryDatumTokenName())
         {
-            var foundCapStringLength = padding.IndexOf("[..");
-            if (foundCapStringLength >= 0)
-            {
-                var digitsSlice = padding.ExtractDigitsSlice(foundCapStringLength + 3);
-                if (digitsSlice.Length > 0)
-                {
-                    capStringLength = int.TryParse(digitsSlice, out var attempt) ? attempt : int.MaxValue;
-                }
-                padding = padding.Slice(0, foundCapStringLength);
-            }
-            paddingInt = padding.ExtractInt() ?? 0;
-        }
-        var commandOrFormatting = new String(subTokenFormatting);
-        var templateParams      = new String(padding);
-        if (identifierName.IsLogEntryDatumTokenName())
+            toPopulate.Add(new LogEntryDataTemplatePart(tokenFormattingReplace));
+        } else if (tokenFormattingReplace.TokenName.IsEnvironmentTokenName())
         {
-            yield return new LogEntryDataTemplatePart(identifierName, paddingInt, capStringLength, commandOrFormatting);
-        } else if (identifierName.IsEnvironmentTokenName())
+            toPopulate.Add(new EnvironmentDataTemplatePart(tokenFormattingReplace));
+        } else if (tokenFormattingReplace.TokenName.IsScopedFormattingTokenName())
         {
-            yield return new EnvironmentDataTemplatePart(identifierName, paddingInt, capStringLength, commandOrFormatting);
-        } else if (identifierName.IsScopedFormattingTokenName())
-        {
-            var scopedTemplatePart = SourceScopedFormattingTemplatePart(identifierName, templateParams, commandOrFormatting);
+            var scopedTemplatePart = SourceScopedFormattingTemplatePart
+                (tokenFormattingReplace.TokenName , tokenFormattingReplace.Layout, tokenFormattingReplace.Format);
             if (scopedTemplatePart != null)
             {
-                yield return scopedTemplatePart;
+                toPopulate.Add(scopedTemplatePart);
             }
-            if (commandOrFormatting.Length > 0)
+            if (tokenFormattingReplace.Format.Length > 0)
             {
                 switch (scopedTemplatePart)
                 {
@@ -154,13 +127,10 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
                     case ConsoleTextColorTemplatePart:
                     case ConsoleLogLevelTextColorMatchTemplatePart:
                     case ConsoleLogLevelBackgroundColorMatchTemplatePart:
-                        foreach (var scopedPart in BuildTemplateParts(commandOrFormatting))
-                        {
-                            yield return scopedPart;
-                        }
+                        BuildTemplateParts(tokenFormattingReplace.Format, toPopulate, tokenFormattingValidator);
                         break;
                 }
-                yield return new ConsoleColorResetTemplatePart("");
+                toPopulate.Add(new ConsoleColorResetTemplatePart(""));
             }
         }
     }

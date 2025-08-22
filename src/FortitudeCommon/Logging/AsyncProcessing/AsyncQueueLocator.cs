@@ -23,6 +23,8 @@ public interface IAsyncQueueLocator
     int QueueBackLogSize(int queueNumber);
 
     void StartAsyncQueues();
+
+    void ShutdownAllAsyncQueues();
 }
 
 public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : IAsyncQueueLocator
@@ -34,7 +36,9 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
     private readonly Dictionary<int, IFLogAsyncQueue>                 runningQueues       = new();
     private readonly Dictionary<int, IFLogAsyncSwitchableQueueClient> clientProxiesQueues = new();
 
-    public IReadOnlyCollection<IFLogAsyncQueue>          AsyncQueues           => runningQueues.Values;
+    public IReadOnlyCollection<IFLogAsyncQueue> AsyncQueues => runningQueues.Values;
+
+    private bool isDisposed;
 
     public IReadOnlyCollection<IFLogAsyncQueuePublisher> ClientPublisherQueues => clientProxiesQueues.Values;
 
@@ -65,8 +69,25 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         }
     }
 
+    public void ShutdownAllAsyncQueues()
+    {
+        isDisposed = true;
+        lock (SyncLock)
+        {
+            foreach (var queue in runningQueues.Values)
+            {
+                queue.StopQueueReceiver();
+            }
+        }
+    }
+
     public IFLogAsyncQueue GetOrCreateQueue(int queueNumber)
     {
+        if (isDisposed)
+        {
+            var syncExecuteQueue = FLogCreate.MakeSynchroniseQueue(queueNumber);
+            return syncExecuteQueue;
+        }
         if (runningQueues.TryGetValue(queueNumber, out var foundExisting)) return foundExisting;
         var defaultQueueType = defaultAsyncProcessing;
         if (defaultQueueType == AsyncProcessingType.AllAsyncDisabled)
@@ -175,7 +196,8 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         queue.FlushBufferToAppender(toFlush);
     }
 
-    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, IFLogEntrySource publishSource)
+    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks
+      , IFLogEntrySource publishSource)
     {
         var queue = GetOrCreateQueue(queueNumber);
         queue.SendLogEntryEventTo(logEntryEvent, logEntrySinks, publishSource);
@@ -184,6 +206,6 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
     public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, IFLogEntrySource publishSource)
     {
         var queue = GetOrCreateQueue(queueNumber);
-        queue.SendLogEntryEventTo(logEntryEvent, logEntrySink,publishSource);
+        queue.SendLogEntryEventTo(logEntryEvent, logEntrySink, publishSource);
     }
 }

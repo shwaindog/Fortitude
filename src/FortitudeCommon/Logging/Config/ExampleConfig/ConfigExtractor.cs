@@ -8,7 +8,7 @@ public record struct FLogExampleConfig(string ExampleConfig)
     public static explicit operator FLogExampleConfig(string exampleConfig) => new(exampleConfig);
 };
 
-public static class ConfigExtractor
+public static class FLogConfigExtractor
 {
     private const string ExamplesNameSpace = "FortitudeCommon.Logging.Config.ExampleConfig";
 

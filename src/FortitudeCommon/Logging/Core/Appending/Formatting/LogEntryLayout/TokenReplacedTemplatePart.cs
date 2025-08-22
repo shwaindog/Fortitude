@@ -16,15 +16,13 @@ public class TokenFormatting : ITokenReplacedTemplatePart
 {
     [ThreadStatic] protected static StringBuilder? scratchBuffer;
 
-    protected readonly string formatString;
-
     public readonly int MaxLength = int.MaxValue;
     
     public TokenFormatting(string tokenName, int paddingLength, int maxLength, string formattingString)
     {
-        TokenName       = tokenName;
-        MaxLength = maxLength;
-        formatString = 0.BuildStringBuilderFormatting(paddingLength, formattingString);
+        TokenName    = tokenName;
+        MaxLength    = maxLength;
+        FormatString = 0.BuildStringBuilderFormatting(paddingLength, formattingString);
     }
 
     public TokenFormatting(string tokenFormatting, ITokenFormattingValidator? tokenFormattingValidator)
@@ -52,20 +50,28 @@ public class TokenFormatting : ITokenReplacedTemplatePart
         {
             formatting = tokenFormattingValidator.ValidateFormattingToken(TokenName, formatting);
         }
+        Layout = new String(layout);
+        Format = new String(formatting);
         var zeroPosParam = "0".AsSpan();
-        formatString = zeroPosParam.BuildStringBuilderFormatting(layout, formatting);
+        FormatString = zeroPosParam.BuildStringBuilderFormatting(layout, formatting);
     }
 
     public string TokenName { get; private set; }
 
-    public string FormatString => formatString;
+    public string Layout { get; private set; }
     
+    public string Format { get; private set; }
+
+    public string FormatString { get; private set; }
+
     public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
             sbc.StartComplexType(nameof(TokenFormatting))
                .Field.AlwaysAdd(nameof(TokenName), TokenName)
-               .Field.AlwaysAdd(nameof(formatString), formatString)
+               .Field.AlwaysAdd(nameof(FormatString), FormatString)
+               .Field.AlwaysAdd(nameof(Layout), Layout)
+               .Field.AlwaysAdd(nameof(Format), Format)
                .Field.WhenNonDefaultAdd(nameof(MaxLength), MaxLength, int.MaxValue)
                .Complete();
     }

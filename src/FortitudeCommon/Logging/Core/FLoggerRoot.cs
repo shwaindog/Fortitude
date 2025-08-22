@@ -24,22 +24,11 @@ public interface IMutableFLoggerRoot : IFLoggerRoot, IMutableFLoggerCommon
 
 public class FLoggerRoot : FLoggerBase, IMutableFLoggerRoot
 {
-    private static FLoggerRoot? irreplacableInstance;
+    private static readonly FLoggerRoot IrreplaceableInstance;
 
-    private static readonly object SyncLock = new();
+    static FLoggerRoot() => IrreplaceableInstance ??= new FLoggerRoot();
 
-    public static FLoggerRoot ImmortalInstance
-    {
-        get
-        {
-            if (irreplacableInstance != null) return irreplacableInstance;
-            lock (SyncLock)
-            {
-                irreplacableInstance ??= new FLoggerRoot();
-            }
-            return irreplacableInstance;
-        }
-    }
+    public static FLoggerRoot ImmortalInstance => IrreplaceableInstance;
 
     private IFLogContext? currentContext;
 
@@ -47,6 +36,7 @@ public class FLoggerRoot : FLoggerBase, IMutableFLoggerRoot
 
     internal void InitializeFinalStepSetContext(IFLogContext flogContext)
     {
+        currentContext?.AsyncRegistry.ShutdownAsyncQueues();
         currentContext = flogContext; 
         FLogContext.NextInitializingContext = null;
         
