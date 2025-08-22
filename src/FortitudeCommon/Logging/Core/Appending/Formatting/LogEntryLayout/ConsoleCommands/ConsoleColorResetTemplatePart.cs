@@ -1,5 +1,4 @@
-﻿using System.Text;
-using FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
+﻿using FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
 

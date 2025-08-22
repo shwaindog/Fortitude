@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConsoleCommands;
+﻿namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConsoleCommands;
 
 public enum ConsoleChangeColorType
 {
@@ -36,42 +30,42 @@ public class ConsoleColorToEscapeLookup
 
     public static readonly string[] UniversalConsoleTextColorEscapeStrings =
     [
-        "\x1B1E" // black.
-      , "\x1B22" // dark blue.
-      , "\x1B20" // dark green.
-      , "\x1B24" // dark cyan (dark blue-green).
-      , "\x1B1F" // dark red
-      , "\x1B23" // dark magenta (dark purplish-red).
-      , "\x1B21" // dark yellow (ochre).
-      , "\x1B25" // gray.
-      , "\x1B5A" // dark gray.
-      , "\x1B5E" // blue.
-      , "\x1B5C" // green.
-      , "\x1B60" // cyan (blue-green).
-      , "\x1B5B" // red.
-      , "\x1B5F" // magenta (purplish-red).
-      , "\x1B5D" // yellow.
-      , "\x1B61" // white.
+        "\x1B[30m" // black.
+      , "\x1B[34m" // dark blue.
+      , "\x1B[32m" // dark green.
+      , "\x1B[36m" // dark cyan (dark blue-green).
+      , "\x1B[31m" // dark red
+      , "\x1B[35m" // dark magenta (dark purplish-red).
+      , "\x1B[33m" // dark yellow (ochre).
+      , "\x1B[37m" // gray.
+      , "\x1B[90m" // dark gray.
+      , "\x1B[94m" // blue.
+      , "\x1B[92m" // green.
+      , "\x1B[96m" // cyan (blue-green).
+      , "\x1B[91m" // red.
+      , "\x1B[95m" // magenta (purplish-red).
+      , "\x1B[93m" // yellow.
+      , "\x1B[97m" // white.
     ];
 
     public static readonly string[] UniversalConsoleBackgroundColorEscapeStrings =
     [
-        "\x1B28" // black.
-      , "\x1B2C" // dark blue.
-      , "\x1B2A" // dark green.
-      , "\x1B2E" // dark cyan (dark blue-green).
-      , "\x1B29" // dark red
-      , "\x1B2D" // dark magenta (dark purplish-red).
-      , "\x1B2B" // dark yellow (ochre).
-      , "\x1B2F" // gray.
-      , "\x1B64" // dark gray.
-      , "\x1B68" // blue.
-      , "\x1B66" // green.
-      , "\x1B6A" // cyan (blue-green).
-      , "\x1B65" // red.
-      , "\x1B69" // magenta (purplish-red).
-      , "\x1B67" // yellow.
-      , "\x1B6B" // white.
+        "\x1B[40m"  // black.
+      , "\x1B[44m"  // dark blue.
+      , "\x1B[42m"  // dark green.
+      , "\x1B[46m"  // dark cyan (dark blue-green).
+      , "\x1B[41m"  // dark red
+      , "\x1B[45m"  // dark magenta (dark purplish-red).
+      , "\x1B[43m"  // dark yellow (ochre).
+      , "\x1B[47m"  // gray.
+      , "\x1B[100m" // dark gray.
+      , "\x1B[104m" // blue.
+      , "\x1B[102m" // green.
+      , "\x1B[106m" // cyan (blue-green).
+      , "\x1B[101m" // red.
+      , "\x1B[105m" // magenta (purplish-red).
+      , "\x1B[103m" // yellow.
+      , "\x1B[107m" // white.
     ];
 
     public static string GetConsoleColorChangeString(ConsoleChangeColorType consoleColorType, ConsoleColor color)

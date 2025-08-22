@@ -22,9 +22,11 @@ public class Step4Program
 
     public static void Main(string[] args)
     {
+        Thread.CurrentThread.Name = "MainThread";
+        
         var busRulesConfig
             = new BusRulesConfig
-                (new QueuesConfig
+                ("Step1PublishingPrices", new QueuesConfig
                     (EventQueueSize, DefaultQueueSize, maxEventQueues: 1, emptyEventQueueSleepMs: 0
                    , requiredCustomQueues: 1, defaultEmptyQueueSleepMs: 0, maxWorkerQueues: 1));
         var busRules   = new BusRules();

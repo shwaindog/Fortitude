@@ -6,14 +6,14 @@
         "ForwardToAppenders": {
           "AppLogFileAppender": {
             "AppenderType": "FileUnbounded",
-            "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:ss.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN,3:00%' '%MSG%''%NL%'",
+            "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:ss.ffffff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN,3:00%' '%MSG%''%NL%'",
             "DisableBuffering": true,
             "FilePath": "Logs/",
             "FileName": "'%StartAssemblyName%'-'%TS:MMdd%'.log"
           },
           "ColoredConsole" : {
             "AppenderType": "ConsoleOut",
-            "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:ss.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN,3:00%' '%MSG%''%NL%'",
+            "LogEntryFormatLayout": "'%FCM,Red,DarkYellow,White,Gray,DarkGray:'%TS:yyyy-MM-dd HH:mm:ss.ffffff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN,3:00%' '%MSG%''%NL%' %'",
             "DisableBuffering": true
           }
         }

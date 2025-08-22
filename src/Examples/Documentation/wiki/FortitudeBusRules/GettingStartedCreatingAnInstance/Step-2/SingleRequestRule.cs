@@ -5,6 +5,8 @@
 
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 
 #endregion
 
@@ -12,18 +14,20 @@ namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted
 
 public class SingleRequestResponseRule : Rule
 {
+    private static IVersatileFLogger logger = FLog.FLoggerForType.As<IVersatileFLogger>();
+    
     public override async ValueTask StartAsync()
     {
-        await Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Started running SingleRequestResponseRule");
+        logger.Inf("Started running SingleRequestResponseRule");
         var listenerReceiveLatency = await this.RequestAsync<DateTime, TimeSpan>
             (ReceivedRequestLatencyTimeRule.TimeSentRequestListenAddress, TimeContext.UtcNow);
-        await Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Received the response from the listener.rule.  " +
-                                         $"It took {listenerReceiveLatency.TotalMicroseconds} us for the listener to receive the request from the time it was sent. ");
+        logger.Inf("Received the response from the listener.rule.  " +
+                   $"It took {listenerReceiveLatency.TotalMicroseconds} us for the listener to receive the request from the time it was sent. ");
     }
 
     public override ValueTask StopAsync()
     {
-        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Closing SingleRequestResponseRule");
+        logger.Inf("Closing SingleRequestResponseRule");
         return base.StopAsync();
     }
 }

@@ -21,8 +21,9 @@ public class BusRulesConfig : AlternativeConfigLocationLookup<BusRulesConfig>
 
     public BusRulesConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) { }
 
-    public BusRulesConfig(IQueuesConfig queuesConfig, IClusterConfig? clusterConfig = null)
+    public BusRulesConfig(string name, IQueuesConfig queuesConfig, IClusterConfig? clusterConfig = null)
     {
+        Name = name;
         QueuesConfig  = queuesConfig;
         ClusterConfig = clusterConfig;
     }

@@ -8,6 +8,8 @@ using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 
 #endregion
 
@@ -15,6 +17,8 @@ namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted
 
 public class BatchTimeSendLoadTestRule : Rule
 {
+    private static IVersatileFLogger logger = FLog.FLoggerForType.As<IVersatileFLogger>();
+
     private readonly Stopwatch stopWatch = new();
     private readonly IRule     targetRequestRule;
 
@@ -25,7 +29,7 @@ public class BatchTimeSendLoadTestRule : Rule
     public override async ValueTask StartAsync()
     {
         // prime runtime
-        await Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Starting priming BatchTimeSendLoadTestRule for performance testing");
+        logger.Inf("Starting priming BatchTimeSendLoadTestRule for performance testing");
         for (var i = 0; i < Step4Program.BatchSendSize; i++)
         {
             var listenerReceiveLatency = this.RequestAsync<DateTime, TimeSpan>
@@ -40,18 +44,17 @@ public class BatchTimeSendLoadTestRule : Rule
             timeSpanValueTaskResultList[i] = new ValueTask<TimeSpan>(TimeSpan.Zero);
         }
         var averageLatency = TimeSpan.Zero;
-        await Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Priming Finished" +
-                                         (!Step4Program.LogStartOfEachRun ? " starting performance test.  ETA 40-120 s" : ""));
+        logger.Inf("Priming Finished" +
+                   (!Step4Program.LogStartOfEachRun ? " starting performance test.  ETA 40-120 s" : ""));
         stopWatch.Start();
-        var messageCountBase = 0;
+        int messageCountBase;
         for (var runNum = 0; runNum < Step4Program.NumberOfRuns; runNum++)
         {
             messageCountBase = runNum * Step4Program.BatchNumMessagesToSend;
 
             if (Step4Program.LogStartOfEachRun)
-                await Console.Out.WriteLineAsync
-                    ($"{DateTime.Now:hh:mm:ss.ffffff} - Started BatchTimeSendLoadTestRule performance testing " +
-                     $"for run number {runNum + 1} of {Step4Program.NumberOfRuns} runs");
+                logger.Inf("Started BatchTimeSendLoadTestRule performance testing " +
+                           $"for run number {runNum + 1} of {Step4Program.NumberOfRuns} runs");
             for (var i = 0; i <= Step4Program.BatchNumMessagesToSend; i++)
             {
                 if (i > 0 && i % Step4Program.BatchSendSize == 0)
@@ -76,16 +79,15 @@ public class BatchTimeSendLoadTestRule : Rule
         stopWatch.Stop();
         var totalMessagesSent = Step4Program.BatchNumMessagesToSend * Step4Program.NumberOfRuns;
         var messagesPerSecond = 1_000L * totalMessagesSent / stopWatch.ElapsedMilliseconds;
-        await
-            Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - When sending {totalMessagesSent:###,###,##0} messages total execution time took " +
-                                       $"{stopWatch.ElapsedMilliseconds:###,###,##0} ms or about {messagesPerSecond:###,##0} msgs/s.");
-        await Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - The average time for a message to be received by a listening rule " +
-                                         $"was {averageLatency.TotalMicroseconds} us");
+        logger.Inf("When sending {totalMessagesSent:###,###,##0} messages total execution time took " +
+                   $"{stopWatch.ElapsedMilliseconds:###,###,##0} ms or about {messagesPerSecond:###,##0} msgs/s.");
+        logger.Inf("The average time for a message to be received by a listening rule " +
+                   $"was {averageLatency.TotalMicroseconds} us");
     }
 
     public override ValueTask StopAsync()
     {
-        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Closing BatchTimeSendLoadTestRule");
+        logger.Inf("Closing BatchTimeSendLoadTestRule");
         return base.StopAsync();
     }
 }

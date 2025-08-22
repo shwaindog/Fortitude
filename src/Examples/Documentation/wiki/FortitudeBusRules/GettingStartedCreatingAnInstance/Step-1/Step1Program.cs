@@ -7,6 +7,11 @@ using FortitudeBusRules;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Config.ExampleConfig;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.Hub;
+using FortitudeCommon.Logging.Core.LoggerViews;
 
 #endregion
 
@@ -19,16 +24,26 @@ public class Step1Program
 
     public static void Main(string[] args)
     {
+        Thread.CurrentThread.Name = "MainThread";
+        
+        FLogConfigExtractor.SyncFileAndColoredConsoleExample.ExtractExampleTo();
+        var context =
+            FLogContext
+                .NewUninitializedContext
+                .InitializeContextFromWorkingDirFilePath(Environment.CurrentDirectory, FLogConfigFile.DefaultConfigFullFilePath)
+                .StartFlogSetAsCurrentContext();
+
+        var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
+        
         var busRulesConfig
-            = new BusRulesConfig(new QueuesConfig(EventQueueSize, DefaultQueueSize, maxEventQueues: 1, maxWorkerQueues: 1));
+            = new BusRulesConfig("Step1HelloGoodbye", new QueuesConfig(EventQueueSize, DefaultQueueSize, maxEventQueues: 1, maxWorkerQueues: 1));
         var busRules   = new BusRules();
         var messageBus = busRules.GetOrCreateMessageBus(busRulesConfig);
-        Console.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Finished creating message bus");
+        logger.Inf("Finished creating message bus");
 
         messageBus.Start();
-        Console.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Finished starting message bus");
-        messageBus.DeployDaemonRule(new HelloHelloRule()
-                                  , new DeploymentOptions(messageGroupType: MessageQueueType.Event));
+        logger.Inf("Finished starting message bus");
+        messageBus.DeployDaemonRule(new HelloHelloRule(), new DeploymentOptions(messageGroupType: MessageQueueType.Event));
 
         Console.ReadKey();
         messageBus.Stop();
