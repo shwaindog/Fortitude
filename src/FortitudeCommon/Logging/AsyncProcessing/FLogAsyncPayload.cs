@@ -1,5 +1,5 @@
-﻿using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Logging.Core.Appending.Formatting;
+﻿using System.Diagnostics;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 using FortitudeCommon.Types.Mutable;
@@ -101,8 +101,7 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         ResetWithTracking();
         AsyncRequestType = AsyncJobRequestType.ForwardLogEntryEventToAppender;
         
-        logEntryEvent.LogEntry?.IncrementRefCount();
-        logEntryEvent.LogEntriesBatch?.IncrementRefCount();
+        logEntryEvent.IncrementRefCount();
 
         FlogEntryEvent   = logEntryEvent;
         PublishSource    = publishSource;
@@ -133,12 +132,15 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
                 flogEntryToPublish.LogEntriesBatch?.DecrementRefCount();
                 break;
             case AsyncJobRequestType.ForwardLogEntryEventToAppender:
-                var flogEntryEvent = FlogEntryEvent!.Value;
+                var        flogEntryEvent = FlogEntryEvent!.Value;
 
-                for (var i = 0; i < PublishToLogEntrySinks.Count; i++)
+                if (PublishSource == ForwardToLogEntrySink)
                 {
-                    var logEntrySink = PublishToLogEntrySinks[i];
-                    logEntrySink.InBoundListener(flogEntryEvent, PublishSource!);
+                    PublishSource?.FinalTarget?.InBoundListener(flogEntryEvent, PublishSource);
+                }
+                else
+                {
+                    ForwardToLogEntrySink?.InBoundListener(flogEntryEvent, PublishSource!);
                 }
                 break;
             case AsyncJobRequestType.FlushCharBufferToAppender: BufferToFlush!.Flush(); break;

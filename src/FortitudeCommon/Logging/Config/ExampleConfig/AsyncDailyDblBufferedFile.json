@@ -15,6 +15,9 @@
         "FlushConfig": {
           "WriteTriggeredAfterTimeSpan": {
             "Seconds": 2
+          },
+          "AutoTriggeredAfterTimeSpan": {
+            "Seconds": 2
           }
         },
         "RunOnAsyncQueueNumber": 1,

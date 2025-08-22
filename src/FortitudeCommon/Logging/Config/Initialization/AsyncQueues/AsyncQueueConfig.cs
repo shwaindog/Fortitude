@@ -1,4 +1,5 @@
 ﻿using FortitudeCommon.Config;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
@@ -109,8 +110,8 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
     public int QueueCapacity
     {
         get => int.TryParse(this[nameof(QueueCapacity)], out var queueCapacity) 
-            ? queueCapacity 
-            : ParentDefaultQueuesInitConfig?.DefaultBufferQueueSize ?? 1024;
+            ? Math.Clamp(queueCapacity, IAsyncQueuesInitConfig.MinimumQueueCapacity, IAsyncQueuesInitConfig.MaximumQueueCapacity) 
+            : ParentDefaultQueuesInitConfig?.DefaultQueueCapacity ?? IAsyncQueuesInitConfig.DefaultQueueCapacitySize;
         set => this[nameof(QueueCapacity)] = value.ToString();
     }
 

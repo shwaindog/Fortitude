@@ -3,6 +3,8 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Core.Appending.Forwarding;
@@ -18,6 +20,12 @@ public interface IFLogAppender
     string AppenderName { get; }
     string AppenderType { get; }
 
+    uint TotalLogEntriesReceived { get; }
+    uint TotalLogEntriesProcessed { get; }
+    uint TotalLogEntriesDropped { get; }
+
+    uint ContextInstanceNumber { get; }
+
     int ReceiveOnAsyncQueueNumber { get; }
 
     IFLogEntryPipelineEndpoint ReceiveEndpoint { get; }
@@ -31,6 +39,13 @@ public interface IFLogAppender
     void ExecuteJob(Action job);
 
     IAppenderDefinitionConfig GetAppenderConfig();
+
+    void RegisterCallbackWhenReceivedCount(uint reaches, Action<uint, IFLogAppender> callback);
+    void RegisterCallbackWhenProcessedCount(uint reaches, Action<uint, IFLogAppender> callback);
+    void RegisterCallbackWhenDroppedCount(uint reaches, Action<uint, IFLogAppender> callback);
+    void UnregisterCallbackWhenReceivedCount(Action<uint, IFLogAppender> callback);
+    void UnregisterCallbackWhenProcessedCount(Action<uint, IFLogAppender> callback);
+    void UnregisterCallbackWhenDroppedCount(Action<uint, IFLogAppender> callback);
 }
 
 public interface IMutableFLogAppender : IFLogAppender
@@ -48,10 +63,23 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
 {
     protected IAppenderDefinitionConfig AppenderConfig;
 
-    protected List<IMutableAppenderClient> IssuedAppenderClients = new();
+    protected List<IMutableAppenderClient> IssuedAppenderClients = [];
+
+    private uint totalLogEntriesReceived;
+
+    private uint totalLogEntriesProcessed;
+
+    private uint totalLogEntriesDropped;
+
+
+    private object? notificationSyncLock;
+
+    private ReusableList<NotifyWhenEntriesCountReaches>? registeredCountNotifications;
 
     protected FLogAppender(IAppenderDefinitionConfig appenderDefinitionConfig, IFLogContext context)
     {
+        ContextInstanceNumber = context.ContextInstanceNumber;
+
         AppenderConfig = appenderDefinitionConfig;
         AppenderName   = appenderDefinitionConfig.AppenderName;
         AppenderType   = appenderDefinitionConfig.AppenderType;
@@ -80,12 +108,18 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
         protected set => AppenderName = value;
     }
 
+    public uint TotalLogEntriesReceived => totalLogEntriesReceived;
+    public uint TotalLogEntriesProcessed => totalLogEntriesProcessed;
+    public uint TotalLogEntriesDropped => totalLogEntriesDropped;
+
+    public uint ContextInstanceNumber { get; }
+
     public override FLogEntrySourceSinkType LogEntryLinkType => FLogEntrySourceSinkType.Sink;
 
     public override FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
         = FLogEntryProcessChainState.Terminating;
 
-    public string AppenderType { get; protected set; }
+    public string AppenderType { get; protected init; }
 
     public IAppenderAsyncClient AsyncClient { get; set; }
 
@@ -160,6 +194,7 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
 
     public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
+        IncrementLogEntriesReceived(logEntryEvent.EntriesCount());
         if (ReceiveOnAsyncQueueNumber == 0 || ReceiveOnAsyncQueueNumber == FLogAsyncQueue.MyCallingQueueNumber)
         {
             ProcessReceivedLogEntryEvent(logEntryEvent);
@@ -178,4 +213,219 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
     }
 
     public abstract IAppenderDefinitionConfig GetAppenderConfig();
+
+    protected void IncrementLogEntriesReceived(uint byAmount = 1)
+    {
+        var totalAmount = byAmount == 1 ? Interlocked.Increment(ref totalLogEntriesReceived) : Interlocked.Add(ref totalLogEntriesReceived, byAmount);
+        CheckRegisteredCountListeners(LogEntriesCountType.Received, totalAmount);
+    }
+
+    protected void IncrementLogEntriesProcessed(uint byAmount = 1)
+    {
+        var totalAmount = byAmount == 1
+            ? Interlocked.Increment(ref totalLogEntriesProcessed)
+            : Interlocked.Add(ref totalLogEntriesProcessed, byAmount);
+        CheckRegisteredCountListeners(LogEntriesCountType.Processed, totalAmount);
+    }
+
+    public void IncrementLogEntriesDropped(uint byAmount = 1)
+    {
+        var totalAmount = byAmount == 1 ? Interlocked.Increment(ref totalLogEntriesDropped) : Interlocked.Add(ref totalLogEntriesDropped, byAmount);
+        CheckRegisteredCountListeners(LogEntriesCountType.Dropped, totalAmount);
+    }
+
+    public void RegisterCallbackWhenReceivedCount(uint reaches, Action<uint, IFLogAppender> callback)
+    {
+        if (totalLogEntriesReceived > reaches)
+        {
+            callback.Invoke(totalLogEntriesReceived, this);
+            return;
+        }
+        RegisterCallbackWhenCountType(LogEntriesCountType.Received, reaches, callback);
+    }
+
+    public void RegisterCallbackWhenProcessedCount(uint reaches, Action<uint, IFLogAppender> callback)
+    {
+        if (totalLogEntriesProcessed > reaches)
+        {
+            callback.Invoke(totalLogEntriesProcessed, this);
+            return;
+        }
+        RegisterCallbackWhenCountType(LogEntriesCountType.Processed, reaches, callback);
+    }
+
+    public void RegisterCallbackWhenDroppedCount(uint reaches, Action<uint, IFLogAppender> callback)
+    {
+        if (totalLogEntriesDropped > reaches)
+        {
+            callback.Invoke(totalLogEntriesDropped, this);
+            return;
+        }
+        RegisterCallbackWhenCountType(LogEntriesCountType.Dropped, reaches, callback);
+    }
+    
+    private void RegisterCallbackWhenCountType(LogEntriesCountType countType, uint reaches, Action<uint, IFLogAppender> callback)
+    {
+        if (notificationSyncLock == null)
+        {
+            lock (this)
+            {
+                notificationSyncLock ??= new object();
+            }
+        }
+        
+        var notifyOnThreshold =
+            DataStructures.Memory.Recycler.ThreadStaticRecycler
+                          .Borrow<NotifyWhenEntriesCountReaches>()
+                          .Initialize(countType, reaches, callback, this);
+        lock (notificationSyncLock)
+        {
+            registeredCountNotifications ??= DataStructures.Memory.Recycler.ThreadStaticRecycler.Borrow<ReusableList<NotifyWhenEntriesCountReaches>>();
+            registeredCountNotifications.Add(notifyOnThreshold);
+        }
+    }
+
+    public void UnregisterCallbackWhenReceivedCount(Action<uint, IFLogAppender> callback)
+    {
+        UnregisterCallbackWhenCountType(LogEntriesCountType.Received, callback);
+    }
+
+    public void UnregisterCallbackWhenProcessedCount(Action<uint, IFLogAppender> callback)
+    {
+        UnregisterCallbackWhenCountType(LogEntriesCountType.Processed, callback);
+    }
+
+    public void UnregisterCallbackWhenDroppedCount(Action<uint, IFLogAppender> callback)
+    {
+        UnregisterCallbackWhenCountType(LogEntriesCountType.Dropped, callback);
+    }
+    
+    private void UnregisterCallbackWhenCountType(LogEntriesCountType countType, Action<uint, IFLogAppender> callback)
+    {
+        if (notificationSyncLock == null) return;
+        lock (notificationSyncLock)
+        {
+            ReusableList<NotifyWhenEntriesCountReaches>? countNotifications = registeredCountNotifications;
+            countNotifications?.IncrementRefCount();
+            if(countNotifications == null) return;
+            for (var i = 0; i < countNotifications.Count; i++)
+            {
+                var notification = countNotifications[i];
+                if (countType == notification.CountType && callback == notification.NotifyCallback)
+                {
+                    countNotifications.RemoveAt(i);
+                    i--;
+                }
+            }
+            countNotifications.DecrementRefCount();
+            if (registeredCountNotifications is { Count: 0 })
+            {
+                notificationSyncLock = null;
+                registeredCountNotifications.DecrementRefCount();
+                registeredCountNotifications = null;
+            }
+        }
+    }
+
+    private void CheckRegisteredCountListeners(LogEntriesCountType logEntriesCountType, uint currentValue)
+    {
+        if (notificationSyncLock == null) return;
+        ReusableList<NotifyWhenEntriesCountReaches>? countNotifications;
+        lock (notificationSyncLock)
+        {
+            countNotifications = registeredCountNotifications;
+            countNotifications?.IncrementRefCount();
+        }
+        if (countNotifications == null) return;
+
+        for (var i = 0; i < countNotifications.Count; i++)
+        {
+            var notification = countNotifications[i];
+
+            var updatedNotificationCount = notification.CheckAndNotify(logEntriesCountType, currentValue);
+            if (updatedNotificationCount != null)
+            {
+                countNotifications.DecrementRefCount();
+                countNotifications = updatedNotificationCount;
+                countNotifications.IncrementRefCount();
+                registeredCountNotifications = updatedNotificationCount;
+                i--;
+            }
+        }
+        countNotifications.DecrementRefCount();
+
+        lock (notificationSyncLock ?? this)
+        {
+            if (registeredCountNotifications is { Count: 0 })
+            {
+                notificationSyncLock = null;
+                registeredCountNotifications.DecrementRefCount();
+                registeredCountNotifications = null;
+            }
+        }
+    }
+    
+    private enum LogEntriesCountType : byte
+    {
+        Received
+      , Processed
+      , Dropped
+    }
+
+    private class NotifyWhenEntriesCountReaches : RecyclableObject
+    {
+        private uint notifyThreshold;
+
+        public Action<uint, IFLogAppender>? NotifyCallback;
+
+        private FLogAppender? countingAppender;
+
+        public NotifyWhenEntriesCountReaches Initialize(LogEntriesCountType countType, uint threshold, Action<uint, IFLogAppender> callback
+          , FLogAppender appender)
+        {
+            CountType       = countType;
+            notifyThreshold = threshold;
+            NotifyCallback  = callback;
+
+            countingAppender = appender;
+
+            return this;
+        }
+
+        public ReusableList<NotifyWhenEntriesCountReaches>? CheckAndNotify(LogEntriesCountType countType, uint currentValue)
+        {
+            if (countType != CountType) return null;
+            if (currentValue >= notifyThreshold)
+            {
+                ReusableList<NotifyWhenEntriesCountReaches> newNotifications;
+                lock (countingAppender!.notificationSyncLock!)
+                {
+                    if (!countingAppender.registeredCountNotifications?.Contains(this) ?? false) return null;
+                    NotifyCallback?.Invoke(currentValue, countingAppender!);
+                    var oldList = countingAppender.registeredCountNotifications;
+                    if (oldList is not { Count: > 1 }) return null;
+                    newNotifications = Recycler!.Borrow<ReusableList<NotifyWhenEntriesCountReaches>>();
+                    foreach (var existing in oldList)
+                    {
+                        if (ReferenceEquals(existing, this))
+                        {
+                            newNotifications.Add(existing);
+                        }
+                    }
+                }
+                return newNotifications;
+            }
+            return null;
+        }
+
+        public LogEntriesCountType CountType { get; private set; }
+
+        public override void StateReset()
+        {
+            notifyThreshold  = 0;
+            NotifyCallback   = null!;
+            countingAppender = null!;
+            base.StateReset();
+        }
+    }
 }

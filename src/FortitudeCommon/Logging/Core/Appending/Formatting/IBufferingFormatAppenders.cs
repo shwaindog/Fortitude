@@ -13,6 +13,8 @@ public interface IMultiDestinationFormattingAppender : IMutableFLogBufferingForm
     SingleDestBufferedFormatWriterRequestCache GetWriterRequestCache(string targetDestination);
 
     void ReceiveNotificationTargetClose(string targetNameClosed);
+
+    void IncrementLogEntriesDropped(uint byAmount = 1);
 }
 
 public interface IEncodedByteBufferingAppender : IFLogBufferingFormatAppender

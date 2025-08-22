@@ -32,7 +32,7 @@ public delegate void FormatWriterReceivedHandler<in T>(T formatWriter) where T :
 
 public abstract class FLogFormattingAppender : FLogAppender, IMutableFLogFormattingAppender
 {
-    protected IFormatWriterRequestCache FormatWriterRequestCache;
+    protected IFormatWriterRequestCache FormatWriterRequestCache = null!;
 
     protected FLogFormattingAppender(IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context, bool isSingleDestinationAppender = true)
         : base(formattingAppenderConfig, context)

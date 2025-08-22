@@ -12,8 +12,11 @@ internal class FLogEventPoller : IEnumerableBatchPollSink<FLogAsyncPayload>, IRi
 {
     private readonly EnumerableBatchRingPollerSink<FLogAsyncPayload> ringPoller;
 
-    public FLogEventPoller(EnumerableBatchPollingRing<FLogAsyncPayload> ring, uint timeoutMs, IOSParallelController? osParallelController = null) =>
-        ringPoller = new EnumerableBatchRingPollerSink<FLogAsyncPayload>(ring, timeoutMs, this, null, osParallelController ?? new OSParallelController());
+    public FLogEventPoller(EnumerableBatchPollingRing<FLogAsyncPayload> ring, uint timeoutMs, IOSParallelController? osParallelController = null)
+    {
+        ringPoller = new EnumerableBatchRingPollerSink<FLogAsyncPayload>(ring, timeoutMs, this, null
+                                                                       , osParallelController ?? new OSParallelController());
+    }
 
     public void Processor(long sequence, long batchSize, FLogAsyncPayload data, bool startOfBatch,
         bool endOfBatch)

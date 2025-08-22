@@ -319,7 +319,8 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
         var countSame = Count == other.Count;
         if (countSame)
         {
-            foreach (var nameKey in NameKeys)
+            var nameKeys = NameKeys.ToList();
+            foreach (var nameKey in nameKeys)
             {
                 var myConfig    = this[nameKey];
                 if (other.TryGetValue(nameKey, out var otherConfig))

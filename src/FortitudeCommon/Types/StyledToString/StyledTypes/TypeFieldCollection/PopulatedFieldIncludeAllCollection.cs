@@ -42,7 +42,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TStyledObj : class, IStyledToStringObject =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<T, TBase>(string fieldName, T[]? value, CustomTypeStyler<TBase> customTypeStyler)
+    public TExt WhenPopulatedAddAll<T, TBase>(string fieldName, T?[]? value, CustomTypeStyler<TBase?> customTypeStyler)
         where T : class, TBase where TBase: class =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
@@ -84,7 +84,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TStyledObj : class, IStyledToStringObject =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<T, TBase>(string fieldName, IReadOnlyList<T?>? value, CustomTypeStyler<TBase> customTypeStyler)
+    public TExt WhenPopulatedAddAll<T, TBase>(string fieldName, IReadOnlyList<T?>? value, CustomTypeStyler<TBase?> customTypeStyler)
         where T : class, TBase where TBase: class =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 

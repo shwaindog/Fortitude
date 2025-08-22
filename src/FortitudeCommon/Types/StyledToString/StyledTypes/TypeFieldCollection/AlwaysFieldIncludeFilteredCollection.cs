@@ -239,8 +239,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler)
+    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, T?[]? value, OrderedCollectionPredicate<TBase1?> filterPredicate
+      , CustomTypeStyler<TBase2?> customTypeStyler)
         where T : class, TBase1, TBase2 where TBase1: class where TBase2: class 
     {
         var found = false;
@@ -530,8 +530,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler)
+    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase1?> filterPredicate
+      , CustomTypeStyler<TBase2?> customTypeStyler)
         where T : class, TBase1, TBase2 where TBase1: class where TBase2: class 
     {
         var found = false;

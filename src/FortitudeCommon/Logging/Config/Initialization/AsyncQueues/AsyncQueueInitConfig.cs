@@ -1,4 +1,5 @@
 ﻿using FortitudeCommon.Config;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.StyledToString;
@@ -10,9 +11,13 @@ namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 public interface IAsyncQueuesInitConfig : IFLogConfig, IInterfacesComparable<IAsyncQueuesInitConfig>
   , IConfigCloneTo<IAsyncQueuesInitConfig>, IStyledToStringObject
 {
+    const int MinimumQueueCapacity = 256;
+    const int DefaultQueueCapacitySize = 1024;
+    const int MaximumQueueCapacity = (int)(NumberExtensions.GigaByte);
+    
     AsyncProcessingType AsyncProcessingType { get; }
 
-    int DefaultBufferQueueSize { get; }
+    int DefaultQueueCapacity { get; }
 
     FullQueueHandling DefaultFullQueueHandling { get; }
 
@@ -33,7 +38,7 @@ public interface IMutableAsyncQueuesInitConfig : IAsyncQueuesInitConfig, IMutabl
 {
     new AsyncProcessingType AsyncProcessingType { get; set; }
 
-    new int DefaultBufferQueueSize { get; set; }
+    new int DefaultQueueCapacity { get; set; }
 
     new FullQueueHandling DefaultFullQueueHandling { get; set; }
 
@@ -84,7 +89,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         AsyncProcessingType             = asyncProcessingType;
         DefaultAppenderAsyncQueueNumber = defaultAppenderAsyncQueueNumber;
         DefaultAppenderFlushQueueNumber = defaultAppenderFlushQueueNumber;
-        DefaultBufferQueueSize          = defaultBufferEntriesSize;
+        DefaultQueueCapacity          = defaultBufferEntriesSize;
         DefaultFullQueueHandling        = defaultBufferFullHandling;
         DefaultDropInterval             = defaultDropInterval;
         InitialAsyncProcessing          = initialAsyncProcessing;
@@ -97,7 +102,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         AsyncProcessingType             = toClone.AsyncProcessingType;
         DefaultAppenderAsyncQueueNumber = toClone.DefaultAppenderAsyncQueueNumber;
         DefaultAppenderFlushQueueNumber = toClone.DefaultAppenderFlushQueueNumber;
-        DefaultBufferQueueSize          = toClone.DefaultBufferQueueSize;
+        DefaultQueueCapacity          = toClone.DefaultQueueCapacity;
         DefaultFullQueueHandling        = toClone.DefaultFullQueueHandling;
         DefaultDropInterval             = toClone.DefaultDropInterval;
         InitialAsyncProcessing          = toClone.InitialAsyncProcessing;
@@ -128,10 +133,12 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         set => this[nameof(DefaultAppenderFlushQueueNumber)] = value.ToString();
     }
 
-    public int DefaultBufferQueueSize
+    public int DefaultQueueCapacity
     {
-        get => int.TryParse(this[nameof(DefaultBufferQueueSize)], out var timePart) ? timePart : 0;
-        set => this[nameof(DefaultBufferQueueSize)] = value.ToString();
+        get => int.TryParse(this[nameof(DefaultQueueCapacity)], out var queueCapacity)  
+            ? Math.Clamp(queueCapacity, IAsyncQueuesInitConfig.MinimumQueueCapacity, IAsyncQueuesInitConfig.MaximumQueueCapacity) 
+            :  IAsyncQueuesInitConfig.DefaultQueueCapacitySize;
+        set => this[nameof(DefaultQueueCapacity)] = value.ToString();
     }
 
     public FullQueueHandling DefaultFullQueueHandling
@@ -198,7 +205,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         if (other == null) return false;
 
         var asyncTypeSame         = AsyncProcessingType == other.AsyncProcessingType;
-        var queueSizeSame         = DefaultBufferQueueSize == other.DefaultBufferQueueSize;
+        var queueSizeSame         = DefaultQueueCapacity == other.DefaultQueueCapacity;
         var fullQueueHandlingSame = DefaultFullQueueHandling == other.DefaultFullQueueHandling;
         var dropIntervalSame      = DefaultDropInterval == other.DefaultDropInterval;
         var initAsyncNumSame      = InitialAsyncProcessing == other.InitialAsyncProcessing;
@@ -223,7 +230,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         unchecked
         {
             var hashCode = AsyncProcessingType.GetHashCode();
-            hashCode = (hashCode * 397) ^ DefaultBufferQueueSize;
+            hashCode = (hashCode * 397) ^ DefaultQueueCapacity;
             hashCode = (hashCode * 397) ^ (int)DefaultFullQueueHandling;
             hashCode = (hashCode * 397) ^ DefaultDropInterval;
             hashCode = (hashCode * 397) ^ InitialAsyncProcessing;
@@ -240,7 +247,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         return
             sbc.StartComplexType(nameof(AsyncQueuesInitConfig))
                .Field.AlwaysAdd(nameof(AsyncProcessingType), AsyncProcessingType, AsyncProcessingTypesExtensions.AsyncProcessingTypeFormatter)
-               .Field.AlwaysAdd(nameof(DefaultBufferQueueSize), DefaultBufferQueueSize)
+               .Field.AlwaysAdd(nameof(DefaultQueueCapacity), DefaultQueueCapacity)
                .Field.AlwaysAdd(nameof(DefaultFullQueueHandling), DefaultFullQueueHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
                .Field.AlwaysAdd(nameof(DefaultDropInterval), DefaultDropInterval)
                .Field.AlwaysAdd(nameof(InitialAsyncProcessing), InitialAsyncProcessing)

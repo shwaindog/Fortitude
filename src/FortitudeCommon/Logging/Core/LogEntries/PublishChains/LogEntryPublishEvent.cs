@@ -1,8 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.DataStructures.Lists;
-
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 public enum LogEntryEventType
@@ -26,10 +24,15 @@ public static class LogEntryPublishEventExtensions
         toIncrement.LogEntry?.IncrementRefCount();
         toIncrement.LogEntriesBatch?.IncrementRefCount();
     }
-    
+
     public static void DecrementRefCount(this LogEntryPublishEvent toIncrement)
     {
         toIncrement.LogEntry?.DecrementRefCount();
         toIncrement.LogEntriesBatch?.DecrementRefCount();
+    }
+
+    public static uint EntriesCount(this LogEntryPublishEvent countEntries)
+    {
+        return (uint)(countEntries.LogEntriesBatch?.Count ?? 0) + (uint)(countEntries.LogEntry != null ? 1 : 0);
     }
 }

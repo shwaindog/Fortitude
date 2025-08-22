@@ -42,8 +42,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TStyledObj : class, IStyledToStringObject => 
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<T, TBase1, TBase2>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler) where T : class, TBase1, TBase2  where TBase1: class where TBase2: class   => 
+    public TExt WhenNonNullAddFiltered<T, TBase1, TBase2>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase1?> filterPredicate
+      , CustomTypeStyler<TBase2?> customTypeStyler) where T : class, TBase1, TBase2  where TBase1: class where TBase2: class   => 
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, customTypeStyler) : stb.StyleTypeBuilder;
 
     

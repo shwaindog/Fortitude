@@ -220,7 +220,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<T, TBase>(string fieldName, T[]? value, CustomTypeStyler<TBase> customTypeStyler)
+    public TExt AlwaysAddAll<T, TBase>(string fieldName, T?[]? value, CustomTypeStyler<TBase?> customTypeStyler)
         where T : class, TBase where TBase: class 
     {
         stb.FieldNameJoin(fieldName);
@@ -465,7 +465,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<T, TBase>(string fieldName, IReadOnlyList<T?>? value, CustomTypeStyler<TBase> customTypeStyler)
+    public TExt AlwaysAddAll<T, TBase>(string fieldName, IReadOnlyList<T?>? value, CustomTypeStyler<TBase?> customTypeStyler)
         where T : class, TBase where TBase: class 
     {
         stb.FieldNameJoin(fieldName);
@@ -977,7 +977,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAllEnumerate<T, TBase>(string fieldName, IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+    public TExt AlwaysAddAllEnumerate<T, TBase>(string fieldName, IEnumerator<T?>? value, CustomTypeStyler<TBase?> customTypeStyler)
         where T : class, TBase where TBase: class 
     {
         stb.FieldNameJoin(fieldName);

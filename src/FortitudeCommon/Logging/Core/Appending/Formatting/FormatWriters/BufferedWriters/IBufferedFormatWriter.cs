@@ -9,6 +9,7 @@ public interface IBufferedFormatWriter : IFormatWriter
     int BufferRemainingCharCapacity { get; }
 
     int BufferedChars { get; }
+    uint BufferedFormattedLogEntries { get; }
 
     void Flush();
 

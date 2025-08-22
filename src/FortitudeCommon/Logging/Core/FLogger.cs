@@ -16,24 +16,30 @@ namespace FortitudeCommon.Logging.Core;
 public enum LoggerActivationFlags : uint
 {
     Disabled                    = 0x00_00_00_00
-  , WhenNoTrace                 = 0x00_00_00_00
-  , WhenTrace                   = 0x00_00_00_00
-  , WhenDebugProfile            = 0x00_00_00_00
-  , WhenReleaseProfile          = 0x00_00_00_00
-  , WhenPerfTestProfile         = 0x00_00_00_00
-  , WhenNoPerfTestProfile       = 0x00_00_00_00
-  , WhenNoStopWatch             = 0x00_00_00_00
-  , WhenStopWatch               = 0x00_00_00_00
-  , DefaultLogger               = 0x00_00_00_00
-  , EveryTime                   = 0x00_00_00_00
-  , PerLocationAttemptInterval  = 0x00_00_00_00
-  , LoggerGlobalAttemptInterval = 0x00_00_00_00
-  , AddSkipCount                = 0x00_00_00_00
-  , PerLocationTimeInterval     = 0x00_00_00_00
-  , GlobalLoggerTimeInterval    = 0x00_00_00_00
-  , DefaultTimingLogger         = 0x00_00_00_00
+  , WhenNoBacktrace             = 0x00_00_00_01
+  , WhenBacktrace               = 0x00_00_00_02
+  , WhenDebugBuildProfile       = 0x00_00_00_04
+  , WhenReleaseBuildProfile     = 0x00_00_00_08
+  , WhenUatTestProfile          = 0x00_00_00_10
+  , WhenNoUatTestProfile        = 0x00_00_00_20
+  , WhenPerfTestProfile         = 0x00_00_00_40
+  , WhenNoPerfTestProfile       = 0x00_00_00_80
+  , WhenProdTestProfile         = 0x00_00_01_00
+  , WhenNoProdTestProfile       = 0x00_00_02_00
+  , WhenNoStopWatch             = 0x00_00_04_00
+  , WhenStopWatch               = 0x00_00_08_00
+  , AtEveryInterval             = 0x00_00_10_00
+  , DefaultLogger               = 0x00_00_3F_FF
+  , OnlyAsCacheBacktrace        = 0x00_00_40_00
+  , PerLocationAttemptInterval  = 0x00_00_80_00
+  , LoggerGlobalAttemptInterval = 0x00_01_00_00
+  , PerCorrelationIdInterval    = 0x00_02_00_00
+  , AddSkipCount                = 0x00_04_00_00
+  , PerLocationTimeInterval     = 0x00_08_00_00
+  , GlobalLoggerTimeInterval    = 0x00_10_00_00
+  , DefaultTimingLogger         = 0x00_20_00_00
 
-  , PerLocationPercentilesAtInterval = 0x00_00_00_00
+  , PerLocationPercentilesAtInterval = 0x00_40_00_00
 }
 
 public delegate void NotifyLogEntryDispatched(IFLogEntry logEntry);

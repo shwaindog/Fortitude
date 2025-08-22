@@ -1084,8 +1084,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFiltered<T, TBase>(T[]? value, OrderedCollectionPredicate<TBase> itemPredicate
-      , CustomTypeStyler<TBase> customTypeStyler) where T : class, TBase where TBase: class
+    public TExt AddFiltered<T, TBase>(T?[]? value, OrderedCollectionPredicate<TBase?> itemPredicate
+      , CustomTypeStyler<TBase?> customTypeStyler) where T : class, TBase where TBase: class
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -1105,8 +1105,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
     
-    public TExt AddFiltered<T, TBase>(ReadOnlySpan<T> value, OrderedCollectionPredicate<TBase> itemPredicate
-      , CustomTypeStyler<TBase> customTypeStyler) where T : class, TBase where TBase: class
+    public TExt AddFiltered<T, TBase>(ReadOnlySpan<T?> value, OrderedCollectionPredicate<TBase?> itemPredicate
+      , CustomTypeStyler<TBase?> customTypeStyler) where T : class, TBase where TBase: class
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -1126,8 +1126,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddFiltered<T, TBase>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase> itemPredicate
-      , CustomTypeStyler<TBase> customTypeStyler) where T : class, TBase where TBase: class
+    public TExt AddFiltered<T, TBase>(IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase?> itemPredicate
+      , CustomTypeStyler<TBase?> customTypeStyler) where T : class, TBase where TBase: class
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -1147,8 +1147,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddFilteredEnumerate<T, TBase>(IEnumerable<T>? value, OrderedCollectionPredicate<TBase> itemPredicate
-      , CustomTypeStyler<TBase> customTypeStyler) where T : class, TBase where TBase: class
+    public TExt AddFilteredEnumerate<T, TBase>(IEnumerable<T?>? value, OrderedCollectionPredicate<TBase?> itemPredicate
+      , CustomTypeStyler<TBase?> customTypeStyler) where T : class, TBase where TBase: class
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -1168,8 +1168,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    public TExt AddFilteredEnumerate<T, TBase>(IEnumerator<T>? value, OrderedCollectionPredicate<TBase> itemPredicate
-      , CustomTypeStyler<TBase> customTypeStyler) where T : class, TBase where TBase: class
+    public TExt AddFilteredEnumerate<T, TBase>(IEnumerator<T?>? value, OrderedCollectionPredicate<TBase?> itemPredicate
+      , CustomTypeStyler<TBase?> customTypeStyler) where T : class, TBase where TBase: class
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;

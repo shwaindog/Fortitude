@@ -66,7 +66,7 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
         Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
 
     public TExt StructAsValue<T, TBase>(string nonJsonfieldName, T? value
-      , CustomTypeStyler<TBase> customTypeStyler, T defaultValue = default) 
+      , CustomTypeStyler<TBase> customTypeStyler, T? defaultValue = null) 
         where T : class, TBase where TBase : class =>
         Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
 

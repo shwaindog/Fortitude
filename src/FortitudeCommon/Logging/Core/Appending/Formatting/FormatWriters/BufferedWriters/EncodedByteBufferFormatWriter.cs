@@ -2,7 +2,6 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
-using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
@@ -28,11 +27,11 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
       , IBufferFlushingFormatWriter bufferFlusherWriter, string targetName, int bufferNum,
         FormatWriterReceivedHandler<EncodedByteBufferFormatWriter> onCompleteCallback)
     {
+        owningAppender = owningEncodingAppender;
         TargetName     = targetName;
         BufferNum      = bufferNum;
         Buffer         = (owningAppender.CharBufferSize * 3).SourceRecyclingByteArray();
         fileEncoder    = owningAppender.FileEncoder;
-        owningAppender = owningEncodingAppender;
         bufferFlusher  = bufferFlusherWriter;
         
         onWriteCompleteCallback = onCompleteCallback;
@@ -48,6 +47,8 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
     public bool InUse { get; set; }
 
     public string TargetName { get; private set; } = null!;
+
+    public uint BufferedFormattedLogEntries { get; private set; }
 
     public bool NotifyStartEntryAppend(IFLogEntry forEntry)
     {
@@ -81,7 +82,10 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
         Buffer.Add(fileEncoder, toWrite, fromIndex, charCount);
     }
 
-    public void NotifyEntryAppendComplete() { }
+    public void NotifyEntryAppendComplete()
+    {
+        BufferedFormattedLogEntries++;
+    }
 
     public int BufferNum { get; private set; }
 
@@ -99,6 +103,7 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
 
     public void Clear()
     {
+        BufferedFormattedLogEntries = 0;
         Buffer.Clear();
         encodedCharCount = 0;
     }

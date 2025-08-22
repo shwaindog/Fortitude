@@ -24,12 +24,15 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
 
     protected FormatWriterReceivedHandler<IFormatWriter> OnReturningFormatWriter;
 
+    public SingleDestDirectFormatWriterRequestCache()
+    {
+        RequestHandleDisposed   = WriterHandleDispose;
+        OnReturningFormatWriter = WriterFinishedWithBuffer;
+    }
+    
     public SingleDestDirectFormatWriterRequestCache Initialize(IMutableFLogFormattingAppender owningAppender, IFLogContext context, string targetName = SIngleDestinationTarget)
     {
         OwningAppender = owningAppender;
-
-        RequestHandleDisposed   = WriterHandleDispose;
-        OnReturningFormatWriter = WriterFinishedWithBuffer;
 
         if (GetType() == typeof(SingleDestDirectFormatWriterRequestCache))
         {

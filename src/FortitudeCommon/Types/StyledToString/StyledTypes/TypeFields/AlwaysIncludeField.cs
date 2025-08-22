@@ -61,7 +61,7 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt AlwaysAdd(string fieldName, IStyledToStringObject? value) => 
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
     
-    public TExt AlwaysAdd<T, TBase>(string fieldName, T? value, CustomTypeStyler<TBase> overrideStyler) where T : class, TBase where TBase : class =>  
+    public TExt AlwaysAdd<T, TBase>(string fieldName, T? value, CustomTypeStyler<TBase?> overrideStyler) where T : class, TBase where TBase : class =>  
         stb.FieldNameJoin(fieldName, stb).AppendOrNull(value, overrideStyler).AddGoToNext(stb);
 
     public TExt AlwaysAdd(string fieldName, ICharSequence? value) => 

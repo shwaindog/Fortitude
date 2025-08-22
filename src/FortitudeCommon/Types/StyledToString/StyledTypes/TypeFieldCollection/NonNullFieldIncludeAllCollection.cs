@@ -44,7 +44,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TStyledObj : class, IStyledToStringObject  => 
         value != null ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAll<T, TBase>(string fieldName, T[]? value, CustomTypeStyler<TBase> customTypeStyler)
+    public TExt  WhenNonNullAddAll<T, TBase>(string fieldName, T[]? value, CustomTypeStyler<TBase?> customTypeStyler)
         where T : class, TBase where TBase: class  => 
         value != null ? AlwaysAddAll(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
@@ -90,7 +90,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TStyledObj : class, IStyledToStringObject  => 
         value != null ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAll<T, TBase>(string fieldName, IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+    public TExt  WhenNonNullAddAll<T, TBase>(string fieldName, IReadOnlyList<T>? value, CustomTypeStyler<TBase?> customTypeStyler)
         where T : class, TBase where TBase: class  => 
         value != null ? AlwaysAddAll(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
@@ -136,7 +136,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TStyledObj : class, IStyledToStringObject  => 
         value != null ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAllEnumerate<T, TBase>(string fieldName, IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+    public TExt  WhenNonNullAddAllEnumerate<T, TBase>(string fieldName, IEnumerable<T?>? value, CustomTypeStyler<TBase?> customTypeStyler)
         where T : class, TBase where TBase: class  => 
         value != null ? AlwaysAddAllEnumerate(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
@@ -182,7 +182,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TStyledObj : class, IStyledToStringObject => 
         value != null ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAllEnumerate<T, TBase>(string fieldName, IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+    public TExt  WhenNonNullAddAllEnumerate<T, TBase>(string fieldName, IEnumerator<T>? value, CustomTypeStyler<TBase?> customTypeStyler)
         where T : class, TBase where TBase: class  => 
         value != null ? AlwaysAddAllEnumerate(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 

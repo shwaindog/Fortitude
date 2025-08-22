@@ -32,7 +32,7 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
 
     private string formattingTemplate = "";
 
-    private ITokenFormattingValidator? tokenFormattingValidator;
+    private ITokenFormattingValidator? tokenFormattingValidator = null;
 
     public FLogEntryFormatter() { }
 
@@ -49,8 +49,9 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
     }
 
     public FLogEntryFormatter Initialize(string template, IFormatWriterResolver writerResolver
-      , ITokenFormattingValidator? tokenFormattingValidator = null)
+      , ITokenFormattingValidator? formattingValidator = null)
     {
+        tokenFormattingValidator = formattingValidator;
         if (template != FormattingTemplate)
         {
             FormattingTemplate = template;

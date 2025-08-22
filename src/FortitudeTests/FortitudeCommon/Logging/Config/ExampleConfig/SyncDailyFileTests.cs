@@ -13,7 +13,7 @@ namespace FortitudeTests.FortitudeCommon.Logging.Config.ExampleConfig;
 public class SyncDailyFileTests
 {
     [TestMethod]
-    public void SyncDailyFileLoads()
+    public void SyncDailyFileLoadsAndLogsToFile()
     {
         using var wd = GetType().GetTemporaryWorkingDirectoryFor();
         ConfigExtractor.SyncDailyFileExample.ExtractExampleTo();
