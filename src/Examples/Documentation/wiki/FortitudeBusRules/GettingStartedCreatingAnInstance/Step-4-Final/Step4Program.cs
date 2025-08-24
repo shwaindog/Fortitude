@@ -36,19 +36,13 @@ public class Step4Program
 
     // If memory profiling ensure no console logging creates garbage
     public static bool LogStartOfEachRun = false;
-
-
+    
     private static TestToPerform testToPerform = TestToPerform.BatchRequestResponse;
 
     public static void Main(string[] args)
     {
         Thread.CurrentThread.Name = "MainThread";
-        FLogConfigExtractor.SyncFileAndColoredConsoleExample.ExtractExampleTo();
-        var context =
-            FLogContext
-                .NewUninitializedContext
-                .InitializeContextFromWorkingDirFilePath(Environment.CurrentDirectory, FLogConfigFile.DefaultConfigFullFilePath)
-                .StartFlogSetAsCurrentContext();
+        FLogConfigExamples.SyncColoredConsoleExample.LoadExampleAsCurrentContext();
 
         var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
         

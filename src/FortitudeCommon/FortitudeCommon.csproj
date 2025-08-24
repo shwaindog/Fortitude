@@ -36,6 +36,8 @@
     <EmbeddedResource Include="Logging\Config\ExampleConfig\SyncDailyFile.json" />
     <None Remove="Logging\Config\ExampleConfig\SyncFileAndColoredConsole.json" />
     <EmbeddedResource Include="Logging\Config\ExampleConfig\SyncFileAndColoredConsole.json" />
+    <None Remove="Logging\Config\ExampleConfig\SyncColoredConsole.json" />
+    <EmbeddedResource Include="Logging\Config\ExampleConfig\SyncColoredConsole.json" />
   </ItemGroup>
 
 </Project>

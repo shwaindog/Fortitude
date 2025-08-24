@@ -16,7 +16,7 @@ public class SyncDailyFileTests
     public void SyncDailyFileLoadsAndLogsToFile()
     {
         using var wd = GetType().GetTemporaryWorkingDirectoryFor();
-        FLogConfigExtractor.SyncDailyFileExample.ExtractExampleTo();
+        FLogConfigExamples.SyncDailyFileExample.ExtractExampleTo();
         var context =
             FLogContext
                 .NewUninitializedContext

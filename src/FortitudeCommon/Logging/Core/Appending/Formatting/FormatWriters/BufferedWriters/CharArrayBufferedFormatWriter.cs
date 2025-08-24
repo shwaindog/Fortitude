@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using FortitudeCommon.DataStructures.Memory.Buffers;
+using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 
@@ -48,6 +49,11 @@ public class CharArrayBufferedFormatWriter : FormatWriter<IBufferedFormatWriter>
     }
 
     public override void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue)
+    {
+        Buffer!.Add(toWrite, fromIndex, length);
+    }
+
+    public override void Append(ICharSequence toWrite, int fromIndex = 0, int length = int.MaxValue)
     {
         Buffer!.Add(toWrite, fromIndex, length);
     }

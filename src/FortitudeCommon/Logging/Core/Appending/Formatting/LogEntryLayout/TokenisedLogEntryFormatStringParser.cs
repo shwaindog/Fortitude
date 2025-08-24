@@ -133,6 +133,10 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
                 toPopulate.Add(new ConsoleColorResetTemplatePart(""));
             }
         }
+        else
+        {
+            toPopulate.Add(new StringConstantTemplatePart(tokenFormatting));
+        }
     }
 
     public List<ITemplatePart> EnsureConsoleColorsReset(List<ITemplatePart> checkIsReset)

@@ -71,6 +71,7 @@ public class LogEntryPathResolver : RecyclableObject, IDisposable
     {
         public const string DefaultDateFormatting = "YYYY-MM-DD";
         public const string DefaultTimeFormatting = "HH";
+        public const string DefaultTimeMicrosFormatting = "000";
 
         public ReadOnlySpan<char> ValidateFormattingToken(string tokenName, ReadOnlySpan<char> tokenValue)
         {
@@ -92,6 +93,15 @@ public class LogEntryPathResolver : RecyclableObject, IDisposable
                     if (tokenValue.Length == 0)
                     {
                         return DefaultTimeFormatting.AsSpan();
+                    }
+                    break;
+                case $"{nameof(FLogEntryLayoutTokens.DATETIME_MICROSECONDS)}":
+                case $"{nameof(FLogEntryLayoutTokens.DATE_MICROS)}":
+                case $"{nameof(FLogEntryLayoutTokens.TIME_MICROS)}":
+                case $"{nameof(FLogEntryLayoutTokens.TS_US)}":
+                    if (tokenValue.Length == 0)
+                    {
+                        return DefaultTimeMicrosFormatting.AsSpan();
                     }
                     break;
             }

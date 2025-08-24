@@ -13,7 +13,7 @@
           },
           "ColoredConsole" : {
             "AppenderType": "ConsoleOut",
-            "LogEntryFormatLayout": "'%FCM,Red,DarkYellow,White,Gray,DarkGray:'%TS:yyyy-MM-dd HH:mm:ss.ffffff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN,3:00%' '%MSG%''%NL%' %'",
+            "LogEntryFormatLayout": "'%FC,DarkCyan:'%TS:yyyy-MM-dd HH:%'%''%FC,Cyan:'%TS:mm:ss.ffffff%'%' '%FCM,Red,DarkYellow,White,Gray,DarkGray:'%LVL,5%'%' '%FC,DarkGray:['%THREADNAME,10[..15]%' '%THREADID%']%' '%FC,DarkBlue:'%LGR%':%''%FC,Blue:'%LLN,3:00%'%' '%FCM,Red,DarkYellow,White,Gray,DarkGray:'%MSG%'%'%NL%'",
             "DisableBuffering": true
           }
         }

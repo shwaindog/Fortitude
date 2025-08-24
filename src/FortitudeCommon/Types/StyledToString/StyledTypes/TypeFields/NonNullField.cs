@@ -24,6 +24,9 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
         where TStruct : struct =>
         !Equals(value, null) ? AlwaysAdd(fieldName, value.Value, customTypeStyler) : stb.StyleTypeBuilder;
 
+    public TExt WhenNonNullAdd<TEnum>(string fieldName, TEnum? value) where TEnum : Enum =>
+        !Equals(value, null) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+
     public TExt WhenNonNullAdd(string fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value != null ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;

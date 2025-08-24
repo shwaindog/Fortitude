@@ -10,6 +10,7 @@ using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.RequestsCa
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.OSWrapper.Streams;
+using FortitudeCommon.Types.Mutable.Strings;
 
 #pragma warning disable SYSLIB0001
 
@@ -180,24 +181,62 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
 
         public override void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
+            var cappedFrom   = Math.Clamp(fromIndex, 0, toWrite.Length - 1);
+            var cappedLength = Math.Clamp(length, 0, toWrite.Length);
             directWriteStagingBuffer!.Clear();
-            directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite, fromIndex, length);
+            directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite, cappedFrom, cappedLength);
             var byteRange = directWriteStagingBuffer.AsByteArrayRange;
             AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
         }
 
+        public override void Append(ICharSequence toWrite, int fromIndex = 0, int length = int.MaxValue)
+        {
+            if (toWrite is CharArrayStringBuilder charArrayBuilder)
+            {
+                var writtenCharArrayRange = charArrayBuilder.AsCharArrayRange;
+                var cappedFrom            = Math.Clamp(fromIndex, writtenCharArrayRange.FromIndex, writtenCharArrayRange.Length - 1);
+                var cappedLength          = Math.Clamp(length, 0, writtenCharArrayRange.Length);
+                directWriteStagingBuffer!.Clear();
+                directWriteStagingBuffer.Add(directWriteStagingFileEncoder, writtenCharArrayRange.CharBuffer, cappedFrom, cappedLength);
+                var byteRange = directWriteStagingBuffer.AsByteArrayRange;
+
+                AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
+            }
+            else if (toWrite is MutableString mutableString)
+            {
+                var sb = mutableString.BackingStringBuilder;
+                Append(sb, fromIndex, length);
+            }
+            else
+            {
+                var cappedFrom   = Math.Clamp(fromIndex, 0, toWrite.Length - 1);
+                var cappedLength = Math.Clamp(length, 0, toWrite.Length);
+                var charArray    = cappedLength.SourceRecyclingCharArray();
+                charArray.Add(toWrite, cappedFrom, cappedLength);
+                directWriteStagingBuffer!.Clear();
+                directWriteStagingBuffer.Add(directWriteStagingFileEncoder, charArray.BackingArray, 0, cappedLength);
+                var byteRange = directWriteStagingBuffer.AsByteArrayRange;
+                AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
+                charArray.DecrementRefCount();
+            }
+        }
+
         public override void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
+            var cappedFrom   = Math.Clamp(fromIndex, 0, toWrite.Length - 1);
+            var cappedLength = Math.Clamp(length, 0, toWrite.Length);
             directWriteStagingBuffer!.Clear();
-            directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite, fromIndex, length);
+            directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite, cappedFrom, cappedLength);
             var byteRange = directWriteStagingBuffer.AsByteArrayRange;
             AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
         }
 
         public override void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
+            var cappedFrom   = Math.Clamp(fromIndex, 0, toWrite.Length - 1);
+            var cappedLength = Math.Clamp(length, 0, toWrite.Length);
             directWriteStagingBuffer!.Clear();
-            directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite, fromIndex, length);
+            directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite, cappedFrom, cappedLength);
             var byteRange = directWriteStagingBuffer.AsByteArrayRange;
             AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
         }

@@ -5,6 +5,7 @@ using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
+using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 
@@ -72,26 +73,60 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
 
         public override void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
-            var bufferSize = Math.Min(toWrite.Length - fromIndex, length);
-            var charArray  = bufferSize.SourceRecyclingCharArray();
-            charArray.Add(toWrite, fromIndex, bufferSize);
-            Console.Write(charArray.BackingArray, 0, bufferSize);
+            if (fromIndex == 0 && length == int.MaxValue)
+            {
+                Console.Write(toWrite);
+                return;
+            }
+            var cappedFrom   = Math.Clamp(fromIndex, 0, toWrite.Length - 1);
+            var cappedLength = Math.Clamp(length, 0, toWrite.Length);
+            var charArray    = cappedLength.SourceRecyclingCharArray();
+            charArray.Add(toWrite, fromIndex, cappedLength);
+            Console.Write(charArray.BackingArray, cappedFrom, cappedLength);
             charArray.DecrementRefCount();
+        }
+
+        public override void Append(ICharSequence toWrite, int fromIndex = 0, int length = int.MaxValue)
+        {
+            if (toWrite is CharArrayStringBuilder charArrayBuilder)
+            {
+                var writtenCharArrayRange = charArrayBuilder.AsCharArrayRange;
+                var cappedFrom            = Math.Clamp(fromIndex, writtenCharArrayRange.FromIndex, writtenCharArrayRange.Length - 1);
+                var cappedLength          = Math.Clamp(length, 0, writtenCharArrayRange.Length);
+
+                Console.Write(writtenCharArrayRange.CharBuffer, cappedFrom, cappedLength);
+            }
+            else if (toWrite is MutableString mutableString)
+            {
+                var sb = mutableString.BackingStringBuilder;
+                Append(sb, fromIndex, length);
+            }
+            else
+            {
+                var cappedFrom   = Math.Clamp(fromIndex, 0, toWrite.Length - 1);
+                var cappedLength = Math.Clamp(length, 0, toWrite.Length);
+                var charArray    = cappedLength.SourceRecyclingCharArray();
+                charArray.Add(toWrite, cappedFrom, cappedLength);
+                Console.Write(charArray.BackingArray, 0, cappedLength);
+                charArray.DecrementRefCount();
+            }
         }
 
         public override void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
-            var bufferSize = Math.Min(toWrite.Length - fromIndex, length);
-            var charArray  = bufferSize.SourceRecyclingCharArray();
-            charArray.Add(toWrite, fromIndex, bufferSize);
-            Console.Write(charArray.BackingArray, 0, bufferSize);
+            var cappedFrom   = Math.Clamp(fromIndex, 0, toWrite.Length - 1);
+            var cappedLength = Math.Clamp(length, 0, toWrite.Length);
+            var charArray    = cappedLength.SourceRecyclingCharArray();
+            charArray.Add(toWrite, cappedFrom, cappedLength);
+            Console.Write(charArray.BackingArray, 0, cappedLength);
             charArray.DecrementRefCount();
         }
 
         public override void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
-            var bufferSize = Math.Min(toWrite.Length - fromIndex, length);
-            Console.Write(toWrite, 0, bufferSize);
+            var cappedFrom   = Math.Clamp(fromIndex, 0, toWrite.Length - 1);
+            var cappedLength = Math.Clamp(length, 0, toWrite.Length);
+            Console.Write(toWrite, cappedFrom, cappedLength);
         }
 
         public override void NotifyEntryAppendComplete()

@@ -12,6 +12,15 @@ public static class CharExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsDigit(this char check) => check is >= '0' and <= '9';
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsCarat(this char check) => check is '^';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsOpenSquareBracket(this char check) => check is '[';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsCloseSquareBracket(this char check) => check is ']';
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsWhiteSpace(this char check)

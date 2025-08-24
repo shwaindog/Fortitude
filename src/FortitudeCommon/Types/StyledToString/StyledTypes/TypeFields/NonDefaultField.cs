@@ -26,6 +26,9 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , CustomTypeStyler<TStruct> customTypeStyler, TStruct defaultValue = default) where TStruct : struct =>
         !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
+    public TExt WhenNonDefaultAdd<TEnum>(string fieldName, TEnum value, TEnum defaultValue) where TEnum : Enum =>
+        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+
     public TExt WhenNonDefaultAdd
     (string fieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>

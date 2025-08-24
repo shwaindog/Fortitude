@@ -18,7 +18,7 @@ public class AsyncDailyDblBufferedFileTests
     public void AsyncDailyDblBufferedFileLoadsAndLogsToFile()
     {
         using var wd = GetType().GetTemporaryWorkingDirectoryFor();
-        FLogConfigExtractor.AsyncDailyDblBufferedFileExample.ExtractExampleTo();
+        FLogConfigExamples.AsyncDailyDblBufferedFileExample.ExtractExampleTo();
         var context =
             FLogContext
                 .NewUninitializedContext

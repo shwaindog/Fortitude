@@ -4,6 +4,7 @@ using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.RequestsCache;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
@@ -87,6 +88,11 @@ public class CharSpanReturningLogEntryFormatter : RecyclableObject, IFormatWrite
     }
 
     public void Append(StringBuilder toWrite, int fromIndex = 0, int length = Int32.MaxValue)
+    {
+        Buffer!.Add(toWrite, fromIndex, length);
+    }
+
+    public void Append(ICharSequence toWrite, int fromIndex = 0, int length = Int32.MaxValue)
     {
         Buffer!.Add(toWrite, fromIndex, length);
     }
