@@ -25,7 +25,7 @@ public class Step1Program
     public static void Main(string[] args)
     {
         Thread.CurrentThread.Name = "MainThread";
-        FLogConfigExamples.SyncColoredConsoleExample.LoadExampleAsCurrentContext();
+        FLogConfigExamples.AsyncDblBufferedFileAndColoredConsoleExample.LoadExampleAsCurrentContext();
 
         var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
         

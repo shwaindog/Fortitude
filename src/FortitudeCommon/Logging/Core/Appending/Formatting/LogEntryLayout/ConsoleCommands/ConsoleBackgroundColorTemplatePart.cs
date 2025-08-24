@@ -3,7 +3,7 @@ using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConsoleCommands;
 
-public class ConsoleBackgroundColorTemplatePart : AppenderCommandTemplatePart
+public class ConsoleBackgroundColorTemplatePart : ConsoleAppenderColorChangeTemplatePart
 {
     private ConsoleColor setToColour = ConsoleColor.White;
 

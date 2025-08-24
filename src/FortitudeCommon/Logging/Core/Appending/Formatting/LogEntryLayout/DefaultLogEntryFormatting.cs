@@ -8,6 +8,8 @@ public class DefaultLogEntryFormatting : ITokenFormattingValidator
     public const string DefaultTimeFormatting = "HH:mm:ss";
 
     public const string DefaultTimeMicrosFormatting = "000";
+    
+    public static DefaultLogEntryFormatting Instance { get; } = new ();
 
     public ReadOnlySpan<char> ValidateFormattingToken(string tokenName, ReadOnlySpan<char> tokenValue)
     {

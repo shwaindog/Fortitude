@@ -128,7 +128,12 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
                     case ConsoleLogLevelTextColorMatchTemplatePart:
                     case ConsoleLogLevelBackgroundColorMatchTemplatePart:
                         BuildTemplateParts(tokenFormattingReplace.Format, toPopulate, tokenFormattingValidator);
+                        
                         break;
+                }
+                if (scopedTemplatePart is ConsoleBackgroundColorTemplatePart colorTemplatePart)
+                {
+                    colorTemplatePart.WasScopeClosed = true;
                 }
                 toPopulate.Add(new ConsoleColorResetTemplatePart(""));
             }
@@ -146,13 +151,9 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
         {
             switch (templatePart)
             {
-                case ConsoleBackgroundColorTemplatePart:
-                case ConsoleTextColorTemplatePart:
-                case ConsoleLogLevelTextColorMatchTemplatePart:
-                case ConsoleLogLevelBackgroundColorMatchTemplatePart:
-                    isDefaultColors = false;
+                case ConsoleAppenderColorChangeTemplatePart consoleColorChangeCommand:
+                    isDefaultColors = consoleColorChangeCommand.WasScopeClosed;
                     break;
-                case ConsoleColorResetTemplatePart: isDefaultColors = true; break;
             }
         }
         if (!isDefaultColors)

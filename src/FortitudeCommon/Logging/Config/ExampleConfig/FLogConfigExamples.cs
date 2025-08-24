@@ -23,6 +23,12 @@ public static class FLogConfigExamples
 
     public static readonly FLogExampleConfig SyncColoredConsoleExample
         = (FLogExampleConfig)$"{ExamplesNameSpace}.SyncColoredConsole.json";
+
+    public static readonly FLogExampleConfig AsyncDblBufferedColoredConsoleExample
+        = (FLogExampleConfig)$"{ExamplesNameSpace}.AsyncDblBufferedColoredConsole.json";
+
+    public static readonly FLogExampleConfig AsyncDblBufferedFileAndColoredConsoleExample
+        = (FLogExampleConfig)$"{ExamplesNameSpace}.AsyncDblBufferedFileAndColoredConsole.json";
     
     public static FileInfo? ExtractExampleTo(this FLogExampleConfig fullExampleNameSpacePath, string? destPath = null, string? destFileName = null)
     {
