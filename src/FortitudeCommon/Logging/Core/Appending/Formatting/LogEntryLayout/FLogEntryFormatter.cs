@@ -114,7 +114,9 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
     {
         templateParts.Clear();
 
-        TokenisedLogEntryFormatStringParser.Instance.BuildTemplateParts(formattingTemplate, templateParts, tokenFormattingValidator);
+        var tokenValidator = tokenFormattingValidator ?? DefaultLogEntryFormatting.Instance;
+
+        TokenisedLogEntryFormatStringParser.Instance.BuildTemplateParts(formattingTemplate, templateParts, tokenValidator);
         TokenisedLogEntryFormatStringParser.Instance.EnsureConsoleColorsReset(templateParts);
     }
 

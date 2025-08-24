@@ -3,6 +3,7 @@
 
 using System.Text;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 
@@ -36,7 +37,7 @@ public static class FLogCallLocationExtensions
     }
 
 
-    public static StringBuilder ExtractAppendFileNameWithExtension(this StringBuilder sb, FLogCallLocation subject)
+    public static IStringBuilder ExtractAppendFileNameWithExtension(this IStringBuilder sb, FLogCallLocation subject)
     {
         string sourceFilePath      = subject.SourceFilePath;
 
@@ -57,7 +58,7 @@ public static class FLogCallLocationExtensions
         return sb;
     }
 
-    public static StringBuilder ExtractAppendFileNameNoExt(this StringBuilder sb, FLogCallLocation subject)
+    public static IStringBuilder ExtractAppendFileNameNoExt(this IStringBuilder sb, FLogCallLocation subject)
     {
         string sourceFilePath      = subject.SourceFilePath;
 
@@ -80,13 +81,13 @@ public static class FLogCallLocationExtensions
         return sb;
     }
 
-    public static StringBuilder ExtractAppendLineNumber(this StringBuilder sb, FLogCallLocation subject)
+    public static IStringBuilder ExtractAppendLineNumber(this IStringBuilder sb, FLogCallLocation subject)
     {
         sb.Append(subject.SourceLineNumber);
         return sb;
     }
 
-    public static StringBuilder AppendFileNameLineNumber(this StringBuilder sb, FLogCallLocation subject)
+    public static IStringBuilder AppendFileNameLineNumber(this IStringBuilder sb, FLogCallLocation subject)
     {
         return sb.ExtractAppendFileNameWithExtension(subject).Append(": ").ExtractAppendLineNumber(subject);
     }

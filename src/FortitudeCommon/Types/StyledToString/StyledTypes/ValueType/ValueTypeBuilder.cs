@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
 
@@ -35,88 +36,117 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
 
     protected ValueBuilderCompAccess<TExt> Stb => (ValueBuilderCompAccess<TExt>)CompAccess;
 
-    public TExt Boolean(string nonJsonfieldName, bool value) => Stb.FieldValueNext(nonJsonfieldName, value); 
-    public TExt Boolean(string nonJsonfieldName, bool? value, bool defaultValue = false) => Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue); 
-    public TExt Number(string nonJsonfieldName, byte value) => Stb.FieldValueNext(nonJsonfieldName, value); 
-    public TExt Number(string nonJsonfieldName, sbyte value) => Stb.FieldValueNext(nonJsonfieldName, value);
-    public TExt Number(string nonJsonfieldName, short value) => Stb.FieldValueNext(nonJsonfieldName, value);
-    public TExt Number(string nonJsonfieldName, ushort value) => Stb.FieldValueNext(nonJsonfieldName, value);
-    public TExt Number(string nonJsonfieldName, int value) => Stb.FieldValueNext(nonJsonfieldName, value);
-    public TExt Number(string nonJsonfieldName, uint value) => Stb.FieldValueNext(nonJsonfieldName, value);
-    public TExt Number(string nonJsonfieldName, long value) => Stb.FieldValueNext(nonJsonfieldName, value);
-    public TExt Number(string nonJsonfieldName, ulong value) => Stb.FieldValueNext(nonJsonfieldName, value);
-    public TExt Number(string nonJsonfieldName, byte? value, byte defaultValue = 0) => Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue); 
-    public TExt Number(string nonJsonfieldName, sbyte? value, sbyte defaultValue = 0) => Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue); 
-    public TExt Number(string nonJsonfieldName, short? value, short defaultValue = 0) => Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue);
-    public TExt Number(string nonJsonfieldName, ushort? value, ushort defaultValue = 0) => Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue);
-    public TExt Number(string nonJsonfieldName, int? value, int defaultValue = 0) => Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue);
-    public TExt Number(string nonJsonfieldName, uint? value, uint defaultValue = 0) => Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue);
-    public TExt Number(string nonJsonfieldName, long? value, long defaultValue = 0) => Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue);
-    public TExt Number(string nonJsonfieldName, ulong? value, ulong defaultValue = 0) => Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue);
-    public TExt Number(string nonJsonfieldName, decimal value, string? formatString = null) => Stb.FieldValueNext(nonJsonfieldName, value, formatString);
-    public TExt Number(string nonJsonfieldName, double value, string? formatString = null) => Stb.FieldValueNext(nonJsonfieldName, value, formatString);
-    public TExt Number(string nonJsonfieldName, float value, string? formatString = null) => Stb.FieldValueNext(nonJsonfieldName, value, formatString);
+    public TExt BooleanWithFallback(string nonJsonfieldName, bool? value, bool defaultValue = false) =>
+        Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue);
+    
+    public TExt Boolean(string nonJsonfieldName, bool? value) =>
+        Stb.FieldValueNext(nonJsonfieldName, value);
+    
+    public TExt NumberWithFallback<TNum>(string nonJsonfieldName, TNum? value, TNum fallbackValue )  where TNum : struct, INumber<TNum> => 
+        Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue);
+    
+    public TExt Number<TNum>(string nonJsonfieldName, TNum? value)  where TNum : struct, INumber<TNum> =>
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value);
+    
+    public TExt NumberFrom<TEnum>(string nonJsonfieldName, TEnum? value)  where TEnum : Enum => 
+        Stb.FieldEnumValueOrNullNext(nonJsonfieldName, value);
+    
+    public TExt NumberFromWithFallback<TEnum>(string nonJsonfieldName, TEnum? value, TEnum fallbackValue)  where TEnum : Enum =>
+        Stb.FieldEnumValueOrNullNext(nonJsonfieldName, value ?? fallbackValue);
 
-    public TExt StructAsValue<T>(string nonJsonfieldName, T value
+    public TExt ValueWithFallback<T>(string nonJsonfieldName, T? value
+      , CustomTypeStyler<T> customTypeStyler, T fallbackValue) where T : struct =>
+        Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, customTypeStyler);
+
+    public TExt Value<T>(string nonJsonfieldName, T? value
       , CustomTypeStyler<T> customTypeStyler) where T : struct =>
         Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
 
-    public TExt StructAsValue<T>(string nonJsonfieldName, T? value
-      , CustomTypeStyler<T> customTypeStyler, T defaultValue = default) where T : struct =>
-        Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
+    public TExt ValueWithFallback<T, TBase>(string nonJsonfieldName, T? value
+      , CustomTypeStyler<TBase> customTypeStyler, T fallbackValue) 
+        where T : class, TBase where TBase : class =>
+        Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, customTypeStyler);
 
-    public TExt StructAsValue<T, TBase>(string nonJsonfieldName, T? value
-      , CustomTypeStyler<TBase> customTypeStyler, T? defaultValue = null) 
+    public TExt Value<T, TBase>(string nonJsonfieldName, T? value
+      , CustomTypeStyler<TBase> customTypeStyler) 
         where T : class, TBase where TBase : class =>
         Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
 
-    public TExt StructAsString<T>(string nonJsonfieldName, T value
+    public TExt String<T>(string nonJsonfieldName, T? value
       , CustomTypeStyler<T> customTypeStyler) where T : struct  =>
         Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler);
 
-    public TExt StructAsString<T>(string nonJsonfieldName, T? value
-      , CustomTypeStyler<T> customTypeStyler, T defaultValue = default) where T : struct =>
-        Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler);
+    public TExt StringWithFallback<T>(string nonJsonfieldName, T? value
+      , CustomTypeStyler<T> customTypeStyler, T fallbackValue) where T : struct =>
+        Stb.FieldStringNext(nonJsonfieldName, value ?? fallbackValue, customTypeStyler);
 
     public TExt String(string nonJsonfieldName, ReadOnlySpan<char> value) => 
         Stb.FieldStringNext(nonJsonfieldName, value);
-    
-    public TExt String(string nonJsonfieldName, string? value, string defaultValue = "") => 
-        Stb.FieldStringNext(nonJsonfieldName, value ?? defaultValue);
-    
-    public TExt String(string nonJsonfieldName, string? value, int startIndex, int length, string defaultValue = "") =>
-        Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, defaultValue);
-    
-    public TExt String(string nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = "") =>
-        Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, defaultValue);
-    
-    public TExt String(string nonJsonfieldName, ICharSequence? value, string defaultValue = "") => 
-        Stb.FieldStringNext(nonJsonfieldName, value, defaultValue);
 
-    public TExt String(string nonJsonfieldName, StringBuilder? value, string defaultValue = "") =>
-        Stb.FieldStringNext(nonJsonfieldName, value, defaultValue);
+    public TExt StringWithFallback<TEnum>(string nonJsonfieldName, TEnum? value, TEnum fallback) where TEnum : Enum => 
+        Stb.FieldEnumStringNext(nonJsonfieldName, value ?? fallback);
+
+    public TExt StringEnum<TEnum>(string nonJsonfieldName, TEnum? value) where TEnum : Enum => 
+        Stb.FieldEnumStringOrNullNext(nonJsonfieldName, value);
     
-    public TExt String(string nonJsonfieldName, IStyledToStringObject? value, string defaultValue = "") =>
-        Stb.FieldStringNext(nonJsonfieldName, value, defaultValue);
+    public TExt StringWithFallback(string nonJsonfieldName, string? value, string fallbackValue) => 
+        Stb.FieldStringNext(nonJsonfieldName, value ?? fallbackValue);
     
-    public TExt String<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler, string defaultValue = "")
+    public TExt String(string nonJsonfieldName, string? value) => 
+        Stb.FieldStringOrNullNext(nonJsonfieldName, value);
+    
+    public TExt StringWithFallback(string nonJsonfieldName, string? value, int startIndex, int length, string fallbackValue = "") =>
+        Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, fallbackValue);
+    
+    public TExt String(string nonJsonfieldName, string? value, int startIndex, int length) =>
+        Stb.FieldStringOrNullNext(nonJsonfieldName, value, startIndex, length);
+    
+    public TExt StringWithFallback(string nonJsonfieldName, char[]? value, int startIndex, int length, string fallbackValue = "") =>
+        Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, fallbackValue);
+    
+    public TExt String(string nonJsonfieldName, char[]? value, int startIndex, int length) =>
+        Stb.FieldStringOrNullNext(nonJsonfieldName, value, startIndex, length);
+    
+    public TExt StringWithFallback(string nonJsonfieldName, ICharSequence? value, string fallbackValue = "") => 
+        Stb.FieldStringNext(nonJsonfieldName, value, fallbackValue);
+    
+    public TExt String(string nonJsonfieldName, ICharSequence? value) => 
+        Stb.FieldStringOrNullNext(nonJsonfieldName, value);
+
+    public TExt StringWithFallback(string nonJsonfieldName, StringBuilder? value, string fallbackValue = "") =>
+        Stb.FieldStringNext(nonJsonfieldName, value, fallbackValue);
+
+    public TExt String(string nonJsonfieldName, StringBuilder? value) =>
+        Stb.FieldStringOrNullNext(nonJsonfieldName, value);
+    
+    public TExt StringWithFallback(string nonJsonfieldName, IStyledToStringObject? value, string fallbackValue = "") =>
+        Stb.FieldStringNext(nonJsonfieldName, value, fallbackValue);
+    
+    public TExt String(string nonJsonfieldName, IStyledToStringObject? value) =>
+        Stb.FieldStringOrNullNext(nonJsonfieldName, value);
+    
+    public TExt StringWithFallback<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler, string fallbackValue = "")
         where T : class, TBase where TBase : class =>
-        Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler, defaultValue);
+        Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler, fallbackValue);
+    
+    public TExt String<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase : class =>
+        Stb.FieldStringOrNullNext(nonJsonfieldName, value, customTypeStyler);
     
     public IScopeDelimitedStringBuilder StartDelimitedStringBuilder()  => Stb.StartDelimitedStringBuilder();
 
-    public TExt ValueFromString(string nonJsonfieldName, ReadOnlySpan<char> value)  =>
-        Stb.FieldValueNext(nonJsonfieldName, value);
+    public TExt NumberFrom(string nonJsonfieldName, ReadOnlySpan<char> value, decimal fallbackValue = decimal.Zero)  =>
+        Stb.FieldValueNext(nonJsonfieldName, value, fallbackValue);
 
-    public TExt ValueFromString(string nonJsonfieldName, string? value, int startIndex = 0, int length = int.MaxValue)  =>
-        Stb.FieldValueNext(nonJsonfieldName, value, startIndex, length);
+    public TExt NumberFrom(string nonJsonfieldName, string? value, int startIndex = 0, int length = int.MaxValue, decimal fallbackValue = decimal.Zero)  =>
+        Stb.FieldValueNext(nonJsonfieldName, value, startIndex, length, fallbackValue);
 
-    public TExt ValueFromString(string nonJsonfieldName, ICharSequence value, int fromIndex = 0, int length = int.MaxValue)  =>
-        Stb.FieldValueNext(nonJsonfieldName, value, fromIndex, length);
+    public TExt NumberFrom(string nonJsonfieldName, char[]? value, int fromIndex = 0, int length = int.MaxValue, decimal fallbackValue = decimal.Zero)  =>
+        Stb.FieldValueNext(nonJsonfieldName, value, fromIndex, length, fallbackValue);
 
-    public TExt FormattedString(string nonJsonfieldName, IStringBuilder? value, int fromIndex = 0, int length = int.MaxValue)  =>
-        Stb.FieldValueNext(nonJsonfieldName, value, fromIndex, length);
+    public TExt NumberFrom(string nonJsonfieldName, ICharSequence value, int fromIndex = 0, int length = int.MaxValue, decimal fallbackValue = decimal.Zero)  =>
+        Stb.FieldValueNext(nonJsonfieldName, value, fromIndex, length, fallbackValue);
 
-    public TExt FormattedString(string nonJsonfieldName, StringBuilder? value, int fromIndex = 0, int length = int.MaxValue) =>
-        Stb.FieldValueNext(nonJsonfieldName, value, fromIndex, length);
+    public TExt NumberFrom(string nonJsonfieldName, StringBuilder? value, int fromIndex = 0, int length = int.MaxValue, decimal fallbackValue = decimal.Zero) =>
+        Stb.FieldValueNext(nonJsonfieldName, value, fromIndex, length, fallbackValue);
 }

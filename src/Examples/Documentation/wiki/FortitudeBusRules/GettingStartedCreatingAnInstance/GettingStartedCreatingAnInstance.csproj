@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted</RootNamespace>
-    <StartupObject>Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_4_Final.Step4Program</StartupObject>
+    <StartupObject>Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_2.Step2Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

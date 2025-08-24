@@ -4,7 +4,7 @@ using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConsoleCommands;
 
-public class ConsoleLogLevelBackgroundColorMatchTemplatePart : AppenderCommandTemplatePart
+public class ConsoleLogLevelBackgroundColorMatchTemplatePart : ConsoleAppenderColorChangeTemplatePart
 {
     private readonly Dictionary<FLogLevel, ConsoleColor> textColorByLogLevel = new ();
 

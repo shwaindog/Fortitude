@@ -71,6 +71,11 @@ public class FormattedStringListAppender(IFormattingAppenderConfig formattingApp
             entryBuilder.Append(toWrite, fromIndex, length);
         }
 
+        public override void Append(ICharSequence toWrite, int fromIndex = 0, int length = int.MaxValue)
+        {
+            entryBuilder.Append(toWrite, fromIndex, length);
+        }
+
         public override void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
             entryBuilder.Append(toWrite, fromIndex, length);

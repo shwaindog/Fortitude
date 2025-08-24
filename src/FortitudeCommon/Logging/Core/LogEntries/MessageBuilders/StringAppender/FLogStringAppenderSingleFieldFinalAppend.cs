@@ -16,20 +16,20 @@ public partial class FLogStringAppender
     public void FinalAppend<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable => 
         MessageSb.Append(value).ToAppender(this).CallOnComplete();
 
-    public void FinalAppend<TStruct>(TStruct value, Types.StyledToString.StyledTypes.CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public void FinalAppend<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         MessageSb.Append(value).ToAppender(this).CallOnComplete();
 
-    public void FinalAppend<TStruct>((TStruct, Types.StyledToString.StyledTypes.CustomTypeStyler<TStruct>) valueTuple)
+    public void FinalAppend<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         AppendStruct(valueTuple, MessageStsa);
         CallOnComplete();
     }
 
-    public void FinalAppend<TStruct>(TStruct? value, Types.StyledToString.StyledTypes.CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public void FinalAppend<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         MessageSb.Append(value).ToAppender(this).CallOnComplete();
 
-    public void FinalAppend<TStruct>((TStruct?, Types.StyledToString.StyledTypes.CustomTypeStyler<TStruct>) valueTuple)
+    public void FinalAppend<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         AppendStruct(valueTuple, MessageStsa);

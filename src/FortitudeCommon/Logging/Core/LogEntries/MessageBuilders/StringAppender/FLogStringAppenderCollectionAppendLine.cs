@@ -1,4 +1,5 @@
-﻿using FortitudeCommon.Types.StyledToString.StyledTypes;
+﻿using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;

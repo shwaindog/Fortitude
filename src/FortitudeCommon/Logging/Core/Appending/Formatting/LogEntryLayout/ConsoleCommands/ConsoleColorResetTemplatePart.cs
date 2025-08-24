@@ -4,8 +4,13 @@ using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConsoleCommands;
 
-public class ConsoleColorResetTemplatePart(string command) : AppenderCommandTemplatePart(FormattingAppenderSinkType.Console, command)
+public class ConsoleColorResetTemplatePart : ConsoleAppenderColorChangeTemplatePart
 {
+    public ConsoleColorResetTemplatePart(string command) : base(FormattingAppenderSinkType.Console, command)
+    {
+        WasScopeClosed = true;
+    }
+    
     private static ConsoleColor onStartTextColor;
     private static ConsoleColor onStartBackgroundColor;
 

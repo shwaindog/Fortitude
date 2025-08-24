@@ -16,7 +16,7 @@ public class SyncFileAndColoredConsoleTests
     public void SyncFileAndColoredConsoleLoadsAndLogsToBothAppenders()
     {
         using var wd = GetType().GetTemporaryWorkingDirectoryFor();
-        FLogConfigExtractor.SyncFileAndColoredConsoleExample.ExtractExampleTo();
+        FLogConfigExamples.SyncFileAndColoredConsoleExample.ExtractExampleTo();
         var context =
             FLogContext
                 .NewUninitializedContext

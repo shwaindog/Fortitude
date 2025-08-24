@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Reflection;
-using System.Text;
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout.FLogEntryLayoutTokens;
@@ -13,38 +14,48 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
 public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
 {
-    [ThreadStatic] protected static StringBuilder? scratchBuffer;
+    [ThreadStatic] protected static IStringBuilder? ScratchBuffer;
 
     private CharSpanAcceptingStringMap<string>? envVariables;
 
-    private TokenFormatting tokenFormatting;
+    private readonly TokenFormatting tokenFormatting;
 
-    public EnvironmentDataTemplatePart(string tokenName, int paddingLength, int maxLength, string formattingString)
-    {
+    public EnvironmentDataTemplatePart(string tokenName, int paddingLength, int maxLength, string formattingString) => 
         tokenFormatting = new TokenFormatting(tokenName, paddingLength, maxLength, formattingString);
-    }
 
-    public EnvironmentDataTemplatePart(TokenFormatting tokenFormatting)
-    {
+    public EnvironmentDataTemplatePart(TokenFormatting tokenFormatting) => 
         this.tokenFormatting = tokenFormatting;
+
+    private IStringBuilder SourceEphemeralStringBuilder(int charSizeRequired = 512)
+    {
+        ScratchBuffer ??= charSizeRequired.SourceCharArrayStringBuilder();
+        ScratchBuffer.Clear();
+        return ScratchBuffer;
     }
 
     public int Apply(IFormatWriter formatWriter, IFLogEntry logEntry)
     {
-        scratchBuffer ??= new();
-        scratchBuffer.Clear();
-        ApplyTokenToStringBuilder(scratchBuffer, logEntry);
-        if (scratchBuffer.Length > tokenFormatting.MaxLength)
+        var  formatBuffer = SourceEphemeralStringBuilder();
+        ApplyTokenToStringBuilder(formatBuffer, logEntry);
+        if (formatBuffer is CharArrayStringBuilder charArrayStringBuilder)
         {
-            scratchBuffer.Length = tokenFormatting.MaxLength;
+            var writtenCharArrayRange = charArrayStringBuilder.AsCharArrayRange;
+            formatWriter.Append(writtenCharArrayRange.CharBuffer, writtenCharArrayRange.FromIndex, writtenCharArrayRange.Length);
         }
-        formatWriter.Append(scratchBuffer);
-        return scratchBuffer.Length;
+        else if (formatBuffer is MutableString mutableString)
+        {
+            formatWriter.Append(mutableString.BackingStringBuilder, 0, mutableString.Length);
+        }
+        else
+        {
+            formatWriter.Append(formatBuffer);
+        }
+        return formatBuffer.Length;
     }
 
     public FormattingAppenderSinkType TargetingAppenderTypes => FormattingAppenderSinkType.Any;
 
-    protected virtual void ApplyTokenToStringBuilder(StringBuilder sb, IFLogEntry logEntry)
+    protected virtual void ApplyTokenToStringBuilder(IStringBuilder sb, IFLogEntry logEntry)
     {
         switch (tokenFormatting.TokenName)
         {
@@ -77,7 +88,7 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
 
     private static string[]? commandLineArgs;
 
-    private void AppendCommandLineArg(StringBuilder sb, int argNum)
+    private void AppendCommandLineArg(IStringBuilder sb, int argNum)
     {
         commandLineArgs ??= Environment.GetCommandLineArgs();
         if (argNum >= 0 && commandLineArgs.Length > argNum)

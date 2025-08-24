@@ -33,9 +33,13 @@
     <None Remove="Logging\Config\ExampleConfig\AsyncDailyDblBufferedFile.json" />
     <EmbeddedResource Include="Logging\Config\ExampleConfig\AsyncDailyDblBufferedFile.json" />
     <None Remove="Logging\Config\ExampleConfig\SyncDailyFile.json" />
+    <EmbeddedResource Include="Logging\Config\ExampleConfig\AsyncDblBufferedColoredConsole.json" />
+    <EmbeddedResource Include="Logging\Config\ExampleConfig\AsyncDblBufferedFileAndColoredConsole.json" />
     <EmbeddedResource Include="Logging\Config\ExampleConfig\SyncDailyFile.json" />
     <None Remove="Logging\Config\ExampleConfig\SyncFileAndColoredConsole.json" />
     <EmbeddedResource Include="Logging\Config\ExampleConfig\SyncFileAndColoredConsole.json" />
+    <None Remove="Logging\Config\ExampleConfig\SyncColoredConsole.json" />
+    <EmbeddedResource Include="Logging\Config\ExampleConfig\SyncColoredConsole.json" />
   </ItemGroup>
 
 </Project>

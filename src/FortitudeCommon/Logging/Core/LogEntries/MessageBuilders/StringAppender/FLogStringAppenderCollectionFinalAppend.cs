@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 #endregion

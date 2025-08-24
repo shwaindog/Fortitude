@@ -3,6 +3,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 
@@ -62,6 +63,13 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
     }
 
     public void Append(StringBuilder toWrite, int fromIndex = 0, int length = Int32.MaxValue)
+    {
+        var charCount = Math.Clamp(length, 0, toWrite.Length - fromIndex);
+        encodedCharCount += charCount;
+        Buffer.Add(fileEncoder, toWrite, fromIndex, charCount);
+    }
+
+    public void Append(ICharSequence toWrite, int fromIndex = 0, int length = Int32.MaxValue)
     {
         var charCount = Math.Clamp(length, 0, toWrite.Length - fromIndex);
         encodedCharCount += charCount;

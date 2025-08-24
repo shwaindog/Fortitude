@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
@@ -8,21 +7,32 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
 public interface ITokenReplacedTemplatePart : IStyledToStringObject
 {
+    bool IsRightAligned { get; }
+    bool IsLeftAligned { get; }
+    int Padding { get; }
+    string Layout { get; }
     string TokenName { get; }
     string FormatString { get; }
+    Range SplitRange { get; }
+    Range CharsRange { get; }
 }
 
 public class TokenFormatting : ITokenReplacedTemplatePart
 {
-    [ThreadStatic] protected static StringBuilder? scratchBuffer;
 
-    public readonly int MaxLength = int.MaxValue;
-    
-    public TokenFormatting(string tokenName, int paddingLength, int maxLength, string formattingString)
+    public TokenFormatting(string tokenName, int paddingLength, int charsToLength, string formattingString)
     {
-        TokenName    = tokenName;
-        MaxLength    = maxLength;
-        FormatString = 0.BuildStringBuilderFormatting(paddingLength, formattingString);
+        TokenName     = tokenName;
+        Padding    = paddingLength;
+        IsLeftAligned = paddingLength < 0;
+        CharsRange    = 
+            new Range(
+                      Math.Abs(paddingLength)
+                    , charsToLength == int.MaxValue ? Index.End : Index.FromStart(charsToLength));
+        FormatString  = 0.BuildStringBuilderFormatting(paddingLength, formattingString);
+
+        Layout = charsToLength == 0 ? "" : charsToLength.ToString();
+        Format = formattingString;
     }
 
     public TokenFormatting(string tokenFormatting, ITokenFormattingValidator? tokenFormattingValidator)
@@ -35,15 +45,22 @@ public class TokenFormatting : ITokenReplacedTemplatePart
 
         if (layout.Length > 0)
         {
-            var foundCapStringLength = layout.IndexOf("[..");
-            if (foundCapStringLength >= 0)
+            IsLeftAligned = layout[0].IsMinus();
+            if (layout[0].IsDigit() || IsLeftAligned)
             {
-                var digitsSlice = layout.ExtractDigitsSlice(foundCapStringLength + 3);
-                if (digitsSlice.Length > 0)
+                layout.LayoutStringRangeIndexers(out var range);
+                CharsRange     = range;
+                IsAllCharRange = range.IsAllRange();
+            }
+            else if(layout[0].IsOpenSquareBracket())
+            {
+                var foundAt = layout.ExtractRangeFromSliceExpression(out var nullableCharRange);
+                if (foundAt >= 0)
                 {
-                    MaxLength = int.TryParse(digitsSlice, out var attempt) ? attempt : int.MaxValue;
+                    SplitRange      = nullableCharRange!.Value;
+                    IsAllSplitRange = SplitRange.IsAllRange();
                 }
-                layout = layout.Slice(0, foundCapStringLength);
+                layout = "".AsSpan();
             }
         }
         if (tokenFormattingValidator != null)
@@ -51,18 +68,28 @@ public class TokenFormatting : ITokenReplacedTemplatePart
             formatting = tokenFormattingValidator.ValidateFormattingToken(TokenName, formatting);
         }
         Layout = new String(layout);
-        Format = new String(formatting);
+        Padding = int.TryParse(Layout, out var result) ? result : 0;
+        Format =   new String(formatting);
         var zeroPosParam = "0".AsSpan();
         FormatString = zeroPosParam.BuildStringBuilderFormatting(layout, formatting);
     }
 
-    public string TokenName { get; private set; }
+    public string TokenName { get; }
 
-    public string Layout { get; private set; }
+    public string Layout { get; }
+
+    public string Format { get; }
+
+    public string FormatString { get; }
+
+    public Range CharsRange { get; }
+    public Range SplitRange { get; }
     
-    public string Format { get; private set; }
-
-    public string FormatString { get; private set; }
+    public bool IsRightAligned => !IsLeftAligned;
+    public bool IsLeftAligned { get; }
+    public int Padding { get; }
+    public bool IsAllCharRange { get; private set; } = true;
+    public bool IsAllSplitRange { get; private set; } = true;
 
     public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
@@ -70,9 +97,13 @@ public class TokenFormatting : ITokenReplacedTemplatePart
             sbc.StartComplexType(nameof(TokenFormatting))
                .Field.AlwaysAdd(nameof(TokenName), TokenName)
                .Field.AlwaysAdd(nameof(FormatString), FormatString)
-               .Field.AlwaysAdd(nameof(Layout), Layout)
+               .Field.WhenNonDefaultAdd(nameof(Layout), Layout)
                .Field.AlwaysAdd(nameof(Format), Format)
-               .Field.WhenNonDefaultAdd(nameof(MaxLength), MaxLength, int.MaxValue)
+               .Field.WhenNonDefaultAdd(nameof(Padding), Padding)
+               .Field.WhenNonDefaultAdd(nameof(IsLeftAligned), IsLeftAligned)
+               .Field.WhenNonDefaultAdd(nameof(IsRightAligned), IsRightAligned, true)
+               .Field.WhenNonDefaultAdd(nameof(CharsRange), CharsRange, Range.All)
+               .Field.WhenNonDefaultAdd(nameof(SplitRange), SplitRange, Range.All)
                .Complete();
     }
 

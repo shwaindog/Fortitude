@@ -1,0 +1,16 @@
+﻿{
+  "FLog": {
+    "Appenders": {
+      "MonochromeConsole" : {
+        "AppenderType": "ConsoleOut",
+        "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:ss.ffffff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN,3:00%' '%MSG%''%NL%'",
+        "DisableBuffering": true
+      }
+    },
+    "RootLogger": {
+      "Appenders" : {
+        "MonochromeConsole" : {}
+      }
+    }
+  }
+}

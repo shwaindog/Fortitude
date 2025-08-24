@@ -2,11 +2,14 @@
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
-
 public class DefaultLogEntryFormatting : ITokenFormattingValidator
 {
     public const string DefaultDateFormatting = "YYYY-MM-DD HH:mm:ss.ffffff";
     public const string DefaultTimeFormatting = "HH:mm:ss";
+
+    public const string DefaultTimeMicrosFormatting = "000";
+    
+    public static DefaultLogEntryFormatting Instance { get; } = new ();
 
     public ReadOnlySpan<char> ValidateFormattingToken(string tokenName, ReadOnlySpan<char> tokenValue)
     {
@@ -28,6 +31,15 @@ public class DefaultLogEntryFormatting : ITokenFormattingValidator
                 if (tokenValue.Length == 0)
                 {
                     return DefaultTimeFormatting.AsSpan();
+                }
+                break;
+            case $"{nameof(FLogEntryLayoutTokens.DATETIME_MICROSECONDS)}":
+            case $"{nameof(FLogEntryLayoutTokens.DATE_MICROS)}":
+            case $"{nameof(FLogEntryLayoutTokens.TIME_MICROS)}":
+            case $"{nameof(FLogEntryLayoutTokens.TS_US)}":
+                if (tokenValue.Length == 0)
+                {
+                    return DefaultTimeMicrosFormatting.AsSpan();
                 }
                 break;
         }

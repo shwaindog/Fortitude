@@ -1,4 +1,5 @@
 ﻿using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
+using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
