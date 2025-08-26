@@ -4,6 +4,7 @@
 using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 
@@ -18,6 +19,7 @@ public interface IFormatWriter : IDisposable
 
     bool NotifyStartEntryAppend(IFLogEntry forEntry);
     void Append(string toWrite);
+    void Append(ICharSequence toWrite, int fromIndex = 0, int length = int.MaxValue);
     void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue);
     void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue);
     void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue);
@@ -49,6 +51,8 @@ public abstract class FormatWriter<T> : RecyclableObject, IFormatWriter where T 
 
     public abstract void Append(string toWrite);
 
+    public abstract void Append(ICharSequence toWrite, int fromIndex = 0, int length = int.MaxValue);
+    
     public abstract void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue);
 
     public abstract void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue);

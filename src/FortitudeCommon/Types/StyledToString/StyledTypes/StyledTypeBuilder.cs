@@ -137,6 +137,9 @@ public static class StyledTypeBuilderExtensions
     public static IStringBuilder AppendOrNull<T>(this IStringBuilder sb, T? value, bool inQuotes = false) where T : struct, ISpanFormattable =>
         value != null ? sb.Qt(inQuotes).Append(value).Qt(inQuotes) : sb.Append(Null);
 
+    public static IStringBuilder AppendOrNull<TEnum>(this IStringBuilder sb, TEnum? value, bool inQuotes = false) where TEnum : Enum =>
+        value != null ? sb.Qt(inQuotes).Append(value).Qt(inQuotes) : sb.Append(Null);
+
     public static IStringBuilder AppendOrNull(this IStringBuilder sb, bool? value, bool inQuotes = false) =>
         value != null ? sb.Qt(inQuotes).Append(value).Qt(inQuotes) : sb.Append(Null);
 
@@ -323,13 +326,33 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static IStringBuilder Append<T, TBase, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, T value
-      , CustomTypeStyler<TBase> styledToStringAction, bool? inQuotes = null) where T : class, TBase where TBase : class  where TExt : StyledTypeBuilder
+      , CustomTypeStyler<TBase> styledToStringAction, bool? inQuotes = null) 
+        where T : class, TBase where TBase : class  where TExt : StyledTypeBuilder
     {
         var sb        = stb.Sb;
         var addQuotes = inQuotes ?? stb.Style.IsJson();
         if (addQuotes) sb.Append("\"");
         styledToStringAction(value, stb.OwningAppender);
         if (addQuotes) sb.Append("\"");
+        return stb.Sb;
+    }
+
+    public static IStringBuilder AppendOrNull<TEnum, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TEnum? value
+      , bool? inQuotes = null) where TEnum : Enum where TExt : StyledTypeBuilder
+    {
+        var sb        = stb.Sb;
+        var addQuotes = inQuotes ?? stb.Style.IsJson();
+        if (value != null)
+        {
+            if (addQuotes) sb.Append("\"");
+            var styledToStringAction = EnumFormatterRegistry.GetOrCreateEnumFormatProvider<TEnum>().CustomTypeStyler; 
+            styledToStringAction(value, stb.OwningAppender);
+            if (addQuotes) sb.Append("\"");
+        }
+        else
+        {
+            sb.Append(Null);
+        }
         return stb.Sb;
     }
 

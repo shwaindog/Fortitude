@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -9,6 +10,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Framework.System;
+using FortitudeCommon.Types.StyledToString;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace FortitudeCommon.Types.Mutable.Strings;
@@ -16,6 +19,8 @@ namespace FortitudeCommon.Types.Mutable.Strings;
 public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IScopeDelimitedStringBuilder
 {
     private static readonly IRecycler recycler = new Recycler();
+    private static readonly ConcurrentDictionary<Type, ICustomFormattableProvider> CustomSpanFormattableProviders = new ();
+    private static readonly ConcurrentDictionary<Type, ICustomFormattableProvider> CustomStyledToStringFormattableProviders = new ();
 
     private RecyclingCharArray ca;
 
@@ -52,14 +57,42 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     public CharArrayStringBuilder EnsureIsAtSize(int size)
     {
-        if (ca != null && ca.Count != size)
+        if (ca != null && ca.Capacity != size)
         {
             throw new ArgumentException($"Expected the array to already be initialized at size {size} or be empty and ready to be initialized");
         }
         ca ??= size.SourceRecyclingCharArray();
         return this;
     }
+
+    private bool TryGetCachedCustomSpanFormatter<T>([NotNullWhen(true)] out CustomSpanFormattable<T>? maybeFormatter)
+    {
+        maybeFormatter = null;
+        if (CustomSpanFormattableProviders.TryGetValue(typeof(T), out var formattableProvider))
+        {
+            if (formattableProvider.SupportSpanFormattable && formattableProvider is ICustomSpanFormattableProvider<T> spanFormattableProvider)
+            {
+                maybeFormatter = spanFormattableProvider.CustomSpanFormattable;
+                return true;
+            }
+        }
+        return false;
+    }
     
+    private bool TryGetCachedCustomStyledToStringFormatter<T>([NotNullWhen(true)] out CustomTypeStyler<T>? maybeFormatter)
+    {
+        maybeFormatter = null;
+        if (CustomStyledToStringFormattableProviders.TryGetValue(typeof(T), out var formattableProvider))
+        {
+            if (formattableProvider.SupportStyleToString && formattableProvider is ICustomTypeStylerProvider<T> spanFormattableProvider)
+            {
+                maybeFormatter = spanFormattableProvider.CustomTypeStyler;
+                return true;
+            }
+        }
+        return false;
+    }
+
     Action<IScopeDelimitedStringBuilder>? IScopeDelimitedStringBuilder.OnScopeEndedAction { get; set; }
 
     public int Capacity
@@ -80,6 +113,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         get => ca[index];
         set => ca[index] = value;
     }
+
+    public Span<char> WrittenAsSpan()    => ca.WrittenAsSpan();
+    public Span<char> RemainingAsSpan()  => ca.RemainingAsSpan();
+    public CharArrayRange AsCharArrayRange => ca.AsCharArrayRange;
 
     public void CopyTo(char[] array, int arrayIndex, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
@@ -676,10 +713,32 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     public CharArrayStringBuilder AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct arg0) 
         where TStruct : struct, ISpanFormattable
     {
-        var charSpan     = stackalloc char[256].ResetMemory();
-        if (arg0.TryFormat(charSpan, out var charsWritten, format: format, provider: null))
+        if (TryGetCachedCustomSpanFormatter<TStruct>(out var formatter))
         {
-            Append(charSpan[..charsWritten]);
+            ca.Count += formatter(arg0, ca.RemainingAsSpan(), format, null);
+            return this;
+        }
+        if (arg0 is Enum enumType)
+        {
+            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateStructEnumFormatProvider<TStruct>();
+            CustomSpanFormattableProviders.TryAdd(typeof(TStruct), enumFormatProvider);
+            formatter =  enumFormatProvider.CustomSpanFormattable;
+            ca.Count  += formatter(arg0, ca.RemainingAsSpan(), format, null);
+            return this;
+        }
+        try
+        {
+            var charSpan     = stackalloc char[256].ResetMemory();
+            format.AsSpan().ExtractStringFormatStages(out var _, out var layout, out var formatting);
+            if (arg0.TryFormat(charSpan, out var charsWritten, formatting, provider: null))
+            {
+                if(layout.Length == 0) return Append(charSpan[..charsWritten]);
+                ca.Count += ca.RemainingAsSpan().PadAndAlign(charSpan[..charsWritten], layout); 
+            }
+        }
+        catch (FormatException)
+        {
+            AppendFormat(format, arg0.ToString()!);
         }
 
         return this;
@@ -704,11 +763,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     public CharArrayStringBuilder AppendFormat
         ([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0)
     {
-        fallBackFormatter ??= recycler.Borrow<MutableString>();
-        fallBackFormatter.Clear();
-        fallBackFormatter.AppendFormat(format, arg0);
-        CharArray(fallBackFormatter.Length).Add(fallBackFormatter);
-        fallBackFormatter.DecrementRefCount();
+        format.AsSpan().ExtractStringFormatStages(out var _, out var layout, out var formatting);
+        if(layout.Length == 0) return Append(arg0);
+        ca.Count += ca.RemainingAsSpan().PadAndAlign(arg0, layout);
+
         return this;
     }
 

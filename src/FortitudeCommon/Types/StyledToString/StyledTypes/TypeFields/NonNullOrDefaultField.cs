@@ -12,11 +12,6 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
 public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 {
     public TExt WhenNonNullOrDefaultAdd
-    (string fieldName, bool value, bool defaultValue = false
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value != defaultValue ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
-    
-    public TExt WhenNonNullOrDefaultAdd
     (string fieldName, bool? value, bool? defaultValue = false
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value != null && value != defaultValue ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
@@ -24,18 +19,13 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt WhenNonNullOrDefaultAdd<TFmtStruct>(string fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TFmtStruct : struct, ISpanFormattable => 
         value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
-    
-    public TExt WhenNonNullOrDefaultAdd<TFmtStruct>(string fieldName, TFmtStruct value, TFmtStruct defaultValue = default
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TFmtStruct : struct, ISpanFormattable => 
-        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd<TStruct>(string fieldName, TStruct? value
       , CustomTypeStyler<TStruct> customTypeStyler, TStruct? defaultValue = null) where TStruct : struct =>
         value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd<TStruct>(string fieldName, TStruct value
-      , CustomTypeStyler<TStruct> customTypeStyler, TStruct defaultValue = default) where TStruct : struct =>
-        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullOrDefaultAdd<TEnum>(string fieldName, TEnum? value, TEnum defaultValue) where TEnum : Enum =>
+        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, string? defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 

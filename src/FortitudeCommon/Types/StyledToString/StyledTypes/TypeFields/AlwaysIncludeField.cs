@@ -37,6 +37,9 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         stb.FieldNameJoin(fieldName, stb).AppendOrNull(value, customTypeStyler).AddGoToNext(stb);
 
+    public TExt AlwaysAdd<TEnum>(string fieldName, TEnum? value) where TEnum : Enum =>
+        stb.FieldNameJoin(fieldName, stb).AppendOrNull(value).AddGoToNext(stb);
+
     public TExt AlwaysAdd(string fieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
         formatString.IsNotNullOrEmpty() 

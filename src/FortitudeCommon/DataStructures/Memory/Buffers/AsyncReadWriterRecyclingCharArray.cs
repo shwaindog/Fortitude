@@ -484,7 +484,7 @@ public class AsyncReadWriterRecyclingCharArray : ReusableObject<AsyncReadWriterR
     {
         return
          sbc.StartSimpleValueType(nameof(AsyncReadWriterRecyclingCharArray))
-           .String(nameof(protectedCharArray), (ICharSequence?)protectedCharArray, "")
+           .StringWithFallback(nameof(protectedCharArray), (ICharSequence?)protectedCharArray)
            .Complete();
     }
 

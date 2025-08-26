@@ -27,4 +27,26 @@ public static class RangeExtensions
         var end = toShift.End.Value;
         return end - start;
     }
+    
+    public static bool IsAllRange(this Range checkRange)
+    {
+        if (checkRange.Start.IsFromEnd || checkRange.Start.Value > 0) return false;
+        if (!checkRange.End.IsFromEnd || checkRange.End.Value > 0) return false;
+        return true;
+    }
+
+    public static Index ToIndex(this ReadOnlySpan<char> indexOffsetSpan, bool isEndRange = false)
+    {
+        if (indexOffsetSpan.Length == 0)
+        {
+            return isEndRange ? Index.End : Index.Start;
+        }
+        var isFromEnd = indexOffsetSpan[0].IsCarat();
+        if (isFromEnd)
+        {
+            indexOffsetSpan = indexOffsetSpan[1..];
+        }
+        int digits     = int.TryParse(indexOffsetSpan, out var attempt) ? attempt : 0;
+        return isFromEnd ? Index.FromEnd(digits) : Index.FromStart(digits);
+    }
 }

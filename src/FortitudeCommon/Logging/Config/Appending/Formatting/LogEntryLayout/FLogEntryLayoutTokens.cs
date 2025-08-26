@@ -6,16 +6,21 @@ public enum FLogEntryLayoutTokens
 {
     // ReSharper disable InconsistentNaming
     // Log entry timestamp names
-    TS
+    DATETIME
   , DATE
   , TIME
-  , DATETIME
+  , TS
     // ReSharper disable InconsistentNaming
     // Log entry timestamp names
   , DATEONLY
   , DO
   , TIMEONLY
   , TO
+  // Log entry timestamp names
+  , DATETIME_MICROSECONDS
+  , DATE_MICROS
+  , TIME_MICROS
+  , TS_US
     // Log entry level
   , LOGLEVEL
   , LEVEL
@@ -161,7 +166,11 @@ public static class FLogEntryLayoutTokensExtensions
              or $"{nameof(DATEONLY)}"
              or $"{nameof(DO)}"
              or $"{nameof(TO)}"
-             or $"{nameof(TIMEONLY)}" => true
+             or $"{nameof(TIMEONLY)}"
+             or $"{nameof(DATETIME_MICROSECONDS)}"
+             or $"{nameof(DATE_MICROS)}"
+             or $"{nameof(TIME_MICROS)}"
+             or $"{nameof(TS_US)}" => true
           , _ => false
         };
 
@@ -176,6 +185,10 @@ public static class FLogEntryLayoutTokensExtensions
              or $"{nameof(DO)}"
              or $"{nameof(TIMEONLY)}"
              or $"{nameof(TO)}"
+             or $"{nameof(DATETIME_MICROSECONDS)}"
+             or $"{nameof(DATE_MICROS)}"
+             or $"{nameof(TIME_MICROS)}"
+             or $"{nameof(TS_US)}"
              or $"{nameof(LOGLEVEL)}"
              or $"{nameof(LEVEL)}"
              or $"{nameof(LVL)}"
@@ -217,6 +230,27 @@ public static class FLogEntryLayoutTokensExtensions
              or $"{nameof(CALLERAT)}" => true
           , _ => false
         };
+    
+    public static bool IsLogEntryMessageTokenName(this string checkName) =>
+      checkName switch
+      {
+        $"{nameof(MESSAGE)}"
+       or $"{nameof(MESG)}"
+       or $"{nameof(MSG)}" => true
+      , _ => false
+      };
+    
+    public static bool IsLogEntryExceptionTokenName(this string checkName) =>
+      checkName switch
+      {
+        $"{nameof(EXCEPTION)}"
+       or $"{nameof(EXCEP)}"
+       or $"{nameof(EX)}" => true
+      , _ => false
+      };
+    
+    public static bool IsLargeBufferCheckRequiredTokenName(this string checkName) =>
+      checkName.IsLogEntryMessageTokenName() || checkName.IsLogEntryExceptionTokenName();
 
     public static bool IsEnvironmentTokenName(this string checkName) =>
         checkName switch

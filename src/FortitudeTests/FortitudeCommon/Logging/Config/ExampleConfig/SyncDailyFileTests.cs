@@ -12,23 +12,29 @@ namespace FortitudeTests.FortitudeCommon.Logging.Config.ExampleConfig;
 [NoMatchingProductionClass]
 public class SyncDailyFileTests
 {
+    private const string DailyLogFileAppenderName = "AppLogFileAppender";
+    
     [TestMethod]
     public void SyncDailyFileLoadsAndLogsToFile()
     {
         using var wd = GetType().GetTemporaryWorkingDirectoryFor();
-        FLogConfigExtractor.SyncDailyFileExample.ExtractExampleTo();
+        FLogConfigExamples.SyncDailyFileExample.ExtractExampleTo();
         var context =
             FLogContext
                 .NewUninitializedContext
                 .InitializeContextFromWorkingDirFilePath(Environment.CurrentDirectory, FLogConfigFile.DefaultConfigFullFilePath)
                 .StartFlogSetAsCurrentContext();
 
-        var testLogger = FLog.FLoggerForType.As<IVersatileFLogger>();
+        var manualResetEvent = new ManualResetEvent(false);
+        var testLogger       = FLog.FLoggerForType.As<IVersatileFLogger>();
+        context.AppenderRegistry.WhenAppenderProcessedCountRun(DailyLogFileAppenderName, 5, (_, _) => manualResetEvent.Set());
         
         testLogger.TrcApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.DbgApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.InfApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.WrnApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.ErrApnd("Testing")?.Args(" 1,", " 2,", " 3.");
+        
+        manualResetEvent.WaitOne();
     }
 }

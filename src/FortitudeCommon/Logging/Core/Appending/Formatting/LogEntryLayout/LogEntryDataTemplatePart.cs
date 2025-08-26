@@ -1,10 +1,12 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Text;
+using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout.FLogEntryLayoutTokens;
@@ -13,39 +15,90 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
 public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
 {
-    [ThreadStatic] protected static StringBuilder? scratchBuffer;
-    
+    protected static IStringBuilder? SmallScratchBuffer;
+
+    [ThreadStatic] protected static IStringBuilder? LargeScratchBuffer;
+
     private TokenFormatting tokenFormatting;
 
-    public LogEntryDataTemplatePart(string tokenName, int paddingLength, int maxLength, string formattingString)
-    {
+    public LogEntryDataTemplatePart(string tokenName, int paddingLength, int maxLength, string formattingString) =>
         tokenFormatting = new TokenFormatting(tokenName, paddingLength, maxLength, formattingString);
+
+    public LogEntryDataTemplatePart(TokenFormatting tokenFormatting) => this.tokenFormatting = tokenFormatting;
+
+    private IStringBuilder SourceCachedStringBuilder(int charSizeRequired = 512)
+    {
+        if (charSizeRequired <= 512)
+        {
+            SmallScratchBuffer ??= 512.SourceCharArrayStringBuilder();
+            SmallScratchBuffer.Clear();
+            return SmallScratchBuffer;
+        }
+        if (LargeScratchBuffer is not null)
+        {
+            if (LargeScratchBuffer.Length < charSizeRequired)
+            {
+                LargeScratchBuffer.DecrementRefCount();
+                LargeScratchBuffer = charSizeRequired.SourceCharArrayStringBuilder();
+            }
+        }
+        else
+        {
+            LargeScratchBuffer ??= charSizeRequired.SourceCharArrayStringBuilder();
+        }
+        LargeScratchBuffer.Clear();
+        return LargeScratchBuffer;
     }
 
-    public LogEntryDataTemplatePart(TokenFormatting tokenFormatting) 
-        
+    private IStringBuilder SourceEphemeralStringBuilder(int charSizeRequired = 512)
     {
-        this.tokenFormatting = tokenFormatting;
+        var temporary = charSizeRequired.SourceCharArrayStringBuilder();
+        temporary.Clear();
+        return temporary;
     }
-    
-    
+
     public int Apply(IFormatWriter formatWriter, IFLogEntry logEntry)
     {
-        scratchBuffer ??= new();
-        scratchBuffer.Clear();
-        ApplyTokenToStringBuilder(scratchBuffer, logEntry);
-        if (scratchBuffer.Length > tokenFormatting.MaxLength)
+        var charBufferSize = 512;
+        if (tokenFormatting.TokenName.IsLargeBufferCheckRequiredTokenName())
         {
-            scratchBuffer.Length = tokenFormatting.MaxLength;
+            var tokenName = tokenFormatting.TokenName;
+            if (tokenName.IsLogEntryMessageTokenName())
+            {
+                charBufferSize = logEntry.Message.Length + 2;
+            }
+            if (logEntry.Exception != null && tokenName.IsLogEntryExceptionTokenName())
+            {
+                charBufferSize = logEntry.Exception.Message.Length + 2;
+            }
         }
-        formatWriter.Append(scratchBuffer);
-        return scratchBuffer.Length;
+        var scratchBuffer = SourceCachedStringBuilder(charBufferSize);
+        return Apply(formatWriter, logEntry, scratchBuffer);
     }
-    
+
+    private int Apply(IFormatWriter formatWriter, IFLogEntry logEntry, IStringBuilder partStringBuilder)
+    {
+        ApplyTokenToStringBuilder(partStringBuilder, logEntry);
+        if (partStringBuilder is CharArrayStringBuilder charArrayStringBuilder)
+        {
+            var writtenCharArrayRange = charArrayStringBuilder.AsCharArrayRange;
+            formatWriter.Append(writtenCharArrayRange.CharBuffer, writtenCharArrayRange.FromIndex, writtenCharArrayRange.Length);
+        }
+        else if (partStringBuilder is MutableString mutableString)
+        {
+            formatWriter.Append(mutableString.BackingStringBuilder, 0, mutableString.Length);
+        }
+        else
+        {
+            formatWriter.Append(partStringBuilder);
+        }
+        return partStringBuilder.Length;
+    }
+
     public FormattingAppenderSinkType TargetingAppenderTypes => FormattingAppenderSinkType.Any;
 
     // example toke "%TS:yyyy-MM-dd HH:mm:SS.fff% %LVL,5% %THREADID,4% %THREADNAME,10[..10]% %LGR% %MSG%";
-    protected virtual void ApplyTokenToStringBuilder(StringBuilder sb, IFLogEntry logEntry)
+    protected virtual void ApplyTokenToStringBuilder(IStringBuilder sb, IFLogEntry logEntry)
     {
         switch (tokenFormatting.TokenName)
         {
@@ -63,6 +116,12 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
             case $"{nameof(TO)}":
                 sb.AppendFormat(tokenFormatting.FormatString, logEntry.LogDateTime - logEntry.LogDateTime.Date);
                 break;
+            case $"{nameof(DATETIME_MICROSECONDS)}":
+            case $"{nameof(DATE_MICROS)}":
+            case $"{nameof(TIME_MICROS)}":
+            case $"{nameof(TS_US)}":
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.LogDateTime.Microsecond);
+                break;
             case $"{nameof(LOGLEVEL)}":
             case $"{nameof(LEVEL)}":
             case $"{nameof(LVL)}":
@@ -78,13 +137,41 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
                 break;
             case $"{nameof(THREADNAME)}":
             case $"{nameof(TNAME)}":
-                sb.AppendFormat(tokenFormatting.FormatString, logEntry.Thread.Name);
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.Thread.Name ?? "".AsSpan());
                 break;
             case $"{nameof(LOGGERNAME)}":
             case $"{nameof(LOGGER)}":
             case $"{nameof(LGRNAME)}":
             case $"{nameof(LGR)}":
-                sb.AppendFormat(tokenFormatting.FormatString, logEntry.Logger.FullName);
+                if (!tokenFormatting.IsAllSplitRange)
+                {
+                    var splitStartIdx  = tokenFormatting.SplitRange.Start;
+                    var splitEndIdx    = tokenFormatting.SplitRange.End;
+                    var loggerNameSpan = logEntry.Logger.FullName.AsSpan();
+                    var countNameParts = loggerNameSpan.SplitCount('.');
+                    var hasAppended    = false;
+                    for (int i = 0; i < countNameParts; i++)
+                    {
+                        var fromEndIndex = countNameParts - i;
+                        var includeInLoggerName =
+                             (splitStartIdx.IsFromEnd ? splitStartIdx.Value >= fromEndIndex : splitStartIdx.Value <= i)
+                         && (splitEndIdx.IsFromEnd ? splitEndIdx.Value < fromEndIndex : splitEndIdx.Value > i);
+                        if (includeInLoggerName)
+                        {
+                            if (hasAppended)
+                            {
+                                sb.Append('.');
+                            }
+                            var loggerNamePart = loggerNameSpan.SplitAt('.', i);
+                            sb.Append(loggerNamePart);
+                            hasAppended = true;
+                        }
+                    }
+                }
+                else
+                {
+                    sb.AppendFormat(tokenFormatting.FormatString, logEntry.Logger.FullName);
+                }
                 break;
             case $"{nameof(LOGLINENUMBER)}":
             case $"{nameof(LOGLINENUM)}":
@@ -110,6 +197,19 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
             case $"{nameof(MESSAGE)}":
             case $"{nameof(MESG)}":
             case $"{nameof(MSG)}":
+                if (!tokenFormatting.IsAllCharRange)
+                {
+                    var charsStartIdx  = tokenFormatting.CharsRange.Start;
+                    var charsEndIdx    = tokenFormatting.CharsRange.End;
+                    
+                    var mesgLeng            = logEntry.Message.Length;
+                    var startIndexFromStart = charsStartIdx.IsFromEnd ? mesgLeng - charsStartIdx.Value : charsStartIdx.Value;
+                    var endIndexFromStart = charsEndIdx.IsFromEnd ? mesgLeng - charsEndIdx.Value : charsEndIdx.Value;
+                    
+                    var mesgLengthToAppend = Math.Clamp(endIndexFromStart - startIndexFromStart, 0, mesgLeng);
+                    
+                    sb.Append(logEntry.Message, startIndexFromStart, mesgLengthToAppend);
+                }
                 sb.AppendRange(logEntry.Message);
                 break;
             case $"{nameof(EXCEPTION)}":
@@ -125,12 +225,13 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
             case $"{nameof(EX_1L)}":
                 if (logEntry.Exception is { } excep)
                 {
-                    scratchBuffer ??= new();
+                    var scratchBuffer = SourceEphemeralStringBuilder(4096);
                     scratchBuffer.Clear();
                     scratchBuffer.Append(excep);
                     scratchBuffer.Replace("\r", "");
                     scratchBuffer.Replace("\n", ",");
                     sb.AppendRange(scratchBuffer);
+                    scratchBuffer.DecrementRefCount();
                 }
                 break;
             case $"{nameof(CALLERATTACHED)}":

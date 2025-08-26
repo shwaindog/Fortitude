@@ -10,15 +10,15 @@ namespace FortitudeTests.FortitudeCommon.Logging.Config.ExampleConfig;
 
 [TestClass]
 [NoMatchingProductionClass]
-public class AsyncDailyDblBufferedFileTests
+public class AsyncDblBufferedColoredConsoleTests
 {
-    private const string DblBufferedFileAppenderName = "AppLogFileAppender";
+    private const string DblBufferedColoredConsoleName = "ColoredConsole";
     
     [TestMethod]
     public void AsyncDailyDblBufferedFileLoadsAndLogsToFile()
     {
         using var wd = GetType().GetTemporaryWorkingDirectoryFor();
-        FLogConfigExamples.AsyncDailyDblBufferedFileExample.ExtractExampleTo();
+        FLogConfigExamples.AsyncDblBufferedColoredConsoleExample.ExtractExampleTo();
         var context =
             FLogContext
                 .NewUninitializedContext
@@ -26,15 +26,17 @@ public class AsyncDailyDblBufferedFileTests
                 .StartFlogSetAsCurrentContext();
         
         var manualResetEvent = new ManualResetEvent(false);
-        context.AppenderRegistry.WhenAppenderProcessedCountRun(DblBufferedFileAppenderName, 5, (_, _) => manualResetEvent.Set());
+        context.AppenderRegistry.WhenAppenderProcessedCountRun(DblBufferedColoredConsoleName, 100, (_, _) => manualResetEvent.Set());
         var testLogger = FLog.FLoggerForType.As<IVersatileFLogger>();
-        
-        testLogger.TrcApnd("Testing")?.Args(" 1,", " 2,", " 3.");
-        testLogger.DbgApnd("Testing")?.Args(" 1,", " 2,", " 3.");
-        testLogger.InfApnd("Testing")?.Args(" 1,", " 2,", " 3.");
-        testLogger.WrnApnd("Testing")?.Args(" 1,", " 2,", " 3.");
-        testLogger.ErrApnd("Testing")?.Args(" 1,", " 2,", " 3.");
-        
+
+        for (var i = 0; i < 20; i++)
+        {
+            testLogger.TrcApnd("Testing")?.Args(" 1,", " 2,", " 3.");
+            testLogger.DbgApnd("Testing")?.Args(" 1,", " 2,", " 3.");
+            testLogger.InfApnd("Testing")?.Args(" 1,", " 2,", " 3.");
+            testLogger.WrnApnd("Testing")?.Args(" 1,", " 2,", " 3.");
+            testLogger.ErrApnd("Testing")?.Args(" 1,", " 2,", " 3.");
+        }
         manualResetEvent.WaitOne();
     }
 }

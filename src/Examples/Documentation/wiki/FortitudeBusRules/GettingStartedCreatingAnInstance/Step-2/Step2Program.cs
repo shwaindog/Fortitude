@@ -25,12 +25,7 @@ public class Step2Program
     public static void Main(string[] args)
     {
         Thread.CurrentThread.Name = "MainThread";
-        FLogConfigExtractor.SyncFileAndColoredConsoleExample.ExtractExampleTo();
-        var context =
-            FLogContext
-                .NewUninitializedContext
-                .InitializeContextFromWorkingDirFilePath(Environment.CurrentDirectory, FLogConfigFile.DefaultConfigFullFilePath)
-                .StartFlogSetAsCurrentContext();
+        FLogConfigExamples.AsyncDblBufferedFileAndColoredConsoleExample.LoadExampleAsCurrentContext();
 
         var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
         
