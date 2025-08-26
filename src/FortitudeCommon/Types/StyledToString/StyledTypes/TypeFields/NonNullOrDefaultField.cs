@@ -20,8 +20,8 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TFmtStruct : struct, ISpanFormattable => 
         value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd<TStruct>(string fieldName, TStruct? value
-      , CustomTypeStyler<TStruct> customTypeStyler, TStruct? defaultValue = null) where TStruct : struct =>
+    public TExt WhenNonNullOrDefaultAdd<TToStyle, TStylerType>(string fieldName, TToStyle? value
+      , CustomTypeStyler<TStylerType> customTypeStyler, TToStyle? defaultValue = default) where TToStyle : TStylerType =>
         value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd<TEnum>(string fieldName, TEnum? value, TEnum defaultValue) where TEnum : Enum =>
@@ -36,10 +36,6 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, IStyledToStringObject? value, IStyledToStringObject? defaultValue = null) => 
         value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullOrDefaultAdd<T, TBase>(string fieldName, T? value, CustomTypeStyler<TBase?> overrideStyler, T? defaultValue = null)
-        where T : class, TBase where TBase : class => 
-        value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, overrideStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, string? defaultValue = "") =>
         value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;

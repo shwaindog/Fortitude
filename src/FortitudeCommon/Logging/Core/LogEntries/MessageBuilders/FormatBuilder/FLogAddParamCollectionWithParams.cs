@@ -35,13 +35,13 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType =>
         AddValueCollectionParams(value, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TStylerType>((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollection(valueTuple, FormatStsa!);
@@ -49,13 +49,13 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TStylerType>(
+        IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AddValueCollectionParams(value, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TStylerType>(
+        (IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollection(valueTuple, FormatStsa!);
@@ -110,13 +110,14 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TToStyleBase, TStylerType>(
+        TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
         AddFilteredValueCollectionParams(value, filter, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(
-        (TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TToStyleBase, TStylerType>(
+        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -124,13 +125,13 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
         AddFilteredValueCollectionParams(value, filter, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TToStyleBase, TStylerType>(
+        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -166,13 +167,13 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionEnumerate to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>(IEnumerable<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AddValueCollectionParamsEnumerate(value, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollectionEnumerate to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?
+      , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);
@@ -180,13 +181,13 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionEnumerate to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>(IEnumerator<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AddValueCollectionParamsEnumerate(value, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollectionEnumerate to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?
+      , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);

@@ -28,26 +28,16 @@ public partial class FLogAdditionalFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogStringAppender AfterFinalParamToStringAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogStringAppender AfterFinalParamToStringAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) 
+        where TToStyle : TStylerType
     {
         FormatSb.Clear();
-        AppendStruct(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
-
-    [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
-    {
-        FormatSb.Clear();
-        AppendStruct(valueTuple, FormatStsa!);
+        AppendStyled(valueTuple, FormatStsa!);
         return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
     }
 

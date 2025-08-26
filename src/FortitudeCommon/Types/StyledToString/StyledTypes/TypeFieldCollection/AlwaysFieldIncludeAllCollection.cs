@@ -305,28 +305,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
     
 
-    public TExt AlwaysAddAll<TStruct>
-        (string fieldName, IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) 
-        where TStruct : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartCollection();
-            for (var i = 0; i < value.Count; i++)
-            {
-                customTypeStyler(value[i], stb.OwningAppender);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
     public TExt AlwaysAddAll<TToStyle, TStylerType>
-        (string fieldName, IReadOnlyList<TToStyle?>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        (string fieldName, IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
         where TToStyle : TStylerType
     {
         stb.FieldNameJoin(fieldName);
@@ -335,7 +315,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             for (var i = 0; i < value.Count; i++)
             {
-                stb.AppendOrNull(value[i], customTypeStyler);
+                customTypeStyler(value[i], stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -531,7 +511,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
     
-
     public TExt AlwaysAddAllEnumerate<TToStyle, TStylerType>
         (string fieldName, IEnumerable<TToStyle?>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
         where TToStyle : TStylerType
@@ -551,8 +530,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.Sb.Append(stb.OwningAppender.NullStyle);
         return stb.Sb.AddGoToNext(stb);
     }
-
-
+    
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {

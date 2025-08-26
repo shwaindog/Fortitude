@@ -17,23 +17,13 @@ public partial class FLogAdditionalFormatterParameterEntry
     public void AndFinalParam<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public void AndFinalParam<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public void AndFinalParam<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
-        AppendStruct(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void AndFinalParam<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
-
-    public void AndFinalParam<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
-    {
-        FormatSb.Clear();
-        AppendStruct(valueTuple, FormatStsa!);
+        AppendStyled(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 

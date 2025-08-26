@@ -410,59 +410,11 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         any |= stb.ConditionalCollectionSuffix();
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
-
-    public TExt AddFiltered<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                if (!itemPredicate(i, item)) continue;
-                any = true;
-                stb.Sb.Append(item);
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        stb.ConditionalCollectionSuffix();
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AddFiltered<TStruct>(TStruct?[]? value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                if (!itemPredicate(i, item)) continue;
-                any = true;
-                if (item != null)
-                {
-                    stb.Sb.Append(item); 
-                }
-                else
-                {
-                    stb.Sb.Append(stb.OwningAppender.NullStyle);
-                }
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        stb.ConditionalCollectionSuffix();
-        return stb.Sb.AddGoToNext(stb);
-    }
-
     
-    public TExt AddFiltered<TStruct>(ReadOnlySpan<TStruct> value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
+    
+    [CallsObjectToString] 
+    public TExt AddFiltered<T, TBase1, TBase2>(T[]? value, OrderedCollectionPredicate<TBase1> itemPredicate
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -481,9 +433,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         stb.ConditionalCollectionSuffix();
         return stb.Sb.AddGoToNext(stb);
     }
-
-    public TExt AddFiltered<TStruct>(ReadOnlySpan<TStruct?> value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
+    
+    [CallsObjectToString] 
+    public TExt AddFiltered<T, TBase1, TBase2>(ReadOnlySpan<T> value, OrderedCollectionPredicate<TBase1> itemPredicate
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -494,14 +447,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 var item = value[i];
                 if (!itemPredicate(i, item)) continue;
                 any = true;
-                if (item != null)
-                {
-                    customTypeStyler(item.Value, stb.OwningAppender);
-                }
-                else
-                {
-                    stb.Sb.Append(stb.OwningAppender.NullStyle);
-                }
+                customTypeStyler(item, stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
             if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
@@ -509,9 +455,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         stb.ConditionalCollectionSuffix();
         return stb.Sb.AddGoToNext(stb);
     }
-
-    public TExt AddFiltered<TStruct>(IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
+    
+    [CallsObjectToString] 
+    public TExt AddFiltered<T, TBase1, TBase2>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase1> itemPredicate
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -522,7 +469,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 var item = value[i];
                 if (!itemPredicate(i, item)) continue;
                 any = true;
-                stb.Sb.Append(item);
+                customTypeStyler(item, stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
             if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
@@ -530,30 +477,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         stb.ConditionalCollectionSuffix();
         return stb.Sb.AddGoToNext(stb);
     }
-
-    public TExt AddFiltered<TStruct>(IReadOnlyList<TStruct?>? value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Count; i++)
-            {
-                var item = value[i];
-                if (!itemPredicate(i, item)) continue;
-                any = true;
-                stb.Sb.Append(item);
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        stb.ConditionalCollectionSuffix();
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AddFilteredEnumerate<TStruct>(IEnumerable<TStruct>? value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
+    
+    [CallsObjectToString] 
+    public TExt AddFilteredEnumerate<T, TBase1, TBase2>(IEnumerable<T>? value, OrderedCollectionPredicate<TBase1> itemPredicate
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -564,7 +491,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
             {
                 if (!itemPredicate(count++, item)) continue;
                 any = true;
-                stb.AppendOrNull(item);
+                customTypeStyler(item, stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
             if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
@@ -573,29 +500,9 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredEnumerate<TStruct>(IEnumerable<TStruct?>? value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            var count = 0;
-            foreach (var item in value)
-            {
-                if (!itemPredicate(count++, item)) continue;
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        any |= stb.ConditionalCollectionSuffix();
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
-    }
-
-    public TExt AddFilteredEnumerate<TStruct>(IEnumerator<TStruct>? value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
+    [CallsObjectToString] 
+    public TExt AddFilteredEnumerate<T, TBase1, TBase2>(IEnumerator<T>? value, OrderedCollectionPredicate<TBase1> itemPredicate
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -613,35 +520,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 }
                 
                 any = true;
-                stb.AppendOrNull(item);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        any |= stb.ConditionalCollectionSuffix();
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
-    }
-
-    public TExt AddFilteredEnumerate<TStruct>(IEnumerator<TStruct?>? value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
-    {
-        stb.ConditionalCollectionPrefix();
-        var any      = false;
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
-        {
-            var count = 0;
-            while (hasValue)
-            {
-                var item = value!.Current;
-                if (!itemPredicate(count++, item))
-                {
-                    hasValue = value.MoveNext();
-                    continue;
-                }
-                
-                any = true;
-                stb.AppendOrNull(item);
+                customTypeStyler(item, stb.OwningAppender);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }
@@ -1092,131 +971,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
     
     [CallsObjectToString] 
-    public TExt AddFiltered<T, TBase1, TBase2>(T[]? value, OrderedCollectionPredicate<TBase1> itemPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler)
-        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                if (!itemPredicate(i, item)) continue;
-                any = true;
-                customTypeStyler(item, stb.OwningAppender);
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        stb.ConditionalCollectionSuffix();
-        return stb.Sb.AddGoToNext(stb);
-    }
-    
-    [CallsObjectToString] 
-    public TExt AddFiltered<T, TBase1, TBase2>(ReadOnlySpan<T> value, OrderedCollectionPredicate<TBase1> itemPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler)
-        where T : class, TBase1, TBase2 where TBase1: class where TBase2: class
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                if (!itemPredicate(i, item)) continue;
-                any = true;
-                customTypeStyler(item, stb.OwningAppender);
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        stb.ConditionalCollectionSuffix();
-        return stb.Sb.AddGoToNext(stb);
-    }
-    
-    [CallsObjectToString] 
-    public TExt AddFiltered<T, TBase1, TBase2>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase1> itemPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler)
-        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Count; i++)
-            {
-                var item = value[i];
-                if (!itemPredicate(i, item)) continue;
-                any = true;
-                customTypeStyler(item, stb.OwningAppender);
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        stb.ConditionalCollectionSuffix();
-        return stb.Sb.AddGoToNext(stb);
-    }
-    
-    [CallsObjectToString] 
-    public TExt AddFilteredEnumerate<T, TBase1, TBase2>(IEnumerable<T>? value, OrderedCollectionPredicate<TBase1> itemPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler)
-        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            var count = 0;
-            foreach (var item in value)
-            {
-                if (!itemPredicate(count++, item)) continue;
-                any = true;
-                customTypeStyler(item, stb.OwningAppender);
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        any |= stb.ConditionalCollectionSuffix();
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
-    }
-
-    [CallsObjectToString] 
-    public TExt AddFilteredEnumerate<T, TBase1, TBase2>(IEnumerator<T>? value, OrderedCollectionPredicate<TBase1> itemPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler)
-        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
-    {
-        stb.ConditionalCollectionPrefix();
-        var any      = false;
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
-        {
-            var count = 0;
-            while (hasValue)
-            {
-                var item = value!.Current;
-                if (!itemPredicate(count++, item))
-                {
-                    hasValue = value.MoveNext();
-                    continue;
-                }
-                
-                any = true;
-                customTypeStyler(item, stb.OwningAppender);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        any |= stb.ConditionalCollectionSuffix();
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
-    }
-    
-    [CallsObjectToString] 
     public TExt AddFilteredMatch<T, TBase>(T[]? value, OrderedCollectionPredicate<TBase> itemPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class, TBase where TBase : class
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : TBase
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -1240,8 +996,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     
     [CallsObjectToString] 
     public TExt AddFilteredMatch<T, TBase>(ReadOnlySpan<T> value, OrderedCollectionPredicate<TBase> itemPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class, TBase where TBase: class
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : TBase
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -1265,8 +1020,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     
     [CallsObjectToString] 
     public TExt AddFilteredMatch<T, TBase>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase> itemPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class, TBase where TBase : class
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : TBase
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -1290,8 +1044,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     
     [CallsObjectToString] 
     public TExt AddFilteredMatchEnumerate<T, TBase>(IEnumerable<T>? value, OrderedCollectionPredicate<TBase> itemPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class, TBase where TBase : class
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : TBase
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -1315,8 +1068,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
 
     [CallsObjectToString] 
     public TExt AddFilteredMatchEnumerate<T, TBase>(IEnumerator<T>? value, OrderedCollectionPredicate<TBase> itemPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class, TBase where TBase : class
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : TBase
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;

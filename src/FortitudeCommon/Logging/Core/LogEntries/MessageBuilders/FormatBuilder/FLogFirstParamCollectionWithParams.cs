@@ -35,13 +35,13 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TToStyle, TStylerType>(TToStyle[]? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AddValueCollectionParams(value, customTypeStyler);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TToStyle, TStylerType>((TToStyle[]?
+      , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollection(valueTuple, FormatStsa!);
@@ -49,13 +49,13 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>
-        (IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TToStyle, TStylerType>
+        (IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AddValueCollectionParams(value, customTypeStyler);
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?
+      , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollection(valueTuple, FormatStsa!);
@@ -112,13 +112,14 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>
-        (TStruct[]? value, OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TToStyle, TToStyleBase, TStylerType>
+        (TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TToStyleBase, TStylerType =>
         AddFilteredValueCollectionParams(value, filter, customTypeStyler);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(
-        (TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TToStyle, TToStyleBase, TStylerType>(
+        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -126,14 +127,15 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>
-    (IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TToStyle, TToStyleBase, TStylerType>
+    (IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filter
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
         AddFilteredValueCollectionParams(value, filter, customTypeStyler);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TToStyle, TToStyleBase, TStylerType>(
+        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) 
+        where TToStyle : TToStyleBase, TStylerType
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -169,13 +171,13 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TStruct>
-        (IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TToStyle, TStylerType>
+        (IEnumerable<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AddValueCollectionParamsEnumerate(value, customTypeStyler);
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TStruct>(
-        (IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TToStyle, TStylerType>(
+        (IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);
@@ -183,13 +185,13 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TStruct>
-        (IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TToStyle, TStylerType>
+        (IEnumerator<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AddValueCollectionParamsEnumerate(value, customTypeStyler);
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TStruct>(
-        (IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TToStyle, TStylerType>(
+        (IEnumerator<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);

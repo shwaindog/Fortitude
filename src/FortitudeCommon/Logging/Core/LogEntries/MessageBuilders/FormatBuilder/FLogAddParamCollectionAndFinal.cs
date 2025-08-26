@@ -34,26 +34,30 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public void AndFinalValueCollectionParam<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType
     {
         ReplaceTokenWithValueCollection(value, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public void AndFinalValueCollectionParam<TToStyle, TStylerType>((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple) 
+        where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public void AndFinalValueCollectionParam<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType
     {
         ReplaceTokenWithValueCollection(value, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public void AndFinalValueCollectionParam<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) 
+        where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollection(valueTuple, FormatStsa!);
@@ -106,30 +110,30 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public void AndFinalValueCollectionParam<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType
     {
         ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>((TStruct[]?
-      , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public void AndFinalValueCollectionParam<TToStyle, TToStyleBase, TStylerType>((TToStyle[]?
+      , OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public void AndFinalValueCollectionParam<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filter
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType
     {
         ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
+    public void AndFinalValueCollectionParam<TToStyle, TToStyleBase, TStylerType>(
+        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -166,28 +170,30 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParamEnumerate<TStruct>(IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public void AndFinalValueCollectionParamEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType
     {
         ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParamEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public void AndFinalValueCollectionParamEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParamEnumerate<TStruct>(IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public void AndFinalValueCollectionParamEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType
     {
         ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParamEnumerate<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public void AndFinalValueCollectionParamEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);

@@ -33,8 +33,8 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
             ? AlwaysAddWithFormatting(fieldName, value, formatString) 
             : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(stb);
 
-    public TExt AlwaysAdd<TStruct>(string fieldName, TStruct? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public TExt AlwaysAdd<TToStyle, TStylerType>(string fieldName, TToStyle? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         stb.FieldNameJoin(fieldName, stb).AppendOrNull(value, customTypeStyler).AddGoToNext(stb);
 
     public TExt AlwaysAdd<TEnum>(string fieldName, TEnum? value) where TEnum : Enum =>
@@ -63,9 +63,6 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 
     public TExt AlwaysAdd(string fieldName, IStyledToStringObject? value) => 
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
-    
-    public TExt AlwaysAdd<T, TBase>(string fieldName, T? value, CustomTypeStyler<TBase> overrideStyler) where T : class, TBase where TBase : class =>  
-        stb.FieldNameJoin(fieldName, stb).AppendOrNull(value, overrideStyler).AddGoToNext(stb);
 
     public TExt AlwaysAdd(string fieldName, ICharSequence? value) => 
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);

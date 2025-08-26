@@ -62,18 +62,18 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender AppendValueCollection<TStruct>
-        (IStyledTypeStringAppender toAppendTo, TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
+    protected IStyledTypeStringAppender AppendValueCollection<TToStyle, TStylerType>
+        (IStyledTypeStringAppender toAppendTo, TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType
     {
         toAppendTo.StartSimpleCollectionType("")
                   .AddAll(value, customTypeStyler).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender AppendValueCollection<TStruct>
-        ((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
-        where TStruct : struct
+    protected static IStyledTypeStringAppender AppendValueCollection<TToStyle, TStylerType>
+        ((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple, IStyledTypeStringAppender appender)
+        where TToStyle : TStylerType
     {
         var (value, formatString) = valueTuple;
         appender.StartSimpleCollectionType("")
@@ -81,17 +81,18 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender AppendValueCollection<TStruct>
-        (IStyledTypeStringAppender toAppendTo, IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    protected IStyledTypeStringAppender AppendValueCollection<TToStyle, TStylerType>
+        (IStyledTypeStringAppender toAppendTo, IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType
     {
         toAppendTo.StartSimpleCollectionType("")
                   .AddAll(value, customTypeStyler).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender AppendValueCollection<TStruct>
-        ((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
-        where TStruct : struct
+    protected static IStyledTypeStringAppender AppendValueCollection<TToStyle, TStylerType>
+        ((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple, IStyledTypeStringAppender appender)
+        where TToStyle : TStylerType
     {
         var (value, formatString) = valueTuple;
         appender.StartSimpleCollectionType("")
@@ -157,18 +158,18 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender AppendFilteredValueCollection<TStruct>
-    (IStyledTypeStringAppender toAppendTo, TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    protected IStyledTypeStringAppender AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
+    (IStyledTypeStringAppender toAppendTo, TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType
     {
         toAppendTo.StartSimpleCollectionType("")
                   .AddFiltered(value, filter, customTypeStyler).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender AppendFilteredValueCollection<TStruct>
-        ((TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
-        where TStruct : struct
+    protected static IStyledTypeStringAppender AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
+        ((TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple, IStyledTypeStringAppender appender)
+        where TToStyle : TToStyleBase, TStylerType
     {
         var (value, filter, structStyler) = valueTuple;
         appender.StartSimpleCollectionType("")
@@ -176,18 +177,18 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender AppendFilteredValueCollection<TStruct>
-    (IStyledTypeStringAppender toAppendTo, IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
+    protected IStyledTypeStringAppender AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
+    (IStyledTypeStringAppender toAppendTo, IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filter
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType 
     {
         toAppendTo.StartSimpleCollectionType("")
                   .AddFiltered(value, filter, customTypeStyler).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender AppendFilteredValueCollection<TStruct>
-        ((IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
-        where TStruct : struct
+    protected static IStyledTypeStringAppender AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
+        ((IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple
+          , IStyledTypeStringAppender appender) where TToStyle : TToStyleBase, TStylerType
     {
         var (value, filter, structStyler) = valueTuple;
         appender.StartSimpleCollectionType("")
@@ -249,17 +250,17 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender AppendValueCollectionEnumerate<TStruct>
-        (IStyledTypeStringAppender toAppendTo, IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    protected IStyledTypeStringAppender AppendValueCollectionEnumerate<TToStyle, TStylerType>
+        (IStyledTypeStringAppender toAppendTo, IEnumerable<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType
     {
         toAppendTo.StartSimpleCollectionType("")
                   .AddAllEnumerate(value, customTypeStyler).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender AppendValueCollectionEnumerate<TStruct>
-        ((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender) 
-        where TStruct : struct 
+    protected static IStyledTypeStringAppender AppendValueCollectionEnumerate<TToStyle, TStylerType>
+        ((IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple, IStyledTypeStringAppender appender) 
+        where TToStyle : TStylerType 
     {
         var (value, structStyler) = valueTuple;
         appender.StartSimpleCollectionType("")
@@ -267,17 +268,18 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender AppendValueCollectionEnumerate<TStruct>
-        (IStyledTypeStringAppender toAppendTo, IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    protected IStyledTypeStringAppender AppendValueCollectionEnumerate<TToStyle, TStylerType>
+        (IStyledTypeStringAppender toAppendTo, IEnumerator<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType
     {
         toAppendTo.StartSimpleCollectionType("")
                   .AddAllEnumerate(value, customTypeStyler).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender AppendValueCollectionEnumerate<TStruct>
-        ((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender) 
-        where TStruct : struct 
+    protected static IStyledTypeStringAppender AppendValueCollectionEnumerate<TToStyle, TStylerType>
+        ((IEnumerator<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple, IStyledTypeStringAppender appender) 
+        where TToStyle : TStylerType 
     {
         var (value, structStyler) = valueTuple;
         appender.StartSimpleCollectionType("")

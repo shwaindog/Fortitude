@@ -95,9 +95,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TToStyle, TStylerType>
-    (string fieldName, TToStyle[]? value, OrderedCollectionPredicate<TStylerType> filterPredicate
-      , CustomTypeStyler<TToStyle> customTypeStyler) where TToStyle : TStylerType
+    public TExt AlwaysAddFiltered<TToStyle, TToStyleBase, TStylerType>
+    (string fieldName, TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -239,35 +239,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, T?[]? value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler)
-        where T : TBase1, TBase2 
-    {
-        var found = false;
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                if(!filterPredicate(i, item)) continue;
-                if (!found)
-                {
-                    stb.StartCollection();
-                    found = true;
-                }
-                stb.AppendOrNull(item, customTypeStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        if (found)
-        {
-            stb.EndCollection();
-            return stb.Sb.AddGoToNext(stb);
-        }
-        return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
-    }
-
     [CallsObjectToString]
     public TExt AlwaysAddFilteredMatch<T, TBase>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -386,9 +357,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TStruct>
-        (string fieldName, IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filterPredicate
-          , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public TExt AlwaysAddFiltered<TToStyle, TToStyleBase, TStylerType>
+        (string fieldName, IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
+          , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -529,34 +500,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , CustomTypeStyler<TBase2> customTypeStyler)
-        where T : TBase1, TBase2 
-    {
-        var found = false;
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            for (var i = 0; i < value.Count; i++)
-            {
-                var item = value[i];
-                if(!filterPredicate(i, item)) continue;
-                if (!found)
-                {
-                    stb.StartCollection();
-                    found = true;
-                }
-                stb.AppendOrNull(item, customTypeStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        if (found)
-        {
-            stb.EndCollection();
-            return stb.Sb.AddGoToNext(stb);
-        }
-        return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
-    }
 
     [CallsObjectToString]
     public TExt AlwaysAddFilteredMatch<T, TBase>(string fieldName, IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase> filterPredicate

@@ -21,8 +21,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         value != null ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAll<TStruct>
-        (string fieldName, TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public TExt  WhenNonNullAddAll<TToStyle, TStylerType>
+        (string fieldName, TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         value != null ? AlwaysAddAll(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAll
@@ -43,10 +43,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt  WhenNonNullAddAll<TStyledObj>(string fieldName, TStyledObj[]? value)
         where TStyledObj : class, IStyledToStringObject  => 
         value != null ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
-
-    public TExt  WhenNonNullAddAll<T, TBase>(string fieldName, T[]? value, CustomTypeStyler<TBase?> customTypeStyler)
-        where T : class, TBase where TBase: class  => 
-        value != null ? AlwaysAddAll(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
 
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]

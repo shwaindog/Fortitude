@@ -7,6 +7,7 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
 public partial class FLogAdditionalFormatterParameterEntry
 {
+
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TFmtStruct>(TFmtStruct[]? value, string? formatString = null)
         where TFmtStruct : struct, ISpanFormattable 
@@ -42,16 +43,15 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TStylerType>(TToStyle[]? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType
     {
         ReplaceTokenWithValueCollection(value, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    
+    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TStylerType>((TToStyle[]?, 
+        CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType 
     {
         FormatSb.Clear();
         AppendValueCollection(valueTuple, FormatStsa!);
@@ -59,20 +59,11 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>(IReadOnlyList<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType 
     {
         ReplaceTokenWithValueCollection(value, customTypeStyler);
         return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
-    {
-        FormatSb.Clear();
-        AppendValueCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
@@ -135,17 +126,18 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value, 
+        OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType 
     {
         ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
+    
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>((TStruct[]?
-      , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TToStyleBase, TStylerType>((TToStyle[]?
+      , OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TToStyleBase, TStylerType 
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -153,18 +145,18 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
+      , OrderedCollectionPredicate<TToStyleBase> filter
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType 
     {
         ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?
-      , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TToStyleBase, TStylerType>((IReadOnlyList<TToStyle>?
+      , OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TToStyleBase, TStylerType 
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -206,16 +198,16 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TStruct>(IEnumerable<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType 
     {
         ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TStruct>
-        ((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TToStyle, TStylerType>
+        ((IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType 
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);
@@ -223,16 +215,16 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TStruct>(IEnumerator<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType 
     {
         ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalValueCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TStruct>
-        ((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct 
+    public IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TToStyle, TStylerType>
+        ((IEnumerator<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType 
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);

@@ -28,16 +28,12 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogAdditionalFormatterParameterEntry? And<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 
+      where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) 
+      where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     IFLogAdditionalFormatterParameterEntry? And(ReadOnlySpan<char> value);
@@ -99,6 +95,70 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     IFLogAdditionalFormatterParameterEntry? And(object? value);
     
+    
+    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>(TFmtStruct[]? value, string? formatString = null)
+      where TFmtStruct : struct, ISpanFormattable;
+
+    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>((TFmtStruct[]?, string?) valueTuple)
+      where TFmtStruct : struct, ISpanFormattable;
+
+    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>(IReadOnlyList<TFmtStruct>? value, string? formatString = null)
+      where TFmtStruct : struct, ISpanFormattable;
+
+    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>((IReadOnlyList<TFmtStruct>?, string?) valueTuple)
+      where TFmtStruct : struct, ISpanFormattable;
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TFmtStruct>
+      (IEnumerable<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TFmtStruct>((IEnumerable<TFmtStruct>?, string?) valueTuple)
+      where TFmtStruct : struct, ISpanFormattable;
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TFmtStruct>(IEnumerator<TFmtStruct>? value
+      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TFmtStruct>((IEnumerator<TFmtStruct>?, string?) valueTuple) 
+      where TFmtStruct : struct, ISpanFormattable;
+
+    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?
+    , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
+
+    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TStylerType>(TToStyle[]? value
+    , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
+
+    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TStylerType>((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple)
+      where TToStyle : TStylerType;
+
+    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value
+    , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?
+    , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
+    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>? 
+    , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
     IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>(TFmtStruct[]? value
@@ -107,10 +167,6 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
     IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>(
       (TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-      where TStruct : struct;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
     IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>(
@@ -129,80 +185,20 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
       (IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(TStruct[]? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(
-      (TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TToStyleBase, TStylerType>(
+      (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(
-      (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
-    
-    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>(TFmtStruct[]? value, string? formatString = null)
-      where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>((TFmtStruct[]?, string?) valueTuple)
-      where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>(IReadOnlyList<TFmtStruct>? value, string? formatString = null)
-      where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TFmtStruct>((IReadOnlyList<TFmtStruct>?, string?) valueTuple)
-      where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
-      where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
-      where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
-      where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TFmtStruct>
-      (IEnumerable<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TFmtStruct>((IEnumerable<TFmtStruct>?, string?) valueTuple)
-      where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TFmtStruct>(IEnumerator<TFmtStruct>? value
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TFmtStruct>((IEnumerator<TFmtStruct>?, string?) valueTuple) 
-      where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>(IEnumerable<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-      where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>(IEnumerator<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>((IEnumerator<TStruct>? , CustomTypeStyler<TStruct>) valueTuple)
-      where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? AndValueCollection<TToStyle, TToStyleBase, TStylerType>(
+      (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType;
 
     [MustUseReturnValue("Use AndFinalObjectCollectionParam to finish LogEntry")]
     IFLogAdditionalFormatterParameterEntry? AndObjectCollection<T>(T[]? value, string? formatString = null) where T : class;
@@ -609,10 +605,8 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     void AndFinalParam(bool? value);
     void AndFinalParam<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable;
     void AndFinalParam<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable;
-    void AndFinalParam<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
-    void AndFinalParam<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
-    void AndFinalParam<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
-    void AndFinalParam<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    void AndFinalParam<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
+    void AndFinalParam<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
     void AndFinalParam(ReadOnlySpan<char> value);
     void AndFinalParam(ReadOnlySpan<char> value, int fromIndex, int count = int.MaxValue);
     void AndFinalParam(string? value);
@@ -644,13 +638,13 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
 
     void AndFinalValueCollectionParam<TFmtStruct>((IReadOnlyList<TFmtStruct>?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable;
     
-    void AndFinalValueCollectionParam<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    void AndFinalValueCollectionParam<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
     
-    void AndFinalValueCollectionParam<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    void AndFinalValueCollectionParam<TToStyle, TStylerType>((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
-    void AndFinalValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    void AndFinalValueCollectionParam<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
     
-    void AndFinalValueCollectionParam<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    void AndFinalValueCollectionParam<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     void AndFinalValueCollectionParam<TFmtStruct>(TFmtStruct[]? value
       , OrderedCollectionPredicate<TFmtStruct> filter, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
@@ -670,17 +664,18 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     void AndFinalValueCollectionParam<TFmtStruct>((IReadOnlyList<TFmtStruct>?
     , OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable;
 
-    void AndFinalValueCollectionParam<TStruct>(TStruct[]? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    void AndFinalValueCollectionParam<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType;
     
-    void AndFinalValueCollectionParam<TStruct>(
-      (TStruct[]? , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    void AndFinalValueCollectionParam<TToStyle, TToStyleBase, TStylerType>(
+      (TToStyle[]? , OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType;
 
-    void AndFinalValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    void AndFinalValueCollectionParam<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType;
 
-    void AndFinalValueCollectionParam<TStruct>(
-      (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    void AndFinalValueCollectionParam<TToStyle, TToStyleBase, TStylerType>(
+      (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) 
+      where TToStyle : TToStyleBase, TStylerType;
 
     void AndFinalValueCollectionParamEnumerate<TFmtStruct>(IEnumerable<TFmtStruct>? value, string? formatString = null)
       where TFmtStruct : struct, ISpanFormattable;
@@ -694,14 +689,14 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     void AndFinalValueCollectionParamEnumerate<TFmtStruct>((IEnumerator<TFmtStruct>?, string?) valueTuple)
       where TFmtStruct : struct, ISpanFormattable;
 
-    void AndFinalValueCollectionParamEnumerate<TStruct>(IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
-      where TStruct : struct;
+    void AndFinalValueCollectionParamEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler)
+      where TToStyle : TStylerType;
 
-    void AndFinalValueCollectionParamEnumerate<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-      where TStruct : struct;
+    void AndFinalValueCollectionParamEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+      where TToStyle : TStylerType;
 
-    void AndFinalValueCollectionParamEnumerate<TStruct>(IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
-      where TStruct : struct;
+    void AndFinalValueCollectionParamEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler)
+      where TToStyle : TStylerType;
 
     void AndFinalObjectCollectionParam<T>(T[]? value, string? formatString = null) where T : class;
     
@@ -988,16 +983,10 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogStringAppender AfterFinalParamToStringAppender<TNum>(TNum? value) where TNum : struct, INumber<TNum>;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    IFLogStringAppender AfterFinalParamToStringAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    IFLogStringAppender AfterFinalParamToStringAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterFinalParamToStringAppender(ReadOnlySpan<char> value);
@@ -1077,20 +1066,12 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
       where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct;
+    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TStylerType>((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple)
+      where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
-      where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-      where TStruct : struct;
+    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value
+    , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TFmtStruct>(TFmtStruct[]? value
@@ -1117,20 +1098,12 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     , OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>(TStruct[]? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType;
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>((TStruct[]?
-    , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
-
-    [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?
-    , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    IFLogStringAppender AfterFinalValueCollectionParamToStringAppender<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType;
 
     [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TFmtStruct>(IEnumerable<TFmtStruct>? value, string? formatString = null)
@@ -1149,23 +1122,20 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
       where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TStruct>(IEnumerable<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct;
+    IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TToStyle, TStylerType>
+      (IEnumerable<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-      where TStruct : struct;
+    IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TToStyle, TStylerType>(
+      (IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TStruct>(IEnumerator<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct;
+    IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TToStyle, TStylerType>(
+      IEnumerator<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TStruct>((IEnumerator<TStruct>?
-    , CustomTypeStyler<TStruct>) valueTuple)
-      where TStruct : struct;
+    IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TToStyle, TStylerType>(
+      (IEnumerator<TToStyle>? , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>(T[]? value, string? formatString = null) where T : class;

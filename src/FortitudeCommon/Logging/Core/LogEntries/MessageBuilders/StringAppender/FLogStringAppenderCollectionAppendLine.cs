@@ -28,23 +28,23 @@ public partial class FLogStringAppender
         AppendValueCollection(valueTuple, MessageStsa).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionLine<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionLine<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType =>
         AppendValueCollection(MessageStsa, value, customTypeStyler).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionLine<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionLine<TToStyle, TStylerType>((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, MessageStsa).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionLine<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionLine<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType =>
         AppendValueCollection(MessageStsa, value, customTypeStyler).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionLine<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionLine<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, MessageStsa).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
@@ -79,23 +79,24 @@ public partial class FLogStringAppender
         AppendFilteredValueCollection(valueTuple, MessageStsa).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionLine<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct  =>
+    public IFLogStringAppender AppendValueCollectionLine<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType  =>
         AppendFilteredValueCollection(MessageStsa, value, filter, customTypeStyler).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionLine<TStruct>(
-        (TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionLine<TToStyle, TToStyleBase, TStylerType>(
+        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(valueTuple, MessageStsa).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionLine<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionLine<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(MessageStsa, value, filter, customTypeStyler).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionLine<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionLine<TToStyle, TToStyleBase, TStylerType>(
+        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) 
+        where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(valueTuple, MessageStsa).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
@@ -119,23 +120,23 @@ public partial class FLogStringAppender
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionEnumerateLine<TStruct>(IEnumerable<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionEnumerateLine<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(MessageStsa, value, customTypeStyler).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionEnumerateLine<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionEnumerateLine<TToStyle, TStylerType>((IEnumerable<TToStyle>?
+      , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionEnumerateLine<TStruct>(IEnumerator<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionEnumerateLine<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(MessageStsa, value, customTypeStyler).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionEnumerateLine<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionEnumerateLine<TToStyle, TStylerType>((IEnumerator<TToStyle>?
+      , CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]

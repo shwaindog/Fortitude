@@ -43,18 +43,11 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
         return this;
     }
 
-    protected static void AppendStruct<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
-        where TStruct : struct
+    protected static void AppendStyled<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple, IStyledTypeStringAppender appender)
+        where TToStyle : TStylerType
     {
         var (value, structStyler) = valueTuple;
         structStyler(value, appender);
-    }
-
-    protected static void AppendStruct<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
-        where TStruct : struct
-    {
-        var (value, structStyler) = valueTuple;
-        if (value != null) structStyler(value.Value, appender);
     }
 
     protected static void AppendFromRange((string?, int) valueTuple, IStyledTypeStringAppender styledTypeStringAppender)

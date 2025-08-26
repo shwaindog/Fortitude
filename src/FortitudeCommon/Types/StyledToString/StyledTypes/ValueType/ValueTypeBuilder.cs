@@ -58,8 +58,8 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
       , CustomTypeStyler<T> customTypeStyler, T fallbackValue) where T : struct =>
         Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, customTypeStyler);
 
-    public TExt Value<T>(string nonJsonfieldName, T? value
-      , CustomTypeStyler<T> customTypeStyler) where T : struct =>
+    public TExt Value<T, TBase>(string nonJsonfieldName, T value
+      , CustomTypeStyler<TBase> customTypeStyler) where T : TBase =>
         Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
 
     public TExt ValueWithFallback<T, TBase>(string nonJsonfieldName, T? value
@@ -67,13 +67,8 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
         where T : class, TBase where TBase : class =>
         Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, customTypeStyler);
 
-    public TExt Value<T, TBase>(string nonJsonfieldName, T? value
-      , CustomTypeStyler<TBase> customTypeStyler) 
-        where T : class, TBase where TBase : class =>
-        Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
-
-    public TExt String<T>(string nonJsonfieldName, T? value
-      , CustomTypeStyler<T> customTypeStyler) where T : struct  =>
+    public TExt String<T, TBase>(string nonJsonfieldName, T value
+      , CustomTypeStyler<TBase> customTypeStyler) where T : TBase  =>
         Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler);
 
     public TExt StringWithFallback<T>(string nonJsonfieldName, T? value
@@ -124,14 +119,6 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
     
     public TExt String(string nonJsonfieldName, IStyledToStringObject? value) =>
         Stb.FieldStringOrNullNext(nonJsonfieldName, value);
-    
-    public TExt StringWithFallback<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler, string fallbackValue = "")
-        where T : class, TBase where TBase : class =>
-        Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler, fallbackValue);
-    
-    public TExt String<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler)
-        where T : class, TBase where TBase : class =>
-        Stb.FieldStringOrNullNext(nonJsonfieldName, value, customTypeStyler);
     
     public IScopeDelimitedStringBuilder StartDelimitedStringBuilder()  => Stb.StartDelimitedStringBuilder();
 

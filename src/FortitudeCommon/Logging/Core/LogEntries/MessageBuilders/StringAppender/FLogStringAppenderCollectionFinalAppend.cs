@@ -25,20 +25,20 @@ public partial class FLogStringAppender
         where TFmtStruct : struct, ISpanFormattable =>
         AppendValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollection<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct =>
+    public void FinalAppendValueCollection<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType =>
         AppendValueCollection(MessageStsa, value, customTypeStyler).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollection<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public void FinalAppendValueCollection<TToStyle, TStylerType>((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollection<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct =>
+    public void FinalAppendValueCollection<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType =>
         AppendValueCollection(MessageStsa, value, customTypeStyler).ToAppender(this).CallOnComplete();
 
-    public void FinalAppendValueCollection<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public void FinalAppendValueCollection<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
     
     public void FinalAppendValueCollection<TFmtStruct>(TFmtStruct[]? value, OrderedCollectionPredicate<TFmtStruct> filter
@@ -66,20 +66,21 @@ public partial class FLogStringAppender
         (IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
         AppendFilteredValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
-    public void FinalAppendValueCollection<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public void FinalAppendValueCollection<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(MessageStsa, value, filter, customTypeStyler).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollection<TStruct>(
-        (TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct =>
+    public void FinalAppendValueCollection<TToStyle, TToStyleBase, TStylerType>(
+        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollection<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public void FinalAppendValueCollection<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(MessageStsa, value, filter, customTypeStyler).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollection<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct =>
+    public void FinalAppendValueCollection<TToStyle, TToStyleBase, TStylerType>(
+        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) 
+        where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
     
     public void FinalAppendValueCollectionEnumerate<TFmtStruct>(IEnumerable<TFmtStruct>? value
@@ -98,20 +99,20 @@ public partial class FLogStringAppender
         where TFmtStruct : struct, ISpanFormattable =>
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollectionEnumerate<TStruct>(IEnumerable<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public void FinalAppendValueCollectionEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(MessageStsa, value, customTypeStyler).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollectionEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public void FinalAppendValueCollectionEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollectionEnumerate<TStruct>(IEnumerator<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public void FinalAppendValueCollectionEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(MessageStsa, value, customTypeStyler).ToAppender(this).CallOnComplete();
     
-    public void FinalAppendValueCollectionEnumerate<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public void FinalAppendValueCollectionEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
     
     public void FinalAppendObjectCollection<T>(T[]? value, string? formatString = null) where T : class =>

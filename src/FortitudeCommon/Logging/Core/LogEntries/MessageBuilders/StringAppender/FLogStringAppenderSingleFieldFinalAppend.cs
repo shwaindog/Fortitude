@@ -16,23 +16,13 @@ public partial class FLogStringAppender
     public void FinalAppend<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable => 
         MessageSb.Append(value).ToAppender(this).CallOnComplete();
 
-    public void FinalAppend<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public void FinalAppend<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         MessageSb.Append(value).ToAppender(this).CallOnComplete();
 
-    public void FinalAppend<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public void FinalAppend<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType
     {
-        AppendStruct(valueTuple, MessageStsa);
-        CallOnComplete();
-    }
-
-    public void FinalAppend<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
-        MessageSb.Append(value).ToAppender(this).CallOnComplete();
-
-    public void FinalAppend<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
-    {
-        AppendStruct(valueTuple, MessageStsa);
+        AppendStyled(valueTuple, MessageStsa);
         CallOnComplete();
     }
 
