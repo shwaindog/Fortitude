@@ -122,8 +122,8 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
     {
         return
             sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
-               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
-               .Field.AlwaysAdd(nameof(MatchOn), MatchOn, LogEntryFieldExtensions.FormatMatchOnLogEntryFieldFormatter)
+               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
+               .Field.AlwaysAdd(nameof(MatchOn), MatchOn)
                .Field.AlwaysAdd(nameof(EntryContains), EntryContains)
                .Field.WhenNonDefaultAdd(nameof(IsRegEx), IsRegEx)
                .Complete();

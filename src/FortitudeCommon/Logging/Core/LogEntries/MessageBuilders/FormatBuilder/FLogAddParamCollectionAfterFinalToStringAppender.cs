@@ -171,89 +171,6 @@ public partial class FLogAdditionalFormatterParameterEntry
         return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
     }
 
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>(T[]? value, string? formatString = null) where T : class 
-    {
-        ReplaceTokenWithObjectCollection(value, formatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>((T[]?, string?) valueTuple) where T : class 
-    {
-        FormatSb.Clear();
-        AppendObjectCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>(IReadOnlyList<T>? value, string? formatString = null)
-        where T : class 
-    {
-        ReplaceTokenWithObjectCollection(value, formatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>((IReadOnlyList<T>?, string?) valueTuple) where T : class 
-    {
-        FormatSb.Clear();
-        AppendObjectCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>(T[]? value, OrderedCollectionPredicate<T> filter
-      , string? formatString = null) where T : class 
-    {
-        ReplaceTokenWithObjectCollection(value, filter, formatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>((T[]?, OrderedCollectionPredicate<T>, string?) valueTuple) 
-        where T : class 
-    {
-        FormatSb.Clear();
-        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>((T[]?, OrderedCollectionPredicate<T>) valueTuple) 
-        where T : class 
-    {
-        FormatSb.Clear();
-        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>(IReadOnlyList<T>? value, OrderedCollectionPredicate<T> filter
-      , string? formatString = null) where T : class 
-    {
-        ReplaceTokenWithObjectCollection(value, filter, formatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>((IReadOnlyList<T>?, OrderedCollectionPredicate<T>, string?) valueTuple) 
-        where T : class 
-    {
-        FormatSb.Clear();
-        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>((IReadOnlyList<T>?, OrderedCollectionPredicate<T>) valueTuple) 
-        where T : class 
-    {
-        FormatSb.Clear();
-        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
     [MustUseReturnValue("Use AndFinalValueCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterFinalValueCollectionParamEnumerateToStringAppender<TFmtStruct>(IEnumerable<TFmtStruct>? value
       , string? formatString = null) where TFmtStruct : struct, ISpanFormattable 
@@ -322,6 +239,89 @@ public partial class FLogAdditionalFormatterParameterEntry
         return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
     }
 
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>(T[]? value, string? formatString = null) where T : class 
+    {
+        ReplaceTokenWithObjectCollection(value, formatString);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>((T[]?, string?) valueTuple) where T : class 
+    {
+        FormatSb.Clear();
+        AppendObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>(IReadOnlyList<T>? value, string? formatString = null)
+        where T : class 
+    {
+        ReplaceTokenWithObjectCollection(value, formatString);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T>((IReadOnlyList<T>?, string?) valueTuple) where T : class 
+    {
+        FormatSb.Clear();
+        AppendObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>(T[]? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null) where T : class, TBase where TBase : class 
+    {
+        ReplaceTokenWithObjectCollection(value, filter, formatString);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+        where T : class, TBase where TBase : class 
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>) valueTuple) 
+        where T : class, TBase where TBase : class 
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>(IReadOnlyList<T>? value
+      , OrderedCollectionPredicate<TBase> filter, string? formatString = null) where T : class, TBase where TBase : class 
+    {
+        ReplaceTokenWithObjectCollection(value, filter, formatString);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+        where T : class, TBase where TBase : class 
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>) valueTuple) 
+        where T : class, TBase where TBase : class 
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
     [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterFinalObjectCollectionParamEnumerateToStringAppender<T>(IEnumerable<T>? value, string? formatString = null)
         where T : class 
@@ -354,6 +354,110 @@ public partial class FLogAdditionalFormatterParameterEntry
         return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
     }
 
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>(T[]? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class 
+    {
+        ReplaceTokenWithObjectCollection(value, customTypeStyler);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>((T[]?, CustomTypeStyler<TBase>) valueTuple) 
+        where T : class, TBase where TBase : class 
+    {
+        FormatSb.Clear();
+        AppendObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>(IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase : class 
+    {
+        ReplaceTokenWithObjectCollection(value, customTypeStyler);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase>((IReadOnlyList<T>?, CustomTypeStyler<TBase>) valueTuple) 
+        where T : class, TBase where TBase : class 
+    {
+        FormatSb.Clear();
+        AppendObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase1, TBase2>(T[]? value, OrderedCollectionPredicate<TBase1> filter
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class 
+    {
+        ReplaceTokenWithObjectCollection(value, filter, customTypeStyler);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase1, TBase2>((T[]?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class 
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase1, TBase2>(IReadOnlyList<T>? value
+      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class 
+    {
+        ReplaceTokenWithObjectCollection(value, filter, customTypeStyler);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamToStringAppender<T, TBase1, TBase2>
+        ((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class 
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamEnumerateToStringAppender<T, TBase>(IEnumerable<T>? value, 
+        CustomTypeStyler<TBase> customTypeStyler) where T : class, TBase where TBase : class 
+    {
+        ReplaceTokenWithObjectCollectionEnumerate(value, customTypeStyler);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamEnumerateToStringAppender<T, TBase>
+        ((IEnumerable<T>?, CustomTypeStyler<TBase>) valueTuple) where T : class, TBase where TBase : class 
+    {
+        FormatSb.Clear();
+        AppendObjectCollectionEnumerate(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamEnumerateToStringAppender<T, TBase>(IEnumerator<T>? value
+      , CustomTypeStyler<TBase> customTypeStyler) where T : class, TBase where TBase : class 
+    {
+        ReplaceTokenWithObjectCollectionEnumerate(value, customTypeStyler);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalObjectCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalObjectCollectionParamEnumerateToStringAppender<T, TBase>
+        ((IEnumerator<T>?, CustomTypeStyler<TBase>) valueTuple) where T : class, TBase where TBase : class 
+    {
+        FormatSb.Clear();
+        AppendObjectCollectionEnumerate(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+    
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , string? valueFormatString = null, string? keyFormatString = null) 
@@ -485,204 +589,16 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , string? valueFormatString = null, string? keyFormatString = null) 
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, string?, string?) valueTuple) 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, string?) valueTuple) 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>) valueTuple) 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, string? valueFormatString = null, string? keyFormatString = null) 
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, string?, string?) valueTuple) 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, string?) valueTuple) 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>) valueTuple) 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , string? valueFormatString = null, string? keyFormatString = null) 
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, string?, string?) valueTuple) 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, string?) valueTuple) 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>) valueTuple) 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?,KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?,KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-    (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>, string?) valueTuple)  where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -690,8 +606,8 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>) valueTuple)  where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -699,17 +615,16 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TVBase>(KeyValuePair<TKey, TValue>[]? value
+      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>, string?) valueTuple)  where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -717,8 +632,8 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>) valueTuple)  where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -726,17 +641,16 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple)  where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -744,8 +658,8 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple)  where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -753,50 +667,52 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
     
     [MustUseReturnValue("Use AndFinalKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString) where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TVBase>(
+        IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TVBase> valueStyler, string? keyFormatString) 
+        where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) 
-        where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TVBase>(
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple) 
+        where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
     }
 
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TVBase>(
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) 
+        where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
     }
 
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler, string? keyFormatString)
-        where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TVBase>(
+        IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TVBase> valueStyler, string? keyFormatString)
+        where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) 
-        where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TVBase>(
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple) 
+        where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
     }
 
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) 
-        where TKey : struct where TValue : struct  
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TVBase>(
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) 
+        where TValue : TVBase  
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -804,17 +720,18 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)  
+        where TKey : TKBase where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -822,17 +739,16 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)  where TKey : TKBase where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -840,17 +756,18 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)  
+        where TKey : TKBase where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -858,17 +775,18 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TKBase, TVBase>(
+        IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalKeyCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple) 
+        where TKey : TKBase where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -876,17 +794,18 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TKBase, TVBase>(
+        IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase 
     {
         ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalKeyCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamEnumerateToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)  
+        where TKey : TKBase where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -894,17 +813,18 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKBase, TVBase> filterPredicate
+      , string? valueFormatString = null, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple) 
+        where TKey : TKBase where TValue : TVBase 
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -912,17 +832,8 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -930,21 +841,230 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
-        return this.ToStringAppender(value, this);
-    }
-
-    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
         return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
     }
 
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null
+      , string? keyFormatString = null) where TKey : TKBase where TValue : TVBase
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple) where TKey : TKBase where TValue : TVBase 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>) valueTuple) where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase, TVBase> filterPredicate
+      , string? valueFormatString = null, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple)
+        where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) where TKey : TKBase where TValue : TVBase 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase>) valueTuple)  where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (IReadOnlyDictionary<TKey, TValue>?,KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
+        where TKey : TKBase where TValue : TVBase1, TVBase2 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (IReadOnlyDictionary<TKey, TValue>?,KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)  
+        where TKey : TKBase where TValue : TVBase1, TVBase2 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)  
+        where TKey : TKBase where TValue : TVBase1, TVBase2 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)  
+        where TKey : TKBase where TValue : TVBase1, TVBase2 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler
+      , string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase1, TVBase2>(
+    (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)  
+        where TKey : TKBase where TValue : TVBase1, TVBase2 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)  
+        where TKey : TKBase where TValue : TVBase1, TVBase2 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
+        IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)  
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
+        KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)  
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
+        IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
+        return this.ToStringAppender(value, this);
+    }
+
+    [MustUseReturnValue("Use AndFinalKeyedCollectionParam if you do not plan on using the returned StringAppender")]
+    public IFLogStringAppender AfterFinalKeyedCollectionParamToStringAppender<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>
+          , CustomTypeStyler<TKBase2>) valueTuple) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        return ReplaceTokenNumber().ToStringAppender(valueTuple, this);
+    }
 }

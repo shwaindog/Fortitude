@@ -186,15 +186,52 @@ public partial class FormatParameterEntry<TFormatEntry>
         tempStsa.DecrementRefCount();
     }
 
-    protected IFLogAdditionalFormatterParameterEntry? AddFilteredObjectCollectionParams<T>
-        (T[]? value, OrderedCollectionPredicate<T> filter, string? formatString = null) where T : class
+    protected IFLogAdditionalFormatterParameterEntry? AddObjectCollectionParams<T, TBase>(T[]? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class 
+    {
+        ReplaceTokenWithObjectCollection(value, customTypeStyler);
+        var toReturn = ToAdditionalFormatBuilder(value);
+        return toReturn;
+    }
+
+    protected void ReplaceTokenWithObjectCollection<T, TBase>(T[]? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase : class
+    {
+        var tempStsa = TempStyledTypeAppender;
+        tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
+        tempStsa = AppendObjectCollection(tempStsa, value, customTypeStyler);
+        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa.DecrementRefCount();
+    }
+
+    protected IFLogAdditionalFormatterParameterEntry? AddObjectCollectionParams<T, TBase>
+        (IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler) where T : class, TBase where TBase : class 
+    {
+        ReplaceTokenWithObjectCollection(value, customTypeStyler);
+        var toReturn = ToAdditionalFormatBuilder(value);
+        return toReturn;
+    }
+
+    protected void ReplaceTokenWithObjectCollection<T, TBase>(IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class
+    {
+        var tempStsa = TempStyledTypeAppender;
+        tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
+        tempStsa = AppendObjectCollection(tempStsa, value, customTypeStyler);
+        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa.DecrementRefCount();
+    }
+
+    protected IFLogAdditionalFormatterParameterEntry? AddFilteredObjectCollectionParams<T, TBase>
+        (T[]? value, OrderedCollectionPredicate<TBase> filter, string? formatString = null) where T : class, TBase where TBase : class
     {
         ReplaceTokenWithObjectCollection(value, filter, formatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
-    protected void ReplaceTokenWithObjectCollection<T>(T[]? value, OrderedCollectionPredicate<T> filter, string? formatString) where T : class
+    protected void ReplaceTokenWithObjectCollection<T, TBase>(T[]? value, OrderedCollectionPredicate<T> filter, string? formatString) 
+        where T : class, TBase where TBase : class
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
@@ -203,19 +240,59 @@ public partial class FormatParameterEntry<TFormatEntry>
         tempStsa.DecrementRefCount();
     }
     
-    protected IFLogAdditionalFormatterParameterEntry? AddFilteredObjectCollectionParams<T>(IReadOnlyList<T>? value, OrderedCollectionPredicate<T> filter
-      , string? formatString = null) where T : class 
+    protected IFLogAdditionalFormatterParameterEntry? AddFilteredObjectCollectionParams<T, TBase>(IReadOnlyList<T>? value
+      , OrderedCollectionPredicate<TBase> filter, string? formatString = null) where T : class, TBase where TBase : class 
     {
         ReplaceTokenWithObjectCollection(value, filter, formatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
-    protected void ReplaceTokenWithObjectCollection<T>(IReadOnlyList<T>? value, OrderedCollectionPredicate<T> filter, string? formatString) where T : class
+    protected void ReplaceTokenWithObjectCollection<T, TBase>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString) where T : class, TBase where TBase : class
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
         tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, formatString);
+        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa.DecrementRefCount();
+    }
+
+    protected IFLogAdditionalFormatterParameterEntry? AddFilteredObjectCollectionParams<T, TBase1, TBase2>
+        (T[]? value, OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler)
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
+    {
+        ReplaceTokenWithObjectCollection(value, filter, customTypeStyler);
+        var toReturn = ToAdditionalFormatBuilder(value);
+        return toReturn;
+    }
+
+    protected void ReplaceTokenWithObjectCollection<T, TBase1, TBase2>(T[]? value, OrderedCollectionPredicate<TBase1> filter
+      , CustomTypeStyler<TBase2> customTypeStyler) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
+    {
+        var tempStsa = TempStyledTypeAppender;
+        tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
+        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, customTypeStyler);
+        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa.DecrementRefCount();
+    }
+    
+    protected IFLogAdditionalFormatterParameterEntry? AddFilteredObjectCollectionParams<T, TBase1, TBase2>(IReadOnlyList<T>? value
+      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class 
+    {
+        ReplaceTokenWithObjectCollection(value, filter, customTypeStyler);
+        var toReturn = ToAdditionalFormatBuilder(value);
+        return toReturn;
+    }
+
+    protected void ReplaceTokenWithObjectCollection<T, TBase1, TBase2>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase1> filter
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
+    {
+        var tempStsa = TempStyledTypeAppender;
+        tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
+        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, customTypeStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
@@ -322,6 +399,43 @@ public partial class FormatParameterEntry<TFormatEntry>
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
         tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, formatString);
+        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa.DecrementRefCount();
+    }
+    
+    protected IFLogAdditionalFormatterParameterEntry? AddObjectCollectionParamsEnumerate<T, TBase>
+        (IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler) where T : class, TBase where TBase : class 
+    {
+        ReplaceTokenWithObjectCollectionEnumerate(value, customTypeStyler);
+        var toReturn = ToAdditionalFormatBuilder(value);
+        return toReturn;
+    }
+
+    protected void ReplaceTokenWithObjectCollectionEnumerate<T, TBase>(IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class
+    {
+        var tempStsa = TempStyledTypeAppender;
+        tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
+        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, customTypeStyler);
+        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa.DecrementRefCount();
+    }
+    
+    protected IFLogAdditionalFormatterParameterEntry? AddObjectCollectionParamsEnumerate<T, TBase>
+        (IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class
+    {
+        ReplaceTokenWithObjectCollectionEnumerate(value, customTypeStyler);
+        var toReturn = ToAdditionalFormatBuilder(value);
+        return toReturn;
+    }
+
+    protected void ReplaceTokenWithObjectCollectionEnumerate<T, TBase>(IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class
+    {
+        var tempStsa = TempStyledTypeAppender;
+        tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
+        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, customTypeStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }

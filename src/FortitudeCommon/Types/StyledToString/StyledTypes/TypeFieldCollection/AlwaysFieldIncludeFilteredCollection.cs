@@ -95,9 +95,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TStruct>
-    (string fieldName, TStruct[]? value, OrderedCollectionPredicate<TStruct> filterPredicate
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public TExt AlwaysAddFiltered<TToStyle, TStylerType>
+    (string fieldName, TToStyle[]? value, OrderedCollectionPredicate<TStylerType> filterPredicate
+      , CustomTypeStyler<TToStyle> customTypeStyler) where TToStyle : TStylerType
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -239,9 +239,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, T?[]? value, OrderedCollectionPredicate<TBase1?> filterPredicate
-      , CustomTypeStyler<TBase2?> customTypeStyler)
-        where T : class, TBase1, TBase2 where TBase1: class where TBase2: class 
+    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, T?[]? value, OrderedCollectionPredicate<TBase1> filterPredicate
+      , CustomTypeStyler<TBase2> customTypeStyler)
+        where T : TBase1, TBase2 
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -271,8 +271,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     [CallsObjectToString]
     public TExt AlwaysAddFilteredMatch<T, TBase>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class, TBase
-        where TBase : class
+        where T : TBase
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -530,9 +529,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase1?> filterPredicate
-      , CustomTypeStyler<TBase2?> customTypeStyler)
-        where T : class, TBase1, TBase2 where TBase1: class where TBase2: class 
+    public TExt AlwaysAddFiltered<T, TBase1, TBase2>(string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase1> filterPredicate
+      , CustomTypeStyler<TBase2> customTypeStyler)
+        where T : TBase1, TBase2 
     {
         var found = false;
         stb.FieldNameJoin(fieldName);

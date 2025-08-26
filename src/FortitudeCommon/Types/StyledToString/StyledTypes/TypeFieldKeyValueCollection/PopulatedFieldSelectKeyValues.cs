@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueCollection;
@@ -150,7 +149,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKDerived>
-        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
+        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey 
@@ -188,11 +187,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived>
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
-      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey where TValue : struct 
+        where TKDerived : TKey where TValue : TVBase 
     {
         var foundValues = false;
         if (value != null)
@@ -221,11 +220,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived>
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived, TVBase>
         (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
-          , CustomTypeStyler<TValue> valueStyler
+          , CustomTypeStyler<TVBase> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey where TValue : struct 
+        where TKDerived : TKey where TValue : TVBase 
     {
         var foundValues = false;
         if (value != null)
@@ -254,11 +253,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived>
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
-      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)  
-        where TKDerived : TKey where TValue : struct 
+        where TKDerived : TKey where TValue : TVBase 
     {
         var foundValues = false;
         if (value != null)
@@ -287,10 +286,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKDerived>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, CustomTypeStyler<TValue> valueStyler
+    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)   
-        where TKDerived : TKey where TValue : struct 
+        where TKDerived : TKey where TValue : TVBase 
     {
         var foundValues = false;
         if (value != null)
@@ -319,10 +318,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKDerived>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKDerived> selectKeys, CustomTypeStyler<TValue> valueStyler 
+    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
+      , IEnumerator<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)    
-        where TKDerived : TKey where TValue : struct 
+        where TKDerived : TKey where TValue : TVBase 
     {
         var foundValues = false;
         var hasValue = selectKeys.MoveNext();
@@ -355,9 +354,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue>
-        (string fieldName, IDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)where TKey : struct where TValue : struct 
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
+        (string fieldName, IDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
         var foundValues = false;
         if (value != null)
@@ -385,9 +385,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
         var foundValues = false;
         if (value != null)
@@ -415,8 +416,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
+      , ReadOnlySpan<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
         var foundValues = false;
         if (value != null)
@@ -444,9 +446,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
         var foundValues = false;
         if (value != null)
@@ -473,9 +476,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue>
-        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
+        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
         var foundValues = false;
         if (value != null)
@@ -502,9 +506,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
         var foundValues = false;
         var hasValue = selectKeys.MoveNext();

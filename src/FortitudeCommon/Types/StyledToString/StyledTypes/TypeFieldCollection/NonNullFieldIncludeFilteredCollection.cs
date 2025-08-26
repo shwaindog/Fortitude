@@ -19,9 +19,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TStruct>
-        (string fieldName, TStruct[]? value, OrderedCollectionPredicate<TStruct> filterPredicate
-          , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public TExt WhenNonNullAddFiltered<TToStyle, TStylerType, TToStyleBase>
+        (string fieldName, TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
+          , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType, TToStyleBase =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
@@ -48,10 +48,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     
     [CallsObjectToString]
-    public TExt WhenNonNullAddFilteredMatch<T>
-    (string fieldName, T[]? value, OrderedCollectionPredicate<T> filterPredicate
+    public TExt WhenNonNullAddFilteredMatch<T, TBase>
+    (string fieldName, T[]? value, OrderedCollectionPredicate<TBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class =>
+        where T : TBase =>
         value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate) => 
@@ -65,9 +65,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TStruct>
-        (string fieldName, IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filterPredicate
-          , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public TExt WhenNonNullAddFiltered<TToStyle, TStylerType, TToStyleBase>
+        (string fieldName, IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
+          , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType, TToStyleBase =>
         value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
@@ -93,7 +93,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenNonNullAddFilteredMatch<T>
     (string fieldName, IReadOnlyList<T>? value, OrderedCollectionPredicate<T> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where T : class => 
-        value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
+        where T : class => value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
 }

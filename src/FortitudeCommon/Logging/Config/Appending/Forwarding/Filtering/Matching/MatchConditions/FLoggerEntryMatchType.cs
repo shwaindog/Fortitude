@@ -23,31 +23,6 @@ public enum FLoggerEntryMatchType
 
 public static class FLoggerEntryMatchTypeExtensions
 {
-    public static CustomTypeStyler<FLoggerEntryMatchType> FLoggerEntryMatchTypeFormatter
-        = FormatEntryMatchTypeAppender;
-
-    public static StyledTypeBuildResult FormatEntryMatchTypeAppender(this FLoggerEntryMatchType entryMatchType, IStyledTypeStringAppender sbc)
-    {
-        var tb = sbc.StartSimpleValueType(nameof(FLoggerEntryMatchType));
-        using (var sb = tb.StartDelimitedStringBuilder())
-        {
-            switch (entryMatchType)
-            {
-                case Unknown: sb.Append($"{nameof(Unknown)}"); break;
-
-                case EntryContainsString:      sb.Append($"{nameof(EntryContainsString)}"); break;
-                case MessageSequenceCompletes: sb.Append($"{nameof(MessageSequenceCompletes)}"); break;
-                case SequenceKeysComparison:   sb.Append($"{nameof(SequenceKeysComparison)}"); break;
-
-                case MessageSequenceExpiresIncomplete: sb.Append($"{nameof(MessageSequenceExpiresIncomplete)}"); break;
-
-                default: sb.Append($"{nameof(Unknown)}"); break;
-            }
-        }
-
-        return tb.Complete();
-    }
-
     public static string? GetCheckConditionType(this IConfigurationRoot configRoot, string configPath) =>
         configRoot.GetSection($"{configPath}{ConfigurationPath.KeyDelimiter}{nameof(IMatchConditionConfig.CheckConditionType)}").Value;
 

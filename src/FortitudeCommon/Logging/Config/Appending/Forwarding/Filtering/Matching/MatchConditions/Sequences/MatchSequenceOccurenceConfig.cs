@@ -208,7 +208,7 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
     {
         return
             sbc.StartComplexType(nameof(MatchSequenceOccurenceConfig))
-               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
+               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
                .Field.AlwaysAdd(nameof(OnSequenceAbort), OnSequenceAbort)
                .Field.AlwaysAdd(nameof(OnSequenceTimeout), OnSequenceTimeout)
                .Field.AlwaysAdd(nameof(StartSequence), StartSequence)

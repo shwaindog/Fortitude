@@ -16,28 +16,3 @@ public enum TriggeringLogEntries
   , First
   , Last
 }
-
-
-public static class TriggeringLogEntriesExtensions
-{
-    public static CustomTypeStyler<TriggeringLogEntries> TriggeringLogEntriesFormatter
-        = FormatTriggeringLogEntriesAppender;
-
-    public static StyledTypeBuildResult FormatTriggeringLogEntriesAppender(this TriggeringLogEntries triggeringLogEntries, IStyledTypeStringAppender sbc)
-    {
-        var tb = sbc.StartSimpleValueType(nameof(TriggeringLogEntries));
-        using (var sb = tb.StartDelimitedStringBuilder())
-        {
-            switch (triggeringLogEntries)
-            {
-                case None:  sb.Append($"{nameof(None)}"); break;
-                case All:   sb.Append($"{nameof(All)}"); break;
-                case First: sb.Append($"{nameof(First)}"); break;
-                case Last:  sb.Append($"{nameof(Last)}"); break;
-
-                default: sb.Append($"{nameof(All)}"); break;
-            }
-        }
-        return tb.Complete();
-    }
-}

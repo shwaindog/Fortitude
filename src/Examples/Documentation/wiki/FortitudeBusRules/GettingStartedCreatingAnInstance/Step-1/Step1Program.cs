@@ -7,10 +7,8 @@ using FortitudeBusRules;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Rules;
-using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Logging.Core;
-using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LoggerViews;
 
 #endregion

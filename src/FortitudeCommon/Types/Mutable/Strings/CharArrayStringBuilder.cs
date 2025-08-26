@@ -718,7 +718,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
             ca.Count += formatter(arg0, ca.RemainingAsSpan(), format, null);
             return this;
         }
-        if (arg0 is Enum enumType)
+        if (arg0 is Enum)
         {
             var enumFormatProvider = EnumFormatterRegistry.GetOrCreateStructEnumFormatProvider<TStruct>();
             CustomSpanFormattableProviders.TryAdd(typeof(TStruct), enumFormatProvider);

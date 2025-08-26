@@ -195,109 +195,6 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender AppendObjectCollection<T>
-        (IStyledTypeStringAppender toAppendTo, T[]? value, string? formatString = null) 
-        where T : class 
-    {
-        toAppendTo.StartSimpleCollectionType("")
-                  .AddAllMatch(value, formatString).Complete();
-        return toAppendTo;
-    }
-    
-    protected static IStyledTypeStringAppender AppendObjectCollection<T>
-        (T[]? value, IStyledTypeStringAppender appender) 
-        where T : class 
-    {
-        appender.StartSimpleCollectionType("")
-                .AddAllMatch(value).Complete();
-        return appender;
-    }
-    
-    protected static IStyledTypeStringAppender AppendObjectCollection<T>
-        ((T[]?, string?) valueTuple, IStyledTypeStringAppender appender) 
-        where T : class 
-    {
-        var (value, formatString) = valueTuple;
-        appender.StartSimpleCollectionType("")
-                .AddAllMatch(value, formatString).Complete();
-        return appender;
-    }
-    
-    protected IStyledTypeStringAppender AppendObjectCollection<T>
-        (IStyledTypeStringAppender toAppendTo, IReadOnlyList<T>? value, string? formatString = null) where T : class
-    {
-        toAppendTo.StartSimpleCollectionType("")
-                  .AddAllMatch(value, formatString).Complete();
-        return toAppendTo;
-    }
-    
-    protected static IStyledTypeStringAppender AppendObjectCollection<T>
-        ((IReadOnlyList<T>?, string?) valueTuple, IStyledTypeStringAppender appender) 
-        where T : class 
-    {
-        var (value, formatString) = valueTuple;
-        appender.StartSimpleCollectionType("")
-                .AddAllMatch(value, formatString).Complete();
-        return appender;
-    }
-    
-    protected IStyledTypeStringAppender AppendFilteredObjectCollection<T>
-        (IStyledTypeStringAppender toAppendTo, T[]? value, OrderedCollectionPredicate<T> filter, string? formatString = null) where T : class
-    {
-        toAppendTo.StartSimpleCollectionType("")
-                  .AddFilteredMatch(value, filter, formatString).Complete();
-        return toAppendTo;
-    }
-    
-    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T>
-        ((T[]?, OrderedCollectionPredicate<T>, string?) valueTuple, IStyledTypeStringAppender appender) 
-        where T : class 
-    {
-        var (value, filter, formatString) = valueTuple;
-        appender.StartSimpleCollectionType("")
-                .AddFilteredMatch(value, filter, formatString).Complete();
-        return appender;
-    }
-    
-    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T>
-        ((T[]?, OrderedCollectionPredicate<T>) valueTuple, IStyledTypeStringAppender appender) 
-        where T : class 
-    {
-        var (value, filter) = valueTuple;
-        appender.StartSimpleCollectionType("")
-                .AddFilteredMatch(value, filter).Complete();
-        return appender;
-    }
-    
-    protected IStyledTypeStringAppender AppendFilteredObjectCollection<T>
-    (IStyledTypeStringAppender toAppendTo, IReadOnlyList<T>? value, OrderedCollectionPredicate<T> filter
-      , string? formatString = null) where T : class 
-    {
-        toAppendTo.StartSimpleCollectionType("")
-                  .AddFilteredMatch(value, filter, formatString).Complete();
-        return toAppendTo;
-    }
-    
-    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T>
-        ((IReadOnlyList<T>?, OrderedCollectionPredicate<T>, string?) valueTuple, IStyledTypeStringAppender appender) 
-        where T : class 
-    {
-        var (value, filter, formatString) = valueTuple;
-        appender.StartSimpleCollectionType("")
-                .AddFilteredMatch(value, filter, formatString).Complete();
-        return appender;
-    }
-    
-    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T>
-        ((IReadOnlyList<T>?, OrderedCollectionPredicate<T>) valueTuple, IStyledTypeStringAppender appender) 
-        where T : class 
-    {
-        var (value, filter) = valueTuple;
-        appender.StartSimpleCollectionType("")
-                .AddFilteredMatch(value, filter).Complete();
-        return appender;
-    }
-    
     protected IStyledTypeStringAppender AppendValueCollectionEnumerate<TFmtStruct>
         (IStyledTypeStringAppender toAppendTo, IEnumerable<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable 
     {
@@ -388,6 +285,110 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
+    protected IStyledTypeStringAppender AppendObjectCollection<T>
+        (IStyledTypeStringAppender toAppendTo, T[]? value, string? formatString = null) 
+        where T : class 
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddAllMatch(value, formatString).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendObjectCollection<T>
+        (T[]? value, IStyledTypeStringAppender appender) 
+        where T : class 
+    {
+        appender.StartSimpleCollectionType("")
+                .AddAllMatch(value).Complete();
+        return appender;
+    }
+    
+    protected static IStyledTypeStringAppender AppendObjectCollection<T>
+        ((T[]?, string?) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class 
+    {
+        var (value, formatString) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddAllMatch(value, formatString).Complete();
+        return appender;
+    }
+    
+    protected IStyledTypeStringAppender AppendObjectCollection<T>
+        (IStyledTypeStringAppender toAppendTo, IReadOnlyList<T>? value, string? formatString = null) where T : class
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddAllMatch(value, formatString).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendObjectCollection<T>
+        ((IReadOnlyList<T>?, string?) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class 
+    {
+        var (value, formatString) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddAllMatch(value, formatString).Complete();
+        return appender;
+    }
+    
+    protected IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase>
+        (IStyledTypeStringAppender toAppendTo, T[]? value, OrderedCollectionPredicate<TBase> filter, string? formatString = null)
+        where T : class, TBase where TBase : class
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddFilteredMatch(value, filter, formatString).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase>
+        ((T[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase where TBase : class 
+    {
+        var (value, filter, formatString) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddFilteredMatch(value, filter, formatString).Complete();
+        return appender;
+    }
+    
+    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase>
+        ((T[]?, OrderedCollectionPredicate<TBase>) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase where TBase : class 
+    {
+        var (value, filter) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddFilteredMatch(value, filter).Complete();
+        return appender;
+    }
+    
+    protected IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase>
+    (IStyledTypeStringAppender toAppendTo, IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null) where T : class, TBase  where TBase : class 
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddFilteredMatch(value, filter, formatString).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase>
+        ((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>, string?) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase where TBase : class 
+    {
+        var (value, filter, formatString) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddFilteredMatch(value, filter, formatString).Complete();
+        return appender;
+    }
+    
+    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase>
+        ((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase where TBase : class 
+    {
+        var (value, filter) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddFilteredMatch(value, filter).Complete();
+        return appender;
+    }
+    
     protected IStyledTypeStringAppender AppendObjectCollectionEnumerate<T>
         (IStyledTypeStringAppender toAppendTo, IEnumerable<T>? value, string? formatString = null) where T : class 
     {
@@ -440,6 +441,120 @@ public abstract partial class FLogEntryMessageBuilder
         var (value, formatString) = valueTuple;
         appender.StartSimpleCollectionType("")
                 .AddAllMatchEnumerate(value, formatString).Complete();
+        return appender;
+    }
+    
+    protected IStyledTypeStringAppender AppendObjectCollection<T, TBase>
+        (IStyledTypeStringAppender toAppendTo, T?[]? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddAll(value, customTypeStyler).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendObjectCollection<T, TBase>
+        ((T[]?, CustomTypeStyler<TBase>) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase where TBase : class 
+    {
+        var (value, customTypeStyler) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddAll(value, customTypeStyler).Complete();
+        return appender;
+    }
+    
+    protected IStyledTypeStringAppender AppendObjectCollection<T, TBase>
+        (IStyledTypeStringAppender toAppendTo, IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class 
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddAll(value, customTypeStyler).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendObjectCollection<T, TBase>
+        ((IReadOnlyList<T>?, CustomTypeStyler<TBase>) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase where TBase : class 
+    {
+        var (value, customTypeStyler) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddAll(value, customTypeStyler).Complete();
+        return appender;
+    }
+    
+    protected IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase1, TBase2>
+        (IStyledTypeStringAppender toAppendTo, T[]? value, OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class 
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddFiltered(value, filter, customTypeStyler).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase1, TBase2>
+        ((T[]?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class  
+    {
+        var (value, filter, customTypeStyler) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddFiltered(value, filter, customTypeStyler).Complete();
+        return appender;
+    }
+    
+    protected IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase1, TBase2>
+    (IStyledTypeStringAppender toAppendTo, IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase1> filter
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : class, TBase1, TBase2  where TBase1 : class  where TBase2 : class 
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddFiltered(value, filter, customTypeStyler).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendFilteredObjectCollection<T, TBase1, TBase2>
+        ((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class 
+    {
+        var (value, filter, customTypeStyler) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddFiltered(value, filter, customTypeStyler).Complete();
+        return appender;
+    }
+    
+    protected IStyledTypeStringAppender AppendObjectCollectionEnumerate<T, TBase>
+        (IStyledTypeStringAppender toAppendTo, IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class 
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddAllEnumerate(value, customTypeStyler).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendObjectCollectionEnumerate<T, TBase>
+        ((IEnumerable<T>?, CustomTypeStyler<TBase>) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase where TBase : class  
+    {
+        var (value, customTypeStyler) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddAllEnumerate(value, customTypeStyler).Complete();
+        return appender;
+    }
+    
+    public IStyledTypeStringAppender AppendObjectCollectionEnumerate<T, TBase>
+        (IStyledTypeStringAppender toAppendTo, IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class 
+    {
+        toAppendTo.StartSimpleCollectionType("")
+                  .AddAllEnumerate(value, customTypeStyler).Complete();
+        return toAppendTo;
+    }
+    
+    protected static IStyledTypeStringAppender AppendObjectCollectionEnumerate<T, TBase>
+        ((IEnumerator<T>?, CustomTypeStyler<TBase>) valueTuple, IStyledTypeStringAppender appender) 
+        where T : class, TBase where TBase : class 
+    {
+        var (value, customTypeStyler) = valueTuple;
+        appender.StartSimpleCollectionType("")
+                .AddAllEnumerate(value, customTypeStyler).Complete();
         return appender;
     }
     

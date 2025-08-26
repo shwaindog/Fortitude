@@ -1021,7 +1021,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    public TExt AddAll<T, TBase>(T?[]? value, CustomTypeStyler<TBase?> customTypeStyler)
+    public TExt AddAll<T, TBase>(T?[]? value, CustomTypeStyler<TBase> customTypeStyler)
         where T : class, TBase where TBase: class
     {
         stb.ConditionalCollectionPrefix();
@@ -1041,7 +1041,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<T, TBase>(ReadOnlySpan<T?> value, CustomTypeStyler<TBase?> customTypeStyler)
+    public TExt AddAll<T, TBase>(ReadOnlySpan<T?> value, CustomTypeStyler<TBase> customTypeStyler)
         where T : class, TBase where TBase: class
     {
         stb.ConditionalCollectionPrefix();
@@ -1061,7 +1061,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<T, TBase>(IReadOnlyList<T?>? value, CustomTypeStyler<TBase?> customTypeStyler)
+    public TExt AddAll<T, TBase>(IReadOnlyList<T?>? value, CustomTypeStyler<TBase> customTypeStyler)
         where T : class, TBase where TBase: class
     {
         stb.ConditionalCollectionPrefix();
@@ -1081,7 +1081,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate<T, TBase>(IEnumerable<T?>? value, CustomTypeStyler<TBase?> customTypeStyler)
+    public TExt AddAllEnumerate<T, TBase>(IEnumerable<T?>? value, CustomTypeStyler<TBase> customTypeStyler)
         where T : class, TBase where TBase: class 
     {
         stb.ConditionalCollectionPrefix();
@@ -1112,7 +1112,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendOrNull(item);
+                stb.AppendOrNull(item, customTypeStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }

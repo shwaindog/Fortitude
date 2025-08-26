@@ -136,75 +136,6 @@ public partial class FLogFirstFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyObjectCollectionParam<T>(T[]? value, string? formatString = null) where T : class
-    {
-        ReplaceTokenWithObjectCollection(value, formatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyObjectCollectionParam<T>((T[]?, string?) valueTuple) where T : class
-    {
-        FormatSb.Clear();
-        AppendObjectCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyObjectCollectionParam<T>(IReadOnlyList<T>? value, string? formatString = null) where T : class
-    {
-        ReplaceTokenWithObjectCollection(value, formatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyObjectCollectionParam<T>((IReadOnlyList<T>?, string?) valueTuple) where T : class
-    {
-        FormatSb.Clear();
-        AppendObjectCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyObjectCollectionParam<T>(T[]? value, OrderedCollectionPredicate<T> filter, string? formatString = null) where T : class
-    {
-        ReplaceTokenWithObjectCollection(value, formatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyObjectCollectionParam<T>((T[]?, OrderedCollectionPredicate<T>, string?) valueTuple) where T : class
-    {
-        FormatSb.Clear();
-        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyObjectCollectionParam<T>((T[]?, OrderedCollectionPredicate<T>) valueTuple) where T : class
-    {
-        FormatSb.Clear();
-        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyObjectCollectionParam<T>(IReadOnlyList<T>? value, OrderedCollectionPredicate<T> filter, string? formatString = null)
-        where T : class
-    {
-        ReplaceTokenWithObjectCollection(value, formatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyObjectCollectionParam<T>((IReadOnlyList<T>?, OrderedCollectionPredicate<T>, string?) valueTuple)
-        where T : class
-    {
-        FormatSb.Clear();
-        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyObjectCollectionParam<T>((IReadOnlyList<T>?, OrderedCollectionPredicate<T>) valueTuple)
-        where T : class
-    {
-        FormatSb.Clear();
-        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
     public void WithOnlyValueCollectionParamEnumerate<TFmtStruct>(IEnumerable<TFmtStruct>? value, string? formatString = null)
         where TFmtStruct : struct, ISpanFormattable
     {
@@ -263,7 +194,80 @@ public partial class FLogFirstFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyObjectCollectionParamEnumerate<T>(IEnumerable<T>? value, string? formatString = null) where T : class
+    public void WithOnlyObjectCollectionParam<T>(T[]? value, string? formatString = null) where T : class
+    {
+        ReplaceTokenWithObjectCollection(value, formatString);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParam<T>((T[]?, string?) valueTuple) where T : class
+    {
+        FormatSb.Clear();
+        AppendObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParam<T>(IReadOnlyList<T>? value, string? formatString = null) where T : class
+    {
+        ReplaceTokenWithObjectCollection(value, formatString);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParam<T>((IReadOnlyList<T>?, string?) valueTuple) where T : class
+    {
+        FormatSb.Clear();
+        AppendObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase>(T[]? value, OrderedCollectionPredicate<TBase> filter, string? formatString = null)
+        where T : class, TBase where TBase : class
+    {
+        ReplaceTokenWithObjectCollection(value, formatString);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+        where T : class, TBase where TBase : class
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>) valueTuple) 
+        where T : class, TBase where TBase : class
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase> filter, string? formatString = null)
+        where T : class, TBase where TBase : class
+    {
+        ReplaceTokenWithObjectCollection(value, formatString);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase>((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>, string?) valueTuple)
+        where T : class, TBase where TBase : class
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase>((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>) valueTuple)
+        where T : class, TBase where TBase : class
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParamEnumerate<T>(IEnumerable<T>? value, string? formatString = null) 
+        where T : class
     {
         ReplaceTokenWithObjectCollectionEnumerate(value, formatString);
         this.EnsureNoMoreTokensAndComplete(value);
@@ -285,6 +289,95 @@ public partial class FLogFirstFormatterParameterEntry
 
     public void WithOnlyObjectCollectionParamEnumerate<T>((IEnumerator<T>?, string?) valueTuple)
         where T : class
+    {
+        FormatSb.Clear();
+        AppendObjectCollectionEnumerate(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+    
+    public void WithOnlyObjectCollectionParam<T, TBase>(T[]? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class
+    {
+        ReplaceTokenWithObjectCollection(value, customTypeStyler);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase>((T[]?, CustomTypeStyler<TBase>) valueTuple) where T : class, TBase where TBase : class
+    {
+        FormatSb.Clear();
+        AppendObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase>(IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class
+    {
+        ReplaceTokenWithObjectCollection(value, customTypeStyler);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase>((IReadOnlyList<T>?, CustomTypeStyler<TBase>) valueTuple) 
+        where T : class, TBase where TBase : class
+    {
+        FormatSb.Clear();
+        AppendObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase1, TBase2>(T[]? value, OrderedCollectionPredicate<TBase1> filter
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
+    {
+        ReplaceTokenWithObjectCollection(value, customTypeStyler);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase1, TBase2>((T[]?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase1, TBase2>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase1> filter
+      , CustomTypeStyler<TBase2> customTypeStyler) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
+    {
+        ReplaceTokenWithObjectCollection(value, customTypeStyler);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParam<T, TBase1, TBase2>((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase1>
+      , CustomTypeStyler<TBase2>) valueTuple) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
+    {
+        FormatSb.Clear();
+        AppendFilteredObjectCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParamEnumerate<T, TBase>(IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class
+    {
+        ReplaceTokenWithObjectCollectionEnumerate(value, customTypeStyler);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParamEnumerate<T, TBase>((IEnumerable<T>?, CustomTypeStyler<TBase>) valueTuple)
+        where T : class, TBase where TBase : class
+    {
+        FormatSb.Clear();
+        AppendObjectCollectionEnumerate(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyObjectCollectionParamEnumerate<T, TBase>(IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class
+    {
+        ReplaceTokenWithObjectCollectionEnumerate(value, customTypeStyler);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyObjectCollectionParamEnumerate<T, TBase>((IEnumerator<T>?, CustomTypeStyler<TBase>) valueTuple)
+        where T : class, TBase where TBase : class
     {
         FormatSb.Clear();
         AppendObjectCollectionEnumerate(valueTuple, FormatStsa!);
@@ -396,407 +489,415 @@ public partial class FLogFirstFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , string? valueFormatString = null
-      , string? keyFormatString = null)
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, string?, string?) valueTuple)
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, string?) valueTuple)
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>) valueTuple)
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , string? valueFormatString = null
-      , string? keyFormatString = null)
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, string?, string?) valueTuple)
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, string?) valueTuple)
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>) valueTuple)
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, string? valueFormatString = null
-      , string? keyFormatString = null)
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, string?, string?) valueTuple)
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, string?) valueTuple)
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>) valueTuple)
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-    
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>
-      , CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-    
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>
-      , CustomTypeStyler<TValue>) valueTuple) where TValue : struct
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?
-      , KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
-        where TValue : struct
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
-        where TValue : struct
-    {
-        FormatSb.Clear();
-        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TVBase>(IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TVBase> valueStyler
+      , string? keyFormatString = null) where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>, string?) valueTuple)
+        where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple)
-        where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>) valueTuple)
+        where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TVBase>(KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TVBase> valueStyler
+      , string? keyFormatString = null) where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>, string?) valueTuple)
+        where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple)
-        where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>) valueTuple)
+        where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
+      , CustomTypeStyler<TVBase>, string?) valueTuple) where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple)
-        where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple)
+        where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
     
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
     
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?
-      , CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TVBase>((IEnumerable<KeyValuePair<TKey, TValue>>?
+      , CustomTypeStyler<TVBase>, string?) valueTuple) where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
     
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?
-      , CustomTypeStyler<TValue>) valueTuple) where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TVBase>((IEnumerable<KeyValuePair<TKey, TValue>>?
+      , CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
     
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
     
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?
-      , CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TVBase>((IEnumerator<KeyValuePair<TKey, TValue>>?
+      , CustomTypeStyler<TVBase>, string?) valueTuple) where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
     
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?
-      , CustomTypeStyler<TValue>) valueTuple) where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TVBase>((IEnumerator<KeyValuePair<TKey, TValue>>?
+      , CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>
+      , CustomTypeStyler<TKBase>) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TVBase> valueStyler
+      , CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>
+      , CustomTypeStyler<TKBase>) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
-      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
+      , CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?
-      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TKBase, TVBase>((IEnumerable<KeyValuePair<TKey, TValue>>?
+      , CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
     {
         ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?
-      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue, TKBase, TVBase>((IEnumerator<KeyValuePair<TKey, TValue>>?
+      , CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>
-      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((IReadOnlyDictionary<TKey, TValue>?
+      , KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>
-      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((IReadOnlyDictionary<TKey, TValue>?
+      , KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
-    {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
-        this.EnsureNoMoreTokensAndComplete(value);
-    }
-
-    public void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>
-      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((IReadOnlyDictionary<TKey, TValue>?
+      , KeyValuePredicate<TKBase, TVBase>) valueTuple) where TKey : TKBase where TValue : TVBase
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((KeyValuePair<TKey, TValue>[]?
+      , KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple) where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((KeyValuePair<TKey, TValue>[]?
+      , KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((KeyValuePair<TKey, TValue>[]?
+      , KeyValuePredicate<TKBase, TVBase>) valueTuple) where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueFormatString, keyFormatString);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
+      , KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple) where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
+      , KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
+      , KeyValuePredicate<TKBase, TVBase>) valueTuple) where TKey : TKBase where TValue : TVBase
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase1, TVBase2
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+    
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase1, TVBase2>((IReadOnlyDictionary<TKey, TValue>?
+      , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple) where TKey : TKBase where TValue : TVBase1, TVBase2
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+    
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase1, TVBase2>((IReadOnlyDictionary<TKey, TValue>?
+      , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple) where TKey : TKBase where TValue : TVBase1, TVBase2
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) 
+        where TKey : TKBase where TValue : TVBase1, TVBase2
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase1, TVBase2>((KeyValuePair<TKey, TValue>[]?
+      , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
+        where TKey : TKBase where TValue : TVBase1, TVBase2
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase1, TVBase2>((KeyValuePair<TKey, TValue>[]?
+      , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple) where TKey : TKBase where TValue : TVBase1, TVBase2
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase1, TVBase2
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase1, TVBase2>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
+      , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple) where TKey : TKBase where TValue : TVBase1, TVBase2
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase, TVBase1, TVBase2>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
+      , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple) where TKey : TKBase where TValue : TVBase1, TVBase2
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>((IReadOnlyDictionary<TKey, TValue>?
+      , KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>((KeyValuePair<TKey, TValue>[]?
+      , KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler
+      , CustomTypeStyler<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    {
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
+        this.EnsureNoMoreTokensAndComplete(value);
+    }
+
+    public void WithOnlyKeyedCollectionParam<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
+      , KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    {
+        FormatSb.Clear();
+        AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
+        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+    }
+    
+    
 }

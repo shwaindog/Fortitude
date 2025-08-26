@@ -304,7 +304,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
                .Field.AlwaysAdd(nameof(RefCount), RefCount)
                .Field.WhenNonDefaultAdd(nameof(CorrelationId), CorrelationId)
                .Field.AlwaysAdd(nameof(LogDateTime), LogDateTime, "{0:yyyy-MM-ddTHH:mm:ss.ffffff}")
-               .Field.AlwaysAdd(nameof(LogLevel), LogLevel, LogLevel.Styler())
+               .Field.AlwaysAdd(nameof(LogLevel), LogLevel)
                .Field.AlwaysAdd(nameof(LogLocation), LogLocation, LogLocation.Styler())
                .Field.WhenNonDefaultAdd(nameof(Logger), Logger.FullName)
                .Field.WhenNonNullAdd(nameof(Style), Style, Style.Styler())

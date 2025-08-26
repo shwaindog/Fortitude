@@ -357,7 +357,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static IStringBuilder AppendOrNull<T, TBase, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, T? value
-      , CustomTypeStyler<TBase?> styledToStringAction, bool? inQuotes = null) where T : class, TBase where TBase : class  where TExt : StyledTypeBuilder
+      , CustomTypeStyler<TBase> styledToStringAction, bool? inQuotes = null) where T : TBase where TExt : StyledTypeBuilder
     {
         var sb        = stb.Sb;
         var addQuotes = inQuotes ?? stb.Style.IsJson();
