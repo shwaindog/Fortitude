@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
@@ -10,19 +9,19 @@ public partial class FLogFirstFormatterParameterEntry
 {
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(bool value) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(bool? value) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 

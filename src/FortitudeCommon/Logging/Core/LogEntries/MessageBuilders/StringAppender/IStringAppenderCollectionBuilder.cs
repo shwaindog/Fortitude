@@ -1,0 +1,9 @@
+﻿using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
+
+namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
+
+public interface IStringAppenderCollectionBuilder : IKeyedCollectionContinuation<IFLogStringAppender>;
+
+public class StringAppenderCollectionBuilder : KeyedCollectionContinuation<IFLogStringAppender, FLogStringAppender>, IStringAppenderCollectionBuilder;
+
+public class FinalStringAppenderCollectionBuilder : FinalAppenderCollectionBuilder<IFLogStringAppender, FLogStringAppender>;

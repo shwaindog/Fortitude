@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
@@ -92,6 +93,12 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithParams(object? value);
+    
+    
+    IFLogAdditionalParamCollectionAppend WithParamsCollection
+    {
+        [MustUseReturnValue("Use Add* to add a collection to the format parameters")] get;
+    }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TFmtStruct>(TFmtStruct[]? value, string? formatString = null)
@@ -625,6 +632,11 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     void WithOnlyParam(StringBuilder? value, int startIndex, int count = int.MaxValue);
     void WithOnlyParam(IStyledToStringObject? value);
     void WithOnlyParam(object? value);
+    
+    IFinalCollectionAppend WithOnlyParamCollection
+    {
+        [MustUseReturnValue("Use Add* to add a collection to the format parameters")] get;
+    }
 
     void WithOnlyValueCollectionParam<TFmtStruct>(TFmtStruct[]? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
 
@@ -1055,6 +1067,11 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyParamToStringAppender(object? value);
+    
+    IStringAppenderCollectionBuilder WithOnlyParamThenToAppender
+    {
+        [MustUseReturnValue("Use Add* to add a collection to the format parameters")] get;
+    }
     
     
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]

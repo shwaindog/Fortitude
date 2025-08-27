@@ -3,8 +3,9 @@ using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
-public partial class FormatParameterEntry<TFormatEntry> 
-    where TFormatEntry : FormatParameterEntry<TFormatEntry>
+public partial class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl> 
+    where TFormatEntryImpl : FLogEntryMessageBuilderBase<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
+    where TIFormatEntry : class, IFLogMessageBuilder
 {
     protected FLogAdditionalFormatterParameterEntry? AddValueCollectionParams<TFmtStruct>
         (TFmtStruct[]? value, string? formatString = null)
@@ -19,8 +20,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollection(tempStsa, value, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendValueCollection(tempStsa, value, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -38,8 +39,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollection(tempStsa, value, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendValueCollection(tempStsa, value, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -56,8 +57,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollection(tempStsa, value, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendValueCollection(tempStsa, value, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -74,8 +75,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollection(tempStsa, value, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendValueCollection(tempStsa, value, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -93,8 +94,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -112,8 +113,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -132,8 +133,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -152,8 +153,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -169,8 +170,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendObjectCollection(tempStsa, value, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendObjectCollection(tempStsa, value, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -186,8 +187,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendObjectCollection(tempStsa, value, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendObjectCollection(tempStsa, value, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -204,8 +205,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendObjectCollection(tempStsa, value, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendObjectCollection(tempStsa, value, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -222,8 +223,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendObjectCollection(tempStsa, value, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendObjectCollection(tempStsa, value, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -240,8 +241,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -258,8 +259,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
@@ -278,8 +279,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -297,8 +298,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendFilteredObjectCollection(tempStsa, value, filter, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -315,8 +316,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -333,8 +334,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -351,8 +352,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -369,8 +370,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -386,8 +387,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -404,8 +405,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, formatString);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, formatString)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -422,8 +423,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
@@ -441,8 +442,8 @@ public partial class FormatParameterEntry<TFormatEntry>
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, customTypeStyler);
-        ReplaceTokenNumber(tempStsa.WriteBuffer);
+        tempStsa = AppendObjectCollectionEnumerate(tempStsa, value, customTypeStyler)!;
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 }

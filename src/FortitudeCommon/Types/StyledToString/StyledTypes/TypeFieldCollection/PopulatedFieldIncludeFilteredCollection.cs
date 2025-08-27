@@ -209,10 +209,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter<TStyledObj, TBase>(string fieldName
-      , TStyledObj[]? value, OrderedCollectionPredicate<TBase> filterPredicate)
-        where TStyledObj : class, IStyledToStringObject, TBase
-        where TBase : class
+    public TExt WhenPopulatedWithFilter<TStyledObj, TBase>(string fieldName, TStyledObj[]? value, OrderedCollectionPredicate<TBase> filterPredicate)
+        where TStyledObj : class, IStyledToStringObject, TBase where TBase : class
     {
         var found = false;
         if (value != null)
@@ -472,36 +470,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate)
-    {
-        var found = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Count; i++)
-            {
-                var item = value[i];
-                if(!filterPredicate(i, item)) continue;
-                if (!found)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StartCollection();
-                    found = true;
-                }
-                stb.Sb.Append(item);
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        if (found)
-        {
-            stb.EndCollection();
-            return stb.Sb.AddGoToNext(stb);
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenPopulatedWithFilter<TStyledObj, TBase>(string fieldName, IReadOnlyList<TStyledObj>? value
-      , OrderedCollectionPredicate<TBase> filterPredicate)
-        where TStyledObj : class, IStyledToStringObject, TBase
-        where TBase: class
     {
         var found = false;
         if (value != null)

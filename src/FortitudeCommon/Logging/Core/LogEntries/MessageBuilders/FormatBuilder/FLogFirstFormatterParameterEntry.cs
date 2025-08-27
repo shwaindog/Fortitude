@@ -1,21 +1,53 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
-using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
-public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<FLogFirstFormatterParameterEntry>, IFLogFirstFormatterParameterEntry
+public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<IFLogFirstFormatterParameterEntry, FLogFirstFormatterParameterEntry>
+  , IFLogFirstFormatterParameterEntry
 {
     public FLogFirstFormatterParameterEntry() { }
 
-    public FLogFirstFormatterParameterEntry(FLogFirstFormatterParameterEntry toClone) : base(toClone)
+    public FLogFirstFormatterParameterEntry(FLogFirstFormatterParameterEntry toClone) : base(toClone) { }
+
+
+    public IFLogAdditionalParamCollectionAppend WithParamsCollection
     {
+        get
+        {
+            var addParamsBuilder =
+                (Recycler?.Borrow<FLogAdditionalFormatterParameterEntry>() ?? new FLogAdditionalFormatterParameterEntry())
+                .Initialize(LogEntry, FormatBuilder, 0, OnComplete, FormatStsa!, FormatTokens);
+
+            var addParamContinue = (Recycler?.Borrow<AdditionalParamCollectionAppend>() ?? new AdditionalParamCollectionAppend())
+                .Initialize(addParamsBuilder, LogEntry);
+            DecrementRefCount();
+            return addParamContinue;
+        }
     }
-    
+
+    public IFinalCollectionAppend WithOnlyParamCollection
+    {
+        get
+        {
+            NextPostAppendIsLast = true;
+
+            var completeParamCollection =
+                (Recycler?.Borrow<FinalAppenderCollectionBuilder<IFLogFirstFormatterParameterEntry, FLogFirstFormatterParameterEntry>>() ??
+                 new FinalAppenderCollectionBuilder<IFLogFirstFormatterParameterEntry, FLogFirstFormatterParameterEntry>());
+
+            completeParamCollection.Initialize(Me, LogEntry);
+
+            return completeParamCollection;
+        }
+    }
+
+    public IStringAppenderCollectionBuilder WithOnlyParamThenToAppender => LastParamToStringAppenderCollectionBuilder;
+
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithMatchParams<T>(T value)
     {
@@ -43,8 +75,14 @@ public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<FLo
         tempStsa.DecrementRefCount();
         return toReturn;
     }
-    
-    public override FLogFirstFormatterParameterEntry Clone() =>
-        Recycler?.Borrow<FLogFirstFormatterParameterEntry>().CopyFrom(this, CopyMergeFlags.FullReplace)
-     ?? new FLogFirstFormatterParameterEntry(this);
+
+    protected override FLogAdditionalFormatterParameterEntry ToAdditionalFormatBuilder()
+    {
+        var addParamsBuilder =
+            (Recycler?.Borrow<FLogAdditionalFormatterParameterEntry>() ?? new FLogAdditionalFormatterParameterEntry())
+            .Initialize(LogEntry, FormatBuilder, 1, OnComplete, FormatStsa!, FormatTokens);
+        FormatStsa = null;
+        DecrementRefCount();
+        return addParamsBuilder;
+    }
 }
