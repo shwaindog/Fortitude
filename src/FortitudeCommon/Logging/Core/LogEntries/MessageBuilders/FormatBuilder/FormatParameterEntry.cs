@@ -9,6 +9,7 @@ using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -73,6 +74,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
 
     protected FormatParameterToStringAppender LastParamToStringAppenderCollectionBuilder
     {
+        [MustUseReturnValue("Use Add* to add a collection to the format parameters")]
         get
         {
             OnCompleteSwitchesToStringAppender = true;

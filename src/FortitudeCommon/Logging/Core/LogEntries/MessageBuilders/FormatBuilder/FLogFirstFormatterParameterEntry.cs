@@ -10,11 +10,6 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<IFLogFirstFormatterParameterEntry, FLogFirstFormatterParameterEntry>
   , IFLogFirstFormatterParameterEntry
 {
-    public FLogFirstFormatterParameterEntry() { }
-
-    public FLogFirstFormatterParameterEntry(FLogFirstFormatterParameterEntry toClone) : base(toClone) { }
-
-
     public IFLogAdditionalParamCollectionAppend WithParamsCollection
     {
         get
@@ -37,8 +32,7 @@ public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<IFL
             NextPostAppendIsLast = true;
 
             var completeParamCollection =
-                (Recycler?.Borrow<FinalAppenderCollectionBuilder<IFLogFirstFormatterParameterEntry, FLogFirstFormatterParameterEntry>>() ??
-                 new FinalAppenderCollectionBuilder<IFLogFirstFormatterParameterEntry, FLogFirstFormatterParameterEntry>());
+                (Recycler?.Borrow<FinalFirstPParamCollectionAppend>() ?? new FinalFirstPParamCollectionAppend());
 
             completeParamCollection.Initialize(Me, LogEntry);
 
@@ -46,7 +40,7 @@ public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<IFL
         }
     }
 
-    public IStringAppenderCollectionBuilder WithOnlyParamThenToAppender => LastParamToStringAppenderCollectionBuilder;
+    public IStringAppenderCollectionBuilder WithOnlyParamCollectionThenToAppender => LastParamToStringAppenderCollectionBuilder;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithMatchParams<T>(T value)
@@ -67,7 +61,7 @@ public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<IFL
         tempStsa.DecrementRefCount();
     }
 
-    public IFLogStringAppender AfterOnlyParamMatchToStringAppender<T>(T value)
+    public IFLogStringAppender WithOnlyParamMatchThenToAppender<T>(T value)
     {
         var tempStsa = TempStyledTypeAppender;
         AppendMatchSelect(value, tempStsa);
