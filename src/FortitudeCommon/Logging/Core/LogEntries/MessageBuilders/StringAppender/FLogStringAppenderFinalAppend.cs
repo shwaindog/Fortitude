@@ -107,25 +107,25 @@ public partial class FLogStringAppender
 
     public void FinalAppend(object? value) => MessageSb.Append(value).ToAppender(this).CallOnComplete();
 
-    public void FinalAppendNumberFormatted<TNum>(TNum value, string formatString) where TNum : struct, INumber<TNum>
+    public void FinalAppendFormat<TNum>(TNum value, string formatString) where TNum : struct, INumber<TNum>
     {
         MessageSb.AppendFormat(formatString, value);
         CallOnComplete();
     }
 
-    public void FinalAppendNumberFormatted<TNum>((TNum, string) valueTuple) where TNum : struct, INumber<TNum>
+    public void FinalAppendFormat<TNum>((TNum, string) valueTuple) where TNum : struct, INumber<TNum>
     {
         AppendSpanFormattable(valueTuple, MessageStsa);
         CallOnComplete();
     }
 
-    public void FinalAppendNumberFormatted<TNum>(TNum? value, string formatString) where TNum : struct, INumber<TNum>
+    public void FinalAppendFormat<TNum>(TNum? value, string formatString) where TNum : struct, INumber<TNum>
     {
         MessageSb.AppendFormat(formatString, value);
         CallOnComplete();
     }
 
-    public void FinalAppendNumberFormatted<TNum>((TNum?, string) valueTuple) where TNum : struct, INumber<TNum>
+    public void FinalAppendFormat<TNum>((TNum?, string) valueTuple) where TNum : struct, INumber<TNum>
     {
         AppendSpanFormattable(valueTuple, MessageStsa);
         CallOnComplete();

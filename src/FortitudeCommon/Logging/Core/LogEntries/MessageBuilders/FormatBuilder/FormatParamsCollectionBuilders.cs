@@ -20,3 +20,4 @@ public class AdditionalParamCollectionAppend :
 }
 
 public class FinalAdditionalParamCollectionAppend : FinalAppenderCollectionBuilder<IFLogAdditionalFormatterParameterEntry, FLogAdditionalFormatterParameterEntry>;
+public class FinalFirstPParamCollectionAppend : FinalAppenderCollectionBuilder<IFLogFirstFormatterParameterEntry, FLogFirstFormatterParameterEntry>;

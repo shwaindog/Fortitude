@@ -10,12 +10,9 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntry<IFLogAdditionalFormatterParameterEntry, FLogAdditionalFormatterParameterEntry>
   , IFLogAdditionalFormatterParameterEntry
 {
-    public FLogAdditionalFormatterParameterEntry() { }
-
-    public FLogAdditionalFormatterParameterEntry(FLogAdditionalFormatterParameterEntry toClone) : base(toClone) { }
-
     public IFLogAdditionalParamCollectionAppend AndCollection
     {
+        [MustUseReturnValue("Use Add* to add a collection to the format parameters")]
         get
         {
             var addParamContinue = (Recycler?.Borrow<AdditionalParamCollectionAppend>() ?? new AdditionalParamCollectionAppend())
@@ -24,15 +21,15 @@ public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntr
         }
     }
     
-    public IFinalCollectionAppend AndFinalCollectionParam
+    public IFinalCollectionAppend AndFinalParamCollection
     {
+        [MustUseReturnValue("Use Add* to add a collection to the format parameters")]
         get
         {
             NextPostAppendIsLast = true;
 
             var completeParamCollection =
-                (Recycler?.Borrow<FinalAppenderCollectionBuilder<IFLogAdditionalFormatterParameterEntry, FLogAdditionalFormatterParameterEntry>>() ??
-                 new FinalAppenderCollectionBuilder<IFLogAdditionalFormatterParameterEntry, FLogAdditionalFormatterParameterEntry>());
+                (Recycler?.Borrow<FinalAdditionalParamCollectionAppend>() ?? new FinalAdditionalParamCollectionAppend());
             
             completeParamCollection.Initialize(Me, LogEntry);
             
@@ -40,7 +37,7 @@ public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntr
         }
     }
     
-    public IStringAppenderCollectionBuilder AndFinalCollectionParamThenToAppender => LastParamToStringAppenderCollectionBuilder;
+    public IStringAppenderCollectionBuilder AndFinalParamCollectionThenToAppender => LastParamToStringAppenderCollectionBuilder;
     
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndMatch<T>(T value)

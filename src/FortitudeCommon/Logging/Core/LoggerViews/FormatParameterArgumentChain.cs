@@ -432,7 +432,7 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
 
     public IFLogStringAppender? ArgsThenAppender<T0>(T0 p0)
     {
-        if (firstParamBuilder != null) return firstParamBuilder.AfterOnlyParamMatchToStringAppender(p0);
+        if (firstParamBuilder != null) return firstParamBuilder.WithOnlyParamMatchThenToAppender(p0);
         return continueParamBuilder?.AndFinalMatchParamThenToAppender(p0);
     }
 
