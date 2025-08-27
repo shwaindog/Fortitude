@@ -109,7 +109,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             for (var i = 0; i < value.Length; i++)
             {
-                customTypeStyler(value[i], stb.OwningAppender);
+                var item = value[i];
+                if (item != null)
+                {
+                    customTypeStyler(item, stb.OwningAppender);
+                }
+                else
+                {
+                    stb.Sb.Append(stb.OwningAppender.NullStyle);
+                }
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -521,7 +529,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             foreach (var item in value)
             {
-                customTypeStyler(item, stb.OwningAppender);
+                if (item != null)
+                {
+                    customTypeStyler(item, stb.OwningAppender);
+                }
+                else
+                {
+                    stb.Sb.Append(stb.OwningAppender.NullStyle);
+                }
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();

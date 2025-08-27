@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using System.Text;
+﻿using System.Text;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
@@ -94,6 +94,11 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     IFLogAdditionalFormatterParameterEntry? And(object? value);
+    
+    IFLogAdditionalParamCollectionAppend AndCollection
+    {
+      [MustUseReturnValue("Use Add* to add a collection to the format parameters")] get;
+    }
     
     
     [MustUseReturnValue("Use AndFinalValueCollectionParam to finish LogEntry")]
@@ -628,6 +633,10 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     void AndFinalParam(IStyledToStringObject? value);
     void AndFinalParam(object? value);
 
+    IFinalCollectionAppend AndFinalCollectionParam
+    {
+      [MustUseReturnValue("Use Add* to add a collection to the format parameters")] get;
+    }
 
     void AndFinalValueCollectionParam<TFmtStruct>(TFmtStruct[]? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
 
@@ -968,85 +977,91 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
 
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalMatchParamToStringAppender<T>(T? value);
+    IFLogStringAppender AndFinalMatchParamThenToAppender<T>(T? value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(bool? value);
+    IFLogStringAppender AndFinalParamThenToAppender(bool? value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(bool value);
+    IFLogStringAppender AndFinalParamThenToAppender(bool value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender<TNum>(TNum value) where TNum : struct, INumber<TNum>;
+    IFLogStringAppender AndFinalParamThenToAppender<TNum>(TNum value) where TNum : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender<TNum>(TNum? value) where TNum : struct, INumber<TNum>;
+    IFLogStringAppender AndFinalParamThenToAppender<TNum>(TNum? value) where TNum : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
+    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(ReadOnlySpan<char> value);
+    IFLogStringAppender AndFinalParamThenToAppender(ReadOnlySpan<char> value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
+    IFLogStringAppender AndFinalParamThenToAppender(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(string? value);
+    IFLogStringAppender AndFinalParamThenToAppender(string? value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender((string?, int) valueTuple);
+    IFLogStringAppender AndFinalParamThenToAppender((string?, int) valueTuple);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender((string?, int, int) valueTuple);
+    IFLogStringAppender AndFinalParamThenToAppender((string?, int, int) valueTuple);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(string? value, int startIndex, int count = int.MaxValue);
+    IFLogStringAppender AndFinalParamThenToAppender(string? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(char[]? value);
+    IFLogStringAppender AndFinalParamThenToAppender(char[]? value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender((char[]?, int) valueTuple);
+    IFLogStringAppender AndFinalParamThenToAppender((char[]?, int) valueTuple);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender((char[]?, int, int) valueTuple);
+    IFLogStringAppender AndFinalParamThenToAppender((char[]?, int, int) valueTuple);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(char[]? value, int fromIndex, int count);
+    IFLogStringAppender AndFinalParamThenToAppender(char[]? value, int fromIndex, int count);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(ICharSequence? value);
+    IFLogStringAppender AndFinalParamThenToAppender(ICharSequence? value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender((ICharSequence?, int) valueTuple);
+    IFLogStringAppender AndFinalParamThenToAppender((ICharSequence?, int) valueTuple);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender((ICharSequence?, int, int) valueTuple);
+    IFLogStringAppender AndFinalParamThenToAppender((ICharSequence?, int, int) valueTuple);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(ICharSequence? value, int startIndex, int count = int.MaxValue);
+    IFLogStringAppender AndFinalParamThenToAppender(ICharSequence? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(StringBuilder? value);
+    IFLogStringAppender AndFinalParamThenToAppender(StringBuilder? value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender((StringBuilder?, int) valueTuple);
+    IFLogStringAppender AndFinalParamThenToAppender((StringBuilder?, int) valueTuple);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender((StringBuilder?, int, int) valueTuple);
+    IFLogStringAppender AndFinalParamThenToAppender((StringBuilder?, int, int) valueTuple);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(StringBuilder? value, int startIndex, int count = int.MaxValue);
+    IFLogStringAppender AndFinalParamThenToAppender(StringBuilder? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(IStyledToStringObject? value);
+    IFLogStringAppender AndFinalParamThenToAppender(IStyledToStringObject? value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterFinalParamToStringAppender(object? value);
+    IFLogStringAppender AndFinalParamThenToAppender(object? value);
+    
+  
+    IStringAppenderCollectionBuilder AndFinalCollectionParamThenToAppender
+    {
+      [MustUseReturnValue("Use Add* to add a collection to the format parameters")] get;
+    }
 
 
     [MustUseReturnValue("Use AndFinalValueCollectionParam if you do not plan on using the returned StringAppender")]

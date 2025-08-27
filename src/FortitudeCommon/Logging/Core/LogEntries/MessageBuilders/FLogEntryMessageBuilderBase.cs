@@ -2,6 +2,7 @@
 using System.Net;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
@@ -14,9 +15,9 @@ using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders;
 
-public interface IFLogMessageBuilder : IReusableObject<IFLogMessageBuilder> { }
+public interface IFLogMessageBuilder : IRecyclableObject { }
 
-public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMessageBuilder>, IFLogMessageBuilder
+public abstract partial class FLogEntryMessageBuilder : RecyclableObject, IFLogMessageBuilder
 {
     private static readonly Type myType;
 
@@ -34,7 +35,6 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
         MyNonPubStaticMethods = myType.GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
     }
 
-
     public virtual FLogEntryMessageBuilder Initialize(FLogEntry flogEntry, Action<IStringBuilder?> onCompleteHandler)
     {
         LogEntry   = flogEntry;
@@ -43,8 +43,8 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
         return this;
     }
 
-    protected static void AppendStyled<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple, IStyledTypeStringAppender appender)
-        where TToStyle : TStylerType
+    protected static void AppendStyled<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple
+      , IStyledTypeStringAppender appender) where TToStyle : TStylerType
     {
         var (value, structStyler) = valueTuple;
         structStyler(value, appender);
@@ -369,27 +369,36 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
     }
 }
 
-public abstract partial class FLogEntryMessageBuilderBase<TMessageEntry> : FLogEntryMessageBuilder
-    where TMessageEntry : FLogEntryMessageBuilderBase<TMessageEntry>
+public interface IMessageBuilderAppendChecks<out TMessageEntry>
+{
+    IStyledTypeStringAppender? ContinueOnReceivingStringAppender<T>(T param, [CallerMemberName] string memberName = "");
+    TMessageEntry?             PostAppendContinue<T>(IStyledTypeStringAppender? justAppended, T param, [CallerMemberName] string memberName = "");
+}
+
+public abstract partial class FLogEntryMessageBuilderBase<TIMsgBuild, TMsgBuilderImp> : FLogEntryMessageBuilder
+  , IMessageBuilderAppendChecks<TIMsgBuild>
+    where TMsgBuilderImp : FLogEntryMessageBuilderBase<TIMsgBuild, TMsgBuilderImp>
+    where TIMsgBuild : class, IFLogMessageBuilder
 {
     protected readonly IStringBuilder Warnings = new MutableString();
 
-
     protected FLogEntryMessageBuilderBase() { }
 
-    protected FLogEntryMessageBuilderBase(FLogEntryMessageBuilderBase<TMessageEntry> toClone)
+    protected FLogEntryMessageBuilderBase(FLogEntryMessageBuilderBase<TIMsgBuild, TMsgBuilderImp> toClone)
     {
         Warnings.Clear();
         Warnings.AppendRange(toClone.Warnings);
         OnComplete = toClone.OnComplete;
     }
 
-    public override TMessageEntry Initialize(FLogEntry flogEntry, Action<IStringBuilder?> onCompleteHandler)
+    public override TMsgBuilderImp Initialize(FLogEntry flogEntry, Action<IStringBuilder?> onCompleteHandler)
     {
         base.Initialize(flogEntry, onCompleteHandler);
 
-        return (TMessageEntry)this;
+        return (TMsgBuilderImp)this;
     }
+
+    protected bool NextPostAppendIsLast;
 
     public override void StateReset()
     {
@@ -398,26 +407,37 @@ public abstract partial class FLogEntryMessageBuilderBase<TMessageEntry> : FLogE
 
         base.StateReset();
     }
+
+    protected abstract IStyledTypeStringAppender? PreappendCheckGetStringAppender<T>(T param, [CallerMemberName] string memberName = "");
+
+    protected abstract TIMsgBuild? PostAppendContinueOnMessageEntry<T>(IStyledTypeStringAppender? justAppended,
+        T param, [CallerMemberName] string memberName = "");
+
+    IStyledTypeStringAppender? IMessageBuilderAppendChecks<TIMsgBuild>.ContinueOnReceivingStringAppender<T>
+        (T param, string memberName) =>
+        PreappendCheckGetStringAppender(param, memberName);
+
+    TIMsgBuild? IMessageBuilderAppendChecks<TIMsgBuild>.PostAppendContinue<T>(IStyledTypeStringAppender? justAppended, T param,
+        string memberName) =>
+        PostAppendContinueOnMessageEntry(justAppended, param, memberName);
 }
 
 public static class MessageBuilderExtensions
 {
     public static bool IsFormatterType(this Type checkIsFormatterType) =>
-        checkIsFormatterType == typeof(string) ||
-        (checkIsFormatterType.IsGenericType
-      && checkIsFormatterType.GetGenericTypeDefinition() == typeof(CustomTypeStyler<>));
+        checkIsFormatterType == typeof(string) || (checkIsFormatterType.IsGenericType
+                                                && checkIsFormatterType.GetGenericTypeDefinition() == typeof(CustomTypeStyler<>));
 
     public static bool IsOrderedCollectionFilterPredicate(this Type checkIsFormatterType) =>
-        (checkIsFormatterType.IsGenericType
-      && checkIsFormatterType.GetGenericTypeDefinition() == typeof(OrderedCollectionPredicate<>));
+        (checkIsFormatterType.IsGenericType && checkIsFormatterType.GetGenericTypeDefinition() == typeof(OrderedCollectionPredicate<>));
 
     public static bool IsKeyValueFilterPredicate(this Type checkIsFormatterType) =>
-        (checkIsFormatterType.IsGenericType
-      && checkIsFormatterType.GetGenericTypeDefinition() == typeof(KeyValuePredicate<,>));
+        (checkIsFormatterType.IsGenericType && checkIsFormatterType.GetGenericTypeDefinition() == typeof(KeyValuePredicate<,>));
 
     public static bool IsValidFormatterForType(this Type baseType, Type formatterType) =>
-        formatterType == typeof(string) && (!baseType.IsValueType || baseType.GetInterfaces().Any(i => i == typeof(ISpanFormattable))) ||
-        baseType.IsValueType && (formatterType.IsGenericType
+        formatterType == typeof(string) && (!baseType.IsValueType
+                                         || baseType.GetInterfaces().Any(i => i == typeof(ISpanFormattable)))
+     || baseType.IsValueType && (formatterType.IsGenericType
                               && formatterType.GetGenericTypeDefinition() == typeof(CustomTypeStyler<>)
                               && formatterType.GenericTypeArguments[0].IsAssignableFrom(baseType));
 }

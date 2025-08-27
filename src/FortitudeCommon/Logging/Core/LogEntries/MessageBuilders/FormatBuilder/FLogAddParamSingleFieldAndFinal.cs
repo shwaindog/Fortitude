@@ -7,113 +7,113 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
 public partial class FLogAdditionalFormatterParameterEntry
 {
-    public void AndFinalParam(bool value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+    public void AndFinalParam(bool value) => PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam(bool? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+    public void AndFinalParam(bool? value) => PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendStyled(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+        ReplaceTokenNumber().CallEnsureNoMoreTokensAndComplete(valueTuple);
     }
 
     public void AndFinalParam(ReadOnlySpan<char> value) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam(string? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+    public void AndFinalParam(string? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam((string?, int) valueTuple)
     {
         FormatSb.Clear();
         AppendFromRange(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+        ReplaceTokenNumber().CallEnsureNoMoreTokensAndComplete(valueTuple);
     }
 
     public void AndFinalParam((string?, int, int) valueTuple)
     {
         FormatSb.Clear();
         AppendFromToRange(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+        ReplaceTokenNumber().CallEnsureNoMoreTokensAndComplete(valueTuple);
     }
 
     public void AndFinalParam(string? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam(char[]? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+    public void AndFinalParam(char[]? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam((char[]?, int) valueTuple)
     {
         FormatSb.Clear();
         AppendFromRange(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+        ReplaceTokenNumber().CallEnsureNoMoreTokensAndComplete(valueTuple);
     }
 
     public void AndFinalParam((char[]?, int, int) valueTuple)
     {
         FormatSb.Clear();
         AppendFromToRange(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+        ReplaceTokenNumber().CallEnsureNoMoreTokensAndComplete(valueTuple);
     }
 
     public void AndFinalParam(char[]? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam(ICharSequence? value) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam((ICharSequence?, int) valueTuple)
     {
         FormatSb.Clear();
         AppendFromRange(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+        ReplaceTokenNumber().CallEnsureNoMoreTokensAndComplete(valueTuple);
     }
 
     public void AndFinalParam((ICharSequence?, int, int) valueTuple)
     {
         FormatSb.Clear();
         AppendFromToRange(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+        ReplaceTokenNumber().CallEnsureNoMoreTokensAndComplete(valueTuple);
     }
 
     public void AndFinalParam(ICharSequence? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam(StringBuilder? value) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam((StringBuilder?, int) valueTuple)
     {
         FormatSb.Clear();
         AppendFromRange(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+        ReplaceTokenNumber().CallEnsureNoMoreTokensAndComplete(valueTuple);
     }
 
     public void AndFinalParam((StringBuilder?, int, int) valueTuple)
     {
         FormatSb.Clear();
         AppendFromToRange(valueTuple, FormatStsa!);
-        ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
+        ReplaceTokenNumber().CallEnsureNoMoreTokensAndComplete(valueTuple);
     }
 
     public void AndFinalParam(StringBuilder? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam(IStyledToStringObject? value) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam(object? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
+    public void AndFinalParam(object? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
 }

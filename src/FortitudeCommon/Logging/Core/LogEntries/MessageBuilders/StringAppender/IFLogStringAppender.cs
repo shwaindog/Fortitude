@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Text;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
@@ -101,6 +102,8 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append(object? value);
+    
+    IStringAppenderCollectionBuilder AppendCollection { get; }
 
 
     [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
@@ -722,6 +725,9 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine(object? value);
+    
+    
+    IStringAppenderCollectionBuilder AppendLineCollection { get; }
 
 
     [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
@@ -1267,6 +1273,8 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     void FinalAppend(StringBuilder? value, int startIndex, int count = int.MaxValue);
     void FinalAppend(IStyledToStringObject? value);
     void FinalAppend(object? value);
+    
+    IFinalCollectionAppend FinalAppendCollection { get; }
 
     void FinalAppendNumberFormatted<TNum>(TNum value, string formatString) where TNum : struct, INumber<TNum>;
     void FinalAppendNumberFormatted<TNum>((TNum, string) value) where TNum : struct, INumber<TNum>;
