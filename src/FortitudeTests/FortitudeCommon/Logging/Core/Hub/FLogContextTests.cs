@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Core;
@@ -49,31 +50,13 @@ public class FLogContextTests
     public void TestValueStructReflection()
     {
         var fileAppenderType = FileAppenderType.RollingLogFile;
-        var styler           = FileAppenderTypeExtensions.FileAppenderTypeFormatter;
+        var styler           = EnumFormatterRegistry.GetOrCreateEnumFormatProvider<FileAppenderType>().CustomTypeStyler;
 
         var checkRuntimeType = (fileAppenderType, styler);
 
         // CheckGeneric(checkRuntimeType);
 
         BuildStructInvoke(checkRuntimeType);
-    }
-
-    protected void CheckGeneric<T>(T value)
-    {
-        var type = value.GetType();
-        Console.Out.WriteLine($"value is of Type : {type}");
-
-        if (type.IsGenericType)
-        {
-            var genericType = type.GetGenericTypeDefinition();
-
-            if (genericType == typeof(ValueTuple<,>))
-            {
-                Console.Out.WriteLine("It is a value Tuple with two items");
-            }
-        }
-
-        Console.Out.WriteLine("No Op");
     }
 
     protected void BuildStructInvoke<T>(T value)
@@ -95,9 +78,9 @@ public class FLogContextTests
         return output;
     }
 
-    public Func<FLogContextTests, TTuple, string> BuildInvoke<TTuple>(TTuple toConvert)
+    public Func<FLogContextTests, TTuple, string> BuildInvoke<TTuple>(TTuple toConvert) 
     {
-        var type = toConvert.GetType();
+        var type = toConvert!.GetType();
 
         if (type.IsGenericType)
         {

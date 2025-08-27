@@ -66,29 +66,16 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext<TStruct>(string nonJsonfieldName, TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public TExt FieldValueNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         customTypeStyler(value, OwningAppender);
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext<TStruct>(string nonJsonfieldName, TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
-    {
-        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null)
-        {
-            Sb.Append(OwningAppender.NullStyle);
-        }
-        else
-        {
-            customTypeStyler(value.Value, OwningAppender);
-        }
-        return ConditionalCollectionSuffix();
-    }
-
-    public TExt FieldValueNext<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler) 
-        where T : class, TBase where TBase : class 
+    public TExt FieldValueOrNullNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value == null)
@@ -102,16 +89,25 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext<TStruct>(string nonJsonfieldName, TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public TExt FieldStringNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler, string defaultValue = "") 
+        where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
-        customTypeStyler(value, OwningAppender);
+        if (value != null)
+        {
+            customTypeStyler(value, OwningAppender);
+        }
+        else
+        {
+            Sb.Append(defaultValue);
+        }
         Sb.Append("\"");
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext<TStruct>(string nonJsonfieldName, TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
+    public TExt FieldStringOrNullNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value == null)
@@ -121,7 +117,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         else
         {
             Sb.Append("\"");
-            customTypeStyler(value.Value, OwningAppender);
+            customTypeStyler(value, OwningAppender);
             Sb.Append("\"");
         }
         return ConditionalCollectionSuffix();
@@ -470,42 +466,6 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         {
             Sb.Append("\"");
             value.ToString(OwningAppender);
-            Sb.Append("\"");
-        }
-        else
-        {
-            Sb.Append(OwningAppender.NullStyle);
-        }
-        return ConditionalCollectionSuffix();
-    }
-
-    public TExt FieldStringNext<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler, string defaultValue = "")
-    where T : class, TBase
-    where TBase : class
-    {
-        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null)
-        {
-            customTypeStyler(value, OwningAppender);
-        }
-        else
-        {
-            Sb.Append(defaultValue);
-        }
-        Sb.Append("\"");
-        return ConditionalCollectionSuffix();
-    }
-
-    public TExt FieldStringOrNullNext<T, TBase>(string nonJsonfieldName, T? value, CustomTypeStyler<TBase> customTypeStyler)
-        where T : class, TBase
-        where TBase : class
-    {
-        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            Sb.Append("\"");
-            customTypeStyler(value, OwningAppender);
             Sb.Append("\"");
         }
         else

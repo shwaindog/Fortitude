@@ -44,7 +44,7 @@ public class SnapLogEntryEventStateSpy(IList<string?> snappedLogEntryEvents, str
                .Field.AlwaysAdd(nameof(flogEntry.RefCount), flogEntry.RefCount)
                .Field.WhenNonDefaultAdd(nameof(flogEntry.CorrelationId), flogEntry.CorrelationId)
                .Field.AlwaysAdd(nameof(flogEntry.LogDateTime), flogEntry.LogDateTime, "{0:HH:mm:ss.ffffff}")
-               .Field.AlwaysAdd(nameof(flogEntry.LogLevel), flogEntry.LogLevel, flogEntry.LogLevel.Styler())
+               .Field.AlwaysAdd(nameof(flogEntry.LogLevel), flogEntry.LogLevel)
                .Field.AlwaysAdd(nameof(flogEntry.LogLocation), flogEntry.LogLocation, flogEntry.LogLocation.Styler())
                .Field.WhenNonNullAdd(nameof(flogEntry.Style), flogEntry.Style, flogEntry.Style.Styler())
                .Field.WhenNonNullAdd("Thread.Id", flogEntry.Thread.ManagedThreadId)

@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Extensions;
 
@@ -61,39 +60,39 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAll<TKey, TValue>
+    public TExt WhenPopulatedAddAll<TKey, TValue, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : struct =>
+        where TValue : TVBase =>
         value?.Any() ?? false ?  AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TKey, TValue>
+    public TExt WhenPopulatedAddAll<TKey, TValue, TVBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : struct =>
+        where TValue : TVBase =>
         value?.Any() ?? false ?  AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TKey, TValue>
+    public TExt WhenPopulatedAddAll<TKey, TValue, TVBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : struct =>
+        where TValue : TVBase =>
         value?.Any() ?? false ?  AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllEnumerate<TKey, TValue>
+    public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TVBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : struct =>
+        where TValue : TVBase =>
         value?.Any() ?? false ?  AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllEnumerate<TKey, TValue>
+    public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TVBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : struct
+        where TValue : TVBase
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -116,36 +115,34 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAll<TKey, TValue>
+    public TExt WhenPopulatedAddAll<TKey, TValue, TKBase, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct =>
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase =>
         value?.Any() ?? false ?  AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TKey, TValue>
+    public TExt WhenPopulatedAddAll<TKey, TValue, TKBase, TVBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct =>
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase =>
         value?.Any() ?? false ?  AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TKey, TValue>
+    public TExt WhenPopulatedAddAll<TKey, TValue, TKBase, TVBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct =>
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase =>
         value?.Any() ?? false ?  AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllEnumerate<TKey, TValue>
+    public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TKBase, TVBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct =>
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase =>
         value?.Any() ?? false ?  AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllEnumerate<TKey, TValue>
+    public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TKBase, TVBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase 
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;

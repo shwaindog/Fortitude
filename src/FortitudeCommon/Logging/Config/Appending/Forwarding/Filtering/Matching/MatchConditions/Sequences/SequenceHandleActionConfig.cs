@@ -151,7 +151,7 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
             sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
                .Field.WhenNonNullAdd(nameof(SendMessage), SendMessage)
                .Field.WhenNonNullAdd(nameof(SendToAppender), SendToAppender)
-               .Field.AlwaysAdd(nameof(SendTriggeringLogEntries), SendTriggeringLogEntries, TriggeringLogEntriesExtensions.TriggeringLogEntriesFormatter)
+               .Field.AlwaysAdd(nameof(SendTriggeringLogEntries), SendTriggeringLogEntries)
                .Complete();
     }
 }

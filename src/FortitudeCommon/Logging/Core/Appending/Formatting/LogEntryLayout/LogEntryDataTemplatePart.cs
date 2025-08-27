@@ -197,19 +197,6 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
             case $"{nameof(MESSAGE)}":
             case $"{nameof(MESG)}":
             case $"{nameof(MSG)}":
-                if (!tokenFormatting.IsAllCharRange)
-                {
-                    var charsStartIdx  = tokenFormatting.CharsRange.Start;
-                    var charsEndIdx    = tokenFormatting.CharsRange.End;
-                    
-                    var mesgLeng            = logEntry.Message.Length;
-                    var startIndexFromStart = charsStartIdx.IsFromEnd ? mesgLeng - charsStartIdx.Value : charsStartIdx.Value;
-                    var endIndexFromStart = charsEndIdx.IsFromEnd ? mesgLeng - charsEndIdx.Value : charsEndIdx.Value;
-                    
-                    var mesgLengthToAppend = Math.Clamp(endIndexFromStart - startIndexFromStart, 0, mesgLeng);
-                    
-                    sb.Append(logEntry.Message, startIndexFromStart, mesgLengthToAppend);
-                }
                 sb.AppendRange(logEntry.Message);
                 break;
             case $"{nameof(EXCEPTION)}":

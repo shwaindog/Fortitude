@@ -104,9 +104,9 @@ public class MatchLogLevelConfigConfig : MatchConditionConfig, IMutableMatchLogL
     {
         return
             sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
-               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
-               .Field.AlwaysAdd(nameof(CheckLogLevel), CheckLogLevel, FLogLevelExtensions.FLogLevelFormatter)
-               .Field.AlwaysAdd(nameof(Is), Is, ComparisonOperatorTypedExtensions.ComparisonOperatorTypeFormatter)
+               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
+               .Field.AlwaysAdd(nameof(CheckLogLevel), CheckLogLevel)
+               .Field.AlwaysAdd(nameof(Is), Is)
                .Complete();
     }
 }

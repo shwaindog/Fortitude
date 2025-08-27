@@ -27,23 +27,23 @@ public partial class FLogStringAppender
         AppendValueCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollection<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollection<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType =>
         AppendValueCollection(MessageStsa, value, customTypeStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollection<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollection<TToStyle, TStylerType>((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollection<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollection<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType =>
         AppendValueCollection(MessageStsa, value, customTypeStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollection<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollection<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
@@ -78,68 +78,26 @@ public partial class FLogStringAppender
         AppendFilteredValueCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollection<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct  =>
+    public IFLogStringAppender AppendValueCollection<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(MessageStsa, value, filter, customTypeStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollection<TStruct>(
-        (TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollection<TToStyle, TToStyleBase, TStylerType>(
+        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) 
+        where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollection<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollection<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
+      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(MessageStsa, value, filter, customTypeStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollection<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollection<TToStyle, TToStyleBase, TStylerType>(
+        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) 
+        where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>(T[]? value, string? formatString = null) where T : class =>
-        AppendObjectCollection(MessageStsa, value, formatString).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>((T[]?, string?) valueTuple) where T : class =>
-        AppendObjectCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>(IReadOnlyList<T>? value, string? formatString = null) where T : class =>
-        AppendObjectCollection(MessageStsa, value, formatString).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>((IReadOnlyList<T>?, string?) valueTuple) where T : class =>
-        AppendObjectCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>(T[]? value, OrderedCollectionPredicate<T> filter, string? formatString = null) 
-        where T : class =>
-        AppendFilteredObjectCollection(MessageStsa, value, filter, formatString).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>((T[]?, OrderedCollectionPredicate<T>, string?) valueTuple) where T : class =>
-        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>((T[]?, OrderedCollectionPredicate<T>) valueTuple) where T : class =>
-        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>(IReadOnlyList<T>? value, OrderedCollectionPredicate<T> filter
-      , string? formatString = null) where T : class =>
-        AppendFilteredObjectCollection(MessageStsa, value, filter, formatString).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>(
-        (IReadOnlyList<T>?, OrderedCollectionPredicate<T>, string?) valueTuple) where T : class =>
-        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollection<T>(
-        (IReadOnlyList<T>?, OrderedCollectionPredicate<T>) valueTuple) where T : class =>
-        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
     public IFLogStringAppender AppendValueCollectionEnumerate<TFmtStruct>(IEnumerable<TFmtStruct>? value
@@ -162,24 +120,92 @@ public partial class FLogStringAppender
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionEnumerate<TStruct>(IEnumerable<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(MessageStsa, value, customTypeStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionEnumerate<TStruct>(IEnumerator<TStruct>? value
-      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
+      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(MessageStsa, value, customTypeStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendValueCollectionEnumerate<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct =>
+    public IFLogStringAppender AppendValueCollectionEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
+    
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>(T[]? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class =>
+        AppendObjectCollection(MessageStsa, value, customTypeStyler).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>((T[]?, CustomTypeStyler<TBase>) valueTuple)
+        where T : class, TBase where TBase : class =>
+        AppendObjectCollection(valueTuple, MessageStsa).ToAppender(this);
+    
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>(IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+        where T : class, TBase where TBase : class =>
+        AppendObjectCollection(MessageStsa, value, customTypeStyler).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>((IReadOnlyList<T>?, CustomTypeStyler<TBase>) valueTuple) 
+        where T : class, TBase where TBase : class =>
+        AppendObjectCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>(T[]? value, OrderedCollectionPredicate<TBase> filter, string? formatString = null) 
+        where T : class, TBase where TBase : class =>
+        AppendFilteredObjectCollection(MessageStsa, value, filter, formatString).ToAppender(this);
+    
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple)
+        where T : class, TBase where TBase : class =>
+        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
+    
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>) valueTuple)
+        where T : class, TBase where TBase : class =>
+        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null) where T : class, TBase where TBase : class =>
+        AppendFilteredObjectCollection(MessageStsa, value, filter, formatString).ToAppender(this);
+    
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>(
+        (IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>, string?) valueTuple)
+        where T : class, TBase where TBase : class =>
+        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
+    
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase>(
+        (IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>) valueTuple) 
+        where T : class, TBase where TBase : class =>
+        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T>(T[]? value, string? formatString = null) where T : class =>
+        AppendObjectCollection(MessageStsa, value, formatString).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T>((T[]?, string?) valueTuple) where T : class =>
+        AppendObjectCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T>(IReadOnlyList<T>? value, string? formatString = null) where T : class =>
+        AppendObjectCollection(MessageStsa, value, formatString).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T>((IReadOnlyList<T>?, string?) valueTuple) where T : class =>
+        AppendObjectCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendObjectCollectionEnumerate to finish LogEntry")]
     public IFLogStringAppender AppendObjectCollectionEnumerate<T>(IEnumerable<T>? value, string? formatString = null) where T : class =>
@@ -194,7 +220,50 @@ public partial class FLogStringAppender
         AppendObjectCollectionEnumerate(MessageStsa, value, formatString).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendObjectCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendObjectCollectionEnumerate<T>((IEnumerator<T>?, string?) valueTuple) where T : class=>
+    public IFLogStringAppender AppendObjectCollectionEnumerate<T>((IEnumerator<T>?, string?) valueTuple) where T : class =>
+        AppendObjectCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase1, TBase2>(T[]? value
+      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler)
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class  =>
+        AppendFilteredObjectCollection(MessageStsa, value, filter, customTypeStyler).ToAppender(this);
+    
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase1, TBase2>((T[]?, OrderedCollectionPredicate<TBase1>
+      , CustomTypeStyler<TBase2>) valueTuple) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class =>
+        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase1, TBase2>(IReadOnlyList<T>? value
+      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class =>
+        AppendFilteredObjectCollection(MessageStsa, value, filter, customTypeStyler).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
+    public IFLogStringAppender AppendObjectCollection<T, TBase1, TBase2>(
+        (IReadOnlyList<T>?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple) 
+        where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class =>
+        AppendFilteredObjectCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollectionEnumerate to finish and send LogEntry")]
+    public IFLogStringAppender AppendObjectCollectionEnumerate<T, TBase>(IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase : class  =>
+        AppendObjectCollectionEnumerate(MessageStsa, value, customTypeStyler).ToAppender(this);
+    
+    [MustUseReturnValue("Use FinalAppendObjectCollectionEnumerate to finish and send LogEntry")]
+    public IFLogStringAppender AppendObjectCollectionEnumerate<T, TBase>((IEnumerable<T>?, CustomTypeStyler<TBase>) valueTuple)
+        where T : class, TBase where TBase : class  =>
+        AppendObjectCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollectionEnumerate to finish and send LogEntry")]
+    public IFLogStringAppender AppendObjectCollectionEnumerate<T, TBase>(IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+        where T : class, TBase where TBase : class =>
+        AppendObjectCollectionEnumerate(MessageStsa, value, customTypeStyler).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendObjectCollectionEnumerate to finish and send LogEntry")]
+    public IFLogStringAppender AppendObjectCollectionEnumerate<T, TBase>((IEnumerator<T>?, CustomTypeStyler<TBase>) valueTuple)
+        where T : class, TBase where TBase : class =>
         AppendObjectCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
@@ -267,296 +336,305 @@ public partial class FLogStringAppender
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, string? valueFormatString = null, string? keyFormatString = null) =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueFormatString, keyFormatString).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, string?, string?) valueTuple) =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, string?) valueTuple) =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>) valueTuple) =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, string? valueFormatString = null, string? keyFormatString = null)  =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueFormatString, keyFormatString).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, string?, string?) valueTuple) =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, string?) valueTuple) =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>) valueTuple) =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, string? valueFormatString = null, string? keyFormatString = null)  =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueFormatString, keyFormatString).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, string?, string?) valueTuple) =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, string?) valueTuple)=>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>) valueTuple)=>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyFormatString).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
-        where TValue : struct =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyFormatString).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
-        where TValue : struct =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyFormatString).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
-        where TValue : struct =>
-        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , CustomTypeStyler<TVBase> valueStyler
+      , string? keyFormatString = null) where TValue : TVBase =>
         AppendKeyedCollection(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>, string?) valueTuple)
+        where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
     
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TVBase>(KeyValuePair<TKey, TValue>[]? value
+      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase =>
         AppendKeyedCollection(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>, string?) valueTuple)
+        where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct  =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase  =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct  =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler
+      , string? keyFormatString = null) where TValue : TVBase  =>
         AppendKeyedCollection(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
-        where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple)
+        where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
     
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
-    
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-    (IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>
+    (IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TVBase> valueStyler
+      , string? keyFormatString = null) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>(
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>(
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-    (IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
-      , string? keyFormatString = null) where TValue : struct  =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>
+    (IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TVBase> valueStyler
+      , string? keyFormatString = null) where TValue : TVBase  =>
         AppendKeyedCollectionEnumerate(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>(
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>(
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(MessageStsa, value, valueStyler, keyStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(MessageStsa, value, valueStyler, keyStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(MessageStsa, value, valueStyler, keyStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(MessageStsa, value, valueStyler, keyStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TKBase, TVBase>(
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(MessageStsa, value, valueStyler, keyStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollectionEnumerate<TKey, TValue, TKBase, TVBase>(
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyStyler).ToAppender(this);
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null) 
+        where TKey : TKBase where TValue : TVBase =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueFormatString, keyFormatString).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple) 
+        where TKey : TKBase where TValue : TVBase =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyStyler).ToAppender(this);
-
-    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) 
+        where TKey : TKBase where TValue : TVBase =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>) valueTuple) 
+        where TKey : TKBase where TValue : TVBase =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null)  
+        where TKey : TKBase where TValue : TVBase =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueFormatString, keyFormatString).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple) 
+        where TKey : TKBase where TValue : TVBase  =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) 
+        where TKey : TKBase where TValue : TVBase  =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>) valueTuple) 
+        where TKey : TKBase where TValue : TVBase  =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null) 
+        where TKey : TKBase where TValue : TVBase   =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueFormatString, keyFormatString).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple) 
+        where TKey : TKBase where TValue : TVBase  =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) 
+        where TKey : TKBase where TValue : TVBase =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase>) valueTuple) 
+        where TKey : TKBase where TValue : TVBase =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) 
+        where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyFormatString).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
+        where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+    
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)
+        where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null)
+        where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyFormatString).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
+        where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)
+        where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyFormatString).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
+        where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)
+        where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyStyler).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
-    public IFLogStringAppender AppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
-        where TKey : struct where TValue : struct =>
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
 
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyStyler).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyStyler).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppendKeyedCollection to finish LogEntry")]
+    public IFLogStringAppender AppendKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
+        AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this);
+    
 }

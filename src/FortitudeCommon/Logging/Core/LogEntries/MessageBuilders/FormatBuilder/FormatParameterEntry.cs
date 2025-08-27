@@ -277,12 +277,12 @@ public partial class FormatParameterEntry<TFormatEntry> : FLogEntryMessageBuilde
         return (TFormatEntry)this;
     }
 
-    internal TFormatEntry ReplaceTokenNumber<TStruct>(TStruct? param, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
+    internal TFormatEntry ReplaceTokenNumber<TToStyle, TStylerType>(TToStyle? param, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType
     {
         if (param == null) return ReplaceTokenNumber("");
         FormatSb.Clear();
-        customTypeStyler(param.Value, FormatStsa!);
+        customTypeStyler(param, FormatStsa!);
         for (var i = 0; i < FormatTokens.Count; i++)
         {
             var token = FormatTokens[i];
@@ -473,10 +473,10 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
         where TFormatEntry : FormatParameterEntry<TFormatEntry> =>
         maybeParam?.ReplaceTokenNumber(paramValue);
 
-    public static TFormatEntry? ReplaceTokens<TFormatEntry, TStruct>(this TFormatEntry? maybeParam
-      , TStruct? paramValue, CustomTypeStyler<TStruct> customTypeStyler)
+    public static TFormatEntry? ReplaceTokens<TFormatEntry, TToStyle, TStylerType>(this TFormatEntry? maybeParam
+      , TToStyle? paramValue, CustomTypeStyler<TStylerType> customTypeStyler)
         where TFormatEntry : FormatParameterEntry<TFormatEntry>
-        where TStruct : struct =>
+        where TToStyle : TStylerType =>
         maybeParam?.ReplaceTokenNumber(paramValue);
 
     public static TFormatEntry? ReplaceTokens<TFormatEntry>(this TFormatEntry? maybeParam

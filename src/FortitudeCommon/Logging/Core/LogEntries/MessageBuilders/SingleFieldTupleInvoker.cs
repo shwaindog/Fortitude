@@ -177,7 +177,7 @@ public abstract partial class FLogEntryMessageBuilder
         {
             var mi = MyNonPubStaticMethods[i];
 
-            if (mi.Name != nameof(AppendStruct) || !mi.IsStatic) continue;
+            if (mi.Name != nameof(AppendStyled) || !mi.IsStatic) continue;
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 1) continue;
             var methodParams = mi.GetParameters();

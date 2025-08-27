@@ -27,31 +27,7 @@ public enum FLogLevelMatch
 
 public static class FLogLevelExtensions
 {
-    public static CustomTypeStyler<FLogLevel> FLogLevelFormatter = FlogLevelStyler;
-
-    public static CustomTypeStyler<FLogLevel> Styler(this FLogLevel flogLevel) => FLogLevelFormatter;
-
     public static int LoggableRange => (FLogLevel.Error - FLogLevel.None);
-
-    public static StyledTypeBuildResult FlogLevelStyler(this FLogLevel flogLevel, IStyledTypeStringAppender sbc)
-    {
-        var tb = sbc.StartSimpleValueType(nameof(FLogLevel));
-        using (var sb = tb.StartDelimitedStringBuilder())
-        {
-            switch (flogLevel)
-            {
-                case FLogLevel.Trace: sb.Append($"{nameof(FLogLevel.Trace)}"); break;
-                case FLogLevel.Debug: sb.Append($"{nameof(FLogLevel.Debug)}"); break;
-                case FLogLevel.Info:  sb.Append($"{nameof(FLogLevel.Info)}"); break;
-                case FLogLevel.Warn:  sb.Append($"{nameof(FLogLevel.Warn)}"); break;
-                case FLogLevel.Error: sb.Append($"{nameof(FLogLevel.Error)}"); break;
-
-                default: sb.Append($"{nameof(FLogLevel.None)}"); break;
-            }
-        }
-
-        return tb.Complete();
-    }
 
     public static bool IsTraceEnabled(this FLogLevel level) => level >= FLogLevel.Trace;
         

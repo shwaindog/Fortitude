@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Extensions;
 
@@ -131,11 +130,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived>
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
-      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey where TValue : struct 
+        where TKDerived : TKey where TValue : TVBase 
     {
         if (value != null)
         {
@@ -152,11 +151,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived>
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
         (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
-          , CustomTypeStyler<TValue> valueStyler
+          , CustomTypeStyler<TVBase> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey  where TValue : struct 
+        where TKDerived : TKey  where TValue : TVBase 
     {
         if (value != null)
         {
@@ -174,11 +173,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived>
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
-      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)  
-        where TKDerived : TKey  where TValue : struct 
+        where TKDerived : TKey  where TValue : TVBase 
     {
         if (value != null)
         {
@@ -196,10 +195,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived>
-    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, CustomTypeStyler<TValue> valueStyler
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>
+    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)   
-        where TKDerived : TKey  where TValue : struct 
+        where TKDerived : TKey  where TValue : TVBase 
     {
         if (value != null)
         {
@@ -216,10 +215,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived>(IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKDerived> selectKeys, CustomTypeStyler<TValue> valueStyler 
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , IEnumerator<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)    
-        where TKDerived : TKey  where TValue : struct 
+        where TKDerived : TKey  where TValue : TVBase 
     {
         var hasValue = selectKeys.MoveNext();
         while(hasValue && value != null) 
@@ -240,9 +239,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
+    (IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (value != null)
         {
@@ -258,8 +258,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
+    (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+        where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (value != null)
         {
@@ -275,9 +277,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
+    (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (value != null)
         {
@@ -292,9 +295,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
-        (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
+        (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
+          , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (value != null)
         {
@@ -309,9 +313,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
+    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+        where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         var hasValue = selectKeys.MoveNext();
         while(hasValue && value != null) 

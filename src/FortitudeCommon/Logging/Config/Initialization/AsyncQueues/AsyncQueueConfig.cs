@@ -197,10 +197,10 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
         return
             sbc.StartComplexType(nameof(AsyncQueueConfig))
                .Field.AlwaysAdd(nameof(QueueNumber), QueueNumber)
-               .Field.AlwaysAdd(nameof(QueueType), QueueType, AsyncProcessingTypesExtensions.AsyncProcessingTypeFormatter)
+               .Field.AlwaysAdd(nameof(QueueType), QueueType)
                .Field.AlwaysAdd(nameof(QueueCapacity), QueueCapacity)
                .Field.AlwaysAdd(nameof(LaunchAtFlogStart), LaunchAtFlogStart)
-               .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
+               .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
                .Field.AlwaysAdd(nameof(QueueFullDropInterval), QueueFullDropInterval)
                .Complete();
     }

@@ -246,9 +246,9 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
     {
         return
             sbc.StartComplexType(nameof(AsyncQueuesInitConfig))
-               .Field.AlwaysAdd(nameof(AsyncProcessingType), AsyncProcessingType, AsyncProcessingTypesExtensions.AsyncProcessingTypeFormatter)
+               .Field.AlwaysAdd(nameof(AsyncProcessingType), AsyncProcessingType)
                .Field.AlwaysAdd(nameof(DefaultQueueCapacity), DefaultQueueCapacity)
-               .Field.AlwaysAdd(nameof(DefaultFullQueueHandling), DefaultFullQueueHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
+               .Field.AlwaysAdd(nameof(DefaultFullQueueHandling), DefaultFullQueueHandling)
                .Field.AlwaysAdd(nameof(DefaultDropInterval), DefaultDropInterval)
                .Field.AlwaysAdd(nameof(InitialAsyncProcessing), InitialAsyncProcessing)
                .Field.AlwaysAdd(nameof(MaxAsyncProcessing), MaxAsyncProcessing)

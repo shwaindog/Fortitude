@@ -238,7 +238,7 @@ public class FileAppenderConfig : BufferingFormatAppenderConfig, IMutableFileApp
     {
         using var tb =
             sbc.StartComplexType(nameof(FileAppenderConfig))
-               .Field.AlwaysAdd(nameof(FileAppenderType), FileAppenderType, FileAppenderTypeExtensions.FileAppenderTypeFormatter)
+               .Field.AlwaysAdd(nameof(FileAppenderType), FileAppenderType)
                .Field.AlwaysAdd(nameof(CompressionType), CompressionType)
                .Field.AlwaysAdd(nameof(FileEncoding), FileEncoding)
                .Field.AlwaysAdd(nameof(FileName), FileName)

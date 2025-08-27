@@ -135,7 +135,7 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
            .AddBaseFieldsStart();
         base.ToString(sbc);
         return tb.Field.AlwaysAdd(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
-            .Field.AlwaysAdd(nameof(FlushLogLevel), FlushLogLevel, FLogLevelExtensions.FLogLevelFormatter)
+            .Field.AlwaysAdd(nameof(FlushLogLevel), FlushLogLevel)
             .Complete();
     }
 }

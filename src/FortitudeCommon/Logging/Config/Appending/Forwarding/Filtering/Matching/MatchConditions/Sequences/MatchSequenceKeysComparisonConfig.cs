@@ -114,9 +114,9 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
     {
         return
             sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
-               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
+               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
                .Field.AlwaysAdd(nameof(Lhs), Lhs)
-               .Field.AlwaysAdd(nameof(Is), Is, ComparisonOperatorTypedExtensions.ComparisonOperatorTypeFormatter)
+               .Field.AlwaysAdd(nameof(Is), Is)
                .Field.AlwaysAdd(nameof(Rhs), Rhs)
                .Complete();
     }

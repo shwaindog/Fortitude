@@ -45,83 +45,83 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       where TKey : TKBase where TValue : TVBase =>
         value != null ?  AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TKey, TValue, TKBase>
+    public TExt WhenNonNullAddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKBase, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-      where TKey : TKBase where TValue : struct =>
+      where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFiltered(fieldName, value, filterPredicate, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TKey, TValue, TKBase>
+    public TExt WhenNonNullAddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKBase, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-      where TKey : TKBase where TValue : struct =>
+      where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFiltered(fieldName, value, filterPredicate, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TKey, TValue, TKBase>
+    public TExt WhenNonNullAddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-      where TKey : TKBase where TValue : struct =>
+      where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFiltered(fieldName, value, filterPredicate, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKBase>
+    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-      where TKey : TKBase where TValue : struct =>
+      where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKBase>
+    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-      where TKey : TKBase where TValue : struct =>
+      where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TKey, TValue>
+    public TExt WhenNonNullAddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct =>
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
+      , CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFiltered(fieldName, value, filterPredicate, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TKey, TValue>
+    public TExt WhenNonNullAddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct =>
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
+      , CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFiltered(fieldName, value, filterPredicate, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TKey, TValue>
+    public TExt WhenNonNullAddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct =>
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
+      , CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFiltered(fieldName, value, filterPredicate, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue>
+    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct =>
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
+      , CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue>
+    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
-      , CustomTypeStyler<TKey> keyStyler) 
-        where TKey : struct where TValue : struct =>
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
+      , CustomTypeStyler<TKBase2> keyStyler) 
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         value != null ?  AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 }

@@ -21,9 +21,9 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd<TStruct>
-    (string fieldName, TStruct value
-      , CustomTypeStyler<TStruct> customTypeStyler, TStruct defaultValue = default) where TStruct : struct =>
+    public TExt WhenNonDefaultAdd<TToStyle, TStylerType>
+    (string fieldName, TToStyle value
+      , CustomTypeStyler<TStylerType> customTypeStyler, TToStyle defaultValue) where TToStyle : TStylerType =>
         !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd<TEnum>(string fieldName, TEnum value, TEnum defaultValue) where TEnum : Enum =>
@@ -50,10 +50,6 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 
     public TExt WhenNonDefaultAdd(string fieldName, IStyledToStringObject? value, IStyledToStringObject? defaultValue = null) =>
         !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonDefaultAdd<T, TBase>(string fieldName, T? value, CustomTypeStyler<TBase?> overrideStyler, T? defaultValue = null)
-        where T : class, TBase where TBase : class =>
-        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, overrideStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd(string fieldName, ICharSequence value, string defaultValue = "") =>
         !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;

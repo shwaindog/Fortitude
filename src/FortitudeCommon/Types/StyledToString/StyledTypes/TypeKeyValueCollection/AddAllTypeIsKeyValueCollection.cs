@@ -98,16 +98,16 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TValue> valueStyler
+    public KeyValueCollectionBuilder AddAll<TKey, TValue, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct =>
+        where TValue : TVBase =>
         AddAllEnumerate(value, valueStyler, keyFormatString);
 
-    public KeyValueCollectionBuilder AddAll<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-          , CustomTypeStyler<TValue> valueStyler
+    public KeyValueCollectionBuilder AddAll<TKey, TValue, TVBase>(KeyValuePair<TKey, TValue>[]? value
+          , CustomTypeStyler<TVBase> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TValue : TVBase
     {
         if (value != null)
         {
@@ -124,11 +124,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddAll<TKey, TValue>
+    public KeyValueCollectionBuilder AddAll<TKey, TValue, TVBase>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , CustomTypeStyler<TValue> valueStyler
+          , CustomTypeStyler<TVBase> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+        where TValue : TVBase
     {
         if (value != null)
         {
@@ -145,10 +145,9 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue> (IEnumerable<KeyValuePair<TKey, TValue>>? value
-          , CustomTypeStyler<TValue> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+    public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue, TVBase> (IEnumerable<KeyValuePair<TKey, TValue>>? value
+          , CustomTypeStyler<TVBase> valueStyler
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : TVBase
     {
         if (value != null)
         {
@@ -164,11 +163,10 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue>
+    public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue, TVBase>
         (IEnumerator<KeyValuePair<TKey, TValue>>? value
-          , CustomTypeStyler<TValue> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
+          , CustomTypeStyler<TVBase> valueStyler
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : TVBase
     {
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -187,14 +185,12 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct =>
+    public KeyValueCollectionBuilder AddAll<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase =>
         AddAllEnumerate(value, valueStyler, keyStyler);
 
-    public KeyValueCollectionBuilder AddAll<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct
+    public KeyValueCollectionBuilder AddAll<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
+          , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
     {
         if (value != null)
         {
@@ -209,9 +205,8 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct
+    public KeyValueCollectionBuilder AddAll<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+          , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
     {
         if (value != null)
         {
@@ -226,9 +221,8 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct
+    public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+          , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
     {
         if (value != null)
         {
@@ -242,9 +236,8 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct
+    public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+          , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
     {
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -252,7 +245,7 @@ public partial class KeyValueCollectionBuilder
             while(hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendOrNull(kvp.Value, valueStyler).Append(": ");
+                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();

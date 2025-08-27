@@ -176,20 +176,20 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKBase, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct where TKey : TKBase =>
+        where TKey : TKBase where TValue : TVBase1, TVBase2  =>
         AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueStyler, keyFormatString);
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKBase, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct where TKey : TKBase 
+        where TKey : TKBase where TValue : TVBase1, TVBase2  
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -222,12 +222,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct where TKey : TKBase 
+        where TKey : TKBase where TValue : TVBase1, TVBase2 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -260,12 +260,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase>
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct where TKey : TKBase 
+        where TKey : TKBase where TValue : TVBase1, TVBase2 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -298,11 +298,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase>
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct where TKey : TKBase 
+        where TKey : TKBase where TValue : TVBase1, TVBase2  
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -339,16 +339,16 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct =>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueStyler, keyStyler);
 
-    public TExt AlwaysAddFiltered<TKey, TValue>
-    (string fieldName, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
+    (string fieldName, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -379,10 +379,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct
+    public TExt AlwaysAddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
+    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -413,10 +413,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
+    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -447,10 +447,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
-        where TKey : struct where TValue : struct
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
+    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
+      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
+        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);

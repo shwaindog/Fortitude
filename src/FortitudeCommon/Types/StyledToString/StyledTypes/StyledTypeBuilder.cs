@@ -356,8 +356,8 @@ public static class StyledTypeBuilderExtensions
         return stb.Sb;
     }
 
-    public static IStringBuilder AppendOrNull<T, TBase, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, T? value
-      , CustomTypeStyler<TBase?> styledToStringAction, bool? inQuotes = null) where T : class, TBase where TBase : class  where TExt : StyledTypeBuilder
+    public static IStringBuilder AppendOrNull<TToStyle, TStylerType, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TToStyle? value
+      , CustomTypeStyler<TStylerType> styledToStringAction, bool? inQuotes = null) where TToStyle : TStylerType where TExt : StyledTypeBuilder
     {
         var sb        = stb.Sb;
         var addQuotes = inQuotes ?? stb.Style.IsJson();
@@ -365,24 +365,6 @@ public static class StyledTypeBuilderExtensions
         {
             if (addQuotes) sb.Append("\"");
             styledToStringAction(value, stb.OwningAppender);
-            if (addQuotes) sb.Append("\"");
-        }
-        else
-        {
-            sb.Append(Null);
-        }
-        return stb.Sb;
-    }
-
-    public static IStringBuilder AppendOrNull<TStruct, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TStruct? value
-      , CustomTypeStyler<TStruct> styledToStringAction, bool? inQuotes = null) where TStruct : struct where TExt : StyledTypeBuilder
-    {
-        var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-        {
-            if (addQuotes) sb.Append("\"");
-            styledToStringAction(value.Value, stb.OwningAppender);
             if (addQuotes) sb.Append("\"");
         }
         else

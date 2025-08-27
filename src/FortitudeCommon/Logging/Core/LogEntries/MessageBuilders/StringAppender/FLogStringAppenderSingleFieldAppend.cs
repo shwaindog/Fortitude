@@ -22,34 +22,18 @@ public partial class FLogStringAppender
         MessageSb.Append(value).ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
+    public IFLogStringAppender Append<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType
     {
         customTypeStyler(value, MessageStsa);
         return this;
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
+    public IFLogStringAppender Append<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
+        where TToStyle : TStylerType
     {
-        AppendStruct(valueTuple, MessageStsa);
-        return this;
-    }
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler)
-        where TStruct : struct
-    {
-        if (value != null) customTypeStyler(value.Value, MessageStsa);
-        return this;
-    }
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple)
-        where TStruct : struct
-    {
-        AppendStruct(valueTuple, MessageStsa);
+        AppendStyled(valueTuple, MessageStsa);
         return this;
     }
 

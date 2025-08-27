@@ -7,7 +7,7 @@ public static class TestFileSystemHelpers
 
     public static ScopedWorkingDirectory GetTemporaryWorkingDirectoryFor(this Type typeNameSpacePath)
     {
-        var testAssemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var testAssemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
         var typeSubPath          = typeNameSpacePath.Namespace!.Replace('.', Path.DirectorySeparatorChar);
         var cleanedUpClassName   = typeNameSpacePath.Name.Replace('[', '_').Replace(']', '_').Replace('`', '_');
         var fullPath             = Path.Combine(testAssemblyLocation, typeSubPath, cleanedUpClassName);
