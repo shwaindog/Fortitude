@@ -134,10 +134,7 @@ public static class StyledTypeBuilderExtensions
     public static IStringBuilder AppendOrNull(this IStringBuilder sb, string? value, bool inQuotes = false) =>
         value != null ? sb.Qt(inQuotes).Append(value).Qt(inQuotes) : sb.Append(Null);
 
-    public static IStringBuilder AppendOrNull<T>(this IStringBuilder sb, T? value, bool inQuotes = false) where T : struct, ISpanFormattable =>
-        value != null ? sb.Qt(inQuotes).Append(value).Qt(inQuotes) : sb.Append(Null);
-
-    public static IStringBuilder AppendOrNull<TEnum>(this IStringBuilder sb, TEnum? value, bool inQuotes = false) where TEnum : Enum =>
+    public static IStringBuilder AppendOrNull<T>(this IStringBuilder sb, T? value, bool inQuotes = false) where T : ISpanFormattable =>
         value != null ? sb.Qt(inQuotes).Append(value).Qt(inQuotes) : sb.Append(Null);
 
     public static IStringBuilder AppendOrNull(this IStringBuilder sb, bool? value, bool inQuotes = false) =>
@@ -156,7 +153,7 @@ public static class StyledTypeBuilderExtensions
 
     public static IStringBuilder AppendFormattedOrNull<T>
     (this IStringBuilder sb, T? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false) where T : struct, ISpanFormattable =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false) where T : ISpanFormattable =>
         value != null ? sb.Qt(inQuotes).AppendFormat(formatString, value).Qt(inQuotes) : sb.Append(Null);
 
     public static IStringBuilder AppendFormatted<T>

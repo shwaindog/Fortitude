@@ -14,7 +14,6 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     private FLogEntry               logEntry = null!;
     private Action<IStringBuilder?> onComplete = null!;
     
-
     public FormatParameterToStringAppender Initialize(FLogEntry fLogEntry, Action<IStringBuilder?> callWhenComplete,
         IFinalCollectionAppend finalCollectionAppend, IStringBuilder stringBuilder)
     {
@@ -37,29 +36,41 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         DecrementRefCount();
         return convertedToStringAppender;
     }
-    
-    public IFLogStringAppender Add<TFmtStruct>(TFmtStruct[]? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable
+
+    public IFLogStringAppender Add<TStyleObj>(TStyleObj[]? value) where TStyleObj : class, IStyledToStringObject
     {
-        wrappedCollectionApppender.Add(value, formatString);
+        wrappedCollectionApppender.Add(value);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TFmtStruct>((TFmtStruct[]?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender Add<TStyleObj>(IReadOnlyList<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject
     {
-        wrappedCollectionApppender.Add(valueTuple);
+        wrappedCollectionApppender.Add(value);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TFmtStruct>(IReadOnlyList<TFmtStruct>? value, string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddFormat<TFmt>(TFmt[]? value, string? formatString = null) where TFmt : ISpanFormattable
     {
-        wrappedCollectionApppender.Add(value, formatString);
+        wrappedCollectionApppender.AddFormat(value, formatString);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TFmtStruct>((IReadOnlyList<TFmtStruct>?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddFormat<TFmt>((TFmt[]?, string?) valueTuple) where TFmt : ISpanFormattable
     {
-        wrappedCollectionApppender.Add(valueTuple);
+        wrappedCollectionApppender.AddFormat(valueTuple);
+        return ConvertToStringAppender();
+    }
+
+    public IFLogStringAppender AddFormat<TFmt>(IReadOnlyList<TFmt>? value, string? formatString = null)
+        where TFmt : ISpanFormattable
+    {
+        wrappedCollectionApppender.AddFormat(value, formatString);
+        return ConvertToStringAppender();
+    }
+
+    public IFLogStringAppender AddFormat<TFmt>((IReadOnlyList<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable
+    {
+        wrappedCollectionApppender.AddFormat(valueTuple);
         return ConvertToStringAppender();
     }
 
@@ -90,45 +101,59 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TFmtStruct>(TFmtStruct[]? value, OrderedCollectionPredicate<TFmtStruct> filter, string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) 
+        where TStyleObj : class, IStyledToStringObject
     {
-        wrappedCollectionApppender.Add(value, filter, formatString);
+        wrappedCollectionApppender.Add(value, filter);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TFmtStruct>((TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple) 
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender Add<TStyleObj>(IReadOnlyList<TStyleObj>? value, OrderedCollectionPredicate<TStyleObj> filter) 
+        where TStyleObj : class, IStyledToStringObject
     {
-        wrappedCollectionApppender.Add(valueTuple);
+        wrappedCollectionApppender.Add(value, filter);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TFmtStruct>((TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) 
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddFormat<TFmt, TBase>(TFmt[]? value, OrderedCollectionPredicate<TBase> filter, string? formatString = null)
+        where TFmt : ISpanFormattable, TBase
     {
-        wrappedCollectionApppender.Add(valueTuple);
+        wrappedCollectionApppender.AddFormat(value, filter, formatString);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TFmtStruct>(IReadOnlyList<TFmtStruct>? value, OrderedCollectionPredicate<TFmtStruct> filter, string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddFormat<TFmt, TBase>((TFmt[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+        where TFmt : ISpanFormattable, TBase
     {
-        wrappedCollectionApppender.Add(value, filter, formatString);
+        wrappedCollectionApppender.AddFormat(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TFmtStruct>((IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple) 
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddFormat<TFmt, TBase>((TFmt[]?, OrderedCollectionPredicate<TBase>) valueTuple) 
+        where TFmt : ISpanFormattable, TBase
     {
-        wrappedCollectionApppender.Add(valueTuple);
+        wrappedCollectionApppender.AddFormat(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TFmtStruct>((IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) 
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddFormat<TFmt, TBase>(IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TBase> filter, string? formatString = null)
+        where TFmt : ISpanFormattable, TBase
     {
-        wrappedCollectionApppender.Add(valueTuple);
+        wrappedCollectionApppender.AddFormat(value, filter, formatString);
+        return ConvertToStringAppender();
+    }
+
+    public IFLogStringAppender AddFormat<TFmt, TBase>((IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+        where TFmt : ISpanFormattable, TBase
+    {
+        wrappedCollectionApppender.AddFormat(valueTuple);
+        return ConvertToStringAppender();
+    }
+
+    public IFLogStringAppender AddFormat<TFmt, TBase>((IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple) 
+        where TFmt : ISpanFormattable, TBase
+    {
+        wrappedCollectionApppender.AddFormat(valueTuple);
         return ConvertToStringAppender();
     }
 
@@ -160,31 +185,43 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddEnumerate<TFmtStruct>(IEnumerable<TFmtStruct>? value, string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddEnumerate<TStyleObj>(IEnumerable<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject
     {
-        wrappedCollectionApppender.AddEnumerate(value, formatString);
+        wrappedCollectionApppender.AddEnumerate(value);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddEnumerate<TFmtStruct>((IEnumerable<TFmtStruct>?, string?) 
-        valueTuple) where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddEnumerate<TStyleObj>(IEnumerator<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject
     {
-        wrappedCollectionApppender.AddEnumerate(valueTuple);
+        wrappedCollectionApppender.AddEnumerate(value);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddEnumerate<TFmtStruct>(IEnumerator<TFmtStruct>? value, string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddFormatEnumerate<TFmt>(IEnumerable<TFmt>? value, string? formatString = null) 
+        where TFmt : ISpanFormattable
     {
-        wrappedCollectionApppender.AddEnumerate(value, formatString);
+        wrappedCollectionApppender.AddFormatEnumerate(value, formatString);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddEnumerate<TFmtStruct>((IEnumerator<TFmtStruct>?, string?) valueTuple)
-        where TFmtStruct : struct, ISpanFormattable
+    public IFLogStringAppender AddFormatEnumerate<TFmt>((IEnumerable<TFmt>?, string?) 
+        valueTuple) where TFmt : ISpanFormattable
     {
-        wrappedCollectionApppender.AddEnumerate(valueTuple);
+        wrappedCollectionApppender.AddFormatEnumerate(valueTuple);
+        return ConvertToStringAppender();
+    }
+
+    public IFLogStringAppender AddFormatEnumerate<TFmt>(IEnumerator<TFmt>? value, string? formatString = null) 
+        where TFmt : ISpanFormattable
+    {
+        wrappedCollectionApppender.AddFormatEnumerate(value, formatString);
+        return ConvertToStringAppender();
+    }
+
+    public IFLogStringAppender AddFormatEnumerate<TFmt>((IEnumerator<TFmt>?, string?) valueTuple)
+        where TFmt : ISpanFormattable
+    {
+        wrappedCollectionApppender.AddFormatEnumerate(valueTuple);
         return ConvertToStringAppender();
     }
 

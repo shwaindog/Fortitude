@@ -126,7 +126,7 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
     public IFLogStringAppender AppendMatchLine<T>(T value)
     {
         AppendMatchSelect(value, MessageStsa);
-        return AppendLine(this);
+        return AppendObjectLine(this);
     }
     
     public void FinalMatchAppend<T>(T value)

@@ -234,9 +234,9 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFiltered<TFmtStruct>(TFmtStruct[]? value, OrderedCollectionPredicate<TFmtStruct> itemPredicate
+    public TExt AddFiltered<TFmt, TBase>(TFmt[]? value, OrderedCollectionPredicate<TBase> itemPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmt : ISpanFormattable, TBase
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -247,31 +247,6 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 var item = value[i];
                 if (!itemPredicate(i, item)) continue;
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        stb.ConditionalCollectionSuffix();
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AddFiltered<TFmtStruct>(TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> itemPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                if (!itemPredicate(i, item)) continue;
-                any = true;
-                
                 _ = formatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(item, formatString)
                     : stb.AppendOrNull(item);
@@ -284,33 +259,9 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
     
-    public TExt AddFiltered<TFmtStruct>(ReadOnlySpan<TFmtStruct> value, OrderedCollectionPredicate<TFmtStruct> itemPredicate
+    public TExt AddFiltered<TFmtStruct, TBase>(ReadOnlySpan<TFmtStruct> value, OrderedCollectionPredicate<TBase> itemPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
-    {
-        stb.ConditionalCollectionPrefix();
-        var any = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                if (!itemPredicate(i, item)) continue;
-                any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart();
-            }
-            if (any) stb.RemoveLastWhiteSpacedCommaIfFound();
-        }
-        stb.ConditionalCollectionSuffix();
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AddFiltered<TFmtStruct>(ReadOnlySpan<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> itemPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable, TBase
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -332,9 +283,9 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
     
-    public TExt AddFiltered<TFmtStruct>(IReadOnlyList<TFmtStruct>? value, OrderedCollectionPredicate<TFmtStruct> itemPredicate
+    public TExt AddFiltered<TFmtStruct, TBase>(IReadOnlyList<TFmtStruct>? value, OrderedCollectionPredicate<TBase> itemPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable, TBase
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -356,9 +307,9 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddFilteredEnumerate<TFmtStruct>(IEnumerable<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> itemPredicate
+    public TExt AddFilteredEnumerate<TFmtStruct, TBase>(IEnumerable<TFmtStruct>? value, OrderedCollectionPredicate<TBase> itemPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable, TBase
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -380,9 +331,9 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredEnumerate<TFmtStruct>(IEnumerator<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> itemPredicate
+    public TExt AddFilteredEnumerate<TFmtStruct, TBase>(IEnumerator<TFmtStruct>? value, OrderedCollectionPredicate<TBase> itemPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable, TBase
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;

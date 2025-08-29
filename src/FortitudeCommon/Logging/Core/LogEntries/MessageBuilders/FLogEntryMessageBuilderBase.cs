@@ -127,8 +127,8 @@ public abstract partial class FLogEntryMessageBuilder : RecyclableObject, IFLogM
         styledTypeStringAppender.WriteBuffer.Append(value);
     }
 
-    protected static void AppendSpanFormattable<TFmtStruct>((TFmtStruct, string) valueTuple, IStyledTypeStringAppender styledTypeStringAppender)
-        where TFmtStruct : struct, ISpanFormattable
+    protected static void AppendSpanFormattable<TFmt>((TFmt, string) valueTuple, IStyledTypeStringAppender styledTypeStringAppender)
+        where TFmt : ISpanFormattable
     {
         var (value, formatString) = valueTuple;
         styledTypeStringAppender.WriteBuffer.AppendFormat(formatString, value);
@@ -318,7 +318,7 @@ public abstract partial class FLogEntryMessageBuilder : RecyclableObject, IFLogM
         Action<object?, IStyledTypeStringAppender> unknownAppender = AppendObject;
 
         CreateWarningMessageAppender()?
-            .Append("Created auto serializer call object for type '").Append(type.Name).Append("' at ").FinalAppend(LogEntry.LogLocation);
+            .Append("Created auto serializer call object for type '").Append(type.Name).Append("' at ").FinalAppendObject(LogEntry.LogLocation);
 
         FLogStringSerializerRegistry.AutoRegisterSerializerFor(unknownAppender, LogEntry.LogLocation);
         unknownAppender(value, toAppendTo);

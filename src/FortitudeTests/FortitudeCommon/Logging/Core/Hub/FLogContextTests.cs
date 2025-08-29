@@ -22,7 +22,7 @@ public class FLogContextTests
         var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
         var appReg = (IMutableFLogAppenderRegistry)startedContext.AppenderRegistry;
 
-        var spyRing = new LogEntrySpyRingInvestigation();
+        var spyRing = new SnapLogEntrySpyRingInvestigation();
 
         var loggerSpy = spyRing.TrainNewSpy("Test Logger Spy");
         logger.Logger.PublishEndpoint.Insert(loggerSpy);

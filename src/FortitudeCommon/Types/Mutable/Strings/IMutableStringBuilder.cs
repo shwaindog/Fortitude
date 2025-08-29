@@ -30,8 +30,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(float value);
     T Append(string? value);
     T Append(string? value, int startIndex, int length =  int.MaxValue, string? formatString = null);
-    T Append<TStruct>(TStruct arg0) where TStruct : struct, ISpanFormattable;
-    T Append<TStruct>(TStruct? arg0) where TStruct : struct, ISpanFormattable;
+    T Append<TFmt>(TFmt arg0) where TFmt : ISpanFormattable;
     T Append(Span<char> value);
     T Append(Span<char> value, int startIndex, int length =  int.MaxValue, string? formatString = null);
     T Append(ReadOnlySpan<char> value);
@@ -47,8 +46,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
 
     T AppendSpanFormattable<TClass>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TClass? arg0) where TClass : class, ISpanFormattable;
 
-    T AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct arg0) where TStruct : struct, ISpanFormattable;
-    T AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct? arg0) where TStruct : struct, ISpanFormattable;
+    T AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) where TFmt : ISpanFormattable;
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0);

@@ -42,17 +42,12 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
     public TExt Boolean(string nonJsonfieldName, bool? value) =>
         Stb.FieldValueNext(nonJsonfieldName, value);
     
-    public TExt NumberWithFallback<TNum>(string nonJsonfieldName, TNum? value, TNum fallbackValue )  where TNum : struct, INumber<TNum> => 
-        Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue);
+    public TExt Number<TFmt>(string nonJsonfieldName, TFmt? value, string? formatString = null )  where TFmt : ISpanFormattable => 
+        Stb.FieldValueNext(nonJsonfieldName, value, formatString);
     
-    public TExt Number<TNum>(string nonJsonfieldName, TNum? value)  where TNum : struct, INumber<TNum> =>
-        Stb.FieldValueOrNullNext(nonJsonfieldName, value);
-    
-    public TExt NumberFrom<TEnum>(string nonJsonfieldName, TEnum? value)  where TEnum : Enum => 
-        Stb.FieldEnumValueOrNullNext(nonJsonfieldName, value);
-    
-    public TExt NumberFromWithFallback<TEnum>(string nonJsonfieldName, TEnum? value, TEnum fallbackValue)  where TEnum : Enum =>
-        Stb.FieldEnumValueOrNullNext(nonJsonfieldName, value ?? fallbackValue);
+    public TExt NumberWithFallback<TFmt>(string nonJsonfieldName, TFmt? value, TFmt fallbackValue, string? formatString = null )  
+        where TFmt : ISpanFormattable => 
+        Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, formatString);
 
     public TExt ValueWithFallback<T>(string nonJsonfieldName, T? value
       , CustomTypeStyler<T> customTypeStyler, T fallbackValue) where T : struct =>
@@ -71,18 +66,18 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
       , CustomTypeStyler<TBase> customTypeStyler) where T : TBase  =>
         Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler);
 
-    public TExt StringWithFallback<T>(string nonJsonfieldName, T? value
-      , CustomTypeStyler<T> customTypeStyler, T fallbackValue) where T : struct =>
+    public TExt StringWithFallback<T, TBase>(string nonJsonfieldName, T? value
+      , CustomTypeStyler<TBase> customTypeStyler, T fallbackValue) where T : TBase =>
         Stb.FieldStringNext(nonJsonfieldName, value ?? fallbackValue, customTypeStyler);
 
     public TExt String(string nonJsonfieldName, ReadOnlySpan<char> value) => 
         Stb.FieldStringNext(nonJsonfieldName, value);
 
-    public TExt StringWithFallback<TEnum>(string nonJsonfieldName, TEnum? value, TEnum fallback) where TEnum : Enum => 
-        Stb.FieldEnumStringNext(nonJsonfieldName, value ?? fallback);
+    public TExt String<TFmt>(string nonJsonfieldName, TFmt? value, string? formatString) where TFmt : ISpanFormattable => 
+        Stb.FieldStringNext(nonJsonfieldName, value, formatString);
 
-    public TExt StringEnum<TEnum>(string nonJsonfieldName, TEnum? value) where TEnum : Enum => 
-        Stb.FieldEnumStringOrNullNext(nonJsonfieldName, value);
+    public TExt StringWithFallback<TFmt>(string nonJsonfieldName, TFmt? value, TFmt fallback, string? formatString) where TFmt : ISpanFormattable => 
+        Stb.FieldStringNext(nonJsonfieldName, value ?? fallback, formatString);
     
     public TExt StringWithFallback(string nonJsonfieldName, string? value, string fallbackValue) => 
         Stb.FieldStringNext(nonJsonfieldName, value ?? fallbackValue);

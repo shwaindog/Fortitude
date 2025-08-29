@@ -39,7 +39,7 @@ public abstract partial class FLogEntryMessageBuilder
             var warningAppender = CreateWarningMessageAppender(FLogLevel.Warn);
             warningAppender
                 .Append("Problem trying to create dynamic collection type appender for collection type '").Append(collectionType.Name)
-                .Append("'. Got ").FinalAppend(ex);
+                .Append("'. Got ").FinalAppendObject(ex);
         }
         return null;
     }
@@ -68,7 +68,7 @@ public abstract partial class FLogEntryMessageBuilder
                         return structStylerInvoker;
                     }
                     var warningAppender = CreateWarningMessageAppender();
-                    warningAppender.Append("Incompatible format appender '").Append(item2Type).Append("' for tuple ")
+                    warningAppender.Append("Incompatible format appender '").AppendObject(item2Type).Append("' for tuple ")
                                    .Append(" ValueTuple<").Append(item1Type.Name).Append(", ").Append(item2Type.Name).FinalAppend(">");
                 }
                 if (item2Type.IsOrderedCollectionFilterPredicate())
@@ -89,7 +89,7 @@ public abstract partial class FLogEntryMessageBuilder
                         return structStylerInvoker;
                     }
                     var warningAppender = CreateWarningMessageAppender();
-                    warningAppender.Append("Incompatible format appender '").Append(item2Type).Append("' for tuple ")
+                    warningAppender.Append("Incompatible format appender '").AppendObject(item2Type).Append("' for tuple ")
                                    .Append(" ValueTuple<").Append(item1Type.Name).Append(", ").Append(item2Type.Name).FinalAppend(">");
                 }
             }
@@ -100,7 +100,7 @@ public abstract partial class FLogEntryMessageBuilder
             warningAppender
                 .Append("Problem trying to create dynamic collection type appender for collection type '").Append(item1Type.Name)
                 .Append("' for tuple ").Append(" ValueTuple<").Append(item1Type.Name).Append(", ")
-                .Append(item2Type.Name).Append(">. Got ").FinalAppend(ex);
+                .Append(item2Type.Name).Append(">. Got ").FinalAppendObject(ex);
         }
 
         return null;
@@ -134,7 +134,7 @@ public abstract partial class FLogEntryMessageBuilder
             warningAppender
                 .Append("Problem trying to create dynamic collection type appender for collection type '").Append(item1Type.Name)
                 .Append("' for tuple ").Append(" ValueTuple<").Append(item1Type.Name).Append(", ").Append(item2Type.Name).Append(", ")
-                .Append(item3Type.Name).Append(">. Got ").FinalAppend(ex);
+                .Append(item3Type.Name).Append(">. Got ").FinalAppendObject(ex);
         }
 
         return null;

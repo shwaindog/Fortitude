@@ -2,6 +2,7 @@
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
@@ -16,17 +17,13 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable =>
-        PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value)?.ToAdditionalFormatBuilder(value);
-
-    [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable =>
+    public IFLogAdditionalFormatterParameterEntry? WithParams<TFmt>(TFmt value) where TFmt : ISpanFormattable =>
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 
         where TToStyle : TStylerType =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) 
@@ -44,7 +41,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value)?.ToAdditionalFormatBuilder(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value, startIndex, count)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(string? value) =>
@@ -96,7 +93,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(char[]? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(ICharSequence? value) =>
@@ -122,7 +119,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(ICharSequence? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(StringBuilder? value) =>
@@ -148,15 +145,16 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(StringBuilder? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithParams(IStyledToStringObject? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams(object? value) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
+    [CallsObjectToString]
+    public IFLogAdditionalFormatterParameterEntry? WithObjectParams(object? value) =>
+        PreCheckTokensGetStringBuilder(value).ReplaceTokensMatch(value)?.ToAdditionalFormatBuilder(value);
 
 
 }

@@ -25,7 +25,7 @@ public interface IFLogFormatterParameterEntry : IFLogMessageBuilder
     IStringBuilder FormatWriteBuffer { get; }
 }
 
-public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
+public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
     : FLogEntryMessageBuilderBase<TIFormatEntry, TFormatEntryImpl>, IFLogFormatterParameterEntry
     where TFormatEntryImpl : FLogEntryMessageBuilderBase<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
     where TIFormatEntry : class, IFLogMessageBuilder
@@ -126,7 +126,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
             Warnings
                 .Append(memberName).Append("(").Append(typeof(T).Name)
                 .Append(") at [").Append(FLogCallLocation)
-                .Append("] has no more format tokens requiring substitution");
+                .Append("] has no more format tokens requiring substitution. > ");
             CallOnComplete();
             return null;
         }
@@ -148,7 +148,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
                     .Append(callMemberName).Append("(").Append(typeof(T).Name)
                     .Append(") at [").Append(FLogCallLocation)
                     .Append("] has no more remaining tokens after replacing parameter {")
-                    .Append(CurrentParamNum).Append("}");
+                    .Append(CurrentParamNum).Append("}. > ");
                 if (OnCompleteSwitchesToStringAppender)
                 {
                     if (Warnings.Length > 0) FormatBuilder.BackingStringBuilder.InsertAt(Warnings);
@@ -192,7 +192,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         if (FormatTokens.Any()) return Me;
         Warnings.Append(memberName).Append("(").Append(typeof(T).Name).Append(" ")
                 .Append(param).Append(") at [").Append(FLogCallLocation)
-                .Append("] no formatting tokens remaining");
+                .Append("] no formatting tokens remaining. > ");
         return null;
     }
 
@@ -202,7 +202,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         if (FormatTokens.Any()) return Me;
         Warnings.Append(memberName).Append("(").Append(nameof(Span<char>)).Append(" ")
                 .Append(param).Append(") at [").Append(FLogCallLocation)
-                .Append("] no formatting tokens remaining");
+                .Append("] no formatting tokens remaining. > ");
         return null;
     }
 
@@ -212,28 +212,42 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         if (FormatTokens.Any()) return Me;
         Warnings.Append(memberName).Append("(").Append(nameof(ReadOnlySpan<char>)).Append(" ")
                 .Append(param).Append(") at [").Append(FLogCallLocation)
-                .Append("] no formatting tokens remaining");
+                .Append("] no formatting tokens remaining. > ");
         return null;
     }
 
-    internal TFormatEntryImpl ReplaceSpanFmtTokenNumber<TFmtStrct>(TFmtStrct spanFormattable)
-        where TFmtStrct : struct, ISpanFormattable
+    internal TFormatEntryImpl ReplaceTokenNumber(bool param)
     {
+        FormatSb.Clear();
+        FormatSb.Append(param ? "true" : "false");
         for (var i = 0; i < FormatTokens.Count; i++)
         {
             var token = FormatTokens[i];
             if (token.ParameterNumber == CurrentParamNum)
             {
-                FormatSb.Clear();
-                FormatSb.Append(spanFormattable);
                 FormatBuilder.ReplaceTokenWith(token, FormatSb);
             }
         }
         return Me;
     }
 
-    internal TFormatEntryImpl ReplaceSpanFmtTokenNumber<TFmtStrct>(TFmtStrct? spanFormattable)
-        where TFmtStrct : struct, ISpanFormattable
+    internal TFormatEntryImpl ReplaceTokenNumber(bool? param)
+    {
+        if(param != null) return ReplaceTokenNumber(param.Value);
+        FormatSb.Append("null");
+        for (var i = 0; i < FormatTokens.Count; i++)
+        {
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
+            {
+                FormatBuilder.ReplaceTokenWith(token, FormatSb);
+            }
+        }
+        return Me;
+    }
+
+    internal TFormatEntryImpl ReplaceSpanFmtTokenNumber<TFmt>(TFmt spanFormattable)
+        where TFmt : ISpanFormattable
     {
         for (var i = 0; i < FormatTokens.Count; i++)
         {
@@ -241,7 +255,23 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
             if (token.ParameterNumber == CurrentParamNum)
             {
                 FormatSb.Clear();
-                FormatSb.Append(spanFormattable);
+                FormatSb.AppendFormat(token.StringFormat, spanFormattable);
+                FormatBuilder.ReplaceTokenWith(token, FormatSb);
+            }
+        }
+        return Me;
+    }
+
+    internal TFormatEntryImpl ReplaceEnumTokenNumber<TEnum>(TEnum spanFormattable)
+        where TEnum : Enum
+    {
+        for (var i = 0; i < FormatTokens.Count; i++)
+        {
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
+            {
+                FormatSb.Clear();
+                FormatSb.AppendFormat(token.StringFormat, spanFormattable);
                 FormatBuilder.ReplaceTokenWith(token, FormatSb);
             }
         }
@@ -268,7 +298,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         if (param == null) return ReplaceTokenNumber("");
         var cappedFrom   = Math.Clamp(fromIndex, 0, param.Length);
         var cappedTo     = Math.Clamp(fromIndex + count, 0, param.Length);
-        var cappedLength = cappedFrom - cappedTo;
+        var cappedLength = cappedTo - cappedFrom;
         if (cappedLength <= 0) return ReplaceTokenNumber("");
         if (cappedFrom == 0 && cappedTo == param.Length) return ReplaceTokenNumber(param);
         if (cappedLength < 1024)
@@ -302,8 +332,6 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
             var token = FormatTokens[i];
             if (token.ParameterNumber == CurrentParamNum)
             {
-                FormatSb.Clear();
-                FormatSb.AppendFormat(token.StringFormat, param);
                 FormatBuilder.ReplaceTokenWith(token, param);
             }
         }
@@ -315,37 +343,49 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         if (param == null) return ReplaceTokenNumber("");
         var cappedFrom   = Math.Clamp(fromIndex, 0, param.Length);
         var cappedTo     = Math.Clamp(fromIndex + count, 0, param.Length);
-        var cappedLength = cappedFrom - cappedTo;
+        var cappedLength = cappedTo - cappedFrom;
         if (cappedLength <= 0) return ReplaceTokenNumber("");
-        if (cappedFrom == 0 && cappedTo == param.Length) return ReplaceTokenNumber(param);
+        if (cappedFrom == 0 && cappedTo == param.Length) return ReplaceStagingTokenNumber(param);
         if (cappedLength < 1024)
         {
             var onStack                                       = stackalloc char[cappedLength].ResetMemory();
             for (var i = 0; i < cappedLength; i++) onStack[i] = param[cappedFrom + i];
             return ReplaceTokenNumber(onStack);
         }
-        var recyclingCharArray = cappedLength.SourceRecyclingCharArray();
-        recyclingCharArray.Add(param, fromIndex, count);
-        var arraySpan = recyclingCharArray.WrittenAsSpan();
-        ReplaceTokenNumber(arraySpan);
-        recyclingCharArray.DecrementRefCount();
+        FormatSb.Clear();
+        FormatSb.Append(param);
+        ReplaceStagingTokenNumber(FormatSb);
         return Me;
     }
 
-    internal TFormatEntryImpl ReplaceTokenNumber(char[] param)
+    internal TFormatEntryImpl ReplaceTokenNumber(char[]? param)
     {
-        var asReadOnly = (ReadOnlySpan<char>)param;
-        return ReplaceTokenNumber(asReadOnly);
+        FormatSb.Clear();
+        FormatSb.Append(param);
+        for (var i = 0; i < FormatTokens.Count; i++)
+        {
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
+            {
+                FormatBuilder.ReplaceTokenWith(token, FormatSb);
+            }
+        }
+        return Me;
     }
 
     internal TFormatEntryImpl ReplaceTokenNumber(char[]? param, int fromIndex, int count)
     {
-        if (param == null) return ReplaceTokenNumber("");
-        var cappedFrom = Math.Clamp(fromIndex, 0, param.Length);
-        var cappedTo   = Math.Clamp(fromIndex + count, 0, param.Length);
-
-        var asReadOnly = (ReadOnlySpan<char>)param[cappedFrom..cappedTo];
-        return ReplaceTokenNumber(asReadOnly);
+        FormatSb.Clear();
+        FormatSb.Append(param, fromIndex, count);
+        for (var i = 0; i < FormatTokens.Count; i++)
+        {
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
+            {
+                FormatBuilder.ReplaceTokenWith(token, FormatSb);
+            }
+        }
+        return Me;
     }
 
     internal TFormatEntryImpl ReplaceTokenNumber(Span<char> param)
@@ -387,7 +427,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         return ReplaceTokenNumber(asReadOnly);
     }
 
-    internal TFormatEntryImpl ReplaceTokenNumber<T>(T? param)
+    internal TFormatEntryImpl ReplaceMatchTokenNumber<T>(T? param)
     {
         for (var i = 0; i < FormatTokens.Count; i++)
         {
@@ -416,7 +456,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         return Me;
     }
 
-    internal TFormatEntryImpl ReplaceTokenNumber(IStyledToStringObject? param)
+    internal TFormatEntryImpl ReplaceStyledTokenNumber(IStyledToStringObject? param)
     {
         FormatSb.Clear();
         param?.ToString(FormatStsa!);
@@ -428,13 +468,34 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         return Me;
     }
 
-    internal TFormatEntryImpl ReplaceTokenNumber(string param, int fromIndex, int count)
+    internal TFormatEntryImpl ReplaceTokenNumber(string? param)
     {
-        var cappedFrom = Math.Clamp(fromIndex, 0, param.Length);
-        var cappedTo   = Math.Clamp(fromIndex + count, 0, param.Length);
+        FormatSb.Clear();
+        FormatSb.Append(param);
+        for (var i = 0; i < FormatTokens.Count; i++)
+        {
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
+            {
+                FormatBuilder.ReplaceTokenWith(token, FormatSb);
+            }
+        }
+        return Me;
+    }
 
-        var asReadOnly = (ReadOnlySpan<char>)param[cappedFrom..cappedTo];
-        return ReplaceTokenNumber(asReadOnly);
+    internal TFormatEntryImpl ReplaceTokenNumber(string? param, int fromIndex, int count)
+    {
+        FormatSb.Clear();
+        FormatSb.Append(param, fromIndex, count);
+        for (var i = 0; i < FormatTokens.Count; i++)
+        {
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
+            {
+                FormatBuilder.ReplaceTokenWith(token, FormatSb);
+            }
+        }
+        return Me;
     }
 
     internal TFormatEntryImpl? ExpectContinue<T>(T paramValue, string callMemberName = "")
@@ -445,7 +506,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
                 .Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
                 .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                 .Append("] has no more remaining tokens after replacing parameter {")
-                .Append(CurrentParamNum).Append("}");
+                .Append(CurrentParamNum).Append("}. > ");
             CallOnComplete();
             return null;
         }
@@ -461,7 +522,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
                 .Append(callMemberName).Append("(").Append("ReadOnlySpan<char>").Append(" ")
                 .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                 .Append("] has no more remaining tokens after replacing parameter {")
-                .Append(CurrentParamNum).Append("}");
+                .Append(CurrentParamNum).Append("}. > ");
             CallOnComplete();
             return null;
         }
@@ -476,7 +537,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
                 .Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
                 .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                 .Append("] has remaining tokens after replacing parameter {")
-                .Append(CurrentParamNum).Append("} and converting to StringAppender");
+                .Append(CurrentParamNum).Append("} and converting to StringAppender. > ");
 
         var formattedStringSoFar = FormatBuilder.BackingStringBuilder;
 
@@ -501,7 +562,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
                     .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                     .Append("] has remaining tokens after replacing parameter {")
                     .Append(CurrentParamNum)
-                    .Append("} and converting to StringAppender");
+                    .Append("} and converting to StringAppender. > ");
 
         var formattedStringSoFar = FormatBuilder.BackingStringBuilder;
 
@@ -529,7 +590,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
                     .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                     .Append("] has no more remaining tokens after replacing with the first parameter")
                     .Append(0)
-                    .Append("}");
+                    .Append("}. > ");
             CallOnComplete();
             return null;
         }
@@ -549,7 +610,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
                     .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                     .Append("] has no more remaining tokens after replacing with the first parameter")
                     .Append(0)
-                    .Append("}");
+                    .Append("}. > ");
             CallOnComplete();
             return null;
         }
@@ -566,7 +627,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         {
             Warnings.Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
                     .Append(paramValue).Append(") at [").Append(FLogCallLocation)
-                    .Append("] still has more tokens after replacing with the first parameter");
+                    .Append("] still has more tokens after replacing with the first parameter. > ");
             CallOnComplete();
             return;
         }
@@ -581,7 +642,7 @@ public abstract partial class FormatParameterEntry<TIFormatEntry, TFormatEntryIm
         {
             Warnings.Append(callMemberName).Append("(").Append("ReadOnlySpan<char>").Append(" ")
                     .Append(paramValue).Append(") at [").Append(FLogCallLocation)
-                    .Append("] still has more tokens after replacing with the first parameter");
+                    .Append("] still has more tokens after replacing with the first parameter. > ");
             CallOnComplete();
             return;
         }
@@ -623,14 +684,7 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam, T paramValue)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder
-        where T : struct, ISpanFormattable =>
-        maybeParam?.ReplaceSpanFmtTokenNumber(paramValue);
-
-    public static TFormatEntryImpl? ReplaceSpanFmtTokens<TFormatEntryImpl, TIFormatEntry, T>(
-        this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam, T? paramValue)
-        where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
-        where TIFormatEntry : class, IFLogMessageBuilder
-        where T : struct, ISpanFormattable =>
+        where T : ISpanFormattable =>
         maybeParam?.ReplaceSpanFmtTokenNumber(paramValue);
 
     public static TFormatEntryImpl? ReplaceCustStyleTokens<TFormatEntryImpl, TIFormatEntry, TToStyle, TStylerType>(
@@ -639,6 +693,13 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder
         where TToStyle : TStylerType =>
+        maybeParam?.ReplaceTokenNumber(paramValue, customTypeStyler);
+
+    public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
+        this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
+      , char[]? paramValue)
+        where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
+        where TIFormatEntry : class, IFLogMessageBuilder =>
         maybeParam?.ReplaceTokenNumber(paramValue);
 
     public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
@@ -648,11 +709,11 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
         where TIFormatEntry : class, IFLogMessageBuilder =>
         maybeParam?.ReplaceTokenNumber(paramValue, fromIndex, count);
 
-    public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry, T>(
+    public static TFormatEntryImpl? ReplaceTokensMatch<TFormatEntryImpl, TIFormatEntry, T>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam, T paramValue)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder =>
-        maybeParam?.ReplaceTokenNumber(paramValue);
+        maybeParam?.ReplaceMatchTokenNumber(paramValue);
 
     public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
@@ -660,6 +721,13 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder =>
         maybeParam?.ReplaceTokenNumber(paramValue, fromIndex, count);
+
+    public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
+        this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
+      , ICharSequence? paramValue)
+        where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
+        where TIFormatEntry : class, IFLogMessageBuilder =>
+        maybeParam?.ReplaceStagingTokenNumber(paramValue);
 
     public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
@@ -677,6 +745,12 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
 
     public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
+      , StringBuilder? paramValue)
+        where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
+        where TIFormatEntry : class, IFLogMessageBuilder => maybeParam?.ReplaceTokenNumber(paramValue);
+
+    public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
+        this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
       , StringBuilder? paramValue, int fromIndex, int count)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder =>
@@ -685,6 +759,13 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
     public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
       , IStyledToStringObject? paramValue)
+        where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
+        where TIFormatEntry : class, IFLogMessageBuilder =>
+        maybeParam?.ReplaceStyledTokenNumber(paramValue);
+
+    public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
+        this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
+      , string? paramValue)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder =>
         maybeParam?.ReplaceTokenNumber(paramValue);

@@ -62,10 +62,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmtStruct>
-    (string fieldName, TFmtStruct[]? value, OrderedCollectionPredicate<TFmtStruct> filterPredicate
+    public TExt WhenPopulatedWithFilter<TFmt>
+    (string fieldName, TFmt[]? value, OrderedCollectionPredicate<TFmt> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmt : ISpanFormattable
     {
         var found = false;
         if (value != null)
@@ -352,9 +352,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct>? value, OrderedCollectionPredicate<TFmtStruct> filterPredicate
+    public TExt WhenPopulatedWithFilter<TFmt>(string fieldName, IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TFmt> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmt : ISpanFormattable
     {
         var found = false;
         if (value != null)

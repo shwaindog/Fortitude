@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Numerics;
 using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 
@@ -32,37 +31,11 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext<TNum>(string nonJsonfieldName, TNum value) where TNum : struct, INumber<TNum>
+    public TExt FieldValueNext<TFmt>(string nonJsonfieldName, TFmt? value, string? formatString = null) where TFmt : ISpanFormattable
     {
-        (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb).AddNullOrValue(value, this, false);
-        return ConditionalCollectionSuffix();
-    }
-
-    public TExt FieldValueOrNullNext<TNum>(string nonJsonfieldName, TNum? value) where TNum : struct, INumber<TNum>
-    {
-        (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb).AddNullOrValue(value, this, false);
-        return ConditionalCollectionSuffix();
-    }
-
-    public TExt FieldEnumValueNext<TEnum>(string nonJsonfieldName, TEnum value) where TEnum : Enum
-    {
-        (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb)
-            .AddNullOrValue(((IConvertible)value).ToInt64(null), this, false);
-        return ConditionalCollectionSuffix();
-    }
-
-    public TExt FieldEnumValueOrNullNext<TEnum>(string nonJsonfieldName, TEnum? value) where TEnum : Enum
-    {
-        (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb)
-            .AddNullOrValue(value != null ? ((IConvertible)value).ToInt64(null) : (long?)null, this, false);
-        return ConditionalCollectionSuffix();
-    }
-
-    public TExt FieldValueNext<TNum>(string nonJsonfieldName, TNum value, string? formatString) where TNum : struct, INumber<TNum>
-    {
-        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        if (formatString != null) this.AppendFormattedOrNull(value, formatString);
-        else this.AppendOrNull(value,  false);
+        var sb= (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb);
+        if (formatString != null) sb.AppendFormattedOrNull(value, formatString);
+        else sb.AddNullOrValue(value, this, false);
         return ConditionalCollectionSuffix();
     }
 
@@ -89,8 +62,8 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler, string defaultValue = "") 
-        where TToStyle : TStylerType
+    public TExt FieldStringNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler
+      , string defaultValue = "") where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -123,10 +96,11 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldEnumStringNext<TEnum>(string nonJsonfieldName, TEnum value) where TEnum : Enum
+    public TExt FieldStringNext<TFmt>(string nonJsonfieldName, TFmt? value, string? formatString = null) where TFmt : ISpanFormattable
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"").AppendOrNull(value).Append("\"");
+        if(formatString != null) Sb.AppendFormattedOrNull(value, formatString, true);
+        else Sb.Append("\"").AppendOrNull(value).Append("\"");
         return ConditionalCollectionSuffix();
     }
 

@@ -169,8 +169,6 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct arg0) => Append(arg0);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct? arg0) => Append(arg0);
-
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value) => Append(value);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value, int startIndex, int length, string? formatString) => 
@@ -195,9 +193,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendSpanFormattable<TClass>(string format, TClass? arg0) 
         where TClass : class => AppendSpanFormattable(format, arg0);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TStruct>(string format, TStruct arg0) => AppendFormat(format, arg0);
-
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TStruct>(string format, TStruct? arg0) => AppendFormat(format, arg0);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TFmt>(string format, TFmt arg0) => AppendFormat(format, arg0);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, string arg0) => AppendFormat(format, arg0);
 
@@ -835,8 +831,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Append<TStruct>(TStruct arg0) 
-        where TStruct : struct, ISpanFormattable
+    public MutableString Append<TFmt>(TFmt arg0) 
+        where TFmt : ISpanFormattable
     {
         var charSpan     = stackalloc char[256].ResetMemory();
         if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
@@ -844,15 +840,6 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
             sb.Append(charSpan[..charsWritten]);
         }
 
-        return this;
-    }
-
-    public MutableString Append<TStruct>(TStruct? arg0) 
-        where TStruct : struct, ISpanFormattable
-    {
-        if (arg0 == null) return this;
-
-        Append(arg0.Value);
         return this;
     }
 
@@ -993,10 +980,10 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct arg0) 
-        where TStruct : struct, ISpanFormattable
+    public MutableString AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) 
+        where TFmt : ISpanFormattable
     {
-        if (TryGetCachedCustomSpanFormatter<TStruct>(out var formatter))
+        if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
         {
             var charSpan     = stackalloc char[256].ResetMemory();
             var charsWritten = formatter(arg0, charSpan, format, null);
@@ -1005,8 +992,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         }
         if (arg0 is Enum)
         {
-            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateStructEnumFormatProvider<TStruct>();
-            CustomSpanFormattableProviders.TryAdd(typeof(TStruct), enumFormatProvider);
+            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateStructEnumFormatProvider<TFmt>();
+            CustomSpanFormattableProviders.TryAdd(typeof(TFmt), enumFormatProvider);
             formatter =  enumFormatProvider.CustomSpanFormattable;
             var charSpan     = stackalloc char[1024].ResetMemory();
             var charsWritten = formatter(arg0, charSpan, format, null);
@@ -1016,24 +1003,19 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         try
         {
             var charSpan = stackalloc char[1024].ResetMemory();
-            if (arg0.TryFormat(charSpan, out var charsWritten, format: format, provider: null))
+            format.AsSpan().ExtractStringFormatStages(out var _, out var layout, out var formatting);
+            if (arg0.TryFormat(charSpan, out var charsWritten, format: formatting, provider: null))
             {
-                sb.Append(charSpan[..charsWritten]);
+                if(layout.Length == 0) return Append(charSpan[..charsWritten]);
+                var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
+                var padSize = padSpan.PadAndAlign(charSpan[..charsWritten], layout); 
+                sb.Append(padSpan[..padSize]);
             }
         }
         catch (FormatException)
         {
             AppendFormat(format, arg0.ToString()!);
         }
-        return this;
-    }
-
-    public MutableString AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct? arg0) 
-        where TStruct : struct, ISpanFormattable
-    {
-        if (arg0 == null) return this;
-
-        AppendFormat(format, arg0.Value);
         return this;
     }
 
@@ -1235,6 +1217,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public int EnsureCapacity(int capacity)
     {
+        sb.Length += capacity;
         return sb.EnsureCapacity(capacity);
     }
 

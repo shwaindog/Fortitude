@@ -41,7 +41,7 @@ public class NullAppender(INullAppenderConfig appenderDefinitionConfig)
         set => _ = value;
     }
 
-    public string AppenderType => $"{nameof(FLoggerBuiltinAppenderType.Null)}";
+    public string AppenderType => $"{nameof(FLoggerBuiltinAppenderType.NullEntry)}";
 
     public IAppenderAsyncClient AsyncClient
     {

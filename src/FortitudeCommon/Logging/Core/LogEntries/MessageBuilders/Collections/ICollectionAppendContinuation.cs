@@ -7,16 +7,22 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 public interface ICollectionAppendContinuation<out TToReturn>
 {
     [MustUseReturnValue("Use Final*, AndFinal* or WithOnly* to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>(TFmtStruct[]? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn Add<TStyleObj>(TStyleObj[]? value) where TStyleObj : class, IStyledToStringObject;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>((TFmtStruct[]?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn Add<TStyleObj>(IReadOnlyList<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject;
+    
+    [MustUseReturnValue("Use Final*, AndFinal* or WithOnly* to finish and send LogEntry")]
+    TToReturn AddFormat<TFmt>(TFmt[]? value, string? formatString = null) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>(IReadOnlyList<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn AddFormat<TFmt>((TFmt[]?, string?) valueTuple) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>((IReadOnlyList<TFmtStruct>?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn AddFormat<TFmt>(IReadOnlyList<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable;
+
+    [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
+    TToReturn AddFormat<TFmt>((IReadOnlyList<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
     TToReturn Add<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
@@ -31,28 +37,35 @@ public interface ICollectionAppendContinuation<out TToReturn>
     TToReturn Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>(TFmtStruct[]? value
-      , OrderedCollectionPredicate<TFmtStruct> filter, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) where TStyleObj : class, IStyledToStringObject;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>(
-        (TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn Add<TStyleObj>(IReadOnlyList<TStyleObj>? value, OrderedCollectionPredicate<TStyleObj> filter) 
+        where TStyleObj : class, IStyledToStringObject;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>(
-        (TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn AddFormat<TFmt, TBase>(TFmt[]? value
+      , OrderedCollectionPredicate<TBase> filter, string? formatString = null) where TFmt : ISpanFormattable, TBase;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>(IReadOnlyList<TFmtStruct>? value
-      , OrderedCollectionPredicate<TFmtStruct> filter, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn AddFormat<TFmt, TBase>(
+        (TFmt[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple) where TFmt : ISpanFormattable, TBase;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>(
-        (IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn AddFormat<TFmt, TBase>(
+        (TFmt[]?, OrderedCollectionPredicate<TBase>) valueTuple) where TFmt : ISpanFormattable, TBase;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TFmtStruct>(
-        (IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn AddFormat<TFmt, TBase>(IReadOnlyList<TFmt>? value
+      , OrderedCollectionPredicate<TBase> filter, string? formatString = null) where TFmt : ISpanFormattable, TBase;
+
+    [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
+    TToReturn AddFormat<TFmt, TBase>(
+        (IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>, string?) valueTuple) where TFmt : ISpanFormattable, TBase;
+
+    [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
+    TToReturn AddFormat<TFmt, TBase>(
+        (IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple) where TFmt : ISpanFormattable, TBase;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
     TToReturn Add<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value
@@ -71,18 +84,23 @@ public interface ICollectionAppendContinuation<out TToReturn>
         (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) 
         where TToStyle : TToStyleBase, TStylerType;
 
-    [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
-    TToReturn AddEnumerate<TFmtStruct>
-        (IEnumerable<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
+    TToReturn AddEnumerate<TStyleObj>(IEnumerable<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject;
+
+    [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
+    public TToReturn AddEnumerate<TStyleObj>(IEnumerator<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
-    TToReturn AddEnumerate<TFmtStruct>((IEnumerable<TFmtStruct>?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn AddFormatEnumerate<TFmt>(IEnumerable<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
-    TToReturn AddEnumerate<TFmtStruct>(IEnumerator<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn AddFormatEnumerate<TFmt>((IEnumerable<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
-    TToReturn AddEnumerate<TFmtStruct>((IEnumerator<TFmtStruct>?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable;
+    TToReturn AddFormatEnumerate<TFmt>(IEnumerator<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable;
+
+    [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
+    TToReturn AddFormatEnumerate<TFmt>((IEnumerator<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value

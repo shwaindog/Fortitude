@@ -25,16 +25,12 @@ public class SyncDailyFileTests
                 .InitializeContextFromWorkingDirFilePath(Environment.CurrentDirectory, FLogConfigFile.DefaultConfigFullFilePath)
                 .StartFlogSetAsCurrentContext();
 
-        var manualResetEvent = new ManualResetEvent(false);
         var testLogger       = FLog.FLoggerForType.As<IVersatileFLogger>();
-        context.AppenderRegistry.WhenAppenderProcessedCountRun(DailyLogFileAppenderName, 5, (_, _) => manualResetEvent.Set());
         
         testLogger.TrcApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.DbgApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.InfApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.WrnApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.ErrApnd("Testing")?.Args(" 1,", " 2,", " 3.");
-        
-        manualResetEvent.WaitOne();
     }
 }

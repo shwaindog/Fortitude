@@ -5,27 +5,18 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders;
 
 public abstract partial class FLogEntryMessageBuilder 
 {
-    protected IStyledTypeStringAppender? AppendValueCollection<TFmtStruct>
-        (IStyledTypeStringAppender? toAppendTo, TFmtStruct[]? value, string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+    protected IStyledTypeStringAppender? AppendValueCollection<TFmt>
+        (IStyledTypeStringAppender? toAppendTo, TFmt[]? value, string? formatString = null)
+        where TFmt : ISpanFormattable
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .AddAll(value, formatString).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender? AppendValueCollection<TFmtStruct>
-        (TFmtStruct[]? value, IStyledTypeStringAppender? appender)
-        where TFmtStruct : struct, ISpanFormattable
-    {
-        appender?.StartSimpleCollectionType("")
-                  .AddAll(value).Complete();
-        return appender;
-    }
-    
-    protected static IStyledTypeStringAppender? AppendValueCollection<TFmtStruct>
-        ((TFmtStruct[]?, string?) valueTuple, IStyledTypeStringAppender? appender)
-        where TFmtStruct : struct, ISpanFormattable
+    protected static IStyledTypeStringAppender? AppendValueCollection<TFmt>
+        ((TFmt[]?, string?) valueTuple, IStyledTypeStringAppender? appender)
+        where TFmt : ISpanFormattable
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -33,27 +24,27 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected static IStyledTypeStringAppender? AppendValueCollection<TFmtStruct>
-        (IReadOnlyList<TFmtStruct>? value, IStyledTypeStringAppender? appender)
-        where TFmtStruct : struct, ISpanFormattable
+    protected static IStyledTypeStringAppender? AppendValueCollection<TFmt>
+        (IReadOnlyList<TFmt>? value, IStyledTypeStringAppender? appender)
+        where TFmt : ISpanFormattable
     {
         appender?.StartSimpleCollectionType("")
                 .AddAll(value).Complete();
         return appender;
     }
     
-    protected IStyledTypeStringAppender? AppendValueCollection<TFmtStruct>
-        (IStyledTypeStringAppender? toAppendTo, IReadOnlyList<TFmtStruct>? value, string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+    protected IStyledTypeStringAppender? AppendValueCollection<TFmt>
+        (IStyledTypeStringAppender? toAppendTo, IReadOnlyList<TFmt>? value, string? formatString = null)
+        where TFmt : ISpanFormattable
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .AddAll(value, formatString).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender? AppendValueCollection<TFmtStruct>
-        ((IReadOnlyList<TFmtStruct>?, string?) valueTuple, IStyledTypeStringAppender? appender)
-        where TFmtStruct : struct, ISpanFormattable
+    protected static IStyledTypeStringAppender? AppendValueCollection<TFmt>
+        ((IReadOnlyList<TFmt>?, string?) valueTuple, IStyledTypeStringAppender? appender)
+        where TFmt : ISpanFormattable
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -99,18 +90,18 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender? AppendFilteredValueCollection<TFmtStruct>
-    (IStyledTypeStringAppender? toAppendTo, TFmtStruct[]? value, OrderedCollectionPredicate<TFmtStruct> filter
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable
+    protected IStyledTypeStringAppender? AppendFilteredValueCollection<TFmt, TBase>
+    (IStyledTypeStringAppender? toAppendTo, TFmt[]? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null) where TFmt : ISpanFormattable, TBase
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .AddFiltered(value, filter, formatString).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender? AppendFilteredValueCollection<TFmtStruct>
-        ((TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple, IStyledTypeStringAppender? appender)
-        where TFmtStruct : struct, ISpanFormattable
+    protected static IStyledTypeStringAppender? AppendFilteredValueCollection<TFmt, TBase>
+        ((TFmt[]?, OrderedCollectionPredicate<TFmt>, string?) valueTuple, IStyledTypeStringAppender? appender)
+        where TFmt : ISpanFormattable, TBase
     {
         var (value, filter, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -118,9 +109,9 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected static IStyledTypeStringAppender? AppendFilteredValueCollection<TFmtStruct>
-        ((TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>) valueTuple, IStyledTypeStringAppender? appender)
-        where TFmtStruct : struct, ISpanFormattable
+    protected static IStyledTypeStringAppender? AppendFilteredValueCollection<TFmt, TBase>
+        ((TFmt[]?, OrderedCollectionPredicate<TBase>) valueTuple, IStyledTypeStringAppender? appender)
+        where TFmt : ISpanFormattable, TBase
     {
         var (value, filter) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -128,18 +119,18 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender? AppendFilteredValueCollection<TFmtStruct>
-    (IStyledTypeStringAppender? toAppendTo, IReadOnlyList<TFmtStruct>? value, OrderedCollectionPredicate<TFmtStruct> filter
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable
+    protected IStyledTypeStringAppender? AppendFilteredValueCollection<TFmt, TBase>
+    (IStyledTypeStringAppender? toAppendTo, IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null) where TFmt : ISpanFormattable, TBase
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .AddFiltered(value, filter, formatString).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender? AppendFilteredValueCollection<TFmtStruct>
-        ((IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple, IStyledTypeStringAppender? appender)
-        where TFmtStruct : struct, ISpanFormattable
+    protected static IStyledTypeStringAppender? AppendFilteredValueCollection<TFmt, TBase>
+        ((IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>, string?) valueTuple, IStyledTypeStringAppender? appender)
+        where TFmt : ISpanFormattable, TBase
     {
         var (value, filter, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -147,9 +138,9 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected static IStyledTypeStringAppender? AppendFilteredValueCollection<TFmtStruct>
-        ((IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>) valueTuple, IStyledTypeStringAppender? appender)
-        where TFmtStruct : struct, ISpanFormattable
+    protected static IStyledTypeStringAppender? AppendFilteredValueCollection<TFmt, TBase>
+        ((IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple, IStyledTypeStringAppender? appender)
+        where TFmt : ISpanFormattable, TBase
     {
         var (value, filter) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -195,26 +186,26 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmtStruct>
-        (IStyledTypeStringAppender? toAppendTo, IEnumerable<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable 
+    protected IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmt>
+        (IStyledTypeStringAppender? toAppendTo, IEnumerable<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable 
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .AddAllEnumerate(value, formatString).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmtStruct>
-        (IEnumerable<TFmtStruct>? value, IStyledTypeStringAppender? appender) 
-        where TFmtStruct : struct, ISpanFormattable 
+    protected static IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmt>
+        (IEnumerable<TFmt>? value, IStyledTypeStringAppender? appender) 
+        where TFmt : ISpanFormattable 
     {
         appender?.StartSimpleCollectionType("")
                 .AddAllEnumerate(value).Complete();
         return appender;
     }
     
-    protected static IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmtStruct>
-        ((IEnumerable<TFmtStruct>?, string?) valueTuple, IStyledTypeStringAppender? appender) 
-        where TFmtStruct : struct, ISpanFormattable 
+    protected static IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmt>
+        ((IEnumerable<TFmt>?, string?) valueTuple, IStyledTypeStringAppender? appender) 
+        where TFmt : ISpanFormattable 
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -222,26 +213,26 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
     
-    protected IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmtStruct>
-        (IStyledTypeStringAppender? toAppendTo, IEnumerator<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable
+    protected IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmt>
+        (IStyledTypeStringAppender? toAppendTo, IEnumerator<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .AddAllEnumerate(value, formatString).Complete();
         return toAppendTo;
     }
     
-    protected static IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmtStruct>
-        (IEnumerator<TFmtStruct>? value, IStyledTypeStringAppender? appender) 
-        where TFmtStruct : struct, ISpanFormattable 
+    protected static IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmt>
+        (IEnumerator<TFmt>? value, IStyledTypeStringAppender? appender) 
+        where TFmt : ISpanFormattable 
     {
         appender?.StartSimpleCollectionType("")
                 .AddAllEnumerate(value).Complete();
         return appender;
     }
     
-    protected static IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmtStruct>
-        ((IEnumerator<TFmtStruct>?, string?) valueTuple, IStyledTypeStringAppender? appender) 
-        where TFmtStruct : struct, ISpanFormattable 
+    protected static IStyledTypeStringAppender? AppendValueCollectionEnumerate<TFmt>
+        ((IEnumerator<TFmt>?, string?) valueTuple, IStyledTypeStringAppender? appender) 
+        where TFmt : ISpanFormattable 
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")

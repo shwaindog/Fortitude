@@ -16,143 +16,30 @@ using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FileSystem;
 
-public interface IFLogFileAppender : IEncodedByteBufferingAppender, IMultiDestinationFormattingAppender
+public class NullFileAppender(IFileAppenderConfig fileAppenderConfig, IFLogContext context) : FLogFileAppender(fileAppenderConfig, context)
 {
-    string ConfigPath { get; }
-
-    string ConfigFileName { get; }
-}
-
-public interface IMutableFLogFileAppender : IFLogFileAppender, IMutableEncodedByteBufferingAppender
-{
-    new string ConfigPath { get; set; }
-
-    new string ConfigFileName { get; set; }
-}
-
-public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileAppender
-{
-    protected readonly IRecycler FileAppenderRecycler = new Recycler();
-
-    protected DateTimePartFlags FullFilePathTimeVariableFlags = DateTimePartFlags.None;
-
-    private string combinedFullConfigFilePath;
-
-    private Encoding? fileEncoding;
-    private string   configPath;
-    private string   configFileName;
-
-    public FLogFileAppender(IFileAppenderConfig fileAppenderConfig, IFLogContext context) : base(fileAppenderConfig, context, false)
-    {
-        configPath         = fileAppenderConfig.FilePath;
-        configFileName     = fileAppenderConfig.FileName;
-        FileEncoding       = GetEncoding(fileAppenderConfig.FileEncoding);
-        ExpiryToCloseDelay = TimeSpan.FromMilliseconds(fileAppenderConfig.CloseDelayMs);
-
-        combinedFullConfigFilePath = Path.Combine(configPath, configFileName);
-
-        FormatWriterRequestCache = new MultiDestLogEntryNamedFormatWriterRequestCache().Initialize(this, context);
-    }
-
-    public LogEntryPathResolver PathResolver =>
-        FileAppenderRecycler.Borrow<LogEntryPathResolver>().Initialize(FileAppenderRecycler, combinedFullConfigFilePath);
-
-    public string ConfigPath
-    {
-        get => configPath;
-        set
-        {
-            if (configPath == value) return;
-            configPath                 = value;
-            combinedFullConfigFilePath = Path.Combine(configPath, ConfigFileName);
-        }
-    }
-
-    public string ConfigFileName
-    {
-        get => configFileName;
-        set
-        {
-            if (configFileName == value) return;
-            configFileName             = value;
-            combinedFullConfigFilePath = Path.Combine(configPath, configFileName);
-        }
-    }
-
-    public TimeSpan ExpiryToCloseDelay { get; private set; }
-
-    public Encoder FileEncoder { get; private set; } = null!;
-
-    public Encoding FileEncoding
-    {
-        get => fileEncoding ??= Encoding.UTF8; 
-        set
-        {
-            if (fileEncoding?.EncodingName == value.EncodingName) return;
-            fileEncoding = value;
-            FileEncoder  = fileEncoding.GetEncoder();
-        }
-    }
-
-    protected Encoding GetEncoding(FileEncodingTypes fileEncodingType)
-    {
-        switch (fileEncodingType)
-        {
-            case FileEncodingTypes.Utf7:    return Encoding.UTF7;
-            case FileEncodingTypes.Utf16:   return Encoding.Unicode;
-            case FileEncodingTypes.Utf16Be: return Encoding.BigEndianUnicode;
-            case FileEncodingTypes.Utf32:   return Encoding.UTF32;
-            case FileEncodingTypes.Ascii:   return Encoding.ASCII;
-            case FileEncodingTypes.Latin1:  return Encoding.Latin1;
-
-            case FileEncodingTypes.Utf8:
-            default: return Encoding.UTF8;
-        }
-    }
-
-    public virtual void ReceiveNotificationTargetClose(string targetNameClosed)
-    {
-        // to do compression if selected.
-    }
-
-    public override FormattingAppenderSinkType FormatAppenderType => FormattingAppenderSinkType.File;
-
-    public SingleDestBufferedFormatWriterRequestCache GetWriterRequestCache(string targetDestination) =>
-        new SingleDestBufferedFormatWriterRequestCache().Initialize(this, FLogContext.Context, targetDestination);
+    public override void ReceiveNotificationTargetClose(string targetNameClosed) { }
     
-    public override IBufferedFormatWriter CreateBufferedFormatWriter(IBufferFlushingFormatWriter bufferFlushingFormatWriter, string targetName
-      , int bufferNum, FormatWriterReceivedHandler<IFormatWriter> writeCompleteHandler) => 
-        new EncodedByteBufferFormatWriter().Initialize(this, bufferFlushingFormatWriter, targetName, bufferNum, writeCompleteHandler);
-
     protected override IFormatWriter CreatedAppenderDirectFormatWriter
         (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback) =>
-        new FileFormatWriter().Initialize(this, context, targetName, onWriteCompleteCallback);
+        new NullFileFormatWriter().Initialize(this, context, targetName, onWriteCompleteCallback);
 
-    private class FileFormatWriter : ByteBufferFlushingFormatWriter<FileFormatWriter>
+    private class NullFileFormatWriter : ByteBufferFlushingFormatWriter<NullFileFormatWriter>
     {
         private readonly object syncLock = new();
-        private FLogFileAppender FileAppender => (FLogFileAppender)OwningAppender;
-        private IStream? AppendDestinationStream { get; set; }
 
-        public FileFormatWriter Initialize(FLogFileAppender owningAppender, IFLogContext context, string fullFileName
+        private RecyclingByteArray? dummyFileBuffer;
+        private NullFileAppender FileAppender => (NullFileAppender)OwningAppender;
+
+        public NullFileFormatWriter Initialize(NullFileAppender owningAppender, IFLogContext context, string fullFileName
           , FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
         {
             base.Initialize(owningAppender, fullFileName, onWriteCompleteCallback);
+            dummyFileBuffer = (64 * 1024).SourceRecyclingByteArray();
 
             IsIOSynchronous = true;
 
             directWriteStagingFileEncoder = owningAppender.FileEncoder;
-            try
-            {
-                var fs = context.FLogFileSystemController;
-                fs.EnsureDirExists(fullFileName);
-                AppendDestinationStream = fs.OpenOrCreateAppendWriteStream(fullFileName);
-            }
-            catch (Exception e)
-            {
-                Console.Out.WriteLine($"Caught exception while trying to open FLogFileAppender file '{fullFileName}'.  Got {e}");
-                AppendDestinationStream = new StreamWrapper(Console.OpenStandardOutput());
-            }
 
             return this;
         }
@@ -176,7 +63,8 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
             directWriteStagingBuffer!.Clear();
             directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite);
             var byteRange = directWriteStagingBuffer.AsByteArrayRange;
-            AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
+            dummyFileBuffer!.Add(byteRange.ByteBuffer, 0, byteRange.Length);
+            dummyFileBuffer.Count = 0;
         }
 
         public override void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue)
@@ -186,7 +74,8 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
             directWriteStagingBuffer!.Clear();
             directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite, cappedFrom, cappedLength);
             var byteRange = directWriteStagingBuffer.AsByteArrayRange;
-            AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
+            dummyFileBuffer!.Add(byteRange.ByteBuffer, 0, byteRange.Length);
+            dummyFileBuffer.Count = 0;
         }
 
         public override void Append(ICharSequence toWrite, int fromIndex = 0, int length = int.MaxValue)
@@ -200,7 +89,8 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
                 directWriteStagingBuffer.Add(directWriteStagingFileEncoder, writtenCharArrayRange.CharBuffer, cappedFrom, cappedLength);
                 var byteRange = directWriteStagingBuffer.AsByteArrayRange;
 
-                AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
+                dummyFileBuffer!.Add(byteRange.ByteBuffer, 0, byteRange.Length);
+                dummyFileBuffer.Count = 0;
             }
             else if (toWrite is MutableString mutableString)
             {
@@ -216,7 +106,8 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
                 directWriteStagingBuffer!.Clear();
                 directWriteStagingBuffer.Add(directWriteStagingFileEncoder, charArray.BackingArray, 0, cappedLength);
                 var byteRange = directWriteStagingBuffer.AsByteArrayRange;
-                AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
+                dummyFileBuffer!.Add(byteRange.ByteBuffer, 0, byteRange.Length);
+                dummyFileBuffer.Count = 0;
                 charArray.DecrementRefCount();
             }
         }
@@ -228,7 +119,8 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
             directWriteStagingBuffer!.Clear();
             directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite, cappedFrom, cappedLength);
             var byteRange = directWriteStagingBuffer.AsByteArrayRange;
-            AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
+            dummyFileBuffer!.Add(byteRange.ByteBuffer, 0, byteRange.Length);
+            dummyFileBuffer.Count = 0;
         }
 
         public override void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue)
@@ -238,14 +130,14 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
             directWriteStagingBuffer!.Clear();
             directWriteStagingBuffer.Add(directWriteStagingFileEncoder, toWrite, cappedFrom, cappedLength);
             var byteRange = directWriteStagingBuffer.AsByteArrayRange;
-            AppendDestinationStream!.Write(byteRange.ByteBuffer, 0, byteRange.Length);
+            dummyFileBuffer!.Add(byteRange.ByteBuffer, 0, byteRange.Length);
+            dummyFileBuffer.Count = 0;
         }
 
         public override void NotifyEntryAppendComplete()
         {
             FileAppender.IncrementLogEntriesProcessed();
             directWriteStagingBuffer!.Clear();
-            AppendDestinationStream!.Flush();
         }
 
         public override void FlushBufferToAppender(IEncodedByteArrayBufferedFormatWriter toFlush)
@@ -253,8 +145,8 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
             var bufferAndRange = toFlush.FlushRange();
             lock (syncLock)
             {
-                AppendDestinationStream!.Write(bufferAndRange.ByteBuffer, 0, bufferAndRange.Length);
-                AppendDestinationStream.Flush();   
+                dummyFileBuffer!.Add(bufferAndRange.ByteBuffer, 0, bufferAndRange.Length);
+                dummyFileBuffer.Count = 0;
             }
             FileAppender.IncrementLogEntriesProcessed(toFlush.BufferedFormattedLogEntries);
             toFlush.Clear();
@@ -263,11 +155,10 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
 
         public override void StateReset()
         {
-            if (AppendDestinationStream != null)
+            if (dummyFileBuffer != null)
             {
-                AppendDestinationStream.Flush();
-                AppendDestinationStream.Close();
-                AppendDestinationStream = null;
+                dummyFileBuffer.DecrementRefCount();
+                dummyFileBuffer = null!;
             }
             base.StateReset();
         }

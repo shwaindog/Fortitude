@@ -4,6 +4,7 @@ using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 
@@ -31,10 +32,10 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender Append(bool? value);
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable;
+    IFLogStringAppender Append<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable;
 
-    [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable;
+    [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
+    IFLogStringAppender Append<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
@@ -100,19 +101,8 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender Append(IStyledToStringObject? value);
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append(object? value);
-
-    [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
-    IFLogStringAppender AppendFormat<TFmtStruct>(TFmtStruct value, string formatString) where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
-    IFLogStringAppender AppendFormat<TFmtStruct>((TFmtStruct, string) value) where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
-    IFLogStringAppender AppendFormat<TFmtStruct>(TFmtStruct? value, string formatString) where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
-    IFLogStringAppender AppendFormat<TFmtStruct>((TFmtStruct?, string) value) where TFmtStruct : struct, ISpanFormattable;
+    [CallsObjectToString]
+    IFLogStringAppender AppendObject(object? value);
     
     IStringAppenderCollectionBuilder AppendCollection { get; }
     
@@ -129,10 +119,10 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender AppendLine(bool? value);
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable;
+    IFLogStringAppender AppendLine<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable;
+    IFLogStringAppender AppendLine<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
@@ -198,28 +188,16 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender AppendLine(IStyledToStringObject? value);
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine(object? value);
-
-
-    [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
-    IFLogStringAppender AppendFormatLine<TFmtStruct>(TFmtStruct value, string formatString) where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
-    IFLogStringAppender AppendFormatLine<TFmtStruct>((TFmtStruct, string) value) where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
-    IFLogStringAppender AppendFormatLine<TFmtStruct>(TFmtStruct? value, string formatString) where TFmtStruct : struct, ISpanFormattable;
-
-    [MustUseReturnValue("Use FinalAppendFormat to finish and send LogEntry")]
-    IFLogStringAppender AppendFormatLine<TFmtStruct>((TFmtStruct?, string) value) where TFmtStruct : struct, ISpanFormattable;
+    [CallsObjectToString]
+    IFLogStringAppender AppendObjectLine(object? value);
     
     IStringAppenderCollectionBuilder AppendLineCollection { get; }
         
     void FinalMatchAppend<T>(T value);
     void FinalAppend(bool value);
     void FinalAppend(bool? value);
-    void FinalAppend<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable;
-    void FinalAppend<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable;
+    void FinalAppend<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable;
+    void FinalAppend<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
     void FinalAppend<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
     void FinalAppend<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
     void FinalAppend(ReadOnlySpan<char> value);
@@ -241,12 +219,9 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     void FinalAppend((StringBuilder?, int, int) valueTuple);
     void FinalAppend(StringBuilder? value, int startIndex, int count = int.MaxValue);
     void FinalAppend(IStyledToStringObject? value);
-    void FinalAppend(object? value);
-
-    void FinalAppendFormat<TNum>(TNum value, string formatString) where TNum : struct, INumber<TNum>;
-    void FinalAppendFormat<TNum>((TNum, string) value) where TNum : struct, INumber<TNum>;
-    void FinalAppendFormat<TNum>(TNum? value, string formatString) where TNum : struct, INumber<TNum>;
-    void FinalAppendFormat<TNum>((TNum?, string) value) where TNum : struct, INumber<TNum>;
+    
+    [CallsObjectToString]
+    void FinalAppendObject(object? value);
     
     IFinalCollectionAppend FinalAppendCollection { get; }
     
