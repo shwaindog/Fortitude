@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
@@ -11,13 +12,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
 
-public interface IFLoggerRootConfig : IFLoggerTreeCommonConfig, ICloneable<IFLoggerRootConfig>
+public interface IFLoggerRootConfig : IFLoggerTreeCommonConfig, IConfigCloneTo<IFLoggerRootConfig>
 {
     INamedChildLoggersLookupConfig AllLoggers();
 
     IFLoggerDescendantConfig ResolveLoggerConfig(string loggerFullName);
 
     new IFLoggerRootConfig Clone();
+    new IFLoggerRootConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
 }
 
 public interface IMutableFLoggerRootConfig : IFLoggerRootConfig, IMutableFLoggerTreeCommonConfig, ICloneable<IMutableFLoggerRootConfig>
@@ -60,6 +62,14 @@ public class FLoggerRootConfig : FLoggerTreeCommonConfig, IMutableFLoggerRootCon
     public IFLoggerDescendantConfig ResolveLoggerConfig(string loggerFullName) => throw new NotImplementedException();
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
+
+    IFLoggerRootConfig IConfigCloneTo<IFLoggerRootConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+        CloneConfigTo(configRoot, path);
+
+    IFLoggerRootConfig IFLoggerRootConfig.CloneConfigTo(IConfigurationRoot configRoot, string path) => CloneConfigTo(configRoot, path);
+
+    public override FLoggerRootConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+        new (this, configRoot, path);
 
     object ICloneable.Clone() => Clone();
 

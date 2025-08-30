@@ -14,6 +14,7 @@ using FortitudeCommon.Logging.Config.ConfigSources;
 using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Config.Pooling;
 
 namespace FortitudeCommon.Logging.Config.Visitor;
@@ -66,6 +67,8 @@ public class FlogConfigVisitChildrenCollect<T, TCollect>(List<TCollect> found, P
         loggerRootConfig.LogEntryPool?.Visit(Me);
         loggerRootConfig.Appenders.Visit(Me);
         loggerRootConfig.DescendantLoggers.Visit(Me);
+        loggerRootConfig.DescendantActivation.Visit(Me);
+        loggerRootConfig.FLogEnvironment.Visit(Me);
         return Me;
     }
 
@@ -75,6 +78,8 @@ public class FlogConfigVisitChildrenCollect<T, TCollect>(List<TCollect> found, P
         loggerDescendantConfig.LogEntryPool?.Visit(Me);
         loggerDescendantConfig.Appenders.Visit(Me);
         loggerDescendantConfig.DescendantLoggers.Visit(Me);
+        loggerDescendantConfig.DescendantActivation.Visit(Me);
+        loggerDescendantConfig.FLogEnvironment.Visit(Me);
         return Me;
     }
 
@@ -82,6 +87,12 @@ public class FlogConfigVisitChildrenCollect<T, TCollect>(List<TCollect> found, P
     {
         if (childLoggersConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         foreach (var kvpLogger in childLoggersConfig) kvpLogger.Value.Visit(Me);
+        return Me;
+    }
+
+    public override T Accept(IMutableActivationProfileConfig activationProfileConfig)
+    {
+        if (activationProfileConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 

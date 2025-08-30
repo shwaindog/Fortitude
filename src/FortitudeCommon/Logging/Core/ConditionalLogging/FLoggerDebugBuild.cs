@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
+using FortitudeCommon.Logging.Core.ActivationProfiles;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.ConditionalLogging;
@@ -43,10 +45,12 @@ public class FLoggerDebugBuild(IFLogger wrappingLogger)
 
     [Conditional("DEBUG")]
     public void DebugBuildAtLevelWithStaticFilter<T>
-    (DebugBuildPopulateIfActive? populateIfActive, FLogLevel level, T filterContext, Func<T, IFLogger, FLogCallLocation, bool> continuePredicate,
-        [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+    (DebugBuildPopulateIfActive? populateIfActive, FLogLevel level, T filterContext, Func<T, IFLogger, FLogCallLocation, bool> continuePredicate
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeWithLoggerConfigProfile
+      , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        var logEntry = wrappingLogger.AtLevelWithStaticFilter(level, filterContext, continuePredicate, memberName, sourceFilePath, sourceLineNumber);
+        var logEntry = wrappingLogger.AtLevelWithStaticFilter(level, filterContext, continuePredicate, activationFlags
+                                                            , memberName, sourceFilePath, sourceLineNumber);
         if (populateIfActive != null && logEntry != null)
         {
             logEntry.Logger.LogEntryDispatched += populateIfActive.CheckEntryIsMineAndDecrement;
@@ -60,9 +64,11 @@ public class FLoggerDebugBuild(IFLogger wrappingLogger)
     [Conditional("DEBUG")]
     public void DebugBuildAtLevelWithClosureFilter<T>
     (DebugBuildPopulateIfActive? populateIfActive, FLogLevel level, T filterContext, Func<T, IFLogger, FLogCallLocation, bool> continuePredicate
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
-        var logEntry = wrappingLogger.AtLevelWithClosureFilter(level, filterContext, continuePredicate, memberName, sourceFilePath, sourceLineNumber);
+        var logEntry = wrappingLogger.AtLevelWithClosureFilter(level, filterContext, continuePredicate, activationFlags,
+                                                               memberName, sourceFilePath, sourceLineNumber);
         if (populateIfActive != null && logEntry != null)
         {
             logEntry.Logger.LogEntryDispatched += populateIfActive.CheckEntryIsMineAndDecrement;

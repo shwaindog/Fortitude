@@ -1,8 +1,10 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 using FortitudeCommon.Types;
@@ -13,13 +15,17 @@ using Microsoft.Extensions.Configuration;
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
 
 public interface IFLoggerTreeCommonConfig : IFLoggerMatchedAppenders, IInterfacesComparable<IFLoggerTreeCommonConfig>
-  , ICloneable<IFLoggerTreeCommonConfig>, IFLogConfig, IStyledToStringObject
+  , IConfigCloneTo<IFLoggerTreeCommonConfig>, IFLogConfig, IStyledToStringObject
 {
     string Name { get; }
 
     string FullName { get; }
 
     FLogLevel LogLevel { get; }
+
+    IActivationProfileConfig DescendantActivation { get; }
+
+    IActivationProfileConfig FLogEnvironment { get; }
 
     IFLogEntryPoolConfig? LogEntryPool { get; }
 
@@ -32,6 +38,10 @@ public interface IMutableFLoggerTreeCommonConfig : IFLoggerTreeCommonConfig, IMu
 
     new FLogLevel LogLevel { get; set; }
 
+    new IMutableActivationProfileConfig DescendantActivation { get; set; }
+
+    new IMutableActivationProfileConfig FLogEnvironment { get; set; }
+
     new IMutableFLogEntryPoolConfig? LogEntryPool { get; set; }
 
     new IMutableNamedChildLoggersLookupConfig DescendantLoggers { get; set; }
@@ -40,6 +50,9 @@ public interface IMutableFLoggerTreeCommonConfig : IFLoggerTreeCommonConfig, IMu
 public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerTreeCommonConfig
 {
     private IMutableNamedChildLoggersLookupConfig? loggersConfig;
+
+    protected IMutableActivationProfileConfig? LoggerActivationConfig;
+    protected IMutableActivationProfileConfig? FlogLoggerEnvironment;
 
     public FLoggerTreeCommonConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
@@ -66,7 +79,7 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
     {
         Name              = toClone.Name;
         LogLevel          = toClone.LogLevel;
-        DescendantLoggers = (IMutableNamedChildLoggersLookupConfig)toClone.DescendantLoggers;
+        DescendantLoggers = new NamedChildLoggersLookupConfig(toClone.DescendantLoggers, root, $"{Path}{Split}{nameof(DescendantLoggers)}") ;
         LogEntryPool      = toClone.LogEntryPool as IMutableFLogEntryPoolConfig;
     }
 
@@ -135,6 +148,63 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         set => this[nameof(Name)] = value;
     }
 
+    IActivationProfileConfig IFLoggerTreeCommonConfig.DescendantActivation => DescendantActivation;
+
+    IActivationProfileConfig IFLoggerTreeCommonConfig.FLogEnvironment => FLogEnvironment;
+
+    public virtual IMutableActivationProfileConfig DescendantActivation
+    {
+        get
+        {
+            if (LoggerActivationConfig != null) return LoggerActivationConfig;
+            IActivationProfileConfig? parentActivation = null;
+            if (ParentConfig is IFLoggerTreeCommonConfig parentLoggerConfig)
+            {
+                parentActivation = parentLoggerConfig.DescendantActivation;
+            }
+            return GetDescendantConfig(parentActivation);
+        }
+        set
+        {
+            _ = new ActivationProfileConfig(value, ConfigRoot, $"{Path}{Split}{nameof(DescendantActivation)}");
+
+            value.ParentConfig = this;
+        }
+    }
+
+    protected IMutableActivationProfileConfig GetDescendantConfig(IActivationProfileConfig? parentActivation = null)
+    {
+        LoggerActivationConfig = new ActivationProfileConfig(ConfigRoot, $"{Path}{Split}{nameof(DescendantActivation)}", parentActivation)
+        {
+            ParentConfig = this
+        };
+        return LoggerActivationConfig;
+    }
+
+    public IMutableActivationProfileConfig FLogEnvironment
+    {
+        get
+        {
+            if (FlogLoggerEnvironment != null) return FlogLoggerEnvironment;
+            IActivationProfileConfig? parentActivation = null;
+            if (ParentConfig is IFLoggerTreeCommonConfig parentLoggerConfig)
+            {
+                parentActivation = parentLoggerConfig.FLogEnvironment;
+            }
+            FlogLoggerEnvironment = new ActivationProfileConfig(ConfigRoot, $"{Path}{Split}{nameof(FLogEnvironment)}", parentActivation)
+            {
+                ParentConfig = this
+            };
+            return FlogLoggerEnvironment;
+        }
+        set
+        {
+            _ = new ActivationProfileConfig(value, ConfigRoot, $"{Path}{Split}{nameof(FLogEnvironment)}");
+
+            value.ParentConfig = this;
+        }
+    }
+
     public string FullName => Visit(new ConfigAncestorsOfLogger()).FullName;
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
@@ -144,6 +214,11 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
     IFLoggerTreeCommonConfig ICloneable<IFLoggerTreeCommonConfig>.Clone() => Clone();
 
     public virtual FLoggerTreeCommonConfig Clone() => new(this);
+
+    IFLoggerTreeCommonConfig IConfigCloneTo<IFLoggerTreeCommonConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        CloneConfigTo(configRoot, path);
+
+    public virtual FLoggerTreeCommonConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
     public bool AreEquivalent(IFLoggerTreeCommonConfig? other, bool exactTypes = false) =>
         AreEquivalent(other as IFLoggerMatchedAppenders, exactTypes);

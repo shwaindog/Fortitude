@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
@@ -65,20 +64,26 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
     public NamedChildLoggersLookupConfig(INamedChildLoggersLookupConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-        foreach (var kvp in toClone) loggersByName.Add(kvp.Key, (IMutableFLoggerDescendantConfig)kvp.Value);
+        foreach (var kvp in toClone)
+        {
+            var childCloneLogger = (IMutableFLoggerDescendantConfig)kvp.Value.Clone();
+            loggersByName.Add(kvp.Key, childCloneLogger);
+            childCloneLogger.ParentConfig = this;
+            PushToConfigStorage(childCloneLogger);
+        }
     }
 
     public NamedChildLoggersLookupConfig(INamedChildLoggersLookupConfig toClone) : this(toClone, InMemoryConfigRoot, toClone.ConfigSubPath) =>
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
 
-    [JsonIgnore]
+
     protected Dictionary<string, IMutableFLoggerDescendantConfig> CheckConfigGetLoggersDict
     {
         get
         {
             if (!loggersByName.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
-                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ??
+                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan ??
                                           TimeSpan.FromMinutes(1);
                 loggersByName.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
@@ -98,18 +103,21 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
     public void Add(KeyValuePair<string, IMutableFLoggerDescendantConfig> item)
     {
         loggersByName.Add(item.Key, item.Value);
+        item.Value.ParentConfig = this;
         PushToConfigStorage(item.Value);
     }
 
     public void Add(string key, IMutableFLoggerDescendantConfig value)
     {
         loggersByName.Add(key, value);
+        value.ParentConfig = this;
         PushToConfigStorage(value);
     }
 
     public void Add(IMutableFLoggerDescendantConfig toAdd)
     {
         loggersByName.Add(toAdd.Name, toAdd);
+        toAdd.ParentConfig = this;
         PushToConfigStorage(toAdd);
     }
 
@@ -158,6 +166,13 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
     ICollection<IMutableFLoggerDescendantConfig> IAppendableDictionary<string, IMutableFLoggerDescendantConfig>.Values =>
         CheckConfigGetLoggersDict.Values;
 
+    public override T Visit<T>(T visitor) => visitor.Accept(this);
+
+    protected void PushToConfigStorage(IMutableFLoggerDescendantConfig value)
+    {
+        value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.Name}");
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     IEnumerator<KeyValuePair<string, IFLoggerDescendantConfig>> IEnumerable<KeyValuePair<string, IFLoggerDescendantConfig>>.GetEnumerator() =>
@@ -167,13 +182,6 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
             .GetEnumerator();
 
     public IEnumerator<KeyValuePair<string, IMutableFLoggerDescendantConfig>> GetEnumerator() => CheckConfigGetLoggersDict.GetEnumerator();
-
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
-
-    protected void PushToConfigStorage(IMutableFLoggerDescendantConfig value)
-    {
-        value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.Name}");
-    }
 
     object ICloneable.Clone() => Clone();
 

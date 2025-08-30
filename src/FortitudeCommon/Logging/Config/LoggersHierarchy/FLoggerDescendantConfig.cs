@@ -2,7 +2,9 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Config;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.StyledToString;
@@ -11,21 +13,25 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
 
-public interface IFLoggerDescendantConfig : IFLoggerTreeCommonConfig, ICloneable<IFLoggerDescendantConfig>
+public interface IFLoggerDescendantConfig : IFLoggerTreeCommonConfig, IConfigCloneTo<IFLoggerDescendantConfig>
 {
     IFLoggerTreeCommonConfig ParentLoggerConfig { get; }
 
     bool Inherits { get; }
 
+    IActivationProfileConfig? JustThisLoggerActivation { get; }
+
     new IFLoggerDescendantConfig Clone();
+
+    new IFLoggerDescendantConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
 }
 
 public interface IMutableFLoggerDescendantConfig : IFLoggerDescendantConfig, IMutableFLoggerTreeCommonConfig
-  , IConfigCloneTo<IMutableFLoggerDescendantConfig>
 {
     new IFLoggerTreeCommonConfig ParentLoggerConfig { get; set; }
 
     new bool Inherits { get; set; }
+    new IMutableActivationProfileConfig? JustThisLoggerActivation { get; set; }
 
     IMutableFLoggerDescendantConfig CreateInheritedDescendantConfig(IFLoggerTreeCommonConfig ancestorConfig);
 
@@ -67,7 +73,41 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
         set => this[nameof(Inherits)] = value.ToString();
     }
 
-    public IFLoggerTreeCommonConfig ParentLoggerConfig { get; set; } = null!;
+    IActivationProfileConfig? IFLoggerDescendantConfig.JustThisLoggerActivation => JustThisLoggerActivation;
+
+    public IMutableActivationProfileConfig? JustThisLoggerActivation
+    {
+        get
+        {
+            if (GetSection(nameof(LogEntryPool)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
+            {
+                if (LoggerActivationConfig != null) return LoggerActivationConfig;
+                IActivationProfileConfig? parentActivation = null;
+                if (ParentConfig is IFLoggerTreeCommonConfig parentLoggerConfig)
+                {
+                    parentActivation = parentLoggerConfig.DescendantActivation;
+                }
+                return new ActivationProfileConfig(ConfigRoot, $"{Path}{Split}{nameof(FLogEnvironment)}", parentActivation)
+                {
+                    ParentConfig = this
+                };
+            }
+            return null;
+        }
+        set
+        {
+            if (value == null) return;
+            _ = new ActivationProfileConfig(value, ConfigRoot, $"{Path}{Split}{nameof(JustThisLoggerActivation)}");
+
+            value.ParentConfig = this;
+        }
+    }
+
+    public IFLoggerTreeCommonConfig ParentLoggerConfig
+    {
+        get => (IFLoggerTreeCommonConfig)(ParentConfig?.ParentConfig!);
+        set => ParentConfig = value;
+    }
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
@@ -83,14 +123,17 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
         return mergedInheritedConfig;
     }
 
-    public IMutableFLoggerDescendantConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        new FLoggerDescendantConfig(this, configRoot, path);
+    IFLoggerDescendantConfig IConfigCloneTo<IFLoggerDescendantConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        CloneConfigTo(configRoot, path);
+
+    IFLoggerDescendantConfig IFLoggerDescendantConfig.CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+        CloneConfigTo(configRoot, path);
+
+    public override FLoggerDescendantConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new FLoggerDescendantConfig(this, configRoot, path);
 
     IFLoggerDescendantConfig ICloneable<IFLoggerDescendantConfig>.Clone() => Clone();
 
     IFLoggerDescendantConfig IFLoggerDescendantConfig.Clone() => Clone();
-
-    IMutableFLoggerDescendantConfig ICloneable<IMutableFLoggerDescendantConfig>.Clone() => Clone();
 
     IMutableFLoggerDescendantConfig IMutableFLoggerDescendantConfig.Clone() => Clone();
 

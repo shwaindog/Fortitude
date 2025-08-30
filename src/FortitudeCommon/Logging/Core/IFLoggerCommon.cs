@@ -59,7 +59,7 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
 
     protected bool AppendersUpdatedFlag = true;
 
-    protected IMutableFLoggerTreeCommonConfig Config = null!;
+    protected virtual IMutableFLoggerTreeCommonConfig Config { get; set; } = null!;
 
     protected ConcurrentDictionary<string, IMutableFLogger> ImmediateChildrenDict = new();
 

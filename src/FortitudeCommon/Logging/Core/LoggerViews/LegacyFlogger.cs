@@ -4,7 +4,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Config;
-using static FortitudeCommon.Logging.Core.LoggerActivationFlags;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
+using FortitudeCommon.Logging.Core.ActivationProfiles;
+using static FortitudeCommon.Logging.Core.ActivationProfiles.LoggerActivationFlags;
 
 // ReSharper disable ExplicitCallerInfoArgument
 
@@ -12,845 +14,845 @@ namespace FortitudeCommon.Logging.Core.LoggerViews;
 
 public interface ILegacyFLogger : ILoggerView
 {
-    ISingleInvokeArgumentChain? AtLevelAppend<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    ISingleInvokeArgumentChain? AtLevelAppend<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void AtLevel<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+    void AtLevel<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , T3 p4, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T3 p4, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5
-      , T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, LoggerActivationFlags activationFlags = DefaultLogger
+      , T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>(FLogLevel level,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
 
-    ISingleInvokeArgumentChain? TraceAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    ISingleInvokeArgumentChain? TraceAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Trace<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+    void Trace<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger
+      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
 
-    ISingleInvokeArgumentChain? DebugAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    ISingleInvokeArgumentChain? DebugAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Debug<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+    void Debug<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger
+      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    ISingleInvokeArgumentChain? InfoAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    ISingleInvokeArgumentChain? InfoAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Info<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+    void Info<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger
+      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
 
-    ISingleInvokeArgumentChain? WarnAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    ISingleInvokeArgumentChain? WarnAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Warn<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+    void Warn<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger
+      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    ISingleInvokeArgumentChain? ErrorAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    ISingleInvokeArgumentChain? ErrorAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Error<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+    void Error<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3
-      , T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2
-      , T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger
+      , T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4
-      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger
+      , T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
-      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9
       , T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24
-      , LoggerActivationFlags activationFlags = DefaultLogger, [CallerMemberName] string memberName = ""
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 }
 
 public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 {
-    public ISingleInvokeArgumentChain? AtLevelAppend<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    public ISingleInvokeArgumentChain? AtLevelAppend<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -861,7 +863,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         return null;
     }
 
-    public void AtLevel<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public void AtLevel<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -869,28 +871,28 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void AtLevel<T0>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithOnlyMatchParam(p1);
     }
 
     public void AtLevel<T0, T1>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndFinalMatchParam(p1);
     }
 
     public void AtLevel<T0, T1, T2>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , T2 p2, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndFinalMatchParam(p2);
     }
 
     public void AtLevel<T0, T1, T2, T3>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -899,7 +901,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
 
     public void AtLevel<T0, T1, T2, T3, T4>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -907,7 +909,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void AtLevel<T0, T1, T2, T3, T4, T5>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -915,7 +917,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
@@ -926,7 +928,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -935,7 +937,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8>(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -945,7 +947,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -956,7 +958,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -966,7 +968,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -976,7 +978,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -986,7 +988,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
@@ -997,7 +999,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1008,7 +1010,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1019,7 +1021,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -1031,7 +1033,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1042,7 +1044,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1054,7 +1056,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1066,7 +1068,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1077,7 +1079,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1088,7 +1090,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1100,7 +1102,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>(FLogLevel level
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1112,7 +1114,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void AtLevel<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>(
         FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5
       , T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1122,7 +1124,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
             .AndMatch(p22)?.AndMatch(p23)?.AndFinalMatchParam(p24);
     }
 
-    public ISingleInvokeArgumentChain? TraceAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public ISingleInvokeArgumentChain? TraceAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1132,7 +1134,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         return null;
     }
 
-    public void Trace<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public void Trace<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1140,28 +1142,28 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Trace<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithOnlyMatchParam(p1);
     }
 
     public void Trace<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndFinalMatchParam(p1);
     }
 
     public void Trace<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , T2 p2, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndFinalMatchParam(p2);
     }
 
     public void Trace<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1169,7 +1171,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Trace<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1177,7 +1179,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Trace<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1185,7 +1187,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Trace<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
@@ -1195,7 +1197,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1204,7 +1206,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1213,7 +1215,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -1223,7 +1225,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1232,7 +1234,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1242,7 +1244,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1254,7 +1256,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1264,7 +1266,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1276,7 +1278,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1288,7 +1290,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -1301,7 +1303,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1313,7 +1315,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Trace<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1326,7 +1328,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1339,7 +1341,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1351,7 +1353,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1363,7 +1365,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1376,7 +1378,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1389,7 +1391,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5
       , T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1399,7 +1401,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
             .AndMatch(p22)?.AndMatch(p23)?.AndFinalMatchParam(p24);
     }
 
-    public ISingleInvokeArgumentChain? DebugAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public ISingleInvokeArgumentChain? DebugAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1409,7 +1411,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         return null;
     }
 
-    public void Debug<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public void Debug<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1417,28 +1419,28 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Debug<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithOnlyMatchParam(p1);
     }
 
     public void Debug<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndFinalMatchParam(p1);
     }
 
     public void Debug<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , T2 p2, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndFinalMatchParam(p2);
     }
 
     public void Debug<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1446,7 +1448,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Debug<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1454,7 +1456,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Debug<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1462,7 +1464,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Debug<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
@@ -1472,7 +1474,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1481,7 +1483,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1490,7 +1492,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -1500,7 +1502,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1509,7 +1511,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1519,7 +1521,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1531,7 +1533,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1541,7 +1543,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1553,7 +1555,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1565,7 +1567,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -1578,7 +1580,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1590,7 +1592,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Debug<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1603,7 +1605,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1616,7 +1618,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1628,7 +1630,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1640,7 +1642,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1653,7 +1655,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1666,7 +1668,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5
       , T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1676,7 +1678,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
             .AndMatch(p22)?.AndMatch(p23)?.AndFinalMatchParam(p24);
     }
 
-    public ISingleInvokeArgumentChain? InfoAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public ISingleInvokeArgumentChain? InfoAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1686,7 +1688,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         return null;
     }
 
-    public void Info<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public void Info<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1694,28 +1696,28 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Info<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithOnlyMatchParam(p1);
     }
 
     public void Info<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndFinalMatchParam(p1);
     }
 
     public void Info<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , T2 p2, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndFinalMatchParam(p2);
     }
 
     public void Info<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1723,7 +1725,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Info<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1731,7 +1733,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Info<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1739,7 +1741,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Info<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
@@ -1749,7 +1751,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1758,7 +1760,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1767,7 +1769,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -1777,7 +1779,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1786,7 +1788,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1796,7 +1798,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1808,7 +1810,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1818,7 +1820,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1830,7 +1832,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1842,7 +1844,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -1855,7 +1857,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1867,7 +1869,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Info<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1880,7 +1882,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1893,7 +1895,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1905,7 +1907,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1917,7 +1919,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1930,7 +1932,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -1943,7 +1945,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5
       , T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1953,7 +1955,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
             .AndMatch(p22)?.AndMatch(p23)?.AndFinalMatchParam(p24);
     }
 
-    public ISingleInvokeArgumentChain? WarnAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public ISingleInvokeArgumentChain? WarnAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1963,7 +1965,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         return null;
     }
 
-    public void Warn<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public void Warn<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -1971,28 +1973,28 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Warn<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithOnlyMatchParam(p1);
     }
 
     public void Warn<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndFinalMatchParam(p1);
     }
 
     public void Warn<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , T2 p2, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndFinalMatchParam(p2);
     }
 
     public void Warn<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2000,7 +2002,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Warn<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2008,7 +2010,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Warn<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2016,7 +2018,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Warn<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
@@ -2026,7 +2028,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2035,7 +2037,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2044,7 +2046,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -2054,7 +2056,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2063,7 +2065,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2073,7 +2075,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2085,7 +2087,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2095,7 +2097,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2107,7 +2109,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2119,7 +2121,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -2132,7 +2134,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2144,7 +2146,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Warn<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2157,7 +2159,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2170,7 +2172,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2182,7 +2184,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2194,7 +2196,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2207,7 +2209,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2220,7 +2222,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5
       , T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2230,7 +2232,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
             .AndMatch(p22)?.AndMatch(p23)?.AndFinalMatchParam(p24);
     }
 
-    public ISingleInvokeArgumentChain? ErrorAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public ISingleInvokeArgumentChain? ErrorAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2240,7 +2242,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         return null;
     }
 
-    public void Error<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+    public void Error<T>(T toLog, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2248,28 +2250,28 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Error<T0>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithOnlyMatchParam(p1);
     }
 
     public void Error<T0, T1>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndFinalMatchParam(p1);
     }
 
     public void Error<T0, T1, T2>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , T2 p2, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndFinalMatchParam(p2);
     }
 
     public void Error<T0, T1, T2, T3>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2277,7 +2279,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Error<T0, T1, T2, T3, T4>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0, T1 p1
-      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T2 p2, T3 p3, T4 p4, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2285,7 +2287,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Error<T0, T1, T2, T3, T4, T5>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2293,7 +2295,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Error<T0, T1, T2, T3, T4, T5, T6>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
@@ -2303,7 +2305,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, T0 p0
-      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2312,7 +2314,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2321,7 +2323,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -2331,7 +2333,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2340,7 +2342,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     }
 
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = DefaultLogger
+      , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2350,7 +2352,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
 
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2362,7 +2364,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString
       , T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2372,7 +2374,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2384,7 +2386,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = ""
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2396,7 +2398,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = ""
       , string sourceFilePath = "", int sourceLineNumber = 0)
     {
@@ -2409,7 +2411,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2421,7 +2423,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
     public void Error<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
-      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = DefaultLogger
+      , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2434,7 +2436,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19
-      , LoggerActivationFlags activationFlags = DefaultLogger
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -2447,7 +2449,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2459,7 +2461,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2471,7 +2473,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2484,7 +2486,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8
       , T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23
-      , LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.FormatBuilder(formatString).WithMatchParams(p0)?.AndMatch(p1)?.AndMatch(p2)?.AndMatch(p3)?.AndMatch(p4)?.AndMatch(p5)?
@@ -2497,7 +2499,7 @@ public class LegacyFLogger(IFLogger logger) : LoggerView(logger), ILegacyFLogger
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
         string formatString, T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5
       , T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21
-      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = DefaultLogger, string memberName = "", string sourceFilePath = ""
+      , T22 p22, T23 p23, T24 p24, LoggerActivationFlags activationFlags = MergeWithLoggerConfigProfile, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);

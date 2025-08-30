@@ -4,6 +4,8 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
+using FortitudeCommon.Logging.Core.ActivationProfiles;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.ConditionalLogging;

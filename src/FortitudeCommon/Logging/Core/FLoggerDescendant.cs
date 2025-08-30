@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
+using FortitudeCommon.Logging.Core.ActivationProfiles;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LoggerVisitors;
 
@@ -23,6 +24,10 @@ public interface IMutableFLoggerDescendant : IFLoggerDescendant, IMutableFLogger
 
 public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
 {
+    protected LoggerActivationFlags ConfigActivationProfile;
+
+    protected LoggerActivationFlags CurrentFLoggerExecutionEnvironment;
+
     public FLoggerDescendant(IMutableFLoggerDescendantConfig loggerConsolidatedConfig, IFLoggerCommon myParent, IFLogLoggerRegistry loggerRegistry)
         : base(loggerConsolidatedConfig, loggerRegistry)
     {
@@ -30,6 +35,20 @@ public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
 
         Parent   = myParent;
         FullName = Visit(new BaseToLeafCollectVisitor()).FullName;
+    }
+
+    protected override IMutableFLoggerTreeCommonConfig Config
+    {
+        get => base.Config;
+        set
+        {
+            base.Config = value;
+
+            CurrentFLoggerExecutionEnvironment = value.FLogEnvironment.AsLoggerActionFlags;
+            ConfigActivationProfile = (value is IMutableFLoggerDescendantConfig descendantConfig
+                ? descendantConfig.JustThisLoggerActivation?.AsLoggerActionFlags
+                : null) ?? value.DescendantActivation.AsLoggerActionFlags;
+        }
     }
 
     protected IMutableFLoggerRoot Root => Parent is FLoggerDescendant parentDescendant ? parentDescendant.Root : (IMutableFLoggerRoot)Parent;
