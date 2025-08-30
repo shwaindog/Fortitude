@@ -7,7 +7,8 @@ using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
-public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntry<IFLogAdditionalFormatterParameterEntry, FLogAdditionalFormatterParameterEntry>
+public partial class FLogAdditionalFormatterParameterEntry :
+    FormatParameterEntry<IFLogAdditionalFormatterParameterEntry, FLogAdditionalFormatterParameterEntry>
   , IFLogAdditionalFormatterParameterEntry
 {
     public IFLogAdditionalParamCollectionAppend AndCollection
@@ -20,7 +21,7 @@ public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntr
             return addParamContinue;
         }
     }
-    
+
     public IFinalCollectionAppend AndFinalParamCollection
     {
         [MustUseReturnValue("Use Add* to add a collection to the format parameters")]
@@ -29,16 +30,16 @@ public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntr
             NextPostAppendIsLast = true;
 
             var completeParamCollection =
-                (Recycler?.Borrow<FinalAdditionalParamCollectionAppend>() ?? new FinalAdditionalParamCollectionAppend());
-            
+                Recycler?.Borrow<FinalAdditionalParamCollectionAppend>() ?? new FinalAdditionalParamCollectionAppend();
+
             completeParamCollection.Initialize(Me, LogEntry);
-            
+
             return completeParamCollection;
         }
     }
-    
+
     public IStringAppenderCollectionBuilder AndFinalParamCollectionThenToAppender => LastParamToStringAppenderCollectionBuilder;
-    
+
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndMatch<T>(T value)
     {
@@ -65,6 +66,6 @@ public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntr
         tempStsa.DecrementRefCount();
         return toReturn;
     }
-    
+
     protected override FLogAdditionalFormatterParameterEntry ToAdditionalFormatBuilder() => this;
 }

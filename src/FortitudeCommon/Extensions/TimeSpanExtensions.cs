@@ -41,12 +41,12 @@ public static class TimeSpanExtensions
     {
         return
         sbc.StartComplexType(nameof(TimeSpan))
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Days), timeSpan.Days, 0)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Hours), timeSpan.Hours, 0)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Minutes), timeSpan.Minutes, 0)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Seconds), timeSpan.Seconds, 0)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Milliseconds), timeSpan.Milliseconds, 0)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Microseconds), timeSpan.Microseconds, 0)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Days), timeSpan.Days)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Hours), timeSpan.Hours)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Minutes), timeSpan.Minutes)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Seconds), timeSpan.Seconds)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Milliseconds), timeSpan.Milliseconds)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Microseconds), timeSpan.Microseconds)
            .Complete();
     }
 

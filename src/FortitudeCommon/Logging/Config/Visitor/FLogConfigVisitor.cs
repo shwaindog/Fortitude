@@ -85,7 +85,7 @@ public interface IFLogConfigVisitor<TBase> : IReusableObject<IFLogConfigVisitor<
     TBase Accept(IMutableFileAppenderConfig fileAppenderConfig);
 }
 
-public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLogConfigVisitor<T> 
+public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLogConfigVisitor<T>
     where T : FLogConfigVisitor<T>
 {
     protected T Me => (T)this;
@@ -111,8 +111,6 @@ public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLog
     public virtual T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig) => (T)this;
 
     public virtual T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig) => (T)this;
-
-    public virtual T Accept(IMutableBufferingAppenderConfig bufferingAppenderConfig) => (T)this;
 
     public virtual T Accept(IMutableFLogEntryQueueConfig queueConfig) => (T)this;
 
@@ -140,10 +138,10 @@ public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLog
 
     public virtual T Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig) => (T)this;
 
-    public virtual T Accept(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig)       => (T)this;
+    public virtual T Accept(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig) => (T)this;
 
     public virtual T Accept(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig) => (T)this;
-    
+
     public virtual T Accept(IMutableAsyncQueueConfig asyncQueueConfig) => (T)this;
 
     public virtual T Accept(IMutableFLogInitializationConfig initializationConfig) => (T)this;
@@ -154,11 +152,10 @@ public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLog
 
     public virtual T Accept(IMutableFileAppenderConfig fileAppenderConfig) => (T)this;
 
-    public override IFLogConfigVisitor<T> Clone() => 
+    public override IFLogConfigVisitor<T> Clone() =>
         Recycler?.Borrow<FLogConfigVisitor<T>>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new FLogConfigVisitor<T>();
 
-    public override IFLogConfigVisitor<T> CopyFrom(IFLogConfigVisitor<T> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        return this;
-    }
+    public override IFLogConfigVisitor<T> CopyFrom(IFLogConfigVisitor<T> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+
+    public virtual T Accept(IMutableBufferingAppenderConfig bufferingAppenderConfig) => (T)this;
 }

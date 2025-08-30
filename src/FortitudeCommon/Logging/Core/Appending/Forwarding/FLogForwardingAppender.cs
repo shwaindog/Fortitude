@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.Config.Appending;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
@@ -35,42 +38,7 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
         ParseAppenderConfig(forwardingAppenderConfig, AppenderRegistry);
     }
 
-    protected virtual void ParseAppenderConfig(IForwardingAppenderConfig forwardingAppenderConfig, IFLogAppenderRegistry fLogAppenderRegistry)
-    {
-        var forwardingAppendersLookupConfig = forwardingAppenderConfig.ForwardToAppenders;
-        foreach (var downStreamAppenderRef in forwardingAppendersLookupConfig)
-        {
-            var appenderName   = downStreamAppenderRef.Value.AppenderName;
-            var appenderClient = fLogAppenderRegistry.GetAppenderClient(appenderName, this);
-            AddAppender(appenderClient);
-        }
-    }
-
-    protected override IAppenderForwardingAsyncClient CreateAppenderAsyncClient
-        (IAppenderDefinitionConfig appenderDefinitionConfig, IFLoggerAsyncRegistry asyncRegistry)
-    {
-        var processAsync = appenderDefinitionConfig.RunOnAsyncQueueNumber;
-
-        var appenderAsyncClient = new ForwardingAsyncClient(this, processAsync, asyncRegistry);
-        return appenderAsyncClient;
-    }
-
     protected IAppenderForwardingAsyncClient ForwardingAsyncClient => (IAppenderForwardingAsyncClient)AsyncClient;
-
-    public override void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
-    {
-        var forwardToList = ForwardToAppenders;
-        for (var i = 0; i < forwardToList.Count; i++)
-        {
-            var appendersByQueueNum = forwardToList[i];
-            for (var j = 0; j < appendersByQueueNum.Value.Count; j++)
-            {
-                var appender = appendersByQueueNum.Value[j];
-                appender.PublishLogEntryEvent(logEntryEvent);
-            }
-        }
-        IncrementLogEntriesProcessed(logEntryEvent.EntriesCount());
-    }
 
     protected IForwardingAppenderConfig TypeConfig => (IForwardingAppenderConfig)AppenderConfig;
 
@@ -82,8 +50,8 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
 
     public void AddAppender(IAppenderClient newAppender)
     {
-        var forwardToList = allForwardToAppendersCache;
-        var onQueue       = newAppender.ReceiveOnAsyncQueueNumber;
+        var forwardToList     = allForwardToAppendersCache;
+        var onQueue           = newAppender.ReceiveOnAsyncQueueNumber;
         var foundQueueNumList = forwardToList.Any(kvp => kvp.Key == onQueue);
         if (!foundQueueNumList)
         {
@@ -121,6 +89,41 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
         base.HandleConfigUpdate(newAppenderConfig);
 
         ParseAppenderConfig(TypeConfig, AppenderRegistry);
+    }
+
+    protected virtual void ParseAppenderConfig(IForwardingAppenderConfig forwardingAppenderConfig, IFLogAppenderRegistry fLogAppenderRegistry)
+    {
+        var forwardingAppendersLookupConfig = forwardingAppenderConfig.ForwardToAppenders;
+        foreach (var downStreamAppenderRef in forwardingAppendersLookupConfig)
+        {
+            var appenderName   = downStreamAppenderRef.Value.AppenderName;
+            var appenderClient = fLogAppenderRegistry.GetAppenderClient(appenderName, this);
+            AddAppender(appenderClient);
+        }
+    }
+
+    protected override IAppenderForwardingAsyncClient CreateAppenderAsyncClient
+        (IAppenderDefinitionConfig appenderDefinitionConfig, IFLoggerAsyncRegistry asyncRegistry)
+    {
+        var processAsync = appenderDefinitionConfig.RunOnAsyncQueueNumber;
+
+        var appenderAsyncClient = new ForwardingAsyncClient(this, processAsync, asyncRegistry);
+        return appenderAsyncClient;
+    }
+
+    public override void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
+    {
+        var forwardToList = ForwardToAppenders;
+        for (var i = 0; i < forwardToList.Count; i++)
+        {
+            var appendersByQueueNum = forwardToList[i];
+            for (var j = 0; j < appendersByQueueNum.Value.Count; j++)
+            {
+                var appender = appendersByQueueNum.Value[j];
+                appender.PublishLogEntryEvent(logEntryEvent);
+            }
+        }
+        IncrementLogEntriesProcessed(logEntryEvent.EntriesCount());
     }
 
     public override IForwardingAppenderConfig GetAppenderConfig() => (IForwardingAppenderConfig)AppenderConfig;

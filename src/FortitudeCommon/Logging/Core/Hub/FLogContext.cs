@@ -10,15 +10,15 @@ public interface IFLogContext
     bool HasStarted { get; }
 
     bool IsInitialized { get; }
-    
+
     uint ContextInstanceNumber { get; }
-    
+
     IFileSystemController FLogFileSystemController { get; set; }
 
-    IFLogAppenderRegistry  AppenderRegistry     { get; }
-    IFLogLoggerRegistry    LoggerRegistry       { get; }
-    IFLoggerAsyncRegistry  AsyncRegistry        { get; }
-    IFLogConfigRegistry    ConfigRegistry       { get; }
+    IFLogAppenderRegistry AppenderRegistry { get; }
+    IFLogLoggerRegistry LoggerRegistry { get; }
+    IFLoggerAsyncRegistry AsyncRegistry { get; }
+    IFLogConfigRegistry ConfigRegistry { get; }
     IFLogEntryPoolRegistry LogEntryPoolRegistry { get; }
 }
 
@@ -29,19 +29,16 @@ public class FLogContext : IFLogContext
     private static readonly object SyncLock = new();
 
     private static uint contextInstanceCounter;
-    
-    private IFileSystemController? flogFileSystemController;
-    
-    private IFLogAppenderRegistry  appenderRegistry     = null!;
-    private IFLogLoggerRegistry    loggerRegistry       = null!;
-    private IFLoggerAsyncRegistry  asyncRegistry        = null!;
-    private IFLogConfigRegistry    configRegistry       = null!;
-    private IFLogEntryPoolRegistry logEntryPoolRegistry = null!;
 
-    private FLogContext()
-    {
-        ContextInstanceNumber = Interlocked.Increment(ref contextInstanceCounter);
-    }
+    private IFLogAppenderRegistry appenderRegistry = null!;
+    private IFLoggerAsyncRegistry asyncRegistry    = null!;
+    private IFLogConfigRegistry   configRegistry   = null!;
+
+    private IFileSystemController? flogFileSystemController;
+    private IFLogEntryPoolRegistry logEntryPoolRegistry = null!;
+    private IFLogLoggerRegistry    loggerRegistry       = null!;
+
+    private FLogContext() => ContextInstanceNumber = Interlocked.Increment(ref contextInstanceCounter);
 
     public static IFLogContext? NullOnUnstartedContext => FLoggerRoot.CurrentContext;
 
@@ -60,20 +57,14 @@ public class FLogContext : IFLogContext
             if (instance.IsInitialized) return instance;
             lock (SyncLock)
             {
-                if (!instance.IsInitialized)
-                {
-                    return instance.DefaultInitializeContext();
-                }
+                if (!instance.IsInitialized) return instance.DefaultInitializeContext();
             }
             return instance;
         }
         set
         {
             NextInitializingContext = value;
-            if (!value.IsInitialized)
-            {
-                throw new ArgumentException("Expected NextInitializedUnstartedContext to have been initialized");
-            }
+            if (!value.IsInitialized) throw new ArgumentException("Expected NextInitializedUnstartedContext to have been initialized");
         }
     }
 
@@ -87,10 +78,7 @@ public class FLogContext : IFLogContext
             if (instance.HasStarted) return instance;
             lock (SyncLock)
             {
-                if (!instance.HasStarted)
-                {
-                    return FLogBootstrap.Instance.StartFlogSetAsCurrentContext((FLogContext)instance);
-                }
+                if (!instance.HasStarted) return FLogBootstrap.Instance.StartFlogSetAsCurrentContext((FLogContext)instance);
             }
             return instance;
         }

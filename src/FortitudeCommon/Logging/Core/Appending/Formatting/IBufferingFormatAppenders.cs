@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FileSystem;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.RequestsCache;
 
@@ -7,7 +10,7 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting;
 public interface IMultiDestinationFormattingAppender : IMutableFLogBufferingFormatAppender
 {
     LogEntryPathResolver PathResolver { get; }
-    
+
     TimeSpan ExpiryToCloseDelay { get; }
 
     SingleDestBufferedFormatWriterRequestCache GetWriterRequestCache(string targetDestination);

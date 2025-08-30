@@ -8,7 +8,6 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -36,70 +35,38 @@ public interface IAppendableMatchOperatorLookupConfig : IMutableFLogConfig, IMat
 
 public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchOperatorLookupConfig
 {
-    private DateTime nextConfigReadTime = DateTime.MinValue;
-
     private static TimeSpan recheckTimeSpanInterval;
 
     private readonly Dictionary<ushort, IMutableMatchOperatorExpressionConfig> evalOrderKeyedExpressions = new();
 
     private readonly List<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> orderedConfigSources = new();
 
-    public AppendableMatchOperatorLookupConfig(IConfigurationRoot root, string path) : base(root, path)
-    {
-        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
+    private DateTime nextConfigReadTime = DateTime.MinValue;
 
-    public AppendableMatchOperatorLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
-    {
+    public AppendableMatchOperatorLookupConfig(IConfigurationRoot root, string path) : base(root, path) =>
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
+
+    public AppendableMatchOperatorLookupConfig() : this(InMemoryConfigRoot, InMemoryPath) => recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
 
     public AppendableMatchOperatorLookupConfig(params IMutableMatchOperatorExpressionConfig[] toAdd)
-        : this(InMemoryConfigRoot, InMemoryPath, toAdd)
-    {
+        : this(InMemoryConfigRoot, InMemoryPath, toAdd) =>
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
 
     public AppendableMatchOperatorLookupConfig
         (IConfigurationRoot root, string path, params IMutableMatchOperatorExpressionConfig[] toAdd) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-        for (int i = 0; i < toAdd.Length; i++)
-        {
-            evalOrderKeyedExpressions.Add(toAdd[i].EvaluateOrder, toAdd[i]);
-        }
+        for (var i = 0; i < toAdd.Length; i++) evalOrderKeyedExpressions.Add(toAdd[i].EvaluateOrder, toAdd[i]);
     }
 
     public AppendableMatchOperatorLookupConfig(IMatchOperatorCollectionConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-        foreach (var kvp in toClone)
-        {
-            evalOrderKeyedExpressions.Add(kvp.Key, (IMutableMatchOperatorExpressionConfig)kvp.Value);
-        }
+        foreach (var kvp in toClone) evalOrderKeyedExpressions.Add(kvp.Key, (IMutableMatchOperatorExpressionConfig)kvp.Value);
     }
 
-    public AppendableMatchOperatorLookupConfig(IMatchOperatorCollectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
-    {
+    public AppendableMatchOperatorLookupConfig(IMatchOperatorCollectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) =>
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
-
-    public void Add(KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig> item)
-    {
-        evalOrderKeyedExpressions.Add(item.Key, item.Value);
-        PushToConfigStorage(item.Value);
-    }
-
-    public void Add(ushort key, IMutableMatchOperatorExpressionConfig value)
-    {
-        evalOrderKeyedExpressions.Add(key, value);
-        PushToConfigStorage(value);
-    }
-
-    protected void PushToConfigStorage(IMutableMatchOperatorExpressionConfig value)
-    {
-        value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.EvaluateOrder}");
-    }
 
     [JsonIgnore]
     protected Dictionary<ushort, IMutableMatchOperatorExpressionConfig> CheckConfigGetConfigSourcesDict
@@ -118,63 +85,12 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
                         {
                             ParentConfig = this
                         };
-                    if (ushort.TryParse(configurationSection.Key, out var key))
-                    {
-                        evalOrderKeyedExpressions.TryAdd(key, configSource);
-                    }
+                    if (ushort.TryParse(configurationSection.Key, out var key)) evalOrderKeyedExpressions.TryAdd(key, configSource);
                 }
                 nextConfigReadTime = TimeContext.UtcNow.Add(recheckTimeSpanInterval);
             }
             return evalOrderKeyedExpressions;
         }
-    }
-
-    bool IReadOnlyDictionary<ushort, IMutableMatchOperatorExpressionConfig>.ContainsKey(ushort priorityOrder) =>
-        CheckConfigGetConfigSourcesDict.ContainsKey(priorityOrder);
-
-    bool IAppendableMatchOperatorLookupConfig.ContainsKey(ushort priorityOrder) => CheckConfigGetConfigSourcesDict.ContainsKey(priorityOrder);
-
-    public bool ContainsKey(ushort priorityOrder) => CheckConfigGetConfigSourcesDict.ContainsKey(priorityOrder);
-
-    public int Count => CheckConfigGetConfigSourcesDict.Count;
-
-    protected List<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> ClearAndCopyEitherTo
-        (List<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> list)
-    {
-        static IMutableMatchOperatorExpressionConfig LoadNewConfig
-        (
-            List<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> unorderedConfigSources
-          , Dictionary<ushort, IMutableMatchOperatorExpressionConfig> priorityConfigSources
-          , IConfigurationRoot configRoot, string path)
-        {
-            var compareExpression = new MatchOperatorExpressionConfig(configRoot, path);
-            priorityConfigSources.Add(compareExpression.EvaluateOrder, compareExpression);
-            unorderedConfigSources.Add(new KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>(compareExpression.EvaluateOrder
-                                      , compareExpression));
-            return compareExpression;
-        }
-
-        list.Clear();
-
-        nextConfigReadTime = TimeContext.UtcNow;
-        foreach (var appenderRefs in GetChildren())
-        {
-            var configSourcePath = $"{Path}{Split}{appenderRefs.Key}";
-            if (ushort.TryParse(appenderRefs.Key, out var key))
-            {
-                if (evalOrderKeyedExpressions.TryGetValue(key, out var configSource))
-                {
-                    list.Add(new KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>(key, configSource));
-                }
-                else
-                {
-                    var appenderConfig = LoadNewConfig(list, evalOrderKeyedExpressions, ConfigRoot, configSourcePath);
-                    appenderConfig.ParentConfig = this;
-                }
-            }
-        }
-        nextConfigReadTime = TimeContext.UtcNow.Add(recheckTimeSpanInterval);
-        return list;
     }
 
     protected IReadOnlyList<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> OrderedConfigSources
@@ -190,6 +106,27 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
             return orderedConfigSources;
         }
     }
+
+    public void Add(KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig> item)
+    {
+        evalOrderKeyedExpressions.Add(item.Key, item.Value);
+        PushToConfigStorage(item.Value);
+    }
+
+    public void Add(ushort key, IMutableMatchOperatorExpressionConfig value)
+    {
+        evalOrderKeyedExpressions.Add(key, value);
+        PushToConfigStorage(value);
+    }
+
+    bool IReadOnlyDictionary<ushort, IMutableMatchOperatorExpressionConfig>.ContainsKey(ushort priorityOrder) =>
+        CheckConfigGetConfigSourcesDict.ContainsKey(priorityOrder);
+
+    bool IAppendableMatchOperatorLookupConfig.ContainsKey(ushort priorityOrder) => CheckConfigGetConfigSourcesDict.ContainsKey(priorityOrder);
+
+    public bool ContainsKey(ushort priorityOrder) => CheckConfigGetConfigSourcesDict.ContainsKey(priorityOrder);
+
+    public int Count => CheckConfigGetConfigSourcesDict.Count;
 
     IEnumerator IEnumerable.GetEnumerator() => OrderedConfigSources.GetEnumerator();
 
@@ -245,28 +182,67 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     IMatchOperatorCollectionConfig ICloneable<IMatchOperatorCollectionConfig>.Clone() => Clone();
 
-    public virtual AppendableMatchOperatorLookupConfig Clone() => new(this);
-
     public virtual bool AreEquivalent(IMatchOperatorCollectionConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
 
         var countSame = Count == other.Count;
         if (countSame)
-        {
             foreach (var nameKey in Keys)
             {
                 var myConfig    = this[nameKey];
                 var otherConfig = other[nameKey];
-                if (!myConfig.AreEquivalent(otherConfig, exactTypes))
-                {
-                    return false;
-                }
+                if (!myConfig.AreEquivalent(otherConfig, exactTypes)) return false;
             }
-        }
 
         return countSame;
     }
+
+    protected void PushToConfigStorage(IMutableMatchOperatorExpressionConfig value)
+    {
+        value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.EvaluateOrder}");
+    }
+
+    protected List<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> ClearAndCopyEitherTo
+        (List<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> list)
+    {
+        static IMutableMatchOperatorExpressionConfig LoadNewConfig
+        (
+            List<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> unorderedConfigSources
+          , Dictionary<ushort, IMutableMatchOperatorExpressionConfig> priorityConfigSources
+          , IConfigurationRoot configRoot, string path)
+        {
+            var compareExpression = new MatchOperatorExpressionConfig(configRoot, path);
+            priorityConfigSources.Add(compareExpression.EvaluateOrder, compareExpression);
+            unorderedConfigSources.Add(new KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>(compareExpression.EvaluateOrder
+                                      , compareExpression));
+            return compareExpression;
+        }
+
+        list.Clear();
+
+        nextConfigReadTime = TimeContext.UtcNow;
+        foreach (var appenderRefs in GetChildren())
+        {
+            var configSourcePath = $"{Path}{Split}{appenderRefs.Key}";
+            if (ushort.TryParse(appenderRefs.Key, out var key))
+            {
+                if (evalOrderKeyedExpressions.TryGetValue(key, out var configSource))
+                {
+                    list.Add(new KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>(key, configSource));
+                }
+                else
+                {
+                    var appenderConfig = LoadNewConfig(list, evalOrderKeyedExpressions, ConfigRoot, configSourcePath);
+                    appenderConfig.ParentConfig = this;
+                }
+            }
+        }
+        nextConfigReadTime = TimeContext.UtcNow.Add(recheckTimeSpanInterval);
+        return list;
+    }
+
+    public virtual AppendableMatchOperatorLookupConfig Clone() => new(this);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IMatchOperatorCollectionConfig, true);
 
@@ -276,13 +252,10 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartKeyedCollectionType(nameof(AppendableMatchOperatorLookupConfig))
-               .AddAll(evalOrderKeyedExpressions)
-               .Complete();
-    }
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartKeyedCollectionType(nameof(AppendableMatchOperatorLookupConfig))
+           .AddAll(evalOrderKeyedExpressions)
+           .Complete();
 
     public override string ToString() => this.DefaultToString();
 }

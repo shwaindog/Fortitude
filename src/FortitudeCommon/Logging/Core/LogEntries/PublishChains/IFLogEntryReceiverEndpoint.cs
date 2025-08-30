@@ -1,8 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.DataStructures.Lists;
-
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 public interface IFLogEntryReceiverEndpoint : IFLogEntryEventReceiver, IFLogEntrySink
@@ -24,20 +22,14 @@ public abstract class FLogEntryReceiverEndpointBase : FLogEntrySinkBase, IFLogEn
 
     public void AddNewFLogEntrySubscriptionChain(ITargetingFLogEntrySource toAdd)
     {
-        if (toAdd.FinalTarget != this)
-        {
-            throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
-        }
+        if (toAdd.FinalTarget != this) throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
         if (SubscriptionsToReceiver.Contains(toAdd)) return;
         SubscriptionsToReceiver.Add(toAdd);
     }
 
     public void RemoveFLogEntrySubscriptionChain(ITargetingFLogEntrySource toRemove)
     {
-        if (toRemove.FinalTarget != this)
-        {
-            throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
-        }
+        if (toRemove.FinalTarget != this) throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
         if (!SubscriptionsToReceiver.Contains(toRemove)) return;
         SubscriptionsToReceiver.Remove(toRemove);
     }
@@ -47,16 +39,16 @@ public abstract class FLogEntryReceiverEndpointBase : FLogEntrySinkBase, IFLogEn
 
 public abstract class FLogEntryReceiverEndpointContainer : FLogEntrySinkContainer, IFLogEntryReceiverEndpoint
 {
+    protected readonly List<ITargetingFLogEntrySource> SubscriptionsToReceiver = new();
+
     protected FLogEntrySourceSinkType    LinkType;
     protected FLogEntryProcessChainState ProcessState;
-
-    protected readonly List<ITargetingFLogEntrySource> SubscriptionsToReceiver = new();
 
     public FLogEntryReceiverEndpointContainer Initialize(
         IFLogEntryEventReceiver logEntryReceiver
       , FLogEntrySourceSinkType logEntryLinkType = FLogEntrySourceSinkType.Sink
       , FLogEntryProcessChainState logEntryProcessState = FLogEntryProcessChainState.Terminating
-        )
+    )
     {
         base.Initialize(logEntryReceiver);
 
@@ -73,20 +65,14 @@ public abstract class FLogEntryReceiverEndpointContainer : FLogEntrySinkContaine
 
     public void AddNewFLogEntrySubscriptionChain(ITargetingFLogEntrySource toAdd)
     {
-        if (toAdd.FinalTarget != this)
-        {
-            throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
-        }
+        if (toAdd.FinalTarget != this) throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
         if (SubscriptionsToReceiver.Contains(toAdd)) return;
         SubscriptionsToReceiver.Add(toAdd);
     }
 
     public void RemoveFLogEntrySubscriptionChain(ITargetingFLogEntrySource toRemove)
     {
-        if (toRemove.FinalTarget != this)
-        {
-            throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
-        }
+        if (toRemove.FinalTarget != this) throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
         if (!SubscriptionsToReceiver.Contains(toRemove)) return;
         SubscriptionsToReceiver.Remove(toRemove);
     }

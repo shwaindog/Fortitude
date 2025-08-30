@@ -1,8 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +15,7 @@ public interface IMatchSequenceKeysComparisonConfig : IMatchConditionConfig
 
     string Rhs { get; }
 }
+
 public interface IMutableMatchSequenceKeysComparisonConfig : IMatchSequenceKeysComparisonConfig, IMutableMatchConditionConfig
 {
     new string Lhs { get; set; }
@@ -33,10 +32,9 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
     public MatchSequenceKeysComparisonConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public MatchSequenceKeysComparisonConfig
-        (string lhs
-          , ComparisonOperatorType comparisonOperatorIs = ComparisonOperatorType.Equals, string rhs = "")
-        : this(InMemoryConfigRoot, InMemoryPath, lhs, comparisonOperatorIs, rhs)
-    { }
+    (string lhs
+      , ComparisonOperatorType comparisonOperatorIs = ComparisonOperatorType.Equals, string rhs = "")
+        : this(InMemoryConfigRoot, InMemoryPath, lhs, comparisonOperatorIs, rhs) { }
 
     public MatchSequenceKeysComparisonConfig
     (IConfigurationRoot root, string path, string lhs, ComparisonOperatorType comparisonOperatorIs = ComparisonOperatorType.Equals
@@ -49,7 +47,8 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
         Is = comparisonOperatorIs;
     }
 
-    public MatchSequenceKeysComparisonConfig(IMatchSequenceKeysComparisonConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
+    public MatchSequenceKeysComparisonConfig(IMatchSequenceKeysComparisonConfig toClone, IConfigurationRoot root, string path) :
+        base(toClone, root, path)
     {
         Lhs = toClone.Lhs;
         Rhs = toClone.Rhs;
@@ -82,10 +81,9 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    public override MatchSequenceKeysComparisonConfig Clone() => new(this);
+    public override MatchSequenceKeysComparisonConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
-    public override MatchSequenceKeysComparisonConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        new (this, configRoot, path);
+    public override MatchSequenceKeysComparisonConfig Clone() => new(this);
 
     public override bool AreEquivalent(IMatchConditionConfig? other, bool exactTypes = false)
     {
@@ -93,8 +91,8 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
 
         var baseSame = base.AreEquivalent(other, exactTypes);
 
-        var lhsSame   = Lhs == matchSeqComparison.Lhs;
-        var isSame = Is == matchSeqComparison.Is;
+        var lhsSame = Lhs == matchSeqComparison.Lhs;
+        var isSame  = Is == matchSeqComparison.Is;
         var rhsSame = Rhs == matchSeqComparison.Rhs;
 
         var allAreSame = baseSame && lhsSame && isSame && rhsSame;
@@ -110,14 +108,11 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
-               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
-               .Field.AlwaysAdd(nameof(Lhs), Lhs)
-               .Field.AlwaysAdd(nameof(Is), Is)
-               .Field.AlwaysAdd(nameof(Rhs), Rhs)
-               .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
+           .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
+           .Field.AlwaysAdd(nameof(Lhs), Lhs)
+           .Field.AlwaysAdd(nameof(Is), Is)
+           .Field.AlwaysAdd(nameof(Rhs), Rhs)
+           .Complete();
 }

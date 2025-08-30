@@ -11,19 +11,16 @@ namespace FortitudeCommon.Logging.Core.ConditionalLogging;
 
 public class TimingTraceExecutionPath : RecyclableObject
 {
-    private readonly ExecutionTimingStart traceStarted;
-    private readonly IMutableFLogEntry    finalLogEntry;
-
-    public ExecutionDuration? ExecutionDuration { get; protected set; }
-
     private static readonly IStringBuilder IncompleteTraceEntry = new MutableString();
+
+    private readonly IMutableFLogEntry finalLogEntry;
+    private readonly TraceMessageLogEntry traceLogEntry;
+    private readonly ExecutionTimingStart traceStarted;
 
     static TimingTraceExecutionPath()
     {
         IncompleteTraceEntry.Append("Trace did not complete last trace entry");
     }
-
-    private readonly TraceMessageLogEntry traceLogEntry;
 
     public TimingTraceExecutionPath(ExecutionTimingStart traceStarted, IMutableFLogEntry finalLogEntry)
     {
@@ -32,6 +29,8 @@ public class TimingTraceExecutionPath : RecyclableObject
 
         traceLogEntry = new TraceMessageLogEntry(this.finalLogEntry);
     }
+
+    public ExecutionDuration? ExecutionDuration { get; protected set; }
 
     public FLogEntry AddTraceEntry => traceLogEntry;
 
@@ -45,10 +44,7 @@ public class TimingTraceExecutionPath : RecyclableObject
 
     internal void Dispatch(IStringBuilder? warningToPrefix = null)
     {
-        if (traceLogEntry.HasPartial)
-        {
-            traceLogEntry.OnMessageComplete(IncompleteTraceEntry);
-        }
+        if (traceLogEntry.HasPartial) traceLogEntry.OnMessageComplete(IncompleteTraceEntry);
 
         finalLogEntry.OnMessageComplete(warningToPrefix);
     }
@@ -61,8 +57,8 @@ public class TimingTraceExecutionPath : RecyclableObject
 
         public TraceMessageLogEntry(IMutableFLogEntry finalLogEntry)
         {
-            finalEntrySb   = ((MutableString)(finalLogEntry.Message)).BackingStringBuilder;
-            myTraceEntrySb = ((MutableString)(Message)).BackingStringBuilder;
+            finalEntrySb   = ((MutableString)finalLogEntry.Message).BackingStringBuilder;
+            myTraceEntrySb = ((MutableString)Message).BackingStringBuilder;
         }
 
         public bool HasPartial => myTraceEntrySb.Length > 0;

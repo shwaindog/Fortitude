@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.Config;
+﻿// // Licensed under the MIT license.
+// // Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.Hub;
@@ -12,8 +15,9 @@ namespace FortitudeTests.FortitudeCommon.Logging.Config.ExampleConfig;
 [NoMatchingProductionClass]
 public class AsyncDblBufferedFileAndColoredConsoleTests
 {
-    private const string DblBufferedForwardingAppenderName = "ForwardingAppender";
-    
+    private const string AppLogFileAppenderAppenderName = "AppLogFileAppender";
+    private const string ColoredConsoleAppenderName     = "ColoredConsole";
+
     [TestMethod]
     public void AsyncDailyDblBufferedFileLoadsAndLogsToFile()
     {
@@ -24,9 +28,11 @@ public class AsyncDblBufferedFileAndColoredConsoleTests
                 .NewUninitializedContext
                 .InitializeContextFromWorkingDirFilePath(Environment.CurrentDirectory, FLogConfigFile.DefaultConfigFullFilePath)
                 .StartFlogSetAsCurrentContext();
-        
-        var manualResetEvent = new ManualResetEvent(false);
-        context.AppenderRegistry.WhenAppenderProcessedCountRun(DblBufferedForwardingAppenderName, 100, (_, _) => manualResetEvent.Set());
+
+        var fileManualResetEvent    = new ManualResetEvent(false);
+        var consoleManualResetEvent = new ManualResetEvent(false);
+        context.AppenderRegistry.WhenAppenderProcessedCountRun(AppLogFileAppenderAppenderName, 100, (_, _) => fileManualResetEvent.Set());
+        context.AppenderRegistry.WhenAppenderProcessedCountRun(ColoredConsoleAppenderName, 100, (_, _) => consoleManualResetEvent.Set());
         var testLogger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
         for (var i = 0; i < 20; i++)
@@ -37,6 +43,7 @@ public class AsyncDblBufferedFileAndColoredConsoleTests
             testLogger.WrnApnd("Testing")?.Args(" 1,", " 2,", " 3.");
             testLogger.ErrApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         }
-        manualResetEvent.WaitOne();
+        fileManualResetEvent.WaitOne();
+        consoleManualResetEvent.WaitOne();
     }
 }

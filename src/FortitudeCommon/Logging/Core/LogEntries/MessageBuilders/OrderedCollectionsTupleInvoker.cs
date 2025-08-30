@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Reflection;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Types.StyledToString;
@@ -12,15 +15,9 @@ public abstract partial class FLogEntryMessageBuilder
     {
         try
         {
-            if (collectionType.IsValueType || collectionType.IsNotCollection())
-            {
-                return null;
-            }
+            if (collectionType.IsValueType || collectionType.IsNotCollection()) return null;
             var collElementType = collectionType.GetIndexedCollectionElementType() ?? collectionType.GetIterableElementType();
-            if (collElementType == null || collectionType.GenericTypeArguments.Length > 1 || collElementType.IsKeyValuePair())
-            {
-                return null;
-            }
+            if (collElementType == null || collectionType.GenericTypeArguments.Length > 1 || collElementType.IsKeyValuePair()) return null;
             if (collectionType.IsIndexableOrderedCollection())
             {
                 var structStylerInvoker =
@@ -48,15 +45,9 @@ public abstract partial class FLogEntryMessageBuilder
     {
         try
         {
-            if (item1Type.IsValueType || item1Type.IsNotCollection())
-            {
-                return null;
-            }
+            if (item1Type.IsValueType || item1Type.IsNotCollection()) return null;
             var collElementType = item1Type.GetIndexedCollectionElementType() ?? item1Type.GetIterableElementType();
-            if (collElementType == null || item1Type.GenericTypeArguments.Length > 1 || collElementType.IsKeyValuePair())
-            {
-                return null;
-            }
+            if (collElementType == null || item1Type.GenericTypeArguments.Length > 1 || collElementType.IsKeyValuePair()) return null;
 
             if (item1Type.IsIndexableOrderedCollection())
             {
@@ -111,22 +102,15 @@ public abstract partial class FLogEntryMessageBuilder
     {
         try
         {
-            if (item1Type.IsValueType || !item1Type.IsCollection())
-            {
-                return null;
-            }
+            if (item1Type.IsValueType || !item1Type.IsCollection()) return null;
             if (item1Type.IsIndexableOrderedCollection())
-            {
                 if (item3Type.IsFormatterType())
-                {
                     if (item2Type.IsOrderedCollectionFilterPredicate())
                     {
                         var structStylerInvoker =
                             TryBuildFilteredIndexedCollectionFormatInvoker(tuple, tupleType, item1Type, item2Type, item3Type);
                         return structStylerInvoker;
                     }
-                }
-            }
         }
         catch (Exception ex)
         {
@@ -139,7 +123,7 @@ public abstract partial class FLogEntryMessageBuilder
 
         return null;
     }
-    
+
     private Action<T, IStyledTypeStringAppender> TryBuildIterableInvoker<T>(T iterableToAppend, Type iterableType, Type indexedCollElementType)
     {
         var methodName = indexedCollElementType.IsValueType ? nameof(AppendValueCollectionEnumerate) : nameof(AppendObjectCollectionEnumerate);
@@ -169,7 +153,7 @@ public abstract partial class FLogEntryMessageBuilder
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
         var invokeAppend = CreateSingleGenericArgMethodInvoker(iterableToAppend, iterableType, foundMatch, indexedCollElementType);
         return invokeAppend;
@@ -181,13 +165,13 @@ public abstract partial class FLogEntryMessageBuilder
         var methodName = indexedCollElementType.IsValueType ? nameof(AppendValueCollection) : nameof(AppendObjectCollection);
 
         var collectionNotReadOnlyList = collectionType.IsNotReadOnlyList();
-        var collectionNotArray = collectionType.IsNotArray();
+        var collectionNotArray        = collectionType.IsNotArray();
 
         MethodInfo? foundMatch = null;
         for (var i = 0; i < MyNonPubStaticMethods.Length; i++)
         {
             var mi = MyNonPubStaticMethods[i];
-            
+
             if (mi.Name != methodName || !mi.IsStatic) continue;
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 1) continue;
@@ -205,7 +189,7 @@ public abstract partial class FLogEntryMessageBuilder
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
         var invokeAppend = CreateSingleGenericArgMethodInvoker(collectionToAppend, collectionType, foundMatch, indexedCollElementType);
         return invokeAppend;
@@ -217,7 +201,7 @@ public abstract partial class FLogEntryMessageBuilder
         var indexedCollElementType = item1Iterable.GetIndexedCollectionElementType()
                                   ?? throw new InvalidOperationException("Expected item1IndexableColl to be either an array or List");
         var methodName = indexedCollElementType.IsValueType ? nameof(AppendValueCollectionEnumerate) : nameof(AppendObjectCollectionEnumerate);
-        
+
         var iterableIsNotEnumerable = item1Iterable.IsNotEnumerable();
         var iterableIsNotEnumerator = item1Iterable.IsNotEnumerator();
 
@@ -247,7 +231,7 @@ public abstract partial class FLogEntryMessageBuilder
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
         var invokeAppend = CreateSingleGenericArgMethodInvoker(toAppend, typeOfT, foundMatch, indexedCollElementType);
         return invokeAppend;
@@ -258,8 +242,8 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var indexedCollElementType = item1IndexableColl.GetIndexedCollectionElementType()
                                   ?? throw new InvalidOperationException("Expected item1IndexableColl to be either an array or List");
-        var methodName                      = indexedCollElementType.IsValueType ? nameof(AppendValueCollection) : nameof(AppendObjectCollection);
-        
+        var methodName = indexedCollElementType.IsValueType ? nameof(AppendValueCollection) : nameof(AppendObjectCollection);
+
         var collectionIsNotArrayType        = item1IndexableColl.IsNotArray();
         var collectionIsNotReadOnlyListType = item1IndexableColl.IsNotReadOnlyList();
 
@@ -289,7 +273,7 @@ public abstract partial class FLogEntryMessageBuilder
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
         var invokeAppend = CreateSingleGenericArgMethodInvoker(toAppend, typeOfT, foundMatch, indexedCollElementType);
         return invokeAppend;
@@ -301,7 +285,7 @@ public abstract partial class FLogEntryMessageBuilder
         var indexedCollElementType = item1IndexableColl.GetIndexedCollectionElementType()
                                   ?? throw new InvalidOperationException("Expected item1IndexableColl to be either an array or List");
         var methodName = indexedCollElementType.IsValueType ? nameof(AppendFilteredValueCollection) : nameof(AppendFilteredObjectCollection);
-        
+
         var collectionIsNotArrayType        = item1IndexableColl.IsNotArray();
         var collectionIsNotReadOnlyListType = item1IndexableColl.IsNotReadOnlyList();
 
@@ -342,7 +326,7 @@ public abstract partial class FLogEntryMessageBuilder
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
         var invokeAppend =
             CreateSingleGenericArgMethodInvoker(toAppend, tupleType, foundMatch, indexedCollElementType);

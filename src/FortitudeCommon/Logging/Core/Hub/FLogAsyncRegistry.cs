@@ -40,21 +40,15 @@ internal record struct RecyclableObjectRequestTime(IRecyclableObject ToDecrement
 public class FLogAsyncRegistry : IMutableFLoggerAsyncRegistry
 {
     private static readonly TimeSpan WaitTimeBeforeDecrement = TimeSpan.FromSeconds(4);
-    
+
     private readonly Action checkItemsForDecrement;
 
     private readonly List<RecyclableObjectRequestTime> queuedToDecrementRefCounts = new();
 
-    private ITimerUpdate? decrementRecyclableTimerUpdate;
-
 
     private IMutableAsyncQueuesInitConfig asyncBufferingConfig;
 
-    public IAsyncQueuesInitConfig AsyncBufferingConfig
-    {
-        get => asyncBufferingConfig;
-        set => asyncBufferingConfig = (IMutableAsyncQueuesInitConfig)value;
-    }
+    private ITimerUpdate? decrementRecyclableTimerUpdate;
 
     public FLogAsyncRegistry(IMutableAsyncQueuesInitConfig asyncInitConfig)
     {
@@ -63,6 +57,12 @@ public class FLogAsyncRegistry : IMutableFLoggerAsyncRegistry
         AsyncQueueLocator    = FLogCreate.MakeAsyncQueueLocator(asyncInitConfig);
 
         checkItemsForDecrement = CheckQueuedToDecrementObjectsAndRescheduleTimerIfTimeNotReached;
+    }
+
+    public IAsyncQueuesInitConfig AsyncBufferingConfig
+    {
+        get => asyncBufferingConfig;
+        set => asyncBufferingConfig = (IMutableAsyncQueuesInitConfig)value;
     }
 
     public void ScheduleRecycleDecrement(IRecyclableObject toDecrementRecyclableObject)
@@ -81,6 +81,16 @@ public class FLogAsyncRegistry : IMutableFLoggerAsyncRegistry
 
     public IAsyncQueueLocator AsyncQueueLocator { get; set; }
 
+    public void StartAsyncQueues()
+    {
+        AsyncQueueLocator.StartAsyncQueues();
+    }
+
+    public void ShutdownAsyncQueues()
+    {
+        AsyncQueueLocator.ShutdownAllAsyncQueues();
+    }
+
     private void CheckQueuedToDecrementObjectsAndRescheduleTimerIfTimeNotReached()
     {
         decrementRecyclableTimerUpdate = null;
@@ -88,7 +98,7 @@ public class FLogAsyncRegistry : IMutableFLoggerAsyncRegistry
         if (queuedCount > 0)
         {
             var currentTime = TimeContext.UtcNow;
-            for (int i = 0; i < queuedCount; i++)
+            for (var i = 0; i < queuedCount; i++)
             {
                 var recyclableDecrementTime = queuedToDecrementRefCounts[i];
                 if (recyclableDecrementTime.DecrementAt < currentTime)
@@ -102,21 +112,8 @@ public class FLogAsyncRegistry : IMutableFLoggerAsyncRegistry
                 }
             }
             queuedCount = queuedToDecrementRefCounts.Count;
-            if (queuedCount > 0)
-            {
-                decrementRecyclableTimerUpdate = LoggerTimers.RunIn(WaitTimeBeforeDecrement, checkItemsForDecrement);
-            }
+            if (queuedCount > 0) decrementRecyclableTimerUpdate = LoggerTimers.RunIn(WaitTimeBeforeDecrement, checkItemsForDecrement);
         }
-    }
-
-    public void StartAsyncQueues()
-    {
-        AsyncQueueLocator.StartAsyncQueues();
-    }
-
-    public void ShutdownAsyncQueues()
-    {
-        AsyncQueueLocator.ShutdownAllAsyncQueues();
     }
 }
 
@@ -125,10 +122,8 @@ public static class FLogAsyncRegistryExtensions
     public static IFLoggerAsyncRegistry? UpdateConfig(this IFLoggerAsyncRegistry? maybeCreated, IAsyncQueuesInitConfig asyncBufferingConfig)
     {
         var mutableMaybe = maybeCreated as IMutableFLoggerAsyncRegistry;
-        if (mutableMaybe != null)
-        {
-            mutableMaybe.AsyncBufferingConfig = asyncBufferingConfig;
-        }
+
+        if (mutableMaybe != null) mutableMaybe.AsyncBufferingConfig = asyncBufferingConfig;
         return mutableMaybe;
     }
 }

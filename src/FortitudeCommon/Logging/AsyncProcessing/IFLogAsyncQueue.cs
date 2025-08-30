@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
-using FortitudeCommon.Logging.Core.Appending.Formatting;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
@@ -14,11 +13,12 @@ public interface IFLogAsyncQueuePublisher
 
     AsyncProcessingType QueueType { get; }
 
-    int  QueueCapacity { get; }
+    int QueueCapacity { get; }
 
     void Execute(Action job);
 
-    void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource);
+    void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks
+      , ITargetingFLogEntrySource publishSource);
 
     void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, ITargetingFLogEntrySource publishSource);
 
@@ -39,21 +39,18 @@ public interface IFLogAsyncSwitchableQueueClient : IFLogAsyncQueuePublisher
 
 public interface IFLogAsyncQueue : IFLogAsyncQueuePublisher
 {
-    void StartQueueReceiver();
-
-    void StopQueueReceiver();
-
     int QueueBackLogSize { get; }
 
     int EmptyQueueSleepMs { get; set; }
+    void StartQueueReceiver();
+
+    void StopQueueReceiver();
 }
 
 public abstract class FLogAsyncQueue(int queueNumber, AsyncProcessingType queueType, int queueCapacity) : IFLogAsyncQueue
 {
-    [ThreadStatic] private static int currentThreadsQueue;
+    [field: ThreadStatic] public static int MyCallingQueueNumber { get; private set; }
 
-    public static int MyCallingQueueNumber => currentThreadsQueue;
-    
     public bool ThreadIsOnQueue => MyCallingQueueNumber == QueueNumber;
 
     public int EmptyQueueSleepMs { get; set; }
@@ -70,16 +67,18 @@ public abstract class FLogAsyncQueue(int queueNumber, AsyncProcessingType queueT
 
     public abstract int QueueBackLogSize { get; }
 
-    public abstract void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource);
+    public abstract void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks
+      , ITargetingFLogEntrySource publishSource);
 
-    public abstract void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, ITargetingFLogEntrySource publishSource);
+    public abstract void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink
+      , ITargetingFLogEntrySource publishSource);
 
     public abstract void StartQueueReceiver();
 
     public abstract void StopQueueReceiver();
-    
+
     public static void SetCurrentThreadToQueueNumber(int queueNumber)
     {
-        currentThreadsQueue = queueNumber;
+        MyCallingQueueNumber = queueNumber;
     }
 }

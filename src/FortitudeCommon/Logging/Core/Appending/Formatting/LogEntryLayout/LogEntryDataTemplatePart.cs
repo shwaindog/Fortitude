@@ -26,6 +26,21 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
 
     public LogEntryDataTemplatePart(TokenFormatting tokenFormatting) => this.tokenFormatting = tokenFormatting;
 
+    public int Apply(IFormatWriter formatWriter, IFLogEntry logEntry)
+    {
+        var charBufferSize = 512;
+        if (tokenFormatting.TokenName.IsLargeBufferCheckRequiredTokenName())
+        {
+            var tokenName                                                                              = tokenFormatting.TokenName;
+            if (tokenName.IsLogEntryMessageTokenName()) charBufferSize                                 = logEntry.Message.Length + 2;
+            if (logEntry.Exception != null && tokenName.IsLogEntryExceptionTokenName()) charBufferSize = logEntry.Exception.Message.Length + 2;
+        }
+        var scratchBuffer = SourceCachedStringBuilder(charBufferSize);
+        return Apply(formatWriter, logEntry, scratchBuffer);
+    }
+
+    public FormattingAppenderSinkType TargetingAppenderTypes => FormattingAppenderSinkType.Any;
+
     private IStringBuilder SourceCachedStringBuilder(int charSizeRequired = 512)
     {
         if (charSizeRequired <= 512)
@@ -44,10 +59,10 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
         }
         else
         {
-            if (LargeScratchBuffer is not null && LargeScratchBuffer.Capacity < charSizeRequired )
+            if (LargeScratchBuffer is not null && LargeScratchBuffer.Capacity < charSizeRequired)
             {
                 LargeScratchBuffer.DecrementRefCount();
-                LargeScratchBuffer = charSizeRequired.SourceCharArrayStringBuilder();    
+                LargeScratchBuffer = charSizeRequired.SourceCharArrayStringBuilder();
             }
             LargeScratchBuffer ??= charSizeRequired.SourceCharArrayStringBuilder();
         }
@@ -60,25 +75,6 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
         var temporary = charSizeRequired.SourceCharArrayStringBuilder();
         temporary.Clear();
         return temporary;
-    }
-
-    public int Apply(IFormatWriter formatWriter, IFLogEntry logEntry)
-    {
-        var charBufferSize = 512;
-        if (tokenFormatting.TokenName.IsLargeBufferCheckRequiredTokenName())
-        {
-            var tokenName = tokenFormatting.TokenName;
-            if (tokenName.IsLogEntryMessageTokenName())
-            {
-                charBufferSize = logEntry.Message.Length + 2;
-            }
-            if (logEntry.Exception != null && tokenName.IsLogEntryExceptionTokenName())
-            {
-                charBufferSize = logEntry.Exception.Message.Length + 2;
-            }
-        }
-        var scratchBuffer = SourceCachedStringBuilder(charBufferSize);
-        return Apply(formatWriter, logEntry, scratchBuffer);
     }
 
     private int Apply(IFormatWriter formatWriter, IFLogEntry logEntry, IStringBuilder partStringBuilder)
@@ -99,8 +95,6 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
         }
         return partStringBuilder.Length;
     }
-
-    public FormattingAppenderSinkType TargetingAppenderTypes => FormattingAppenderSinkType.Any;
 
     // example toke "%TS:yyyy-MM-dd HH:mm:SS.fff% %LVL,5% %THREADID,4% %THREADNAME,10[..10]% %LGR% %MSG%";
     protected virtual void ApplyTokenToStringBuilder(IStringBuilder sb, IFLogEntry logEntry)
@@ -155,18 +149,15 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
                     var loggerNameSpan = logEntry.Logger.FullName.AsSpan();
                     var countNameParts = loggerNameSpan.SplitCount('.');
                     var hasAppended    = false;
-                    for (int i = 0; i < countNameParts; i++)
+                    for (var i = 0; i < countNameParts; i++)
                     {
                         var fromEndIndex = countNameParts - i;
                         var includeInLoggerName =
-                             (splitStartIdx.IsFromEnd ? splitStartIdx.Value >= fromEndIndex : splitStartIdx.Value <= i)
+                            (splitStartIdx.IsFromEnd ? splitStartIdx.Value >= fromEndIndex : splitStartIdx.Value <= i)
                          && (splitEndIdx.IsFromEnd ? splitEndIdx.Value < fromEndIndex : splitEndIdx.Value > i);
                         if (includeInLoggerName)
                         {
-                            if (hasAppended)
-                            {
-                                sb.Append('.');
-                            }
+                            if (hasAppended) sb.Append('.');
                             var loggerNamePart = loggerNameSpan.SplitAt('.', i);
                             sb.Append(loggerNamePart);
                             hasAppended = true;

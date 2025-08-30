@@ -15,7 +15,7 @@ public interface IBlockingFormatWriterResolverHandle : IDisposable, IRecyclableO
     bool IsAvailable { get; }
 
     bool WasTaken { get; }
-    
+
     IFLogEntry? RequestingLogEntry { get; }
 
     bool TryGetFormatWriter(out IFormatWriter? formatWriter);
@@ -31,9 +31,9 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
 {
     private IFormatWriter? currentFormatWriter;
 
-    private ISyncLock? requesterLockStrategy;
-
     private Action<IBlockingFormatWriterResolverHandle>? onDisposeCallback;
+
+    private ISyncLock? requesterLockStrategy;
 
     public BlockingFormatWriterResolverHandle Initialize
     (
@@ -44,11 +44,11 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
       , IFormatWriter? requestedFormatWriter = null
     )
     {
-        IsDisposed = false;
-        WasTaken = false;
-        RequestingLogEntry =  requester;
-        onDisposeCallback        = onCompleteHandBackAction;
-        requesterLockStrategy    = syncStrategy;
+        IsDisposed            = false;
+        WasTaken              = false;
+        RequestingLogEntry    = requester;
+        onDisposeCallback     = onCompleteHandBackAction;
+        requesterLockStrategy = syncStrategy;
         if (requestedFormatWriter != null)
         {
             currentFormatWriter       = requestedFormatWriter;
@@ -58,7 +58,7 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
         else
         {
             currentFormatWriter = null;
-            IsAvailable = false;
+            IsAvailable         = false;
         }
 
         return this;
@@ -82,18 +82,13 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
             return currentFormatWriter;
         }
         if (!IsDisposed && requesterLockStrategy!.Acquire(timeout))
-        {
             if (!IsDisposed)
             {
                 WasTaken = true;
                 return currentFormatWriter;
             }
-        }
         return null;
     }
-
-    public BlockingFormatWriterResolverHandle? Next     { get; set; }
-    public BlockingFormatWriterResolverHandle? Previous { get; set; }
 
     public bool IsAvailable { get; private set; }
 
@@ -110,7 +105,7 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
     public void ReceiveFormatWriterHandler(IFormatWriter writer)
     {
         currentFormatWriter = writer;
-        writer.InUse = true;
+        writer.InUse        = true;
         IsAvailable         = true;
 
         requesterLockStrategy!.Release(true);
@@ -126,6 +121,9 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
         }
         return false;
     }
+
+    public BlockingFormatWriterResolverHandle? Next { get; set; }
+    public BlockingFormatWriterResolverHandle? Previous { get; set; }
 
     public override void StateReset()
     {

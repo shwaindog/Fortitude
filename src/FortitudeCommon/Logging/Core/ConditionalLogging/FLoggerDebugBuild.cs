@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config;

@@ -8,9 +8,10 @@ public interface IFLogEntryForkingInterceptor : IFLogEntrySource, IFLogEntryPipe
     new string Name { get; }
 }
 
-
 public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryForkingInterceptor
 {
+    private IFLogEntrySource? inBound;
+
     protected FLogEntryForkingInterceptor()
     {
         InBoundListener        = OnReceiveLogEntry;
@@ -20,9 +21,6 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
     public FLogEntryPublishHandler InBoundListener { get; }
 
     public FLogEntryPublishHandler ForkingInBoundListener { get; set; }
-
-
-    private IFLogEntrySource? inBound;
 
     public virtual IFLogEntrySource? InBound
     {
@@ -59,33 +57,26 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
         base.StateReset();
     }
 
-    public void IncrementRefsOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
-    {
-        logEntryEvent.IncrementRefCount();
-        OnReceiveLogEntry(logEntryEvent, fromPublisher);
-    }
-
     public virtual void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         if (ShouldCheckLock)
-        {
             while (true)
             {
                 using (var readLock = AcquireReadTreeLock(50))
                 {
-                    if (readLock != null)
-                    {
-                        break;
-                    }
+                    if (readLock != null) break;
                 }
                 SafeOnReceiveLogEntry(logEntryEvent, fromPublisher);
             }
-        }
         else
-        {
             SafeOnReceiveLogEntry(logEntryEvent, fromPublisher);
-        }
         logEntryEvent.DecrementRefCount();
+    }
+
+    public void IncrementRefsOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
+    {
+        logEntryEvent.IncrementRefCount();
+        OnReceiveLogEntry(logEntryEvent, fromPublisher);
     }
 
     protected virtual void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)

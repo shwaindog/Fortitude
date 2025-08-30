@@ -62,7 +62,8 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
              , abortWhenEntry, sequenceFinalTrigger, timeOut) { }
 
     public MatchSequenceTriggerConfig
-    (IConfigurationRoot root, string path, IMutableMatchOperatorExpressionConfig? triggeredWhenEntry, IMutableMatchSequenceTriggerConfig? nextTriggerStep = null
+    (IConfigurationRoot root, string path, IMutableMatchOperatorExpressionConfig? triggeredWhenEntry
+      , IMutableMatchSequenceTriggerConfig? nextTriggerStep = null
       , IAppendableExtractedMessageKeyValuesConfig? onTriggerExtract = null, IMutableMatchOperatorExpressionConfig? completedWhenEntry = null
       , IMutableMatchOperatorExpressionConfig? abortWhenEntry = null, IMutableMatchSequenceTriggerConfig? sequenceFinalTrigger = null
       , ITimeSpanConfig? timeOut = null)
@@ -99,12 +100,10 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         get
         {
             if (GetSection(nameof(TriggeredWhenEntry)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new MatchOperatorExpressionConfig(ConfigRoot, $"{Path}{Split}{nameof(TriggeredWhenEntry)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -125,12 +124,10 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         get
         {
             if (GetSection(nameof(AbortWhenEntry)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new MatchOperatorExpressionConfig(ConfigRoot, $"{Path}{Split}{nameof(AbortWhenEntry)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -151,12 +148,10 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         get
         {
             if (GetSection(nameof(CompletedWhenEntry)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new MatchOperatorExpressionConfig(ConfigRoot, $"{Path}{Split}{nameof(CompletedWhenEntry)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -177,12 +172,10 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         get
         {
             if (GetSection(nameof(NextTriggerStep)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new MatchSequenceTriggerConfig(ConfigRoot, $"{Path}{Split}{nameof(NextTriggerStep)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -203,12 +196,10 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         get
         {
             if (GetSection(nameof(OnTriggerExtract)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new ExtractedMessageKeyValuesConfig(ConfigRoot, $"{Path}{Split}{nameof(OnTriggerExtract)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new ExtractedMessageKeyValuesConfig(ConfigRoot, $"{Path}{Split}{nameof(OnTriggerExtract)}")
             {
                 ParentConfig = this
@@ -232,12 +223,10 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         get
         {
             if (GetSection(nameof(SequenceFinalTrigger)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new MatchSequenceTriggerConfig(ConfigRoot, $"{Path}{Split}{nameof(SequenceFinalTrigger)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -256,9 +245,7 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         get
         {
             if (GetSection(nameof(TimeOut)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new TimeSpanConfig(ConfigRoot, $"{Path}{Split}{nameof(TimeOut)}");
-            }
             return null;
         }
         set =>
@@ -269,17 +256,17 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    object ICloneable.Clone() => Clone();
-
     IMatchSequenceTriggerConfig IConfigCloneTo<IMatchSequenceTriggerConfig>.CloneConfigTo
         (IConfigurationRoot configRoot, string path) =>
         new MatchSequenceTriggerConfig(this, configRoot, path);
 
+    public MatchSequenceTriggerConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
+    object ICloneable.Clone() => Clone();
+
     IMatchSequenceTriggerConfig ICloneable<IMatchSequenceTriggerConfig>.Clone() => Clone();
 
     public virtual MatchSequenceTriggerConfig Clone() => new(this);
-
-    public MatchSequenceTriggerConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
     public virtual bool AreEquivalent(IMatchSequenceTriggerConfig? other, bool exactTypes = false)
     {
@@ -287,11 +274,11 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
 
         var triggeredWhenSame  = TriggeredWhenEntry?.AreEquivalent(other.TriggeredWhenEntry, exactTypes) ?? other.TriggeredWhenEntry == null;
         var nextTriggerSame    = NextTriggerStep?.AreEquivalent(other.NextTriggerStep, exactTypes) ?? other.NextTriggerStep == null;
-        var triggerExtractSame = OnTriggerExtract?.AreEquivalent(other.OnTriggerExtract, exactTypes) ?? other.OnTriggerExtract == null;     
+        var triggerExtractSame = OnTriggerExtract?.AreEquivalent(other.OnTriggerExtract, exactTypes) ?? other.OnTriggerExtract == null;
         var completedWhenSame  = CompletedWhenEntry?.AreEquivalent(other.CompletedWhenEntry, exactTypes) ?? other.CompletedWhenEntry == null;
-        var abortWhenSame      = AbortWhenEntry?.AreEquivalent(other.AbortWhenEntry, exactTypes) ?? other.AbortWhenEntry == null;       
+        var abortWhenSame      = AbortWhenEntry?.AreEquivalent(other.AbortWhenEntry, exactTypes) ?? other.AbortWhenEntry == null;
         var sequenceFinalSame  = SequenceFinalTrigger?.AreEquivalent(other.SequenceFinalTrigger, exactTypes) ?? other.SequenceFinalTrigger == null;
-        var timeoutSame  = TimeOut?.AreEquivalent(other.TimeOut, exactTypes) ?? other.TimeOut == null;
+        var timeoutSame        = TimeOut?.AreEquivalent(other.TimeOut, exactTypes) ?? other.TimeOut == null;
 
         var allAreSame = triggeredWhenSame && nextTriggerSame && triggerExtractSame && completedWhenSame
                       && abortWhenSame && sequenceFinalSame && timeoutSame;
@@ -303,7 +290,7 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
 
     public override int GetHashCode()
     {
-        var hashCode = (TriggeredWhenEntry?.GetHashCode() ?? 0);
+        var hashCode = TriggeredWhenEntry?.GetHashCode() ?? 0;
         hashCode = (hashCode * 397) ^ (NextTriggerStep?.GetHashCode() ?? 0);
         hashCode = (hashCode * 397) ^ (OnTriggerExtract?.GetHashCode() ?? 0);
         hashCode = (hashCode * 397) ^ (CompletedWhenEntry?.GetHashCode() ?? 0);
@@ -313,16 +300,13 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(MatchSequenceTriggerConfig))
-               .Field.WhenNonNullAdd(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
-               .Field.WhenNonNullAdd(nameof(NextTriggerStep), NextTriggerStep)
-               .Field.WhenNonNullAdd(nameof(OnTriggerExtract), OnTriggerExtract)
-               .Field.WhenNonNullAdd(nameof(CompletedWhenEntry), CompletedWhenEntry)
-               .Field.WhenNonNullAdd(nameof(AbortWhenEntry), AbortWhenEntry)
-               .Field.WhenNonNullAdd(nameof(TimeOut), TimeOut)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(MatchSequenceTriggerConfig))
+           .Field.WhenNonNullAdd(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
+           .Field.WhenNonNullAdd(nameof(NextTriggerStep), NextTriggerStep)
+           .Field.WhenNonNullAdd(nameof(OnTriggerExtract), OnTriggerExtract)
+           .Field.WhenNonNullAdd(nameof(CompletedWhenEntry), CompletedWhenEntry)
+           .Field.WhenNonNullAdd(nameof(AbortWhenEntry), AbortWhenEntry)
+           .Field.WhenNonNullAdd(nameof(TimeOut), TimeOut)
+           .Complete();
 }

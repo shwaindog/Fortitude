@@ -1,5 +1,5 @@
-﻿using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
 
 namespace FortitudeCommon.Logging.Config;
 
@@ -27,15 +27,15 @@ public enum FLogLevelMatch
 
 public static class FLogLevelExtensions
 {
-    public static int LoggableRange => (FLogLevel.Error - FLogLevel.None);
+    public static int LoggableRange => FLogLevel.Error - FLogLevel.None;
 
     public static bool IsTraceEnabled(this FLogLevel level) => level >= FLogLevel.Trace;
-        
+
     public static bool IsDebugEnabled(this FLogLevel level) => level >= FLogLevel.Debug;
-        
-    public static bool IsInfoEnabled(this FLogLevel level)  => level >= FLogLevel.Info;
-        
-    public static bool IsWarnEnabled(this FLogLevel level)  => level >= FLogLevel.Warn;
-        
+
+    public static bool IsInfoEnabled(this FLogLevel level) => level >= FLogLevel.Info;
+
+    public static bool IsWarnEnabled(this FLogLevel level) => level >= FLogLevel.Warn;
+
     public static bool IsErrorEnabled(this FLogLevel level) => level >= FLogLevel.Error;
 }

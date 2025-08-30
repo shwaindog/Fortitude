@@ -2,8 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -116,12 +114,10 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
         get
         {
             if (GetSection(nameof(AsyncReceiveQueue)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FLogEntryAsyncReceiveConfig(ConfigRoot, $"{Path}{Split}{nameof(AsyncReceiveQueue)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new FLogEntryAsyncReceiveConfig(IFLogEntryQueueConfig.DefaultQueueSize)
             {
                 ParentConfig = this
@@ -161,8 +157,6 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    public override AsyncForwardingAppendersConfig Clone() => new(this);
-
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {
         if (other is not IAsyncForwardingAppendersConfig asyncAppenderConfig) return false;
@@ -180,6 +174,8 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
         return allAreSame;
     }
 
+    public override AsyncForwardingAppendersConfig Clone() => new(this);
+
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IQueueingAppenderConfig, true);
 
     public override int GetHashCode()
@@ -190,14 +186,15 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
 
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        using var tb = sbc.StartComplexType(nameof(AsyncForwardingAppendersConfig))
-           .Field.AlwaysAdd(nameof(AsyncType), AsyncType)
-           .AddBaseFieldsStart();
+        using var tb =
+            sbc.StartComplexType(nameof(AsyncForwardingAppendersConfig))
+               .Field.AlwaysAdd(nameof(AsyncType), AsyncType)
+               .AddBaseFieldsStart();
         base.ToString(sbc);
-            tb.Field.AlwaysAdd(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling)
-            .Field.AlwaysAdd(nameof(Broadcast), Broadcast)
-            .Field.AlwaysAdd(nameof(MaxDispatchUnconfirmed), MaxDispatchUnconfirmed)
-            .Field.AlwaysAdd(nameof(AsyncReceiveQueue), AsyncReceiveQueue);
+        tb.Field.AlwaysAdd(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling)
+          .Field.AlwaysAdd(nameof(Broadcast), Broadcast)
+          .Field.AlwaysAdd(nameof(MaxDispatchUnconfirmed), MaxDispatchUnconfirmed)
+          .Field.AlwaysAdd(nameof(AsyncReceiveQueue), AsyncReceiveQueue);
         return tb;
     }
 }

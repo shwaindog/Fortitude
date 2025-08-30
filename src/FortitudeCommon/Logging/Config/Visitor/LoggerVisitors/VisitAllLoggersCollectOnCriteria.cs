@@ -1,19 +1,21 @@
-﻿using System.Collections;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Collections;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 
 namespace FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 
-public class VisitAllLoggersCollectOnCriteria<T>(List<IMutableFLoggerDescendantConfig> found, Predicate<IMutableFLoggerDescendantConfig>? meetsCondition = null) 
-    : FLogConfigVisitor<T>, IEnumerable<IMutableFLoggerDescendantConfig> 
+public class VisitAllLoggersCollectOnCriteria<T>
+    (List<IMutableFLoggerDescendantConfig> found, Predicate<IMutableFLoggerDescendantConfig>? meetsCondition = null)
+    : FLogConfigVisitor<T>, IEnumerable<IMutableFLoggerDescendantConfig>
     where T : VisitAllLoggersCollectOnCriteria<T>
 {
     protected static readonly Predicate<IMutableFLoggerDescendantConfig> Always = _ => true;
 
     private Predicate<IMutableFLoggerDescendantConfig> meets = meetsCondition ?? Always;
 
-    public List<IMutableFLoggerDescendantConfig> Loggers => found;
-
-    public VisitAllLoggersCollectOnCriteria(Predicate<IMutableFLoggerDescendantConfig> meetsCondition) 
+    public VisitAllLoggersCollectOnCriteria(Predicate<IMutableFLoggerDescendantConfig> meetsCondition)
         : this(new List<IMutableFLoggerDescendantConfig>(), meetsCondition) { }
 
     public VisitAllLoggersCollectOnCriteria() : this(new List<IMutableFLoggerDescendantConfig>(), Always) { }
@@ -25,7 +27,9 @@ public class VisitAllLoggersCollectOnCriteria<T>(List<IMutableFLoggerDescendantC
 
         return this;
     }
-    
+
+    public List<IMutableFLoggerDescendantConfig> Loggers => found;
+
     public IMutableFLoggerRootConfig? FoundRootLoggerConfig { get; private set; }
 
     public override T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
@@ -48,32 +52,18 @@ public class VisitAllLoggersCollectOnCriteria<T>(List<IMutableFLoggerDescendantC
 
     public override T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig)
     {
-        if (FoundRootLoggerConfig == null)
-        {
-            return loggerDescendantConfig.ParentConfig?.Visit(Me) ?? Me;
-        }
-        if(meets(loggerDescendantConfig)) found.Add(loggerDescendantConfig);
+        if (FoundRootLoggerConfig == null) return loggerDescendantConfig.ParentConfig?.Visit(Me) ?? Me;
+        if (meets(loggerDescendantConfig)) found.Add(loggerDescendantConfig);
         loggerDescendantConfig.DescendantLoggers.Visit(Me);
         return Me;
     }
-    
+
     public override T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig)
     {
-        if (FoundRootLoggerConfig == null)
-        {
-            return childLoggersConfig.ParentConfig?.Visit(Me) ?? Me;
-        }
-        foreach (var childLogger in childLoggersConfig)
-        {
-            childLogger.Value.Visit(Me);
-        }
+        if (FoundRootLoggerConfig == null) return childLoggersConfig.ParentConfig?.Visit(Me) ?? Me;
+        foreach (var childLogger in childLoggersConfig) childLogger.Value.Visit(Me);
         return Me;
     }
-
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<IMutableFLoggerDescendantConfig> GetEnumerator() => found.GetEnumerator();
 
     public override void StateReset()
     {
@@ -81,4 +71,9 @@ public class VisitAllLoggersCollectOnCriteria<T>(List<IMutableFLoggerDescendantC
 
         base.StateReset();
     }
+
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<IMutableFLoggerDescendantConfig> GetEnumerator() => found.GetEnumerator();
 }

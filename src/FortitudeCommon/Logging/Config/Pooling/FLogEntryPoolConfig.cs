@@ -1,7 +1,9 @@
-﻿using FortitudeCommon.Logging.Config.Initialization;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +24,7 @@ public enum PoolScope
 }
 
 public interface IFLogEntryPoolConfig : IInterfacesComparable<IFLogEntryPoolConfig>, ICloneable<IFLogEntryPoolConfig>
-, IStyledToStringObject, IFLogConfig
+  , IStyledToStringObject, IFLogConfig
 {
     const string Default          = "Default";
     const string Global           = "Global";
@@ -31,9 +33,9 @@ public interface IFLogEntryPoolConfig : IInterfacesComparable<IFLogEntryPoolConf
     const string LargeMessage     = "LargeMessage";
     const string VeryLargeMessage = "VeryLargeMessage";
 
-    const int DefaultLogEntryCharsCapacity = 512;
-    const int DefaultLargeLogEntryCharsCapacity = 8000;
-    const int DefaultVeryLargeLogEntryCharsCapacity = 40_000; 
+    const int DefaultLogEntryCharsCapacity          = 512;
+    const int DefaultLargeLogEntryCharsCapacity     = 8000;
+    const int DefaultVeryLargeLogEntryCharsCapacity = 40_000;
 
     // Large Object Heap (LOH) ~ 85k / 2 bytes per char
     // keeps backing buffer out of the LOH
@@ -69,9 +71,9 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
     public FLogEntryPoolConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public FLogEntryPoolConfig
-        (string poolName, PoolScope poolScope = PoolScope.Default
-          , int logEntryCharCapacity = IFLogEntryPoolConfig.DefaultLogEntryCharsCapacity
-          , int logEntriesBatchSize = IFLogEntryPoolConfig.DefaultLogEntryBatchSize)
+    (string poolName, PoolScope poolScope = PoolScope.Default
+      , int logEntryCharCapacity = IFLogEntryPoolConfig.DefaultLogEntryCharsCapacity
+      , int logEntriesBatchSize = IFLogEntryPoolConfig.DefaultLogEntryBatchSize)
         : this(InMemoryConfigRoot, InMemoryPath, poolName, poolScope, logEntryCharCapacity, logEntriesBatchSize) { }
 
     public FLogEntryPoolConfig
@@ -79,18 +81,20 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
       , int logEntryCharCapacity = IFLogEntryPoolConfig.DefaultLogEntryCharsCapacity
       , int logEntriesBatchSize = IFLogEntryPoolConfig.DefaultLogEntryBatchSize) : base(root, path)
     {
-        PoolName        = poolName;
-        PoolScope       = poolScope;
+        PoolName  = poolName;
+        PoolScope = poolScope;
+
         LogEntryCharCapacity = logEntryCharCapacity;
-        LogEntriesBatchSize   = logEntriesBatchSize;
+        LogEntriesBatchSize  = logEntriesBatchSize;
     }
 
     public FLogEntryPoolConfig(IFLogEntryPoolConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        PoolName        = toClone.PoolName;
-        PoolScope       = toClone.PoolScope;
+        PoolName  = toClone.PoolName;
+        PoolScope = toClone.PoolScope;
+
         LogEntryCharCapacity = toClone.LogEntryCharCapacity;
-        LogEntriesBatchSize   = toClone.LogEntriesBatchSize;
+        LogEntriesBatchSize  = toClone.LogEntriesBatchSize;
     }
 
     public FLogEntryPoolConfig(IFLogEntryPoolConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -122,16 +126,13 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
         set => this[nameof(LogEntryCharCapacity)] = value.ToString();
     }
 
+    public override T Visit<T>(T visitor) => visitor.Accept(this);
+
     protected virtual ILogEntryPoolsInitializationConfig SourcePoolsInitConfig()
     {
-        if (ParentConfig is IMutableLogEntryPoolsInitializationConfig poolsInitializationConfig)
-        {
-            return poolsInitializationConfig;
-        }
+        if (ParentConfig is IMutableLogEntryPoolsInitializationConfig poolsInitializationConfig) return poolsInitializationConfig;
         return FLogContext.Context.LogEntryPoolRegistry.LogEntryPoolInitConfig;
     }
-
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
 
     object ICloneable.Clone() => Clone();
 
@@ -143,8 +144,9 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
     {
         if (other == null) return false;
 
-        var nameSame = PoolName == other.PoolName;
+        var nameSame  = PoolName == other.PoolName;
         var scopeSame = PoolScope == other.PoolScope;
+
         var entrySizeSame = LogEntryCharCapacity == other.LogEntryCharCapacity;
         var batchSizeSame = LogEntriesBatchSize == other.LogEntriesBatchSize;
 
@@ -167,16 +169,13 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
         sbc.StartComplexType(nameof(FLogEntryPoolConfig))
            .Field.AlwaysAdd(nameof(PoolName), PoolName)
            .Field.AlwaysAdd(nameof(PoolScope), PoolScope.ToString())
            .Field.AlwaysAdd(nameof(LogEntryCharCapacity), LogEntryCharCapacity)
            .Field.AlwaysAdd(nameof(LogEntriesBatchSize), LogEntriesBatchSize)
            .Complete();
-    }
 
     public override string ToString() => this.DefaultToString();
 }

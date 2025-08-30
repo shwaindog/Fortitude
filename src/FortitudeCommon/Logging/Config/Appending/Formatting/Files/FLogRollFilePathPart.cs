@@ -1,8 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.Files.FLogRollFilePathPart;
 
@@ -37,11 +35,11 @@ public static class FLogRollFilePathPartExtensions
             case FLogRollFilePathPart.CompressionType: sb.Append($"{nameof(FLogRollFilePathPart.CompressionType)}"); break;
             case CompressionTypeExt:                   sb.Append($"{nameof(CompressionTypeExt)}"); break;
 
-            case ToRollFileName:           sb.Append($"{nameof(ToRollFileName)}"); break;
-            case ToRollFileNameAndExt:     sb.Append($"{nameof(ToRollFileNameAndExt)}"); break;
-            case ToRollFileExt:            sb.Append($"{nameof(ToRollFileExt)}"); break;
-            case ToRollFilePath:           sb.Append($"{nameof(ToRollFilePath)}"); break;
-            case ToRollFullFilePath:       sb.Append($"{nameof(ToRollFullFilePath)}"); break;
+            case ToRollFileName:       sb.Append($"{nameof(ToRollFileName)}"); break;
+            case ToRollFileNameAndExt: sb.Append($"{nameof(ToRollFileNameAndExt)}"); break;
+            case ToRollFileExt:        sb.Append($"{nameof(ToRollFileExt)}"); break;
+            case ToRollFilePath:       sb.Append($"{nameof(ToRollFilePath)}"); break;
+            case ToRollFullFilePath:   sb.Append($"{nameof(ToRollFullFilePath)}"); break;
 
             default: sb.Append($"{nameof(Default)}"); break;
         }

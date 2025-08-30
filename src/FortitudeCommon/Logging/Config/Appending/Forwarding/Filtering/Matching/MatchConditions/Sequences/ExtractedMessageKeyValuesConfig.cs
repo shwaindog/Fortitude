@@ -10,7 +10,6 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -41,68 +40,36 @@ public interface IAppendableExtractedMessageKeyValuesConfig : IExtractedMessageK
 
 public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedMessageKeyValuesConfig
 {
-    private DateTime nextConfigReadTime = DateTime.MinValue;
-
     private static TimeSpan recheckTimeSpanInterval;
 
     private readonly Dictionary<string, IMutableExtractKeyExpressionConfig> extractConfigByKeyName = new();
 
-    public ExtractedMessageKeyValuesConfig(IConfigurationRoot root, string path) : base(root, path)
-    {
-        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
+    private DateTime nextConfigReadTime = DateTime.MinValue;
 
-    public ExtractedMessageKeyValuesConfig() : this(InMemoryConfigRoot, InMemoryPath)
-    {
+    public ExtractedMessageKeyValuesConfig(IConfigurationRoot root, string path) : base(root, path) =>
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
+
+    public ExtractedMessageKeyValuesConfig() : this(InMemoryConfigRoot, InMemoryPath) => recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
 
     public ExtractedMessageKeyValuesConfig(params IMutableExtractKeyExpressionConfig[] toAdd)
-        : this(InMemoryConfigRoot, InMemoryPath, toAdd)
-    {
+        : this(InMemoryConfigRoot, InMemoryPath, toAdd) =>
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
 
     public ExtractedMessageKeyValuesConfig
         (IConfigurationRoot root, string path, params IMutableExtractKeyExpressionConfig[] toAdd) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-        for (int i = 0; i < toAdd.Length; i++)
-        {
-            extractConfigByKeyName.Add(toAdd[i].KeyName, toAdd[i]);
-        }
+        for (var i = 0; i < toAdd.Length; i++) extractConfigByKeyName.Add(toAdd[i].KeyName, toAdd[i]);
     }
 
     public ExtractedMessageKeyValuesConfig(IExtractedMessageKeyValuesConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-        foreach (var kvp in toClone)
-        {
-            extractConfigByKeyName.Add(kvp.Key, (IMutableExtractKeyExpressionConfig)kvp.Value);
-        }
+        foreach (var kvp in toClone) extractConfigByKeyName.Add(kvp.Key, (IMutableExtractKeyExpressionConfig)kvp.Value);
     }
 
-    public ExtractedMessageKeyValuesConfig(IExtractedMessageKeyValuesConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
-    {
+    public ExtractedMessageKeyValuesConfig(IExtractedMessageKeyValuesConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) =>
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
-
-    public void Add(KeyValuePair<string, IMutableExtractKeyExpressionConfig> item)
-    {
-        extractConfigByKeyName.Add(item.Key, item.Value);
-        PushToConfigStorage(item.Value);
-    }
-
-    public void Add(string key, IMutableExtractKeyExpressionConfig value)
-    {
-        extractConfigByKeyName.Add(key, value);
-        PushToConfigStorage(value);
-    }
-
-    protected void PushToConfigStorage(IMutableExtractKeyExpressionConfig value)
-    {
-        value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.KeyName}");
-    }
 
     [JsonIgnore]
     protected Dictionary<string, IMutableExtractKeyExpressionConfig> CheckConfigGetLoggersDict
@@ -111,7 +78,8 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
         {
             if (!extractConfigByKeyName.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
-                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan  ?? TimeSpan.FromMinutes(1);
+                recheckTimeSpanInterval =
+                    FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ?? TimeSpan.FromMinutes(1);
                 extractConfigByKeyName.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {
@@ -126,6 +94,18 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
             }
             return extractConfigByKeyName;
         }
+    }
+
+    public void Add(KeyValuePair<string, IMutableExtractKeyExpressionConfig> item)
+    {
+        extractConfigByKeyName.Add(item.Key, item.Value);
+        PushToConfigStorage(item.Value);
+    }
+
+    public void Add(string key, IMutableExtractKeyExpressionConfig value)
+    {
+        extractConfigByKeyName.Add(key, value);
+        PushToConfigStorage(value);
     }
 
     public bool ContainsKey(string loggerName) => CheckConfigGetLoggersDict.ContainsKey(loggerName);
@@ -185,6 +165,14 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    public IExtractedMessageKeyValuesConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        new ExtractedMessageKeyValuesConfig(configRoot, path);
+
+    protected void PushToConfigStorage(IMutableExtractKeyExpressionConfig value)
+    {
+        value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.KeyName}");
+    }
+
     IExtractedMessageKeyValuesConfig ICloneable<IExtractedMessageKeyValuesConfig>.Clone() => Clone();
 
     object ICloneable.Clone() => Clone();
@@ -193,26 +181,18 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public virtual ExtractedMessageKeyValuesConfig Clone() => new(this);
 
-    public IExtractedMessageKeyValuesConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        new ExtractedMessageKeyValuesConfig(configRoot, path);
-
     public virtual bool AreEquivalent(IExtractedMessageKeyValuesConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
 
         var countSame = Count == other.Count;
         if (countSame)
-        {
             foreach (var nameKey in Keys)
             {
                 var myConfig    = this[nameKey];
                 var otherConfig = other[nameKey];
-                if (!myConfig.AreEquivalent(otherConfig, exactTypes))
-                {
-                    return false;
-                }
+                if (!myConfig.AreEquivalent(otherConfig, exactTypes)) return false;
             }
-        }
 
         return countSame;
     }
@@ -225,13 +205,10 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartKeyedCollectionType(nameof(NamedChildLoggersLookupConfig))
-               .AddAll(extractConfigByKeyName)
-               .Complete();
-    }
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartKeyedCollectionType(nameof(NamedChildLoggersLookupConfig))
+           .AddAll(extractConfigByKeyName)
+           .Complete();
 
     public override string ToString() => this.DefaultToString();
 }

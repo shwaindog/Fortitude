@@ -5,8 +5,6 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 
-
-
 public interface IFLoggerVisitor<out T> where T : IFLoggerVisitor<T>
 {
     T Accept(IMutableFLoggerCommon logger);
@@ -23,27 +21,18 @@ public class LoggerVisitor<T> : RecyclableObject, IFLoggerVisitor<T> where T : I
         switch (node)
         {
             case IMutableFLoggerDescendant descendantConfig: Accept(descendantConfig); break;
-            case IMutableFLoggerRoot rootConfig:                   Accept(rootConfig); break;
+            case IMutableFLoggerRoot rootConfig:             Accept(rootConfig); break;
         }
         return Me;
     }
 
-    public virtual T Accept(IMutableFLoggerRoot node)
-    {
-        return VisitAllExisting(node);
-    }
+    public virtual T Accept(IMutableFLoggerRoot node) => VisitAllExisting(node);
 
-    public virtual T Accept(IMutableFLoggerDescendant node)
-    {
-        return VisitAllExisting(node);
-    }
+    public virtual T Accept(IMutableFLoggerDescendant node) => VisitAllExisting(node);
 
     protected T VisitAllExisting(IMutableFLoggerCommon node)
     {
-        foreach (var descendantConfigTreeNode in node.ImmediateEmbodiedChildren)
-        {
-            descendantConfigTreeNode.Visit((T)(object)this);
-        }
+        foreach (var descendantConfigTreeNode in node.ImmediateEmbodiedChildren) descendantConfigTreeNode.Visit((T)(object)this);
         return Me;
     }
 }

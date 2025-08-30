@@ -1,5 +1,7 @@
-﻿using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Linq.Expressions;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Core;
@@ -7,7 +9,6 @@ using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains.PipelineSpies;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeTests.FortitudeCommon.Logging.Core.Hub;
 
@@ -28,9 +29,9 @@ public class FLogContextTests
         logger.Logger.PublishEndpoint.Insert(loggerSpy);
 
         var consoleAppender = appReg.GetAppender(IConsoleAppenderConfig.DefaultConsoleAppenderName)!;
-        var appenderSpy = spyRing.TrainNewSpy("Test Appender Spy");
+        var appenderSpy     = spyRing.TrainNewSpy("Test Appender Spy");
         consoleAppender.ReceiveEndpoint.Insert(appenderSpy);
-        
+
         logger.Info("Testing 1 2 3, testing");
         logger.Info("Testing 4,5,6, testing");
         logger.Info("Testing 7 8 9, testing");
@@ -40,10 +41,7 @@ public class FLogContextTests
 
         var logEntries = spyRing.DeadDropLatestIntelToHq();
 
-        foreach (var logEntry in logEntries)
-        {
-            Console.Out.WriteLine("Intercepted " + logEntry);
-        }
+        foreach (var logEntry in logEntries) Console.Out.WriteLine("Intercepted " + logEntry);
     }
 
     [TestMethod]
@@ -61,7 +59,7 @@ public class FLogContextTests
 
     protected void BuildStructInvoke<T>(T value)
     {
-        Func<FLogContextTests, T, string> invokeMethod = BuildInvoke(value);
+        var invokeMethod = BuildInvoke(value);
 
         var runResult = invokeMethod(this, value);
     }
@@ -78,7 +76,7 @@ public class FLogContextTests
         return output;
     }
 
-    public Func<FLogContextTests, TTuple, string> BuildInvoke<TTuple>(TTuple toConvert) 
+    public Func<FLogContextTests, TTuple, string> BuildInvoke<TTuple>(TTuple toConvert)
     {
         var type = toConvert!.GetType();
 
@@ -138,7 +136,7 @@ public class FLogContextTests
                              Expression.Call(ownerParameter, invokeMethod, structValue, structStyler)
                             );
 
-                        Expression<Func<FLogContextTests, TTuple, string>> invoke =
+                        var invoke =
                             Expression.Lambda<Func<FLogContextTests, TTuple, string>>(block, [ownerParameter, tupleParameter]);
                         return invoke.Compile();
                     }

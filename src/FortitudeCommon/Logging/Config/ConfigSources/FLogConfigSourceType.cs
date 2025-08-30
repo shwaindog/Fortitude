@@ -27,8 +27,8 @@ public static class FLoggerConfigSourceTypeExtensions
         switch (appenderTypeConfig)
         {
             case FLogConfigSourceType.File: return null;
-            default:
-                return null;
+
+            default: return null;
         }
     }
 }

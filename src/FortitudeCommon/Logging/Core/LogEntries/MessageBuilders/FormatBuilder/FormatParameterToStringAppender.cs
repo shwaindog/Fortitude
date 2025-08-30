@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.DataStructures.Memory;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.Mutable.Strings;
@@ -9,32 +12,21 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
 public class FormatParameterToStringAppender : RecyclableObject, IStringAppenderCollectionBuilder
 {
-    private IFinalCollectionAppend  wrappedCollectionApppender = null!;
     private IStringBuilder          formattedString = null!;
-    private FLogEntry               logEntry = null!;
-    private Action<IStringBuilder?> onComplete = null!;
-    
+    private FLogEntry               logEntry        = null!;
+    private Action<IStringBuilder?> onComplete      = null!;
+
+    private IFinalCollectionAppend wrappedCollectionApppender = null!;
+
     public FormatParameterToStringAppender Initialize(FLogEntry fLogEntry, Action<IStringBuilder?> callWhenComplete,
         IFinalCollectionAppend finalCollectionAppend, IStringBuilder stringBuilder)
     {
-        wrappedCollectionApppender =  finalCollectionAppend;
-        formattedString = stringBuilder;
-        logEntry = fLogEntry;
-        onComplete = callWhenComplete;
+        wrappedCollectionApppender = finalCollectionAppend;
+        formattedString            = stringBuilder;
+        logEntry                   = fLogEntry;
+        onComplete                 = callWhenComplete;
 
         return this;
-    }
-
-    private IFLogStringAppender ConvertToStringAppender()
-    {
-        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(logEntry.Style))
-            .Initialize(formattedString, logEntry.Style);
-
-        var convertedToStringAppender = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
-            .Initialize(logEntry, styleTypeStringAppender, onComplete);
-
-        DecrementRefCount();
-        return convertedToStringAppender;
     }
 
     public IFLogStringAppender Add<TStyleObj>(TStyleObj[]? value) where TStyleObj : class, IStyledToStringObject
@@ -74,7 +66,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+    public IFLogStringAppender Add<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler)
         where TToStyle : TStylerType
     {
         wrappedCollectionApppender.Add(value, customTypeStyler);
@@ -94,21 +86,21 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) 
+    public IFLogStringAppender Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         wrappedCollectionApppender.Add(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) 
+    public IFLogStringAppender Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter)
         where TStyleObj : class, IStyledToStringObject
     {
         wrappedCollectionApppender.Add(value, filter);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TStyleObj>(IReadOnlyList<TStyleObj>? value, OrderedCollectionPredicate<TStyleObj> filter) 
+    public IFLogStringAppender Add<TStyleObj>(IReadOnlyList<TStyleObj>? value, OrderedCollectionPredicate<TStyleObj> filter)
         where TStyleObj : class, IStyledToStringObject
     {
         wrappedCollectionApppender.Add(value, filter);
@@ -122,35 +114,36 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddFormat<TFmt, TBase>((TFmt[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+    public IFLogStringAppender AddFormat<TFmt, TBase>((TFmt[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple)
         where TFmt : ISpanFormattable, TBase
     {
         wrappedCollectionApppender.AddFormat(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddFormat<TFmt, TBase>((TFmt[]?, OrderedCollectionPredicate<TBase>) valueTuple) 
+    public IFLogStringAppender AddFormat<TFmt, TBase>((TFmt[]?, OrderedCollectionPredicate<TBase>) valueTuple)
         where TFmt : ISpanFormattable, TBase
     {
         wrappedCollectionApppender.AddFormat(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddFormat<TFmt, TBase>(IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TBase> filter, string? formatString = null)
+    public IFLogStringAppender AddFormat<TFmt, TBase>(IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null)
         where TFmt : ISpanFormattable, TBase
     {
         wrappedCollectionApppender.AddFormat(value, filter, formatString);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddFormat<TFmt, TBase>((IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+    public IFLogStringAppender AddFormat<TFmt, TBase>((IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>, string?) valueTuple)
         where TFmt : ISpanFormattable, TBase
     {
         wrappedCollectionApppender.AddFormat(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddFormat<TFmt, TBase>((IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple) 
+    public IFLogStringAppender AddFormat<TFmt, TBase>((IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple)
         where TFmt : ISpanFormattable, TBase
     {
         wrappedCollectionApppender.AddFormat(valueTuple);
@@ -164,21 +157,22 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TToStyle, TToStyleBase, TStylerType>((TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, 
+    public IFLogStringAppender Add<TToStyle, TToStyleBase, TStylerType>((TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>,
         CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType
     {
         wrappedCollectionApppender.Add(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filter
+    public IFLogStringAppender Add<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
+      , OrderedCollectionPredicate<TToStyleBase> filter
       , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType
     {
         wrappedCollectionApppender.Add(value, filter, customTypeStyler);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender Add<TToStyle, TToStyleBase, TStylerType>((IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, 
+    public IFLogStringAppender Add<TToStyle, TToStyleBase, TStylerType>((IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>,
         CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType
     {
         wrappedCollectionApppender.Add(valueTuple);
@@ -197,21 +191,21 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddFormatEnumerate<TFmt>(IEnumerable<TFmt>? value, string? formatString = null) 
+    public IFLogStringAppender AddFormatEnumerate<TFmt>(IEnumerable<TFmt>? value, string? formatString = null)
         where TFmt : ISpanFormattable
     {
         wrappedCollectionApppender.AddFormatEnumerate(value, formatString);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddFormatEnumerate<TFmt>((IEnumerable<TFmt>?, string?) 
+    public IFLogStringAppender AddFormatEnumerate<TFmt>((IEnumerable<TFmt>?, string?)
         valueTuple) where TFmt : ISpanFormattable
     {
         wrappedCollectionApppender.AddFormatEnumerate(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddFormatEnumerate<TFmt>(IEnumerator<TFmt>? value, string? formatString = null) 
+    public IFLogStringAppender AddFormatEnumerate<TFmt>(IEnumerator<TFmt>? value, string? formatString = null)
         where TFmt : ISpanFormattable
     {
         wrappedCollectionApppender.AddFormatEnumerate(value, formatString);
@@ -232,7 +226,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) 
+    public IFLogStringAppender AddEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         wrappedCollectionApppender.AddEnumerate(valueTuple);
@@ -277,7 +271,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatch<T, TBase>(T[]? value, CustomTypeStyler<TBase> customTypeStyler) 
+    public IFLogStringAppender AddMatch<T, TBase>(T[]? value, CustomTypeStyler<TBase> customTypeStyler)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatch(value, customTypeStyler);
@@ -290,14 +284,14 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatch<T, TBase>(IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+    public IFLogStringAppender AddMatch<T, TBase>(IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatch(value, customTypeStyler);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatch<T, TBase>((IReadOnlyList<T>?, CustomTypeStyler<TBase>) valueTuple) 
+    public IFLogStringAppender AddMatch<T, TBase>((IReadOnlyList<T>?, CustomTypeStyler<TBase>) valueTuple)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatch(valueTuple);
@@ -311,14 +305,14 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatch<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+    public IFLogStringAppender AddMatch<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatch(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatch<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>) valueTuple) 
+    public IFLogStringAppender AddMatch<T, TBase>((T[]?, OrderedCollectionPredicate<TBase>) valueTuple)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatch(valueTuple);
@@ -332,28 +326,28 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatch<T, TBase>((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+    public IFLogStringAppender AddMatch<T, TBase>((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>, string?) valueTuple)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatch(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatch<T, TBase>((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>) valueTuple) 
+    public IFLogStringAppender AddMatch<T, TBase>((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase>) valueTuple)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatch(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatchEnumerate<T>(IEnumerable<T>? value, string? formatString = null) 
+    public IFLogStringAppender AddMatchEnumerate<T>(IEnumerable<T>? value, string? formatString = null)
         where T : class
     {
         wrappedCollectionApppender.AddMatchEnumerate(value, formatString);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatchEnumerate<T>((IEnumerable<T>?, string?) valueTuple) 
+    public IFLogStringAppender AddMatchEnumerate<T>((IEnumerable<T>?, string?) valueTuple)
         where T : class
     {
         wrappedCollectionApppender.AddMatchEnumerate(valueTuple);
@@ -373,14 +367,14 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddMatch<T, TBase1, TBase2>(T[]? value, OrderedCollectionPredicate<TBase1> filter
-      , CustomTypeStyler<TBase2> customTypeStyler) 
+      , CustomTypeStyler<TBase2> customTypeStyler)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
     {
         wrappedCollectionApppender.AddMatch(value, filter, customTypeStyler);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatch<T, TBase1, TBase2>((T[]?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple) 
+    public IFLogStringAppender AddMatch<T, TBase1, TBase2>((T[]?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
     {
         wrappedCollectionApppender.AddMatch(valueTuple);
@@ -401,28 +395,28 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatchEnumerate<T, TBase>(IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+    public IFLogStringAppender AddMatchEnumerate<T, TBase>(IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatchEnumerate(value, customTypeStyler);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatchEnumerate<T, TBase>((IEnumerable<T>?, CustomTypeStyler<TBase>) valueTuple) 
+    public IFLogStringAppender AddMatchEnumerate<T, TBase>((IEnumerable<T>?, CustomTypeStyler<TBase>) valueTuple)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatchEnumerate(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatchEnumerate<T, TBase>(IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler) 
+    public IFLogStringAppender AddMatchEnumerate<T, TBase>(IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatchEnumerate(value, customTypeStyler);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddMatchEnumerate<T, TBase>((IEnumerator<T>?, CustomTypeStyler<TBase>) valueTuple) 
+    public IFLogStringAppender AddMatchEnumerate<T, TBase>((IEnumerator<T>?, CustomTypeStyler<TBase>) valueTuple)
         where T : class, TBase where TBase : class
     {
         wrappedCollectionApppender.AddMatchEnumerate(valueTuple);
@@ -525,7 +519,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null) 
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyed(value, filterPredicate, valueFormatString, keyFormatString);
@@ -575,7 +569,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddKeyed<TKey, TValue, TKBase, TVBase>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>) valueTuple) 
+    public IFLogStringAppender AddKeyed<TKey, TValue, TKBase, TVBase>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
@@ -583,7 +577,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null) 
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyed(value, filterPredicate, valueFormatString, keyFormatString);
@@ -618,14 +612,14 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>, string?) valueTuple) 
+    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>, string?) valueTuple)
         where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>) valueTuple) 
+    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>) valueTuple)
         where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
@@ -639,14 +633,14 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>, string?) valueTuple) 
+    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>, string?) valueTuple)
         where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>) valueTuple) 
+    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>) valueTuple)
         where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
@@ -660,14 +654,15 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple)
+    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>(
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple)
         where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) 
+    public IFLogStringAppender AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple)
         where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
@@ -688,7 +683,8 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddKeyedEnumerate<TKey, TValue, TVBase>((IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) 
+    public IFLogStringAppender AddKeyedEnumerate<TKey, TValue, TVBase>(
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple)
         where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyedEnumerate(valueTuple);
@@ -709,7 +705,8 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
         return ConvertToStringAppender();
     }
 
-    public IFLogStringAppender AddKeyedEnumerate<TKey, TValue, TVBase>((IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) 
+    public IFLogStringAppender AddKeyedEnumerate<TKey, TValue, TVBase>(
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple)
         where TValue : TVBase
     {
         wrappedCollectionApppender.AddKeyedEnumerate(valueTuple);
@@ -717,7 +714,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) 
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
         wrappedCollectionApppender.AddKeyed(value, filterPredicate, valueStyler, keyFormatString);
@@ -739,7 +736,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) 
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
         wrappedCollectionApppender.AddKeyed(value, filterPredicate, valueStyler, keyFormatString);
@@ -747,7 +744,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>((KeyValuePair<TKey, TValue>[]?
-      , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple) 
+      , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
@@ -762,10 +759,10 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) 
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
-        wrappedCollectionApppender.AddKeyed(value,  filterPredicate, valueStyler, keyFormatString);
+        wrappedCollectionApppender.AddKeyed(value, filterPredicate, valueStyler, keyFormatString);
         return ConvertToStringAppender();
     }
 
@@ -847,7 +844,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) 
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         wrappedCollectionApppender.AddKeyed(value, filterPredicate, valueStyler, keyStyler);
@@ -855,7 +852,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple) 
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
@@ -863,7 +860,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) 
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         wrappedCollectionApppender.AddKeyed(value, filterPredicate, valueStyler, keyStyler);
@@ -871,7 +868,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple) 
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
@@ -879,7 +876,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) 
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         wrappedCollectionApppender.AddKeyed(value, filterPredicate, valueStyler, keyStyler);
@@ -887,10 +884,23 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     }
 
     public IFLogStringAppender AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>)
+            valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         wrappedCollectionApppender.AddKeyed(valueTuple);
         return ConvertToStringAppender();
+    }
+
+    private IFLogStringAppender ConvertToStringAppender()
+    {
+        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(logEntry.Style))
+            .Initialize(formattedString, logEntry.Style);
+
+        var convertedToStringAppender = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
+            .Initialize(logEntry, styleTypeStringAppender, onComplete);
+
+        DecrementRefCount();
+        return convertedToStringAppender;
     }
 }

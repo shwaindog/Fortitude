@@ -1,7 +1,8 @@
-﻿using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
-using FortitudeCommon.Logging.Core.Appending;
-using FortitudeCommon.Logging.Core.Appending.Formatting;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
@@ -31,14 +32,14 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
 {
     private static readonly object SyncLock = new();
 
+    private readonly Dictionary<int, IFLogAsyncSwitchableQueueClient> clientProxiesQueues = new();
+    private readonly Dictionary<int, IFLogAsyncQueue>                 runningQueues       = new();
+
     private readonly AsyncProcessingType defaultAsyncProcessing = asyncInitConfig.AsyncProcessingType;
 
-    private readonly Dictionary<int, IFLogAsyncQueue>                 runningQueues       = new();
-    private readonly Dictionary<int, IFLogAsyncSwitchableQueueClient> clientProxiesQueues = new();
+    private bool isDisposed;
 
     public IReadOnlyCollection<IFLogAsyncQueue> AsyncQueues => runningQueues.Values;
-
-    private bool isDisposed;
 
     public IReadOnlyCollection<IFLogAsyncQueuePublisher> ClientPublisherQueues => clientProxiesQueues.Values;
 
@@ -47,19 +48,17 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         var startQueues = asyncInitConfig.InitialAsyncProcessing;
         if (startQueues > 0)
         {
-            int launchedCount = 0;
+            var launchedCount = 0;
             foreach (var asyncQueueConfig in asyncInitConfig.AsyncQueues)
-            {
                 if (asyncQueueConfig.Value.LaunchAtFlogStart)
                 {
                     GetOrCreateQueue(asyncQueueConfig.Key);
                     launchedCount++;
                 }
-            }
-            for (int i = launchedCount; i < startQueues; i++)
+            for (var i = launchedCount; i < startQueues; i++)
             {
-                int queueNum = 0;
-                for (int j = 1; j < 64; j++)
+                var queueNum = 0;
+                for (var j = 1; j < 64; j++)
                 {
                     queueNum = j;
                     if (!runningQueues.ContainsKey(queueNum)) break;
@@ -74,10 +73,7 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         isDisposed = true;
         lock (SyncLock)
         {
-            foreach (var queue in runningQueues.Values)
-            {
-                queue.StopQueueReceiver();
-            }
+            foreach (var queue in runningQueues.Values) queue.StopQueueReceiver();
         }
     }
 
@@ -91,7 +87,6 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         if (runningQueues.TryGetValue(queueNumber, out var foundExisting)) return foundExisting;
         var defaultQueueType = defaultAsyncProcessing;
         if (defaultQueueType == AsyncProcessingType.AllAsyncDisabled)
-        {
             lock (SyncLock)
             {
                 if (runningQueues.TryGetValue(queueNumber, out foundExisting)) return foundExisting;
@@ -100,14 +95,12 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
                 runningQueues.TryAdd(queueNumber, syncExecuteQueue);
                 return syncExecuteQueue;
             }
-        }
         var queueConfig = GetQueueConfig((byte)queueNumber);
         var queueType   = queueConfig.QueueType;
         if (queueType == AsyncProcessingType.SingleBackgroundAsyncThread)
         {
             var singleBackgroundQueue = runningQueues.Values.FirstOrDefault(aq => aq.QueueType == AsyncProcessingType.SingleBackgroundAsyncThread);
             if (singleBackgroundQueue != null)
-            {
                 lock (SyncLock)
                 {
                     if (runningQueues.TryGetValue(queueNumber, out foundExisting)) return foundExisting;
@@ -116,10 +109,8 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
                     runningQueues.TryAdd(queueNumber, proxySingleBackgroundQueue);
                     return proxySingleBackgroundQueue;
                 }
-            }
         }
         if (queueType == AsyncProcessingType.Synchronise)
-        {
             lock (SyncLock)
             {
                 if (runningQueues.TryGetValue(queueNumber, out foundExisting)) return foundExisting;
@@ -128,7 +119,6 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
                 runningQueues.TryAdd(queueNumber, syncExecuteQueue);
                 return syncExecuteQueue;
             }
-        }
         var modQueueNumber = (byte)(queueNumber % Math.Max(MaxAvailableQueues, 1));
         foundExisting = runningQueues.Values.FirstOrDefault(aq => aq.QueueNumber == modQueueNumber && aq.QueueType == queueType);
         if (foundExisting != null) return foundExisting;
@@ -151,20 +141,6 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         }
     }
 
-    protected virtual IAsyncQueueConfig GetQueueConfig(byte queueNumber)
-    {
-        if (asyncInitConfig.AsyncQueues.TryGetValue(queueNumber, out IAsyncQueueConfig? explicitQueueConfig))
-        {
-            return explicitQueueConfig;
-        }
-        var defaultQueueType             = asyncInitConfig.AsyncProcessingType;
-        var defaultQueueCapacity         = asyncInitConfig.DefaultQueueCapacity;
-        var defaultQueueFullHandling     = asyncInitConfig.DefaultFullQueueHandling;
-        var defaultQueueFullDropInterval = asyncInitConfig.DefaultDropInterval;
-        return new AsyncQueueConfig(queueNumber, defaultQueueType, defaultQueueCapacity, false, defaultQueueFullHandling
-                                  , defaultQueueFullDropInterval);
-    }
-
     public IFLogAsyncQueuePublisher GetClientPublisherQueue(int queueNumber)
     {
         if (clientProxiesQueues.TryGetValue(queueNumber, out var foundExisting)) return foundExisting;
@@ -183,6 +159,17 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
     public int MaxAvailableQueues { get; } = asyncInitConfig.MaxAsyncProcessing;
 
     public int QueueBackLogSize(int queueNumber) => GetOrCreateQueue(queueNumber).QueueBackLogSize;
+
+    protected virtual IAsyncQueueConfig GetQueueConfig(byte queueNumber)
+    {
+        if (asyncInitConfig.AsyncQueues.TryGetValue(queueNumber, out IAsyncQueueConfig? explicitQueueConfig)) return explicitQueueConfig;
+        var defaultQueueType             = asyncInitConfig.AsyncProcessingType;
+        var defaultQueueCapacity         = asyncInitConfig.DefaultQueueCapacity;
+        var defaultQueueFullHandling     = asyncInitConfig.DefaultFullQueueHandling;
+        var defaultQueueFullDropInterval = asyncInitConfig.DefaultDropInterval;
+        return new AsyncQueueConfig(queueNumber, defaultQueueType, defaultQueueCapacity, false, defaultQueueFullHandling
+                                  , defaultQueueFullDropInterval);
+    }
 
     public void Execute(int queueNumber, Action job)
     {

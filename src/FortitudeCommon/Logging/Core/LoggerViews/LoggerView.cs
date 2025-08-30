@@ -12,10 +12,7 @@ public class LoggerView : ILoggerView
 {
     public LoggerView(IFLogger logger) => Logger = logger;
 
-    public T As<T>() where T : ISwitchFLoggerView
-    {
-        return Logger.As<T>();
-    }
+    public T As<T>() where T : ISwitchFLoggerView => Logger.As<T>();
 
     public IFLogger Logger { get; set; }
 }

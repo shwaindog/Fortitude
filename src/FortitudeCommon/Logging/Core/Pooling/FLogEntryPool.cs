@@ -1,4 +1,6 @@
-﻿using FortitudeCommon.DataStructures.Lists;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Core.LogEntries;
@@ -8,7 +10,7 @@ namespace FortitudeCommon.Logging.Core.Pooling;
 
 public class FLogEntryPool
 {
-    private readonly Recycler backingPool = new ();
+    private readonly Recycler backingPool = new();
 
     public FLogEntryPool(IFLogEntryPoolConfig logEntryPoolDefinition)
     {
@@ -36,15 +38,12 @@ public class FLogEntryPool
 
     public PoolScope PoolScope { get; }
 
-    public FLogEntry SourceLogEntry()
-    {
-        return backingPool.Borrow<FLogEntry>();
-    }
+    public FLogEntry SourceLogEntry() => backingPool.Borrow<FLogEntry>();
 
     public ILogEntriesBatch SourceBatchLogEntryContainer(int minimumSize)
     {
         var container = backingPool.Borrow<LogEntriesBatch>();
-        container.Capacity = Math.Max(container.Capacity,  minimumSize);
+        container.Capacity = Math.Max(container.Capacity, minimumSize);
         return container;
     }
 }

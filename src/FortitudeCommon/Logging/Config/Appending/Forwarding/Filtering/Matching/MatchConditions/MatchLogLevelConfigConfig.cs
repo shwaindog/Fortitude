@@ -1,8 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -31,8 +29,7 @@ public class MatchLogLevelConfigConfig : MatchConditionConfig, IMutableMatchLogL
 
     public MatchLogLevelConfigConfig
         (FLoggerEntryMatchType checkConditionType, FLogLevel logLevel, ComparisonOperatorType compareOperationIs)
-        : this(InMemoryConfigRoot, InMemoryPath, checkConditionType, logLevel, compareOperationIs)
-    { }
+        : this(InMemoryConfigRoot, InMemoryPath, checkConditionType, logLevel, compareOperationIs) { }
 
     public MatchLogLevelConfigConfig
     (IConfigurationRoot root, string path, FLoggerEntryMatchType checkConditionType
@@ -73,10 +70,9 @@ public class MatchLogLevelConfigConfig : MatchConditionConfig, IMutableMatchLogL
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    public override MatchLogLevelConfigConfig Clone() => new(this);
+    public override MatchLogLevelConfigConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
-    public override MatchLogLevelConfigConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        new (this, configRoot, path);
+    public override MatchLogLevelConfigConfig Clone() => new(this);
 
     public override bool AreEquivalent(IMatchConditionConfig? other, bool exactTypes = false)
     {
@@ -84,7 +80,7 @@ public class MatchLogLevelConfigConfig : MatchConditionConfig, IMutableMatchLogL
 
         var baseSame = base.AreEquivalent(other, exactTypes);
 
-        var logLevelSame = CheckLogLevel == logLevelConfig.CheckLogLevel;
+        var logLevelSame   = CheckLogLevel == logLevelConfig.CheckLogLevel;
         var operatorIsSame = Is == logLevelConfig.Is;
 
         var allAreSame = baseSame && logLevelSame && operatorIsSame;
@@ -100,13 +96,10 @@ public class MatchLogLevelConfigConfig : MatchConditionConfig, IMutableMatchLogL
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
-               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
-               .Field.AlwaysAdd(nameof(CheckLogLevel), CheckLogLevel)
-               .Field.AlwaysAdd(nameof(Is), Is)
-               .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
+           .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
+           .Field.AlwaysAdd(nameof(CheckLogLevel), CheckLogLevel)
+           .Field.AlwaysAdd(nameof(Is), Is)
+           .Complete();
 }

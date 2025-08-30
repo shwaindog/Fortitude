@@ -3,7 +3,6 @@
 
 using System.Configuration;
 using FortitudeCommon.Config;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
@@ -11,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using static FortitudeCommon.Logging.Config.Appending.FLoggerBuiltinAppenderType;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
-
 
 public interface IForwardingAppenderConfig : IAppenderDefinitionConfig, IConfigCloneTo<IForwardingAppenderConfig>
 {
@@ -31,30 +29,26 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
 {
     private const string ForwardingAppenderType = $"{nameof(ForwardingAppender)}";
 
-    private IAppendableNamedAppendersLookupConfig?  appendersConfig;
+    private IAppendableNamedAppendersLookupConfig? appendersConfig;
 
     public ForwardingAppenderConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
     public ForwardingAppenderConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
-    public ForwardingAppenderConfig (string appenderName, IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig
-       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
+    public ForwardingAppenderConfig(string appenderName, IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig
+      , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : this(InMemoryConfigRoot, InMemoryPath, appenderName, forwardToAppendersConfig, runOnAsyncQueueNumber
              , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
 
     public ForwardingAppenderConfig(IConfigurationRoot root, string path, string appenderName
       , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null, int runOnAsyncQueueNumber = 0
-      , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false) 
-        : base(root, path, appenderName, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
-    {
-        ForwardToAppenders     = forwardToAppendersConfig ?? new NamedAppendersLookupConfig();
-    }
+      , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
+        : base(root, path, appenderName, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) =>
+        ForwardToAppenders = forwardToAppendersConfig ?? new NamedAppendersLookupConfig();
 
-    public ForwardingAppenderConfig(IForwardingAppenderConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
-    {
-        ForwardToAppenders     = (IAppendableNamedAppendersLookupConfig)toClone.ForwardToAppenders;
-    }
+    public ForwardingAppenderConfig(IForwardingAppenderConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path) =>
+        ForwardToAppenders = (IAppendableNamedAppendersLookupConfig)toClone.ForwardToAppenders;
 
     public ForwardingAppenderConfig(IForwardingAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
@@ -66,21 +60,11 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    IForwardingAppenderConfig IForwardingAppenderConfig.Clone() => Clone();
-
-    IForwardingAppenderConfig IForwardingAppenderConfig.CloneConfigTo(IConfigurationRoot configRoot, string path) => 
-        CloneConfigTo(configRoot, path);
-
-    public override ForwardingAppenderConfig Clone() => new (this);
-
-    IForwardingAppenderConfig ICloneable<IForwardingAppenderConfig>.Clone() => Clone();
+    IForwardingAppenderConfig IForwardingAppenderConfig.CloneConfigTo(IConfigurationRoot configRoot, string path) => CloneConfigTo(configRoot, path);
 
     IForwardingAppenderConfig IConfigCloneTo<IForwardingAppenderConfig>.
-        CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+        CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);
-
-    public override ForwardingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => 
-        new (this, configRoot, path);
 
     INamedAppendersLookupConfig IForwardingAppenderConfig.ForwardToAppenders => ForwardToAppenders;
 
@@ -89,15 +73,11 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         get
         {
             if (appendersConfig == null)
-            {
                 if (GetSection(nameof(ForwardToAppenders)).GetChildren().Any())
-                {
                     return appendersConfig = new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(ForwardToAppenders)}")
                     {
                         ParentConfig = this
                     };
-                }
-            }
             return appendersConfig ?? throw new ConfigurationErrorsException($"Expected {nameof(ForwardToAppenders)} to be configured");
         }
         set
@@ -108,13 +88,21 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         }
     }
 
+    public override ForwardingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
+    IForwardingAppenderConfig IForwardingAppenderConfig.Clone() => Clone();
+
+    IForwardingAppenderConfig ICloneable<IForwardingAppenderConfig>.Clone() => Clone();
+
+    public override ForwardingAppenderConfig Clone() => new(this);
+
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {
         if (other is not IForwardingAppenderConfig forwardingAppenderConfig) return false;
 
         var baseSame = base.AreEquivalent(other, exactTypes);
 
-        var appendersSame  = ForwardToAppenders.AreEquivalent(forwardingAppenderConfig.ForwardToAppenders, exactTypes);
+        var appendersSame = ForwardToAppenders.AreEquivalent(forwardingAppenderConfig.ForwardToAppenders, exactTypes);
 
         var allAreSame = baseSame && appendersSame;
 
@@ -133,7 +121,7 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         using var tb = sbc.StartComplexType(nameof(ForwardingAppenderConfig))
-           .AddBaseFieldsStart();
+                          .AddBaseFieldsStart();
         base.ToString(sbc);
         tb.Field.AlwaysAdd(nameof(ForwardToAppenders), ForwardToAppenders);
         return tb;

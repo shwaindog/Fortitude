@@ -10,20 +10,20 @@ using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 
-public class SourceOrCreateLoggerVisitor(string loggerFullName, IFLogContext flogContext, string flogAppConfigPath) : LoggerVisitor<SourceOrCreateLoggerVisitor>
+public class SourceOrCreateLoggerVisitor
+    (string loggerFullName, IFLogContext flogContext, string flogAppConfigPath) : LoggerVisitor<SourceOrCreateLoggerVisitor>
 {
-    private readonly MutableString loggerNameScratch = new();
-
     private static readonly char[] NamePartDelimiter = ['.'];
+
+    private readonly MutableString loggerNameScratch = new();
 
     public IFLogger? SourcedLogger { get; private set; }
 
     public override SourceOrCreateLoggerVisitor Accept(IMutableFLoggerRoot node)
     {
         foreach (var childLogger in node.ImmediateEmbodiedChildren)
-        {
-            if (WalkDownTree(childLogger)) return this;
-        }
+            if (WalkDownTree(childLogger))
+                return this;
         WalkDownTree(node);
         return this;
     }
@@ -31,10 +31,7 @@ public class SourceOrCreateLoggerVisitor(string loggerFullName, IFLogContext flo
     protected bool WalkDownTree(IMutableFLoggerCommon ancestorLogger)
     {
         var ancestorFullName = ancestorLogger.FullName;
-        if (!loggerFullName.StartsWith(ancestorFullName))
-        {
-            return false;
-        }
+        if (!loggerFullName.StartsWith(ancestorFullName)) return false;
         loggerNameScratch.Clear();
         loggerNameScratch.Append(loggerFullName);
         if (ancestorFullName.IsNotNullOrEmpty())
@@ -59,11 +56,9 @@ public class SourceOrCreateLoggerVisitor(string loggerFullName, IFLogContext flo
                     .Append(nameof(FLogAppConfig.RootLogger)).Append(ConfigSection.KeySeparator)
                     .Append(nameof(FLoggerTreeCommonConfig.DescendantLoggers)).Append(ConfigSection.KeySeparator);
             foreach (var ancestorGeneration in ancestorFullName.Split(".").Where(s => s.IsNotEmpty()))
-            {
                 configPathBuilder
                     .Append(ancestorGeneration).Append(ConfigSection.KeySeparator)
                     .Append(nameof(FLoggerTreeCommonConfig.DescendantLoggers)).Append(ConfigSection.KeySeparator);
-            }
             var configPath = configPathBuilder.Append(firstNamePart).ToString();
 
             var definedConfig   = flogContext.ConfigRegistry.FindLoggerConfigIfGiven(subLoggerName);
@@ -73,10 +68,7 @@ public class SourceOrCreateLoggerVisitor(string loggerFullName, IFLogContext flo
             ancestorLogger.ResolvedConfig.DescendantLoggers.Add(subLoggerConfig);
             var subLogger = FLogCreate.MakeLogger(subLoggerConfig, ancestorLogger, flogContext.LoggerRegistry);
             ancestorLogger.AddDirectChild(subLogger);
-            if (isPathPart)
-            {
-                return WalkDownTree(subLogger);
-            }
+            if (isPathPart) return WalkDownTree(subLogger);
             SourcedLogger = subLogger;
             return true;
         }

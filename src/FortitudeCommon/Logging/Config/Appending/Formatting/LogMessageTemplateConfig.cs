@@ -1,7 +1,9 @@
-﻿using FortitudeCommon.Config;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 
 public interface ILogMessageTemplateConfig : IFLogConfig, IInterfacesComparable<ILogMessageTemplateConfig>
-, IConfigCloneTo<ILogMessageTemplateConfig>, IStyledToStringObject
+  , IConfigCloneTo<ILogMessageTemplateConfig>, IStyledToStringObject
 {
     FLogLevel LogLevel { get; }
 
@@ -34,11 +36,11 @@ public class LogMessageTemplateConfig : FLogConfig, IMutableLogMessageTemplateCo
     public LogMessageTemplateConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public LogMessageTemplateConfig
-    ( FLogLevel logLevel, string messageTemplate, string templateLoggerName)
+        (FLogLevel logLevel, string messageTemplate, string templateLoggerName)
         : this(InMemoryConfigRoot, InMemoryPath, logLevel, messageTemplate, templateLoggerName) { }
 
     public LogMessageTemplateConfig
-    (IConfigurationRoot root, string path, FLogLevel logLevel, string messageTemplate, string templateLoggerName)
+        (IConfigurationRoot root, string path, FLogLevel logLevel, string messageTemplate, string templateLoggerName)
         : base(root, path)
     {
         LogLevel           = logLevel;
@@ -78,17 +80,16 @@ public class LogMessageTemplateConfig : FLogConfig, IMutableLogMessageTemplateCo
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    object ICloneable.Clone() => Clone();
-
-    ILogMessageTemplateConfig ICloneable<ILogMessageTemplateConfig>.    Clone() => Clone();
-
-    ILogMessageTemplateConfig IConfigCloneTo<ILogMessageTemplateConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+    ILogMessageTemplateConfig IConfigCloneTo<ILogMessageTemplateConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         new LogMessageTemplateConfig(configRoot, path);
 
-    public virtual LogMessageTemplateConfig Clone() => new(this);
+    public LogMessageTemplateConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
-    public LogMessageTemplateConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        new (this, configRoot, path);
+    object ICloneable.Clone() => Clone();
+
+    ILogMessageTemplateConfig ICloneable<ILogMessageTemplateConfig>.Clone() => Clone();
+
+    public virtual LogMessageTemplateConfig Clone() => new(this);
 
     public virtual bool AreEquivalent(ILogMessageTemplateConfig? other, bool exactTypes = false)
     {
@@ -97,7 +98,7 @@ public class LogMessageTemplateConfig : FLogConfig, IMutableLogMessageTemplateCo
         var logLevelSame        = LogLevel == other.LogLevel;
         var messageTemplateSame = MessageTemplate == other.MessageTemplate;
         var templateLoggerName  = TemplateLoggerName == other.TemplateLoggerName;
-        
+
 
         var allAreSame = logLevelSame && messageTemplateSame && templateLoggerName;
 
@@ -114,13 +115,10 @@ public class LogMessageTemplateConfig : FLogConfig, IMutableLogMessageTemplateCo
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
-               .Field.AlwaysAdd(nameof(LogLevel), LogLevel)
-               .Field.AlwaysAdd(nameof(MessageTemplate), MessageTemplate)
-               .Field.AlwaysAdd(nameof(TemplateLoggerName), TemplateLoggerName)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
+           .Field.AlwaysAdd(nameof(LogLevel), LogLevel)
+           .Field.AlwaysAdd(nameof(MessageTemplate), MessageTemplate)
+           .Field.AlwaysAdd(nameof(TemplateLoggerName), TemplateLoggerName)
+           .Complete();
 }

@@ -5,7 +5,9 @@ namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 
 public class LeafToBaseCollectVisitor : LoggerVisitor<LeafToBaseCollectVisitor>
 {
-    private readonly List<IFLoggerDescendant> nodes = new ();
+    private readonly List<IFLoggerDescendant> nodes = new();
+
+    public IReadOnlyList<IFLoggerDescendant> NodeSequence => nodes.AsReadOnly();
 
     public override LeafToBaseCollectVisitor Accept(IMutableFLoggerRoot node) => this;
 
@@ -15,6 +17,4 @@ public class LeafToBaseCollectVisitor : LoggerVisitor<LeafToBaseCollectVisitor>
         node.Parent.Visit(this);
         return this;
     }
-
-    public IReadOnlyList<IFLoggerDescendant> NodeSequence => nodes.AsReadOnly();
 }

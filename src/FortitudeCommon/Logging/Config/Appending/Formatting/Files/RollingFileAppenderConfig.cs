@@ -11,7 +11,7 @@ namespace FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 
 public interface IRollingFileAppenderConfig : IFileAppenderConfig
 {
-    const string DefaultRollAtSize        = "100MB";
+    const string DefaultRollAtSize         = "100MB";
     const string DefaultRollFileNameFormat = "{ToRollFilePath}{ToRollFileName}.{RollNumPlaceholder}.{ToRollFileExt}{CompressionTypeExt}";
 
     string RollAtSize { get; }
@@ -40,9 +40,9 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
       , string filename = IFileAppenderConfig.DefaultFileName
       , string filePath = IFileAppenderConfig.DefaultFilePath
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
-      , string rollAtSize =  IRollingFileAppenderConfig.DefaultRollAtSize
-      , uint closeDelayMs =  IFileAppenderConfig.DefaultCloseDelayMs
-      , string rollFileNameFormat =  IRollingFileAppenderConfig.DefaultRollFileNameFormat
+      , string rollAtSize = IRollingFileAppenderConfig.DefaultRollAtSize
+      , uint closeDelayMs = IFileAppenderConfig.DefaultCloseDelayMs
+      , string rollFileNameFormat = IRollingFileAppenderConfig.DefaultRollFileNameFormat
       , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
       , IMutableFlushBufferConfig? flushBufferConfig = null
       , bool disableBuffering = false
@@ -58,9 +58,9 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
       , string filename = IFileAppenderConfig.DefaultFileName
       , string filePath = IFileAppenderConfig.DefaultFilePath
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
-      , string rollAtSize =  IRollingFileAppenderConfig.DefaultRollAtSize
-      , uint closeDelayMs =  IFileAppenderConfig.DefaultCloseDelayMs
-      , string rollFileNameFormat =  IRollingFileAppenderConfig.DefaultRollFileNameFormat
+      , string rollAtSize = IRollingFileAppenderConfig.DefaultRollAtSize
+      , uint closeDelayMs = IFileAppenderConfig.DefaultCloseDelayMs
+      , string rollFileNameFormat = IRollingFileAppenderConfig.DefaultRollFileNameFormat
       , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
       , IMutableFlushBufferConfig? flushBufferConfig = null
       , bool disableBuffering = false
@@ -76,16 +76,17 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
       , string filename = IFileAppenderConfig.DefaultFileName
       , string filePath = IFileAppenderConfig.DefaultFilePath
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
-      , string rollAtSize =  IRollingFileAppenderConfig.DefaultRollAtSize
-      , uint closeDelayMs =  IFileAppenderConfig.DefaultCloseDelayMs
-      , string rollFileNameFormat =  IRollingFileAppenderConfig.DefaultRollFileNameFormat
+      , string rollAtSize = IRollingFileAppenderConfig.DefaultRollAtSize
+      , uint closeDelayMs = IFileAppenderConfig.DefaultCloseDelayMs
+      , string rollFileNameFormat = IRollingFileAppenderConfig.DefaultRollFileNameFormat
       , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
       , IMutableFlushBufferConfig? flushBufferConfig = null
       , bool disableBuffering = false
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : base(root, path, appenderName, appenderType, fileAppenderType, filename, filePath, logEntryFormatLayout, charBufferSize
-             , flushBufferConfig, disableBuffering, closeDelayMs, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
+             , flushBufferConfig, disableBuffering, closeDelayMs, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition
+             , deactivateHere)
     {
         RollAtSize = rollAtSize;
 
@@ -98,9 +99,9 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
       , string filename = IFileAppenderConfig.DefaultFileName
       , string filePath = IFileAppenderConfig.DefaultFilePath
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
-      , string rollAtSize =  IRollingFileAppenderConfig.DefaultRollAtSize
-      , uint closeDelayMs =  IFileAppenderConfig.DefaultCloseDelayMs
-      , string rollFileNameFormat =  IRollingFileAppenderConfig.DefaultRollFileNameFormat
+      , string rollAtSize = IRollingFileAppenderConfig.DefaultRollAtSize
+      , uint closeDelayMs = IFileAppenderConfig.DefaultCloseDelayMs
+      , string rollFileNameFormat = IRollingFileAppenderConfig.DefaultRollFileNameFormat
       , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
       , IMutableFlushBufferConfig? flushBufferConfig = null
       , bool disableBuffering = false
@@ -130,10 +131,7 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
         {
             var lowerRollAtSize = RollAtSize.ToLower();
             var (fileSize, unitSuffix) = lowerRollAtSize.SplitFormattedULongFromString();
-            if (fileSize != null)
-            {
-                return fileSize.Value.ToSizeInBytes(unitSuffix);
-            }
+            if (fileSize != null) return fileSize.Value.ToSizeInBytes(unitSuffix);
             return 100ul.AsMegaBytes();
         }
     }
@@ -152,6 +150,8 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    public override RollingFileAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
     object ICloneable.Clone() => Clone();
 
     IFormattingAppenderConfig ICloneable<IFormattingAppenderConfig>.Clone() => Clone();
@@ -160,8 +160,6 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
 
     public override RollingFileAppenderConfig Clone() => new(this);
 
-    public override RollingFileAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
-
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {
         if (other is not IRollingFileAppenderConfig rollingFileAppender) return false;
@@ -169,6 +167,7 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
         var baseSame = base.AreEquivalent(other, exactTypes);
 
         var rollAtSame = RollAtSize == rollingFileAppender.RollAtSize;
+
         var rollFileNameSame = RollFileNameFormat == rollingFileAppender.RollFileNameFormat;
 
         var allAreSame = baseSame && rollAtSame && rollFileNameSame;
@@ -188,7 +187,7 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
 
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        using var tb = 
+        using var tb =
             sbc.StartComplexType(nameof(RollingFileAppenderConfig))
                .Field.AlwaysAdd(nameof(RollAtSize), RollAtSize)
                .Field.AlwaysAdd(nameof(RollFileNameFormat), RollFileNameFormat)
@@ -197,4 +196,3 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
         return tb;
     }
 }
-

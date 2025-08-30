@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.Config;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
 
@@ -6,9 +9,9 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.Conso
 
 public class ConsoleLogLevelTextColorMatchTemplatePart : ConsoleAppenderColorChangeTemplatePart
 {
-    private readonly Dictionary<FLogLevel, ConsoleColor> textColorByLogLevel = new ();
-
     private readonly ConsoleColor defaultColor;
+
+    private readonly Dictionary<FLogLevel, ConsoleColor> textColorByLogLevel = new();
 
     public ConsoleLogLevelTextColorMatchTemplatePart(string command)
         : base(FormattingAppenderSinkType.Console, command)
@@ -20,15 +23,11 @@ public class ConsoleLogLevelTextColorMatchTemplatePart : ConsoleAppenderColorCha
         {
             var colorString = split[i];
             var fLogLevel   = FLogLevel.Error - i;
-            
+
             if (Enum.TryParse<ConsoleColor>(colorString, out var conColor))
-            {
                 textColorByLogLevel.Add(fLogLevel, conColor);
-            }
             else
-            {
                 Console.WriteLine($"Failed to parse ${command} as a valid System.ConsoleColor");
-            }
         }
     }
 

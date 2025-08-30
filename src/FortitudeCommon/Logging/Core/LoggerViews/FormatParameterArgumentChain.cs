@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 
@@ -10,8 +9,8 @@ namespace FortitudeCommon.Logging.Core.LoggerViews;
 
 public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgumentChain
 {
-    private IFLogFirstFormatterParameterEntry?      firstParamBuilder;
     private IFLogAdditionalFormatterParameterEntry? continueParamBuilder;
+    private IFLogFirstFormatterParameterEntry?      firstParamBuilder;
 
     public FormatParameterArgumentChain Initialize(IFLogFirstFormatterParameterEntry firstFormatterParameter)
     {
@@ -19,11 +18,6 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
 
         return this;
     }
-
-    private IFLogAdditionalFormatterParameterEntry? FirstOfMoreParam<T0>(T0 p0) =>
-        firstParamBuilder != null
-            ? firstParamBuilder.WithMatchParams(p0)
-            : continueParamBuilder?.AndMatch(p0);
 
     public void Args<T0>(T0 p0)
     {
@@ -145,8 +139,8 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
     }
 
     public void Args<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
-          , T16 p16)
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
+      , T16 p16)
     {
         var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
         next?.AndFinalMatchParam(p16);
@@ -154,8 +148,8 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
     }
 
     public void Args<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
-          , T16 p16, T17 p17)
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
+      , T16 p16, T17 p17)
     {
         var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16);
         next?.AndFinalMatchParam(p17);
@@ -163,8 +157,8 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
     }
 
     public void Args<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
-          , T16 p16, T17 p17, T18 p18)
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
+      , T16 p16, T17 p17, T18 p18)
     {
         var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17);
         next?.AndFinalMatchParam(p18);
@@ -172,8 +166,8 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
     }
 
     public void Args<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
-          , T16 p16, T17 p17, T18 p18, T19 p19)
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
+      , T16 p16, T17 p17, T18 p18, T19 p19)
     {
         var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18);
         next?.AndFinalMatchParam(p19);
@@ -181,8 +175,8 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
     }
 
     public void Args<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
-          , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20)
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
+      , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20)
     {
         var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19);
         next?.AndFinalMatchParam(p20);
@@ -190,8 +184,8 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
     }
 
     public void Args<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
-          , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21)
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
+      , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21)
     {
         var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20);
         next?.AndFinalMatchParam(p21);
@@ -199,8 +193,8 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
     }
 
     public void Args<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
-          , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22)
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
+      , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22)
     {
         var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21);
         next?.AndFinalMatchParam(p22);
@@ -208,8 +202,8 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
     }
 
     public void Args<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
-          , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23)
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
+      , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23)
     {
         var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22);
         next?.AndFinalMatchParam(p23);
@@ -217,13 +211,284 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
     }
 
     public void Args<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
-          , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24)
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15
+      , T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24)
     {
         var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23);
         next?.AndFinalMatchParam(p24);
         DecrementRefCount();
     }
+
+    public IFLogStringAppender? ArgsThenAppender<T0>(T0 p0)
+    {
+        if (firstParamBuilder != null) return firstParamBuilder.WithOnlyParamMatchThenToAppender(p0);
+        return continueParamBuilder?.AndFinalMatchParamThenToAppender(p0);
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1>(T0 p0, T1 p1)
+    {
+        var next = AndMatchAll(p0);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p1);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2>(T0 p0, T1 p1, T2 p2)
+    {
+        var next = AndMatchAll(p0, p1);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p2);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3>(T0 p0, T1 p1, T2 p2, T3 p3)
+    {
+        var next = AndMatchAll(p0, p1, p2);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p3);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4>(T0 p0, T1 p1, T2 p2, T3 p3, T4 p4)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p4);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5>(T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
+    {
+        var next           = AndMatchAll(p0, p1, p2, p3, p4);
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p5);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6>(T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p6);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7>(T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p7);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T7 p8)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p8);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p9);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p10);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p11);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p12);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p13);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p14);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+      , T15 p15)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p15);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
+    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+      , T15 p15, T16 p16)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p16);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender
+        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+          , T15 p15, T16 p16, T17 p17)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p17);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender
+        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+          , T15 p15, T16 p16, T17 p17, T18 p18)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p18);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender
+        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+          , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p19);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender
+        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+          , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p20);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender
+        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+          , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p21);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender
+        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+          , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p22);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender
+        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+          , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p23);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public IFLogStringAppender? ArgsThenAppender
+        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+          , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23);
+
+        var stringAppender = next?.AndFinalMatchParamThenToAppender(p24);
+        DecrementRefCount();
+        return stringAppender;
+    }
+
+    public ISingleInvokeArgumentChain ArgsAndContinue
+        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>
+        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
+          , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24)
+    {
+        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23);
+        continueParamBuilder = next?.AndMatch(p10);
+        return this;
+    }
+
+    private IFLogAdditionalFormatterParameterEntry? FirstOfMoreParam<T0>(T0 p0) =>
+        firstParamBuilder != null
+            ? firstParamBuilder.WithMatchParams(p0)
+            : continueParamBuilder?.AndMatch(p0);
 
     protected IFLogAdditionalFormatterParameterEntry? AndMatchAll<T0>(T0 p0)
     {
@@ -428,271 +693,5 @@ public class FormatParameterArgumentChain : RecyclableObject, ISingleInvokeArgum
             .AndMatch(p8)?.AndMatch(p9)?.AndMatch(p10)?.AndMatch(p11)?.AndMatch(p12)?.AndMatch(p13)?.AndMatch(p14)?
             .AndMatch(p15)?.AndMatch(p16)?.AndMatch(p17)?.AndMatch(p18)?.AndMatch(p19)?.AndMatch(p20)?.AndMatch(p21)?
             .AndMatch(p22)?.AndMatch(p23);
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0>(T0 p0)
-    {
-        if (firstParamBuilder != null) return firstParamBuilder.WithOnlyParamMatchThenToAppender(p0);
-        return continueParamBuilder?.AndFinalMatchParamThenToAppender(p0);
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1>(T0 p0, T1 p1)
-    {
-        var next = AndMatchAll(p0);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p1);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2>(T0 p0, T1 p1, T2 p2)
-    {
-        var next = AndMatchAll(p0, p1);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p2);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3>(T0 p0, T1 p1, T2 p2, T3 p3)
-    {
-        var next = AndMatchAll(p0, p1, p2);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p3);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4>(T0 p0, T1 p1, T2 p2, T3 p3, T4 p4)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p4);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5>(T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
-    {
-        var next           = AndMatchAll(p0, p1, p2, p3, p4);
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p5);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6>(T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p6);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7>(T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p7);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T7 p8)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p8);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p9);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p10);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p11);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p12);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p13);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
-        (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p14);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p15);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p16);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender
-        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16, T17 p17)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p17);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender
-        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16, T17 p17, T18 p18)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p18);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender
-        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p19);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender
-        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p20);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender
-        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p21);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender
-        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p22);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender
-        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p23);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public IFLogStringAppender? ArgsThenAppender
-        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23);
-
-        var stringAppender = next?.AndFinalMatchParamThenToAppender(p24);
-        DecrementRefCount();
-        return stringAppender;
-    }
-
-    public ISingleInvokeArgumentChain ArgsAndContinue
-        <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>
-    (T0 p0, T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14
-      , T15 p15, T16 p16, T17 p17, T18 p18, T19 p19, T20 p20, T21 p21, T22 p22, T23 p23, T24 p24)
-    {
-        var next = AndMatchAll(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23);
-        continueParamBuilder = next?.AndMatch(p10);
-        return this;
     }
 }

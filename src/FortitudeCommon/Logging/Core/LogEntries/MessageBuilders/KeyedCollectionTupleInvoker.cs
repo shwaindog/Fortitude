@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Reflection;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Types.StyledToString;
@@ -12,15 +15,9 @@ public abstract partial class FLogEntryMessageBuilder
     {
         try
         {
-            if (collectionType.IsValueType || !collectionType.IsCollection())
-            {
-                return null;
-            }
+            if (collectionType.IsValueType || !collectionType.IsCollection()) return null;
             var keyValueTypes = collectionType.GetKeyedCollectionTypes();
-            if (keyValueTypes == null)
-            {
-                return null;
-            }
+            if (keyValueTypes == null) return null;
             if (collectionType.IsIndexableOrderedCollection())
             {
                 var structStylerInvoker =
@@ -48,25 +45,19 @@ public abstract partial class FLogEntryMessageBuilder
     {
         try
         {
-            if (item1Type.IsValueType || !item1Type.IsCollection())
-            {
-                return null;
-            }
+            if (item1Type.IsValueType || !item1Type.IsCollection()) return null;
             var checkKeyValueTypes = item1Type.GetKeyedCollectionTypes();
-            if (checkKeyValueTypes == null)
-            {
-                return null;
-            }
-            var keyValueTypes = checkKeyValueTypes.Value; 
-            
+            if (checkKeyValueTypes == null) return null;
+            var keyValueTypes = checkKeyValueTypes.Value;
+
             if (item1Type.IsReadOnlyDictionaryType() || item1Type.IsKeyValueOrderedCollection())
             {
                 if (item2Type.IsFormatterType())
                 {
                     if (keyValueTypes.Value.IsValidFormatterForType(item2Type))
                     {
-                        var structStylerInvoker = 
-                            TryBuildKeyedCollectionFormatInvoker(tuple, tupleType, item1Type, keyValueTypes,  item2Type);
+                        var structStylerInvoker =
+                            TryBuildKeyedCollectionFormatInvoker(tuple, tupleType, item1Type, keyValueTypes, item2Type);
                         return structStylerInvoker;
                     }
                     var warningAppender = CreateWarningMessageAppender();
@@ -113,25 +104,19 @@ public abstract partial class FLogEntryMessageBuilder
     {
         try
         {
-            if (item1Type.IsValueType || !item1Type.IsCollection())
-            {
-                return null;
-            }
+            if (item1Type.IsValueType || !item1Type.IsCollection()) return null;
             var checkKeyValueTypes = item1Type.GetKeyedCollectionTypes();
-            if (checkKeyValueTypes == null)
-            {
-                return null;
-            }
-            var keyValueTypes = checkKeyValueTypes.Value; 
-            
+            if (checkKeyValueTypes == null) return null;
+            var keyValueTypes = checkKeyValueTypes.Value;
+
             if (item1Type.IsReadOnlyDictionaryType() || item1Type.IsKeyValueOrderedCollection())
             {
                 if (item2Type.IsFormatterType())
                 {
                     if (keyValueTypes.Value.IsValidFormatterForType(item2Type))
                     {
-                        var structStylerInvoker = 
-                            TryBuildKeyedCollectionFormatInvoker(tuple, tupleType, item1Type, keyValueTypes,  item2Type, item3Type);
+                        var structStylerInvoker =
+                            TryBuildKeyedCollectionFormatInvoker(tuple, tupleType, item1Type, keyValueTypes, item2Type, item3Type);
                         return structStylerInvoker;
                     }
                     var warningAppender = CreateWarningMessageAppender();
@@ -178,26 +163,18 @@ public abstract partial class FLogEntryMessageBuilder
     {
         try
         {
-            if (item1Type.IsValueType || !item1Type.IsCollection())
-            {
-                return null;
-            }
+            if (item1Type.IsValueType || !item1Type.IsCollection()) return null;
             var checkKeyValueTypes = item1Type.GetKeyedCollectionTypes();
-            if (checkKeyValueTypes == null)
-            {
-                return null;
-            }
-            var keyValueTypes = checkKeyValueTypes.Value; 
-            
+            if (checkKeyValueTypes == null) return null;
+            var keyValueTypes = checkKeyValueTypes.Value;
+
             if (item1Type.IsReadOnlyDictionaryType() || item1Type.IsKeyValueOrderedCollection())
-            {
                 if (item2Type.IsKeyValueFilterPredicate())
                 {
                     var structStylerInvoker =
                         TryBuildFilteredKeyedCollectionFormatInvoker(tuple, tupleType, item1Type, keyValueTypes, item2Type, item3Type, item4Type);
                     return structStylerInvoker;
                 }
-            }
         }
         catch (Exception ex)
         {
@@ -210,13 +187,13 @@ public abstract partial class FLogEntryMessageBuilder
 
         return null;
     }
-    
+
     private Action<T, IStyledTypeStringAppender> TryBuildKeyValueIterableInvoker<T>(T iterableToAppend, Type iterableType
       , KeyValuePair<Type, Type> keyedCollectionTypes)
     {
         var iterableIsNotEnumerable = iterableType.IsNotEnumerable();
-        var iterableIsNotEnumerator              = iterableType.IsNotEnumerator();
-        
+        var iterableIsNotEnumerator = iterableType.IsNotEnumerator();
+
         MethodInfo? foundMatch = null;
         for (var i = 0; i < MyNonPubStaticMethods.Length; i++)
         {
@@ -237,24 +214,24 @@ public abstract partial class FLogEntryMessageBuilder
             if (!p1Item1NotEnumerator && iterableIsNotEnumerator) continue;
             if (genericParams[0].IsAssignableFrom(keyedCollectionTypes.Key)) continue;
             if (genericParams[1].IsAssignableFrom(keyedCollectionTypes.Value)) continue;
-    
+
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
-        var invokeAppend = 
+        var invokeAppend =
             CreateTwoGenericArgsMethodInvoker(iterableToAppend, iterableType, foundMatch, keyedCollectionTypes.Key, keyedCollectionTypes.Value);
         return invokeAppend;
     }
 
-    private Action<T, IStyledTypeStringAppender> TryBuildKeyedCollectionInvoker<T>(T collectionToAppend, Type collectionType, 
+    private Action<T, IStyledTypeStringAppender> TryBuildKeyedCollectionInvoker<T>(T collectionToAppend, Type collectionType,
         KeyValuePair<Type, Type> keyedCollectionTypes)
     {
         var collectionIsNotReadOnlyDictionaryType = collectionType.IsNotReadOnlyDictionaryType();
-        var collectionIsNotArrayType = collectionType.IsNotArray();
-        var collectionIsNotReadOnlyListType = collectionType.IsNotReadOnlyList();
-        
+        var collectionIsNotArrayType              = collectionType.IsNotArray();
+        var collectionIsNotReadOnlyListType       = collectionType.IsNotReadOnlyList();
+
         MethodInfo? foundMatch = null;
         for (var i = 0; i < MyNonPubStaticMethods.Length; i++)
         {
@@ -276,24 +253,24 @@ public abstract partial class FLogEntryMessageBuilder
             if (!p1Item1NotKeyValueCollection && collectionIsNotReadOnlyListType) continue;
             if (genericParams[0].IsAssignableFrom(keyedCollectionTypes.Key)) continue;
             if (genericParams[1].IsAssignableFrom(keyedCollectionTypes.Value)) continue;
-            
+
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
-        var invokeAppend = 
+        var invokeAppend =
             CreateTwoGenericArgsMethodInvoker(collectionToAppend, collectionType, foundMatch
                                             , keyedCollectionTypes.Key, keyedCollectionTypes.Value);
         return invokeAppend;
     }
-    
+
     private Action<T, IStyledTypeStringAppender> TryBuildKeyValueIterableFormatInvoker<T>(T toAppend, Type tupleType, Type item1IterableType
       , KeyValuePair<Type, Type> keyedCollectionTypes, Type item2Formatter, Type? item3Formatter = null)
     {
         var iterableIsNotEnumerable = item1IterableType.IsNotEnumerable();
         var iterableIsNotEnumerator = item1IterableType.IsNotEnumerator();
-        
+
         MethodInfo? foundMatch = null;
         for (var i = 0; i < MyNonPubStaticMethods.Length; i++)
         {
@@ -328,9 +305,9 @@ public abstract partial class FLogEntryMessageBuilder
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
-        var invokeAppend = 
+        var invokeAppend =
             CreateTwoGenericArgsMethodInvoker(toAppend, tupleType, foundMatch
                                             , keyedCollectionTypes.Key, keyedCollectionTypes.Value);
         return invokeAppend;
@@ -379,25 +356,25 @@ public abstract partial class FLogEntryMessageBuilder
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
-        var invokeAppend = 
+        var invokeAppend =
             CreateTwoGenericArgsMethodInvoker(toAppend, typeOfT, foundMatch
                                             , keyedCollectionTypes.Key, keyedCollectionTypes.Value);
         return invokeAppend;
     }
 
     private Action<T, IStyledTypeStringAppender> TryBuildFilteredKeyedCollectionFormatInvoker<T>
-        (T toAppend, Type tupleType, Type item1IndexableColl, KeyValuePair<Type, Type> keyedCollectionTypes
-            , Type item2FilterPredicate, Type? item3Formatter = null, Type? item4Formatter = null)
+    (T toAppend, Type tupleType, Type item1IndexableColl, KeyValuePair<Type, Type> keyedCollectionTypes
+      , Type item2FilterPredicate, Type? item3Formatter = null, Type? item4Formatter = null)
     {
         var collectionIsNotReadOnlyDictionaryType = item1IndexableColl.IsNotReadOnlyDictionaryType();
         var collectionIsNotArrayType              = item1IndexableColl.IsNotArray();
         var collectionIsNotReadOnlyListType       = item1IndexableColl.IsNotReadOnlyList();
 
-        var tupleNumItems                        = 2;
-        if(item3Formatter != null) tupleNumItems = 3;
-        if(item4Formatter != null) tupleNumItems = 4;
+        var tupleNumItems                         = 2;
+        if (item3Formatter != null) tupleNumItems = 3;
+        if (item4Formatter != null) tupleNumItems = 4;
 
         MethodInfo? foundMatch = null;
         for (var i = 0; i < MyNonPubStaticMethods.Length; i++)
@@ -442,9 +419,9 @@ public abstract partial class FLogEntryMessageBuilder
             foundMatch = mi;
             break;
         }
-        if(foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
 
-        var invokeAppend = 
+        var invokeAppend =
             CreateTwoGenericArgsMethodInvoker(toAppend, tupleType, foundMatch
                                             , keyedCollectionTypes.Key, keyedCollectionTypes.Value);
         return invokeAppend;

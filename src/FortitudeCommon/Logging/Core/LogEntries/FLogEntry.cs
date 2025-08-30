@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
@@ -20,11 +19,9 @@ namespace FortitudeCommon.Logging.Core.LogEntries;
 
 public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen, IStyledToStringObject
 {
-    event Action<IFLogEntry> MessageComplete;
-
-    uint IssueSequenceNumber    { get; }
+    uint IssueSequenceNumber { get; }
     uint ReceivedSequenceNumber { get; }
-    uint InstanceNumber         { get; }
+    uint InstanceNumber { get; }
     long CorrelationId { get; }
 
     object? CallerContextObject { get; }
@@ -33,13 +30,14 @@ public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen, IStyled
 
     StringBuildingStyle Style { get; }
 
-    DateTime        LogDateTime  { get; }
-    DateTime?       DispatchedAt { get; }
-    FLogCallLocation LogLocation  { get; }
-    IFLogger        Logger       { get; }
-    FLogLevel       LogLevel     { get; }
-    Thread          Thread       { get; }
-    IFrozenString   Message      { get; }
+    DateTime LogDateTime { get; }
+    DateTime? DispatchedAt { get; }
+    FLogCallLocation LogLocation { get; }
+    IFLogger Logger { get; }
+    FLogLevel LogLevel { get; }
+    Thread Thread { get; }
+    IFrozenString Message { get; }
+    event Action<IFLogEntry> MessageComplete;
 }
 
 public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
@@ -49,6 +47,8 @@ public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
     new uint ReceivedSequenceNumber { get; set; }
 
     new FLogLevel LogLevel { get; set; }
+
+    new IMutableString Message { get; }
 
 
     [MustUseReturnValue("Use WithOnlyParam or AndFinalParam to complete LogEntry")]
@@ -67,44 +67,36 @@ public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
     IMutableFLogEntry AddException(Exception exception);
 
     void OnMessageComplete(IStringBuilder? warningToPrefix);
-
-    new IMutableString Message { get; }
 }
 
-public record struct LoggerEntryContext(IFLogger Logger, ITargetingFLogEntrySource OnCompleteHandler, FLogCallLocation LogLocation, FLogLevel LogLevel);
+public record struct LoggerEntryContext
+    (IFLogger Logger, ITargetingFLogEntrySource OnCompleteHandler, FLogCallLocation LogLocation, FLogLevel LogLevel);
 
 public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 {
     internal static readonly FLogCallLocation NotSetLocation = new("NotSet", "NotSet", 0);
 
-    private MutableString? messageBuilder;
-
-    public event Action<IFLogEntry> MessageComplete;
+    private static uint totalInstanceCount;
 
     private ITargetingFLogEntrySource dispatchHandler = null!;
 
-    private static uint totalInstanceCount;
-
-    public DateTime? DispatchedAt { get; protected set; }
+    private MutableString? messageBuilder;
 
     public FLogEntry()
     {
-        InstanceNumber = Interlocked.Increment(ref totalInstanceCount);
-        MessageComplete     = SendToDispatchHandler;
+        InstanceNumber  = Interlocked.Increment(ref totalInstanceCount);
+        MessageComplete = SendToDispatchHandler;
     }
 
-    public FLogEntry(MutableString messageBuilder) : this()
-    {
-        this.messageBuilder = messageBuilder;
-    }
+    public FLogEntry(MutableString messageBuilder) : this() => this.messageBuilder = messageBuilder;
 
     public FLogEntry(IFLogEntry toClone) : this()
     {
         messageBuilder = (MutableString)toClone.Message.SourceThawed;
 
-        LogDateTime = toClone.LogDateTime;
-        LogLocation = NotSetLocation;
-        MessageComplete  = SendToDispatchHandler;
+        LogDateTime     = toClone.LogDateTime;
+        LogLocation     = NotSetLocation;
+        MessageComplete = SendToDispatchHandler;
     }
 
     internal FLogEntry Initialize(LoggerEntryContext loggerEntryContext)
@@ -120,20 +112,21 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         return this;
     }
 
-    protected virtual void SendToDispatchHandler(IFLogEntry me)
-    {
-        dispatchHandler.PublishLogEntryEvent(new LogEntryPublishEvent(me));
-        DecrementRefCount();
-    }
+    public bool LoggerHasDispatched => DispatchedAt != null;
+
+    protected string LogEntryToStringMembers =>
+        $"{nameof(messageBuilder)}: {messageBuilder}, {nameof(DispatchedAt)}: {DispatchedAt}, {nameof(IssueSequenceNumber)}: {IssueSequenceNumber}, " +
+        $"{nameof(InstanceNumber)}: {InstanceNumber}, {nameof(LogDateTime)}: {LogDateTime}, {nameof(LogLocation)}: {LogLocation}";
+
+    public event Action<IFLogEntry> MessageComplete;
+
+    public DateTime? DispatchedAt { get; protected set; }
 
     public void OnMessageComplete(IStringBuilder? warningToPrefix)
     {
         if (DispatchedAt == null)
         {
-            if (warningToPrefix != null)
-            {
-                messageBuilder!.Insert(0, warningToPrefix);
-            }
+            if (warningToPrefix != null) messageBuilder!.Insert(0, warningToPrefix);
             DispatchedAt = TimeContext.UtcNow;
             MessageComplete.Invoke(this);
         }
@@ -142,8 +135,6 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
             Console.Out.WriteLine($"Attempted to dispatch {this} this entry twice!!!");
         }
     }
-
-    public bool LoggerHasDispatched => DispatchedAt != null;
 
     public IFLogStringAppender StringAppender(StringBuildingStyle style = StringBuildingStyle.Default)
     {
@@ -177,9 +168,9 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
     }
 
 
-    public object?    CallerContextObject { get; protected set; }
-    public long       CorrelationId       { get; protected set; }
-    public Exception? Exception           { get; protected set; }
+    public object? CallerContextObject { get; protected set; }
+    public long CorrelationId { get; protected set; }
+    public Exception? Exception { get; protected set; }
 
     public uint IssueSequenceNumber { get; set; }
 
@@ -237,7 +228,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         return this;
     }
 
-    public IMutableFLogEntry AddException(Exception exception) 
+    public IMutableFLogEntry AddException(Exception exception)
     {
         Exception = exception;
 
@@ -251,11 +242,17 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         return this;
     }
 
-    public IMutableFLogEntry AddCorrelationId(string asyncCallOrThreadKey = IMutableFLogEntry.DefaultCorrelationIdKeyName) 
+    public IMutableFLogEntry AddCorrelationId(string asyncCallOrThreadKey = IMutableFLogEntry.DefaultCorrelationIdKeyName)
     {
         CorrelationId = CallContextLongs.GetContextData(asyncCallOrThreadKey) ?? 0;
 
         return this;
+    }
+
+    protected virtual void SendToDispatchHandler(IFLogEntry me)
+    {
+        dispatchHandler.PublishLogEntryEvent(new LogEntryPublishEvent(me));
+        DecrementRefCount();
     }
 
 
@@ -265,12 +262,12 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         IssueSequenceNumber    = 0;
 
         messageBuilder!.StateReset();
-        LogDateTime = DateTime.MinValue;
+        LogDateTime  = DateTime.MinValue;
         DispatchedAt = null;
-        Style       = StringBuildingStyle.Default;
-        LogLocation = NotSetLocation;
-        Logger      = null!;
-        Thread      = null!;
+        Style        = StringBuildingStyle.Default;
+        LogLocation  = NotSetLocation;
+        Logger       = null!;
+        Thread       = null!;
         base.StateReset();
     }
 
@@ -315,10 +312,6 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
         return tb.Complete();
     }
-
-    protected string LogEntryToStringMembers =>
-        $"{nameof(messageBuilder)}: {messageBuilder}, {nameof(DispatchedAt)}: {DispatchedAt}, {nameof(IssueSequenceNumber)}: {IssueSequenceNumber}, " +
-        $"{nameof(InstanceNumber)}: {InstanceNumber}, {nameof(LogDateTime)}: {LogDateTime}, {nameof(LogLocation)}: {LogLocation}";
 
     public override string ToString() => this.DefaultToString();
 }

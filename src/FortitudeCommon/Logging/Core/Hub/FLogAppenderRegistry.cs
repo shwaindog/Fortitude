@@ -25,9 +25,9 @@ public record AppenderContainer
         ConfigUpdated += Appender.HandleConfigUpdate;
     }
 
-    public event HandleAppenderConfigUpdate? ConfigUpdated;
-
     public IMutableFLogAppender Appender { get; init; }
+
+    public event HandleAppenderConfigUpdate? ConfigUpdated;
 
     public void OnUpdated(IAppenderDefinitionConfig newConfig)
     {
@@ -42,41 +42,50 @@ public record AppenderContainer
 
 public interface IFLogAppenderRegistry
 {
-    bool WhenAppenderReceivedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback);
-    bool WhenAppenderProcessedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback);
-    bool WhenAppenderDroppedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback);
-    
-    
-    
-    IAppenderClient GetAppenderClient(string appenderName, IFLoggerCommon logger);
-    IAppenderClient GetAppenderClient(string appenderName, IFLogForwardingAppender forwardingAppender);
-
     NotifyNewAppenderHandler RegisterAppenderCallback { get; }
-    
+
     ICollection<string> AllAppenderNames { get; }
 
     IAppenderClient FailAppender { get; }
+    bool WhenAppenderReceivedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback);
+    bool WhenAppenderProcessedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback);
+    bool WhenAppenderDroppedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback);
+
+
+    IAppenderClient GetAppenderClient(string appenderName, IFLoggerCommon logger);
+    IAppenderClient GetAppenderClient(string appenderName, IFLogForwardingAppender forwardingAppender);
 }
 
 public interface IMutableFLogAppenderRegistry : IFLogAppenderRegistry
 {
-    IMutableFLogAppender? GetAppender(string appenderName);
     Dictionary<string, IMutableAppenderDefinitionConfig> DefinedAppenderConfigs { get; set; }
+    IMutableFLogAppender? GetAppender(string appenderName);
 }
 
 public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
 {
     private static readonly object SyncLock = new();
 
-    private readonly Lazy<IFLogAppender?> failAppender;
-
-    private IAppenderClient? failAppenderClient;
-
     private readonly ConcurrentDictionary<string, IFLogAppender> embodiedAppenders = new();
+
+    private readonly Lazy<IFLogAppender?> failAppender;
 
     private readonly IFLogContext flogContext;
 
     private Dictionary<string, IMutableAppenderDefinitionConfig> definedAppenderConfigs;
+
+    private IAppenderClient? failAppenderClient;
+
+    public FLogAppenderRegistry(IFLogContext flogContext, Dictionary<string, IMutableAppenderDefinitionConfig> appenderConfigs)
+    {
+        this.flogContext       = flogContext;
+        definedAppenderConfigs = appenderConfigs;
+
+        RegisterAppenderCallback = AddAppenderCreated;
+
+        failAppender =
+            new Lazy<IFLogAppender?>(() => new FLogConsoleAppender(ConsoleAppenderConfig.DefaultConsoleAppenderConfig, flogContext));
+    }
 
     public bool WhenAppenderReceivedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback)
     {
@@ -102,17 +111,6 @@ public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
         return true;
     }
 
-    public FLogAppenderRegistry(IFLogContext flogContext, Dictionary<string, IMutableAppenderDefinitionConfig> appenderConfigs)
-    {
-        this.flogContext       = flogContext;
-        definedAppenderConfigs = appenderConfigs;
-
-        RegisterAppenderCallback = AddAppenderCreated;
-
-        failAppender =
-            new(() => new FLogConsoleAppender(ConsoleAppenderConfig.DefaultConsoleAppenderConfig, flogContext));
-    }
-
     Dictionary<string, IMutableAppenderDefinitionConfig> IMutableFLogAppenderRegistry.DefinedAppenderConfigs
     {
         get => definedAppenderConfigs;
@@ -129,17 +127,8 @@ public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
 
     public ICollection<string> AllAppenderNames => embodiedAppenders.Keys;
 
-    IMutableFLogAppender? IMutableFLogAppenderRegistry.GetAppender(string appenderName) => 
+    IMutableFLogAppender? IMutableFLogAppenderRegistry.GetAppender(string appenderName) =>
         embodiedAppenders.TryGetValue(appenderName, out var appender) ? appender as IMutableFLogAppender : null;
-
-    public virtual void AddAppenderCreated(IFLogAppender newlyCreatedAppender)
-    {
-        if (!embodiedAppenders.TryAdd(newlyCreatedAppender.AppenderName, newlyCreatedAppender))
-        {
-            Console.Out.WriteLine($"Warning appender with name {newlyCreatedAppender.AppenderName} already exists!");
-            Console.Out.WriteLine("This appender may not receive forward requests as the the original will be bound to");
-        }
-    }
 
     public IAppenderClient GetAppenderClient(string appenderName, IFLoggerCommon logger)
     {
@@ -153,21 +142,23 @@ public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
         return appender.CreateAppenderClientFor(forwardingAppender);
     }
 
+    public virtual void AddAppenderCreated(IFLogAppender newlyCreatedAppender)
+    {
+        if (!embodiedAppenders.TryAdd(newlyCreatedAppender.AppenderName, newlyCreatedAppender))
+        {
+            Console.Out.WriteLine($"Warning appender with name {newlyCreatedAppender.AppenderName} already exists!");
+            Console.Out.WriteLine("This appender may not receive forward requests as the the original will be bound to");
+        }
+    }
+
     protected virtual IFLogAppender GetAppender(string appenderName)
     {
         // ReSharper disable once InconsistentlySynchronizedField
-        if (embodiedAppenders.TryGetValue(appenderName, out var existingAppender))
-        {
-            return existingAppender;
-        }
+        if (embodiedAppenders.TryGetValue(appenderName, out var existingAppender)) return existingAppender;
         if (definedAppenderConfigs.TryGetValue(appenderName, out var requestedAppenderConfig))
-        {
             lock (SyncLock)
             {
-                if (embodiedAppenders.TryGetValue(appenderName, out var tryAgainExistingAppender))
-                {
-                    return tryAgainExistingAppender;
-                }
+                if (embodiedAppenders.TryGetValue(appenderName, out var tryAgainExistingAppender)) return tryAgainExistingAppender;
                 var newAppender = FLogCreate.MakeAppender(requestedAppenderConfig, flogContext);
                 if (newAppender != null)
                 {
@@ -178,7 +169,6 @@ public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
                 newAppender = new NullAppender(new NullAppenderConfig());
                 return newAppender;
             }
-        }
         Console.Out.WriteLine($"Returning NullAppender for Appender.Name {appenderName} no config definition found");
         var nullAppender = new NullAppender(new NullAppenderConfig());
         return nullAppender;

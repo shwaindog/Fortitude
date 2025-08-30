@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.Config;
+﻿// // Licensed under the MIT license.
+// // Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.Hub;
@@ -24,7 +27,7 @@ public class SyncFileAndColoredConsoleTests
                 .StartFlogSetAsCurrentContext();
 
         var testLogger = FLog.FLoggerForType.As<IVersatileFLogger>();
-        
+
         testLogger.TrcApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.DbgApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.InfApnd("Testing")?.Args(" 1,", " 2,", " 3.");

@@ -1,7 +1,11 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
+
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
@@ -21,12 +25,12 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 
+    public IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
         where TToStyle : TStylerType =>
         PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) 
+    public IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         FormatSb.Clear();
@@ -155,6 +159,4 @@ public partial class FLogFirstFormatterParameterEntry
     [CallsObjectToString]
     public IFLogAdditionalFormatterParameterEntry? WithObjectParams(object? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokensMatch(value)?.ToAdditionalFormatBuilder(value);
-
-
 }

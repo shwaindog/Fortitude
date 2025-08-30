@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Config;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.StyledToString;
@@ -38,15 +41,11 @@ internal class SizedMemoryAppenderConfig : AppenderDefinitionConfig, ISizedMemor
     public SizedMemoryAppenderConfig(IConfigurationRoot root, string path, string appenderName
       , long memorySize = 16, int runOnAsyncQueueNumber = 0
       , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
-        : base(root, path, appenderName, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
-    {
+        : base(root, path, appenderName, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) =>
         MemorySize = memorySize;
-    }
 
-    public SizedMemoryAppenderConfig(ISizedMemoryAppenderConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
-    {
+    public SizedMemoryAppenderConfig(ISizedMemoryAppenderConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path) =>
         MemorySize = toClone.MemorySize;
-    }
 
     public SizedMemoryAppenderConfig(ISizedMemoryAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
@@ -61,19 +60,19 @@ internal class SizedMemoryAppenderConfig : AppenderDefinitionConfig, ISizedMemor
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    ISizedMemoryAppenderConfig ISizedMemoryAppenderConfig.Clone() => Clone();
-
     ISizedMemoryAppenderConfig ISizedMemoryAppenderConfig.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);
-
-    public override SizedMemoryAppenderConfig Clone() => new(this);
-
-    ISizedMemoryAppenderConfig ICloneable<ISizedMemoryAppenderConfig>.Clone() => Clone();
 
     ISizedMemoryAppenderConfig IConfigCloneTo<ISizedMemoryAppenderConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);
 
     public override SizedMemoryAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
+    ISizedMemoryAppenderConfig ISizedMemoryAppenderConfig.Clone() => Clone();
+
+    ISizedMemoryAppenderConfig ICloneable<ISizedMemoryAppenderConfig>.Clone() => Clone();
+
+    public override SizedMemoryAppenderConfig Clone() => new(this);
 
 
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)

@@ -6,7 +6,6 @@ using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -73,6 +72,8 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
 
     public FLoggerTreeCommonConfig(IFLoggerTreeCommonConfig toClone) : this(toClone, InMemoryConfigRoot, toClone.ConfigSubPath) { }
 
+    protected FLogLevel? WasDefinedLogLevel => Enum.TryParse<FLogLevel>(this[nameof(LogLevel)], out var logLevel) ? logLevel : null;
+
     INamedChildLoggersLookupConfig IFLoggerTreeCommonConfig.DescendantLoggers => DescendantLoggers;
 
     public IMutableNamedChildLoggersLookupConfig DescendantLoggers
@@ -80,15 +81,11 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         get
         {
             if (loggersConfig == null)
-            {
                 if (GetSection(nameof(DescendantLoggers)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-                {
                     return loggersConfig = new NamedChildLoggersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(DescendantLoggers)}")
                     {
                         ParentConfig = this
                     };
-                }
-            }
             return loggersConfig ??= new NamedChildLoggersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(DescendantLoggers)}");
         }
         set
@@ -109,12 +106,10 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         get
         {
             if (GetSection(nameof(LogEntryPool)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(LogEntryPool)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -133,8 +128,6 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         get => WasDefinedLogLevel ?? FLogLevel.None;
         set => this[nameof(LogLevel)] = value.ToString();
     }
-
-    protected FLogLevel? WasDefinedLogLevel => Enum.TryParse<FLogLevel>(this[nameof(LogLevel)], out var logLevel) ? logLevel : null;
 
     public virtual string Name
     {
@@ -186,17 +179,14 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
-               .Field.AlwaysAdd(nameof(Name), Name)
-               .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
-               .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
-               .Field.WhenNonNullAdd(nameof(Appenders), Appenders)
-               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+           .Field.AlwaysAdd(nameof(Name), Name)
+           .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
+           .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
+           .Field.WhenNonNullAdd(nameof(Appenders), Appenders)
+           .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
+           .Complete();
 
     public override string ToString() => this.DefaultToString();
 }

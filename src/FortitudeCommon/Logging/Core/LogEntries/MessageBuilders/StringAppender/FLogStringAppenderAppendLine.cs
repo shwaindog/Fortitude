@@ -1,8 +1,12 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
+
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
@@ -16,13 +20,14 @@ public partial class FLogStringAppender
     public IFLogStringAppender AppendLine(bool value) => MessageSb.Append(value ? "true" : "false").AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(bool? value) => MessageSb.Append(value != null ? (value.Value ? "true" : "false") : "null" )
-                                                                   .AppendLine(this);
+    public IFLogStringAppender AppendLine(bool? value) =>
+        MessageSb.Append(value != null ? value.Value ? "true" : "false" : "null")
+                 .AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable => 
+    public IFLogStringAppender AppendLine<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable =>
         (formatString != null ? MessageSb.AppendFormattedOrNull(value, formatString) : MessageSb.Append(value)).AppendLine(this);
-    
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine<TFmt>((TFmt, string) valueTuple) where TFmt : ISpanFormattable
     {
@@ -92,7 +97,7 @@ public partial class FLogStringAppender
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(char[]? value, int startIndex, int count = int.MaxValue) => 
+    public IFLogStringAppender AppendLine(char[]? value, int startIndex, int count = int.MaxValue) =>
         MessageSb.Append(value, startIndex, count).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
@@ -147,5 +152,4 @@ public partial class FLogStringAppender
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     [CallsObjectToString]
     public IFLogStringAppender AppendObjectLine(object? value) => MessageSb.Append(value).AppendLine(this);
-
 }

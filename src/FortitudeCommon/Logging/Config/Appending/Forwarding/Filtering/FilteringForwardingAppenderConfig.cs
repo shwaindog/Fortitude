@@ -4,7 +4,6 @@
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -44,16 +43,12 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : base(root, path, appenderName, forwardToAppendersConfig, runOnAsyncQueueNumber, inheritFromAppenderName
-             , isTemplateOnlyDefinition, deactivateHere)
-    {
+             , isTemplateOnlyDefinition, deactivateHere) =>
         When = whenCondition;
-    }
 
     public FilteringForwardingAppenderConfig(IFilteringForwardingAppenderConfig toClone, IConfigurationRoot root, string path) :
-        base(toClone, root, path)
-    {
+        base(toClone, root, path) =>
         When = (IMutableMatchOperatorExpressionConfig)toClone.When;
-    }
 
     public FilteringForwardingAppenderConfig(IFilteringForwardingAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
@@ -65,12 +60,10 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
         get
         {
             if (GetSection(nameof(When)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new MatchOperatorExpressionConfig(ConfigRoot, $"{Path}{Split}{nameof(When)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new MatchOperatorExpressionConfig(ConfigRoot, $"{Path}{Split}{nameof(When)}")
             {
                 ParentConfig = this

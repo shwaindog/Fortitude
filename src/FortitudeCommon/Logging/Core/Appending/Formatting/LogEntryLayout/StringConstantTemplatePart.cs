@@ -18,13 +18,10 @@ public class StringConstantTemplatePart(string toAppend) : ITemplatePart, IStyle
         return toAppend.Length;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
         sbc.StartComplexType(nameof(StringConstantTemplatePart))
            .Field.AlwaysAdd(nameof(toAppend), toAppend)
            .Complete();
-    }
 
     public override string ToString() => this.DefaultToString();
 }

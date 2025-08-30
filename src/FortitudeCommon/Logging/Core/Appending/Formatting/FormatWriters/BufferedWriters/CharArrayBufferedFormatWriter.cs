@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Types.Mutable.Strings;
 
@@ -12,7 +15,6 @@ public interface ICharArrayFlushedBufferedFormatWriter : IBufferedFormatWriter
 public class CharArrayBufferedFormatWriter : FormatWriter<IBufferedFormatWriter>, ICharArrayFlushedBufferedFormatWriter
 {
     private IBufferFlushingFormatWriter bufferFlusher = null!;
-    private RecyclingCharArray? Buffer { get; set; }
 
     public CharArrayBufferedFormatWriter Initialize(IMutableFLogBufferingFormatAppender owningAppender, IBufferFlushingFormatWriter bufferFlusher
       , string targetName, int bufferNum,
@@ -21,7 +23,7 @@ public class CharArrayBufferedFormatWriter : FormatWriter<IBufferedFormatWriter>
         base.Initialize(owningAppender, targetName, onWriteCompleteCallback);
 
         IsIOSynchronous = false;
-        
+
         this.bufferFlusher = bufferFlusher;
         BufferNum          = bufferNum;
         if (BufferCharCapacity < owningAppender.CharBufferSize)
@@ -32,6 +34,8 @@ public class CharArrayBufferedFormatWriter : FormatWriter<IBufferedFormatWriter>
 
         return this;
     }
+
+    private RecyclingCharArray? Buffer { get; set; }
 
     public int BufferNum { get; private set; }
 
@@ -99,7 +103,7 @@ public class CharArrayBufferedFormatWriter : FormatWriter<IBufferedFormatWriter>
     {
         bufferFlusher = null!;
         BufferNum     = 0;
-        
+
         base.StateReset();
     }
 }

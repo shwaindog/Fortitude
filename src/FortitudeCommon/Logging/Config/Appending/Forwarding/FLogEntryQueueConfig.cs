@@ -5,7 +5,6 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -77,7 +76,7 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
     {
         QueueSize    = toClone.QueueSize;
         LogEntryPool = toClone.LogEntryPool as IMutableFLogEntryPoolConfig;
-        
+
         QueueDropInterval  = toClone.QueueDropInterval;
         QueueFullHandling  = toClone.QueueFullHandling;
         QueueReadBatchSize = toClone.QueueReadBatchSize;
@@ -87,17 +86,9 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    object ICloneable.Clone() => Clone();
-
-    IFLogEntryQueueConfig ICloneable<IFLogEntryQueueConfig>.Clone() => Clone();
-
-    public virtual FLogEntryQueueConfig Clone() => new(this);
-
     IFLogEntryQueueConfig IConfigCloneTo<IFLogEntryQueueConfig>.
-        CloneConfigTo(IConfigurationRoot configRoot, string path) => CloneConfigTo(configRoot, path);
-
-    public virtual FLogEntryQueueConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => 
-        new(this, configRoot, path);
+        CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        CloneConfigTo(configRoot, path);
 
     IFLogEntryPoolConfig? IFLogEntryQueueConfig.LogEntryPool => LogEntryPool;
 
@@ -106,12 +97,10 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
         get
         {
             if (GetSection(nameof(LogEntryPool)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(LogEntryPool)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -136,27 +125,38 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
 
     public int QueueDropInterval
     {
-        get => int.TryParse(this[nameof(QueueDropInterval)], out var dropInterval) 
-            ? dropInterval 
-            : IFLogEntryQueueConfig.DefaultQueueDropInterval;
+        get =>
+            int.TryParse(this[nameof(QueueDropInterval)], out var dropInterval)
+                ? dropInterval
+                : IFLogEntryQueueConfig.DefaultQueueDropInterval;
         set => this[nameof(QueueDropInterval)] = value.ToString();
     }
 
     public int QueueReadBatchSize
     {
-        get => int.TryParse(this[nameof(QueueReadBatchSize)], out var readBatchSize) 
-            ? readBatchSize 
-            : IFLogEntryQueueConfig.DefaultQueueReadBatchSize;
+        get =>
+            int.TryParse(this[nameof(QueueReadBatchSize)], out var readBatchSize)
+                ? readBatchSize
+                : IFLogEntryQueueConfig.DefaultQueueReadBatchSize;
         set => this[nameof(QueueReadBatchSize)] = value.ToString();
     }
 
     public int QueueSize
     {
-        get => int.TryParse(this[nameof(QueueSize)], out var queueSize) 
-            ? queueSize 
-            : IFLogEntryQueueConfig.DefaultQueueSize;
+        get =>
+            int.TryParse(this[nameof(QueueSize)], out var queueSize)
+                ? queueSize
+                : IFLogEntryQueueConfig.DefaultQueueSize;
         set => this[nameof(QueueSize)] = value.ToString();
     }
+
+    public virtual FLogEntryQueueConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
+    object ICloneable.Clone() => Clone();
+
+    IFLogEntryQueueConfig ICloneable<IFLogEntryQueueConfig>.Clone() => Clone();
+
+    public virtual FLogEntryQueueConfig Clone() => new(this);
 
     public virtual bool AreEquivalent(IFLogEntryQueueConfig? other, bool exactTypes = false)
     {
@@ -165,7 +165,7 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
         var queueSizeSame         = QueueSize == other.QueueSize;
         var queueFullHandlingSame = QueueFullHandling == other.QueueFullHandling;
         var readBatchSizeSame     = QueueReadBatchSize == other.QueueReadBatchSize;
-        var dropIntervalSame     = QueueDropInterval == other.QueueDropInterval;
+        var dropIntervalSame      = QueueDropInterval == other.QueueDropInterval;
         var logEntryPoolSame = LogEntryPool?.AreEquivalent(other.LogEntryPool, exactTypes)
                             ?? other.LogEntryPool == null;
 
@@ -186,15 +186,12 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(FLogEntryQueueConfig))
-               .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
-               .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
-               .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
-               .Field.AlwaysAdd(nameof(QueueDropInterval), QueueDropInterval)
-               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FLogEntryQueueConfig))
+           .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
+           .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
+           .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
+           .Field.AlwaysAdd(nameof(QueueDropInterval), QueueDropInterval)
+           .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
+           .Complete();
 }

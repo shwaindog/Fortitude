@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Hub;
@@ -7,13 +10,15 @@ using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormattedMemory;
 
-public class FormattedStringListAppender(IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context) 
+public class FormattedStringListAppender(IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context)
     : FLogFormattingAppender(formattingAppenderConfig, context)
 {
-    public FormattedStringListAppender(string appenderName, string formattingTemplate) 
+    public FormattedStringListAppender(string appenderName, string formattingTemplate)
         : this(new FormattingAppenderConfig(appenderName, logEntryFormatLayout: formattingTemplate), FLogContext.Context) { }
 
-    public List<string> LogEntries { get; } = new ();
+    public List<string> LogEntries { get; } = new();
+
+    public override FormattingAppenderSinkType FormatAppenderType => FormattingAppenderSinkType.Memory;
 
     public event Action<string, FormattedStringListAppender>? NewEntry;
 
@@ -22,30 +27,26 @@ public class FormattedStringListAppender(IFormattingAppenderConfig formattingApp
         NewEntry?.Invoke(newEntry, this);
     }
 
-    public override FormattingAppenderSinkType FormatAppenderType  => FormattingAppenderSinkType.Memory;
-
-    public override IFormattingAppenderConfig  GetAppenderConfig() => (IFormattingAppenderConfig)AppenderConfig;
+    public override IFormattingAppenderConfig GetAppenderConfig() => (IFormattingAppenderConfig)AppenderConfig;
 
     protected override IFormatWriter CreatedAppenderDirectFormatWriter
-        (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
-    {
-        return new FormattedStringList().Initialize(this, onWriteCompleteCallback);
-    }
+        (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback) =>
+        new FormattedStringList().Initialize(this, onWriteCompleteCallback);
 
     private class FormattedStringList : FormatWriter<IFormatWriter>
     {
         private readonly MutableString entryBuilder = new();
+
+        private FormattedStringListAppender AsStringListAppender => (FormattedStringListAppender)OwningAppender;
 
         public FormattedStringList Initialize(FormattedStringListAppender owningAppender
           , FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
         {
             base.Initialize(owningAppender, $"{nameof(FormattedStringList)}", onWriteCompleteCallback);
             IsIOSynchronous = false;
-            
+
             return this;
         }
-
-        private FormattedStringListAppender AsStringListAppender => (FormattedStringListAppender)OwningAppender;
 
         public override bool NotifyStartEntryAppend(IFLogEntry forEntry)
         {
@@ -85,7 +86,5 @@ public class FormattedStringListAppender(IFormattingAppenderConfig formattingApp
         {
             entryBuilder.Append(toWrite, fromIndex, length);
         }
-        
-        
     }
 }

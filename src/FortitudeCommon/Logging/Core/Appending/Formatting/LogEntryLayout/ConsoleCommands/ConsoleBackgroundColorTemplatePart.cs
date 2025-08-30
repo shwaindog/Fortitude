@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConsoleCommands;
@@ -11,13 +14,9 @@ public class ConsoleBackgroundColorTemplatePart : ConsoleAppenderColorChangeTemp
         : base(FormattingAppenderSinkType.Console, command)
     {
         if (Enum.TryParse<ConsoleColor>(command, out var conColor))
-        {
             setToColour = conColor;
-        }
         else
-        {
             Console.WriteLine($"Failed to parse ${command} as a valid System.ConsoleColor");
-        }
     }
 
     public override int Apply(IFormatWriter formatWriter, IFLogEntry logEntry)

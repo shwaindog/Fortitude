@@ -4,7 +4,6 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -21,9 +20,9 @@ public interface IMatchSequenceOccurenceConfig : IMatchConditionConfig, IConfigC
 
     ISequenceHandleActionConfig OnSequenceTimeout { get; }
 
-    new IMatchSequenceOccurenceConfig Clone();
-
     new IMatchSequenceOccurenceConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
+
+    new IMatchSequenceOccurenceConfig Clone();
 }
 
 public interface IMutableMatchSequenceOccurenceConfig : IMatchSequenceOccurenceConfig, IMutableMatchConditionConfig
@@ -62,7 +61,7 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
 
         OnSequenceAbort = onSequenceAbort ??
                           new SequenceHandleActionConfig(ConfigRoot, $"{Path}{Split}{nameof(OnSequenceAbort)}");
-        
+
         OnSequenceTimeout = onSequenceTimeout ??
                             new SequenceHandleActionConfig(ConfigRoot, $"{Path}{Split}{nameof(OnSequenceTimeout)}");
 
@@ -96,12 +95,10 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
         get
         {
             if (GetSection(nameof(OnSequenceAbort)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new SequenceHandleActionConfig(ConfigRoot, $"{Path}{Split}{nameof(OnSequenceAbort)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new SequenceHandleActionConfig(ConfigRoot, $"{Path}{Split}{nameof(OnSequenceAbort)}",
                                                   sendTriggeringLogEntries: TriggeringLogEntries.None)
             {
@@ -123,12 +120,10 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
         get
         {
             if (GetSection(nameof(OnSequenceTimeout)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new SequenceHandleActionConfig(ConfigRoot, $"{Path}{Split}{nameof(OnSequenceTimeout)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new SequenceHandleActionConfig(ConfigRoot, $"{Path}{Split}{nameof(OnSequenceTimeout)}",
                                                   sendTriggeringLogEntries: TriggeringLogEntries.None)
             {
@@ -139,7 +134,7 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
         {
             _ = new SequenceHandleActionConfig(value, ConfigRoot, $"{Path}{Split}{nameof(OnSequenceTimeout)}");
 
-            
+
             value.ParentConfig = this;
         }
     }
@@ -154,19 +149,9 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    object ICloneable.Clone() => Clone();
-
-    IMatchConditionConfig ICloneable<IMatchConditionConfig>.Clone() => Clone();
-
     IMatchConditionConfig IConfigCloneTo<IMatchConditionConfig>.CloneConfigTo
         (IConfigurationRoot configRoot, string path) =>
         new MatchSequenceOccurenceConfig(this, configRoot, path);
-
-    IMatchSequenceOccurenceConfig ICloneable<IMatchSequenceOccurenceConfig>.Clone() => Clone();
-
-    IMatchSequenceOccurenceConfig IMatchSequenceOccurenceConfig.Clone() => Clone();
-
-    public override MatchSequenceOccurenceConfig Clone() => new(this);
 
     IMatchSequenceOccurenceConfig IConfigCloneTo<IMatchSequenceOccurenceConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);
@@ -175,6 +160,16 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
         CloneConfigTo(configRoot, path);
 
     public override MatchSequenceOccurenceConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
+    object ICloneable.Clone() => Clone();
+
+    IMatchConditionConfig ICloneable<IMatchConditionConfig>.Clone() => Clone();
+
+    IMatchSequenceOccurenceConfig ICloneable<IMatchSequenceOccurenceConfig>.Clone() => Clone();
+
+    IMatchSequenceOccurenceConfig IMatchSequenceOccurenceConfig.Clone() => Clone();
+
+    public override MatchSequenceOccurenceConfig Clone() => new(this);
 
     public override bool AreEquivalent(IMatchConditionConfig? other, bool exactTypes = false)
     {
@@ -204,14 +199,11 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(MatchSequenceOccurenceConfig))
-               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
-               .Field.AlwaysAdd(nameof(OnSequenceAbort), OnSequenceAbort)
-               .Field.AlwaysAdd(nameof(OnSequenceTimeout), OnSequenceTimeout)
-               .Field.AlwaysAdd(nameof(StartSequence), StartSequence)
-               .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(MatchSequenceOccurenceConfig))
+           .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
+           .Field.AlwaysAdd(nameof(OnSequenceAbort), OnSequenceAbort)
+           .Field.AlwaysAdd(nameof(OnSequenceTimeout), OnSequenceTimeout)
+           .Field.AlwaysAdd(nameof(StartSequence), StartSequence)
+           .Complete();
 }

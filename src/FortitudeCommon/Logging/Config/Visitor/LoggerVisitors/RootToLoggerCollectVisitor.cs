@@ -1,11 +1,14 @@
-﻿using System.Collections;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Collections;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 
 namespace FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 
-public class RootToLoggerCollectVisitor<T, TCollect>(List<TCollect> found, Predicate<TCollect>? meetsCondition = null) 
-    : FLogConfigVisitor<T>, IEnumerable<TCollect> 
+public class RootToLoggerCollectVisitor<T, TCollect>(List<TCollect> found, Predicate<TCollect>? meetsCondition = null)
+    : FLogConfigVisitor<T>, IEnumerable<TCollect>
     where T : RootToLoggerCollectVisitor<T, TCollect>
     where TCollect : IMutableFLoggerTreeCommonConfig
 {
@@ -13,13 +16,19 @@ public class RootToLoggerCollectVisitor<T, TCollect>(List<TCollect> found, Predi
 
     private Predicate<TCollect> meets = meetsCondition ?? Always;
 
+    public RootToLoggerCollectVisitor(Predicate<TCollect> meetsCondition) : this(new List<TCollect>(), meetsCondition) { }
+
+    public RootToLoggerCollectVisitor() : this(new List<TCollect>(), Always) { }
+
     public List<TCollect> Loggers => found;
 
     public string FullName => Loggers.Select(dctn => dctn.Name).JoinToString(".");
 
-    public RootToLoggerCollectVisitor(Predicate<TCollect> meetsCondition) : this(new List<TCollect>(), meetsCondition) { }
+    public IMutableFLoggerRootConfig? FoundRootLoggerConfig { get; private set; }
 
-    public RootToLoggerCollectVisitor() : this(new List<TCollect>(), Always) { }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<TCollect> GetEnumerator() => found.GetEnumerator();
 
     public RootToLoggerCollectVisitor<T, TCollect> Initialize(Predicate<TCollect>? meetsCondition = null)
     {
@@ -28,8 +37,6 @@ public class RootToLoggerCollectVisitor<T, TCollect>(List<TCollect> found, Predi
 
         return this;
     }
-
-    public IMutableFLoggerRootConfig? FoundRootLoggerConfig { get; private set; }
 
     public override T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
     {
@@ -45,23 +52,18 @@ public class RootToLoggerCollectVisitor<T, TCollect>(List<TCollect> found, Predi
     public override T Accept(IMutableFLoggerRootConfig loggerRootConfig)
     {
         FoundRootLoggerConfig = loggerRootConfig;
-        if(loggerRootConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        if (loggerRootConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
     public override T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig)
     {
         loggerDescendantConfig.ParentConfig?.Visit(Me);
-        if(loggerDescendantConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        if (loggerDescendantConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig) =>
-        childLoggersConfig.ParentConfig?.Visit(Me) ?? Me;
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<TCollect> GetEnumerator() => found.GetEnumerator();
+    public override T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig) => childLoggersConfig.ParentConfig?.Visit(Me) ?? Me;
 
     public override void StateReset()
     {

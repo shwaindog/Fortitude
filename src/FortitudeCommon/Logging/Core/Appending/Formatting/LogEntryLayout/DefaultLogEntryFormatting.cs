@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
@@ -8,8 +11,8 @@ public class DefaultLogEntryFormatting : ITokenFormattingValidator
     public const string DefaultTimeFormatting = "HH:mm:ss";
 
     public const string DefaultTimeMicrosFormatting = "000";
-    
-    public static DefaultLogEntryFormatting Instance { get; } = new ();
+
+    public static DefaultLogEntryFormatting Instance { get; } = new();
 
     public ReadOnlySpan<char> ValidateFormattingToken(string tokenName, ReadOnlySpan<char> tokenValue)
     {
@@ -21,26 +24,17 @@ public class DefaultLogEntryFormatting : ITokenFormattingValidator
             case $"{nameof(FLogEntryLayoutTokens.DATETIME)}":
             case $"{nameof(FLogEntryLayoutTokens.DATEONLY)}":
             case $"{nameof(FLogEntryLayoutTokens.DO)}":
-                if (tokenValue.Length == 0)
-                {
-                    return DefaultDateFormatting.AsSpan();
-                }
+                if (tokenValue.Length == 0) return DefaultDateFormatting.AsSpan();
                 break;
             case $"{nameof(FLogEntryLayoutTokens.TO)}":
             case $"{nameof(FLogEntryLayoutTokens.TIMEONLY)}":
-                if (tokenValue.Length == 0)
-                {
-                    return DefaultTimeFormatting.AsSpan();
-                }
+                if (tokenValue.Length == 0) return DefaultTimeFormatting.AsSpan();
                 break;
             case $"{nameof(FLogEntryLayoutTokens.DATETIME_MICROSECONDS)}":
             case $"{nameof(FLogEntryLayoutTokens.DATE_MICROS)}":
             case $"{nameof(FLogEntryLayoutTokens.TIME_MICROS)}":
             case $"{nameof(FLogEntryLayoutTokens.TS_US)}":
-                if (tokenValue.Length == 0)
-                {
-                    return DefaultTimeMicrosFormatting.AsSpan();
-                }
+                if (tokenValue.Length == 0) return DefaultTimeMicrosFormatting.AsSpan();
                 break;
         }
         return tokenValue;

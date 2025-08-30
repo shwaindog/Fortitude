@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.Config.Appending;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Core.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
@@ -21,16 +24,14 @@ public interface IMutableAppenderClient : IAppenderClient
 public class AppenderClient : FLogEntryPipelineEndpoint, IMutableAppenderClient
 {
     // ReSharper disable once ConvertToPrimaryConstructor
-    public AppenderClient(IFLogAppender originalAppender, string name) : base(name, originalAppender.ReceiveEndpoint)
-    {
+    public AppenderClient(IFLogAppender originalAppender, string name) : base(name, originalAppender.ReceiveEndpoint) =>
         BackingAppender = originalAppender;
-    }
+
+    public IFLogEntryPipelineEndpoint ReceiveEndpoint => BackingAppender.ReceiveEndpoint;
 
     public IFLogAppender BackingAppender { get; set; }
 
     public int ReceiveOnAsyncQueueNumber => BackingAppender.ReceiveOnAsyncQueueNumber;
-
-    public IFLogEntryPipelineEndpoint ReceiveEndpoint => BackingAppender.ReceiveEndpoint;
 
     public IAppenderDefinitionConfig GetAppenderConfig() => BackingAppender.GetAppenderConfig();
 
@@ -49,16 +50,16 @@ public class NullAppenderClient() : FLogEntryPipelineEndpoint("NullAppenderClien
 {
     public static readonly NullAppenderClient NullClientInstance = new();
 
-    public IFLogAppender BackingAppender { get; set; } = NullAppender.NullInstance;
-
     public string AppenderName => INullAppenderConfig.NullAppenderName;
     public string AppenderType => INullAppenderConfig.NullAppenderType;
+
+    public IFLogEntryPipelineEndpoint ReceiveEndpoint => BackingAppender.ReceiveEndpoint;
+
+    public IFLogAppender BackingAppender { get; set; } = NullAppender.NullInstance;
 
     public int ReceiveOnAsyncQueueNumber => 0;
 
     public IAppenderDefinitionConfig GetAppenderConfig() => BackingAppender.GetAppenderConfig();
-
-    public IFLogEntryPipelineEndpoint ReceiveEndpoint => BackingAppender.ReceiveEndpoint;
 
     public void RunJobOnAppenderQueue(Action job) { }
 

@@ -1,4 +1,7 @@
-﻿using static FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout.FLogEntryLayoutTokens;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using static FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout.FLogEntryLayoutTokens;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
 
@@ -16,7 +19,7 @@ public enum FLogEntryLayoutTokens
   , DO
   , TIMEONLY
   , TO
-  // Log entry timestamp names
+    // Log entry timestamp names
   , DATETIME_MICROSECONDS
   , DATE_MICROS
   , TIME_MICROS
@@ -230,27 +233,27 @@ public static class FLogEntryLayoutTokensExtensions
              or $"{nameof(CALLERAT)}" => true
           , _ => false
         };
-    
+
     public static bool IsLogEntryMessageTokenName(this string checkName) =>
-      checkName switch
-      {
-        $"{nameof(MESSAGE)}"
-       or $"{nameof(MESG)}"
-       or $"{nameof(MSG)}" => true
-      , _ => false
-      };
-    
+        checkName switch
+        {
+            $"{nameof(MESSAGE)}"
+             or $"{nameof(MESG)}"
+             or $"{nameof(MSG)}" => true
+          , _ => false
+        };
+
     public static bool IsLogEntryExceptionTokenName(this string checkName) =>
-      checkName switch
-      {
-        $"{nameof(EXCEPTION)}"
-       or $"{nameof(EXCEP)}"
-       or $"{nameof(EX)}" => true
-      , _ => false
-      };
-    
+        checkName switch
+        {
+            $"{nameof(EXCEPTION)}"
+             or $"{nameof(EXCEP)}"
+             or $"{nameof(EX)}" => true
+          , _ => false
+        };
+
     public static bool IsLargeBufferCheckRequiredTokenName(this string checkName) =>
-      checkName.IsLogEntryMessageTokenName() || checkName.IsLogEntryExceptionTokenName();
+        checkName.IsLogEntryMessageTokenName() || checkName.IsLogEntryExceptionTokenName();
 
     public static bool IsEnvironmentTokenName(this string checkName) =>
         checkName switch

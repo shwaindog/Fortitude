@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
@@ -8,7 +11,7 @@ using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 
-public class NullConsoleAppender(IConsoleAppenderConfig consoleAppenderConfig, IFLogContext context) 
+public class NullConsoleAppender(IConsoleAppenderConfig consoleAppenderConfig, IFLogContext context)
     : FLogConsoleAppender(consoleAppenderConfig, context)
 {
     protected override IFormatWriter CreatedAppenderDirectFormatWriter
@@ -19,9 +22,9 @@ public class NullConsoleAppender(IConsoleAppenderConfig consoleAppenderConfig, I
     {
         private readonly object syncLock = new();
 
-        private CharArrayStringBuilder dummyWriteBuffer = new(32 * 1024);
-
         private NullConsoleAppender consoleAppender = null!;
+
+        private CharArrayStringBuilder dummyWriteBuffer = new(32 * 1024);
 
         public NullConsoleFormatWriter Initialize(NullConsoleAppender owningAppender
           , FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)

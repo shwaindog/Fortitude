@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.AsyncProcessing;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Initialization;
@@ -25,7 +28,7 @@ public static class FLogCreate
         MakeAppenderConfig = DefaultCreateAppenderConfig;
         MakeAppender       = DefaultCreatedAppenderFromConfig;
 
-        MakeLogger     = DefaultCreateLogger;
+        MakeLogger = DefaultCreateLogger;
 
         MakeDescendantLoggerConfig       = DefaultCreateDescendantLoggerConfig;
         MakeClonedDescendantLoggerConfig = DefaultClonedDescendantLoggerConfig;
@@ -45,8 +48,8 @@ public static class FLogCreate
 
     public static Func<IFLogContext, Dictionary<string, IMutableAppenderDefinitionConfig>, IFLogAppenderRegistry> MakeAppenderRegistry { get; set; }
 
-    public static 
-        Func< IMutableFLoggerRootConfig , IFLogAppenderRegistry , IFLogEntryPoolRegistry , IMutableFLogLoggerRegistry> 
+    public static
+        Func<IMutableFLoggerRootConfig, IFLogAppenderRegistry, IFLogEntryPoolRegistry, IMutableFLogLoggerRegistry>
         MakeLoggerRegistry { get; set; }
 
     public static Func<IMutableAsyncQueuesInitConfig, IMutableFLoggerAsyncRegistry> MakeAsyncRegistry { get; set; }
@@ -69,9 +72,7 @@ public static class FLogCreate
 
     public static Func<int, IFLogAsyncQueue, IFLogAsyncQueue> MakeProxyAsyncQueue { get; set; }
 
-    public static Func<IAsyncQueueConfig, IFLogAsyncQueue?> MakeAsyncQueue  { get; set; }
+    public static Func<IAsyncQueueConfig, IFLogAsyncQueue?> MakeAsyncQueue { get; set; }
 
     public static Func<IFLogger, Type, ISwitchFLoggerView> MakeFLoggerView { get; set; }
-
-
 }

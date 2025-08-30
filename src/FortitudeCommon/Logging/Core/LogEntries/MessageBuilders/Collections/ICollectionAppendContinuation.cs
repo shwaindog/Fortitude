@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Types.StyledToString;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
@@ -11,7 +14,7 @@ public interface ICollectionAppendContinuation<out TToReturn>
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
     TToReturn Add<TStyleObj>(IReadOnlyList<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject;
-    
+
     [MustUseReturnValue("Use Final*, AndFinal* or WithOnly* to finish and send LogEntry")]
     TToReturn AddFormat<TFmt>(TFmt[]? value, string? formatString = null) where TFmt : ISpanFormattable;
 
@@ -40,7 +43,7 @@ public interface ICollectionAppendContinuation<out TToReturn>
     TToReturn Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) where TStyleObj : class, IStyledToStringObject;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TStyleObj>(IReadOnlyList<TStyleObj>? value, OrderedCollectionPredicate<TStyleObj> filter) 
+    TToReturn Add<TStyleObj>(IReadOnlyList<TStyleObj>? value, OrderedCollectionPredicate<TStyleObj> filter)
         where TStyleObj : class, IStyledToStringObject;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
@@ -81,7 +84,7 @@ public interface ICollectionAppendContinuation<out TToReturn>
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
     TToReturn Add<TToStyle, TToStyleBase, TStylerType>(
-        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple) 
+        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple)
         where TToStyle : TToStyleBase, TStylerType;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
@@ -114,7 +117,7 @@ public interface ICollectionAppendContinuation<out TToReturn>
       , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
-    TToReturn AddEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>? , CustomTypeStyler<TStylerType>) valueTuple)
+    TToReturn AddEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
@@ -177,16 +180,16 @@ public interface ICollectionAppendContinuation<out TToReturn>
 
     [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
     TToReturn AddMatch<T, TBase1, TBase2>(T[]? value
-      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler) 
+      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class;
 
     [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
-    TToReturn AddMatch<T, TBase1, TBase2>((T[]?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple) 
+    TToReturn AddMatch<T, TBase1, TBase2>((T[]?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class;
 
     [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
     TToReturn AddMatch<T, TBase1, TBase2>(IReadOnlyList<T>? value
-      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler) 
+      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class;
 
     [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
@@ -205,5 +208,4 @@ public interface ICollectionAppendContinuation<out TToReturn>
 
     [MustUseReturnValue("Use FinalAppendObjectCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddMatchEnumerate<T, TBase>((IEnumerator<T>?, CustomTypeStyler<TBase>) valueTuple) where T : class, TBase where TBase : class;
-    
 }

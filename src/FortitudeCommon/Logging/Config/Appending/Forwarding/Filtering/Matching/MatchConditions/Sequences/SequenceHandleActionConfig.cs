@@ -1,8 +1,10 @@
-﻿using FortitudeCommon.Config;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -35,8 +37,8 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
     public SequenceHandleActionConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public SequenceHandleActionConfig
-        (IMutableLogMessageTemplateConfig? sendMessage = null, IAppenderReferenceConfig? sendToAppender = null
-          , TriggeringLogEntries sendTriggeringLogEntries = TriggeringLogEntries.All)
+    (IMutableLogMessageTemplateConfig? sendMessage = null, IAppenderReferenceConfig? sendToAppender = null
+      , TriggeringLogEntries sendTriggeringLogEntries = TriggeringLogEntries.All)
         : this(InMemoryConfigRoot, InMemoryPath, sendMessage, sendToAppender, sendTriggeringLogEntries) { }
 
     public SequenceHandleActionConfig
@@ -65,12 +67,10 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
         get
         {
             if (GetSection(nameof(SendMessage)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new LogMessageTemplateConfig(ConfigRoot, $"{Path}{Split}{nameof(SendMessage)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -89,9 +89,7 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
         get
         {
             if (GetSection(nameof(SendToAppender)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new AppenderReferenceConfig(ConfigRoot, $"{Path}{Split}{nameof(SendToAppender)}");
-            }
             return null;
         }
         set =>
@@ -111,16 +109,16 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    ISequenceHandleActionConfig IConfigCloneTo<ISequenceHandleActionConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        CloneConfigTo(configRoot, path);
+
+    public SequenceHandleActionConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
     object ICloneable.Clone() => Clone();
 
     ISequenceHandleActionConfig ICloneable<ISequenceHandleActionConfig>.Clone() => Clone();
 
     public virtual SequenceHandleActionConfig Clone() => new(this);
-
-    ISequenceHandleActionConfig IConfigCloneTo<ISequenceHandleActionConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        CloneConfigTo(configRoot, path);
-
-    public SequenceHandleActionConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
     public virtual bool AreEquivalent(ISequenceHandleActionConfig? other, bool exactTypes = false)
     {
@@ -139,19 +137,16 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
 
     public override int GetHashCode()
     {
-        var hashCode = (SendMessage?.GetHashCode() ?? 0);
+        var hashCode = SendMessage?.GetHashCode() ?? 0;
         hashCode = (hashCode * 397) ^ (SendToAppender?.GetHashCode() ?? 0);
         hashCode = (hashCode * 397) ^ (int)SendTriggeringLogEntries;
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
-               .Field.WhenNonNullAdd(nameof(SendMessage), SendMessage)
-               .Field.WhenNonNullAdd(nameof(SendToAppender), SendToAppender)
-               .Field.AlwaysAdd(nameof(SendTriggeringLogEntries), SendTriggeringLogEntries)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
+           .Field.WhenNonNullAdd(nameof(SendMessage), SendMessage)
+           .Field.WhenNonNullAdd(nameof(SendToAppender), SendToAppender)
+           .Field.AlwaysAdd(nameof(SendTriggeringLogEntries), SendTriggeringLogEntries)
+           .Complete();
 }

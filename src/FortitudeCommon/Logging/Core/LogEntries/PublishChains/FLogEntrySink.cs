@@ -17,11 +17,7 @@ public interface IForkingFLogEntrySink : IFLogEntrySink
 
 public abstract class FLogEntrySinkBase : FLogEntryEventReceiverBase, IFLogEntrySink
 {
-    public virtual FLogEntrySinkBase Initialize()
-    {
-        return this;
-    }
-
+    public virtual FLogEntrySinkBase Initialize() => this;
     public virtual IFLogEntrySource? InBound { get; set; }
 
     public IFLogEntryRootPublisher? RootInBoundEndpoint =>
@@ -46,10 +42,7 @@ public abstract class FLogEntrySinkBase : FLogEntryEventReceiverBase, IFLogEntry
 
 public abstract class ForkingFLogEntrySinkBase : FLogEntrySinkBase, IForkingFLogEntrySink
 {
-    protected ForkingFLogEntrySinkBase()
-    {
-        ForkingInBoundListener = IncrementRefsOnReceiveLogEntry;
-    }
+    protected ForkingFLogEntrySinkBase() => ForkingInBoundListener = IncrementRefsOnReceiveLogEntry;
 
     public override ForkingFLogEntrySinkBase Initialize()
     {
@@ -63,35 +56,32 @@ public abstract class ForkingFLogEntrySinkBase : FLogEntrySinkBase, IForkingFLog
         get => base.InBound;
         set
         {
-            if (base.InBound != null)
-            {
-                base.InBound.RemoveOptionalChild(this);
-            }
+            if (base.InBound != null) base.InBound.RemoveOptionalChild(this);
             base.InBound = value;
         }
     }
+
+    public FLogEntryPublishHandler ForkingInBoundListener { get; set; }
 
     public void IncrementRefsOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         logEntryEvent.IncrementRefCount();
         OnReceiveLogEntry(logEntryEvent, fromPublisher);
     }
-
-    public FLogEntryPublishHandler ForkingInBoundListener { get; set; }
 }
 
 public class FLogEntrySinkContainer : FLogEntrySinkBase, IFLogEntrySink
 {
-    private IFLogEntryEventReceiver processingReceiver = null!;
-
     public FLogEntrySinkContainer Initialize(IFLogEntryEventReceiver logEntryReceiver)
     {
-        processingReceiver = logEntryReceiver;
+        ProcessingReceiver = logEntryReceiver;
 
         return this;
     }
 
-    public override FLogEntrySourceSinkType    LogEntryLinkType     => ProcessingReceiver.LogEntryLinkType;
+    public IFLogEntryEventReceiver ProcessingReceiver { get; protected set; } = null!;
+
+    public override FLogEntrySourceSinkType LogEntryLinkType => ProcessingReceiver.LogEntryLinkType;
 
     public override FLogEntryProcessChainState LogEntryProcessState
     {
@@ -107,12 +97,6 @@ public class FLogEntrySinkContainer : FLogEntrySinkBase, IFLogEntrySink
 
     public override T LogEntryChainVisit<T>(T visitor) => visitor.Accept(this);
 
-    public IFLogEntryEventReceiver ProcessingReceiver
-    {
-        get => processingReceiver;
-        protected set => processingReceiver = value;
-    }
-
     public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         ProcessingReceiver.OnReceiveLogEntry(logEntryEvent, fromPublisher);
@@ -120,13 +104,13 @@ public class FLogEntrySinkContainer : FLogEntrySinkBase, IFLogEntrySink
 
     public override void Dispose()
     {
-        processingReceiver = null!;
+        ProcessingReceiver = null!;
         DecrementRefCount();
     }
 
     public override void StateReset()
     {
-        processingReceiver = null!;
+        ProcessingReceiver = null!;
         base.StateReset();
     }
 }

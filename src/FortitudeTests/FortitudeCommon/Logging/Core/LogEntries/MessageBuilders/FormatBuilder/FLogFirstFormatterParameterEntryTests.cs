@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Extensions;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Logging.Core;
@@ -194,7 +197,8 @@ public class FLogFirstFormatterParameterEntryTests
 
         logger.DebugFormat("Adding LargeStringBuilder Range : \"{0}\"")?
             .WithOnlyParam(LargeStringBuilder, LargeStringSubRange.Start.Value, LargeStringSubRange.Length());
-        Assert.AreEqual($"Adding LargeStringBuilder Range : \"{LargeStringSubRangeAsString}\"", spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
+        Assert.AreEqual($"Adding LargeStringBuilder Range : \"{LargeStringSubRangeAsString}\""
+                      , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.TraceFormat("Adding Full LargeStringBuilder : \"{0}\"")?.WithOnlyParam(LargeStringBuilder);
         Assert.AreEqual($"Adding Full LargeStringBuilder : \"{LargeString}\"", spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
@@ -208,12 +212,12 @@ public class FLogFirstFormatterParameterEntryTests
 
         logger.InfoFormat("Adding SmallMutableString Range : \"{0}\"")
               ?.WithOnlyParam(SmallMutableString, ShortStringSubRange.Start.Value, ShortStringSubRange.Length());
-        Assert.AreEqual($"Adding SmallMutableString Range : \"{ShortStringSubRangeAsString}\"", 
+        Assert.AreEqual($"Adding SmallMutableString Range : \"{ShortStringSubRangeAsString}\"",
                         spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Adding LargeMutableString Range : \"{0}\"")
               ?.WithOnlyParam(LargeMutableString, LargeStringSubRange.Start.Value, LargeStringSubRange.Length());
-        Assert.AreEqual($"Adding LargeMutableString Range : \"{LargeStringSubRangeAsString}\"", 
+        Assert.AreEqual($"Adding LargeMutableString Range : \"{LargeStringSubRangeAsString}\"",
                         spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Adding Full LargeMutableString : \"{0}\"")?.WithOnlyParam(LargeMutableString);
@@ -224,12 +228,12 @@ public class FLogFirstFormatterParameterEntryTests
     public void WithDateTimeParamsIsFormattedAsExpected()
     {
         logger.InfoFormat("Formatting 2 DateTimeTicks with yyyy-MM-dd HH:mm:ss.ffffff : " +
-                 "1) {0:yyyy-MM-dd HH:mm:ss.ffffff}, 2) {1:yyyy-MM-dd HH:mm:ss.ffffff}")?
+                          "1) {0:yyyy-MM-dd HH:mm:ss.ffffff}, 2) {1:yyyy-MM-dd HH:mm:ss.ffffff}")?
             .WithParams(ToFormatDateTimeTicks)?.AndFinalParam(ToFormatDateTimeTicks);
-        
+
         Assert.AreEqual($"Formatting 2 DateTimeTicks with yyyy-MM-dd HH:mm:ss.ffffff : " +
-             $"1) {ToFormatDateTimeTicksStandardAsString}, 2) {ToFormatDateTimeTicksStandardAsString}"
-           , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
+                        $"1) {ToFormatDateTimeTicksStandardAsString}, 2) {ToFormatDateTimeTicksStandardAsString}"
+                      , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Formatting 2 DateTime with yyyy-MM-dd : 1) {0:yyyy-MM-dd}, 2) {1:yyyy-MM-dd}")?
             .WithParams(ToFormatDateTime)?.AndFinalParam(ToFormatDateTime);
@@ -275,7 +279,7 @@ public class FLogFirstFormatterParameterEntryTests
         logger.TraceFormat("Formatting 2 Number 6dp : 1) {0:F6}, 2) {1:F6}")?.WithParams(ToFormatNumber)?.AndFinalParam(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 6dp : 1) {Number6DecimalPlaceString}, 2) {Number6DecimalPlaceString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        
+
         logger.InfoFormat("Formatting 2 Number 2dp -14 : 1) {0,-14:F2}, 2) {1,-14:F2}")?.WithParams(ToFormatNumber)?.AndFinalParam(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 2dp -14 : 1) {Number2DecimalPlacesLeftAlignString}, 2) {Number2DecimalPlacesLeftAlignString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
@@ -291,7 +295,7 @@ public class FLogFirstFormatterParameterEntryTests
         logger.TraceFormat("Formatting 2 Number 6dp -14 : 1) {0,-14:F6}, 2) {1,-14:F6}")?.WithParams(ToFormatNumber)?.AndFinalParam(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 6dp -14 : 1) {Number6DecimalPlacesLeftAlignString}, 2) {Number6DecimalPlacesLeftAlignString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        
+
         logger.InfoFormat("Formatting 2 Number 2dp -14 : 1) {0,14:F2}, 2) {1,14:F2}")?.WithParams(ToFormatNumber)?.AndFinalParam(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 2dp -14 : 1) {Number2DecimalPlacesRightAlignString}, 2) {Number2DecimalPlacesRightAlignString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
@@ -329,15 +333,16 @@ public class FLogFirstFormatterParameterEntryTests
     [TestMethod]
     public void WithCustomStylerParamsIsFormattedAsExpected()
     {
-        logger.InfoFormat("Formatting 2 TimeSpan as ComplexType : 1) {0}, 2) {1}")?
-            .WithParams(ToFormatTimeSpan, ToFormatTimeSpan.StylerComplexType())?.AndFinalParam(ToFormatTimeSpan, ToFormatTimeSpan.StylerComplexType());
+        logger.InfoFormat("Formatting 2 TimeSpan as ComplexType : 1) {0}, 2) {1}")
+              ?.WithParams(ToFormatTimeSpan, ToFormatTimeSpan.StylerComplexType())
+              ?.AndFinalParam(ToFormatTimeSpan, ToFormatTimeSpan.StylerComplexType());
         Assert.AreEqual($"Formatting 2 TimeSpan as ComplexType : 1) {TimeSpanStylerComplexAsString}, 2) {TimeSpanStylerComplexAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Formatting 2 TimeSpan as StringFormat : 1) {0,-14}, 2) {1,14}")?
             .WithParams(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter())?
             .AndFinalParam(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter());
-        Assert.AreEqual($"Formatting 2 TimeSpan as StringFormat : 1) {TimeSpanSpanFormatAsString}, 2) {TimeSpanSpanFormatAsString}" 
+        Assert.AreEqual($"Formatting 2 TimeSpan as StringFormat : 1) {TimeSpanSpanFormatAsString}, 2) {TimeSpanSpanFormatAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
     }
 
@@ -390,8 +395,8 @@ public class FLogFirstFormatterParameterEntryTests
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.DebugFormat("Adding 2 LargeString Range : 1) {0}, 2) {1}")
-            ?.WithParams(LargeString, LargeStringSubRange.Start.Value, LargeStringSubRange.Length())
-            ?.AndFinalParam(LargeString, LargeStringSubRange.Start.Value, LargeStringSubRange.Length());
+              ?.WithParams(LargeString, LargeStringSubRange.Start.Value, LargeStringSubRange.Length())
+              ?.AndFinalParam(LargeString, LargeStringSubRange.Start.Value, LargeStringSubRange.Length());
         Assert.AreEqual($"Adding 2 LargeString Range : 1) {LargeStringSubRangeAsString}, 2) {LargeStringSubRangeAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
@@ -408,9 +413,9 @@ public class FLogFirstFormatterParameterEntryTests
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Adding 2 SmallStringBuilder Range : 1) \"{0}\", 2) \"{1}\"")
-            ?.WithParams(SmallStringBuilder, ShortStringSubRange.Start.Value, ShortStringSubRange.Length())
-            ?.AndFinalParam(SmallStringBuilder, ShortStringSubRange.Start.Value, ShortStringSubRange.Length());
-        Assert.AreEqual($"Adding 2 SmallStringBuilder Range : 1) \"{ShortStringSubRangeAsString}\", 2) \"{ShortStringSubRangeAsString}\"", 
+              ?.WithParams(SmallStringBuilder, ShortStringSubRange.Start.Value, ShortStringSubRange.Length())
+              ?.AndFinalParam(SmallStringBuilder, ShortStringSubRange.Start.Value, ShortStringSubRange.Length());
+        Assert.AreEqual($"Adding 2 SmallStringBuilder Range : 1) \"{ShortStringSubRangeAsString}\", 2) \"{ShortStringSubRangeAsString}\"",
                         spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.DebugFormat("Adding 2 LargeStringBuilder Range : 1) \"{0}\", 2) \"{1}\"")
@@ -455,11 +460,11 @@ public class FLogFirstFormatterParameterEntryTests
     public void WithOnlyDateTimeParamThenToAppenderIsFormattedAsExpected()
     {
         logger.InfoFormat("Formatting 2 DateTimeTicks with yyyy-MM-dd HH:mm:ss.ffffff : " +
-                 "1) {0:yyyy-MM-dd HH:mm:ss.ffffff}, 2) ")?
+                          "1) {0:yyyy-MM-dd HH:mm:ss.ffffff}, 2) ")?
             .WithOnlyParamThenToAppender(ToFormatDateTimeTicks).FinalAppend(ToFormatDateTimeTicks);
         Assert.AreEqual($"Formatting 2 DateTimeTicks with yyyy-MM-dd HH:mm:ss.ffffff : " +
-             $"1) {ToFormatDateTimeTicksStandardAsString}, 2) {ToFormatDateTimeTicksUnformattedAsString}"
-           , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
+                        $"1) {ToFormatDateTimeTicksStandardAsString}, 2) {ToFormatDateTimeTicksUnformattedAsString}"
+                      , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Formatting 2 DateTime with yyyy-MM-dd : 1) {0:yyyy-MM-dd}, 2) ")?
             .WithOnlyParamThenToAppender(ToFormatDateTime).FinalAppend(ToFormatDateTime);
@@ -505,36 +510,44 @@ public class FLogFirstFormatterParameterEntryTests
         logger.TraceFormat("Formatting 2 Number 6dp : 1) {0:F6}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 6dp : 1) {Number6DecimalPlaceString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        
-        logger.InfoFormat("Formatting 2 Number 2dp -14 : 1) {0,-14:F2}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
+
+        logger.InfoFormat("Formatting 2 Number 2dp -14 : 1) {0,-14:F2}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber)
+              .FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 2dp -14 : 1) {Number2DecimalPlacesLeftAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        logger.InfoFormat("Formatting 2 Number 3dp -14 : 1) {0,-14:F3}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
+        logger.InfoFormat("Formatting 2 Number 3dp -14 : 1) {0,-14:F3}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber)
+              .FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 3dp -14 : 1) {Number3DecimalPlacesLeftAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        logger.DebugFormat("Formatting 2 Number 4dp -14 : 1) {0,-14:F4}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
+        logger.DebugFormat("Formatting 2 Number 4dp -14 : 1) {0,-14:F4}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber)
+              .FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 4dp -14 : 1) {Number4DecimalPlacesLeftAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        logger.TraceFormat("Formatting 2 Number 5dp -14 : 1) {0,-14:F5}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
+        logger.TraceFormat("Formatting 2 Number 5dp -14 : 1) {0,-14:F5}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber)
+              .FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 5dp -14 : 1) {Number5DecimalPlacesLeftAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        logger.TraceFormat("Formatting 2 Number 6dp -14 : 1) {0,-14:F6}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
+        logger.TraceFormat("Formatting 2 Number 6dp -14 : 1) {0,-14:F6}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber)
+              .FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 6dp -14 : 1) {Number6DecimalPlacesLeftAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        
+
         logger.InfoFormat("Formatting 2 Number 2dp -14 : 1) {0,14:F2}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 2dp -14 : 1) {Number2DecimalPlacesRightAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
         logger.InfoFormat("Formatting 2 Number 3dp -14 : 1) {0,14:F3}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 3dp -14 : 1) {Number3DecimalPlacesRightAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        logger.DebugFormat("Formatting 2 Number 4dp -14 : 1) {0,14:F4}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
+        logger.DebugFormat("Formatting 2 Number 4dp -14 : 1) {0,14:F4}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber)
+              .FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 4dp -14 : 1) {Number4DecimalPlacesRightAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        logger.TraceFormat("Formatting 2 Number 5dp -14 : 1) {0,14:F5}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
+        logger.TraceFormat("Formatting 2 Number 5dp -14 : 1) {0,14:F5}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber)
+              .FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 5dp -14 : 1) {Number5DecimalPlacesRightAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
-        logger.TraceFormat("Formatting 2 Number 6dp -14 : 1) {0,14:F6}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber).FinalAppend(ToFormatNumber);
+        logger.TraceFormat("Formatting 2 Number 6dp -14 : 1) {0,14:F6}, 2) ")?.WithOnlyParamThenToAppender(ToFormatNumber)
+              .FinalAppend(ToFormatNumber);
         Assert.AreEqual($"Formatting 2 Number 6dp -14 : 1) {Number6DecimalPlacesRightAlignString}, 2) {ToFormatNumberUnformmatedString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
     }
@@ -542,7 +555,8 @@ public class FLogFirstFormatterParameterEntryTests
     [TestMethod]
     public void WithOnlyEnumParamThenToAppenderIsFormattedAsExpected()
     {
-        logger.InfoFormat("Formatting FLogLevel.Debug and Warn : 1) {0}, 2) ")?.WithOnlyParamThenToAppender(FLogLevel.Debug).FinalAppend(FLogLevel.Warn);
+        logger.InfoFormat("Formatting FLogLevel.Debug and Warn : 1) {0}, 2) ")?.WithOnlyParamThenToAppender(FLogLevel.Debug)
+              .FinalAppend(FLogLevel.Warn);
         Assert.AreEqual("Formatting FLogLevel.Debug and Warn : 1) Debug, 2) Warn", spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Formatting FLogLevel.Error -14 and Info 14 : 1) {0,-14}, 2) ")?
@@ -565,9 +579,9 @@ public class FLogFirstFormatterParameterEntryTests
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Formatting 2 TimeSpan as StringFormat : 1) {0,-14}, 2) ")?
-            .WithOnlyParamThenToAppender(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter())
-            .FinalAppend(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter());
-        Assert.AreEqual($"Formatting 2 TimeSpan as StringFormat : 1) {TimeSpanSpanFormatAsString}, 2) {TimeSpanSpanUnformattedAsString}" 
+              .WithOnlyParamThenToAppender(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter())
+              .FinalAppend(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter());
+        Assert.AreEqual($"Formatting 2 TimeSpan as StringFormat : 1) {TimeSpanSpanFormatAsString}, 2) {TimeSpanSpanUnformattedAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
     }
 
@@ -579,14 +593,14 @@ public class FLogFirstFormatterParameterEntryTests
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Adding 2 Small Char Array Range : 1) {0}, 2) ")?
-            .WithOnlyParamThenToAppender(SmallCharsArray, SmallCharArraySubRange.Start.Value, SmallCharArraySubRange.Length())
-            .FinalAppend(SmallCharsArray, SmallCharArraySubRange.Start.Value, SmallCharArraySubRange.Length());
+              .WithOnlyParamThenToAppender(SmallCharsArray, SmallCharArraySubRange.Start.Value, SmallCharArraySubRange.Length())
+              .FinalAppend(SmallCharsArray, SmallCharArraySubRange.Start.Value, SmallCharArraySubRange.Length());
         Assert.AreEqual($"Adding 2 Small Char Array Range : 1) {SmallCharArraySubRangeAsString}, 2) {SmallCharArraySubRangeAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.DebugFormat("Adding 2 Large Char Array Range : 1) {0}, 2) ")?
-            .WithOnlyParamThenToAppender(LargeCharsArray, LargeCharArraySubRange.Start.Value, LargeCharArraySubRange.Length())
-            .FinalAppend(LargeCharsArray, LargeCharArraySubRange.Start.Value, LargeCharArraySubRange.Length());
+              .WithOnlyParamThenToAppender(LargeCharsArray, LargeCharArraySubRange.Start.Value, LargeCharArraySubRange.Length())
+              .FinalAppend(LargeCharsArray, LargeCharArraySubRange.Start.Value, LargeCharArraySubRange.Length());
         Assert.AreEqual($"Adding 2 Large Char Array Range : 1) {LargeCharArraySubRangeAsString}, 2) {LargeCharArraySubRangeAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
@@ -621,13 +635,14 @@ public class FLogFirstFormatterParameterEntryTests
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.DebugFormat("Adding 2 LargeString Range : 1) \"{0}\", 2) ")
-            ?.WithOnlyParamThenToAppender(LargeString, LargeStringSubRange.Start.Value, LargeStringSubRange.Length())
-            .FinalAppend(LargeString, LargeStringSubRange.Start.Value, LargeStringSubRange.Length());
+              ?.WithOnlyParamThenToAppender(LargeString, LargeStringSubRange.Start.Value, LargeStringSubRange.Length())
+              .FinalAppend(LargeString, LargeStringSubRange.Start.Value, LargeStringSubRange.Length());
         Assert.AreEqual($"Adding 2 LargeString Range : 1) \"{LargeStringSubRangeAsString}\", 2) {LargeStringSubRangeAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.TraceFormat("Adding 2 Full LargeString : 1) \"{0}\", 2) ")?.WithOnlyParamThenToAppender(LargeString).FinalAppend(LargeString);
-        Assert.AreEqual($"Adding 2 Full LargeString : 1) \"{LargeString}\", 2) {LargeString}", spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
+        Assert.AreEqual($"Adding 2 Full LargeString : 1) \"{LargeString}\", 2) {LargeString}"
+                      , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
     }
 
     [TestMethod]
@@ -639,9 +654,9 @@ public class FLogFirstFormatterParameterEntryTests
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Adding 2 SmallStringBuilder Range : 1) \"{0}\", 2) ")
-            ?.WithOnlyParamThenToAppender(SmallStringBuilder, ShortStringSubRange.Start.Value, ShortStringSubRange.Length())
-            .FinalAppend(SmallStringBuilder, ShortStringSubRange.Start.Value, ShortStringSubRange.Length());
-        Assert.AreEqual($"Adding 2 SmallStringBuilder Range : 1) \"{ShortStringSubRangeAsString}\", 2) {ShortStringSubRangeAsString}", 
+              ?.WithOnlyParamThenToAppender(SmallStringBuilder, ShortStringSubRange.Start.Value, ShortStringSubRange.Length())
+              .FinalAppend(SmallStringBuilder, ShortStringSubRange.Start.Value, ShortStringSubRange.Length());
+        Assert.AreEqual($"Adding 2 SmallStringBuilder Range : 1) \"{ShortStringSubRangeAsString}\", 2) {ShortStringSubRangeAsString}",
                         spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.DebugFormat("Adding 2 LargeStringBuilder Range : 1) \"{0}\", 2) ")

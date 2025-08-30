@@ -3,7 +3,6 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +11,7 @@ namespace FortitudeCommon.Logging.Config.ConfigSources;
 
 public interface IFLogFileConfigSourceConfig : IFlogConfigSource
 {
-    bool FileSystemMonitored  { get; }
+    bool FileSystemMonitored { get; }
 
     int PollInterval { get; }
 
@@ -23,7 +22,7 @@ public interface IFLogFileConfigSourceConfig : IFlogConfigSource
 
 public interface IMutableFLogFileConfigSourceConfig : IFLogFileConfigSourceConfig, IMutableFlogConfigSource
 {
-    new bool FileSystemMonitored  { get; set; }
+    new bool FileSystemMonitored { get; set; }
 
     new int PollInterval { get; set; }
 
@@ -31,7 +30,6 @@ public interface IMutableFLogFileConfigSourceConfig : IFLogFileConfigSourceConfi
 
     new bool Optional { get; set; }
 }
-
 
 public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConfigSourceConfig
 {
@@ -42,28 +40,21 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
     public FLogFileConfigSourceConfig
     (ushort configPriorityOrder, FLogConfigSourceType sourceType, bool optional = false
       , string configSourceName = "", TimeSpanConfig? recheckConfigIntervalTimeSpan = null)
-        : this(InMemoryConfigRoot, InMemoryPath, configPriorityOrder, sourceType, optional, configSourceName, recheckConfigIntervalTimeSpan)
-    {
-    }
+        : this(InMemoryConfigRoot, InMemoryPath, configPriorityOrder, sourceType, optional, configSourceName, recheckConfigIntervalTimeSpan) { }
 
     public FLogFileConfigSourceConfig
     (IConfigurationRoot root, string path, ushort configPriorityOrder, FLogConfigSourceType sourceType, bool optional = false
       , string? configSourceName = null, TimeSpanConfig? recheckConfigIntervalTimeSpan = null) : base(root, path)
     {
         ConfigPriorityOrder = configPriorityOrder;
-        SourceType = sourceType;
-        Optional = optional;
-        ConfigSourceName = configSourceName;
-        if (recheckConfigIntervalTimeSpan != null)
-        {
-            RecheckConfigIntervalTimeSpan = recheckConfigIntervalTimeSpan;
-        }
+        SourceType          = sourceType;
+        Optional            = optional;
+        ConfigSourceName    = configSourceName;
+        if (recheckConfigIntervalTimeSpan != null) RecheckConfigIntervalTimeSpan = recheckConfigIntervalTimeSpan;
     }
 
-    public FLogFileConfigSourceConfig(IFLogFileConfigSourceConfig toClone, IConfigurationRoot root, string path) 
-        : base(toClone, root, path)
-    {
-    }
+    public FLogFileConfigSourceConfig(IFLogFileConfigSourceConfig toClone, IConfigurationRoot root, string path)
+        : base(toClone, root, path) { }
 
     public FLogFileConfigSourceConfig(IFLogFileConfigSourceConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
@@ -87,14 +78,14 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    public override IFlogConfigSource CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        new FLogFileConfigSourceConfig(this, configRoot, path);
+
     object ICloneable.Clone() => Clone();
 
     IFlogConfigSource ICloneable<IFlogConfigSource>.Clone() => Clone();
 
-    public override FLogFileConfigSourceConfig Clone() => new (this);
-
-    public override IFlogConfigSource CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        new FLogFileConfigSourceConfig(this, configRoot, path);
+    public override FLogFileConfigSourceConfig Clone() => new(this);
 
     public override bool AreEquivalent(IFlogConfigSource? other, bool exactTypes = false)
     {
@@ -102,9 +93,9 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
 
         var baseSame = base.AreEquivalent(other, exactTypes);
 
-        var filePathSame = FilePath == fileConfigSource.FilePath;
+        var filePathSame          = FilePath == fileConfigSource.FilePath;
         var fileSystemMonitorSame = FileSystemMonitored == fileConfigSource.FileSystemMonitored;
-        var pollSame = PollInterval == fileConfigSource.PollInterval;
+        var pollSame              = PollInterval == fileConfigSource.PollInterval;
 
         var allAreSame = baseSame && filePathSame && fileSystemMonitorSame && pollSame;
 
@@ -127,13 +118,13 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
 
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        using var tb = 
+        using var tb =
             sbc.StartComplexType(nameof(FLogFileConfigSourceConfig))
-           .AddBaseFieldsStart();
+               .AddBaseFieldsStart();
         base.ToString(sbc);
         return tb.Field.AlwaysAdd(nameof(FilePath), FilePath)
-           .Field.AlwaysAdd(nameof(FileSystemMonitored), FileSystemMonitored)
-           .Field.AlwaysAdd(nameof(PollInterval), PollInterval)
-           .Complete();
+                 .Field.AlwaysAdd(nameof(FileSystemMonitored), FileSystemMonitored)
+                 .Field.AlwaysAdd(nameof(PollInterval), PollInterval)
+                 .Complete();
     }
 }

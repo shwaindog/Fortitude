@@ -1,9 +1,12 @@
-﻿using System.Numerics;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using System.Text;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
+
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
@@ -14,7 +17,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     int Count { get; }
 
     string Indent { get; set; }
-    
+
     StringBuildingStyle Style { get; }
 
     IFLogStringAppender IncrementIndent();
@@ -54,7 +57,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append((string?, int) valueTuple);
-    
+
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append((string?, int, int) valueTuple);
 
@@ -66,7 +69,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append((char[]?, int) valueTuple);
-    
+
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append((char[]?, int, int) valueTuple);
 
@@ -78,7 +81,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append((ICharSequence?, int) valueTuple);
-    
+
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append((ICharSequence?, int, int) valueTuple);
 
@@ -90,7 +93,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append((StringBuilder?, int) valueTuple);
-    
+
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append((StringBuilder?, int, int) valueTuple);
 
@@ -103,10 +106,10 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     [CallsObjectToString]
     IFLogStringAppender AppendObject(object? value);
-    
+
     IStringAppenderCollectionBuilder AppendCollection { get; }
-    
-    
+
+
     [MustUseReturnValue("Use FinalMatchAppend to finish and send LogEntry")]
     IFLogStringAppender AppendMatchLine<T>(T value);
 
@@ -125,7 +128,8 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender AppendLine<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
+    IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
@@ -141,7 +145,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine((string?, int) valueTuple);
-    
+
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine((string?, int, int) valueTuple);
 
@@ -153,7 +157,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine((char[]?, int) valueTuple);
-    
+
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine((char[]?, int, int) valueTuple);
 
@@ -165,7 +169,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine((ICharSequence?, int) valueTuple);
-    
+
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine((ICharSequence?, int, int) valueTuple);
 
@@ -177,7 +181,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine((StringBuilder?, int) valueTuple);
-    
+
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine((StringBuilder?, int, int) valueTuple);
 
@@ -190,9 +194,9 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     [CallsObjectToString]
     IFLogStringAppender AppendObjectLine(object? value);
-    
+
     IStringAppenderCollectionBuilder AppendLineCollection { get; }
-        
+
     void FinalMatchAppend<T>(T value);
     void FinalAppend(bool value);
     void FinalAppend(bool? value);
@@ -219,11 +223,10 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     void FinalAppend((StringBuilder?, int, int) valueTuple);
     void FinalAppend(StringBuilder? value, int startIndex, int count = int.MaxValue);
     void FinalAppend(IStyledToStringObject? value);
-    
-    [CallsObjectToString]
-    void FinalAppendObject(object? value);
-    
+
+    [CallsObjectToString] void FinalAppendObject(object? value);
+
     IFinalCollectionAppend FinalAppendCollection { get; }
-    
+
     // ReSharper restore UnusedMember.Global
 }

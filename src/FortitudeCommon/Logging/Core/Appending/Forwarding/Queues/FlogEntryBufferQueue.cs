@@ -1,4 +1,6 @@
-﻿using FortitudeCommon.DataStructures.Lists;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
@@ -11,37 +13,10 @@ public class FlogEntryBufferQueue(string appenderName, int capacity, FullQueueHa
     private readonly LogEntriesBatch drainedEntries  = new();
     private readonly LogEntriesBatch filteredEntries = new();
 
-    private int filteredToIndex;
-    private int filteredItemsCount;
-
     private readonly BlockingStaticRing<FLogEntry> queue = new(appenderName, capacity, ClaimStrategyType.MultiProducers);
+    private          int                           filteredItemsCount;
 
-    public int Capacity => queue.RingSize;
-
-    public int Count => queue.Count;
-
-    public bool TryEnqueue(IFLogEntry logEntry)
-    {
-        return queue.TryAdd((FLogEntry)logEntry);
-    }
-
-    public int Enqueue(IFLogEntry logEntry)
-    {
-        queue.Add((FLogEntry)logEntry);
-        return Count;
-    }
-
-    public IFLogEntry? ForceEnqueue(IFLogEntry logEntry)
-    {
-        return queue.UnsafePopPush((FLogEntry)logEntry);
-    }
-
-    public (IFLogEntry?, IFLogEntry?) ForceEnqueue(IFLogEntry lastLogEntry, IFLogEntry secondLastLogEntry)
-    {
-        var firstEntry =  queue.UnsafePopPush((FLogEntry)secondLastLogEntry);
-        var secondEntry =  queue.UnsafePopPush((FLogEntry)lastLogEntry);
-        return (firstEntry, secondEntry);
-    }
+    private int filteredToIndex;
 
     public FLogEntry? OldestQueued
     {
@@ -53,6 +28,20 @@ public class FlogEntryBufferQueue(string appenderName, int capacity, FullQueueHa
             return itemAtIndex;
         }
     }
+
+    public int Capacity => queue.RingSize;
+
+    public int Count => queue.Count;
+
+    public bool TryEnqueue(IFLogEntry logEntry) => queue.TryAdd((FLogEntry)logEntry);
+
+    public int Enqueue(IFLogEntry logEntry)
+    {
+        queue.Add((FLogEntry)logEntry);
+        return Count;
+    }
+
+    public IFLogEntry? ForceEnqueue(IFLogEntry logEntry) => queue.UnsafePopPush((FLogEntry)logEntry);
 
     public int RunRemoveFilter(IFLogEntry blockedLogEntry, Predicate<IFLogEntry> removePredicate)
     {
@@ -69,49 +58,20 @@ public class FlogEntryBufferQueue(string appenderName, int capacity, FullQueueHa
             Thread.Sleep(i * 10);
         }
         // consider drained;
-        for (int i = 0; i < filteredEntries.Count; i++)
-        {
+        for (var i = 0; i < filteredEntries.Count; i++)
             if (!TryEnqueue(filteredEntries[i]))
-            {
-                filteredItemsCount++; // dropping an unexpected
-            }
-        }
-        if (!TryEnqueue(blockedLogEntry))
-        {
-            filteredItemsCount++; // dropping blocking item
-        }
+                filteredItemsCount++;                           // dropping an unexpected
+        if (!TryEnqueue(blockedLogEntry)) filteredItemsCount++; // dropping blocking item
         return filteredItemsCount;
     }
 
-    public IFLogEntry? ReplaceNewestQueued(IFLogEntry flogEntry)
-    {
-        return queue.ReplaceLastAdded((FLogEntry)flogEntry);
-    }
+    public IFLogEntry? ReplaceNewestQueued(IFLogEntry flogEntry) => queue.ReplaceLastAdded((FLogEntry)flogEntry);
 
     public (IFLogEntry?, IFLogEntry?) ReplaceNewestQueued(IFLogEntry lastFlogEntry, IFLogEntry secondLastFlogEntry)
     {
-         var secondLast = queue.ReplaceLastAdded((FLogEntry)secondLastFlogEntry, 1);
-         var last = queue.ReplaceLastAdded((FLogEntry)secondLastFlogEntry);
-         return (last, secondLast);
-    }
-
-    private void RunDrainToFiltered(Predicate<IFLogEntry> removePredicate)
-    {
-        var drainedCount = drainedEntries.Count;
-        for (var index = filteredToIndex; index < drainedCount; index++)
-        {
-            var drainedEntry = drainedEntries[index];
-            if (removePredicate(drainedEntry))
-            {
-                drainedEntry.DecrementRefCount();
-                filteredItemsCount++;
-            }
-            else
-            {
-                filteredEntries.Add(drainedEntry);
-            }
-        }
-        filteredToIndex = drainedCount;
+        var secondLast = queue.ReplaceLastAdded((FLogEntry)secondLastFlogEntry, 1);
+        var last       = queue.ReplaceLastAdded((FLogEntry)secondLastFlogEntry);
+        return (last, secondLast);
     }
 
     public bool QueuedItemsAny(Predicate<IFLogEntry> predicate)
@@ -134,30 +94,46 @@ public class FlogEntryBufferQueue(string appenderName, int capacity, FullQueueHa
 
     public FullQueueHandling InboundQueueFullHandling => queueFullHandling;
 
-    public IFLogEntry Poll()
-    {
-        return queue.Take();
-    }
+    public IFLogEntry Poll() => queue.Take();
 
     public ILogEntriesBatch PollBatch(int maxBatchSize, ILogEntriesBatch toPopulate)
     {
-        for (int i = 0; i < maxBatchSize; i++)
+        for (var i = 0; i < maxBatchSize; i++)
         {
             var maybeEntry = TryPoll();
             if (maybeEntry != null)
-            {
                 toPopulate.Add(maybeEntry);
-            }
             else
-            {
                 break;
-            }
         }
         return toPopulate;
     }
 
-    public IFLogEntry? TryPoll()
+    public IFLogEntry? TryPoll() => queue.TryTake(out var maybeItem) ? maybeItem : null;
+
+    public (IFLogEntry?, IFLogEntry?) ForceEnqueue(IFLogEntry lastLogEntry, IFLogEntry secondLastLogEntry)
     {
-        return queue.TryTake(out var maybeItem) ? maybeItem : null;
+        var firstEntry  = queue.UnsafePopPush((FLogEntry)secondLastLogEntry);
+        var secondEntry = queue.UnsafePopPush((FLogEntry)lastLogEntry);
+        return (firstEntry, secondEntry);
+    }
+
+    private void RunDrainToFiltered(Predicate<IFLogEntry> removePredicate)
+    {
+        var drainedCount = drainedEntries.Count;
+        for (var index = filteredToIndex; index < drainedCount; index++)
+        {
+            var drainedEntry = drainedEntries[index];
+            if (removePredicate(drainedEntry))
+            {
+                drainedEntry.DecrementRefCount();
+                filteredItemsCount++;
+            }
+            else
+            {
+                filteredEntries.Add(drainedEntry);
+            }
+        }
+        filteredToIndex = drainedCount;
     }
 }

@@ -1,6 +1,8 @@
-﻿using FortitudeCommon.EventProcessing.Disruption.Sequences;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
-using FortitudeCommon.Logging.Core.Appending.Formatting;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
@@ -8,10 +10,10 @@ namespace FortitudeCommon.Logging.AsyncProcessing.ThreadPoolQueue;
 
 public class ThreadPoolAsyncQueue : FLogAsyncQueue
 {
+    private readonly WaitCallback?     pollQueueFromThreadPool;
     private readonly AsyncPayloadQueue threadPoolRequestQueue;
-    private readonly WaitCallback? pollQueueFromThreadPool;
-    
-    private PaddedLong runningReceiverToken = new (0);
+
+    private PaddedLong runningReceiverToken = new(0);
 
     public ThreadPoolAsyncQueue(int queueNumber, int queueCapacity) : base(queueNumber, AsyncProcessingType.AsyncUsesThreadPool, queueCapacity)
     {
@@ -19,7 +21,7 @@ public class ThreadPoolAsyncQueue : FLogAsyncQueue
         pollQueueFromThreadPool = ThreadPoolExecution;
     }
 
-    public override int  QueueBackLogSize => threadPoolRequestQueue.Count;
+    public override int QueueBackLogSize => threadPoolRequestQueue.Count;
 
     private void ThreadPoolExecution(object? stateMySelf)
     {
@@ -28,10 +30,7 @@ public class ThreadPoolAsyncQueue : FLogAsyncQueue
             if (stateMySelf is ThreadPoolAsyncQueue tpaQ)
             {
                 SetCurrentThreadToQueueNumber(tpaQ.QueueNumber);
-                while (tpaQ.threadPoolRequestQueue.TryPoll() is { } asyncPayload)
-                {
-                    asyncPayload.RunAsyncRequest();
-                }
+                while (tpaQ.threadPoolRequestQueue.TryPoll() is { } asyncPayload) asyncPayload.RunAsyncRequest();
             }
         }
         finally
@@ -43,12 +42,9 @@ public class ThreadPoolAsyncQueue : FLogAsyncQueue
 
     private void TryLaunchThreadPoolReceiver()
     {
-        if (Interlocked.CompareExchange(ref runningReceiverToken.Value, 1, 0) == 0 )
-        {
-            ThreadPool.QueueUserWorkItem(pollQueueFromThreadPool!, this);
-        }
+        if (Interlocked.CompareExchange(ref runningReceiverToken.Value, 1, 0) == 0) ThreadPool.QueueUserWorkItem(pollQueueFromThreadPool!, this);
     }
-    
+
     public override void Execute(Action job)
     {
         var slot = threadPoolRequestQueue.Claim();
@@ -69,7 +65,8 @@ public class ThreadPoolAsyncQueue : FLogAsyncQueue
         TryLaunchThreadPoolReceiver();
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks
+      , ITargetingFLogEntrySource publishSource)
     {
         var slot = threadPoolRequestQueue.Claim();
 

@@ -1,15 +1,14 @@
-﻿using System.Text;
-using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
-using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.RequestsCache;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.OSWrapper.Streams;
 using FortitudeCommon.Types.Mutable.Strings;
 
 #pragma warning disable SYSLIB0001
@@ -19,14 +18,20 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.FileSystem;
 public class NullFileAppender(IFileAppenderConfig fileAppenderConfig, IFLogContext context) : FLogFileAppender(fileAppenderConfig, context)
 {
     public override void ReceiveNotificationTargetClose(string targetNameClosed) { }
-    
+
     protected override IFormatWriter CreatedAppenderDirectFormatWriter
         (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback) =>
         new NullFileFormatWriter().Initialize(this, context, targetName, onWriteCompleteCallback);
 
+    public override IFileAppenderConfig GetAppenderConfig() => (IFileAppenderConfig)AppenderConfig;
+
     private class NullFileFormatWriter : ByteBufferFlushingFormatWriter<NullFileFormatWriter>
     {
         private readonly object syncLock = new();
+
+        private RecyclingByteArray? directWriteStagingBuffer;
+
+        private Encoder directWriteStagingFileEncoder = null!;
 
         private RecyclingByteArray? dummyFileBuffer;
         private NullFileAppender FileAppender => (NullFileAppender)OwningAppender;
@@ -44,13 +49,9 @@ public class NullFileAppender(IFileAppenderConfig fileAppenderConfig, IFLogConte
             return this;
         }
 
-        private RecyclingByteArray? directWriteStagingBuffer;
-
-        private Encoder directWriteStagingFileEncoder = null!;
-
         public override bool NotifyStartEntryAppend(IFLogEntry forEntry)
         {
-            if ((directWriteStagingBuffer?.Capacity ?? 0) < (3 * forEntry.Message.Length) + 256)
+            if ((directWriteStagingBuffer?.Capacity ?? 0) < 3 * forEntry.Message.Length + 256)
             {
                 directWriteStagingBuffer?.DecrementRefCount();
                 directWriteStagingBuffer = (forEntry.Message.Length * 4 + 256).SourceRecyclingByteArray();
@@ -163,6 +164,4 @@ public class NullFileAppender(IFileAppenderConfig fileAppenderConfig, IFLogConte
             base.StateReset();
         }
     }
-
-    public override IFileAppenderConfig GetAppenderConfig() => (IFileAppenderConfig)AppenderConfig;
 }

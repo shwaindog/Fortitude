@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
 using FortitudeCommon.Logging.AsyncProcessing.Threaded;
 using FortitudeCommon.Logging.AsyncProcessing.ThreadPoolQueue;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
@@ -18,9 +21,8 @@ public static class FLogAsyncQueueFactoryMethods
             case AsyncProcessingType.Synchronise:
             case AsyncProcessingType.AllAsyncDisabled:
                 return new FlogSynchroniseExecutionQueue(queueConfig.QueueNumber);
-            case AsyncProcessingType.AsyncUsesThreadPool:
-                return new ThreadPoolAsyncQueue(queueConfig.QueueNumber, queueConfig.QueueCapacity);
-            default: return null;
+            case AsyncProcessingType.AsyncUsesThreadPool: return new ThreadPoolAsyncQueue(queueConfig.QueueNumber, queueConfig.QueueCapacity);
+            default:                                      return null;
         }
     }
 }

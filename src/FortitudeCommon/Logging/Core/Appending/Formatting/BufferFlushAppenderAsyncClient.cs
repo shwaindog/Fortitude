@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.AsyncProcessing;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Hub;
 
@@ -17,6 +20,12 @@ public class BufferFlushAppenderAsyncClient : ReceiveAsyncClient, IBufferFlushAp
 
     private IFLogAsyncQueuePublisher bufferToFlushQueuePublisher = null!;
 
+    public BufferFlushAppenderAsyncClient
+    (IFLogBufferingFormatAppender destinationAppender, int appenderReceiveQueueNum
+      , IFLoggerAsyncRegistry asyncRegistry, int bufferFlushQueueNum)
+        : base(destinationAppender, appenderReceiveQueueNum, asyncRegistry) =>
+        BufferFlushQueueNum = bufferFlushQueueNum;
+
     public int BufferFlushQueueNum
     {
         get => bufferFlushQueueNum;
@@ -24,19 +33,8 @@ public class BufferFlushAppenderAsyncClient : ReceiveAsyncClient, IBufferFlushAp
         {
             var wasChanged = value != bufferFlushQueueNum;
             bufferFlushQueueNum = value;
-            if (wasChanged)
-            {
-                bufferToFlushQueuePublisher = AsyncRegistry.AsyncQueueLocator.GetClientPublisherQueue(bufferFlushQueueNum);
-            }
+            if (wasChanged) bufferToFlushQueuePublisher = AsyncRegistry.AsyncQueueLocator.GetClientPublisherQueue(bufferFlushQueueNum);
         }
-    }
-
-    public BufferFlushAppenderAsyncClient
-    (IFLogBufferingFormatAppender destinationAppender, int appenderReceiveQueueNum
-      , IFLoggerAsyncRegistry asyncRegistry, int bufferFlushQueueNum)
-        : base(destinationAppender, appenderReceiveQueueNum, asyncRegistry)
-    {
-        BufferFlushQueueNum = bufferFlushQueueNum;
     }
 
     public void SendToFlushBufferToAppender(IBufferedFormatWriter bufferToFlush)
@@ -46,7 +44,7 @@ public class BufferFlushAppenderAsyncClient : ReceiveAsyncClient, IBufferFlushAp
             bufferToFlush.Flush();
             return;
         }
-        
+
         bufferToFlushQueuePublisher.FlushBufferToAppender(bufferToFlush);
     }
 }

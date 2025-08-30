@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Extensions;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConditionalFormattingCommands;
@@ -10,7 +13,7 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 public interface ITokenisedLogEntryFormatStringParser
 {
     List<ITemplatePart> BuildTemplateParts
-    (string tokenisedFormatString, List<ITemplatePart>? toPopulate = null, ITokenFormattingValidator? tokenFormattingValidator = null);
+        (string tokenisedFormatString, List<ITemplatePart>? toPopulate = null, ITokenFormattingValidator? tokenFormattingValidator = null);
 
     void GetAppenderTypeSubTokens(string tokenFormatting, List<ITemplatePart> toPopulate
       , ITokenFormattingValidator? tokenFormattingValidator = null);
@@ -20,39 +23,37 @@ public interface ITokenisedLogEntryFormatStringParser
 
 public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStringParser
 {
+    private const string NewLine        = $"{{{nameof(NEWLINE)}}}";
+    private const string Nl             = $"{{{nameof(NL)}}}";
+    private const string UnixNewLine    = $"{{{nameof(UNIXNEWLINE)}}}";
+    private const string UnixNl         = $"{{{nameof(UNIXNL)}}}";
+    private const string WindowsNewLine = $"{{{nameof(WINDOWSNEWLINE)}}}";
+    private const string WindowsNl      = $"{{{nameof(WINDOWSNL)}}}";
+    private const string WinNewLine     = $"{{{nameof(WINNEWLINE)}}}";
+    private const string WinNl          = $"{{{nameof(WINNL)}}}";
+    private const string Comma          = $"{{{nameof(COMMA)}}}";
+    private const string Co             = $"{{{nameof(C)}}}";
+    private const string CommaSpace     = $"{{{nameof(COMMASPACE)}}}";
+    private const string Cs             = $"{{{nameof(CS)}}}";
+
     private static ITokenisedLogEntryFormatStringParser? singletonInstance;
 
     private static readonly object SyncLock = new();
+
+    private static readonly (string Open, string Close) TokenReplaceDelimiters = ("{", "}");
 
     public static ITokenisedLogEntryFormatStringParser Instance
     {
         get
         {
             if (singletonInstance == null)
-            {
                 lock (SyncLock)
                 {
                     singletonInstance ??= new TokenisedLogEntryFormatStringParser();
                 }
-            }
             return singletonInstance;
         }
     }
-
-    static readonly (string Open, string Close) TokenReplaceDelimiters = ("{", "}");
-
-    private const string NewLine    = $"{{{nameof(NEWLINE)}}}";
-    private const string Nl         = $"{{{nameof(NL)}}}";
-    private const string UnixNewLine = $"{{{nameof(UNIXNEWLINE)}}}";
-    private const string UnixNl     = $"{{{nameof(UNIXNL)}}}";
-    private const string WindowsNewLine = $"{{{nameof(WINDOWSNEWLINE)}}}";
-    private const string WindowsNl     = $"{{{nameof(WINDOWSNL)}}}";
-    private const string WinNewLine = $"{{{nameof(WINNEWLINE)}}}";
-    private const string WinNl     = $"{{{nameof(WINNL)}}}";
-    private const string Comma      = $"{{{nameof(COMMA)}}}";
-    private const string Co          = $"{{{nameof(C)}}}";
-    private const string CommaSpace = $"{{{nameof(COMMASPACE)}}}";
-    private const string Cs         = $"{{{nameof(CS)}}}";
 
     public List<ITemplatePart> BuildTemplateParts(string tokenisedFormatString, List<ITemplatePart>? toPopulate = null
       , ITokenFormattingValidator? tokenFormattingValidator = null)
@@ -61,7 +62,6 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
 
         var stringParts = tokenisedFormatString.TokenSplit(IFLogEntryFormatter.TokenDelimiters, TokenReplaceDelimiters);
         foreach (var part in stringParts)
-        {
             switch (part)
             {
                 case Nl:
@@ -88,16 +88,11 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
                     break;
                 default:
                     if (part[0] == '{' && part[^1] == '}')
-                    {
                         GetAppenderTypeSubTokens(part, toPopulate, tokenFormattingValidator);
-                    }
                     else
-                    {
                         toPopulate.Add(new StringConstantTemplatePart(part));
-                    }
                     break;
             }
-        }
         return toPopulate;
     }
 
@@ -108,17 +103,16 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
         if (tokenFormattingReplace.TokenName.IsLogEntryDatumTokenName())
         {
             toPopulate.Add(new LogEntryDataTemplatePart(tokenFormattingReplace));
-        } else if (tokenFormattingReplace.TokenName.IsEnvironmentTokenName())
+        }
+        else if (tokenFormattingReplace.TokenName.IsEnvironmentTokenName())
         {
             toPopulate.Add(new EnvironmentDataTemplatePart(tokenFormattingReplace));
-        } else if (tokenFormattingReplace.TokenName.IsScopedFormattingTokenName())
+        }
+        else if (tokenFormattingReplace.TokenName.IsScopedFormattingTokenName())
         {
             var scopedTemplatePart = SourceScopedFormattingTemplatePart
-                (tokenFormattingReplace.TokenName , tokenFormattingReplace.Layout, tokenFormattingReplace.Format);
-            if (scopedTemplatePart != null)
-            {
-                toPopulate.Add(scopedTemplatePart);
-            }
+                (tokenFormattingReplace.TokenName, tokenFormattingReplace.Layout, tokenFormattingReplace.Format);
+            if (scopedTemplatePart != null) toPopulate.Add(scopedTemplatePart);
             if (tokenFormattingReplace.Format.Length > 0)
             {
                 switch (scopedTemplatePart)
@@ -128,13 +122,9 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
                     case ConsoleLogLevelTextColorMatchTemplatePart:
                     case ConsoleLogLevelBackgroundColorMatchTemplatePart:
                         BuildTemplateParts(tokenFormattingReplace.Format, toPopulate, tokenFormattingValidator);
-                        
                         break;
                 }
-                if (scopedTemplatePart is ConsoleBackgroundColorTemplatePart colorTemplatePart)
-                {
-                    colorTemplatePart.WasScopeClosed = true;
-                }
+                if (scopedTemplatePart is ConsoleBackgroundColorTemplatePart colorTemplatePart) colorTemplatePart.WasScopeClosed = true;
                 toPopulate.Add(new ConsoleColorResetTemplatePart(""));
             }
         }
@@ -148,18 +138,13 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
     {
         var isDefaultColors = true;
         foreach (var templatePart in checkIsReset)
-        {
             switch (templatePart)
             {
                 case ConsoleAppenderColorChangeTemplatePart consoleColorChangeCommand:
                     isDefaultColors = consoleColorChangeCommand.WasScopeClosed;
                     break;
             }
-        }
-        if (!isDefaultColors)
-        {
-            checkIsReset.Add(new ConsoleColorResetTemplatePart(""));
-        }
+        if (!isDefaultColors) checkIsReset.Add(new ConsoleColorResetTemplatePart(""));
         return checkIsReset;
     }
 
@@ -198,10 +183,10 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
             case $"{nameof(BCOLOR_MATCH)}":
             case $"{nameof(BCM)}":
                 return new ConsoleLogLevelBackgroundColorMatchTemplatePart(templateParams);
-            case $"{nameof(RESETCOLOR)}": 
-            case $"{nameof(RC)}": 
+            case $"{nameof(RESETCOLOR)}":
+            case $"{nameof(RC)}":
                 return new ConsoleColorResetTemplatePart(templateParams);
-            
+
             default: return null;
         }
     }

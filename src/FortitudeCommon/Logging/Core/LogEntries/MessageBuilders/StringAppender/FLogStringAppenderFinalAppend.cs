@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
@@ -10,10 +12,10 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender
 
 public partial class FLogStringAppender
 {
-    public void FinalAppend(bool value)  => MessageSb.Append(value ? "true" : "false").ToAppender(this).CallOnComplete();
-    
-    public void FinalAppend(bool? value) => 
-        MessageSb.Append(value != null ? (value.Value ? "true" : "false") : "null" ).ToAppender(this).CallOnComplete();
+    public void FinalAppend(bool value) => MessageSb.Append(value ? "true" : "false").ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(bool? value) =>
+        MessageSb.Append(value != null ? value.Value ? "true" : "false" : "null").ToAppender(this).CallOnComplete();
 
 
     public void FinalAppend<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable
@@ -117,8 +119,7 @@ public partial class FLogStringAppender
         CallOnComplete();
     }
 
-    [CallsObjectToString]
-    public void FinalAppendObject(object? value) => MessageSb.Append(value).ToAppender(this).CallOnComplete();
+    [CallsObjectToString] public void FinalAppendObject(object? value) => MessageSb.Append(value).ToAppender(this).CallOnComplete();
 
     public void FinalAppendFormat<TFmt>(TFmt value, string formatString) where TFmt : ISpanFormattable
     {
