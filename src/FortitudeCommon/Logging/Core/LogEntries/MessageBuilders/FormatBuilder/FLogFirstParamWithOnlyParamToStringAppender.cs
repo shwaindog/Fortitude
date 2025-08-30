@@ -3,6 +3,7 @@ using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
@@ -17,17 +18,13 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender WithOnlyParamThenToAppender<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable =>
-        PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).ToStringAppender(value, this);
-
-    [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender WithOnlyParamThenToAppender<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable =>
+    public IFLogStringAppender WithOnlyParamThenToAppender<TFmt>(TFmt value) where TFmt : ISpanFormattable =>
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 
         where TToStyle : TStylerType =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
+        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) 
@@ -143,7 +140,8 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender WithOnlyParamThenToAppender(object? value) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
+    [CallsObjectToString]
+    public IFLogStringAppender WithOnlyObjectParamThenToAppender(object? value) =>
+        PreCheckTokensGetStringBuilder(value).ReplaceTokensMatch(value).ToStringAppender(value, this);
 
 }

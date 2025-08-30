@@ -19,7 +19,7 @@ public enum FLoggerBuiltinAppenderType
 {
     NotGiven
   , Ref
-  , Null
+  , NullEntry
   , ForwardingAppender
   , BufferedForwarding
   , FilteredForwarding
@@ -28,7 +28,9 @@ public enum FLoggerBuiltinAppenderType
   , AsyncBufferedForwarding
   , FileUnbounded
   , FileRolling
+  , NullFile
   , ConsoleOut
+  , NullConsole  
   , FLogEntryListAppender
   , FormattedStringListAppender
   , Network
@@ -48,7 +50,7 @@ public static class FloggerBuiltinAppenderTypeExtensions
             case null :
             case nameof(Ref) :                  
                 return new AppenderReferenceConfig(configRoot, configPath);
-            case nameof(Null) :                    return new NullAppenderConfig(configRoot, configPath);
+            case nameof(NullEntry) :                    return new NullAppenderConfig(configRoot, configPath);
             case nameof(ForwardingAppender) :      return new ForwardingAppenderConfig(configRoot, configPath);
             case nameof(BufferedForwarding) :      return new BufferingAppenderConfig(configRoot, configPath);
             case nameof(AsyncBufferedForwarding) : return new AsyncForwardingAppendersConfig(configRoot, configPath);

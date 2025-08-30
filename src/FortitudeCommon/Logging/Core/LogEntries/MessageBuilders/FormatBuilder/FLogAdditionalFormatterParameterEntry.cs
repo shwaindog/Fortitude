@@ -44,7 +44,7 @@ public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntr
     {
         var tempStsa = TempStyledTypeAppender;
         AppendMatchSelect(value, tempStsa);
-        var toReturn = ReplaceTokenNumber(tempStsa.WriteBuffer).CallExpectContinue(value);
+        var toReturn = ReplaceStagingTokenNumber(tempStsa.WriteBuffer).CallExpectContinue(value);
         tempStsa.DecrementRefCount();
         return toReturn;
     }
@@ -53,7 +53,7 @@ public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntr
     {
         var tempStsa = TempStyledTypeAppender;
         AppendMatchSelect(value, tempStsa);
-        ReplaceTokenNumber(tempStsa.WriteBuffer).CallEnsureNoMoreTokensAndComplete(value);
+        ReplaceStagingTokenNumber(tempStsa.WriteBuffer).CallEnsureNoMoreTokensAndComplete(value);
         tempStsa.DecrementRefCount();
     }
 
@@ -61,7 +61,7 @@ public partial class FLogAdditionalFormatterParameterEntry : FormatParameterEntr
     {
         var tempStsa = TempStyledTypeAppender;
         AppendMatchSelect(value, tempStsa);
-        var toReturn = ReplaceTokenNumber(tempStsa.WriteBuffer).ToStringAppender(value, this);
+        var toReturn = ReplaceStagingTokenNumber(tempStsa.WriteBuffer).ToStringAppender(value, this);
         tempStsa.DecrementRefCount();
         return toReturn;
     }

@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
@@ -9,14 +10,16 @@ public partial class FLogFirstFormatterParameterEntry
         public void WithOnlyParam(bool? value) => PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value).CallEnsureNoMoreTokensAndComplete(value);
     public void WithOnlyParam(bool value) => PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable =>
+    public void WithOnlyParam<TFmt>(TFmt value) where TFmt : ISpanFormattable =>
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable =>
+    public void WithOnlyEnumParam<TEnum>(TEnum value) where TEnum : Enum
+    {
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+    }
 
     public void WithOnlyParam<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler).CallEnsureNoMoreTokensAndComplete(value);
 
     public void WithOnlyParam<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
@@ -29,7 +32,7 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value)?.CallEnsureNoMoreTokensAndComplete(value);
 
     public void WithOnlyParam(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value)?.CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value, startIndex, count)?.CallEnsureNoMoreTokensAndComplete(value);
 
     public void WithOnlyParam(string? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
@@ -67,7 +70,7 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     public void WithOnlyParam(char[]? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
     public void WithOnlyParam(ICharSequence? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
@@ -87,7 +90,7 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     public void WithOnlyParam(ICharSequence? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
     public void WithOnlyParam(StringBuilder? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
@@ -107,11 +110,12 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     public void WithOnlyParam(StringBuilder? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
     public void WithOnlyParam(IStyledToStringObject? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam(object? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+    [CallsObjectToString]
+    public void WithOnlyObjectParam(object? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokensMatch(value).CallEnsureNoMoreTokensAndComplete(value);
 
 }

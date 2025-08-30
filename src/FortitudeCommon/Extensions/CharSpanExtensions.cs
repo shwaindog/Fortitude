@@ -464,10 +464,10 @@ public static class CharSpanExtensions
             subjectPopulatedLength = subject.PopulatedLength();
         }
         var compareIndex = checkSameChars.Length - 1;
-        for (int i = subjectPopulatedLength - 1; i >= 0 && compareIndex >= 0; i++)
+        for (int i = subjectPopulatedLength - 1; i >= 0 && compareIndex >= 0; i--)
         {
             var bufferChar = subject[i];
-            var checkChar  = checkSameChars[compareIndex];
+            var checkChar  = checkSameChars[compareIndex--];
             if (bufferChar != checkChar)
             {
                 return false;

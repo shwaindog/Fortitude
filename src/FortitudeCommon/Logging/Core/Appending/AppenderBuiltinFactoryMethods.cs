@@ -20,10 +20,12 @@ public static class AppenderBuiltinFactoryMethods
         var appenderTypeConfig = appenderConfig.AppenderType;
         switch (appenderTypeConfig)
         {
-            case nameof(Null):               return new NullAppender((NullAppenderConfig)appenderConfig);
+            case nameof(NullEntry):               return new NullAppender((NullAppenderConfig)appenderConfig);
             case nameof(BufferedForwarding): return new FLogBufferingAppender((IBufferingAppenderConfig)appenderConfig, context);
             case nameof(ConsoleOut):         return new FLogConsoleAppender((IConsoleAppenderConfig)appenderConfig, context);
+            case nameof(NullConsole):         return new NullConsoleAppender((IConsoleAppenderConfig)appenderConfig, context);
             case nameof(FileUnbounded):      return new FLogFileAppender((IFileAppenderConfig)appenderConfig, context);
+            case nameof(NullFile):      return new NullFileAppender((IFileAppenderConfig)appenderConfig, context);
             case nameof(ForwardingAppender): return new FLogForwardingAppender((IForwardingAppenderConfig)appenderConfig, context);
 
             default:

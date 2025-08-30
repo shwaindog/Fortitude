@@ -39,6 +39,11 @@ public class Recycler : IRecycler
 
     public Recycler() : this(true, true, false) { }
 
+    public Recycler(string name) : this(true, true, false)
+    {
+        Name = name;
+    }
+
     public Recycler
     (bool shouldAutoRecycleOnRefCountZero = true, bool acceptNonCreatedObjects = true,
         bool throwWhenAttemptToRecycleRefCountNoZero = true)
@@ -61,6 +66,8 @@ public class Recycler : IRecycler
         get => threadStaticRecycler ??= new Recycler();
         set => threadStaticRecycler = value;
     }
+
+    public string? Name { get; }
 
     public T Borrow<T>() where T : class, new()
     {

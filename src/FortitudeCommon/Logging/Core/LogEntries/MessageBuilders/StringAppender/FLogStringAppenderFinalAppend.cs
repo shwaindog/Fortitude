@@ -2,19 +2,31 @@
 using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
+
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 
 public partial class FLogStringAppender
 {
-    public void FinalAppend(bool value)  => MessageSb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(bool? value) => MessageSb.Append(value).ToAppender(this).CallOnComplete();
+    public void FinalAppend(bool value)  => MessageSb.Append(value ? "true" : "false").ToAppender(this).CallOnComplete();
+    
+    public void FinalAppend(bool? value) => 
+        MessageSb.Append(value != null ? (value.Value ? "true" : "false") : "null" ).ToAppender(this).CallOnComplete();
 
-    public void FinalAppend<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable => 
-        MessageSb.Append(value).ToAppender(this).CallOnComplete();
 
-    public void FinalAppend<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable => 
-        MessageSb.Append(value).ToAppender(this).CallOnComplete();
+    public void FinalAppend<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable
+    {
+        (formatString != null ? MessageSb.AppendFormattedOrNull(value, formatString) : MessageSb.Append(value))
+            .ToAppender(this).CallOnComplete();
+    }
+
+    public void FinalAppend<TFmt>((TFmt, string) valueTuple) where TFmt : ISpanFormattable
+    {
+        AppendSpanFormattable(valueTuple, MessageStsa);
+        CallOnComplete();
+    }
 
     public void FinalAppend<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         MessageSb.Append(value).ToAppender(this).CallOnComplete();
@@ -105,27 +117,16 @@ public partial class FLogStringAppender
         CallOnComplete();
     }
 
-    public void FinalAppend(object? value) => MessageSb.Append(value).ToAppender(this).CallOnComplete();
+    [CallsObjectToString]
+    public void FinalAppendObject(object? value) => MessageSb.Append(value).ToAppender(this).CallOnComplete();
 
-    public void FinalAppendFormat<TNum>(TNum value, string formatString) where TNum : struct, INumber<TNum>
+    public void FinalAppendFormat<TFmt>(TFmt value, string formatString) where TFmt : ISpanFormattable
     {
         MessageSb.AppendFormat(formatString, value);
         CallOnComplete();
     }
 
-    public void FinalAppendFormat<TNum>((TNum, string) valueTuple) where TNum : struct, INumber<TNum>
-    {
-        AppendSpanFormattable(valueTuple, MessageStsa);
-        CallOnComplete();
-    }
-
-    public void FinalAppendFormat<TNum>(TNum? value, string formatString) where TNum : struct, INumber<TNum>
-    {
-        MessageSb.AppendFormat(formatString, value);
-        CallOnComplete();
-    }
-
-    public void FinalAppendFormat<TNum>((TNum?, string) valueTuple) where TNum : struct, INumber<TNum>
+    public void FinalAppendFormat<TFmt>((TFmt, string) valueTuple) where TFmt : ISpanFormattable
     {
         AppendSpanFormattable(valueTuple, MessageStsa);
         CallOnComplete();

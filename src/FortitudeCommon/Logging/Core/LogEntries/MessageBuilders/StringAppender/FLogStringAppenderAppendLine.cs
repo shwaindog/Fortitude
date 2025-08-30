@@ -1,7 +1,9 @@
 ﻿using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 
@@ -11,18 +13,22 @@ public partial class FLogStringAppender
     public IFLogStringAppender AppendLine() => MessageSb.AppendLine().ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(bool value) => MessageSb.Append(value).AppendLine(this);
+    public IFLogStringAppender AppendLine(bool value) => MessageSb.Append(value ? "true" : "false").AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(bool? value) => MessageSb.Append(value).AppendLine(this);
+    public IFLogStringAppender AppendLine(bool? value) => MessageSb.Append(value != null ? (value.Value ? "true" : "false") : "null" )
+                                                                   .AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable => 
-        MessageSb.Append(value).AppendLine(this);
-
+    public IFLogStringAppender AppendLine<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable => 
+        (formatString != null ? MessageSb.AppendFormattedOrNull(value, formatString) : MessageSb.Append(value)).AppendLine(this);
+    
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable => 
-        MessageSb.Append(value).AppendLine(this);
+    public IFLogStringAppender AppendLine<TFmt>((TFmt, string) valueTuple) where TFmt : ISpanFormattable
+    {
+        AppendSpanFormattable(valueTuple, MessageStsa);
+        return AppendObjectLine(this);
+    }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
@@ -54,14 +60,14 @@ public partial class FLogStringAppender
     public IFLogStringAppender AppendLine((string?, int) valueTuple)
     {
         AppendFromRange(valueTuple, MessageStsa);
-        return AppendLine(this);
+        return AppendObjectLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine((string?, int, int) valueTuple)
     {
         AppendFromToRange(valueTuple, MessageStsa);
-        return AppendLine(this);
+        return AppendObjectLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
@@ -75,18 +81,19 @@ public partial class FLogStringAppender
     public IFLogStringAppender AppendLine((char[]?, int) valueTuple)
     {
         AppendFromRange(valueTuple, MessageStsa);
-        return AppendLine(this);
+        return AppendObjectLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine((char[]?, int, int) valueTuple)
     {
         AppendFromToRange(valueTuple, MessageStsa);
-        return AppendLine(this);
+        return AppendObjectLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(char[]? value, int startIndex, int count = int.MaxValue) => MessageSb.Append(value).AppendLine(this);
+    public IFLogStringAppender AppendLine(char[]? value, int startIndex, int count = int.MaxValue) => 
+        MessageSb.Append(value, startIndex, count).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine(ICharSequence? value) => MessageSb.Append(value).AppendLine().ToAppender(this);
@@ -95,19 +102,19 @@ public partial class FLogStringAppender
     public IFLogStringAppender AppendLine((ICharSequence?, int) valueTuple)
     {
         AppendFromRange(valueTuple, MessageStsa);
-        return AppendLine(this);
+        return AppendObjectLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine((ICharSequence?, int, int) valueTuple)
     {
         AppendFromToRange(valueTuple, MessageStsa);
-        return AppendLine(this);
+        return AppendObjectLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine(ICharSequence? value, int startIndex, int count = int.MaxValue) =>
-        MessageSb.Append(value).AppendLine().ToAppender(this);
+        MessageSb.Append(value, startIndex, count).AppendLine().ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine(StringBuilder? value) => MessageSb.Append(value).AppendLine().ToAppender(this);
@@ -116,19 +123,19 @@ public partial class FLogStringAppender
     public IFLogStringAppender AppendLine((StringBuilder?, int) valueTuple)
     {
         AppendFromRange(valueTuple, MessageStsa);
-        return AppendLine(this);
+        return AppendObjectLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine((StringBuilder?, int, int) valueTuple)
     {
         AppendFromToRange(valueTuple, MessageStsa);
-        return AppendLine(this);
+        return AppendObjectLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine(StringBuilder? value, int startIndex, int count = int.MaxValue) =>
-        MessageSb.Append(value).AppendLine().ToAppender(this);
+        MessageSb.Append(value, startIndex, count).AppendLine().ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine(IStyledToStringObject? value)
@@ -138,29 +145,7 @@ public partial class FLogStringAppender
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(object? value) => MessageSb.Append(value).AppendLine(this);
+    [CallsObjectToString]
+    public IFLogStringAppender AppendObjectLine(object? value) => MessageSb.Append(value).AppendLine(this);
 
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendFormatLine<TFmtStruct>(TFmtStruct value, string formatString) where TFmtStruct : struct, ISpanFormattable =>
-        MessageSb.AppendFormat(formatString, value).AppendLine(this);
-    
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendFormatLine<TFmtStruct>((TFmtStruct, string) valueTuple) where TFmtStruct : struct, ISpanFormattable
-    {
-        AppendSpanFormattable(valueTuple, MessageStsa);
-        return AppendLine(this);
-    }
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendFormatLine<TFmtStruct>(TFmtStruct? value, string formatString) where TFmtStruct : struct, ISpanFormattable =>
-        MessageSb.AppendFormat(formatString, value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendFormatLine<TFmtStruct>((TFmtStruct?, string) valueTuple) where TFmtStruct : struct, ISpanFormattable
-    {
-        AppendSpanFormattable(valueTuple, MessageStsa);
-        return AppendLine(this);
-    }
 }

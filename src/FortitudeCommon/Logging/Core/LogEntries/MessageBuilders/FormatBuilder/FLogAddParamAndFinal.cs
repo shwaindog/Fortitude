@@ -11,14 +11,11 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     public void AndFinalParam(bool? value) => PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable =>
-        PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallEnsureNoMoreTokensAndComplete(value);
-
-    public void AndFinalParam<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable =>
+    public void AndFinalParam<TFmt>(TFmt value) where TFmt : ISpanFormattable =>
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
@@ -31,7 +28,7 @@ public partial class FLogAdditionalFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceCharSpanTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam(string? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
@@ -50,7 +47,7 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalParam(string? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam(char[]? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
@@ -69,7 +66,7 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalParam(char[]? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam(ICharSequence? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
@@ -89,7 +86,7 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalParam(ICharSequence? value, int startIndex, int count = int.MaxValue) =>
-        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalParam(StringBuilder? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
@@ -114,6 +111,6 @@ public partial class FLogAdditionalFormatterParameterEntry
     public void AndFinalParam(IStyledToStringObject? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam(object? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
+    public void AndFinalObjectParam(object? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokensMatch(value).CallEnsureNoMoreTokensAndComplete(value);
 
 }

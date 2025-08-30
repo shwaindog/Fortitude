@@ -6,9 +6,9 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeCommon.DataStructures.Lists;
 
-public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDroppingAppendList<T>>, IList<T?>
+public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDroppingAppendList<T>>, IList<T>
 {
-    private readonly LinkedList<T?> backingList;
+    private readonly LinkedList<T> backingList;
 
     private readonly ISyncLock updateLock = new YieldLockLight();
 
@@ -18,19 +18,19 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
     {
         MaxSize     = maxSize;
         Recycler    = recycler;
-        backingList = new LinkedList<T?>();
+        backingList = new LinkedList<T>();
     }
 
     public CappedSizeDroppingAppendList(int maxSize = 64)
     {
         MaxSize     = maxSize;
-        backingList = new LinkedList<T?>();
+        backingList = new LinkedList<T>();
     }
 
     public CappedSizeDroppingAppendList(CappedSizeDroppingAppendList<T> toClone)
     {
         MaxSize     = toClone.MaxSize;
-        backingList = new LinkedList<T?>();
+        backingList = new LinkedList<T>();
         // ReSharper disable once VirtualMemberCallInConstructor
         CopyFrom(toClone);
     }
@@ -39,16 +39,24 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    IEnumerator<T> IEnumerable<T?>.GetEnumerator() => GetEnumerator();
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
-    public virtual void Add(T? item)
+    public virtual void Add(T item)
     {
         using var syncLock = updateLock;
         syncLock.Acquire();
         if (backingList.Count >= MaxSize++)
         {
+            if (backingList.First!.Value is IRecyclableObject recyclableFirst)
+            {
+                recyclableFirst.DecrementRefCount();
+            } 
             backingList.RemoveFirst();
         }
+        if (item is IRecyclableObject recyclableItem)
+        {
+            recyclableItem.IncrementRefCount();
+        } 
         backingList.AddLast(item);
         syncLock.Release(true);
     }
@@ -61,8 +69,16 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
         {
             if (backingList.Count >= MaxSize++)
             {
+                if (backingList.First!.Value is IRecyclableObject recyclableFirst)
+                {
+                    recyclableFirst.DecrementRefCount();
+                } 
                 backingList.RemoveFirst();
             }
+            if (toAdd is IRecyclableObject recyclableItem)
+            {
+                recyclableItem.IncrementRefCount();
+            } 
             backingList.AddLast(toAdd);
         }
         syncLock.Release(true);
@@ -73,13 +89,20 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
     {
         using var syncLock = updateLock;
         syncLock.Acquire();
+        foreach (var item in backingList)
+        {
+            if (item is IRecyclableObject recyclableItem)
+            {
+                recyclableItem.DecrementRefCount();
+            } 
+        }
         backingList.Clear();
         syncLock.Release(true);
     }
 
-    public bool Contains(T? item) => backingList.Contains(item);
+    public bool Contains(T item) => backingList.Contains(item);
 
-    public void CopyTo(T?[] array, int arrayIndex)
+    public void CopyTo(T[] array, int arrayIndex)
     {
         using var syncLock = updateLock;
         syncLock.Acquire();
@@ -87,11 +110,15 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
         syncLock.Release(true);
     }
 
-    public bool Remove(T? item)
+    public bool Remove(T item)
     {
         using var syncLock = updateLock;
         syncLock.Acquire();
         var result = backingList.Remove(item);
+        if (result && item is IRecyclableObject recyclableItem)
+        {
+            recyclableItem.DecrementRefCount();
+        }
         syncLock.Release(true);
         return result;
     }
@@ -106,7 +133,7 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
 
     public bool IsReadOnly => false;
 
-    public int IndexOf(T? item)
+    public int IndexOf(T item)
     {
         using var syncLock = updateLock;
         syncLock.Acquire();
@@ -124,7 +151,7 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
         return -1;
     }
 
-    public void Insert(int index, T? item)
+    public void Insert(int index, T item)
     {
         using var syncLock = updateLock;
         syncLock.Acquire();
@@ -136,13 +163,27 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
             {
                 if (backingList.Count >= MaxSize++)
                 {
+                    if (currentNode.Value is IRecyclableObject recyclableFirst)
+                    {
+                        recyclableFirst.DecrementRefCount();
+                    } 
                     backingList.RemoveFirst();
                 }
-                backingList.AddBefore(currentNode, new LinkedListNode<T?>(item));
+                if (item is IRecyclableObject recyclableItem)
+                {
+                    recyclableItem.IncrementRefCount();
+                } 
+                backingList.AddBefore(currentNode, new LinkedListNode<T>(item));
+                syncLock.Release(true);
+                return;
             }
 
             currentNode = currentNode.Next;
         }
+        if (item is IRecyclableObject recyclableLast)
+        {
+            recyclableLast.IncrementRefCount();
+        } 
         backingList.AddLast(item);
         syncLock.Release(true);
     }
@@ -157,6 +198,10 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
         {
             if (count++ == index)
             {
+                if (currentNode.Value is IRecyclableObject recyclableAt)
+                {
+                    recyclableAt.DecrementRefCount();
+                } 
                 backingList.Remove(currentNode);
             }
 
@@ -165,7 +210,7 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
         syncLock.Release(true);
     }
 
-    public T? this[int index]
+    public T this[int index]
     {
         get
         {
@@ -178,7 +223,7 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
                 count++;
             }
             syncLock.Release(true);
-            return default;
+            throw new ArgumentOutOfRangeException($"No entry exists at {index}");
         }
         set => Insert(index, value);
     }
@@ -194,6 +239,10 @@ public class CappedSizeDroppingAppendList<T> : ReusableObject<CappedSizeDropping
         MaxSize = source.MaxSize;
         foreach (var item in source)
         {
+            if (item is IRecyclableObject recyclableLast)
+            {
+                recyclableLast.IncrementRefCount();
+            } 
             backingList.AddLast(item);
         }
         syncLock.Release(true);

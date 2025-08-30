@@ -12,7 +12,7 @@ public static class RangeExtensions
     public static Range Shift(this Range toShift, int delta)
     {
         var start = toShift.Start.Value + delta;
-        var end = toShift.Start.Value + delta;
+        var end = toShift.End.Value + delta;
 
         if (start < 0)
         {

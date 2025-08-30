@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using FortitudeCommon.Logging.Core.Hub;
 using Microsoft.Extensions.Configuration;
 
@@ -35,7 +37,6 @@ public static class FLogConfigExamples
         destPath     ??= FLogConfigFile.DefaultConfigPath;
         destFileName ??= FLogConfigFile.DefaultConfigFileName;
         var resourceStream = GetResourceStream(fullExampleNameSpacePath.ExampleConfig);
-        if (resourceStream == null) return null;
         var destFilePath = Path.Combine(destPath, destFileName);
         using (var destFile = File.Create(destFilePath))
         {
@@ -47,7 +48,6 @@ public static class FLogConfigExamples
     public static FLogAppConfig? LoadExampleToAppConfig(this FLogExampleConfig fullExampleNameSpacePath)
     {
         var resourceStream = GetResourceStream(fullExampleNameSpacePath.ExampleConfig);
-        if (resourceStream == null) return null;
 
         var configBuilder = new ConfigurationBuilder();
         configBuilder.AddJsonStream(resourceStream);
@@ -64,12 +64,17 @@ public static class FLogConfigExamples
         return newContext.StartFlogSetAsCurrentContext();
     }
 
-    private static Stream? GetResourceStream(string resourceName)
+    public static JsonObject LoadExampleAsJsonObject(this FLogExampleConfig fullExampleNameSpacePath)
+    {
+        return JsonSerializer.Deserialize<JsonObject>(GetResourceStream(fullExampleNameSpacePath.ExampleConfig)!)!;
+    }
+
+    private static Stream GetResourceStream(string resourceName)
     {
         //The Dll that you want to Load
         var assembly = Assembly.GetExecutingAssembly();
         //var names = assembly.GetManifestResourceNames();
         var stream = assembly.GetManifestResourceStream(resourceName);
-        return stream;
+        return stream!;
     }
 }

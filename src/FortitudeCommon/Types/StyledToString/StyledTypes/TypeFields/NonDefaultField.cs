@@ -16,18 +16,15 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value != defaultValue ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd<TFmtStruct>
-    (string fieldName, TFmtStruct value, TFmtStruct defaultValue = default
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TExt WhenNonDefaultAdd<TFmt>
+    (string fieldName, TFmt value, TFmt defaultValue
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd<TToStyle, TStylerType>
     (string fieldName, TToStyle value
       , CustomTypeStyler<TStylerType> customTypeStyler, TToStyle defaultValue) where TToStyle : TStylerType =>
         !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonDefaultAdd<TEnum>(string fieldName, TEnum value, TEnum defaultValue) where TEnum : Enum =>
-        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd
     (string fieldName, ReadOnlySpan<char> value

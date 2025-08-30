@@ -13,12 +13,12 @@ namespace FortitudeCommon.Logging.Config.Appending;
 public interface INullAppenderConfig : IAppenderDefinitionConfig
 {
     const string NullAppenderName = "NullAppender";
-    const string NullAppenderType = $"{nameof(Null)}";
+    const string NullAppenderType = $"{nameof(NullEntry)}";
 }
 
 public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
 {
-    private const string NullAppenderType = $"{nameof(Null)}";
+    private const string NullAppenderType = $"{nameof(NullEntry)}";
 
     public NullAppenderConfig(IConfigurationRoot root, string path) 
         : base(root, path, INullAppenderConfig.NullAppenderName, INullAppenderConfig.NullAppenderType ) { }

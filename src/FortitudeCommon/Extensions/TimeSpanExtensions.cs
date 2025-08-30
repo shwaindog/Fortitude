@@ -11,7 +11,12 @@ public static class TimeSpanExtensions
 {
     public static CustomTypeStyler<TimeSpan> TimeSpanStyler = FormatTimeSpanAsStructAppender;
 
+    public static CustomTypeStyler<TimeSpan> StylerComplexType(this TimeSpan _) => TimeSpanStyler;
+    
+
     public static CustomTypeStyler<TimeSpan> TimeSpanFormatter = FormatTimeSpanAsStringAppender;
+    
+    public static CustomTypeStyler<TimeSpan> StylerAsStringFormatter(this TimeSpan _) => TimeSpanFormatter;
 
     public static StyledTypeBuildResult FormatTimeSpanAsStringAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
@@ -26,7 +31,7 @@ public static class TimeSpanExtensions
             if (timeSpan.Seconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:00}", timeSpan.Seconds).Append(".");
 
             if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Milliseconds);
-            if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Microseconds).Append(":");
+            if (timeSpan.Microseconds != 0 || setSb != null) sb.AppendFormat("{0:000}", timeSpan.Microseconds);
         }
         
         return tb.Complete();
@@ -36,12 +41,12 @@ public static class TimeSpanExtensions
     {
         return
         sbc.StartComplexType(nameof(TimeSpan))
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Days), timeSpan.Days)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Hours), timeSpan.Hours)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Minutes), timeSpan.Minutes)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Seconds), timeSpan.Seconds)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Milliseconds), timeSpan.Milliseconds)
-           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Microseconds), timeSpan.Microseconds)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Days), timeSpan.Days, 0)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Hours), timeSpan.Hours, 0)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Minutes), timeSpan.Minutes, 0)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Seconds), timeSpan.Seconds, 0)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Milliseconds), timeSpan.Milliseconds, 0)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Microseconds), timeSpan.Microseconds, 0)
            .Complete();
     }
 

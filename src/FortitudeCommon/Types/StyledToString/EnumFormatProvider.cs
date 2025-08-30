@@ -14,7 +14,7 @@ public static class EnumFormatterRegistry
     private static readonly ConcurrentDictionary<Type, IEnumFormatter> MaterializedFormatters = new();
 
     public static IStructEnumFormatProvider<TEnumValue> GetOrCreateStructEnumFormatProvider<TEnumValue>()
-        where TEnumValue : struct, ISpanFormattable
+        where TEnumValue : ISpanFormattable
     {
         var type = typeof(TEnumValue);
         if (!type.IsEnum)
@@ -78,13 +78,12 @@ public static class EnumFormatterRegistry
 
 public interface IEnumFormatter : ICustomFormattableProvider
 {
-    IStructEnumFormatProvider<TEnum>? AsStructEnumFormatProvider<TEnum>() where TEnum : struct, ISpanFormattable;
+    IStructEnumFormatProvider<TEnum>? AsStructEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable;
 
     IEnumFormatProvider<TEnum>? AsEnumFormatProvider<TEnum>() where TEnum : Enum;
 }
 
-public interface IStructEnumFormatProvider<in TEnum> : IEnumFormatter, ICustomTypeStylerProvider<TEnum>, ICustomSpanFormattableProvider<TEnum>
-    where TEnum : struct, ISpanFormattable { }
+public interface IStructEnumFormatProvider<in TEnum> : IEnumFormatter, ICustomTypeStylerProvider<TEnum>, ICustomSpanFormattableProvider<TEnum> { }
 
 public interface IEnumFormatProvider<in TEnum> : IEnumFormatter, ICustomTypeStylerProvider<TEnum>, ICustomSpanFormattableProvider<TEnum>
     where TEnum : Enum { }
@@ -167,7 +166,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     public Type ForType { get; }
 
-    public IStructEnumFormatProvider<TEnum>? AsStructEnumFormatProvider<TEnum>() where TEnum : struct, ISpanFormattable =>
+    public IStructEnumFormatProvider<TEnum>? AsStructEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable =>
         typeof(TEnum) == ForType ? (IStructEnumFormatProvider<TEnum>)this : null;
 
     public IEnumFormatProvider<TEnum>? AsEnumFormatProvider<TEnum>() where TEnum : Enum => 

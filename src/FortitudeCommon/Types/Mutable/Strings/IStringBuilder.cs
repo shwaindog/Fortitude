@@ -38,8 +38,8 @@ public static class IStringBuilderExtensions
         if (updatedSizeDelta > 0)
         {
             toMutate.Length += updatedSizeDelta;
-            var endOfToken = replaceStart + replaceLength;
-            for (var i = toMutate.Length - 1 + updatedSizeDelta; i > endOfToken; i--)
+            var endOfToken = replaceStart + toReplaceSize + updatedSizeDelta;
+            for (var i = toMutate.Length - 1; i >= endOfToken; i--)
             {
                 toMutate[i] = toMutate[i - updatedSizeDelta];
             }
@@ -48,14 +48,13 @@ public static class IStringBuilderExtensions
         var sbIndex = 0;
         for (var i = replaceStart; i < endAt && sbIndex < replaceLength; i++)
         {
-            toMutate[i] = replaceWith![sbIndex];
+            toMutate[i] = replaceWith![sbIndex++];
         }
         if (updatedSizeDelta < 0)
         {
-            var lastReplace = replaceStart + replaceLength;
-            for (var i = lastReplace; i < toMutate.Length; i++)
+            for (var i = endAt - updatedSizeDelta; i < toMutate.Length; i++)
             {
-                toMutate[i] = toMutate[i - updatedSizeDelta];
+                toMutate[i + updatedSizeDelta] = toMutate[i];
             }
             toMutate.Length += updatedSizeDelta;
         }
@@ -135,9 +134,10 @@ public static class IStringBuilderExtensions
     public static IStringBuilder ShiftRightAt(this IStringBuilder toMutate, int from, int by)
     {
         if (by < 0) return toMutate;
+        var oldLength = toMutate.Length;
+        toMutate.EnsureCapacity(by);
 
-        toMutate.Length += by;
-        for (var i = toMutate.Length - 1 + by; i >= from; i--)
+        for (var i = oldLength - 1 + by; i >= from + by; i--)
         {
             toMutate[i] = toMutate[i - by];
         }

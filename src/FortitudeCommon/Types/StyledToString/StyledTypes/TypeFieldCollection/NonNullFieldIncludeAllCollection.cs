@@ -16,9 +16,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt  WhenNonNullAddAll(string fieldName, bool?[]? value) => value != null ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAll<TFmtStruct>
-    (string fieldName, TFmtStruct[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TExt  WhenNonNullAddAll<TFmt>
+    (string fieldName, TFmt[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         value != null ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAll<TToStyle, TStylerType>
@@ -58,9 +58,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt  WhenNonNullAddAll(string fieldName, IReadOnlyList<bool?>? value) => 
         value != null ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAll<TFmtStruct>
-    (string fieldName, IReadOnlyList<TFmtStruct>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TExt  WhenNonNullAddAll<TFmt>
+    (string fieldName, IReadOnlyList<TFmt>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         value != null ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAll<TToStyle, TStylerType>
@@ -100,9 +100,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt  WhenNonNullAddAllEnumerate(string fieldName, IEnumerable<bool?>? value) => 
         value != null ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAllEnumerate<TFmtStruct>
-    (string fieldName, IEnumerable<TFmtStruct>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TExt  WhenNonNullAddAllEnumerate<TFmt>
+    (string fieldName, IEnumerable<TFmt>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         value != null ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAllEnumerate<TToStyle, TStylerType>
@@ -142,9 +142,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt  WhenNonNullAddAllEnumerate(string fieldName, IEnumerator<bool?>? value) => 
         value != null ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAllEnumerate<TFmtStruct>
-    (string fieldName, IEnumerator<TFmtStruct>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TExt  WhenNonNullAddAllEnumerate<TFmt>
+    (string fieldName, IEnumerator<TFmt>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         value != null ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAllEnumerate<TToStyle, TStylerType>

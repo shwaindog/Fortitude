@@ -44,6 +44,11 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
         }
         else
         {
+            if (LargeScratchBuffer is not null && LargeScratchBuffer.Capacity < charSizeRequired )
+            {
+                LargeScratchBuffer.DecrementRefCount();
+                LargeScratchBuffer = charSizeRequired.SourceCharArrayStringBuilder();    
+            }
             LargeScratchBuffer ??= charSizeRequired.SourceCharArrayStringBuilder();
         }
         LargeScratchBuffer.Clear();

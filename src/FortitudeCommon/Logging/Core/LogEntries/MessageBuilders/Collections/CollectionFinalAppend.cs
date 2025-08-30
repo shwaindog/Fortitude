@@ -6,16 +6,22 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<TToReturn, TCallerType>, ICollectionFinalAppend
     where TCallerType : FLogEntryMessageBuilderBase<TToReturn, TCallerType>, TToReturn where TToReturn : class, IFLogMessageBuilder    
 {
-    public void Add<TFmtStruct>(TFmtStruct[]? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public void Add<TStyleObj>(TStyleObj[]? value) where TStyleObj : class, IStyledToStringObject => 
+        AppendObjectCollection(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
+
+    public void Add<TStyleObj>(IReadOnlyList<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject =>
+        AppendObjectCollection(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
+    
+    public void AddFormat<TFmt>(TFmt[]? value, string? formatString = null) where TFmt : ISpanFormattable =>
         AppendValueCollection(PreappendCheckGetStringAppender(value), value, formatString).PostAppendCheckAndReturn(value, this);
     
-    public void Add<TFmtStruct>((TFmtStruct[]?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormat<TFmt>((TFmt[]?, string?) valueTuple) where TFmt : ISpanFormattable =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
     
-    public void Add<TFmtStruct>(IReadOnlyList<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormat<TFmt>(IReadOnlyList<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable =>
         AppendValueCollection(PreappendCheckGetStringAppender(value), value, formatString).PostAppendCheckAndReturn(value, this);
     
-    public void Add<TFmtStruct>((IReadOnlyList<TFmtStruct>?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormat<TFmt>((IReadOnlyList<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
     
     public void Add<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
@@ -31,29 +37,35 @@ public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<T
     public void Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
     
-    public void Add<TFmtStruct>(TFmtStruct[]? value, OrderedCollectionPredicate<TFmtStruct> filter
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public void Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) where TStyleObj : class, IStyledToStringObject =>
+        AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter).PostAppendCheckAndReturn(value, this);
+    
+    public void Add<TStyleObj>(IReadOnlyList<TStyleObj>? value, OrderedCollectionPredicate<TStyleObj> filter) where TStyleObj : class, IStyledToStringObject =>
+        AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter).PostAppendCheckAndReturn(value, this);
+    
+    public void AddFormat<TFmt, TBase>(TFmt[]? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, formatString).PostAppendCheckAndReturn(value, this);
     
-    public void Add<TFmtStruct>(
-        (TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormat<TFmt, TBase>(
+        (TFmt[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
     
-    public void Add<TFmtStruct>(
-        (TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormat<TFmt, TBase>(
+        (TFmt[]?, OrderedCollectionPredicate<TBase>) valueTuple) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
     
-    public void Add<TFmtStruct>(IReadOnlyList<TFmtStruct>? value
-      , OrderedCollectionPredicate<TFmtStruct> filter
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormat<TFmt, TBase>(IReadOnlyList<TFmt>? value
+      , OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, formatString).PostAppendCheckAndReturn(value, this);
 
-    public void Add<TFmtStruct>(
-        (IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormat<TFmt, TBase>(
+        (IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>, string?) valueTuple) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void Add<TFmtStruct>(
-        (IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormat<TFmt, TBase>(
+        (IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void Add<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter
@@ -73,20 +85,26 @@ public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<T
         where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
     
-    public void AddEnumerate<TFmtStruct>(IEnumerable<TFmtStruct>? value
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddEnumerate<TStyleObj>(IEnumerable<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject =>
+        AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
+    
+    public void AddEnumerate<TStyleObj>(IEnumerator<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject =>
+        AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
+    
+    public void AddFormatEnumerate<TFmt>(IEnumerable<TFmt>? value
+      , string? formatString = null) where TFmt : ISpanFormattable =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, formatString).PostAppendCheckAndReturn(value, this);
     
-    public void AddEnumerate<TFmtStruct>((IEnumerable<TFmtStruct>?, string?) valueTuple)
-        where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormatEnumerate<TFmt>((IEnumerable<TFmt>?, string?) valueTuple)
+        where TFmt : ISpanFormattable =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
     
-    public void AddEnumerate<TFmtStruct>(IEnumerator<TFmtStruct>? value
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormatEnumerate<TFmt>(IEnumerator<TFmt>? value
+      , string? formatString = null) where TFmt : ISpanFormattable =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, formatString).PostAppendCheckAndReturn(value, this);
     
-    public void AddEnumerate<TFmtStruct>((IEnumerator<TFmtStruct>?, string?) valueTuple)
-        where TFmtStruct : struct, ISpanFormattable =>
+    public void AddFormatEnumerate<TFmt>((IEnumerator<TFmt>?, string?) valueTuple)
+        where TFmt : ISpanFormattable =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
     
     public void AddEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value

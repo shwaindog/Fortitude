@@ -58,29 +58,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddAll<TFmtStruct>(string fieldName, TFmtStruct[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartCollection();
-            for (var i = 0; i < value.Length; i++)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(value[i], formatString)
-                    : stb.Sb.Append(value[i]);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TFmtStruct>(string fieldName, TFmtStruct?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -270,7 +248,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -281,28 +259,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 _ = formatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(value[i], formatString)
                     : stb.Sb.Append(value[i]);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartCollection();
-            for (var i = 0; i < value.Count; i++)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(value[i], formatString)
-                    : stb.Sb.AppendOrNull(value[i]);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -477,7 +433,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -488,28 +444,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 _ = formatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(item, formatString)
                     : stb.Sb.Append(item);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartCollection();
-            foreach (var item in value)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.Sb.AppendOrNull(item);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -693,7 +627,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -705,30 +639,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 _ = formatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(value!.Current, formatString)
                     : stb.Sb.Append(value!.Current);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TFmtStruct : struct, ISpanFormattable
-    {
-        stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
-        {
-            stb.StartCollection();
-            while (hasValue)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(value!.Current, formatString)
-                    : stb.Sb.AppendOrNull(value!.Current);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }

@@ -4,61 +4,29 @@ using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 
-public class FLogConsoleAppender : FLogBufferingFormatAppender
+public class NullConsoleAppender(IConsoleAppenderConfig consoleAppenderConfig, IFLogContext context) 
+    : FLogConsoleAppender(consoleAppenderConfig, context)
 {
-    public FLogConsoleAppender(IConsoleAppenderConfig consoleAppenderConfig, IFLogContext context) : base(consoleAppenderConfig, context)
-    {
-        ConsoleColorEnabled = !consoleAppenderConfig.DisableColoredConsole;
-    }
-
-    public bool ConsoleColorEnabled { get; set; }
-
     protected override IFormatWriter CreatedAppenderDirectFormatWriter
         (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback) =>
-        new ConsoleFormatWriter().Initialize(this, onWriteCompleteCallback);
+        new NullConsoleFormatWriter().Initialize(this, onWriteCompleteCallback);
 
-    public override void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
-    {
-        if (!IsOpen) return;
-        if (logEntryEvent.LogEntryEventType == LogEntryEventType.SingleEntry)
-        {
-            var fLogEntry = logEntryEvent.LogEntry;
-            if (fLogEntry != null)
-            {
-                Formatter.ApplyFormatting(fLogEntry);
-            }
-        }
-        else
-        {
-            var logEntriesBatch = logEntryEvent.LogEntriesBatch;
-            var count           = logEntriesBatch?.Count ?? 0;
-            for (var i = 0; i < count; i++)
-            {
-                var flogEntry = logEntriesBatch![i];
-                Formatter.ApplyFormatting(flogEntry);
-            }
-        }
-    }
-
-    public override FormattingAppenderSinkType FormatAppenderType => FormattingAppenderSinkType.Console;
-
-    public override IConsoleAppenderConfig GetAppenderConfig() => (IConsoleAppenderConfig)AppenderConfig;
-
-    private class ConsoleFormatWriter : CharBufferFlushingFormatWriter<ConsoleFormatWriter>
+    private class NullConsoleFormatWriter : CharBufferFlushingFormatWriter<NullConsoleFormatWriter>
     {
         private readonly object syncLock = new();
 
-        private FLogConsoleAppender consoleAppender = null!;
+        private CharArrayStringBuilder dummyWriteBuffer = new(32 * 1024);
 
-        public ConsoleFormatWriter Initialize(FLogConsoleAppender owningAppender
+        private NullConsoleAppender consoleAppender = null!;
+
+        public NullConsoleFormatWriter Initialize(NullConsoleAppender owningAppender
           , FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
         {
-            base.Initialize(owningAppender, $"Direct{nameof(ConsoleFormatWriter)}", onWriteCompleteCallback);
+            base.Initialize(owningAppender, $"Direct{nameof(NullConsoleFormatWriter)}", onWriteCompleteCallback);
 
             IsIOSynchronous = true;
             consoleAppender = owningAppender;
@@ -68,7 +36,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
 
         public override void Append(string toWrite)
         {
-            Console.Write(toWrite);
+            dummyWriteBuffer.Insert(0, toWrite);
         }
 
         public override void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue)
@@ -82,7 +50,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
             var cappedLength = Math.Clamp(length, 0, toWrite.Length);
             var charArray    = cappedLength.SourceRecyclingCharArray();
             charArray.Add(toWrite, fromIndex, cappedLength);
-            Console.Write(charArray.BackingArray, cappedFrom, cappedLength);
+            dummyWriteBuffer.Insert(0, charArray.BackingArray, cappedFrom, cappedLength);
             charArray.DecrementRefCount();
         }
 
@@ -94,7 +62,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
                 var cappedFrom            = Math.Clamp(fromIndex, writtenCharArrayRange.FromIndex, writtenCharArrayRange.Length - 1);
                 var cappedLength          = Math.Clamp(length, 0, writtenCharArrayRange.Length);
 
-                Console.Write(writtenCharArrayRange.CharBuffer, cappedFrom, cappedLength);
+                dummyWriteBuffer.Insert(0, writtenCharArrayRange.CharBuffer, cappedFrom, cappedLength);
             }
             else if (toWrite is MutableString mutableString)
             {
@@ -107,7 +75,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
                 var cappedLength = Math.Clamp(length, 0, toWrite.Length);
                 var charArray    = cappedLength.SourceRecyclingCharArray();
                 charArray.Add(toWrite, cappedFrom, cappedLength);
-                Console.Write(charArray.BackingArray, 0, cappedLength);
+                dummyWriteBuffer.Insert(0, charArray.BackingArray, cappedFrom, cappedLength);
                 charArray.DecrementRefCount();
             }
         }
@@ -118,7 +86,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
             var cappedLength = Math.Clamp(length, 0, toWrite.Length);
             var charArray    = cappedLength.SourceRecyclingCharArray();
             charArray.Add(toWrite, cappedFrom, cappedLength);
-            Console.Write(charArray.BackingArray, 0, cappedLength);
+            dummyWriteBuffer.Insert(0, charArray.BackingArray, 0, cappedLength);
             charArray.DecrementRefCount();
         }
 
@@ -126,7 +94,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
         {
             var cappedFrom   = Math.Clamp(fromIndex, 0, toWrite.Length - 1);
             var cappedLength = Math.Clamp(length, 0, toWrite.Length);
-            Console.Write(toWrite, cappedFrom, cappedLength);
+            dummyWriteBuffer.Insert(0, toWrite, cappedFrom, cappedLength);
         }
 
         public override void NotifyEntryAppendComplete()
@@ -139,7 +107,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
             lock (syncLock)
             {
                 var bufferAndRange = toFlush.FlushRange();
-                Console.Out.Write(bufferAndRange.CharBuffer, 0, bufferAndRange.Length);
+                dummyWriteBuffer.Insert(0, bufferAndRange.CharBuffer, 0, bufferAndRange.Length);
             }
             consoleAppender.IncrementLogEntriesProcessed(toFlush.BufferedFormattedLogEntries);
             toFlush.Clear();

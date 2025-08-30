@@ -66,7 +66,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt AlwaysAddFiltered<TFmtStruct>
     (string fieldName, TFmtStruct[]? value, OrderedCollectionPredicate<TFmtStruct> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -328,7 +328,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddFiltered<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct>? value, OrderedCollectionPredicate<TFmtStruct> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : struct, ISpanFormattable
+        where TFmtStruct : ISpanFormattable
     {
         var found = false;
         stb.FieldNameJoin(fieldName);

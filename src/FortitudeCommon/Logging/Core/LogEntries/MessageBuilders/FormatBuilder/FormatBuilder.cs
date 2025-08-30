@@ -15,15 +15,18 @@ public enum FormatTypeFlags
 }
 
 public readonly struct StringFormatTokenParams
-    (string format, int paramNumber, int padding, Range originalStringLocation, FormatTypeFlags formatTypeFlags)
+    (string format, int paramNumber, int padding, int formatLength, Range originalStringLocation, FormatTypeFlags formatTypeFlags)
     : IEquatable<StringFormatTokenParams>
 {
     public readonly string StringFormat         = format;
+    public readonly int    FormatLength         = formatLength;
     public readonly int    ParameterNumber      = paramNumber;
     public readonly int    Padding              = padding;
     public readonly Range  FormatStringLocation = originalStringLocation;
 
     public readonly FormatTypeFlags FormatType = formatTypeFlags;
+    
+    public bool HasFormatting => Padding != 0 && FormatLength != 0;
 
     public bool Equals(StringFormatTokenParams other)
     {
@@ -171,6 +174,7 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
         public int ParamNumber   = -1;
         public int PaddingDigits = 0;
         public int PaddingSign   = 1;
+        public int FormatLength  = 0;
 
         public Range? FormatTokenRange;
 
@@ -198,14 +202,17 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
             Console.Out.WriteLine("Token no longer exists in this string, check to ensure you are not trying to replace the same token twice");
             return null;
         }
-        var originalLocation     = tokenToReplace.FormatStringLocation.Start.Value;
-        var tokenSize            = tokenToReplace.FormatStringLocation.Length();
-        var shift                = GetUpdatedTokenStart(originalLocation);
+        var originalLocation = tokenToReplace.FormatStringLocation.Start.Value;
+        var tokenSize        = tokenToReplace.FormatStringLocation.Length();
+        var shift            = GetUpdatedTokenStart(originalLocation);
+
         var updatedTokenLocation = tokenToReplace.FormatStringLocation.Shift(shift);
         sb.ReplaceAtRange(updatedTokenLocation, withStringBuilderChars);
+
         var newLocation      = updatedTokenLocation.Start.Value;
         var replaceLength    = withStringBuilderChars?.Length ?? 0;
         var updatedSizeDelta = replaceLength - tokenSize;
+
         deltasApplied.Add(new ReplacedAt(originalLocation, updatedSizeDelta));
         return new Range(newLocation, newLocation + replaceLength);
     }
@@ -247,7 +254,7 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
                         var foundToken =
                             new StringFormatTokenParams
                                 (tokenParseState.FormatStringEquivalent, tokenParseState.ParamNumber, tokenParseState.Padding
-                               , formatTokenRange, tokenParseState.FormatType);
+                               , tokenParseState.FormatLength, formatTokenRange, tokenParseState.FormatType);
                         stringFormatParams.Add(foundToken);
                         i += formatTokenRange.End.Value - formatTokenRange.Start.Value;
                     }
@@ -264,9 +271,10 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
             var commonNumberFormat = CommonNumberFormatString[j];
             if (tokenBuffer.IsEndOf(commonNumberFormat))
             {
-                tokenParseState.FormatStringEquivalent =  commonNumberFormat;
-                tokenParseState.FormatType             =  commonNumberFormat.Contains(",") ? FormatTypeFlags.StringPadding : FormatTypeFlags.Unknown;
-                tokenParseState.FormatType             |= commonNumberFormat.Contains(":") ? FormatTypeFlags.NumberFormat : FormatTypeFlags.Unknown;
+                tokenParseState.FormatStringEquivalent = commonNumberFormat;
+
+                tokenParseState.FormatType =  commonNumberFormat.Contains(",") ? FormatTypeFlags.StringPadding : FormatTypeFlags.Unknown;
+                tokenParseState.FormatType |= commonNumberFormat.Contains(":") ? FormatTypeFlags.NumberFormat : FormatTypeFlags.Unknown;
             }
         }
         for (int j = 0; j < CommonDateTimeFormatString.Length && tokenParseState.FormatStringEquivalent == null; j++)
@@ -275,9 +283,10 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
             if (tokenBuffer.IsEndOf(commonDateTimeFormat))
             {
                 tokenParseState.FormatStringEquivalent = commonDateTimeFormat;
-                tokenParseState.FormatType             = FormatTypeFlags.DateTime;
-                tokenParseState.FormatType
-                    |= commonDateTimeFormat.Contains(",") ? FormatTypeFlags.StringPadding : FormatTypeFlags.Unknown;
+
+                tokenParseState.FormatType = FormatTypeFlags.DateTime;
+
+                tokenParseState.FormatType |= commonDateTimeFormat.Contains(",") ? FormatTypeFlags.StringPadding : FormatTypeFlags.Unknown;
             }
         }
         for (int j = 0; j < RuntimeAppCustomFormatString.Count && tokenParseState.FormatStringEquivalent == null; j++)
@@ -291,14 +300,13 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
         if (tokenParseState.FormatStringEquivalent == null && tokenParseState.FormatTokenRange != null)
         {
             var tokenSize            = BuildNewStringBuilderFormatToken(tokenBuffer, tokenParseState.FormatTokenRange.Value);
-            var newAppUncommonFormat = tokenBuffer.ToString();
+            var newAppUncommonFormat = new String(tokenBuffer[..tokenSize]);
             if (tokenSize < 0)
             {
                 Console.Out.WriteLine($"Failed to build format token {newAppUncommonFormat} properly");
             }
             else
             {
-                Console.Out.WriteLine($"Constructed new formatting token {newAppUncommonFormat} properly");
                 RuntimeAppCustomFormatString.Add(newAppUncommonFormat);
                 tokenParseState.FormatStringEquivalent = newAppUncommonFormat;
             }
@@ -315,6 +323,15 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
         var hasAddedParamNumber = false;
         foreach (var check in formattedString[onePlusRange])
         {
+            if (parseStage is ReadFormattingTokenStage.Padding or ReadFormattingTokenStage.FormatParams)
+            {
+                tokenBuffer.Append(check);
+                switch (check)
+                {
+                    case '}': return tokenBuffer.PopulatedLength();
+                    case '{': return -1;
+                }
+            }
             if (parseStage == ReadFormattingTokenStage.ParamNumber)
             {
                 switch (check)
@@ -338,15 +355,6 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
                     default: return -1;
                 }
             }
-            if (parseStage is ReadFormattingTokenStage.Padding or ReadFormattingTokenStage.FormatParams)
-            {
-                tokenBuffer.Append(check);
-                switch (check)
-                {
-                    case '}': return tokenBuffer.PopulatedLength();
-                    case '{': return -1;
-                }
-            }
         }
         return tokenBuffer.PopulatedLength();
     }
@@ -355,11 +363,18 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
     {
         var formatTokenState = new FormatTokenState();
         var j                = i + 1;
+        tokenBuffer.Append(formattedString[i]);
+        var hasAddedParamIdentifier = false;
         for (; j < formattedString.Length && !formatTokenState.HasFinishParseAttempt; j++)
         {
-            var check = formattedString[i];
+            var check = formattedString[j];
             if (formatTokenState.ParseStage == ReadFormattingTokenStage.ParamNumber)
             {
+                if (!hasAddedParamIdentifier)
+                {
+                    tokenBuffer.Append('0');
+                    hasAddedParamIdentifier = true;
+                }
                 formatTokenState = ParseParamNumber(check, formatTokenState);
             }
             if (formatTokenState.ParseStage == ReadFormattingTokenStage.Padding)
@@ -386,8 +401,9 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
                 formatTokenState.ParamNumber *= 10;
                 formatTokenState.ParamNumber += check - '0';
                 break;
-            case ',': formatTokenState.ParseStage             = ReadFormattingTokenStage.Padding; break;
-            case ':': formatTokenState.ParseStage             = ReadFormattingTokenStage.FormatParams; break;
+            case ',': formatTokenState.ParseStage = ReadFormattingTokenStage.Padding; break;
+            case ':': formatTokenState.ParseStage = ReadFormattingTokenStage.FormatParams; break;
+
             case '}': formatTokenState.IsValidFormattingToken = true; break;
             default:  formatTokenState.HasFinishParseAttempt  = true; break;
         }
@@ -403,10 +419,12 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
                 formatTokenState.PaddingDigits *= 10;
                 formatTokenState.PaddingDigits += check - '0';
                 break;
-            case '-': formatTokenState.PaddingSign            = -1; break;
-            case ':': formatTokenState.ParseStage             = ReadFormattingTokenStage.FormatParams; break;
+            case '-': formatTokenState.PaddingSign = -1; break;
+            case ':': formatTokenState.ParseStage  = ReadFormattingTokenStage.FormatParams; break;
+
             case '}': formatTokenState.IsValidFormattingToken = true; break;
-            default:  formatTokenState.HasFinishParseAttempt  = true; break;
+            case ',': break;
+            default:  formatTokenState.HasFinishParseAttempt = true; break;
         }
         return formatTokenState;
     }
@@ -416,11 +434,7 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
         switch (check)
         {
             case '}': formatTokenState.IsValidFormattingToken = true; break;
-            case ':':
-            case '{':
-            case ',':
-                formatTokenState.HasFinishParseAttempt = true;
-                break;
+            default:  formatTokenState.FormatLength++; break;
         }
         return formatTokenState;
     }

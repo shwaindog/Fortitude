@@ -26,25 +26,34 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     private MutableString? fallBackFormatter;
 
-    private RecyclingCharArray CharArray(int requiredLength) => ca = ca.EnsureCapacity(requiredLength);
+    private RecyclingCharArray CharArray(int requiredLength)
+    {
+        var oldCa = ca;
+        ca = ca.EnsureCapacity(requiredLength);
+        if (!ReferenceEquals(oldCa, ca))
+        {
+            this.EnsureRecyclerMatchesCurrentCapacity();
+        }
+        return ca;
+    }
 
     public CharArrayStringBuilder() => ca = 128.SourceRecyclingCharArray();
 
     public CharArrayStringBuilder(IMutableString initialString)
     {
-        var initialSize = initialString.Length;
+        var initialSize = Math.Max(initialString.Length, 128);
         ca = initialSize.SourceRecyclingCharArray();
         Append(initialString);
     }
 
     public CharArrayStringBuilder(string? initialString)
     {
-        var initialSize = initialString?.Length ?? 128;
+        var initialSize = Math.Max(initialString?.Length ?? 128, 128);
         ca = initialSize.SourceRecyclingCharArray();
         Append(initialString);
     }
 
-    public CharArrayStringBuilder(int initialCapacity) => ca = initialCapacity.SourceRecyclingCharArray();
+    public CharArrayStringBuilder(int initialCapacity) => ca = Math.Max(initialCapacity, 128).SourceRecyclingCharArray();
 
     public CharArrayStringBuilder(RecyclingCharArray initializedBuilder) => ca = initializedBuilder;
 
@@ -54,12 +63,18 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         ca.CopyFrom(toClone.ca);
     }
 
+    protected IRecycler MyRecycler
+    {
+        get => base.Recycler ??  recycler;
+        set => base.Recycler = value;
+    }
+
 
     public CharArrayStringBuilder EnsureIsAtSize(int size)
     {
         if (ca != null && ca.Capacity != size)
         {
-            throw new ArgumentException($"Expected the array to already be initialized at size {size} or be empty and ready to be initialized");
+            throw new ArgumentException($"Expected the array to already be initialized at size {size} or be empty and ready to be initialized, but it was {ca.Capacity}");
         }
         ca ??= size.SourceRecyclingCharArray();
         return this;
@@ -575,9 +590,39 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
-    public CharArrayStringBuilder Append<TStruct>(TStruct arg0) 
-        where TStruct : struct, ISpanFormattable
+    public IStringBuilder AppendEnum<TEnum>(TEnum value) where TEnum : Enum
     {
+        if (TryGetCachedCustomSpanFormatter<TEnum>(out var formatter))
+        {
+            ca.Count += formatter(value, ca.RemainingAsSpan(), "", null);
+            return this;
+        }
+        var enumFormatProvider = EnumFormatterRegistry.GetOrCreateStructEnumFormatProvider<TEnum>();
+        CustomSpanFormattableProviders.TryAdd(typeof(TEnum), enumFormatProvider);
+        formatter =  enumFormatProvider.CustomSpanFormattable;
+        ca.Count  += formatter(value, ca.RemainingAsSpan(), "",null);
+
+        return this;
+    }
+
+    public CharArrayStringBuilder Append<TFmt>(TFmt arg0) 
+        where TFmt : ISpanFormattable
+    {
+        if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
+        {
+            ca.Count += formatter(arg0, ca.RemainingAsSpan(), "", null);
+            return this;
+        }
+        if (arg0 is Enum)
+        {
+            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateStructEnumFormatProvider<TFmt>();
+            CustomSpanFormattableProviders.TryAdd(typeof(TFmt), enumFormatProvider);
+            formatter =  enumFormatProvider.CustomSpanFormattable;
+            ca.Count  += formatter(arg0, ca.RemainingAsSpan(), "", null);
+
+            return this;
+        }
+
         var charSpan     = stackalloc char[256].ResetMemory();
         if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
         {
@@ -709,9 +754,9 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
         return this;
     }
-
+    
     public CharArrayStringBuilder AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct arg0) 
-        where TStruct : struct, ISpanFormattable
+        where TStruct : ISpanFormattable
     {
         if (TryGetCachedCustomSpanFormatter<TStruct>(out var formatter))
         {
@@ -838,7 +883,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     public CharArrayStringBuilder AppendFormat(IFormatProvider? provider, CompositeFormat format, ReadOnlySpan<object?> args)
     {
-        fallBackFormatter ??= recycler.Borrow<MutableString>();
+        fallBackFormatter ??= MyRecycler.Borrow<MutableString>();
         fallBackFormatter.Clear();
         fallBackFormatter.AppendFormat(provider, format, args);
         CharArray(fallBackFormatter.Length).Add(fallBackFormatter);
@@ -848,7 +893,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     public CharArrayStringBuilder AppendFormat<TParam>(IFormatProvider? provider, CompositeFormat format, TParam arg0)
     {
-        fallBackFormatter ??= recycler.Borrow<MutableString>();
+        fallBackFormatter ??= MyRecycler.Borrow<MutableString>();
         fallBackFormatter.Clear();
         fallBackFormatter.AppendFormat(provider, format, arg0);
         CharArray(fallBackFormatter.Length).Add(fallBackFormatter);
@@ -858,7 +903,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     public CharArrayStringBuilder AppendFormat<TParam, TParam1>(IFormatProvider? provider, CompositeFormat format, TParam arg0, TParam1 arg1)
     {
-        fallBackFormatter ??= recycler.Borrow<MutableString>();
+        fallBackFormatter ??= MyRecycler.Borrow<MutableString>();
         fallBackFormatter.Clear();
         fallBackFormatter.AppendFormat(provider, format, arg0, arg1);
         CharArray(fallBackFormatter.Length).Add(fallBackFormatter);
@@ -869,7 +914,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     public CharArrayStringBuilder AppendFormat<TParam, TParam1, TParam2>
         (IFormatProvider? provider, CompositeFormat format, TParam arg0, TParam1 arg1, TParam2 arg2)
     {
-        fallBackFormatter ??= recycler.Borrow<MutableString>();
+        fallBackFormatter ??= MyRecycler.Borrow<MutableString>();
         fallBackFormatter.Clear();
         fallBackFormatter.AppendFormat(provider, format, arg0, arg1, arg2);
         CharArray(fallBackFormatter.Length).Add(fallBackFormatter);
@@ -1252,8 +1297,6 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct arg0) => Append(arg0);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct? arg0) => Append(arg0);
-
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value) => Append(value);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value, int startIndex, int length, string? formatString) =>
@@ -1314,8 +1357,6 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         where TClass : class => AppendSpanFormattable(format, arg0);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TStruct>(string format, TStruct arg0) => AppendFormat(format, arg0);
-
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TStruct>(string format, TStruct? arg0) => AppendFormat(format, arg0);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, string arg0) => AppendFormat(format, arg0);
 

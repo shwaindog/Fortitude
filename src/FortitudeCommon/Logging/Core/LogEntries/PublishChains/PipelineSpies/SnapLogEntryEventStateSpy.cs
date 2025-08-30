@@ -6,9 +6,9 @@ using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains.PipelineSpies;
 
-public class SnapLogEntryEventStateSpy(IList<string?> snappedLogEntryEvents, string spyName) : FLogEntryForkingInterceptor
+public class SnapLogEntryEventStateSpy(IList<string> snappedLogEntryEvents, string spyName) : FLogEntryForkingInterceptor
 {
-    public override FLogEntrySourceSinkType LogEntryLinkType => FLogEntrySourceSinkType.Sink;
+    public override FLogEntrySourceSinkType LogEntryLinkType => FLogEntrySourceSinkType.InterceptionPoint;
 
     public override FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
 
@@ -33,7 +33,7 @@ public class SnapLogEntryEventStateSpy(IList<string?> snappedLogEntryEvents, str
         base.SafeOnReceiveLogEntry(logEntryEvent, fromPublisher);
     }
 
-    public IList<string?> LogEntries { get; } = snappedLogEntryEvents;
+    public IList<string> LogEntries { get; } = snappedLogEntryEvents;
     
     private static readonly CustomTypeStyler<IFLogEntry> SummarizedFLogEntry = (flogEntry, sbc) =>
     {

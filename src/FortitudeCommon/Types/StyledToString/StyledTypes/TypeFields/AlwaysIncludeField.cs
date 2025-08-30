@@ -21,17 +21,11 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt AlwaysAdd(string fieldName, bool? value) => 
         stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(stb);
 
-    public TExt AlwaysAdd<TFmtStruct>(string fieldName, TFmtStruct value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable => 
+    public TExt AlwaysAdd<TFmtt>(string fieldName, TFmtt value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtt : ISpanFormattable =>
         formatString.IsNotNullOrEmpty() 
             ? AlwaysAddWithFormatting(fieldName, value, formatString) 
             : stb.FieldNameJoin(fieldName).Append(value).AddGoToNext(stb);
-
-    public TExt AlwaysAdd<TFmtStruct>(string fieldName, TFmtStruct? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable => 
-        formatString.IsNotNullOrEmpty() 
-            ? AlwaysAddWithFormatting(fieldName, value, formatString) 
-            : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(stb);
 
     public TExt AlwaysAdd<TToStyle, TStylerType>(string fieldName, TToStyle? value
       , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
@@ -86,12 +80,8 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
             ? AlwaysAddWithFormatting(fieldName, value, formatString) 
             : stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
 
-    public TExt AlwaysAddWithFormatting<TNum>(string fieldName, TNum value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TNum : struct, INumber<TNum> => 
-        stb.FieldNameJoin(fieldName).AppendFormatted(value, formatString).AddGoToNext(stb);
-
-    public TExt AlwaysAddWithFormatting<TNum>(string fieldName, TNum? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TNum : struct, INumber<TNum> => 
+    public TExt AlwaysAddWithFormatting<TFmt>(string fieldName, TFmt value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TFmt : ISpanFormattable => 
         stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
 
     public TExt AlwaysAddWithFormatting(string fieldName, ReadOnlySpan<char> value

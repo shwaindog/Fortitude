@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FortitudeCommon.DataStructures.Lists;
+﻿using FortitudeCommon.DataStructures.Lists;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains.PipelineSpies;
 
-public class LogEntrySpyRingInvestigation(int maxLiveIntelSize = 64)
+public class SnapLogEntrySpyRingInvestigation(int maxLiveIntelSize = 64)
 {
     private readonly List<SnapLogEntryEventStateSpy> currentSpies = new();
 

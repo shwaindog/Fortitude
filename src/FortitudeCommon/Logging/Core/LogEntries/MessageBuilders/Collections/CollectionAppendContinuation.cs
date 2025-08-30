@@ -8,19 +8,27 @@ public class CollectionAppendContinuation<TToReturn, TCallerType> : AddCollectio
     where TCallerType : FLogEntryMessageBuilderBase<TToReturn, TCallerType>, TToReturn where TToReturn : class, IFLogMessageBuilder
 {
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>(TFmtStruct[]? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable => 
+    public TToReturn Add<TStyleObj>(TStyleObj[]? value) where TStyleObj : class, IStyledToStringObject => 
+        AppendObjectCollection(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
+
+    [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
+    public TToReturn Add<TStyleObj>(IReadOnlyList<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject =>
+        AppendObjectCollection(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
+    
+    [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
+    public TToReturn AddFormat<TFmt>(TFmt[]? value, string? formatString = null) where TFmt : ISpanFormattable => 
         AppendValueCollection(PreappendCheckGetStringAppender(value), value, formatString).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>((TFmtStruct[]?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormat<TFmt>((TFmt[]?, string?) valueTuple) where TFmt : ISpanFormattable =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>(IReadOnlyList<TFmtStruct>? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormat<TFmt>(IReadOnlyList<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable =>
         AppendValueCollection(PreappendCheckGetStringAppender(value), value, formatString).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>((IReadOnlyList<TFmtStruct>?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormat<TFmt>((IReadOnlyList<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
@@ -37,38 +45,48 @@ public class CollectionAppendContinuation<TToReturn, TCallerType> : AddCollectio
         AppendValueCollection(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType =>
+    public TToReturn Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) 
+        where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
+    
+    [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
+    public TToReturn Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) 
+        where TStyleObj : class, IStyledToStringObject => 
+        AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>(TFmtStruct[]? value, OrderedCollectionPredicate<TFmtStruct> filter
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn Add<TStyleObj>(IReadOnlyList<TStyleObj>? value, OrderedCollectionPredicate<TStyleObj> filter) 
+        where TStyleObj : class, IStyledToStringObject =>
+        AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter).PostAppendCheckAndReturn(value, this);
+
+    [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
+    public TToReturn AddFormat<TFmt, TBase>(TFmt[]? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, formatString).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>(
-        (TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormat<TFmt, TBase>((TFmt[]?, OrderedCollectionPredicate<TBase>, string?) valueTuple) 
+        where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>(
-        (TFmtStruct[]?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormat<TFmt, TBase>(
+        (TFmt[]?, OrderedCollectionPredicate<TBase>) valueTuple) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>(IReadOnlyList<TFmtStruct>? value
-      , OrderedCollectionPredicate<TFmtStruct> filter
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormat<TFmt, TBase>(IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TBase> filter
+      , string? formatString = null) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, formatString).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>(
-        (IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormat<TFmt, TBase>(
+        (IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>, string?) valueTuple) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TFmtStruct>(
-        (IReadOnlyList<TFmtStruct>?, OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormat<TFmt, TBase>(
+        (IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
@@ -94,39 +112,45 @@ public class CollectionAppendContinuation<TToReturn, TCallerType> : AddCollectio
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TFmtStruct>(IEnumerable<TFmtStruct>? value
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddEnumerate<TStyleObj>(IEnumerable<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject =>
+        AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
+
+    [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
+    public TToReturn AddEnumerate<TStyleObj>(IEnumerator<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject =>
+        AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
+
+    [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
+    public TToReturn AddFormatEnumerate<TFmt>(IEnumerable<TFmt>? value
+      , string? formatString = null) where TFmt : ISpanFormattable =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, formatString).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TFmtStruct>((IEnumerable<TFmtStruct>?, string?) valueTuple)
-        where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormatEnumerate<TFmt>((IEnumerable<TFmt>?, string?) valueTuple)
+        where TFmt : ISpanFormattable =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TFmtStruct>(IEnumerator<TFmtStruct>? value
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormatEnumerate<TFmt>(IEnumerator<TFmt>? value, string? formatString = null) 
+        where TFmt : ISpanFormattable =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, formatString).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TFmtStruct>((IEnumerator<TFmtStruct>?, string?) valueTuple)
-        where TFmtStruct : struct, ISpanFormattable =>
+    public TToReturn AddFormatEnumerate<TFmt>((IEnumerator<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
-      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
+    public TToReturn AddEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TToStyle, TStylerType>(
-        (IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+    public TToReturn AddEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) 
         where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
-      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
+    public TToReturn AddEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler)
+        where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
