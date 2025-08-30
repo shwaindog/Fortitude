@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
-using FortitudeCommon.Logging.Core.ActivationProfiles;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LoggerVisitors;
 

@@ -3,20 +3,17 @@
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 
-
 // Aligns with LoggerActivationFlags Bits
 public enum FLogBuildTypeProfile : byte
 {
-    None = 0
-  , DebugBuild = 2
-  , ReleaseBuild = 4
-  , AllBuildTypes = 6
+    None          = 0
+  , DebugBuild    = 4
+  , ReleaseBuild  = 8
+  , AllBuildTypes = 12
 }
 
 public static class FLogBuildProfileTypeExtensions
 {
-    public static  uint AllToNoneOrOriginalAsUint(this FLogBuildTypeProfile fLogBuildTypeProfile) => 
+    public static uint AllToNoneOrOriginalAsUint(this FLogBuildTypeProfile fLogBuildTypeProfile) =>
         fLogBuildTypeProfile == FLogBuildTypeProfile.AllBuildTypes ? (uint)FLogBuildTypeProfile.None : (uint)fLogBuildTypeProfile;
-    
-    
 }

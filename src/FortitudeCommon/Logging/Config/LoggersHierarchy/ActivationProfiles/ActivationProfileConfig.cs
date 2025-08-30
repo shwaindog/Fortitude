@@ -3,7 +3,7 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Config.Appending;
-using FortitudeCommon.Logging.Core.ActivationProfiles;
+using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
@@ -79,7 +79,7 @@ public class ActivationProfileConfig: FLogConfig, IMutableActivationProfileConfi
             {
                 return env; 
             }
-            return parentConfig?.DeploymentEnvironment ?? FlogDeploymentEnvironmentProfileType.AllEnvironments;
+            return parentConfig?.DeploymentEnvironment ?? FlogDeploymentEnvironmentProfileType.AnyEnv;
         }
         
         set => this[nameof(BuildType)] = value.ToString();

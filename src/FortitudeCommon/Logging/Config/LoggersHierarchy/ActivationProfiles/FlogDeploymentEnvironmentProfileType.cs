@@ -7,22 +7,22 @@ namespace FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 [Flags]
 public enum FlogDeploymentEnvironmentProfileType : ushort
 {
-    None                 = 0x00_00
-  , LocalMachine         = 0x00_08 // unit tests, build machine, developer machine
-  , SystemTest           = 0x00_10
-  , SystemOrLocal        = 0x00_18 // SystemTest or LocalMachine Environment
-  , Uat                  = 0x00_20 // User Acceptance Test (UAT) Environment
-  , UatSystemOrLocal     = 0x00_38 // UAT Test or System Test or Local Machine Enironment
-  , PerfTest             = 0x00_40 // Performance Test Environment
-  , PerfUatSystemOrLocal = 0x00_78 // Performance or UAT or System Test or Local Machine Environment 
-  , Production           = 0x00_80 
-  , AllEnvironments      = 0x00_F8
+    None              = 0x00_00
+  , DevEnv            = 0x00_10 // local machine logging, or (unit tests, build machine, developer machine) could go here 
+  , TestEnv           = 0x00_20 // or here
+  , TestEnvOrLower    = 0x00_30
+  , PreRelease        = 0x00_40 // User Acceptance Test (UAT) Environment, Development Test, Pre-Prod etc...
+  , PreReleaseOrLower = 0x00_70 // 
+  , PerfEnv           = 0x00_80 // Performance Test Environment, Pre-Prod
+  , PerfEnvOrLower    = 0x00_F0 //  
+  , ProdEnv           = 0x01_00 // Production Environment
+  , AnyEnv            = 0x01_F0
 }
 
 public static class FlogDeploymentEnvironmentProfileTypeExtensions
 {
     public static uint AllToNoneOrOriginalAsUint(this FlogDeploymentEnvironmentProfileType flogDeploymentEnvironmentProfile) =>
-        flogDeploymentEnvironmentProfile == FlogDeploymentEnvironmentProfileType.AllEnvironments
+        flogDeploymentEnvironmentProfile == FlogDeploymentEnvironmentProfileType.AnyEnv
             ? (uint)FlogDeploymentEnvironmentProfileType.None
             : (uint)flogDeploymentEnvironmentProfile;
 }
