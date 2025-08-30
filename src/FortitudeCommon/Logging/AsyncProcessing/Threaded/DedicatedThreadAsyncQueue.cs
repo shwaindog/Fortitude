@@ -1,7 +1,9 @@
-﻿using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
-using FortitudeCommon.Logging.Core.Appending.Formatting;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
@@ -15,7 +17,7 @@ public class DedicatedThreadAsyncQueue : FLogAsyncQueue
 
     public DedicatedThreadAsyncQueue
     (int queueNumber, AsyncProcessingType queueType, int queueCapacity
-      , uint drainToEmptyTimeoutMs = 500) : base(queueNumber, queueType, queueCapacity)
+      , uint drainToEmptyTimeoutMs = 25) : base(queueNumber, queueType, queueCapacity)
     {
         ring = new EnumerableBatchPollingRing<FLogAsyncPayload>
             (
@@ -47,7 +49,8 @@ public class DedicatedThreadAsyncQueue : FLogAsyncQueue
         ring.Publish(slot);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks
+      , ITargetingFLogEntrySource publishSource)
     {
         var slot = ring.Claim();
 
@@ -59,7 +62,7 @@ public class DedicatedThreadAsyncQueue : FLogAsyncQueue
     public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, ITargetingFLogEntrySource publishSource)
     {
         var slot = ring.Claim();
-        
+
         var flogAsyncPayload = ring[slot];
         flogAsyncPayload.SetAsSendLogEntryEvent(logEntryEvent, logEntrySink, publishSource);
         ring.Publish(slot);

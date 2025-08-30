@@ -34,16 +34,16 @@ public interface IFLoggerCommon
 
     IFLoggerTreeCommonConfig ResolvedConfig { get; }
 
-    T Visit<T>(T visitor) where T : IFLoggerVisitor<T>;
-
     IReadOnlyList<IFLogger> ImmediateEmbodiedChildren { get; }
 
     IReadOnlyList<IAppenderClient> Appenders { get; }
+
+    T Visit<T>(T visitor) where T : IFLoggerVisitor<T>;
 }
 
 public interface IMutableFLoggerCommon : IFLoggerCommon
 {
-    new IMutableFLoggerTreeCommonConfig ResolvedConfig { get; set;  }
+    new IMutableFLoggerTreeCommonConfig ResolvedConfig { get; set; }
 
     new IReadOnlyList<IMutableFLogger> ImmediateEmbodiedChildren { get; }
 
@@ -57,27 +57,15 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
     protected static readonly FLogEntryPoolConfig DefaultLoggerEntryPoolConfig
         = new(IFLogEntryPoolConfig.LoggersGlobal, PoolScope.LoggersGlobal);
 
-    protected ConcurrentDictionary<string, IMutableFLogger> ImmediateChildrenDict = new();
-
-    protected List<IAppenderClient> LoggerAppenders = [];
-
     protected bool AppendersUpdatedFlag = true;
 
     protected IMutableFLoggerTreeCommonConfig Config = null!;
 
-    protected FLoggerBase()
-    {
-    }
+    protected ConcurrentDictionary<string, IMutableFLogger> ImmediateChildrenDict = new();
 
-    protected void ReInitializeRoot(IMutableFLoggerTreeCommonConfig loggerConfig, IFLogLoggerRegistry loggerRegistry)
-    {
-        HandleConfigUpdate(loggerConfig, loggerRegistry.AppenderRegistry);
+    protected List<IAppenderClient> LoggerAppenders = [];
 
-        LogLevel = loggerConfig.LogLevel;
-        LogEntryPool = loggerRegistry.SourceFLogEntryPool(loggerConfig.LogEntryPool ?? DefaultLoggerEntryPoolConfig);
-        
-        
-    }
+    protected FLoggerBase() { }
 
     protected FLoggerBase(IMutableFLoggerTreeCommonConfig loggerConfig, IFLogLoggerRegistry loggerRegistry)
     {
@@ -132,14 +120,12 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
                 }
             }
             foreach (var appenderConfig in newLoggerState.Appenders)
-            {
                 if (Appenders.All(a => a.BackingAppender.AppenderName != appenderConfig.Key))
                 {
                     AppendersUpdatedFlag = true;
                     var appenderClient = appenderRegistry.GetAppenderClient(appenderConfig.Key, this);
                     LoggerAppenders.Add(appenderClient);
                 }
-            }
         }
         Config = newLoggerState;
     }
@@ -166,15 +152,17 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
 
     IMutableFLogger IMutableFLoggerCommon.AddDirectChild(IMutableFLogger newChild)
     {
-        if (!ImmediateChildrenDict.TryAdd(newChild.Name, newChild))
-        {
-            return ImmediateChildrenDict[newChild.Name];
-        }
+        if (!ImmediateChildrenDict.TryAdd(newChild.Name, newChild)) return ImmediateChildrenDict[newChild.Name];
         return newChild;
     }
 
-    public virtual T Visit<T>(T visitor) where T : IFLoggerVisitor<T>
+    public virtual T Visit<T>(T visitor) where T : IFLoggerVisitor<T> => visitor.Accept(this);
+
+    protected void ReInitializeRoot(IMutableFLoggerTreeCommonConfig loggerConfig, IFLogLoggerRegistry loggerRegistry)
     {
-        return visitor.Accept(this);
+        HandleConfigUpdate(loggerConfig, loggerRegistry.AppenderRegistry);
+
+        LogLevel     = loggerConfig.LogLevel;
+        LogEntryPool = loggerRegistry.SourceFLogEntryPool(loggerConfig.LogEntryPool ?? DefaultLoggerEntryPoolConfig);
     }
 }

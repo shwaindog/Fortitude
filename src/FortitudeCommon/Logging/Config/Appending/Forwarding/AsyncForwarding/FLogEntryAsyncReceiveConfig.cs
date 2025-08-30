@@ -1,12 +1,12 @@
-﻿using FortitudeCommon.Logging.Config.Pooling;
-using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.AsyncForwarding;
-
 
 public interface IFLogEntryAsyncReceiveConfig : IFLogEntryQueueConfig
 {
@@ -44,29 +44,26 @@ public class FLogEntryAsyncReceiveConfig : FLogEntryQueueConfig, IMutableFLogEnt
       , int queueReadBatchSize = IFLogEntryQueueConfig.DefaultQueueReadBatchSize
       , int queueDropInterval = IFLogEntryQueueConfig.DefaultQueueDropInterval
       , IMutableFLogEntryPoolConfig? logEntryPool = null)
-        : base(root, path, queueSize, inboundQueueFullHandling, queueReadBatchSize, queueDropInterval, logEntryPool)
-    {
+        : base(root, path, queueSize, inboundQueueFullHandling, queueReadBatchSize, queueDropInterval, logEntryPool) =>
         ConfirmSequenceNumberInterval = confirmSequenceNumberInterval;
-    }
 
-    public FLogEntryAsyncReceiveConfig(IFLogEntryAsyncReceiveConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
-    {
+    public FLogEntryAsyncReceiveConfig(IFLogEntryAsyncReceiveConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path) =>
         ConfirmSequenceNumberInterval = toClone.ConfirmSequenceNumberInterval;
-    }
 
     public FLogEntryAsyncReceiveConfig(IFLogEntryAsyncReceiveConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    public override FLogEntryAsyncReceiveConfig Clone() => new(this);
-
     public int ConfirmSequenceNumberInterval
     {
-        get => int.TryParse(this[nameof(ConfirmSequenceNumberInterval)], out var timePart) 
-            ? timePart 
-            : IFLogEntryAsyncReceiveConfig.DefaultConfirmSequenceNumberInterval;
+        get =>
+            int.TryParse(this[nameof(ConfirmSequenceNumberInterval)], out var timePart)
+                ? timePart
+                : IFLogEntryAsyncReceiveConfig.DefaultConfirmSequenceNumberInterval;
         set => this[nameof(ConfirmSequenceNumberInterval)] = value.ToString();
     }
+
+    public override FLogEntryAsyncReceiveConfig Clone() => new(this);
 
     public override bool AreEquivalent(IFLogEntryQueueConfig? other, bool exactTypes = false)
     {
@@ -92,15 +89,12 @@ public class FLogEntryAsyncReceiveConfig : FLogEntryQueueConfig, IMutableFLogEnt
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(FLogEntryAsyncReceiveConfig))
-               .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
-               .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
-               .Field.AlwaysAdd(nameof(ConfirmSequenceNumberInterval), ConfirmSequenceNumberInterval)
-               .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
-               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
-               .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FLogEntryAsyncReceiveConfig))
+           .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
+           .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
+           .Field.AlwaysAdd(nameof(ConfirmSequenceNumberInterval), ConfirmSequenceNumberInterval)
+           .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
+           .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
+           .Complete();
 }

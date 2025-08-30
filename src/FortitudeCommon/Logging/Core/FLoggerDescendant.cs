@@ -17,10 +17,8 @@ public interface IFLoggerDescendant : IFLoggerCommon
 
 public interface IMutableFLoggerDescendant : IFLoggerDescendant, IMutableFLoggerCommon
 {
-    void HandleConfigUpdateUpdateDescendants(IMutableFLoggerDescendantConfig newLoggerState, IFLogAppenderRegistry appenderRegistry);
-
     new IMutableFLoggerDescendantConfig ResolvedConfig { get; }
-
+    void HandleConfigUpdateUpdateDescendants(IMutableFLoggerDescendantConfig newLoggerState, IFLogAppenderRegistry appenderRegistry);
 }
 
 public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
@@ -34,6 +32,8 @@ public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
         FullName = Visit(new BaseToLeafCollectVisitor()).FullName;
     }
 
+    protected IMutableFLoggerRoot Root => Parent is FLoggerDescendant parentDescendant ? parentDescendant.Root : (IMutableFLoggerRoot)Parent;
+
     public IFLoggerCommon Parent { get; }
 
     public override IFLoggerDescendantConfig ResolvedConfig => (IFLoggerDescendantConfig)Config;
@@ -42,12 +42,7 @@ public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
 
     public override LoggerTreeType TreeType => LoggerTreeType.Descendant;
 
-    protected IMutableFLoggerRoot Root => Parent is FLoggerDescendant parentDescendant ? parentDescendant.Root : (IMutableFLoggerRoot)Parent;
-
-    public override T Visit<T>(T visitor)
-    {
-        return visitor.Accept(this);
-    }
+    public override T Visit<T>(T visitor) => visitor.Accept(this);
 
     public void HandleConfigUpdateUpdateDescendants(IMutableFLoggerDescendantConfig newRootLoggerState, IFLogAppenderRegistry appenderRegistry)
     {

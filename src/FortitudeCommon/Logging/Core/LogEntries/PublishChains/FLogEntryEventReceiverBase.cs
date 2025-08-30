@@ -14,10 +14,7 @@ public interface IFLogEntryEventReceiver : IFLogEntryPublishChainTreeNode
 
 public abstract class FLogEntryEventReceiverBase : FLogEntryPublishChainTreeNode, IFLogEntryEventReceiver
 {
-    protected FLogEntryEventReceiverBase()
-    {
-        InBoundListener = OnReceiveLogEntry;
-    }
+    protected FLogEntryEventReceiverBase() => InBoundListener = OnReceiveLogEntry;
 
     public virtual FLogEntryPublishHandler InBoundListener { get; }
 
@@ -31,7 +28,6 @@ public abstract class FLogEntryEventSafeReceiverBase : FLogEntryEventReceiverBas
     public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         if (ShouldCheckLock)
-        {
             while (true)
             {
                 using var readLock = AcquireReadTreeLock(50);
@@ -41,11 +37,8 @@ public abstract class FLogEntryEventSafeReceiverBase : FLogEntryEventReceiverBas
                     break;
                 }
             }
-        }
         else
-        {
             SafeOnReceiveLogEntry(logEntryEvent, fromPublisher);
-        }
     }
 
     protected abstract void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher);
@@ -60,17 +53,17 @@ public class FLogEntryEventReceiverContainer : FLogEntryPublishChainTreeNode, IF
       , FLogEntrySourceSinkType logEntryLinkType = FLogEntrySourceSinkType.Sink
       , FLogEntryProcessChainState logEntryProcessState = FLogEntryProcessChainState.Terminating)
     {
-        Name                         = name;
+        Name = name;
 
         LogEntryLinkType     = logEntryLinkType;
         LogEntryProcessState = logEntryProcessState;
-        
+
         this.onReceiveLogEntryAction = onReceiveLogEntryAction;
 
         InBoundListener = OnReceiveLogEntry;
     }
 
-    public FLogEntryPublishHandler InBoundListener  { get; }
+    public FLogEntryPublishHandler InBoundListener { get; }
 
     public override FLogEntrySourceSinkType LogEntryLinkType { get; }
 
@@ -78,15 +71,11 @@ public class FLogEntryEventReceiverContainer : FLogEntryPublishChainTreeNode, IF
 
     public string Name { get; protected set; }
 
-    public override T LogEntryChainVisit<T>(T visitor)
-    {
-        throw new ApplicationException("This should never be called by containing now");
-    }
+    public override T LogEntryChainVisit<T>(T visitor) => throw new ApplicationException("This should never be called by containing now");
 
     public void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         if (ShouldCheckLock)
-        {
             while (true)
             {
                 using var readLock = AcquireReadTreeLock(50);
@@ -96,11 +85,8 @@ public class FLogEntryEventReceiverContainer : FLogEntryPublishChainTreeNode, IF
                     break;
                 }
             }
-        }
         else
-        {
             SafeOnReceiveLogEntry(logEntryEvent, fromPublisher);
-        }
     }
 
     protected void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
@@ -108,4 +94,3 @@ public class FLogEntryEventReceiverContainer : FLogEntryPublishChainTreeNode, IF
         onReceiveLogEntryAction(logEntryEvent, fromPublisher);
     }
 }
-

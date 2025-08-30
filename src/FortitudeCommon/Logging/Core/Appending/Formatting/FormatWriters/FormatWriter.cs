@@ -52,17 +52,14 @@ public abstract class FormatWriter<T> : RecyclableObject, IFormatWriter where T 
     public abstract void Append(string toWrite);
 
     public abstract void Append(ICharSequence toWrite, int fromIndex = 0, int length = int.MaxValue);
-    
+
     public abstract void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue);
 
     public abstract void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue);
 
     public abstract void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue);
 
-    public virtual bool NotifyStartEntryAppend(IFLogEntry forEntry)
-    {
-        return true; // can continue with this writer
-    }
+    public virtual bool NotifyStartEntryAppend(IFLogEntry forEntry) => true; // can continue with this writer
 
     public virtual void NotifyEntryAppendComplete() { }
 

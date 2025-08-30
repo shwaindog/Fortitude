@@ -9,7 +9,6 @@ using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.AsyncForwarding;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering;
-using FortitudeCommon.Logging.Core.Appending.Forwarding;
 using Microsoft.Extensions.Configuration;
 using static FortitudeCommon.Logging.Config.Appending.FLoggerBuiltinAppenderType;
 
@@ -30,7 +29,7 @@ public enum FLoggerBuiltinAppenderType
   , FileRolling
   , NullFile
   , ConsoleOut
-  , NullConsole  
+  , NullConsole
   , FLogEntryListAppender
   , FormattedStringListAppender
   , Network
@@ -47,24 +46,22 @@ public static class FloggerBuiltinAppenderTypeExtensions
         var appenderTypeConfig = GetAppenderType(configRoot, configPath);
         switch (appenderTypeConfig)
         {
-            case null :
-            case nameof(Ref) :                  
+            case null:
+            case nameof(Ref):
                 return new AppenderReferenceConfig(configRoot, configPath);
-            case nameof(NullEntry) :                    return new NullAppenderConfig(configRoot, configPath);
-            case nameof(ForwardingAppender) :      return new ForwardingAppenderConfig(configRoot, configPath);
-            case nameof(BufferedForwarding) :      return new BufferingAppenderConfig(configRoot, configPath);
-            case nameof(AsyncBufferedForwarding) : return new AsyncForwardingAppendersConfig(configRoot, configPath);
-            case nameof(FilteredForwarding) :      return new FilteringForwardingAppenderConfig(configRoot, configPath);
-            case nameof(ConsoleOut) :              return new ConsoleAppenderConfig(configRoot, configPath);
-            case nameof(FileUnbounded) :           return new FileAppenderConfig(configRoot, configPath);
-            default :
+            case nameof(NullEntry):               return new NullAppenderConfig(configRoot, configPath);
+            case nameof(ForwardingAppender):      return new ForwardingAppenderConfig(configRoot, configPath);
+            case nameof(BufferedForwarding):      return new BufferingAppenderConfig(configRoot, configPath);
+            case nameof(AsyncBufferedForwarding): return new AsyncForwardingAppendersConfig(configRoot, configPath);
+            case nameof(FilteredForwarding):      return new FilteringForwardingAppenderConfig(configRoot, configPath);
+            case nameof(ConsoleOut):              return new ConsoleAppenderConfig(configRoot, configPath);
+            case nameof(FileUnbounded):           return new FileAppenderConfig(configRoot, configPath);
+            default:
                 string[] assemblyAndTypeFullName;
                 if (appenderTypeConfig.IsNotNullOrEmpty() && (assemblyAndTypeFullName = appenderTypeConfig.Split(',', 2)).Length == 2)
-                {
                     return (IMutableAppenderReferenceConfig?)Activator.CreateInstanceFrom
                         (assemblyAndTypeFullName[0], assemblyAndTypeFullName[1], true, BindingFlags.CreateInstance
                        , null, [configRoot, configPath], CultureInfo.InvariantCulture, [])!.Unwrap();
-                }
                 return null;
         }
     }

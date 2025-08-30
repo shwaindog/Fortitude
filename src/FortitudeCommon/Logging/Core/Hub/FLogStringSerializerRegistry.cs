@@ -1,6 +1,7 @@
-﻿using System;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Core.LogEntries;
@@ -11,19 +12,18 @@ namespace FortitudeCommon.Logging.Core.Hub;
 
 public delegate void FLogStringSerializer<in T>(T toSerialize, IStringBuilder toAppendTo);
 
-public record RegisteredStringSerializer(Type RegisteredForType, Delegate Serializer, FLogCallLocation RegisteredLocation
-   , bool UsesStyleAppender = false)
+public record RegisteredStringSerializer
+(
+    Type RegisteredForType
+  , Delegate Serializer
+  , FLogCallLocation RegisteredLocation
+  , bool UsesStyleAppender = false)
 {
     private void Invoke<T>(T toSerialize, IStringBuilder toAppendTo)
     {
         if (Serializer is FLogStringSerializer<T> flogSerializer)
-        {
             flogSerializer.Invoke(toSerialize, toAppendTo);
-        }
-        else if (Serializer is Action<T, IStringBuilder> actionSerializer)
-        {
-            actionSerializer.Invoke(toSerialize, toAppendTo);
-        }
+        else if (Serializer is Action<T, IStringBuilder> actionSerializer) actionSerializer.Invoke(toSerialize, toAppendTo);
     }
 
     public void Invoke<T>(T toSerialize, IStyledTypeStringAppender toAppendTo)
@@ -33,10 +33,7 @@ public record RegisteredStringSerializer(Type RegisteredForType, Delegate Serial
             Invoke(toSerialize, toAppendTo.WriteBuffer);
             return;
         }
-        if (Serializer is Action<T, IStyledTypeStringAppender> actionSerializer)
-        {
-            actionSerializer.Invoke(toSerialize, toAppendTo);
-        }
+        if (Serializer is Action<T, IStyledTypeStringAppender> actionSerializer) actionSerializer.Invoke(toSerialize, toAppendTo);
     }
 }
 
@@ -73,7 +70,7 @@ public static class FLogStringSerializerRegistry
             (typeOfT, new RegisteredStringSerializer(typeOfT, autoCreatedSerializer, callLocation, true));
     }
 
-    public static bool TryGetSerializerFor<T>(T toSerialize, [NotNullWhen(true)]  out RegisteredStringSerializer? value)
+    public static bool TryGetSerializerFor<T>(T toSerialize, [NotNullWhen(true)] out RegisteredStringSerializer? value)
     {
         var typeOfT = typeof(T);
         value = null;

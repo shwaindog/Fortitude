@@ -11,6 +11,7 @@ public interface IFLogEntryPipelineInterceptor : ITargetingFLogEntrySource, IFLo
 
     bool RemoveFromPublishChain();
 }
+
 public interface IFLogEntryExaminingInterceptor : IFLogEntryForkingInterceptor
 {
     Predicate<IFLogEntry> CheckCondition { get; set; }
@@ -18,25 +19,18 @@ public interface IFLogEntryExaminingInterceptor : IFLogEntryForkingInterceptor
 
 public abstract class FLogEntryPipelineInterceptor : TargetingFLogEntrySource, IFLogEntryPipelineInterceptor
 {
-    protected FLogEntryPipelineInterceptor()
-    {
-        InBoundListener        = OnReceiveLogEntry;
-    }
+    private IFLogEntrySource? inBound;
+
+    protected FLogEntryPipelineInterceptor() => InBoundListener = OnReceiveLogEntry;
 
     public FLogEntryPublishHandler InBoundListener { get; }
-
-
-    private IFLogEntrySource? inBound;
 
     public IFLogEntrySource? InBound
     {
         get => inBound;
         set
         {
-            if (inBound != null)
-            {
-                inBound.Remove(this);
-            }
+            if (inBound != null) inBound.Remove(this);
             inBound = value;
         }
     }
@@ -65,7 +59,6 @@ public abstract class FLogEntryPipelineInterceptor : TargetingFLogEntrySource, I
     public void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         if (ShouldCheckLock)
-        {
             while (true)
             {
                 using var readLock = AcquireReadTreeLock(50);
@@ -75,11 +68,8 @@ public abstract class FLogEntryPipelineInterceptor : TargetingFLogEntrySource, I
                     break;
                 }
             }
-        }
         else
-        {
             SafeOnReceiveLogEntry(logEntryEvent, fromPublisher);
-        }
     }
 
     protected abstract void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher);

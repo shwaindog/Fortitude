@@ -1,4 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Config.Pooling;
@@ -26,9 +29,9 @@ public record LoggerContainer
         Updated += logger.HandleConfigUpdate;
     }
 
-    public event HandleConfigUpdate Updated;
-
     public IFLogger Logger { get; init; }
+
+    public event HandleConfigUpdate Updated;
 
     public void OnUpdated(IMutableFLoggerDescendantConfig potentialUpdate, IFLogAppenderRegistry appenderRegistry)
     {
@@ -87,9 +90,7 @@ public class FLogLoggerRegistry : IMutableFLogLoggerRegistry
     public void NotifyLoggerConfigUpdate(IMutableFLoggerDescendantConfig potentialUpdate)
     {
         if (embodiedLoggers.TryGetValue(potentialUpdate.FullName, out var loggerContainer))
-        {
             loggerContainer.OnUpdated(potentialUpdate, FLogContext.Context.AppenderRegistry);
-        }
     }
 
     public NotifyNewFLoggerHandler RegisterLoggerCallback { get; }
@@ -108,15 +109,15 @@ public class FLogLoggerRegistry : IMutableFLogLoggerRegistry
         set
         {
             if (root == value) return;
-            if (root != null)
-            {
-                throw new ApplicationException("You can not update a root logger once created");
-            }
+            if (root != null) throw new ApplicationException("You can not update a root logger once created");
             root = value!;
         }
     }
 
     public IFLoggerRoot Root => root;
+
+    public FLogEntryPool SourceFLogEntryPool(IFLogEntryPoolConfig logEntryPoolDefinition) =>
+        logEntryPoolRegistry.ResolveFLogEntryPool(logEntryPoolDefinition);
 
     protected void RegisterLogger(IMutableFLogger newLogger)
     {
@@ -128,9 +129,6 @@ public class FLogLoggerRegistry : IMutableFLogLoggerRegistry
             return;
         }
     }
-
-    public FLogEntryPool SourceFLogEntryPool(IFLogEntryPoolConfig logEntryPoolDefinition) =>
-        logEntryPoolRegistry.ResolveFLogEntryPool(logEntryPoolDefinition);
 }
 
 public static class FLogLoggerRegistryExtensions

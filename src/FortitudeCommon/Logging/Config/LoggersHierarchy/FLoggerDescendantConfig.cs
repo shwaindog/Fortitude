@@ -5,7 +5,6 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -27,7 +26,7 @@ public interface IMutableFLoggerDescendantConfig : IFLoggerDescendantConfig, IMu
     new IFLoggerTreeCommonConfig ParentLoggerConfig { get; set; }
 
     new bool Inherits { get; set; }
-    
+
     IMutableFLoggerDescendantConfig CreateInheritedDescendantConfig(IFLoggerTreeCommonConfig ancestorConfig);
 
     new IMutableFLoggerDescendantConfig Clone();
@@ -51,20 +50,15 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
       , IMutableFLogEntryPoolConfig? logEntryPool = null)
         : base(root, path, name, logLevel, loggersCfg, appendersCfg, logEntryPool) { }
 
-    public FLoggerDescendantConfig(IFLoggerDescendantConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
-    {
+    public FLoggerDescendantConfig(IFLoggerDescendantConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path) =>
         Inherits = toClone.Inherits;
-    }
 
     public FLoggerDescendantConfig(IFLoggerDescendantConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
     public FLoggerDescendantConfig(IFLoggerTreeCommonConfig toClone, string? configPath = null)
         : base(toClone, InMemoryConfigRoot, configPath ?? toClone.ConfigSubPath)
     {
-        if (toClone is IFLoggerDescendantConfig descendantConfig)
-        {
-            Inherits = descendantConfig.Inherits;
-        }
+        if (toClone is IFLoggerDescendantConfig descendantConfig) Inherits = descendantConfig.Inherits;
     }
 
     public bool Inherits
@@ -80,23 +74,17 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
     public IMutableFLoggerDescendantConfig CreateInheritedDescendantConfig(IFLoggerTreeCommonConfig ancestorConfig)
     {
         var mergedInheritedConfig = Clone();
-        if (mergedInheritedConfig.WasDefinedLogLevel == null)
-        {
-            mergedInheritedConfig.LogLevel = ancestorConfig.LogLevel;
-        }
-        if (!Inherits)
-        {
-            return mergedInheritedConfig;
-        }
+
+        if (mergedInheritedConfig.WasDefinedLogLevel == null) mergedInheritedConfig.LogLevel = ancestorConfig.LogLevel;
+        if (!Inherits) return mergedInheritedConfig;
         foreach (var parentAppender in ancestorConfig.Appenders)
-        {
             if (!Appenders.ContainsKey(parentAppender.Key))
-            {
                 Appenders.Add(parentAppender.Value);
-            }
-        }
         return mergedInheritedConfig;
     }
+
+    public IMutableFLoggerDescendantConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        new FLoggerDescendantConfig(this, configRoot, path);
 
     IFLoggerDescendantConfig ICloneable<IFLoggerDescendantConfig>.Clone() => Clone();
 
@@ -107,9 +95,6 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
     IMutableFLoggerDescendantConfig IMutableFLoggerDescendantConfig.Clone() => Clone();
 
     public override FLoggerDescendantConfig Clone() => new(this);
-
-    public IMutableFLoggerDescendantConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        new FLoggerDescendantConfig(this, configRoot, path);
 
     public override bool AreEquivalent(IFLoggerMatchedAppenders? other, bool exactTypes = false)
     {
@@ -139,16 +124,13 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
         }
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
-               .Field.AlwaysAdd(nameof(Name), Name)
-               .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
-               .Field.AlwaysAdd(nameof(Inherits), Inherits)
-               .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
-               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool).Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+           .Field.AlwaysAdd(nameof(Name), Name)
+           .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
+           .Field.AlwaysAdd(nameof(Inherits), Inherits)
+           .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
+           .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool).Complete();
 
     public override string ToString() => this.DefaultToString();
 }

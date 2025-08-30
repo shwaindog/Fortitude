@@ -41,15 +41,11 @@ public class QueueingAppenderConfig : ForwardingAppenderConfig, IMutableQueueing
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : base(root, path, appenderName, forwardToAppendersConfig, runOnAsyncQueueNumber, inheritFromAppenderName
-             , isTemplateOnlyDefinition, deactivateHere)
-    {
+             , isTemplateOnlyDefinition, deactivateHere) =>
         InboundQueue = inboundQueue ?? new FLogEntryQueueConfig(IFLogEntryQueueConfig.DefaultQueueSize);
-    }
 
-    public QueueingAppenderConfig(IQueueingAppenderConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
-    {
+    public QueueingAppenderConfig(IQueueingAppenderConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path) =>
         InboundQueue = (IMutableFLogEntryQueueConfig)toClone.InboundQueue;
-    }
 
     public QueueingAppenderConfig(IQueueingAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
@@ -60,12 +56,10 @@ public class QueueingAppenderConfig : ForwardingAppenderConfig, IMutableQueueing
         get
         {
             if (GetSection(nameof(InboundQueue)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FLogEntryQueueConfig(ConfigRoot, $"{Path}{Split}{nameof(InboundQueue)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new FLogEntryQueueConfig(IFLogEntryQueueConfig.DefaultQueueSize)
             {
                 ParentConfig = this
@@ -110,7 +104,7 @@ public class QueueingAppenderConfig : ForwardingAppenderConfig, IMutableQueueing
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         using var tb = sbc.StartComplexType(nameof(QueueingAppenderConfig))
-           .AddBaseFieldsStart();
+                          .AddBaseFieldsStart();
         base.ToString(sbc);
         return tb;
     }

@@ -26,39 +26,39 @@ public interface IMutableFLogBufferingFormatAppender : IFLogBufferingFormatAppen
     new int CharBufferSize { get; set; }
 
     IBufferFlushAppenderAsyncClient BufferFlushingAsyncClient { get; }
-    
-    IBufferedFormatWriter CreateBufferedFormatWriter(IBufferFlushingFormatWriter bufferFlushingFormatWriter, string targetName, int bufferNum, FormatWriterReceivedHandler<IFormatWriter> writeCompleteHandler);
-    
+
+    IBufferedFormatWriter CreateBufferedFormatWriter(IBufferFlushingFormatWriter bufferFlushingFormatWriter, string targetName, int bufferNum
+      , FormatWriterReceivedHandler<IFormatWriter> writeCompleteHandler);
+
     new IBufferingFormatAppenderConfig GetAppenderConfig();
-    new IBufferFlushingFormatWriter CreatedDirectFormatWriter(IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback);
+
+    new IBufferFlushingFormatWriter CreatedDirectFormatWriter(IFLogContext context, string targetName
+      , FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback);
 }
 
 public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMutableFLogBufferingFormatAppender
 {
     // protected IBufferedFormatWriter? ToFlush;
 
-    protected FLogBufferingFormatAppender(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig, IFLogContext context, bool isSingleDestinationAppender = true)
+    protected FLogBufferingFormatAppender(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig, IFLogContext context
+      , bool isSingleDestinationAppender = true)
         : base(bufferingFormatAppenderConfig, context, isSingleDestinationAppender)
     {
         CharBufferSize       = bufferingFormatAppenderConfig.CharBufferSize;
         UsingDoubleBuffering = bufferingFormatAppenderConfig.EnableDoubleBufferToggling;
-        
+
         FlushWhenBufferLength = (int)(bufferingFormatAppenderConfig.FlushConfig.WriteTriggeredAtBufferPercentage *
                                       bufferingFormatAppenderConfig.CharBufferSize);
     }
+
+    public int FlushWhenBufferLength { get; set; }
 
     public int CharBufferSize { get; set; }
 
     public bool UsingDoubleBuffering { get; set; }
 
-    public int FlushWhenBufferLength { get; set; }
-
-    protected override IFormatWriterRequestCache CreateFormatWriterRequestCache
-        (IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context) => 
-        new SingleDestBufferedFormatWriterRequestCache().Initialize(this, context);
-
     public virtual IBufferedFormatWriter CreateBufferedFormatWriter(IBufferFlushingFormatWriter bufferFlushingFormatWriter, string targetName
-      , int bufferNum, FormatWriterReceivedHandler<IFormatWriter> writeCompleteHandler) => 
+      , int bufferNum, FormatWriterReceivedHandler<IFormatWriter> writeCompleteHandler) =>
         new CharArrayBufferedFormatWriter().Initialize(this, bufferFlushingFormatWriter, targetName, bufferNum, writeCompleteHandler);
 
     IBufferFlushAppenderAsyncClient IMutableFLogBufferingFormatAppender.BufferFlushingAsyncClient => (IBufferFlushAppenderAsyncClient)AsyncClient;
@@ -68,6 +68,16 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         get => ((IBufferedFormatWriterRequestCache)FormatWriterRequestCache).BufferingEnabled;
         set => ((IBufferedFormatWriterRequestCache)FormatWriterRequestCache).BufferingEnabled = value;
     }
+
+    IBufferFlushingFormatWriter IMutableFLogBufferingFormatAppender.CreatedDirectFormatWriter
+        (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback) =>
+        (IBufferFlushingFormatWriter)CreatedAppenderDirectFormatWriter(context, targetName, onWriteCompleteCallback);
+
+    public override IBufferingFormatAppenderConfig GetAppenderConfig() => (IBufferingFormatAppenderConfig)AppenderConfig;
+
+    protected override IFormatWriterRequestCache CreateFormatWriterRequestCache
+        (IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context) =>
+        new SingleDestBufferedFormatWriterRequestCache().Initialize(this, context);
 
     protected override IBufferFlushAppenderAsyncClient CreateAppenderAsyncClient
         (IAppenderDefinitionConfig appenderDefinitionConfig, IFLoggerAsyncRegistry asyncRegistry)
@@ -82,12 +92,4 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
             new BufferFlushAppenderAsyncClient(this, processAsync, asyncRegistry, bufferAsync);
         return bufferFlushingAsyncClient;
     }
-    
-    IBufferFlushingFormatWriter IMutableFLogBufferingFormatAppender.CreatedDirectFormatWriter
-        (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
-    {
-        return (IBufferFlushingFormatWriter)CreatedAppenderDirectFormatWriter(context, targetName, onWriteCompleteCallback);
-    }
-
-    public override IBufferingFormatAppenderConfig GetAppenderConfig() => (IBufferingFormatAppenderConfig)AppenderConfig;
 }

@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
@@ -11,12 +10,12 @@ namespace FortitudeCommon.Logging.Core.LogEntries;
 
 public record struct FLogCallLocation(string MemberName, string SourceFilePath, int SourceLineNumber)
 {
-    public const string PerfLogging = "NonePerfLogging";
+    public const string PerfLogging          = "NonePerfLogging";
     public const string AppenderAlertLogging = "AppenderAlert";
 
-    public static readonly FLogCallLocation NoneInternalCall = new (PerfLogging, PerfLogging, 0);
-    public static readonly FLogCallLocation NonePerfFLogCallUsed = new (PerfLogging, PerfLogging, 0);
-    public static readonly FLogCallLocation NoneAppenderAlertMessage = new (AppenderAlertLogging, AppenderAlertLogging, 0);
+    public static readonly FLogCallLocation NoneInternalCall         = new(PerfLogging, PerfLogging, 0);
+    public static readonly FLogCallLocation NonePerfFLogCallUsed     = new(PerfLogging, PerfLogging, 0);
+    public static readonly FLogCallLocation NoneAppenderAlertMessage = new(AppenderAlertLogging, AppenderAlertLogging, 0);
 }
 
 public static class FLogCallLocationExtensions
@@ -26,20 +25,17 @@ public static class FLogCallLocationExtensions
     public static CustomTypeStyler<FLogCallLocation> Styler(this FLogCallLocation callLoc) => FLogCallLocationStyler;
 
 
-    public static StyledTypeBuildResult FormatFlogLevelAppender(this FLogCallLocation callLoc, IStyledTypeStringAppender sbc)
-    {
-        return
+    public static StyledTypeBuildResult FormatFlogLevelAppender(this FLogCallLocation callLoc, IStyledTypeStringAppender sbc) =>
         sbc.StartComplexType(nameof(FLogCallLocation))
            .Field.AlwaysAdd(nameof(callLoc.MemberName), callLoc.MemberName)
            .Field.AlwaysAdd(nameof(callLoc.SourceLineNumber), callLoc.SourceLineNumber)
            .Field.AlwaysAdd(nameof(callLoc.SourceFilePath), callLoc.SourceFilePath)
            .Complete();
-    }
 
 
     public static IStringBuilder ExtractAppendFileNameWithExtension(this IStringBuilder sb, FLogCallLocation subject)
     {
-        string sourceFilePath      = subject.SourceFilePath;
+        var sourceFilePath = subject.SourceFilePath;
 
         var sourcePathSpan      = sourceFilePath.AsSpan();
         var indexOfForwardSlash = sourcePathSpan.LastSplitFrom('/');
@@ -49,7 +45,7 @@ public static class FLogCallLocationExtensions
             return sb;
         }
         var indexOfBackSlash = sourcePathSpan.LastSplitFrom('\\');
-        if (indexOfBackSlash.Length > 0  && indexOfBackSlash.Length < sourcePathSpan.Length)
+        if (indexOfBackSlash.Length > 0 && indexOfBackSlash.Length < sourcePathSpan.Length)
         {
             sb.Append(indexOfBackSlash);
             return sb;
@@ -60,7 +56,7 @@ public static class FLogCallLocationExtensions
 
     public static IStringBuilder ExtractAppendFileNameNoExt(this IStringBuilder sb, FLogCallLocation subject)
     {
-        string sourceFilePath      = subject.SourceFilePath;
+        var sourceFilePath = subject.SourceFilePath;
 
         var sourcePathSpan      = sourceFilePath.AsSpan();
         var indexOfForwardSlash = sourcePathSpan.LastSplitFrom('/');
@@ -71,7 +67,7 @@ public static class FLogCallLocationExtensions
             return sb;
         }
         var indexOfBackSlash = sourcePathSpan.LastSplitFrom('\\');
-        if (indexOfBackSlash.Length > 0  && indexOfBackSlash.Length < sourcePathSpan.Length)
+        if (indexOfBackSlash.Length > 0 && indexOfBackSlash.Length < sourcePathSpan.Length)
         {
             var indexOfdot = sourcePathSpan.LastIndexOf('.');
             sb.Append(indexOfdot > 0 ? indexOfBackSlash[..indexOfdot] : indexOfBackSlash);
@@ -87,8 +83,6 @@ public static class FLogCallLocationExtensions
         return sb;
     }
 
-    public static IStringBuilder AppendFileNameLineNumber(this IStringBuilder sb, FLogCallLocation subject)
-    {
-        return sb.ExtractAppendFileNameWithExtension(subject).Append(": ").ExtractAppendLineNumber(subject);
-    }
+    public static IStringBuilder AppendFileNameLineNumber(this IStringBuilder sb, FLogCallLocation subject) =>
+        sb.ExtractAppendFileNameWithExtension(subject).Append(": ").ExtractAppendLineNumber(subject);
 }

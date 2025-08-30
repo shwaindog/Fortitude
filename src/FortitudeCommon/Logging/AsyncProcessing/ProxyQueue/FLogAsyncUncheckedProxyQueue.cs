@@ -1,15 +1,17 @@
-﻿using FortitudeCommon.Logging.Core.Appending.Formatting;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
 
-public class FLogAsyncUncheckedProxyQueue(int queueNumber, IFLogAsyncQueue backingQueue) 
+public class FLogAsyncUncheckedProxyQueue(int queueNumber, IFLogAsyncQueue backingQueue)
     : FLogAsyncQueue(queueNumber, backingQueue.QueueType, backingQueue.QueueCapacity)
 {
     public IFLogAsyncQueue ActualQueue { get; } = backingQueue;
 
-    public override int  QueueBackLogSize => ActualQueue.QueueBackLogSize;
+    public override int QueueBackLogSize => ActualQueue.QueueBackLogSize;
 
     public override void Execute(Action job)
     {
@@ -21,7 +23,8 @@ public class FLogAsyncUncheckedProxyQueue(int queueNumber, IFLogAsyncQueue backi
         ActualQueue.FlushBufferToAppender(toFlush);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks
+      , ITargetingFLogEntrySource publishSource)
     {
         ActualQueue.SendLogEntryEventTo(logEntryEvent, logEntrySinks, publishSource);
     }

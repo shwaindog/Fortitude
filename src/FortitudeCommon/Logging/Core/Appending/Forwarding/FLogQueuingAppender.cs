@@ -39,23 +39,30 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
 
     private static readonly TimeSpan OneMillisecond = TimeSpan.FromMilliseconds(1);
 
-    protected ILogEntryQueue AppenderLogEntryQueue;
+    private static readonly object FullQueueSyncLock = new();
+
+    protected static Predicate<IFLogEntry> MatchDebugOrLower = static logEntry => logEntry.LogLevel <= FLogLevel.Debug;
+    protected static Predicate<IFLogEntry> MatchInfoOrLower  = static logEntry => logEntry.LogLevel <= FLogLevel.Info;
+
+    private readonly ManualResetEvent drainComplete = new(true);
+
+    private readonly StringBuilder sb = new();
 
     protected FLogEntryPool AppenderLogEntryPool;
 
-    protected Action<ILogEntryQueue> SwapFilteredBack;
-
-    private static readonly object FullQueueSyncLock = new();
-
-    protected DateTime LastDrainTime = DateTime.MinValue;
+    protected ILogEntryQueue AppenderLogEntryQueue;
 
     private PaddedLong drainToken = new(0);
 
-    private readonly ManualResetEvent drainComplete = new(true);
+    private int dropInterval;
 
     private IntervalMatchAll      intervalMatchAllEntries   = null!;
     private IntervalMatchAllDebug intervalMatchDebugOrLower = null!;
     private IntervalMatchAllInfo  intervalMatchInfoOrLower  = null!;
+
+    protected DateTime LastDrainTime = DateTime.MinValue;
+
+    protected Action<ILogEntryQueue> SwapFilteredBack;
 
     protected FLogQueuingAppender(IQueueingAppenderConfig queuingAppenderConfig, IFLogContext context)
         : base(queuingAppenderConfig, context)
@@ -69,11 +76,8 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
                 (queuingAppenderConfig.InboundQueue.LogEntryPool ?? context.LogEntryPoolRegistry.LogEntryPoolInitConfig.AppendersGlobalLogEntryPool);
 
         var entryPoolBatchSize = AppenderLogEntryPool.NewBatchLogEntryListSize;
-        var queueBatchSize     = queuingAppenderConfig.InboundQueue.QueueReadBatchSize;
-        if (entryPoolBatchSize < queueBatchSize)
-        {
-            AppenderLogEntryPool.NewBatchLogEntryListSize = entryPoolBatchSize;
-        }
+        var queueBatchSize = queuingAppenderConfig.InboundQueue.QueueReadBatchSize;
+        if (entryPoolBatchSize < queueBatchSize) AppenderLogEntryPool.NewBatchLogEntryListSize = entryPoolBatchSize;
 
         DropInterval = queuingAppenderConfig.InboundQueue.QueueDropInterval;
 
@@ -81,10 +85,6 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
 
         SwapFilteredBack = filtered => AppenderLogEntryQueue = filtered;
     }
-
-    protected abstract ILogEntryQueue CreateAppenderQueue(IMutableFLogQueuingAppender forAppender);
-
-    public FullQueueHandling InboundQueueFullHandling { get; set; }
 
     public TimeSpan EnqueueAttemptTimeout { get; set; }
 
@@ -103,19 +103,20 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         }
     }
 
-    protected record struct DrainQueueResult(bool ShouldStartDrain, int DrainAmount, bool ShouldEmptyBuffer)
-    {
-        public static DrainQueueResult NotRequired = new(false, 0, false);
-        public static DrainQueueResult OneBatchReadSize(int batchReadSize) => new(true, batchReadSize, false);
-        public static DrainQueueResult DrainToEmpty(int queueSize)         => new(true, queueSize, true);
-    };
+    protected bool WaitForDrainedSignal => Thread.VolatileRead(ref drainToken.Value) == 1;
 
-    protected virtual DrainQueueResult AmountToDrain(IFLogEntry flogEntry)
-    {
-        return QueueSize > QueueReadBatchSize
+    public FullQueueHandling InboundQueueFullHandling { get; set; }
+
+    public int QueueReadBatchSize { get; set; }
+
+    public int QueueSize { get; set; }
+
+    protected abstract ILogEntryQueue CreateAppenderQueue(IMutableFLogQueuingAppender forAppender);
+
+    protected virtual DrainQueueResult AmountToDrain(IFLogEntry flogEntry) =>
+        QueueSize > QueueReadBatchSize
             ? DrainQueueResult.OneBatchReadSize(QueueReadBatchSize)
             : DrainQueueResult.NotRequired;
-    }
 
     public override void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
     {
@@ -126,7 +127,7 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         else if (logEntryEvent.LogEntryEventType == LogEntryEventType.BatchEntries)
         {
             var batch = logEntryEvent.LogEntriesBatch!;
-            for (int i = 0; i < batch.Count; i++)
+            for (var i = 0; i < batch.Count; i++)
             {
                 var logEntry = batch[i];
                 AddLogEntryToBuffer(logEntry);
@@ -138,49 +139,32 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
     {
         flogEntry.IncrementRefCount();
 
-        if (WaitForDrainedSignal)
-        {
-            drainComplete.WaitOne();
-        }
-        if (!AppenderLogEntryQueue.TryEnqueue(flogEntry))
-        {
-            HandleFirstEnqueueFailed(flogEntry);
-        }
+        if (WaitForDrainedSignal) drainComplete.WaitOne();
+        if (!AppenderLogEntryQueue.TryEnqueue(flogEntry)) HandleFirstEnqueueFailed(flogEntry);
         var drainAmount = AmountToDrain(flogEntry);
-        if (drainAmount.ShouldStartDrain)
-        {
-            TryDrainAmount(drainAmount);
-        }
+        if (drainAmount.ShouldStartDrain) TryDrainAmount(drainAmount);
     }
 
     private void HandleFirstEnqueueFailed(IFLogEntry flogEntry)
     {
         var queue = AppenderLogEntryQueue;
         Thread.Yield();
-        int attemptCount = 0;
+        var attemptCount = 0;
         while (true)
-        {
             if (!queue.TryEnqueue(flogEntry))
             {
                 if (TryDrainAmount(DrainQueueResult.OneBatchReadSize(QueueReadBatchSize)))
                 {
-                    if (!queue.TryEnqueue(flogEntry))
-                    {
-                        SyncProtectedHandleQueueFull(flogEntry);
-                    }
+                    if (!queue.TryEnqueue(flogEntry)) SyncProtectedHandleQueueFull(flogEntry);
                     break;
                 }
-                if (HasTimedOutOrCompleted(flogEntry, attemptCount))
-                {
-                    break;
-                }
+                if (HasTimedOutOrCompleted(flogEntry, attemptCount)) break;
                 attemptCount++;
             }
             else
             {
                 break;
             }
-        }
     }
 
     private bool HasTimedOutOrCompleted(IFLogEntry flogEntry, int attemptCount)
@@ -188,27 +172,20 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         if (InboundQueueFullHandling == FullQueueHandling.Block)
         {
             drainComplete.WaitOne();
-            if (AppenderLogEntryQueue.TryEnqueue(flogEntry))
-            {
-                return true;
-            }
+            if (AppenderLogEntryQueue.TryEnqueue(flogEntry)) return true;
         }
         var sleepInterval = (int)EnqueueAttemptInterval.Max(TimeSpan.Zero).TotalMilliseconds;
         var maxAttempts   = EnqueueAttemptTimeout.TotalMilliseconds / EnqueueAttemptInterval.Max(OneMillisecond).TotalMilliseconds;
         if (attemptCount > maxAttempts)
-        {
-            if (HasTimeoutHandling(flogEntry)) return true;
-        }
+            if (HasTimeoutHandling(flogEntry))
+                return true;
         Thread.Sleep(sleepInterval);
         return false;
     }
 
     private bool HasTimeoutHandling(IFLogEntry flogEntry)
     {
-        if (InboundQueueFullHandling == FullQueueHandling.TimeoutDropNewestForwardToFailedAppender)
-        {
-            TimeoutDropNewestForwardToFailHandling(flogEntry);
-        }
+        if (InboundQueueFullHandling == FullQueueHandling.TimeoutDropNewestForwardToFailedAppender) TimeoutDropNewestForwardToFailHandling(flogEntry);
         if (InboundQueueFullHandling == FullQueueHandling.TimeoutDropNewest)
         {
             TimeoutDropNewestHandling(flogEntry);
@@ -216,8 +193,6 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         }
         return false;
     }
-
-    protected bool WaitForDrainedSignal => Thread.VolatileRead(ref drainToken.Value) == 1;
 
     protected bool TryDrainAmount(DrainQueueResult drainAmount, int remainingAttempts = 1)
     {
@@ -252,13 +227,9 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
             if (entriesCount > 0)
             {
                 if (entriesCount == 1)
-                {
                     AsyncOnForward(new LogEntryPublishEvent(forwardToAppenders[0]));
-                }
                 else
-                {
                     AsyncOnForward(new LogEntryPublishEvent(forwardToAppenders));
-                }
             }
         }
         batchFlogEntries.DecrementRefCount();
@@ -273,14 +244,6 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
             ForwardingAsyncClient.ForwardLogEntryEventToAppenders(appendersByQueueNum.Key, logEntryEvent, appendersByQueueNum.Value);
         }
     }
-
-    public int QueueReadBatchSize { get; set; }
-
-    public int QueueSize { get; set; }
-
-    private readonly StringBuilder sb = new();
-
-    private int dropInterval;
 
     protected virtual void SyncProtectedHandleQueueFull(IFLogEntry toAppend)
     {
@@ -356,10 +319,7 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         return amountDropped;
     }
 
-    protected virtual int DropAllDebugLevelHandling(IFLogEntry toAppend)
-    {
-        return AppenderLogEntryQueue.RunRemoveFilter(toAppend, MatchDebugOrLower);
-    }
+    protected virtual int DropAllDebugLevelHandling(IFLogEntry toAppend) => AppenderLogEntryQueue.RunRemoveFilter(toAppend, MatchDebugOrLower);
 
     protected virtual int DropNewestHandling(IFLogEntry toAppend)
     {
@@ -367,10 +327,7 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         return 1;
     }
 
-    protected virtual int DropAllDebugInfoLevelHandling(IFLogEntry toAppend)
-    {
-        return AppenderLogEntryQueue.RunRemoveFilter(toAppend, MatchInfoOrLower);
-    }
+    protected virtual int DropAllDebugInfoLevelHandling(IFLogEntry toAppend) => AppenderLogEntryQueue.RunRemoveFilter(toAppend, MatchInfoOrLower);
 
     protected virtual int DropNewestForwardToFailAppender(IFLogEntry toAppend)
     {
@@ -446,35 +403,25 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         return countDropped;
     }
 
-    protected virtual int DropAllIntervalHandling(IFLogEntry toAppend)
-    {
-        return AppenderLogEntryQueue.RunRemoveFilter(toAppend, intervalMatchAllEntries.MatchOn);
-    }
+    protected virtual int DropAllIntervalHandling(IFLogEntry toAppend) =>
+        AppenderLogEntryQueue.RunRemoveFilter(toAppend, intervalMatchAllEntries.MatchOn);
 
-    protected virtual int DropAllDebugOrLowerIntervalHandling(IFLogEntry toAppend)
-    {
-        return AppenderLogEntryQueue.RunRemoveFilter(toAppend, intervalMatchDebugOrLower.MatchOn);
-    }
+    protected virtual int DropAllDebugOrLowerIntervalHandling(IFLogEntry toAppend) =>
+        AppenderLogEntryQueue.RunRemoveFilter(toAppend, intervalMatchDebugOrLower.MatchOn);
 
-    protected virtual int DropAllInfoOrLowerIntervalHandling(IFLogEntry toAppend)
-    {
-        return AppenderLogEntryQueue.RunRemoveFilter(toAppend, intervalMatchInfoOrLower.MatchOn);
-    }
+    protected virtual int DropAllInfoOrLowerIntervalHandling(IFLogEntry toAppend) =>
+        AppenderLogEntryQueue.RunRemoveFilter(toAppend, intervalMatchInfoOrLower.MatchOn);
 
     protected virtual int AttemptEnqueueUntilTimeoutDropNewestForwardToFailHandling(IFLogEntry flogEntry)
     {
         var queue        = AppenderLogEntryQueue;
-        int attemptCount = 0;
+        var attemptCount = 0;
         while (true)
-        {
             if (!queue.TryEnqueue(flogEntry))
             {
                 var sleepInterval = (int)EnqueueAttemptInterval.Max(TimeSpan.Zero).TotalMilliseconds;
                 var maxAttempts   = EnqueueAttemptTimeout.TotalMilliseconds / EnqueueAttemptInterval.Max(OneMillisecond).TotalMilliseconds;
-                if (attemptCount > maxAttempts)
-                {
-                    return TimeoutDropNewestForwardToFailHandling(flogEntry);
-                }
+                if (attemptCount > maxAttempts) return TimeoutDropNewestForwardToFailHandling(flogEntry);
                 Thread.Sleep(sleepInterval);
                 attemptCount++;
             }
@@ -482,7 +429,6 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
             {
                 break;
             }
-        }
         return 0;
     }
 
@@ -501,17 +447,13 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
     protected virtual int AttemptEnqueueUntilTimeoutDropNewestHandling(IFLogEntry flogEntry)
     {
         var queue        = AppenderLogEntryQueue;
-        int attemptCount = 0;
+        var attemptCount = 0;
         while (true)
-        {
             if (!queue.TryEnqueue(flogEntry))
             {
                 var sleepInterval = (int)EnqueueAttemptInterval.Max(TimeSpan.Zero).TotalMilliseconds;
                 var maxAttempts   = EnqueueAttemptTimeout.TotalMilliseconds / EnqueueAttemptInterval.Max(OneMillisecond).TotalMilliseconds;
-                if (attemptCount > maxAttempts)
-                {
-                    return TimeoutDropNewestHandling(flogEntry);
-                }
+                if (attemptCount > maxAttempts) return TimeoutDropNewestHandling(flogEntry);
                 Thread.Sleep(sleepInterval);
                 attemptCount++;
             }
@@ -519,7 +461,6 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
             {
                 break;
             }
-        }
         return 0;
     }
 
@@ -528,6 +469,13 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         flogEntry.DecrementRefCount();
         return 1;
     }
+
+    protected record struct DrainQueueResult(bool ShouldStartDrain, int DrainAmount, bool ShouldEmptyBuffer)
+    {
+        public static DrainQueueResult NotRequired = new(false, 0, false);
+        public static DrainQueueResult OneBatchReadSize(int batchReadSize) => new(true, batchReadSize, false);
+        public static DrainQueueResult DrainToEmpty(int queueSize)         => new(true, queueSize, true);
+    };
 
     private class NoOpFLogEntrySink() : FLogEntryPipelineEndpoint("NoOpFLogEntrySink", null!)
     {
@@ -542,17 +490,14 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         public override string Name { get; } = "NoOpFLogEntrySink";
     }
 
-    protected static Predicate<IFLogEntry> MatchDebugOrLower = static logEntry => logEntry.LogLevel <= FLogLevel.Debug;
-    protected static Predicate<IFLogEntry> MatchInfoOrLower  = static logEntry => logEntry.LogLevel <= FLogLevel.Info;
-
 
     protected abstract class MatchLogEntryIntervalPredicate
     {
         protected readonly int Interval;
 
-        protected int Count;
-
         public readonly Predicate<IFLogEntry> MatchOn;
+
+        protected int Count;
 
         protected MatchLogEntryIntervalPredicate(int interval)
         {
@@ -566,20 +511,14 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
 
     protected class IntervalMatchAll(int interval) : MatchLogEntryIntervalPredicate(interval)
     {
-        public override bool Match(IFLogEntry subject)
-        {
-            return Count++ % Interval == 0;
-        }
+        public override bool Match(IFLogEntry subject) => Count++ % Interval == 0;
     }
 
     protected class IntervalMatchAllDebug(int interval) : MatchLogEntryIntervalPredicate(interval)
     {
         public override bool Match(IFLogEntry subject)
         {
-            if (subject.LogLevel <= FLogLevel.Debug)
-            {
-                return Count++ % Interval == 0;
-            }
+            if (subject.LogLevel <= FLogLevel.Debug) return Count++ % Interval == 0;
             return false;
         }
     }
@@ -588,10 +527,7 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
     {
         public override bool Match(IFLogEntry subject)
         {
-            if (subject.LogLevel <= FLogLevel.Info)
-            {
-                return Count++ % Interval == 0;
-            }
+            if (subject.LogLevel <= FLogLevel.Info) return Count++ % Interval == 0;
             return false;
         }
     }

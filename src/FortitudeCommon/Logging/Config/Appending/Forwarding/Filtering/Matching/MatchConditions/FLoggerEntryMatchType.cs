@@ -2,10 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Configuration;
-using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 using static FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.FLoggerEntryMatchType;
 
@@ -26,21 +22,24 @@ public static class FLoggerEntryMatchTypeExtensions
     public static string? GetCheckConditionType(this IConfigurationRoot configRoot, string configPath) =>
         configRoot.GetSection($"{configPath}{ConfigurationPath.KeyDelimiter}{nameof(IMatchConditionConfig.CheckConditionType)}").Value;
 
-    public static IMutableMatchConditionConfig? GetMatchConditionConfig(this IConfigurationRoot configRoot, string configPath, IFLogConfig? parent = null)
+    public static IMutableMatchConditionConfig? GetMatchConditionConfig(this IConfigurationRoot configRoot, string configPath
+      , IFLogConfig? parent = null)
     {
         var checkType = GetCheckConditionType(configRoot, configPath);
         switch (checkType)
         {
-            case nameof(Unknown):             throw new ConfigurationErrorsException($"Expected {nameof(IMatchConditionConfig.CheckConditionType)}");
-            case nameof(EntryContainsString): return new MatchEntryContainsStringConfig(configRoot, configPath)
-            {
-                ParentConfig = parent
-            };
-            case nameof(LogLevelComparison):  return new MatchLogLevelConfigConfig(configRoot, configPath)
-            {
-                ParentConfig = parent
-            };
-            default:                          return null;
+            case nameof(Unknown): throw new ConfigurationErrorsException($"Expected {nameof(IMatchConditionConfig.CheckConditionType)}");
+            case nameof(EntryContainsString):
+                return new MatchEntryContainsStringConfig(configRoot, configPath)
+                {
+                    ParentConfig = parent
+                };
+            case nameof(LogLevelComparison):
+                return new MatchLogLevelConfigConfig(configRoot, configPath)
+                {
+                    ParentConfig = parent
+                };
+            default: return null;
         }
     }
 

@@ -1,7 +1,9 @@
-﻿using System.Globalization;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Globalization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -164,9 +166,7 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
         get
         {
             if (GetSection(nameof(FlushConfig)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FlushBufferConfig(ConfigRoot, $"{Path}{Split}{nameof(FlushConfig)}");
-            }
             return new FlushBufferConfig(IBufferingFormatAppenderConfig.DefaultFlushBufferConfig
                                        , ConfigRoot, $"{Path}{Split}{nameof(FlushConfig)}");
         }
@@ -175,6 +175,8 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    public override BufferingFormatAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
     IBufferingFormatAppenderConfig ICloneable<IBufferingFormatAppenderConfig>.Clone() => Clone();
 
     IBufferingFormatAppenderConfig IBufferingFormatAppenderConfig.Clone() => Clone();
@@ -182,8 +184,6 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
     IMutableBufferingFormatAppenderConfig IMutableBufferingFormatAppenderConfig.Clone() => Clone();
 
     public override BufferingFormatAppenderConfig Clone() => new(this);
-
-    public override BufferingFormatAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {

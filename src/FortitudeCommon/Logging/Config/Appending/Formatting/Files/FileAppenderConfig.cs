@@ -151,9 +151,9 @@ public class FileAppenderConfig : BufferingFormatAppenderConfig, IMutableFileApp
     public FileEncodingTypes FileEncoding
     {
         get =>
-            Enum.TryParse<FileEncodingTypes>(this[nameof(FileAppenderType)], out var poolScope) ?
-                poolScope :
-                IFileAppenderConfig.DefaultFileEncodingType;
+            Enum.TryParse<FileEncodingTypes>(this[nameof(FileAppenderType)], out var poolScope)
+                ? poolScope
+                : IFileAppenderConfig.DefaultFileEncodingType;
         set => this[nameof(FileAppenderType)] = value.ToString();
     }
 
@@ -189,6 +189,8 @@ public class FileAppenderConfig : BufferingFormatAppenderConfig, IMutableFileApp
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    public override FileAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
     object ICloneable.Clone() => Clone();
 
     IFileAppenderConfig ICloneable<IFileAppenderConfig>.Clone() => Clone();
@@ -198,8 +200,6 @@ public class FileAppenderConfig : BufferingFormatAppenderConfig, IMutableFileApp
     IMutableFileAppenderConfig IMutableFileAppenderConfig.Clone() => Clone();
 
     public override FileAppenderConfig Clone() => new(this);
-
-    public override FileAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {

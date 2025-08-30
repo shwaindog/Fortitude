@@ -1,9 +1,12 @@
-﻿using FortitudeCommon.Logging.Config.LoggersHierarchy;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Hub;
 
 namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 
-internal class UpdateEmbodiedChildrenLoggerConfig(IMutableNamedChildLoggersLookupConfig explicitDefinedConfig, IFLogAppenderRegistry appenderRegistry) 
+internal class UpdateEmbodiedChildrenLoggerConfig(IMutableNamedChildLoggersLookupConfig explicitDefinedConfig, IFLogAppenderRegistry appenderRegistry)
     : LoggerVisitor<UpdateEmbodiedChildrenLoggerConfig>
 {
     private IMutableFLoggerTreeCommonConfig? parentConfig;
@@ -11,10 +14,7 @@ internal class UpdateEmbodiedChildrenLoggerConfig(IMutableNamedChildLoggersLooku
     public override UpdateEmbodiedChildrenLoggerConfig Accept(IMutableFLoggerRoot node)
     {
         parentConfig = node.ResolvedConfig;
-        foreach (var childLogger in node.ImmediateEmbodiedChildren)
-        {
-            childLogger.Visit(Me);
-        }
+        foreach (var childLogger in node.ImmediateEmbodiedChildren) childLogger.Visit(Me);
         return this;
     }
 
@@ -26,19 +26,13 @@ internal class UpdateEmbodiedChildrenLoggerConfig(IMutableNamedChildLoggersLooku
             var myParentConfig = parentConfig;
             parentConfig = definedConfig.CreateInheritedDescendantConfig(parentConfig);
             node.HandleConfigUpdate(parentConfig, appenderRegistry);
-            foreach (var childLogger in node.ImmediateEmbodiedChildren)
-            {
-                childLogger.Visit(Me);
-            }
+            foreach (var childLogger in node.ImmediateEmbodiedChildren) childLogger.Visit(Me);
             parentConfig = myParentConfig;
         }
         else
         {
             node.HandleConfigUpdate(parentConfig, appenderRegistry);
-            foreach (var childLogger in node.ImmediateEmbodiedChildren)
-            {
-                childLogger.Visit(Me);
-            }
+            foreach (var childLogger in node.ImmediateEmbodiedChildren) childLogger.Visit(Me);
         }
         return this;
     }

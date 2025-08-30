@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
 
@@ -6,30 +9,16 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.Conso
 
 public class ConsoleColorResetTemplatePart : ConsoleAppenderColorChangeTemplatePart
 {
-    public ConsoleColorResetTemplatePart(string command) : base(FormattingAppenderSinkType.Console, command)
-    {
-        WasScopeClosed = true;
-    }
-    
-    private static ConsoleColor onStartTextColor;
-    private static ConsoleColor onStartBackgroundColor;
-
     static ConsoleColorResetTemplatePart()
     {
-        onStartTextColor       = Console.ForegroundColor;
-        onStartBackgroundColor = Console.BackgroundColor;
+        DefaultTextColor       = Console.ForegroundColor;
+        DefaultBackgroundColor = Console.BackgroundColor;
     }
 
-    public static ConsoleColor DefaultTextColor
-    {
-        get => onStartTextColor;
-        set => onStartTextColor = value;
-    }
-    public static ConsoleColor DefaultBackgroundColor
-    {
-        get => onStartBackgroundColor;
-        set => onStartBackgroundColor = value;
-    }
+    public ConsoleColorResetTemplatePart(string command) : base(FormattingAppenderSinkType.Console, command) => WasScopeClosed = true;
+
+    public static ConsoleColor DefaultTextColor { get; set; }
+    public static ConsoleColor DefaultBackgroundColor { get; set; }
 
     public override int Apply(IFormatWriter formatWriter, IFLogEntry logEntry)
     {

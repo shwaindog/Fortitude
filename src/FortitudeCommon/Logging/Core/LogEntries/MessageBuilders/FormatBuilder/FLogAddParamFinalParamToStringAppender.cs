@@ -1,16 +1,16 @@
-﻿using System.Numerics;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using System.Text;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
 public partial class FLogAdditionalFormatterParameterEntry
 {
-    
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AndFinalParamThenToAppender(bool value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value).ToStringAppender(value, this);
@@ -24,12 +24,12 @@ public partial class FLogAdditionalFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 
+    public IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
         where TToStyle : TStylerType =>
         PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) 
+    public IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         FormatSb.Clear();
@@ -148,5 +148,4 @@ public partial class FLogAdditionalFormatterParameterEntry
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AndFinalObjectParamThenToAppender(object? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokensMatch(value).ToStringAppender(value, this);
-
 }

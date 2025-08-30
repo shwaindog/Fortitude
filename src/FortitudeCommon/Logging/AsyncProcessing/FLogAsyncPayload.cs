@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
@@ -22,13 +24,13 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
 
     public FLogAsyncPayload(FLogAsyncPayload toClone)
     {
-        QueueRequestNumber = toClone.QueueRequestNumber;
-        AsyncRequestType   = toClone.AsyncRequestType;
-        ClosureJob         = toClone.ClosureJob;
-        FlogEntryEvent     = toClone.FlogEntryEvent;
-        PublishSource      = toClone.PublishSource;
-        PublishToLogEntrySinks      = toClone.PublishToLogEntrySinks;
-        BufferToFlush      = toClone.BufferToFlush;
+        QueueRequestNumber     = toClone.QueueRequestNumber;
+        AsyncRequestType       = toClone.AsyncRequestType;
+        ClosureJob             = toClone.ClosureJob;
+        FlogEntryEvent         = toClone.FlogEntryEvent;
+        PublishSource          = toClone.PublishSource;
+        PublishToLogEntrySinks = toClone.PublishToLogEntrySinks;
+        BufferToFlush          = toClone.BufferToFlush;
     }
 
     public uint QueueRequestNumber { get; set; }
@@ -54,14 +56,6 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
 
     public IBufferedFormatWriter? BufferToFlush { get; set; }
 
-    public void RunAsyncRequest()
-    {
-        switch (AsyncRequestType)
-        {
-            case AsyncJobRequestType.RunClosureJob: ClosureJob?.Invoke(); break;
-        }
-    }
-
     public FLogAsyncPayload ResetWithTracking()
     {
         QueueRequestNumber = 0;
@@ -74,6 +68,14 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         BufferToFlush = null;
 
         return this;
+    }
+
+    public void RunAsyncRequest()
+    {
+        switch (AsyncRequestType)
+        {
+            case AsyncJobRequestType.RunClosureJob: ClosureJob?.Invoke(); break;
+        }
     }
 
     public void SetAsClosureJob(Action closureJob)
@@ -91,28 +93,28 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
 
         logEntryEvent.IncrementRefCount();
 
-        FlogEntryEvent   = logEntryEvent;
-        PublishSource    = publishSource;
-        PublishToLogEntrySinks    = logEntrySinks;
+        FlogEntryEvent         = logEntryEvent;
+        PublishSource          = publishSource;
+        PublishToLogEntrySinks = logEntrySinks;
     }
 
     public void SetAsSendLogEntryEvent(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, ITargetingFLogEntrySource publishSource)
     {
         ResetWithTracking();
         AsyncRequestType = AsyncJobRequestType.ForwardLogEntryEventToAppender;
-        
+
         logEntryEvent.IncrementRefCount();
 
-        FlogEntryEvent   = logEntryEvent;
-        PublishSource    = publishSource;
+        FlogEntryEvent        = logEntryEvent;
+        PublishSource         = publishSource;
         ForwardToLogEntrySink = logEntrySink;
     }
 
     public void SetAsFlushAppenderBuffer(IBufferedFormatWriter bufferToFlush)
     {
         ResetWithTracking();
-        AsyncRequestType        = AsyncJobRequestType.FlushCharBufferToAppender;
-        BufferToFlush           = bufferToFlush;
+        AsyncRequestType = AsyncJobRequestType.FlushCharBufferToAppender;
+        BufferToFlush    = bufferToFlush;
     }
 
     public void ReceiverExecuteRequest()
@@ -132,16 +134,12 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
                 flogEntryToPublish.LogEntriesBatch?.DecrementRefCount();
                 break;
             case AsyncJobRequestType.ForwardLogEntryEventToAppender:
-                var        flogEntryEvent = FlogEntryEvent!.Value;
+                var flogEntryEvent = FlogEntryEvent!.Value;
 
                 if (PublishSource == ForwardToLogEntrySink)
-                {
                     PublishSource?.FinalTarget?.InBoundListener(flogEntryEvent, PublishSource);
-                }
                 else
-                {
                     ForwardToLogEntrySink?.InBoundListener(flogEntryEvent, PublishSource!);
-                }
                 break;
             case AsyncJobRequestType.FlushCharBufferToAppender: BufferToFlush!.Flush(); break;
         }
@@ -152,13 +150,13 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
 
     public override FLogAsyncPayload CopyFrom(FLogAsyncPayload source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        QueueRequestNumber = source.QueueRequestNumber;
-        AsyncRequestType   = source.AsyncRequestType;
-        ClosureJob         = source.ClosureJob;
-        FlogEntryEvent     = source.FlogEntryEvent;
-        PublishSource      = source.PublishSource;
-        PublishToLogEntrySinks      = source.PublishToLogEntrySinks;
-        BufferToFlush      = source.BufferToFlush;
+        QueueRequestNumber     = source.QueueRequestNumber;
+        AsyncRequestType       = source.AsyncRequestType;
+        ClosureJob             = source.ClosureJob;
+        FlogEntryEvent         = source.FlogEntryEvent;
+        PublishSource          = source.PublishSource;
+        PublishToLogEntrySinks = source.PublishToLogEntrySinks;
+        BufferToFlush          = source.BufferToFlush;
 
         return this;
     }

@@ -11,11 +11,12 @@ namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender
 
 public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStringAppender, FLogStringAppender>, IFLogStringAppender
 {
+    protected IStringBuilder MessageSb = null!;
+
     protected IStyledTypeStringAppender MessageStsa = null!;
-    protected IStringBuilder            MessageSb   = null!;
-    
+
     protected bool NextPostAppendIsNewLine;
-    
+
     public FLogStringAppender() { }
 
     public FLogStringAppender(FLogEntry flogEntry, IStyledTypeStringAppender useStyleTypeStringBuilder
@@ -44,6 +45,8 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
         return this;
     }
 
+    public int IndentLevel { get; protected set; }
+
     public string Indent
     {
         get => MessageStsa.Indent;
@@ -51,8 +54,6 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
     }
 
     public int Count => MessageSb.Length;
-
-    public int IndentLevel { get; protected set; }
 
     public StringBuildingStyle Style => MessageStsa.Style;
 
@@ -72,7 +73,7 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
     {
         get
         {
-            var stringAppenderCollectionBuilder = (Recycler?.Borrow<StringAppenderCollectionBuilder>() ?? new StringAppenderCollectionBuilder());
+            var stringAppenderCollectionBuilder = Recycler?.Borrow<StringAppenderCollectionBuilder>() ?? new StringAppenderCollectionBuilder();
             stringAppenderCollectionBuilder.Initialize(this, LogEntry);
             return stringAppenderCollectionBuilder;
         }
@@ -85,7 +86,7 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
             return AppendCollection;
         }
     }
-    
+
     public IFinalCollectionAppend FinalAppendCollection
     {
         get
@@ -93,27 +94,13 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
             NextPostAppendIsLast = true;
 
             var completeParamCollection =
-                (Recycler?.Borrow<FinalStringAppenderCollectionBuilder>() ??
-                 new FinalStringAppenderCollectionBuilder());
-            
+                Recycler?.Borrow<FinalStringAppenderCollectionBuilder>() ??
+                new FinalStringAppenderCollectionBuilder();
+
             completeParamCollection.Initialize(this, LogEntry);
-            
+
             return completeParamCollection;
         }
-    }
-
-    protected override IStyledTypeStringAppender? PreappendCheckGetStringAppender<T>(T param, [CallerMemberName] string memberName = "") => MessageStsa;
-
-    protected override IFLogStringAppender? PostAppendContinueOnMessageEntry<T>(IStyledTypeStringAppender? justAppended, T param,
-        [CallerMemberName] string memberName = "")
-    {
-        if( NextPostAppendIsLast) return CallOnComplete();
-        if (NextPostAppendIsNewLine)
-        {
-            NextPostAppendIsNewLine = false;
-            return AppendLine();
-        }
-        return this;
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
@@ -128,11 +115,26 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
         AppendMatchSelect(value, MessageStsa);
         return AppendObjectLine(this);
     }
-    
+
     public void FinalMatchAppend<T>(T value)
     {
         AppendMatchSelect(value, MessageStsa);
         CallOnComplete();
+    }
+
+    protected override IStyledTypeStringAppender? PreappendCheckGetStringAppender<T>(T param, [CallerMemberName] string memberName = "") =>
+        MessageStsa;
+
+    protected override IFLogStringAppender? PostAppendContinueOnMessageEntry<T>(IStyledTypeStringAppender? justAppended, T param,
+        [CallerMemberName] string memberName = "")
+    {
+        if (NextPostAppendIsLast) return CallOnComplete();
+        if (NextPostAppendIsNewLine)
+        {
+            NextPostAppendIsNewLine = false;
+            return AppendLine();
+        }
+        return this;
     }
 
     protected IFLogStringAppender? CallOnComplete()
@@ -148,19 +150,13 @@ public static class FLogStringAppenderExtensions
     public static FLogStringAppender AppendLine(this IStringBuilder sb, FLogStringAppender toReturn)
     {
         var style = toReturn.Style;
-        if (style.IsCompact())
-        {
-            return toReturn;
-        }
+        if (style.IsCompact()) return toReturn;
         sb.AppendLine();
         if (style.IsPretty())
         {
             var indentLevel  = toReturn.IndentLevel;
             var indentString = toReturn.Indent;
-            for (int i = 0; i < indentLevel; i++)
-            {
-                sb.Append(indentString);
-            }
+            for (var i = 0; i < indentLevel; i++) sb.Append(indentString);
         }
         return toReturn;
     }
@@ -168,6 +164,6 @@ public static class FLogStringAppenderExtensions
     public static FLogStringAppender AppendLine(this IStyledTypeStringAppender? stsa, FLogStringAppender toReturn) =>
         stsa?.WriteBuffer.AppendLine(toReturn) ?? toReturn;
 
-    public static FLogStringAppender ToAppender(this IStringBuilder _, FLogStringAppender toReturn)            => toReturn;
+    public static FLogStringAppender ToAppender(this IStringBuilder _, FLogStringAppender toReturn)             => toReturn;
     public static FLogStringAppender ToAppender(this IStyledTypeStringAppender? _, FLogStringAppender toReturn) => toReturn;
 }

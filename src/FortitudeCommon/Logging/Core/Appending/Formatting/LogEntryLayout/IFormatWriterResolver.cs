@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
@@ -18,15 +21,12 @@ public interface IFormatWriterResolver
 
 public class CharSpanReturningLogEntryFormatter : RecyclableObject, IFormatWriter, IFormatWriterResolver, IBlockingFormatWriterResolverHandle
 {
-    private bool isDisposed;
-    private bool wasTaken;
-
     private IFLogEntry? requestingLogEntry;
-    
+
     public CharSpanReturningLogEntryFormatter Initialize(int minCharSize, IFLogEntry? logEntry = null)
     {
-        isDisposed = false;
-        wasTaken   = false;
+        IsDisposed = false;
+        WasTaken   = false;
 
         if (minCharSize > (Buffer?.Length ?? 0))
         {
@@ -40,10 +40,6 @@ public class CharSpanReturningLogEntryFormatter : RecyclableObject, IFormatWrite
 
     private RecyclingCharArray? Buffer { get; set; }
 
-    public void Clear() => Buffer?.Clear();
-
-    public string TargetName => $"{nameof(CharSpanReturningLogEntryFormatter)}";
-
     public Span<char> AsSpan
     {
         get
@@ -53,25 +49,33 @@ public class CharSpanReturningLogEntryFormatter : RecyclableObject, IFormatWrite
         }
     }
 
-    public IBlockingFormatWriterResolverHandle FormatWriterResolver(IFLogEntry logEntry)
-    {
-        RequestingLogEntry = logEntry;
-        Buffer!.Clear();
-        return this;
-    }
-
     public IFLogEntry RequestingLogEntry
     {
         get => requestingLogEntry!;
         private set => requestingLogEntry = value;
     }
 
+    public bool IsDisposed { get; private set; }
+    public bool IsAvailable => true;
+    public bool WasTaken { get; private set; }
+
+    public bool TryGetFormatWriter(out IFormatWriter? formatWriter)
+    {
+        formatWriter = this;
+        return true;
+    }
+
+    public IFormatWriter GetOrWaitForFormatWriter(int timeout = 2000) => this;
+
+    public void ReceiveFormatWriterHandler(IFormatWriter writer) { }
+
+    public void IssueRequestAborted() { }
+
+    public string TargetName => $"{nameof(CharSpanReturningLogEntryFormatter)}";
+
     public void Dispose()
     {
-        if (!isDisposed)
-        {
-            isDisposed = true;
-        }
+        if (!IsDisposed) IsDisposed = true;
     }
 
     IFLogFormattingAppender IFormatWriter.OwningAppender => null!;
@@ -87,47 +91,33 @@ public class CharSpanReturningLogEntryFormatter : RecyclableObject, IFormatWrite
         Buffer!.Add(toWrite);
     }
 
-    public void Append(StringBuilder toWrite, int fromIndex = 0, int length = Int32.MaxValue)
+    public void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue)
     {
         Buffer!.Add(toWrite, fromIndex, length);
     }
 
-    public void Append(ICharSequence toWrite, int fromIndex = 0, int length = Int32.MaxValue)
+    public void Append(ICharSequence toWrite, int fromIndex = 0, int length = int.MaxValue)
     {
         Buffer!.Add(toWrite, fromIndex, length);
     }
 
-    public void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = Int32.MaxValue)
+    public void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue)
     {
         Buffer!.Add(toWrite, fromIndex, length);
     }
 
-    public void Append(char[] toWrite, int fromIndex = 0, int length = Int32.MaxValue)
+    public void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue)
     {
         Buffer!.Add(toWrite, fromIndex, length);
     }
 
     public void NotifyEntryAppendComplete() { }
 
-    public bool IsDisposed => isDisposed;
-    public bool IsAvailable => true;
-    public bool WasTaken => wasTaken;
-
-    public bool TryGetFormatWriter(out IFormatWriter? formatWriter)
+    public IBlockingFormatWriterResolverHandle FormatWriterResolver(IFLogEntry logEntry)
     {
-        formatWriter = this;
-        return true;
-    }
-
-    public IFormatWriter GetOrWaitForFormatWriter(int timeout = 2000)
-    {
+        RequestingLogEntry = logEntry;
+        Buffer!.Clear();
         return this;
-    }
-
-    public void ReceiveFormatWriterHandler(IFormatWriter writer) { }
-
-    public void IssueRequestAborted()
-    {
     }
 
     public bool IsOpen => true;
@@ -136,6 +126,8 @@ public class CharSpanReturningLogEntryFormatter : RecyclableObject, IFormatWrite
     {
         Buffer?.Clear();
     }
+
+    public void Clear() => Buffer?.Clear();
 
     public override void StateReset()
     {

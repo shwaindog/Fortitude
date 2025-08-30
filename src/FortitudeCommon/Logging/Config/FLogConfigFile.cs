@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Extensions;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Logging.Config;
 
@@ -9,7 +12,8 @@ public static class FLogConfigFile
     public const string DefaultConfigFullFilePath = $"{DefaultConfigPath}/{DefaultConfigFileName}";
 
     public const string EnvVarNameForDefaultFullConfigFilePath = "FLogConfigFullFilePath";
-    public const string EnvVarNameForConfigDirPath = "FLogConfigDirPath";
+
+    public const string EnvVarNameForConfigDirPath  = "FLogConfigDirPath";
     public const string EnvVarNameForConfigFileName = "FLogConfigFileName";
 
     private static string? resolvedConfigFilePath;
@@ -32,52 +36,6 @@ public static class FLogConfigFile
         }
     }
 
-    public static string ConfigHostFileName(string machineName)
-    {
-        var originalFileName = ConfigFileName;
-        var machineConfigFile = stackalloc char[originalFileName.Length + machineName.Length + 1].ResetMemory();
-        var lastIndexOf = machineName.LastIndexOf('.');
-        if (lastIndexOf >= 0)
-        {
-            machineConfigFile.Append(originalFileName[..lastIndexOf]);
-            machineConfigFile.Append('-');
-            machineConfigFile.Append(machineName);
-            machineConfigFile.Append(originalFileName[(lastIndexOf)..]);
-            var asString = new String(machineConfigFile);
-            return asString;
-        }
-        return  originalFileName + "-" + machineName;
-    }
-
-    public static string ConfigHostFullFilePath(string machineName)
-    {
-        return  $"{ConfigFileDirPath}/{ConfigHostFileName(machineName)}";
-    }
-
-    public static string ConfigLoginHostFileName(string login, string machineName)
-    {
-        var originalFileName = ConfigFileName;
-        var machineConfigFile = stackalloc char[originalFileName.Length + login.Length + machineName.Length + 2].ResetMemory();
-        var lastIndexOf = machineName.LastIndexOf('.');
-        if (lastIndexOf >= 0)
-        {
-            machineConfigFile.Append(originalFileName[..lastIndexOf]);
-            machineConfigFile.Append('-');
-            machineConfigFile.Append(login);
-            machineConfigFile.Append('-');
-            machineConfigFile.Append(machineName);
-            machineConfigFile.Append(originalFileName[(lastIndexOf)..]);
-            var asString = new String(machineConfigFile);
-            return asString;
-        }
-        return  originalFileName + "-" + login + "-" +  machineName;
-    }
-
-    public static string ConfigLoginHostFullFilePath(string login, string machineName)
-    {
-        return  $"{ConfigFileDirPath}/{ConfigLoginHostFileName(login, machineName)}";
-    }
-
     public static string ConfigFileDirPath
     {
         get
@@ -89,7 +47,7 @@ public static class FLogConfigFile
                 resolvedConfigDirPath = Path.GetDirectoryName(envVarDefaultFlogFullConfigPath);
                 return resolvedConfigDirPath!;
             }
-            resolvedConfigDirPath       =   Environment.GetEnvironmentVariable(EnvVarNameForConfigDirPath);
+            resolvedConfigDirPath = Environment.GetEnvironmentVariable(EnvVarNameForConfigDirPath);
             return resolvedConfigDirPath ??= DefaultConfigPath;
         }
     }
@@ -105,8 +63,49 @@ public static class FLogConfigFile
                 resolvedConfigFileName = Path.GetFileName(envVarDefaultFlogFullConfigPath);
                 return resolvedConfigFileName!;
             }
-            resolvedConfigFileName       =   Environment.GetEnvironmentVariable(EnvVarNameForConfigFileName);
+            resolvedConfigFileName = Environment.GetEnvironmentVariable(EnvVarNameForConfigFileName);
             return resolvedConfigDirPath ??= DefaultConfigFileName;
         }
     }
+
+    public static string ConfigHostFileName(string machineName)
+    {
+        var originalFileName  = ConfigFileName;
+        var machineConfigFile = stackalloc char[originalFileName.Length + machineName.Length + 1].ResetMemory();
+        var lastIndexOf       = machineName.LastIndexOf('.');
+        if (lastIndexOf >= 0)
+        {
+            machineConfigFile.Append(originalFileName[..lastIndexOf]);
+            machineConfigFile.Append('-');
+            machineConfigFile.Append(machineName);
+            machineConfigFile.Append(originalFileName[lastIndexOf..]);
+            var asString = new string(machineConfigFile);
+            return asString;
+        }
+        return originalFileName + "-" + machineName;
+    }
+
+    public static string ConfigHostFullFilePath(string machineName) => $"{ConfigFileDirPath}/{ConfigHostFileName(machineName)}";
+
+    public static string ConfigLoginHostFileName(string login, string machineName)
+    {
+        var originalFileName  = ConfigFileName;
+        var machineConfigFile = stackalloc char[originalFileName.Length + login.Length + machineName.Length + 2].ResetMemory();
+        var lastIndexOf       = machineName.LastIndexOf('.');
+        if (lastIndexOf >= 0)
+        {
+            machineConfigFile.Append(originalFileName[..lastIndexOf]);
+            machineConfigFile.Append('-');
+            machineConfigFile.Append(login);
+            machineConfigFile.Append('-');
+            machineConfigFile.Append(machineName);
+            machineConfigFile.Append(originalFileName[lastIndexOf..]);
+            var asString = new string(machineConfigFile);
+            return asString;
+        }
+        return originalFileName + "-" + login + "-" + machineName;
+    }
+
+    public static string ConfigLoginHostFullFilePath(string login, string machineName) =>
+        $"{ConfigFileDirPath}/{ConfigLoginHostFileName(login, machineName)}";
 }

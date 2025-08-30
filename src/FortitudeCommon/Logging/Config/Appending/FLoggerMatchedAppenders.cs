@@ -1,10 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Configuration;
-using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
@@ -31,15 +28,11 @@ public abstract class FLoggerMatchedAppenders : FLogConfig, IMutableFLoggerMatch
         : this(InMemoryConfigRoot, InMemoryPath, appendersCfg) { }
 
     protected FLoggerMatchedAppenders
-        (IConfigurationRoot root, string path, IAppendableNamedAppendersLookupConfig? appendersCfg = null) : base(root, path)
-    {
+        (IConfigurationRoot root, string path, IAppendableNamedAppendersLookupConfig? appendersCfg = null) : base(root, path) =>
         Appenders = appendersCfg ?? new NamedAppendersLookupConfig();
-    }
 
-    protected FLoggerMatchedAppenders(IFLoggerMatchedAppenders toClone, IConfigurationRoot root, string path) : base(root, path)
-    {
+    protected FLoggerMatchedAppenders(IFLoggerMatchedAppenders toClone, IConfigurationRoot root, string path) : base(root, path) =>
         Appenders = (IAppendableNamedAppendersLookupConfig)toClone.Appenders;
-    }
 
     protected FLoggerMatchedAppenders(IFLoggerMatchedAppenders toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
@@ -50,15 +43,11 @@ public abstract class FLoggerMatchedAppenders : FLogConfig, IMutableFLoggerMatch
         get
         {
             if (appendersConfig == null)
-            {
                 if (GetSection(nameof(Appenders)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-                {
                     return appendersConfig ??= new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(Appenders)}")
                     {
                         ParentConfig = this
                     };
-                }
-            }
             return appendersConfig ??= new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(Appenders)}")
             {
                 ParentConfig = this

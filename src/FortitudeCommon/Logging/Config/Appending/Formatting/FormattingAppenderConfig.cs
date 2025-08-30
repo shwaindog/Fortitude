@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Extensions;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
@@ -54,26 +57,20 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
-        : base(root, path, appenderName, appenderType, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
-    {
+        : base(root, path, appenderName, appenderType, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) =>
         LogEntryFormatLayout = logEntryFormatLayout;
-    }
 
     public FormattingAppenderConfig
     (IConfigurationRoot root, string path, string appenderName
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
-        : base(root, path, appenderName, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
-    {
+        : base(root, path, appenderName, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) =>
         LogEntryFormatLayout = logEntryFormatLayout;
-    }
 
     public FormattingAppenderConfig(IFormattingAppenderConfig toClone, IConfigurationRoot root, string path)
-        : base(toClone, root, path)
-    {
+        : base(toClone, root, path) =>
         LogEntryFormatLayout = toClone.LogEntryFormatLayout;
-    }
 
     public FormattingAppenderConfig(IFormattingAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
@@ -98,12 +95,10 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
         get
         {
             if (GetSection(nameof(Defines)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(Defines)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -119,6 +114,8 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    public override FormattingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
     object ICloneable.Clone() => Clone();
 
     IFormattingAppenderConfig ICloneable<IFormattingAppenderConfig>.Clone() => Clone();
@@ -126,8 +123,6 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
     IFormattingAppenderConfig IFormattingAppenderConfig.Clone() => Clone();
 
     public override FormattingAppenderConfig Clone() => new(this);
-
-    public override FormattingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {

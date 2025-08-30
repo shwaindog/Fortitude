@@ -1,5 +1,7 @@
-﻿using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
-using FortitudeCommon.Logging.Core.Appending.Formatting;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
@@ -20,7 +22,8 @@ internal class FlogSynchroniseExecutionQueue(int queueNumber)
         toFlush.Flush();
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks
+      , ITargetingFLogEntrySource publishSource)
     {
         for (var i = 0; i < logEntrySinks.Count; i++)
         {

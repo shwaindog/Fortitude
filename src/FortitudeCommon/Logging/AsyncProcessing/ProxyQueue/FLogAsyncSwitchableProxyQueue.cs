@@ -1,4 +1,6 @@
-﻿using FortitudeCommon.Logging.Core.Appending.Formatting;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
@@ -7,13 +9,11 @@ namespace FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
 public class FLogAsyncSwitchableProxyQueue(int queueNumber, IFLogAsyncQueue backingQueue)
     : FLogAsyncQueue(queueNumber, backingQueue.QueueType, backingQueue.QueueCapacity), IReleaseBlockingDisposable, IFLogAsyncSwitchableQueueClient
 {
-    private readonly ManualResetEvent blockPublishing = new (true);
-
-    public bool IsBlocking { get; private set; }
+    private readonly ManualResetEvent blockPublishing = new(true);
 
     public IFLogAsyncQueue ActualQueue { get; private set; } = backingQueue;
 
-    public override int  QueueBackLogSize => ActualQueue.QueueBackLogSize;
+    public override int QueueBackLogSize => ActualQueue.QueueBackLogSize;
 
     public IReleaseBlockingDisposable StartSwitchQueue(IFLogAsyncQueue switchToQueue)
     {
@@ -38,7 +38,8 @@ public class FLogAsyncSwitchableProxyQueue(int queueNumber, IFLogAsyncQueue back
         ActualQueue.FlushBufferToAppender(toFlush);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks
+      , ITargetingFLogEntrySource publishSource)
     {
         blockPublishing.WaitOne();
         ActualQueue.SendLogEntryEventTo(logEntryEvent, logEntrySinks, publishSource);
@@ -50,15 +51,7 @@ public class FLogAsyncSwitchableProxyQueue(int queueNumber, IFLogAsyncQueue back
         ActualQueue.SendLogEntryEventTo(logEntryEvent, logEntrySink, publishSource);
     }
 
-    public override void StartQueueReceiver()
-    {
-        // never start or stop
-    }
-
-    public override void StopQueueReceiver()
-    {
-        // never start or stop
-    }
+    public bool IsBlocking { get; private set; }
 
     public void Dispose()
     {
@@ -67,5 +60,15 @@ public class FLogAsyncSwitchableProxyQueue(int queueNumber, IFLogAsyncQueue back
             blockPublishing.Set();
             IsBlocking = false;
         }
+    }
+
+    public override void StartQueueReceiver()
+    {
+        // never start or stop
+    }
+
+    public override void StopQueueReceiver()
+    {
+        // never start or stop
     }
 }

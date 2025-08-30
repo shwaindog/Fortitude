@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Chronometry;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
@@ -8,10 +11,14 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.FileSystem;
 
 public class LogEntryPathResolver : RecyclableObject, IDisposable
 {
-    private FLogEntryFormatter?                 pathFormatter;
+    private DateTimePathTokenValidator?         fileSystemDefaultDateFormatter;
     private CharSpanReturningLogEntryFormatter? formattedPathWriter;
+    private FLogEntryFormatter?                 pathFormatter;
 
-    private DateTimePathTokenValidator? fileSystemDefaultDateFormatter;
+    public void Dispose()
+    {
+        DecrementRefCount();
+    }
 
     public LogEntryPathResolver Initialize(IRecycler recycler, string combinedFullConfigFilePath)
     {
@@ -32,13 +39,11 @@ public class LogEntryPathResolver : RecyclableObject, IDisposable
         {
             var part = pathFormatter!.TemplateParts[i];
             if (part is ITokenReplacedTemplatePart logEntryTemplatePart)
-            {
                 if (logEntryTemplatePart.TokenName.IsLogEntryDateTimeTokenName())
                 {
                     var formatString = logEntryTemplatePart.FormatString;
                     flagsSoFar |= formatString.TimePartFlagsFromDateTimeFormatString();
                 }
-            }
         }
         return flagsSoFar;
     }
@@ -48,11 +53,6 @@ public class LogEntryPathResolver : RecyclableObject, IDisposable
         formattedPathWriter!.Clear();
         pathFormatter!.ApplyFormatting(entry);
         return formattedPathWriter!.AsSpan;
-    }
-
-    public void Dispose()
-    {
-        DecrementRefCount();
     }
 
     public override void StateReset()
@@ -71,6 +71,7 @@ public class LogEntryPathResolver : RecyclableObject, IDisposable
     {
         public const string DefaultDateFormatting = "YYYY-MM-DD";
         public const string DefaultTimeFormatting = "HH";
+
         public const string DefaultTimeMicrosFormatting = "000";
 
         public ReadOnlySpan<char> ValidateFormattingToken(string tokenName, ReadOnlySpan<char> tokenValue)
@@ -83,26 +84,17 @@ public class LogEntryPathResolver : RecyclableObject, IDisposable
                 case $"{nameof(FLogEntryLayoutTokens.DATETIME)}":
                 case $"{nameof(FLogEntryLayoutTokens.DATEONLY)}":
                 case $"{nameof(FLogEntryLayoutTokens.DO)}":
-                    if (tokenValue.Length == 0)
-                    {
-                        return DefaultDateFormatting.AsSpan();
-                    }
+                    if (tokenValue.Length == 0) return DefaultDateFormatting.AsSpan();
                     break;
                 case $"{nameof(FLogEntryLayoutTokens.TO)}":
                 case $"{nameof(FLogEntryLayoutTokens.TIMEONLY)}":
-                    if (tokenValue.Length == 0)
-                    {
-                        return DefaultTimeFormatting.AsSpan();
-                    }
+                    if (tokenValue.Length == 0) return DefaultTimeFormatting.AsSpan();
                     break;
                 case $"{nameof(FLogEntryLayoutTokens.DATETIME_MICROSECONDS)}":
                 case $"{nameof(FLogEntryLayoutTokens.DATE_MICROS)}":
                 case $"{nameof(FLogEntryLayoutTokens.TIME_MICROS)}":
                 case $"{nameof(FLogEntryLayoutTokens.TS_US)}":
-                    if (tokenValue.Length == 0)
-                    {
-                        return DefaultTimeMicrosFormatting.AsSpan();
-                    }
+                    if (tokenValue.Length == 0) return DefaultTimeMicrosFormatting.AsSpan();
                     break;
             }
             return tokenValue;

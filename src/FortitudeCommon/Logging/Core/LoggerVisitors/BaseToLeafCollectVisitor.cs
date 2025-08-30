@@ -7,7 +7,11 @@ namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 
 public class BaseToLeafCollectVisitor : LoggerVisitor<BaseToLeafCollectVisitor>
 {
-    private List<IFLoggerDescendant> nodes = new ();
+    private List<IFLoggerDescendant> nodes = new();
+
+    public IReadOnlyList<IFLoggerDescendant> NodeSequence => nodes.AsReadOnly();
+
+    public string FullName => NodeSequence.Select(dctn => dctn.Name).JoinToString(".");
 
     public override BaseToLeafCollectVisitor Accept(IMutableFLoggerRoot node) => this;
 
@@ -17,8 +21,4 @@ public class BaseToLeafCollectVisitor : LoggerVisitor<BaseToLeafCollectVisitor>
         nodes.Add(node);
         return this;
     }
-
-    public IReadOnlyList<IFLoggerDescendant> NodeSequence => nodes.AsReadOnly();
-
-    public string FullName => NodeSequence.Select(dctn => dctn.Name).JoinToString(".");
 }

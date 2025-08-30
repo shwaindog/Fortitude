@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Collections;
 using System.Reflection;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory.Buffers;
@@ -16,26 +19,20 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
 {
     [ThreadStatic] protected static IStringBuilder? ScratchBuffer;
 
-    private CharSpanAcceptingStringMap<string>? envVariables;
+    private static string[]? commandLineArgs;
 
     private readonly TokenFormatting tokenFormatting;
 
-    public EnvironmentDataTemplatePart(string tokenName, int paddingLength, int maxLength, string formattingString) => 
+    private CharSpanAcceptingStringMap<string>? envVariables;
+
+    public EnvironmentDataTemplatePart(string tokenName, int paddingLength, int maxLength, string formattingString) =>
         tokenFormatting = new TokenFormatting(tokenName, paddingLength, maxLength, formattingString);
 
-    public EnvironmentDataTemplatePart(TokenFormatting tokenFormatting) => 
-        this.tokenFormatting = tokenFormatting;
-
-    private IStringBuilder SourceEphemeralStringBuilder(int charSizeRequired = 512)
-    {
-        ScratchBuffer ??= charSizeRequired.SourceCharArrayStringBuilder();
-        ScratchBuffer.Clear();
-        return ScratchBuffer;
-    }
+    public EnvironmentDataTemplatePart(TokenFormatting tokenFormatting) => this.tokenFormatting = tokenFormatting;
 
     public int Apply(IFormatWriter formatWriter, IFLogEntry logEntry)
     {
-        var  formatBuffer = SourceEphemeralStringBuilder();
+        var formatBuffer = SourceEphemeralStringBuilder();
         ApplyTokenToStringBuilder(formatBuffer, logEntry);
         if (formatBuffer is CharArrayStringBuilder charArrayStringBuilder)
         {
@@ -55,13 +52,18 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
 
     public FormattingAppenderSinkType TargetingAppenderTypes => FormattingAppenderSinkType.Any;
 
+    private IStringBuilder SourceEphemeralStringBuilder(int charSizeRequired = 512)
+    {
+        ScratchBuffer ??= charSizeRequired.SourceCharArrayStringBuilder();
+        ScratchBuffer.Clear();
+        return ScratchBuffer;
+    }
+
     protected virtual void ApplyTokenToStringBuilder(IStringBuilder sb, IFLogEntry logEntry)
     {
         switch (tokenFormatting.TokenName)
         {
-            case $"{nameof(STARTASSEMBLYNAME)}":
-                sb.Append(Assembly.GetEntryAssembly()?.GetName().Name ?? "UnmanagedLaunched");
-                break;
+            case $"{nameof(STARTASSEMBLYNAME)}":    sb.Append(Assembly.GetEntryAssembly()?.GetName().Name ?? "UnmanagedLaunched"); break;
             case $"{nameof(STARTASSEMBLYDIRPATH)}": sb.Append(Assembly.GetEntryAssembly()?.Location ?? "."); break;
             case $"{nameof(HOSTNAME)}":             sb.Append(Environment.MachineName); break;
             case $"{nameof(LOGINDOMAINNAME)}":      sb.Append(Environment.UserDomainName); break;
@@ -86,33 +88,23 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
         }
     }
 
-    private static string[]? commandLineArgs;
-
     private void AppendCommandLineArg(IStringBuilder sb, int argNum)
     {
         commandLineArgs ??= Environment.GetCommandLineArgs();
-        if (argNum >= 0 && commandLineArgs.Length > argNum)
-        {
-            sb.Append(commandLineArgs[argNum]);
-        }
+        if (argNum >= 0 && commandLineArgs.Length > argNum) sb.Append(commandLineArgs[argNum]);
     }
 
     private CharSpanAcceptingStringMap<string> BuildExpandedEnvironmentVariables()
     {
         var allEnvVariablesExpanded = new CharSpanAcceptingStringMap<string>();
         foreach (DictionaryEntry envVar in Environment.GetEnvironmentVariables())
-        {
             allEnvVariablesExpanded.TryAdd(envVar.Key.ToString(), Environment.ExpandEnvironmentVariables(envVar.Value?.ToString() ?? ""));
-        }
         return allEnvVariablesExpanded;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(LogEntryDataTemplatePart))
-               .Field.AlwaysAdd(nameof(tokenFormatting), tokenFormatting).Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(LogEntryDataTemplatePart))
+           .Field.AlwaysAdd(nameof(tokenFormatting), tokenFormatting).Complete();
 
     public override string ToString() => this.DefaultToString();
 }

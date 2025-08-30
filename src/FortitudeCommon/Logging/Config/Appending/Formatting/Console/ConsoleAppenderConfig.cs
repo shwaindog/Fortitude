@@ -1,7 +1,9 @@
-﻿using System.Globalization;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Globalization;
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -13,30 +15,28 @@ public interface IConsoleAppenderConfig : IBufferingFormatAppenderConfig, IConfi
 {
     const string DefaultConsoleAppenderName = $"DefaultColoredConsoleAppender";
     const string ConsoleAppenderType        = $"{nameof(FLoggerBuiltinAppenderType.ConsoleOut)}";
-    
+
     bool DisableColoredConsole { get; }
 
-    new IConsoleAppenderConfig Clone();
-
     new IConsoleAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
+
+    new IConsoleAppenderConfig Clone();
 }
 
 public interface IMutableConsoleAppenderConfig : IConsoleAppenderConfig, IMutableBufferingFormatAppenderConfig
 {
     new bool DisableColoredConsole { get; set; }
 
-    new IMutableConsoleAppenderConfig Clone();
-
     new IMutableConsoleAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
+
+    new IMutableConsoleAppenderConfig Clone();
 }
 
 public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableConsoleAppenderConfig
 {
+    public static readonly ConsoleAppenderConfig DefaultConsoleAppenderConfig = new() { AppenderName = DefaultConsoleAppenderName };
 
-    public ConsoleAppenderConfig(IConfigurationRoot root, string path) : base(root, path)
-    {
-        AppenderType = ConsoleAppenderType;
-    }
+    public ConsoleAppenderConfig(IConfigurationRoot root, string path) : base(root, path) => AppenderType = ConsoleAppenderType;
 
     public ConsoleAppenderConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
@@ -51,20 +51,14 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
       , bool deactivateHere = false)
         : base(root, path, appenderName, ConsoleAppenderType, logEntryFormatLayout, charBufferSize, flushBufferConfig, disableBuffering
              , runOnAsyncQueueNumber
-             , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
-    {
+             , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) =>
         DisableColoredConsole = disableColoredConsole;
-    }
 
     public ConsoleAppenderConfig(IConsoleAppenderConfig toClone, IConfigurationRoot root, string path)
-        : base(toClone, root, path)
-    {
+        : base(toClone, root, path) =>
         DisableColoredConsole = toClone.DisableColoredConsole;
-    }
 
     public ConsoleAppenderConfig(IConsoleAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
-
-    public static readonly ConsoleAppenderConfig DefaultConsoleAppenderConfig = new() { AppenderName = DefaultConsoleAppenderName };
 
     public bool DisableColoredConsole
     {
@@ -86,14 +80,6 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    IConsoleAppenderConfig ICloneable<IConsoleAppenderConfig>.Clone() => Clone();
-
-    IConsoleAppenderConfig IConsoleAppenderConfig.Clone() => Clone();
-
-    IMutableConsoleAppenderConfig IMutableConsoleAppenderConfig.Clone() => Clone();
-
-    public override ConsoleAppenderConfig Clone() => new(this);
-
     IConsoleAppenderConfig IConfigCloneTo<IConsoleAppenderConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);
 
@@ -103,6 +89,14 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
         CloneConfigTo(configRoot, path);
 
     public override ConsoleAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
+    IConsoleAppenderConfig ICloneable<IConsoleAppenderConfig>.Clone() => Clone();
+
+    IConsoleAppenderConfig IConsoleAppenderConfig.Clone() => Clone();
+
+    IMutableConsoleAppenderConfig IMutableConsoleAppenderConfig.Clone() => Clone();
+
+    public override ConsoleAppenderConfig Clone() => new(this);
 
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {

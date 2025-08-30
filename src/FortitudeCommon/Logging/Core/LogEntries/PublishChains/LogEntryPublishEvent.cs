@@ -31,8 +31,6 @@ public static class LogEntryPublishEventExtensions
         toIncrement.LogEntriesBatch?.DecrementRefCount();
     }
 
-    public static uint EntriesCount(this LogEntryPublishEvent countEntries)
-    {
-        return (uint)(countEntries.LogEntriesBatch?.Count ?? 0) + (uint)(countEntries.LogEntry != null ? 1 : 0);
-    }
+    public static uint EntriesCount(this LogEntryPublishEvent countEntries) =>
+        (uint)(countEntries.LogEntriesBatch?.Count ?? 0) + (uint)(countEntries.LogEntry != null ? 1 : 0);
 }

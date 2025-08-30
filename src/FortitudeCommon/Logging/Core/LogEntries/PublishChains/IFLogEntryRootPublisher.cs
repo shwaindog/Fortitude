@@ -3,9 +3,7 @@
 
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
-public interface IFLogEntryRootPublisher : IFLogEntrySource
-{
-}
+public interface IFLogEntryRootPublisher : IFLogEntrySource { }
 
 public abstract class FLogEntryRootPublisherBase : FLogEntrySource, IFLogEntryRootPublisher
 {
@@ -39,10 +37,7 @@ public class FLogEntryPublishSource : FLogEntryRootPublisherBase, IFLogEntryRoot
         string name
       , FLogEntrySourceSinkType logEntryLinkType = FLogEntrySourceSinkType.InterceptionPoint
       , FLogEntryProcessChainState logEntryProcessState = FLogEntryProcessChainState.Terminating
-    )
-    {
-        return this;
-    }
+    ) => this;
 
     public override string Name { get; }
 

@@ -3,7 +3,6 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -90,20 +89,18 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    public override BufferingAppenderConfig Clone() => new(this);
+    IBufferingAppenderConfig IConfigCloneTo<IBufferingAppenderConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        CloneConfigTo(configRoot, path);
+
+    IBufferingAppenderConfig IBufferingAppenderConfig.CloneConfigTo(IConfigurationRoot configRoot, string path) => CloneConfigTo(configRoot, path);
+
+    public override BufferingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
     IBufferingAppenderConfig ICloneable<IBufferingAppenderConfig>.Clone() => Clone();
 
     IBufferingAppenderConfig IBufferingAppenderConfig.Clone() => Clone();
 
-    IBufferingAppenderConfig IConfigCloneTo<IBufferingAppenderConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        CloneConfigTo(configRoot, path);
-
-    IBufferingAppenderConfig IBufferingAppenderConfig.CloneConfigTo
-        (IConfigurationRoot configRoot, string path) => CloneConfigTo(configRoot, path);
-
-    public override BufferingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => 
-        new(this, configRoot, path);
+    public override BufferingAppenderConfig Clone() => new(this);
 
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {
@@ -132,10 +129,10 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         using var tb = sbc.StartComplexType(nameof(BufferingAppenderConfig))
-           .AddBaseFieldsStart();
+                          .AddBaseFieldsStart();
         base.ToString(sbc);
         return tb.Field.AlwaysAdd(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
-            .Field.AlwaysAdd(nameof(FlushLogLevel), FlushLogLevel)
-            .Complete();
+                 .Field.AlwaysAdd(nameof(FlushLogLevel), FlushLogLevel)
+                 .Complete();
     }
 }

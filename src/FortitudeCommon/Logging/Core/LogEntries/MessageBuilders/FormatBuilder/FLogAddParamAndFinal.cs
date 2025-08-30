@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
@@ -111,6 +113,6 @@ public partial class FLogAdditionalFormatterParameterEntry
     public void AndFinalParam(IStyledToStringObject? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalObjectParam(object? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokensMatch(value).CallEnsureNoMoreTokensAndComplete(value);
-
+    public void AndFinalObjectParam(object? value) =>
+        PreCheckTokensGetStringBuilder(value).ReplaceTokensMatch(value).CallEnsureNoMoreTokensAndComplete(value);
 }

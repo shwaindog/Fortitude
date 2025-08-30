@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Config;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Types;
@@ -11,10 +14,10 @@ namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 public interface IAsyncQueuesInitConfig : IFLogConfig, IInterfacesComparable<IAsyncQueuesInitConfig>
   , IConfigCloneTo<IAsyncQueuesInitConfig>, IStyledToStringObject
 {
-    const int MinimumQueueCapacity = 256;
+    const int MinimumQueueCapacity     = 256;
     const int DefaultQueueCapacitySize = 1024;
-    const int MaximumQueueCapacity = (int)(NumberExtensions.GigaByte);
-    
+    const int MaximumQueueCapacity     = (int)NumberExtensions.GigaByte;
+
     AsyncProcessingType AsyncProcessingType { get; }
 
     int DefaultQueueCapacity { get; }
@@ -89,7 +92,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         AsyncProcessingType             = asyncProcessingType;
         DefaultAppenderAsyncQueueNumber = defaultAppenderAsyncQueueNumber;
         DefaultAppenderFlushQueueNumber = defaultAppenderFlushQueueNumber;
-        DefaultQueueCapacity          = defaultBufferEntriesSize;
+        DefaultQueueCapacity            = defaultBufferEntriesSize;
         DefaultFullQueueHandling        = defaultBufferFullHandling;
         DefaultDropInterval             = defaultDropInterval;
         InitialAsyncProcessing          = initialAsyncProcessing;
@@ -102,7 +105,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         AsyncProcessingType             = toClone.AsyncProcessingType;
         DefaultAppenderAsyncQueueNumber = toClone.DefaultAppenderAsyncQueueNumber;
         DefaultAppenderFlushQueueNumber = toClone.DefaultAppenderFlushQueueNumber;
-        DefaultQueueCapacity          = toClone.DefaultQueueCapacity;
+        DefaultQueueCapacity            = toClone.DefaultQueueCapacity;
         DefaultFullQueueHandling        = toClone.DefaultFullQueueHandling;
         DefaultDropInterval             = toClone.DefaultDropInterval;
         InitialAsyncProcessing          = toClone.InitialAsyncProcessing;
@@ -135,9 +138,10 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
 
     public int DefaultQueueCapacity
     {
-        get => int.TryParse(this[nameof(DefaultQueueCapacity)], out var queueCapacity)  
-            ? Math.Clamp(queueCapacity, IAsyncQueuesInitConfig.MinimumQueueCapacity, IAsyncQueuesInitConfig.MaximumQueueCapacity) 
-            :  IAsyncQueuesInitConfig.DefaultQueueCapacitySize;
+        get =>
+            int.TryParse(this[nameof(DefaultQueueCapacity)], out var queueCapacity)
+                ? Math.Clamp(queueCapacity, IAsyncQueuesInitConfig.MinimumQueueCapacity, IAsyncQueuesInitConfig.MaximumQueueCapacity)
+                : IAsyncQueuesInitConfig.DefaultQueueCapacitySize;
         set => this[nameof(DefaultQueueCapacity)] = value.ToString();
     }
 
@@ -188,17 +192,17 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    object ICloneable.Clone() => Clone();
-
-    IAsyncQueuesInitConfig ICloneable<IAsyncQueuesInitConfig>.Clone() => Clone();
-
-    public AsyncQueuesInitConfig Clone() => new(this);
-
     IAsyncQueuesInitConfig IConfigCloneTo<IAsyncQueuesInitConfig>.
         CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);
 
     public AsyncQueuesInitConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
+    object ICloneable.Clone() => Clone();
+
+    IAsyncQueuesInitConfig ICloneable<IAsyncQueuesInitConfig>.Clone() => Clone();
+
+    public AsyncQueuesInitConfig Clone() => new(this);
 
     public bool AreEquivalent(IAsyncQueuesInitConfig? other, bool exactTypes = false)
     {
@@ -218,7 +222,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
 
         var allAreSame = asyncTypeSame && queueSizeSame && fullQueueHandlingSame && dropIntervalSame
                       && initAsyncNumSame && maxAsyncNumSame && appenderQueueNumSame && appenderFlushQueueNumSame
-                         && asyncQueuesConfigSame;
+                      && asyncQueuesConfigSame;
 
         return allAreSame;
     }
@@ -242,21 +246,18 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(AsyncQueuesInitConfig))
-               .Field.AlwaysAdd(nameof(AsyncProcessingType), AsyncProcessingType)
-               .Field.AlwaysAdd(nameof(DefaultQueueCapacity), DefaultQueueCapacity)
-               .Field.AlwaysAdd(nameof(DefaultFullQueueHandling), DefaultFullQueueHandling)
-               .Field.AlwaysAdd(nameof(DefaultDropInterval), DefaultDropInterval)
-               .Field.AlwaysAdd(nameof(InitialAsyncProcessing), InitialAsyncProcessing)
-               .Field.AlwaysAdd(nameof(MaxAsyncProcessing), MaxAsyncProcessing)
-               .Field.AlwaysAdd(nameof(DefaultAppenderAsyncQueueNumber), DefaultAppenderAsyncQueueNumber)
-               .Field.AlwaysAdd(nameof(DefaultAppenderFlushQueueNumber), DefaultAppenderFlushQueueNumber)
-               .KeyedCollectionField.WhenPopulatedAddAllEnumerate(nameof(AsyncQueues), AsyncQueues.GetEnumerator())
-               .Complete();
-    }
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(AsyncQueuesInitConfig))
+           .Field.AlwaysAdd(nameof(AsyncProcessingType), AsyncProcessingType)
+           .Field.AlwaysAdd(nameof(DefaultQueueCapacity), DefaultQueueCapacity)
+           .Field.AlwaysAdd(nameof(DefaultFullQueueHandling), DefaultFullQueueHandling)
+           .Field.AlwaysAdd(nameof(DefaultDropInterval), DefaultDropInterval)
+           .Field.AlwaysAdd(nameof(InitialAsyncProcessing), InitialAsyncProcessing)
+           .Field.AlwaysAdd(nameof(MaxAsyncProcessing), MaxAsyncProcessing)
+           .Field.AlwaysAdd(nameof(DefaultAppenderAsyncQueueNumber), DefaultAppenderAsyncQueueNumber)
+           .Field.AlwaysAdd(nameof(DefaultAppenderFlushQueueNumber), DefaultAppenderFlushQueueNumber)
+           .KeyedCollectionField.WhenPopulatedAddAllEnumerate(nameof(AsyncQueues), AsyncQueues.GetEnumerator())
+           .Complete();
 
     public override string ToString() => this.DefaultToString();
 }

@@ -3,7 +3,6 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -32,15 +31,11 @@ public abstract class MatchConditionConfig : FLogConfig, IMutableMatchConditionC
 
     protected MatchConditionConfig
         (IConfigurationRoot root, string path, FLoggerEntryMatchType checkConditionType)
-        : base(root, path)
-    {
+        : base(root, path) =>
         CheckConditionType = checkConditionType;
-    }
 
-    protected MatchConditionConfig(IMatchConditionConfig toClone, IConfigurationRoot root, string path) : base(root, path)
-    {
+    protected MatchConditionConfig(IMatchConditionConfig toClone, IConfigurationRoot root, string path) : base(root, path) =>
         CheckConditionType = toClone.CheckConditionType;
-    }
 
     protected MatchConditionConfig(IMatchConditionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
@@ -53,13 +48,13 @@ public abstract class MatchConditionConfig : FLogConfig, IMutableMatchConditionC
         set => this[nameof(CheckConditionType)] = value.ToString();
     }
 
+    public abstract IMatchConditionConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
+
     object ICloneable.Clone() => Clone();
 
     IMatchConditionConfig ICloneable<IMatchConditionConfig>.Clone() => Clone();
 
     public abstract MatchConditionConfig Clone();
-
-    public abstract IMatchConditionConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
 
     public virtual bool AreEquivalent(IMatchConditionConfig? other, bool exactTypes = false)
     {
@@ -80,11 +75,8 @@ public abstract class MatchConditionConfig : FLogConfig, IMutableMatchConditionC
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(MatchConditionConfig))
-               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(MatchConditionConfig))
+           .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
+           .Complete();
 }

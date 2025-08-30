@@ -1,14 +1,15 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
 public partial class FLogAdditionalFormatterParameterEntry
 {
-    
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? And(bool value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceBoolTokens(value).CallExpectContinue(value);
@@ -22,12 +23,12 @@ public partial class FLogAdditionalFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallExpectContinue(value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 
+    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
         where TToStyle : TStylerType =>
         PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler).CallExpectContinue(value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) 
+    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         FormatSb.Clear();
@@ -146,5 +147,4 @@ public partial class FLogAdditionalFormatterParameterEntry
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndObject(object? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokensMatch(value).CallExpectContinue(value);
-
 }

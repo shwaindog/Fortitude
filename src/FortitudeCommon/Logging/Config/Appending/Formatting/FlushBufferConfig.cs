@@ -5,7 +5,6 @@ using System.Globalization;
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +16,7 @@ public interface IFlushBufferConfig : IFLogConfig, IStyledToStringObject, IConfi
 {
     const decimal DefaultBufferSizeTriggerPercentage = 0.90m;
 
-    static readonly ITimeSpanConfig DefaultWriteTriggeredFlushTimeSpan = new TimeSpanConfig(millis: 500);
+    static readonly ITimeSpanConfig DefaultWriteTriggeredFlushTimeSpan = new TimeSpanConfig(500);
     static readonly ITimeSpanConfig DefaultAutoTriggeredFlushTimeSpan  = new TimeSpanConfig(seconds: 2);
 
     decimal WriteTriggeredAtBufferPercentage { get; }
@@ -65,8 +64,8 @@ public class FlushBufferConfig : FLogConfig, IMutableFlushBufferConfig
         AutoTriggeredAfterTimeSpan  = autoTriggeredAfterTimeSpan ?? IFlushBufferConfig.DefaultAutoTriggeredFlushTimeSpan;
     }
 
-    public FlushBufferConfig(IFlushBufferConfig toClone, IConfigurationRoot root, string path) : base(root, path) 
-    { 
+    public FlushBufferConfig(IFlushBufferConfig toClone, IConfigurationRoot root, string path) : base(root, path)
+    {
         WriteTriggeredAtBufferPercentage = toClone.WriteTriggeredAtBufferPercentage;
 
         WriteTriggeredAfterTimeSpan = toClone.WriteTriggeredAfterTimeSpan;
@@ -74,45 +73,44 @@ public class FlushBufferConfig : FLogConfig, IMutableFlushBufferConfig
     }
 
     public FlushBufferConfig(IFlushBufferConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
-    
 
-    public decimal WriteTriggeredAtBufferPercentage 
-    { 
+
+    public decimal WriteTriggeredAtBufferPercentage
+    {
         get => decimal.TryParse(this[nameof(WriteTriggeredAtBufferPercentage)], out var timePart) ? timePart : 0m;
         set => this[nameof(WriteTriggeredAtBufferPercentage)] = value.ToString(CultureInfo.InvariantCulture);
     }
 
     public ITimeSpanConfig WriteTriggeredAfterTimeSpan
-    { 
+    {
         get
         {
             if (GetSection(nameof(WriteTriggeredAfterTimeSpan)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new TimeSpanConfig(ConfigRoot, $"{Path}{Split}{nameof(WriteTriggeredAfterTimeSpan)}");
-            }
             return new TimeSpanConfig(IFlushBufferConfig.DefaultWriteTriggeredFlushTimeSpan
                                     , ConfigRoot, $"{Path}{Split}{nameof(WriteTriggeredAfterTimeSpan)}");
         }
-        set =>
-            _ = new TimeSpanConfig(value, ConfigRoot, $"{Path}{Split}{nameof(WriteTriggeredAfterTimeSpan)}");
+        set => _ = new TimeSpanConfig(value, ConfigRoot, $"{Path}{Split}{nameof(WriteTriggeredAfterTimeSpan)}");
     }
 
-    public ITimeSpanConfig AutoTriggeredAfterTimeSpan 
-    { 
+    public ITimeSpanConfig AutoTriggeredAfterTimeSpan
+    {
         get
         {
             if (GetSection(nameof(AutoTriggeredAfterTimeSpan)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new TimeSpanConfig(ConfigRoot, $"{Path}{Split}{nameof(AutoTriggeredAfterTimeSpan)}");
-            }
             return new TimeSpanConfig(IFlushBufferConfig.DefaultAutoTriggeredFlushTimeSpan
                                     , ConfigRoot, $"{Path}{Split}{nameof(WriteTriggeredAfterTimeSpan)}");
         }
-        set =>
-            _ = new TimeSpanConfig(value, ConfigRoot, $"{Path}{Split}{nameof(AutoTriggeredAfterTimeSpan)}");
+        set => _ = new TimeSpanConfig(value, ConfigRoot, $"{Path}{Split}{nameof(AutoTriggeredAfterTimeSpan)}");
     }
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
+
+    IFlushBufferConfig IConfigCloneTo<IFlushBufferConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        CloneConfigTo(configRoot, path);
+
+    public FlushBufferConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
     object ICloneable.Clone() => Clone();
 
@@ -123,11 +121,6 @@ public class FlushBufferConfig : FLogConfig, IMutableFlushBufferConfig
     IMutableFlushBufferConfig IMutableFlushBufferConfig.Clone() => Clone();
 
     public virtual FlushBufferConfig Clone() => new(this);
-
-    IFlushBufferConfig IConfigCloneTo<IFlushBufferConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        CloneConfigTo(configRoot, path);
-
-    public FlushBufferConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
     public virtual bool AreEquivalent(IFlushBufferConfig? other, bool exactTypes = false)
     {
@@ -152,13 +145,10 @@ public class FlushBufferConfig : FLogConfig, IMutableFlushBufferConfig
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(FlushBufferConfig))
-               .Field.AlwaysAdd(nameof(WriteTriggeredAtBufferPercentage), WriteTriggeredAtBufferPercentage)
-               .Field.AlwaysAdd(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)
-               .Field.AlwaysAdd(nameof(AutoTriggeredAfterTimeSpan), AutoTriggeredAfterTimeSpan)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FlushBufferConfig))
+           .Field.AlwaysAdd(nameof(WriteTriggeredAtBufferPercentage), WriteTriggeredAtBufferPercentage)
+           .Field.AlwaysAdd(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)
+           .Field.AlwaysAdd(nameof(AutoTriggeredAfterTimeSpan), AutoTriggeredAfterTimeSpan)
+           .Complete();
 }

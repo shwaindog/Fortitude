@@ -7,14 +7,14 @@ namespace FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 
 public class AllAncestorLoggersOf : VisitAllLoggersCollectOnCriteria<AllAncestorLoggersOf>
 {
-    public AllAncestorLoggersOf(string loggerFullName) 
+    public AllAncestorLoggersOf(string loggerFullName)
         : base(dlc => loggerFullName.Contains(dlc.FullName)) { }
 
     public AllAncestorLoggersOf() { }
 
     public AllAncestorLoggersOf(
         List<IMutableFLoggerDescendantConfig> found
-      , Predicate<IMutableFLoggerDescendantConfig>? meetsCondition = null) 
+      , Predicate<IMutableFLoggerDescendantConfig>? meetsCondition = null)
         : base(found, meetsCondition) { }
 
     public AllAncestorLoggersOf Initialize(string loggerFullName)

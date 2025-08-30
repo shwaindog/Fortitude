@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FortitudeCommon.Logging.Core.Hub;
@@ -31,13 +34,13 @@ public static class FLogConfigExamples
 
     public static readonly FLogExampleConfig AsyncDblBufferedFileAndColoredConsoleExample
         = (FLogExampleConfig)$"{ExamplesNameSpace}.AsyncDblBufferedFileAndColoredConsole.json";
-    
+
     public static FileInfo? ExtractExampleTo(this FLogExampleConfig fullExampleNameSpacePath, string? destPath = null, string? destFileName = null)
     {
         destPath     ??= FLogConfigFile.DefaultConfigPath;
         destFileName ??= FLogConfigFile.DefaultConfigFileName;
         var resourceStream = GetResourceStream(fullExampleNameSpacePath.ExampleConfig);
-        var destFilePath = Path.Combine(destPath, destFileName);
+        var destFilePath   = Path.Combine(destPath, destFileName);
         using (var destFile = File.Create(destFilePath))
         {
             resourceStream.CopyTo(destFile);
@@ -59,15 +62,13 @@ public static class FLogConfigExamples
     public static IFLogContext? LoadExampleAsCurrentContext(this FLogExampleConfig fullExampleNameSpacePath)
     {
         var exampleAppConfig = fullExampleNameSpacePath.LoadExampleToAppConfig();
-        if(exampleAppConfig == null) return null;
+        if (exampleAppConfig == null) return null;
         var newContext = FLogContext.NewUninitializedContext.InitializeContextFromConfig(exampleAppConfig);
         return newContext.StartFlogSetAsCurrentContext();
     }
 
-    public static JsonObject LoadExampleAsJsonObject(this FLogExampleConfig fullExampleNameSpacePath)
-    {
-        return JsonSerializer.Deserialize<JsonObject>(GetResourceStream(fullExampleNameSpacePath.ExampleConfig)!)!;
-    }
+    public static JsonObject LoadExampleAsJsonObject(this FLogExampleConfig fullExampleNameSpacePath) =>
+        JsonSerializer.Deserialize<JsonObject>(GetResourceStream(fullExampleNameSpacePath.ExampleConfig)!)!;
 
     private static Stream GetResourceStream(string resourceName)
     {

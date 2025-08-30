@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
@@ -11,12 +14,12 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 
 public class FLogConsoleAppender : FLogBufferingFormatAppender
 {
-    public FLogConsoleAppender(IConsoleAppenderConfig consoleAppenderConfig, IFLogContext context) : base(consoleAppenderConfig, context)
-    {
+    public FLogConsoleAppender(IConsoleAppenderConfig consoleAppenderConfig, IFLogContext context) : base(consoleAppenderConfig, context) =>
         ConsoleColorEnabled = !consoleAppenderConfig.DisableColoredConsole;
-    }
 
     public bool ConsoleColorEnabled { get; set; }
+
+    public override FormattingAppenderSinkType FormatAppenderType => FormattingAppenderSinkType.Console;
 
     protected override IFormatWriter CreatedAppenderDirectFormatWriter
         (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback) =>
@@ -28,10 +31,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
         if (logEntryEvent.LogEntryEventType == LogEntryEventType.SingleEntry)
         {
             var fLogEntry = logEntryEvent.LogEntry;
-            if (fLogEntry != null)
-            {
-                Formatter.ApplyFormatting(fLogEntry);
-            }
+            if (fLogEntry != null) Formatter.ApplyFormatting(fLogEntry);
         }
         else
         {
@@ -44,8 +44,6 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
             }
         }
     }
-
-    public override FormattingAppenderSinkType FormatAppenderType => FormattingAppenderSinkType.Console;
 
     public override IConsoleAppenderConfig GetAppenderConfig() => (IConsoleAppenderConfig)AppenderConfig;
 

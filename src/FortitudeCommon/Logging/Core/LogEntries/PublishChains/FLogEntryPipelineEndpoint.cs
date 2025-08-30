@@ -32,10 +32,7 @@ public class FLogEntryPipelineEndpoint : FLogEntryForkingInterceptor, IFLogEntry
         string name
       , FLogEntrySourceSinkType logEntryLinkType = FLogEntrySourceSinkType.InterceptionPoint
       , FLogEntryProcessChainState logEntryProcessState = FLogEntryProcessChainState.Terminating
-    )
-    {
-        return this;
-    }
+    ) => this;
 
     public override string Name { get; }
 
@@ -45,10 +42,7 @@ public class FLogEntryPipelineEndpoint : FLogEntryForkingInterceptor, IFLogEntry
 
     public void AddNewFLogEntrySubscriptionChain(ITargetingFLogEntrySource toAdd)
     {
-        if (toAdd.FinalTarget != this)
-        {
-            throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
-        }
+        if (toAdd.FinalTarget != this) throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
         SubscriptionsToReceiver ??= new List<ITargetingFLogEntrySource>();
         if (SubscriptionsToReceiver.Contains(toAdd)) return;
         SubscriptionsToReceiver.Add(toAdd);
@@ -56,10 +50,7 @@ public class FLogEntryPipelineEndpoint : FLogEntryForkingInterceptor, IFLogEntry
 
     public void RemoveFLogEntrySubscriptionChain(ITargetingFLogEntrySource toRemove)
     {
-        if (toRemove.FinalTarget != this)
-        {
-            throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
-        }
+        if (toRemove.FinalTarget != this) throw new ArgumentException("Subscriptions to a receiver must target the correct destination");
         SubscriptionsToReceiver ??= new List<ITargetingFLogEntrySource>();
         if (!SubscriptionsToReceiver.Contains(toRemove)) return;
         SubscriptionsToReceiver.Remove(toRemove);

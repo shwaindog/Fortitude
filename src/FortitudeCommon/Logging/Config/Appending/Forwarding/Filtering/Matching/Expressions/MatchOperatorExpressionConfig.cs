@@ -5,7 +5,6 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -55,14 +54,14 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
 
     public MatchOperatorExpressionConfig
     (ushort evalOrder, IAppendableMatchOperatorLookupConfig? all = null, IAppendableMatchOperatorLookupConfig? any = null
-      , IMutableMatchOperatorExpressionConfig? and = null, IMutableMatchOperatorExpressionConfig?  or = null
+      , IMutableMatchOperatorExpressionConfig? and = null, IMutableMatchOperatorExpressionConfig? or = null
       , IMutableMatchConditionConfig? isTrueEval = null, IMutableMatchConditionConfig? isFalseEval = null)
-        : this(InMemoryConfigRoot, InMemoryPath, evalOrder, all, any, and, or, isTrueEval, isFalseEval ) { }
+        : this(InMemoryConfigRoot, InMemoryPath, evalOrder, all, any, and, or, isTrueEval, isFalseEval) { }
 
     public MatchOperatorExpressionConfig
     (IConfigurationRoot root, string path, ushort evalOrder, IAppendableMatchOperatorLookupConfig? all = null
       , IAppendableMatchOperatorLookupConfig? any = null, IMutableMatchOperatorExpressionConfig? and = null
-      , IMutableMatchOperatorExpressionConfig?  or = null, IMutableMatchConditionConfig? isTrueEval = null
+      , IMutableMatchOperatorExpressionConfig? or = null, IMutableMatchConditionConfig? isTrueEval = null
       , IMutableMatchConditionConfig? isFalseEval = null)
         : base(root, path)
     {
@@ -92,11 +91,12 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
     }
 
     public MatchOperatorExpressionConfig(IMatchOperatorExpressionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
-    
+
 
     public ushort EvaluateOrder
     {
-        get => ushort.TryParse(this[nameof(EvaluateOrder)], out var evalOrder)
+        get =>
+            ushort.TryParse(this[nameof(EvaluateOrder)], out var evalOrder)
                 ? evalOrder
                 : (ushort)0;
         set => this[nameof(EvaluateOrder)] = value.ToString();
@@ -109,12 +109,10 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         get
         {
             if (GetSection(nameof(All)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new AppendableMatchOperatorLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(All)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -134,12 +132,10 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         get
         {
             if (GetSection(nameof(Any)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new AppendableMatchOperatorLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(Any)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -160,12 +156,10 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         get
         {
             if (GetSection(nameof(And)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new MatchOperatorExpressionConfig(ConfigRoot, $"{Path}{Split}{nameof(And)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -186,12 +180,10 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         get
         {
             if (GetSection(nameof(Or)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new MatchOperatorExpressionConfig(ConfigRoot, $"{Path}{Split}{nameof(Or)}")
                 {
                     ParentConfig = this
                 };
-            }
             return null;
         }
         set
@@ -212,9 +204,7 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         get
         {
             if (GetSection(nameof(IsFalse)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
-                return ConfigRoot.GetMatchConditionConfig( $"{Path}{Split}{nameof(IsFalse)}", this);
-            }
+                return ConfigRoot.GetMatchConditionConfig($"{Path}{Split}{nameof(IsFalse)}", this);
             return null;
         }
         set
@@ -235,9 +225,7 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         get
         {
             if (GetSection(nameof(IsTrue)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return ConfigRoot.GetMatchConditionConfig($"{Path}{Split}{nameof(IsTrue)}", this);
-            }
             return null;
         }
         set
@@ -253,26 +241,26 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    public IMatchOperatorExpressionConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        new MatchOperatorExpressionConfig(this, configRoot, path);
+
     object ICloneable.Clone() => Clone();
 
     IMatchOperatorExpressionConfig ICloneable<IMatchOperatorExpressionConfig>.Clone() => Clone();
 
     public virtual MatchOperatorExpressionConfig Clone() => new(this);
 
-    public IMatchOperatorExpressionConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => 
-        new MatchOperatorExpressionConfig(this, configRoot, path);
-
     public virtual bool AreEquivalent(IMatchOperatorExpressionConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
 
         var evalOrderSame = EvaluateOrder == other.EvaluateOrder;
-        var allSame = All?.AreEquivalent(other.All, exactTypes) ?? other.All == null;
-        var anySame = Any?.AreEquivalent(other.Any, exactTypes) ?? other.Any == null;
-        var andSame = And?.AreEquivalent(other.And, exactTypes) ?? other.And == null;
-        var orSame = Or?.AreEquivalent(other.Or, exactTypes) ?? other.Or == null;
-        var isTrueSame = IsTrue?.AreEquivalent(other.IsTrue, exactTypes) ?? other.Or == null;
-        var isFalseSame = IsFalse?.AreEquivalent(other.IsFalse, exactTypes) ?? other.Or == null;
+        var allSame       = All?.AreEquivalent(other.All, exactTypes) ?? other.All == null;
+        var anySame       = Any?.AreEquivalent(other.Any, exactTypes) ?? other.Any == null;
+        var andSame       = And?.AreEquivalent(other.And, exactTypes) ?? other.And == null;
+        var orSame        = Or?.AreEquivalent(other.Or, exactTypes) ?? other.Or == null;
+        var isTrueSame    = IsTrue?.AreEquivalent(other.IsTrue, exactTypes) ?? other.Or == null;
+        var isFalseSame   = IsFalse?.AreEquivalent(other.IsFalse, exactTypes) ?? other.Or == null;
 
         var allAreSame = evalOrderSame && allSame && anySame && andSame && orSame && isTrueSame && isFalseSame;
 
@@ -293,17 +281,14 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(FLogEntryQueueConfig))
-               .Field.AlwaysAdd(nameof(EvaluateOrder), EvaluateOrder)
-               .Field.WhenNonNullAdd(nameof(All), All)
-               .Field.WhenNonNullAdd(nameof(Any), Any)
-               .Field.WhenNonNullAdd(nameof(And), And)
-               .Field.WhenNonNullAdd(nameof(Or), Or)
-               .Field.WhenNonNullAdd(nameof(IsTrue), IsTrue)
-               .Field.WhenNonNullAdd(nameof(IsFalse), IsFalse)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FLogEntryQueueConfig))
+           .Field.AlwaysAdd(nameof(EvaluateOrder), EvaluateOrder)
+           .Field.WhenNonNullAdd(nameof(All), All)
+           .Field.WhenNonNullAdd(nameof(Any), Any)
+           .Field.WhenNonNullAdd(nameof(And), And)
+           .Field.WhenNonNullAdd(nameof(Or), Or)
+           .Field.WhenNonNullAdd(nameof(IsTrue), IsTrue)
+           .Field.WhenNonNullAdd(nameof(IsFalse), IsFalse)
+           .Complete();
 }

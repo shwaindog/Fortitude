@@ -1,10 +1,12 @@
-﻿using System.Collections.Concurrent;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.ConditionalLogging;
-
 
 public interface IFLoggerExecutionDuration
 {
@@ -29,17 +31,13 @@ public interface IFLoggerExecutionDuration
         (TimingTraceExecutionPath? trace, long logThresholdMicros, int interval = 1);
 }
 
-
 public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutionDuration
 {
     // ReSharper disable ExplicitCallerInfoArgument
     private static readonly ConcurrentDictionary<FLogCallLocation, LocationIntervalMetrics>        PerLocationIntervalMetrics        = new();
     private static readonly ConcurrentDictionary<FLogCallLocation, LocationAverageDurationMetrics> PerLocationAverageDurationMetrics = new();
 
-    public ExecutionTimingStart StartTiming()
-    {
-        return new ExecutionTimingStart(wrappingLogger, wrappingLogger.GetNextTimingDurationSequenceEvent(), DateTime.UtcNow);
-    }
+    public ExecutionTimingStart StartTiming() => new(wrappingLogger, wrappingLogger.GetNextTimingDurationSequenceEvent(), DateTime.UtcNow);
 
     public IMutableFLogEntry? StopTimingAllowLogEntryWhenExceeds
     (ExecutionTimingStart startTime, FLogLevel logLevel, long logThresholdMicros
@@ -52,10 +50,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
             var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
             var locationMetrics  = PerLocationIntervalMetrics.GetOrAdd(logEntryLocation, logLoc => new LocationIntervalMetrics(logLoc));
             var occurence        = locationMetrics.IncrementOccurence();
-            if (occurence % interval == 0)
-            {
-                return wrappingLogger.AtLevel(logLevel, activationFlags, memberName, sourceFilePath, sourceLineNumber);
-            }
+            if (occurence % interval == 0) return wrappingLogger.AtLevel(logLevel, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         }
         return null;
     }
@@ -89,9 +84,9 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
         var timeTraceExePath = new TimingTraceExecutionPath(startedAt, flogEntry);
         return timeTraceExePath;
     }
-    
+
     public void StopTraceLogTraceWhenExceeds
-    (TimingTraceExecutionPath? trace, long logThresholdMicros, int interval = 1)
+        (TimingTraceExecutionPath? trace, long logThresholdMicros, int interval = 1)
     {
         if (trace == null) return;
         var duration = trace.StopGetDuration();
@@ -99,15 +94,12 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
         {
             var locationMetrics = PerLocationIntervalMetrics.GetOrAdd(trace.FLogCallLocation, logLoc => new LocationIntervalMetrics(logLoc));
             var occurence       = locationMetrics.IncrementOccurence();
-            if (occurence % interval == 0)
-            {
-                trace.Dispatch();
-            }
+            if (occurence % interval == 0) trace.Dispatch();
         }
     }
-    
+
     public void StopTraceLogTraceWhenAverageExceeds
-    (TimingTraceExecutionPath? trace, long logThresholdAverageMicros, int averageEntryInterval = 10)
+        (TimingTraceExecutionPath? trace, long logThresholdAverageMicros, int averageEntryInterval = 10)
     {
         if (trace == null) return;
         var duration = trace.StopGetDuration();
@@ -132,11 +124,12 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
     {
         private const int MinPublishAverageSamples = 5;
 
-        protected double SumAllDurationsForDoubleInterval;
-        protected double NextIntervalAverageHistory;
-
         protected readonly int DoubleInterval;
         protected readonly int Interval;
+
+        protected double NextIntervalAverageHistory;
+
+        protected double SumAllDurationsForDoubleInterval;
 
         public LocationAverageDurationMetrics(FLogCallLocation stopLocation, int restartInterval) : base(stopLocation)
         {

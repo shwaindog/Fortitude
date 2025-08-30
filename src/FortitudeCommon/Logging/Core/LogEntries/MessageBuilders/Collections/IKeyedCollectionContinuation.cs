@@ -1,10 +1,13 @@
-﻿using FortitudeCommon.Types.StyledToString;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 
-public interface IKeyedCollectionContinuation<out TToReturn> : ICollectionAppendContinuation<TToReturn>     
+public interface IKeyedCollectionContinuation<out TToReturn> : ICollectionAppendContinuation<TToReturn>
 {
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, string? valueFormatString = null, string? keyFormatString = null);
@@ -25,7 +28,8 @@ public interface IKeyedCollectionContinuation<out TToReturn> : ICollectionAppend
     TToReturn AddKeyed<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, string?) valueTuple);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
-    TToReturn AddKeyed<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value, string? valueFormatString = null, string? keyFormatString = null);
+    TToReturn AddKeyed<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value, string? valueFormatString = null
+      , string? keyFormatString = null);
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, string?, string?) valueTuple);
@@ -55,17 +59,17 @@ public interface IKeyedCollectionContinuation<out TToReturn> : ICollectionAppend
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null) 
+      , KeyValuePredicate<TKBase, TVBase> filterPredicate, string? valueFormatString = null, string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple) 
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple) 
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
@@ -147,27 +151,27 @@ public interface IKeyedCollectionContinuation<out TToReturn> : ICollectionAppend
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase;
-    
+
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
       , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase;
-    
+
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(
         (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple) where TValue : TVBase;
-    
+
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(
         (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase;
-    
+
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
       , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase;
-    
+
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(
         (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple) where TValue : TVBase;
-    
+
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(
         (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase;
@@ -196,12 +200,12 @@ public interface IKeyedCollectionContinuation<out TToReturn> : ICollectionAppend
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (KeyValuePair<TKey, TValue>[]? , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (KeyValuePair<TKey, TValue>[]? , KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
@@ -295,6 +299,7 @@ public interface IKeyedCollectionContinuation<out TToReturn> : ICollectionAppend
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>)
+            valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2;
 }

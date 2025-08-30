@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Logging.Config;
+﻿// // Licensed under the MIT license.
+// // Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.Hub;
@@ -13,7 +16,7 @@ namespace FortitudeTests.FortitudeCommon.Logging.Config.ExampleConfig;
 public class SyncDailyFileTests
 {
     private const string DailyLogFileAppenderName = "AppLogFileAppender";
-    
+
     [TestMethod]
     public void SyncDailyFileLoadsAndLogsToFile()
     {
@@ -25,8 +28,8 @@ public class SyncDailyFileTests
                 .InitializeContextFromWorkingDirFilePath(Environment.CurrentDirectory, FLogConfigFile.DefaultConfigFullFilePath)
                 .StartFlogSetAsCurrentContext();
 
-        var testLogger       = FLog.FLoggerForType.As<IVersatileFLogger>();
-        
+        var testLogger = FLog.FLoggerForType.As<IVersatileFLogger>();
+
         testLogger.TrcApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.DbgApnd("Testing")?.Args(" 1,", " 2,", " 3.");
         testLogger.InfApnd("Testing")?.Args(" 1,", " 2,", " 3.");

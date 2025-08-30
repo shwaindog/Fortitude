@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.DataStructures.Memory;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.Mutable;
@@ -26,11 +29,9 @@ public interface ITokenFormattingValidator
 
 public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableFLogEntryFormatter
 {
-    private readonly List<ITemplatePart> templateParts = new();
+    private string formattingTemplate = "";
 
     private IFormatWriterResolver formatWriterResolver = null!;
-
-    private string formattingTemplate = "";
 
     private ITokenFormattingValidator? tokenFormattingValidator = null;
 
@@ -48,45 +49,26 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
         FormattingTemplate   = toClone.FormattingTemplate;
     }
 
-    public FLogEntryFormatter Initialize(string template, IFormatWriterResolver writerResolver
-      , ITokenFormattingValidator? formattingValidator = null)
-    {
-        tokenFormattingValidator = formattingValidator;
-        if (template != FormattingTemplate)
-        {
-            FormattingTemplate = template;
-        }
-        formatWriterResolver = writerResolver;
-
-        return this;
-    }
-
-    public List<ITemplatePart> TemplateParts => templateParts;
+    public List<ITemplatePart> TemplateParts { get; } = new();
 
     public int ApplyFormatting(IFLogEntry logEntry)
     {
-        if (templateParts.Count == 0)
-        {
-            FormattingTemplate = IFormattingAppenderConfig.DefaultStringFormattingTemplate;
-        }
-        
-        var usedFormatWriter             = false;
+        if (TemplateParts.Count == 0) FormattingTemplate = IFormattingAppenderConfig.DefaultStringFormattingTemplate;
+
+        var usedFormatWriter            = false;
         var formatWriterRequestTimeouts = 0;
         do
         {
             if (!formatWriterResolver.IsOpen) break;
             using var formatWriterWaitHandle = formatWriterResolver.FormatWriterResolver(logEntry);
-            
+
             using var formatWriter = formatWriterWaitHandle.GetOrWaitForFormatWriter();
 
             if (formatWriter != null)
             {
                 if (formatWriter.NotifyStartEntryAppend(logEntry))
                 {
-                    foreach (var part in templateParts)
-                    {
-                        part.Apply(formatWriter, logEntry);
-                    }
+                    foreach (var part in TemplateParts) part.Apply(formatWriter, logEntry);
                     usedFormatWriter = true;
                     formatWriter.NotifyEntryAppendComplete();
                 }
@@ -110,14 +92,24 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
         }
     }
 
+    public FLogEntryFormatter Initialize(string template, IFormatWriterResolver writerResolver
+      , ITokenFormattingValidator? formattingValidator = null)
+    {
+        tokenFormattingValidator = formattingValidator;
+        if (template != FormattingTemplate) FormattingTemplate = template;
+        formatWriterResolver = writerResolver;
+
+        return this;
+    }
+
     protected virtual void BuildTemplateParts()
     {
-        templateParts.Clear();
+        TemplateParts.Clear();
 
         var tokenValidator = tokenFormattingValidator ?? DefaultLogEntryFormatting.Instance;
 
-        TokenisedLogEntryFormatStringParser.Instance.BuildTemplateParts(formattingTemplate, templateParts, tokenValidator);
-        TokenisedLogEntryFormatStringParser.Instance.EnsureConsoleColorsReset(templateParts);
+        TokenisedLogEntryFormatStringParser.Instance.BuildTemplateParts(formattingTemplate, TemplateParts, tokenValidator);
+        TokenisedLogEntryFormatStringParser.Instance.EnsureConsoleColorsReset(TemplateParts);
     }
 
     public override FLogEntryFormatter Clone() => new(this);

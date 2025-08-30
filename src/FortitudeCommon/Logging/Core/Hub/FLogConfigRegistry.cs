@@ -14,31 +14,31 @@ public interface IFLogConfigRegistry
 {
     IFLogAppConfig AppConfig { get; }
 
-    IMutableFLoggerDescendantConfig? FindLoggerConfigIfGiven(string loggerFullName);
-
-    Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> ConfigPathToAppenderConfig       { get; }
-    Func<IConfigurationRoot, string, IMutableFlogConfigSource?>        ConfigPathToConfigSourceConfig   { get; }
-    Func<IConfigurationRoot, string, IMutableMatchConditionConfig?>    ConfigPathToMatchConditionConfig { get; }
+    Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> ConfigPathToAppenderConfig { get; }
+    Func<IConfigurationRoot, string, IMutableFlogConfigSource?> ConfigPathToConfigSourceConfig { get; }
+    Func<IConfigurationRoot, string, IMutableMatchConditionConfig?> ConfigPathToMatchConditionConfig { get; }
 
     TimeSpan ExpireConfigCacheIntervalTimeSpan { get; }
+
+    IMutableFLoggerDescendantConfig? FindLoggerConfigIfGiven(string loggerFullName);
 }
 
 public interface IMutableFLogConfigRegistry : IFLogConfigRegistry
 {
     new IMutableFLogAppConfig AppConfig { get; set; }
 
-    new Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> ConfigPathToAppenderConfig       { get; set; }
-    new Func<IConfigurationRoot, string, IMutableFlogConfigSource?>        ConfigPathToConfigSourceConfig   { get; set; }
-    new Func<IConfigurationRoot, string, IMutableMatchConditionConfig?>    ConfigPathToMatchConditionConfig { get; set; }
+    new Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> ConfigPathToAppenderConfig { get; set; }
+    new Func<IConfigurationRoot, string, IMutableFlogConfigSource?> ConfigPathToConfigSourceConfig { get; set; }
+    new Func<IConfigurationRoot, string, IMutableMatchConditionConfig?> ConfigPathToMatchConditionConfig { get; set; }
 
     new TimeSpan ExpireConfigCacheIntervalTimeSpan { get; set; }
 }
 
 public class FLogConfigRegistry(IMutableFLogAppConfig newAppConfig) : IMutableFLogConfigRegistry
 {
-    private IMutableFLogAppConfig appConfig = newAppConfig;
-
     private IMutableNamedChildLoggersLookupConfig? allConfigDefinedLoggers;
+
+    private IMutableFLogAppConfig appConfig = newAppConfig;
 
     IFLogAppConfig IFLogConfigRegistry.AppConfig => AppConfig;
 
@@ -55,10 +55,7 @@ public class FLogConfigRegistry(IMutableFLogAppConfig newAppConfig) : IMutableFL
         }
     }
 
-    public IMutableFLoggerDescendantConfig? FindLoggerConfigIfGiven(string loggerFullName)
-    {
-        return allConfigDefinedLoggers?[loggerFullName];
-    }
+    public IMutableFLoggerDescendantConfig? FindLoggerConfigIfGiven(string loggerFullName) => allConfigDefinedLoggers?[loggerFullName];
 
     public Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> ConfigPathToAppenderConfig { get; set; }
         = FloggerBuiltinAppenderTypeExtensions.GetBuiltAppenderReferenceConfig;

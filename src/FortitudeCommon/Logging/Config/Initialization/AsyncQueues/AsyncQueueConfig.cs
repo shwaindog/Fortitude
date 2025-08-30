@@ -1,9 +1,10 @@
-﻿using FortitudeCommon.Config;
-using FortitudeCommon.Extensions;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -51,7 +52,7 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
 
     public AsyncQueueConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
-    public AsyncQueueConfig (byte queueNumber
+    public AsyncQueueConfig(byte queueNumber
       , AsyncProcessingType queueType
       , int queueCapacity
       , bool launchAtFlogStart
@@ -109,9 +110,10 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
 
     public int QueueCapacity
     {
-        get => int.TryParse(this[nameof(QueueCapacity)], out var queueCapacity) 
-            ? Math.Clamp(queueCapacity, IAsyncQueuesInitConfig.MinimumQueueCapacity, IAsyncQueuesInitConfig.MaximumQueueCapacity) 
-            : ParentDefaultQueuesInitConfig?.DefaultQueueCapacity ?? IAsyncQueuesInitConfig.DefaultQueueCapacitySize;
+        get =>
+            int.TryParse(this[nameof(QueueCapacity)], out var queueCapacity)
+                ? Math.Clamp(queueCapacity, IAsyncQueuesInitConfig.MinimumQueueCapacity, IAsyncQueuesInitConfig.MaximumQueueCapacity)
+                : ParentDefaultQueuesInitConfig?.DefaultQueueCapacity ?? IAsyncQueuesInitConfig.DefaultQueueCapacitySize;
         set => this[nameof(QueueCapacity)] = value.ToString();
     }
 
@@ -141,23 +143,23 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
 
     IAsyncQueuesInitConfig? IAsyncQueueConfig.ParentDefaultQueuesInitConfig => ParentDefaultQueuesInitConfig;
 
-    public IMutableAsyncQueuesInitConfig? ParentDefaultQueuesInitConfig => 
-        (ParentConfig as IAppendableAsyncQueueLookupConfig)?.ParentDefaultQueuesInitConfig ??  
+    public IMutableAsyncQueuesInitConfig? ParentDefaultQueuesInitConfig =>
+        (ParentConfig as IAppendableAsyncQueueLookupConfig)?.ParentDefaultQueuesInitConfig ??
         FLogContext.Context.AsyncRegistry.AsyncBufferingConfig as IMutableAsyncQueuesInitConfig;
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
-
-    object ICloneable.Clone() => Clone();
-
-    IAsyncQueueConfig ICloneable<IAsyncQueueConfig>.Clone() => Clone();
-
-    public AsyncQueueConfig Clone() => new(this);
 
     IAsyncQueueConfig IConfigCloneTo<IAsyncQueueConfig>.
         CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);
 
     public AsyncQueueConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
+    object ICloneable.Clone() => Clone();
+
+    IAsyncQueueConfig ICloneable<IAsyncQueueConfig>.Clone() => Clone();
+
+    public AsyncQueueConfig Clone() => new(this);
 
     public bool AreEquivalent(IAsyncQueueConfig? other, bool exactTypes = false)
     {
@@ -192,18 +194,15 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(AsyncQueueConfig))
-               .Field.AlwaysAdd(nameof(QueueNumber), QueueNumber)
-               .Field.AlwaysAdd(nameof(QueueType), QueueType)
-               .Field.AlwaysAdd(nameof(QueueCapacity), QueueCapacity)
-               .Field.AlwaysAdd(nameof(LaunchAtFlogStart), LaunchAtFlogStart)
-               .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
-               .Field.AlwaysAdd(nameof(QueueFullDropInterval), QueueFullDropInterval)
-               .Complete();
-    }
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(AsyncQueueConfig))
+           .Field.AlwaysAdd(nameof(QueueNumber), QueueNumber)
+           .Field.AlwaysAdd(nameof(QueueType), QueueType)
+           .Field.AlwaysAdd(nameof(QueueCapacity), QueueCapacity)
+           .Field.AlwaysAdd(nameof(LaunchAtFlogStart), LaunchAtFlogStart)
+           .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
+           .Field.AlwaysAdd(nameof(QueueFullDropInterval), QueueFullDropInterval)
+           .Complete();
 
     public override string ToString() => this.DefaultToString();
 }

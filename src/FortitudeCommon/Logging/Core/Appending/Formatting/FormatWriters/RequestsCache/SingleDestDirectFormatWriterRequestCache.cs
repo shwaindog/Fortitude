@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.AsyncProcessing;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Core.Hub;
@@ -9,51 +12,43 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.Reques
 public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IFormatWriterRequestCache
 {
     public const string SIngleDestinationTarget = "SingleDestTarget";
-    
+
+    [ThreadStatic] private static IRecycler? requesterThreadRecycler;
+
     private readonly DoublyLinkedList<BlockingFormatWriterResolverHandle> queuedRequests = new();
 
     private readonly ISyncLock queueProtectLock = new SpinLockLight();
 
-    protected IMutableFLogFormattingAppender OwningAppender = null!;
-
-    [ThreadStatic] private static IRecycler? requesterThreadRecycler;
-
     protected IFormatWriter? DirectFormatWriter;
 
-    protected Action<IBlockingFormatWriterResolverHandle> RequestHandleDisposed;
-
     protected FormatWriterReceivedHandler<IFormatWriter> OnReturningFormatWriter;
+
+    protected IMutableFLogFormattingAppender OwningAppender = null!;
+
+    protected Action<IBlockingFormatWriterResolverHandle> RequestHandleDisposed;
 
     public SingleDestDirectFormatWriterRequestCache()
     {
         RequestHandleDisposed   = WriterHandleDispose;
         OnReturningFormatWriter = WriterFinishedWithBuffer;
     }
-    
-    public SingleDestDirectFormatWriterRequestCache Initialize(IMutableFLogFormattingAppender owningAppender, IFLogContext context, string targetName = SIngleDestinationTarget)
+
+    public SingleDestDirectFormatWriterRequestCache Initialize(IMutableFLogFormattingAppender owningAppender, IFLogContext context
+      , string targetName = SIngleDestinationTarget)
     {
         OwningAppender = owningAppender;
 
-        if (GetType() == typeof(SingleDestDirectFormatWriterRequestCache))
-        {
-            CreateFormatWriters(targetName, context);
-        }
+        if (GetType() == typeof(SingleDestDirectFormatWriterRequestCache)) CreateFormatWriters(targetName, context);
 
         return this;
     }
 
-    protected virtual void CreateFormatWriters(string targetName, IFLogContext context) =>
-        DirectFormatWriter = OwningAppender.CreatedDirectFormatWriter(context, targetName, OnReturningFormatWriter);
-
     protected bool HasRequests => queuedRequests.Head != null;
+    protected IRecycler RequesterRecycler => requesterThreadRecycler ??= new Recycler();
 
     public bool IsOpen => OwningAppender.IsOpen;
 
     public virtual int FormatWriterRequestQueue => queuedRequests.Count;
-    protected IRecycler RequesterRecycler => requesterThreadRecycler ??= new Recycler();
-
-    protected virtual IFormatWriter? TrgGetFormatWriter(IFLogEntry fLogEntry) =>
-        Interlocked.CompareExchange(ref DirectFormatWriter, null, DirectFormatWriter);
 
     public virtual void TryToReturnUsedFormatWriter(IFormatWriter toReturn)
     {
@@ -62,7 +57,7 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
 
     public virtual IBlockingFormatWriterResolverHandle FormatWriterResolver(IFLogEntry logEntry)
     {
-        IFormatWriter? useFormatWriter = TrgGetFormatWriter(logEntry);
+        var useFormatWriter = TrgGetFormatWriter(logEntry);
 
         var requesterSync = GetFormatWriterRequesterWaitStrategy();
 
@@ -79,10 +74,29 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
         return requestHandle;
     }
 
-    protected virtual ISyncLock GetFormatWriterRequesterWaitStrategy()
+    public virtual void Close()
     {
-        return RequesterRecycler.Borrow<ManualResetEventLock>();
+        using (queueProtectLock)
+        {
+            queueProtectLock.Acquire();
+            var current = queuedRequests.Head;
+            while (current != null)
+            {
+                var removedFirst = queuedRequests.Remove(current);
+                removedFirst.IssueRequestAborted();
+                removedFirst.DecrementRefCount();
+                current = queuedRequests.Head;
+            }
+        }
     }
+
+    protected virtual void CreateFormatWriters(string targetName, IFLogContext context) =>
+        DirectFormatWriter = OwningAppender.CreatedDirectFormatWriter(context, targetName, OnReturningFormatWriter);
+
+    protected virtual IFormatWriter? TrgGetFormatWriter(IFLogEntry fLogEntry) =>
+        Interlocked.CompareExchange(ref DirectFormatWriter, null, DirectFormatWriter);
+
+    protected virtual ISyncLock GetFormatWriterRequesterWaitStrategy() => RequesterRecycler.Borrow<ManualResetEventLock>();
 
     protected virtual void WriterFinishedWithBuffer(IFormatWriter setReadyOrFlush)
     {
@@ -114,10 +128,7 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
         {
             queueProtectLock.Acquire();
 
-            if (queuedRequests.Head != null)
-            {
-                removedFirst = queuedRequests.Remove(queuedRequests.Head);
-            }
+            if (queuedRequests.Head != null) removedFirst = queuedRequests.Remove(queuedRequests.Head);
         }
         if (removedFirst == null)
         {
@@ -139,10 +150,7 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
             if (queuedRequests.Head != null)
             {
                 toSend = TrgGetFormatWriter(queuedRequests.Head.RequestingLogEntry!);
-                if (toSend != null)
-                {
-                    removedFirst = queuedRequests.Remove(queuedRequests.Head);
-                }
+                if (toSend != null) removedFirst = queuedRequests.Remove(queuedRequests.Head);
             }
         }
         if (removedFirst == null)
@@ -152,22 +160,6 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
         }
         removedFirst.ReceiveFormatWriterHandler(toSend!);
         return removedFirst;
-    }
-
-    public virtual void Close()
-    {
-        using (queueProtectLock)
-        {
-            queueProtectLock.Acquire();
-            var current = queuedRequests.Head;
-            while (current != null)
-            {
-                var removedFirst = queuedRequests.Remove(current);
-                removedFirst.IssueRequestAborted();
-                removedFirst.DecrementRefCount();
-                current = queuedRequests.Head;
-            }
-        }
     }
 
     public override void StateReset()

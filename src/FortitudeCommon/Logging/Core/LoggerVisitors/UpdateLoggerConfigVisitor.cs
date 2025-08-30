@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Config;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
@@ -13,10 +16,7 @@ public class UpdateLoggerConfigVisitor(string flogAppConfigPath, IFLogContext fl
 
     public override UpdateLoggerConfigVisitor Accept(IMutableFLoggerRoot node)
     {
-        foreach (var childLogger in node.ImmediateEmbodiedChildren)
-        {
-            WalkDownTree(childLogger, node);
-        }
+        foreach (var childLogger in node.ImmediateEmbodiedChildren) WalkDownTree(childLogger, node);
         return this;
     }
 
@@ -28,21 +28,15 @@ public class UpdateLoggerConfigVisitor(string flogAppConfigPath, IFLogContext fl
                 .Append(nameof(FLogAppConfig.RootLogger)).Append(ConfigSection.KeySeparator)
                 .Append(nameof(FLoggerTreeCommonConfig.DescendantLoggers)).Append(ConfigSection.KeySeparator);
         foreach (var ancestorGeneration in ancestorLogger.FullName.Split(".").Where(s => s.IsNotEmpty()))
-        {
             configPathBuilder
                 .Append(ancestorGeneration).Append(ConfigSection.KeySeparator)
                 .Append(nameof(FLoggerTreeCommonConfig.DescendantLoggers)).Append(ConfigSection.KeySeparator);
-        }
         var configPath      = configPathBuilder.Append(toUpdate.Name).ToString();
         var definedConfig   = flogContext.ConfigRegistry.FindLoggerConfigIfGiven(toUpdate.FullName);
         var explicitConfig  = definedConfig ?? ancestorLogger.ResolvedConfig;
         var subLoggerConfig = FLogCreate.MakeClonedDescendantLoggerConfig(explicitConfig, configPath);
         subLoggerConfig.Name = toUpdate.FullName;
         toUpdate.HandleConfigUpdate(subLoggerConfig, flogContext.AppenderRegistry);
-        foreach (var grandChildLogger in toUpdate.ImmediateEmbodiedChildren)
-        {
-            WalkDownTree(grandChildLogger, toUpdate);
-        }
+        foreach (var grandChildLogger in toUpdate.ImmediateEmbodiedChildren) WalkDownTree(grandChildLogger, toUpdate);
     }
 }
-

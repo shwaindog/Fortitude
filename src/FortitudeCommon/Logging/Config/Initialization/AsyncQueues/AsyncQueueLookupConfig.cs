@@ -8,7 +8,6 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -33,84 +32,46 @@ public interface IAppendableAsyncQueueLookupConfig : IMutableFLogConfig, IAsyncQ
 
     new IMutableAsyncQueueConfig this[byte appenderName] { get; set; }
 
+    new IMutableAsyncQueuesInitConfig? ParentDefaultQueuesInitConfig { get; }
+
     new bool ContainsKey(byte queueNumber);
 
     new IEnumerator<KeyValuePair<byte, IMutableAsyncQueueConfig>> GetEnumerator();
-
-    new IMutableAsyncQueuesInitConfig? ParentDefaultQueuesInitConfig { get; }
 }
 
 public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupConfig
 {
-    private DateTime nextConfigReadTime = DateTime.MinValue;
-
     private static TimeSpan recheckTimeSpanInterval;
-
-    private readonly Dictionary<byte, IMutableAsyncQueueConfig> queueConfigByQueueNumber = new();
 
     private readonly List<KeyValuePair<byte, IMutableAsyncQueueConfig>> asyncQueueConfigList = new();
 
-    public AsyncQueueLookupConfig(IConfigurationRoot root, string path) : base(root, path)
-    {
-        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
+    private readonly Dictionary<byte, IMutableAsyncQueueConfig> queueConfigByQueueNumber = new();
 
-    public AsyncQueueLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
-    {
-        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
+    private DateTime nextConfigReadTime = DateTime.MinValue;
+
+    public AsyncQueueLookupConfig(IConfigurationRoot root, string path) : base(root, path) => recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
+
+    public AsyncQueueLookupConfig() : this(InMemoryConfigRoot, InMemoryPath) => recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
 
     public AsyncQueueLookupConfig(params IMutableAsyncQueueConfig[] toAdd)
-        : this(InMemoryConfigRoot, InMemoryPath, toAdd)
-    {
+        : this(InMemoryConfigRoot, InMemoryPath, toAdd) =>
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
 
     public AsyncQueueLookupConfig
         (IConfigurationRoot root, string path, params IMutableAsyncQueueConfig[] toAdd) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-        for (int i = 0; i < toAdd.Length; i++)
-        {
-            queueConfigByQueueNumber.Add(toAdd[i].QueueNumber, toAdd[i]);
-        }
+        for (var i = 0; i < toAdd.Length; i++) queueConfigByQueueNumber.Add(toAdd[i].QueueNumber, toAdd[i]);
     }
 
     public AsyncQueueLookupConfig(IAsyncQueueLookupConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-        foreach (var kvp in toClone)
-        {
-            queueConfigByQueueNumber.Add(kvp.Key, (IMutableAsyncQueueConfig)kvp.Value);
-        }
+        foreach (var kvp in toClone) queueConfigByQueueNumber.Add(kvp.Key, (IMutableAsyncQueueConfig)kvp.Value);
     }
 
-    public AsyncQueueLookupConfig(IAsyncQueueLookupConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
-    {
+    public AsyncQueueLookupConfig(IAsyncQueueLookupConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) =>
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
-    }
-
-    IAsyncQueuesInitConfig? IAsyncQueueLookupConfig.ParentDefaultQueuesInitConfig => ParentDefaultQueuesInitConfig;
-
-    public IMutableAsyncQueuesInitConfig? ParentDefaultQueuesInitConfig => 
-        (ParentConfig as IMutableAsyncQueuesInitConfig) ?? FLogContext.Context.AsyncRegistry.AsyncBufferingConfig as IMutableAsyncQueuesInitConfig;
-
-    public void Add(KeyValuePair<byte, IMutableAsyncQueueConfig> item)
-    {
-        queueConfigByQueueNumber.Add(item.Key, item.Value);
-        PushToConfigStorage(item.Value);
-    }
-
-    public void Add(byte key, IMutableAsyncQueueConfig value)
-    {
-        queueConfigByQueueNumber.Add(key, value);
-        PushToConfigStorage(value);
-    }
-
-    protected void PushToConfigStorage(IMutableAsyncQueueConfig value)
-    {
-        value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.QueueNumber}");
-    }
 
     [JsonIgnore]
     protected Dictionary<byte, IMutableAsyncQueueConfig> CheckConfigGetConfigByQueueNumberDict
@@ -119,18 +80,16 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
         {
             if (!queueConfigByQueueNumber.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
-                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ?? TimeSpan.FromMinutes(1);
+                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ??
+                                          TimeSpan.FromMinutes(1);
                 queueConfigByQueueNumber.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {
                     var asyncQueueConfig = new AsyncQueueConfig(ConfigRoot, $"{configurationSection.Path}{Split}{configurationSection.Key}");
-                    var checkQueueNumber         = byte.TryParse(configurationSection.Key, out var keyQueueNumber);
+                    var checkQueueNumber = byte.TryParse(configurationSection.Key, out var keyQueueNumber);
                     if (checkQueueNumber)
                     {
-                        if (asyncQueueConfig.QueueNumber != keyQueueNumber)
-                        {
-                            asyncQueueConfig.QueueNumber = keyQueueNumber;
-                        }
+                        if (asyncQueueConfig.QueueNumber != keyQueueNumber) asyncQueueConfig.QueueNumber = keyQueueNumber;
                         asyncQueueConfig.ParentConfig = this;
                         queueConfigByQueueNumber.TryAdd(keyQueueNumber, asyncQueueConfig);
                     }
@@ -139,56 +98,6 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
             }
             return queueConfigByQueueNumber;
         }
-    }
-
-    bool IReadOnlyDictionary<byte, IAsyncQueueConfig>.ContainsKey(byte priorityOrder) =>
-        CheckConfigGetConfigByQueueNumberDict.ContainsKey(priorityOrder);
-
-    bool IAppendableAsyncQueueLookupConfig.ContainsKey(byte priorityOrder) => CheckConfigGetConfigByQueueNumberDict.ContainsKey(priorityOrder);
-
-    public bool ContainsKey(byte priorityOrder) => CheckConfigGetConfigByQueueNumberDict.ContainsKey(priorityOrder);
-
-    public int Count => CheckConfigGetConfigByQueueNumberDict.Count;
-
-    protected List<KeyValuePair<byte, IMutableAsyncQueueConfig>> ClearAndCopyEitherTo(List<KeyValuePair<byte, IMutableAsyncQueueConfig>> list)
-    {
-        static IMutableAsyncQueueConfig LoadNewAsyncQueueConfig
-        (
-            List<KeyValuePair<byte, IMutableAsyncQueueConfig>> asyncQueuesConfig
-          , Dictionary<byte, IMutableAsyncQueueConfig> asyncQueuesByQueueNumDict
-          , byte keyQueueNumber, IConfigurationRoot configRoot, string path)
-        {
-            var asyncQueue = new AsyncQueueConfig(configRoot, path);
-            if (asyncQueue.QueueNumber != keyQueueNumber)
-            {
-                asyncQueue.QueueNumber = keyQueueNumber;
-            }
-            asyncQueuesByQueueNumDict.Add(keyQueueNumber, asyncQueue);
-            asyncQueuesConfig.Add(new KeyValuePair<byte, IMutableAsyncQueueConfig>(asyncQueue.QueueNumber, asyncQueue));
-            return asyncQueue;
-        }
-
-        list.Clear();
-
-        nextConfigReadTime = TimeContext.UtcNow;
-        foreach (var appenderRefs in GetChildren())
-        {
-            var configSourcePath = $"{Path}{Split}{appenderRefs.Key}";
-            if (byte.TryParse(appenderRefs.Key, out var keyQueueNumber))
-            {
-                if (queueConfigByQueueNumber.TryGetValue(keyQueueNumber, out var asyncQueueConfig))
-                {
-                    list.Add(new KeyValuePair<byte, IMutableAsyncQueueConfig>(keyQueueNumber, asyncQueueConfig));
-                }
-                else
-                {
-                    var appenderConfig = LoadNewAsyncQueueConfig(list, queueConfigByQueueNumber, keyQueueNumber, ConfigRoot, configSourcePath);
-                    appenderConfig.ParentConfig = this;
-                }
-            }
-        }
-        nextConfigReadTime = TimeContext.UtcNow.Add(recheckTimeSpanInterval);
-        return list;
     }
 
     protected IReadOnlyList<KeyValuePair<byte, IMutableAsyncQueueConfig>> AsyncQueuesConfig
@@ -204,6 +113,32 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
             return asyncQueueConfigList;
         }
     }
+
+    IAsyncQueuesInitConfig? IAsyncQueueLookupConfig.ParentDefaultQueuesInitConfig => ParentDefaultQueuesInitConfig;
+
+    public IMutableAsyncQueuesInitConfig? ParentDefaultQueuesInitConfig =>
+        ParentConfig as IMutableAsyncQueuesInitConfig ?? FLogContext.Context.AsyncRegistry.AsyncBufferingConfig as IMutableAsyncQueuesInitConfig;
+
+    public void Add(KeyValuePair<byte, IMutableAsyncQueueConfig> item)
+    {
+        queueConfigByQueueNumber.Add(item.Key, item.Value);
+        PushToConfigStorage(item.Value);
+    }
+
+    public void Add(byte key, IMutableAsyncQueueConfig value)
+    {
+        queueConfigByQueueNumber.Add(key, value);
+        PushToConfigStorage(value);
+    }
+
+    bool IReadOnlyDictionary<byte, IAsyncQueueConfig>.ContainsKey(byte priorityOrder) =>
+        CheckConfigGetConfigByQueueNumberDict.ContainsKey(priorityOrder);
+
+    bool IAppendableAsyncQueueLookupConfig.ContainsKey(byte priorityOrder) => CheckConfigGetConfigByQueueNumberDict.ContainsKey(priorityOrder);
+
+    public bool ContainsKey(byte priorityOrder) => CheckConfigGetConfigByQueueNumberDict.ContainsKey(priorityOrder);
+
+    public int Count => CheckConfigGetConfigByQueueNumberDict.Count;
 
     IEnumerator IEnumerable.GetEnumerator() => AsyncQueuesConfig.GetEnumerator();
 
@@ -251,6 +186,49 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    protected void PushToConfigStorage(IMutableAsyncQueueConfig value)
+    {
+        value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.QueueNumber}");
+    }
+
+    protected List<KeyValuePair<byte, IMutableAsyncQueueConfig>> ClearAndCopyEitherTo(List<KeyValuePair<byte, IMutableAsyncQueueConfig>> list)
+    {
+        static IMutableAsyncQueueConfig LoadNewAsyncQueueConfig
+        (
+            List<KeyValuePair<byte, IMutableAsyncQueueConfig>> asyncQueuesConfig
+          , Dictionary<byte, IMutableAsyncQueueConfig> asyncQueuesByQueueNumDict
+          , byte keyQueueNumber, IConfigurationRoot configRoot, string path)
+        {
+            var asyncQueue                                                       = new AsyncQueueConfig(configRoot, path);
+            if (asyncQueue.QueueNumber != keyQueueNumber) asyncQueue.QueueNumber = keyQueueNumber;
+            asyncQueuesByQueueNumDict.Add(keyQueueNumber, asyncQueue);
+            asyncQueuesConfig.Add(new KeyValuePair<byte, IMutableAsyncQueueConfig>(asyncQueue.QueueNumber, asyncQueue));
+            return asyncQueue;
+        }
+
+        list.Clear();
+
+        nextConfigReadTime = TimeContext.UtcNow;
+        foreach (var appenderRefs in GetChildren())
+        {
+            var configSourcePath = $"{Path}{Split}{appenderRefs.Key}";
+            if (byte.TryParse(appenderRefs.Key, out var keyQueueNumber))
+            {
+                if (queueConfigByQueueNumber.TryGetValue(keyQueueNumber, out var asyncQueueConfig))
+                {
+                    list.Add(new KeyValuePair<byte, IMutableAsyncQueueConfig>(keyQueueNumber, asyncQueueConfig));
+                }
+                else
+                {
+                    var appenderConfig = LoadNewAsyncQueueConfig(list, queueConfigByQueueNumber, keyQueueNumber, ConfigRoot, configSourcePath);
+                    appenderConfig.ParentConfig = this;
+                }
+            }
+        }
+        nextConfigReadTime = TimeContext.UtcNow.Add(recheckTimeSpanInterval);
+        return list;
+    }
+
     object ICloneable.Clone() => Clone();
 
     IAsyncQueueLookupConfig ICloneable<IAsyncQueueLookupConfig>.Clone() => Clone();
@@ -263,17 +241,12 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
 
         var countSame = Count == other.Count;
         if (countSame)
-        {
             foreach (var nameKey in Keys)
             {
                 var myConfig    = this[nameKey];
                 var otherConfig = other[nameKey];
-                if (!myConfig.AreEquivalent(otherConfig, exactTypes))
-                {
-                    return false;
-                }
+                if (!myConfig.AreEquivalent(otherConfig, exactTypes)) return false;
             }
-        }
 
         return countSame;
     }
@@ -286,13 +259,10 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartKeyedCollectionType(nameof(AsyncQueueLookupConfig))
-               .AddAll(queueConfigByQueueNumber)
-               .Complete();
-    }
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartKeyedCollectionType(nameof(AsyncQueueLookupConfig))
+           .AddAll(queueConfigByQueueNumber)
+           .Complete();
 
     public override string ToString() => this.DefaultToString();
 }

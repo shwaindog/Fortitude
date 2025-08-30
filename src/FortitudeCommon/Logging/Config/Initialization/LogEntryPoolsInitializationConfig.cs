@@ -1,8 +1,10 @@
-﻿using FortitudeCommon.Config;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -80,23 +82,23 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         GlobalLogEntryPool =
             globalLogEntryPool ??
             new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                  , IFLogEntryPoolConfig.Global, poolScope: PoolScope.Global);
+                                  , IFLogEntryPoolConfig.Global, PoolScope.Global);
         LargeMessageLogEntryPool =
             largeMessageLogEntryPool ??
             new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                  , IFLogEntryPoolConfig.Global, poolScope: PoolScope.Global);
+                                  , IFLogEntryPoolConfig.Global, PoolScope.Global);
         VeryLargeMessageLogEntryPool =
             veryLargeMessageLogEntryPool ??
             new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                  , IFLogEntryPoolConfig.VeryLargeMessage, poolScope: PoolScope.VeryLargeMessage);
+                                  , IFLogEntryPoolConfig.VeryLargeMessage, PoolScope.VeryLargeMessage);
         LoggersGlobalLogEntryPool =
             loggersGlobalLogEntryPool ??
             new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                  , IFLogEntryPoolConfig.LoggersGlobal, poolScope: PoolScope.LoggersGlobal);
+                                  , IFLogEntryPoolConfig.LoggersGlobal, PoolScope.LoggersGlobal);
         AppendersGlobalLogEntryPool =
             appendersGlobalLogEntryPool ??
             new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                  , IFLogEntryPoolConfig.AppendersGlobal, poolScope: PoolScope.AppendersGlobal);
+                                  , IFLogEntryPoolConfig.AppendersGlobal, PoolScope.AppendersGlobal);
     }
 
     public LogEntryPoolsInitializationConfig(ILogEntryPoolsInitializationConfig toClone, IConfigurationRoot root, string path) : base(root, path)
@@ -132,14 +134,12 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         get
         {
             if (GetSection(nameof(AppendersGlobalLogEntryPool)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                         , IFLogEntryPoolConfig.AppendersGlobal, poolScope: PoolScope.AppendersGlobal)
+                                         , IFLogEntryPoolConfig.AppendersGlobal, PoolScope.AppendersGlobal)
             {
                 ParentConfig = this
             };
@@ -159,14 +159,12 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         get
         {
             if (GetSection(nameof(AppendersGlobalLogEntryPool)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                         , IFLogEntryPoolConfig.LoggersGlobal, poolScope: PoolScope.LoggersGlobal)
+                                         , IFLogEntryPoolConfig.LoggersGlobal, PoolScope.LoggersGlobal)
             {
                 ParentConfig = this
             };
@@ -185,14 +183,12 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         get
         {
             if (GetSection(nameof(AppendersGlobalLogEntryPool)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                         , IFLogEntryPoolConfig.Global, poolScope: PoolScope.Global)
+                                         , IFLogEntryPoolConfig.Global, PoolScope.Global)
             {
                 ParentConfig = this
             };
@@ -211,14 +207,12 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         get
         {
             if (GetSection(nameof(AppendersGlobalLogEntryPool)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                         , IFLogEntryPoolConfig.Global, poolScope: PoolScope.Global)
+                                         , IFLogEntryPoolConfig.Global, PoolScope.Global)
             {
                 ParentConfig = this
             };
@@ -237,14 +231,12 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         get
         {
             if (GetSection(nameof(AppendersGlobalLogEntryPool)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}")
                 {
                     ParentConfig = this
                 };
-            }
             return new FLogEntryPoolConfig(ConfigRoot, $"{Path}{Split}{nameof(AppendersGlobalLogEntryPool)}"
-                                         , IFLogEntryPoolConfig.VeryLargeMessage, poolScope: PoolScope.VeryLargeMessage)
+                                         , IFLogEntryPoolConfig.VeryLargeMessage, PoolScope.VeryLargeMessage)
             {
                 ParentConfig = this
             };
@@ -258,17 +250,17 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    object ICloneable.Clone() => Clone();
-
-    ILogEntryPoolsInitializationConfig ICloneable<ILogEntryPoolsInitializationConfig>.Clone() => Clone();
-
-    public virtual LogEntryPoolsInitializationConfig Clone() => new(this);
-
     ILogEntryPoolsInitializationConfig IConfigCloneTo<ILogEntryPoolsInitializationConfig>.CloneConfigTo
         (IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);
 
     public LogEntryPoolsInitializationConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
+    object ICloneable.Clone() => Clone();
+
+    ILogEntryPoolsInitializationConfig ICloneable<ILogEntryPoolsInitializationConfig>.Clone() => Clone();
+
+    public virtual LogEntryPoolsInitializationConfig Clone() => new(this);
 
     public virtual bool AreEquivalent(ILogEntryPoolsInitializationConfig? other, bool exactTypes = false)
     {
@@ -302,17 +294,14 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(LogEntryPoolsInitializationConfig))
-               .Field.AlwaysAdd(nameof(DefaultLogEntryCharCapacity), DefaultLogEntryCharCapacity)
-               .Field.AlwaysAdd(nameof(DefaultLogEntryBatchSize), DefaultLogEntryBatchSize)
-               .Field.AlwaysAdd(nameof(GlobalLogEntryPool), GlobalLogEntryPool)
-               .Field.AlwaysAdd(nameof(LargeMessageLogEntryPool), LargeMessageLogEntryPool)
-               .Field.AlwaysAdd(nameof(VeryLargeMessageLogEntryPool), VeryLargeMessageLogEntryPool)
-               .Field.AlwaysAdd(nameof(LoggersGlobalLogEntryPool), LoggersGlobalLogEntryPool)
-               .Field.AlwaysAdd(nameof(AppendersGlobalLogEntryPool), AppendersGlobalLogEntryPool)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(LogEntryPoolsInitializationConfig))
+           .Field.AlwaysAdd(nameof(DefaultLogEntryCharCapacity), DefaultLogEntryCharCapacity)
+           .Field.AlwaysAdd(nameof(DefaultLogEntryBatchSize), DefaultLogEntryBatchSize)
+           .Field.AlwaysAdd(nameof(GlobalLogEntryPool), GlobalLogEntryPool)
+           .Field.AlwaysAdd(nameof(LargeMessageLogEntryPool), LargeMessageLogEntryPool)
+           .Field.AlwaysAdd(nameof(VeryLargeMessageLogEntryPool), VeryLargeMessageLogEntryPool)
+           .Field.AlwaysAdd(nameof(LoggersGlobalLogEntryPool), LoggersGlobalLogEntryPool)
+           .Field.AlwaysAdd(nameof(AppendersGlobalLogEntryPool), AppendersGlobalLogEntryPool)
+           .Complete();
 }

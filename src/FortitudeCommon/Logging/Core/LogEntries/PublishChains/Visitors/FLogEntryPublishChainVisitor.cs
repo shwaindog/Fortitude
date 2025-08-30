@@ -5,8 +5,7 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains.Visitors;
 
-
-public interface IFLogEntryPublishChainVisitor<out T>  where T : IFLogEntryPublishChainVisitor<T>
+public interface IFLogEntryPublishChainVisitor<out T> where T : IFLogEntryPublishChainVisitor<T>
 {
     T Accept(IFLogEntryRootPublisher flogEntryPublisherRoot);
     T Accept(IFLogEntryPipelineInterceptor flogEntryInterceptorNode);

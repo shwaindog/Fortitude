@@ -1,8 +1,10 @@
-﻿using FortitudeCommon.Logging.Config.Appending;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -51,10 +53,7 @@ public class FLoggerRootConfig : FLoggerTreeCommonConfig, IMutableFLoggerRootCon
     IMutableNamedChildLoggersLookupConfig IMutableFLoggerRootConfig.AllLoggers()
     {
         var results = new NamedChildLoggersLookupConfig();
-        foreach (var childLoggerConfig in Visit(new AllLoggers()))
-        {
-            results.Add(childLoggerConfig.FullName, childLoggerConfig);
-        }
+        foreach (var childLoggerConfig in Visit(new AllLoggers())) results.Add(childLoggerConfig.FullName, childLoggerConfig);
         return results;
     }
 
@@ -100,15 +99,12 @@ public class FLoggerRootConfig : FLoggerTreeCommonConfig, IMutableFLoggerRootCon
         }
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
-               .Field.AlwaysAdd(nameof(Name), Name)
-               .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
-               .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
-               .Field.WhenNonNullAdd(nameof(Appenders), Appenders)
-               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
-               .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+           .Field.AlwaysAdd(nameof(Name), Name)
+           .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
+           .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
+           .Field.WhenNonNullAdd(nameof(Appenders), Appenders)
+           .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
+           .Complete();
 }

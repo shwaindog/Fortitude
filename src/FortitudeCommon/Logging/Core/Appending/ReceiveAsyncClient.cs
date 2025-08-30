@@ -1,4 +1,7 @@
-﻿using FortitudeCommon.Chronometry.Timers;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
@@ -18,13 +21,21 @@ public interface IAppenderAsyncClient
 
 public class ReceiveAsyncClient : IAppenderAsyncClient
 {
-    protected readonly IFLogAppender DestinationAppender;
-
     protected readonly IFLoggerAsyncRegistry AsyncRegistry;
+    protected readonly IFLogAppender         DestinationAppender;
+
+    private int appenderReceiveQueueNum = -1;
 
     private IFLogAsyncQueuePublisher appenderReceiveQueuePublisher = null!;
 
-    private int appenderReceiveQueueNum = -1;
+    public ReceiveAsyncClient(IFLogAppender destinationAppender, int appenderReceiveQueueNum
+      , IFLoggerAsyncRegistry asyncRegistry)
+    {
+        DestinationAppender = destinationAppender;
+        AsyncRegistry       = asyncRegistry;
+
+        AppenderReceiveQueueNum = appenderReceiveQueueNum;
+    }
 
     public int AppenderReceiveQueueNum
     {
@@ -33,30 +44,15 @@ public class ReceiveAsyncClient : IAppenderAsyncClient
         {
             var wasChanged = value != appenderReceiveQueueNum;
             appenderReceiveQueueNum = value;
-            if (wasChanged)
-            {
-                appenderReceiveQueuePublisher = AsyncRegistry.AsyncQueueLocator.GetClientPublisherQueue(appenderReceiveQueueNum);
-            }
+            if (wasChanged) appenderReceiveQueuePublisher = AsyncRegistry.AsyncQueueLocator.GetClientPublisherQueue(appenderReceiveQueueNum);
         }
-    }
-
-    public ReceiveAsyncClient(IFLogAppender destinationAppender, int appenderReceiveQueueNum
-      , IFLoggerAsyncRegistry asyncRegistry)
-    {
-        DestinationAppender  = destinationAppender;
-        AsyncRegistry  = asyncRegistry;
-
-        AppenderReceiveQueueNum = appenderReceiveQueueNum;
     }
 
     public void ReceiveLogEntryEventOnConfiguredQueue(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource publishSource)
     {
         if (AppenderReceiveQueueNum == 0 || AppenderReceiveQueueNum == FLogAsyncQueue.MyCallingQueueNumber)
         {
-            if (DestinationAppender.ReceiveEndpoint == publishSource)
-            {
-                publishSource.FinalTarget!.InBoundListener(logEntryEvent, publishSource);
-            }
+            if (DestinationAppender.ReceiveEndpoint == publishSource) publishSource.FinalTarget!.InBoundListener(logEntryEvent, publishSource);
             {
                 DestinationAppender.ReceiveEndpoint.PublishLogEntryEvent(logEntryEvent, publishSource);
             }
@@ -76,15 +72,12 @@ public class ReceiveAsyncClient : IAppenderAsyncClient
         appenderReceiveQueuePublisher.Execute(job);
     }
 
-    public ITimerUpdate RunJobOnFromTimer(Action job, int waitMs)
-    {
-        return AsyncRegistry.LoggerTimers.RunIn(waitMs, job);
-    }
+    public ITimerUpdate RunJobOnFromTimer(Action job, int waitMs) => AsyncRegistry.LoggerTimers.RunIn(waitMs, job);
 }
 
 public class NullAsyncClient : IAppenderAsyncClient
 {
-    public static NullAsyncClient NullAsyncClientInstance = new ();
+    public static NullAsyncClient NullAsyncClientInstance = new();
 
     public int AppenderReceiveQueueNum
     {
@@ -92,13 +85,9 @@ public class NullAsyncClient : IAppenderAsyncClient
         set => _ = value;
     }
 
-    public void ReceiveLogEntryEventOnConfiguredQueue(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource publishSource)
-    {
-    }
+    public void ReceiveLogEntryEventOnConfiguredQueue(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource publishSource) { }
 
-    public void RunJobOnAppenderQueue(Action job)
-    {
-    }
+    public void RunJobOnAppenderQueue(Action job) { }
 
     public ITimerUpdate RunJobOnFromTimer(Action job, int waitMs) => null!;
 }

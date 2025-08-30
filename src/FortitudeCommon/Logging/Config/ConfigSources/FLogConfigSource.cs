@@ -5,7 +5,6 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +14,7 @@ namespace FortitudeCommon.Logging.Config.ConfigSources;
 public interface IFlogConfigSource : IConfigCloneTo<IFlogConfigSource>, IInterfacesComparable<IFlogConfigSource>
   , IStyledToStringObject, IFLogConfig
 {
-    static readonly TimeSpanConfig DefaultRecheckConfigTimeSpan = new (days: 1);
+    static readonly TimeSpanConfig DefaultRecheckConfigTimeSpan = new(days: 1);
 
     ushort ConfigPriorityOrder { get; } // high Priority overrides lower priority
 
@@ -50,22 +49,17 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
     protected FLogConfigSource
     (ushort configPriorityOrder, FLogConfigSourceType sourceType, bool optional = false
       , string configSourceName = "", TimeSpanConfig? recheckConfigIntervalTimeSpan = null)
-        : this(InMemoryConfigRoot, InMemoryPath, configPriorityOrder, sourceType, optional, configSourceName, recheckConfigIntervalTimeSpan)
-    {
-    }
+        : this(InMemoryConfigRoot, InMemoryPath, configPriorityOrder, sourceType, optional, configSourceName, recheckConfigIntervalTimeSpan) { }
 
     protected FLogConfigSource
     (IConfigurationRoot root, string path, ushort configPriorityOrder, FLogConfigSourceType sourceType, bool optional = false
       , string? configSourceName = null, TimeSpanConfig? recheckConfigIntervalTimeSpan = null) : base(root, path)
     {
         ConfigPriorityOrder = configPriorityOrder;
-        SourceType = sourceType;
-        Optional = optional;
-        ConfigSourceName = configSourceName;
-        if (recheckConfigIntervalTimeSpan != null)
-        {
-            RecheckConfigIntervalTimeSpan = recheckConfigIntervalTimeSpan;
-        }
+        SourceType          = sourceType;
+        Optional            = optional;
+        ConfigSourceName    = configSourceName;
+        if (recheckConfigIntervalTimeSpan != null) RecheckConfigIntervalTimeSpan = recheckConfigIntervalTimeSpan;
     }
 
     protected FLogConfigSource(IFlogConfigSource toClone, IConfigurationRoot root, string path) : base(root, path)
@@ -83,7 +77,7 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
 
     public ushort ConfigPriorityOrder
     {
-        get => ushort.TryParse(this[nameof(ConfigPriorityOrder)], out var priorityOrder) ? priorityOrder : (ushort)0 ;
+        get => ushort.TryParse(this[nameof(ConfigPriorityOrder)], out var priorityOrder) ? priorityOrder : (ushort)0;
         set => this[nameof(ConfigPriorityOrder)] = value.ToString();
     }
 
@@ -104,9 +98,7 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
         get
         {
             if (GetSection(nameof(RecheckConfigIntervalTimeSpan)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
-            {
                 return new TimeSpanConfig(ConfigRoot, $"{Path}{Split}{nameof(RecheckConfigIntervalTimeSpan)}");
-            }
             return IFlogConfigSource.DefaultRecheckConfigTimeSpan;
         }
         set => _ = new TimeSpanConfig(value, ConfigRoot, $"{Path}{Split}{nameof(RecheckConfigIntervalTimeSpan)}");
@@ -121,23 +113,23 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
         set => this[nameof(SourceType)] = value.ToString();
     }
 
+    public abstract IFlogConfigSource CloneConfigTo(IConfigurationRoot configRoot, string path);
+
     object ICloneable.Clone() => Clone();
 
     IFlogConfigSource ICloneable<IFlogConfigSource>.Clone() => Clone();
 
     public abstract FLogConfigSource Clone();
 
-    public abstract IFlogConfigSource CloneConfigTo(IConfigurationRoot configRoot, string path);
-
     public virtual bool AreEquivalent(IFlogConfigSource? other, bool exactTypes = false)
     {
         if (other == null) return false;
 
-        var orderSame = ConfigPriorityOrder == other.ConfigPriorityOrder;
-        var srcNameSame = ConfigSourceName == other.ConfigSourceName;
-        var optionalSame = Optional == other.Optional;
+        var orderSame           = ConfigPriorityOrder == other.ConfigPriorityOrder;
+        var srcNameSame         = ConfigSourceName == other.ConfigSourceName;
+        var optionalSame        = Optional == other.Optional;
         var recheckIntervalSame = Equals(RecheckConfigIntervalTimeSpan, other.RecheckConfigIntervalTimeSpan);
-        var srcTypeSame = SourceType == other.SourceType;
+        var srcTypeSame         = SourceType == other.SourceType;
 
         var allAreSame = orderSame && srcNameSame && optionalSame && recheckIntervalSame && srcTypeSame;
 
@@ -159,9 +151,7 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
         sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
            .Field.AlwaysAdd(nameof(ConfigPriorityOrder), ConfigPriorityOrder)
            .Field.AlwaysAdd(nameof(ConfigSourceName), ConfigSourceName)
@@ -169,7 +159,6 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
            .Field.AlwaysAdd(nameof(SourceType), SourceType.ToString())
            .Field.AlwaysAdd(nameof(RecheckConfigIntervalTimeSpan), RecheckConfigIntervalTimeSpan)
            .Complete();
-    }
 
     public override string ToString() => this.DefaultToString();
 }

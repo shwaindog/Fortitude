@@ -1,8 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.DataStructures.Memory;
-
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 public interface ITargetingFLogEntrySource : IFLogEntryPublishChainTreeNode
@@ -10,6 +8,8 @@ public interface ITargetingFLogEntrySource : IFLogEntryPublishChainTreeNode
     string Name { get; }
 
     IFLogEntrySink? OutBound { get; set; }
+
+    IFLogEntrySink? FinalTarget { get; }
 
     void Insert(IFLogEntryPipelineInterceptor toInsert);
 
@@ -20,14 +20,14 @@ public interface ITargetingFLogEntrySource : IFLogEntryPublishChainTreeNode
     void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null);
 
     ITargetingFLogEntrySource Last();
-
-    IFLogEntrySink? FinalTarget { get; }
 }
 
 public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, ITargetingFLogEntrySource
 {
-    private IFLogEntrySink? outBound;
     private IFLogEntrySink? finalTarget;
+    private IFLogEntrySink? outBound;
+
+    protected bool HasListeners => PublishedTargetLogEntryEvent != null;
 
     public void Insert(IFLogEntryPipelineInterceptor toInsert)
     {
@@ -38,7 +38,8 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
             {
                 if (OutBound == null)
                 {
-                    outBound               =  toInsert;
+                    outBound = toInsert;
+
                     PublishedTargetLogEntryEvent += toInsert.InBoundListener;
                     return;
                 }
@@ -94,15 +95,9 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
         set
         {
             if (ReferenceEquals(value, finalTarget)) return;
-            if (outBound != null)
-            {
-                RemoveAllToOutBoundTarget();
-            }
+            if (outBound != null) RemoveAllToOutBoundTarget();
             finalTarget = value;
-            if (finalTarget != null)
-            {
-                OutBound = finalTarget;
-            }
+            if (finalTarget != null) OutBound = finalTarget;
         }
     }
 
@@ -119,10 +114,7 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
     {
         if (OutBound != toRemove)
         {
-            if (OutBound is ITargetingFLogEntrySource targetingFLogEntrySource)
-            {
-                return targetingFLogEntrySource.Remove(toRemove);
-            }
+            if (OutBound is ITargetingFLogEntrySource targetingFLogEntrySource) return targetingFLogEntrySource.Remove(toRemove);
             return false;
         }
         while (true)
@@ -132,10 +124,7 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
             {
                 if (OutBound != toRemove)
                 {
-                    if (OutBound is ITargetingFLogEntrySource targetingFLogEntrySource)
-                    {
-                        return targetingFLogEntrySource.Remove(toRemove);
-                    }
+                    if (OutBound is ITargetingFLogEntrySource targetingFLogEntrySource) return targetingFLogEntrySource.Remove(toRemove);
                     return false;
                 }
 
@@ -173,19 +162,9 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
         return count;
     }
 
-    protected event FLogEntryPublishHandler? PublishedTargetLogEntryEvent;
-
-    protected void OnPublishTargetLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromSource)
-    {
-        PublishedTargetLogEntryEvent?.Invoke(logEntryEvent, fromSource );
-    }
-    
-    protected bool HasListeners => PublishedTargetLogEntryEvent != null;
-
     public virtual void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)
     {
         if (ShouldCheckLock)
-        {
             while (true)
             {
                 using var readLock = AcquireReadTreeLock(50);
@@ -195,11 +174,15 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
                     break;
                 }
             }
-        }
         else
-        {
             SafeOnPublishLogEntryEvent(logEntryEvent);
-        }
+    }
+
+    protected event FLogEntryPublishHandler? PublishedTargetLogEntryEvent;
+
+    protected void OnPublishTargetLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromSource)
+    {
+        PublishedTargetLogEntryEvent?.Invoke(logEntryEvent, fromSource);
     }
 
     protected virtual void SafeOnPublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)

@@ -3,7 +3,6 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -13,16 +12,16 @@ namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching
 public interface IExtractKeyExpressionConfig : IFLogConfig, IInterfacesComparable<IExtractKeyExpressionConfig>
   , IConfigCloneTo<IExtractKeyExpressionConfig>, IStyledToStringObject
 {
-    string KeyName            { get; }
-    string ExtractRegEx       { get; }
-    int    ExtractGroupNumber { get; }
+    string KeyName { get; }
+    string ExtractRegEx { get; }
+    int ExtractGroupNumber { get; }
 }
 
 public interface IMutableExtractKeyExpressionConfig : IExtractKeyExpressionConfig, IMutableFLogConfig
 {
-    new string KeyName                { get; set; }
-    new string ExtractRegEx       { get; set; }
-    new int    ExtractGroupNumber { get; set; }
+    new string KeyName { get; set; }
+    new string ExtractRegEx { get; set; }
+    new int ExtractGroupNumber { get; set; }
 }
 
 public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressionConfig
@@ -32,15 +31,15 @@ public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressi
     public ExtractKeyExpressionConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public ExtractKeyExpressionConfig
-    ( string keyName, string extractRegEx, int extractGroupNumber = 0)
+        (string keyName, string extractRegEx, int extractGroupNumber = 0)
         : this(InMemoryConfigRoot, InMemoryPath, keyName, extractRegEx, extractGroupNumber) { }
 
     public ExtractKeyExpressionConfig
-    (IConfigurationRoot root, string path, string keyName, string extractRegEx, int extractGroupNumber = 0)
+        (IConfigurationRoot root, string path, string keyName, string extractRegEx, int extractGroupNumber = 0)
         : base(root, path)
     {
-        KeyName      = keyName;
-        ExtractRegEx = extractRegEx;
+        KeyName            = keyName;
+        ExtractRegEx       = extractRegEx;
         ExtractGroupNumber = extractGroupNumber;
     }
 
@@ -76,25 +75,24 @@ public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressi
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    IExtractKeyExpressionConfig IConfigCloneTo<IExtractKeyExpressionConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        CloneConfigTo(configRoot, path);
+
+    public ExtractKeyExpressionConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
+
     object ICloneable.Clone() => Clone();
 
     IExtractKeyExpressionConfig ICloneable<IExtractKeyExpressionConfig>.Clone() => Clone();
 
     public virtual ExtractKeyExpressionConfig Clone() => new(this);
 
-    IExtractKeyExpressionConfig IConfigCloneTo<IExtractKeyExpressionConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) => 
-        CloneConfigTo(configRoot, path);
-
-    public ExtractKeyExpressionConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        new (this, configRoot, path);
-
     public virtual bool AreEquivalent(IExtractKeyExpressionConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
 
         var extractGrpSame = ExtractGroupNumber == other.ExtractGroupNumber;
-        var regExSame = ExtractRegEx == other.ExtractRegEx;
-        var keyNameSame = KeyName == other.KeyName;
+        var regExSame      = ExtractRegEx == other.ExtractRegEx;
+        var keyNameSame    = KeyName == other.KeyName;
 
         var allAreSame = extractGrpSame && regExSame && keyNameSame;
 
@@ -111,13 +109,10 @@ public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressi
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
-               .Field.AlwaysAdd(nameof(KeyName), KeyName)
-               .Field.AlwaysAdd(nameof(ExtractRegEx), ExtractRegEx)
-               .Field.AlwaysAdd(nameof(ExtractGroupNumber), ExtractGroupNumber)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
+           .Field.AlwaysAdd(nameof(KeyName), KeyName)
+           .Field.AlwaysAdd(nameof(ExtractRegEx), ExtractRegEx)
+           .Field.AlwaysAdd(nameof(ExtractGroupNumber), ExtractGroupNumber)
+           .Complete();
 }

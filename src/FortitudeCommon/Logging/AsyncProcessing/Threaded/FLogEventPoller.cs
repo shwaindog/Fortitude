@@ -1,10 +1,9 @@
-#region
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
-
-#endregion
 
 namespace FortitudeCommon.Logging.AsyncProcessing.Threaded;
 
@@ -12,11 +11,9 @@ internal class FLogEventPoller : IEnumerableBatchPollSink<FLogAsyncPayload>, IRi
 {
     private readonly EnumerableBatchRingPollerSink<FLogAsyncPayload> ringPoller;
 
-    public FLogEventPoller(EnumerableBatchPollingRing<FLogAsyncPayload> ring, uint timeoutMs, IOSParallelController? osParallelController = null)
-    {
+    public FLogEventPoller(EnumerableBatchPollingRing<FLogAsyncPayload> ring, uint timeoutMs, IOSParallelController? osParallelController = null) =>
         ringPoller = new EnumerableBatchRingPollerSink<FLogAsyncPayload>(ring, timeoutMs, this, null
                                                                        , osParallelController ?? new OSParallelController());
-    }
 
     public void Processor(long sequence, long batchSize, FLogAsyncPayload data, bool startOfBatch,
         bool endOfBatch)
@@ -25,12 +22,11 @@ internal class FLogEventPoller : IEnumerableBatchPollSink<FLogAsyncPayload>, IRi
         {
             data.ReceiverExecuteRequest();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Console.Out.WriteLine($"FlogEventPoller caught {ex}");
         }
-        finally
-        { }
+        finally { }
     }
 
     public int UsageCount => ringPoller.UsageCount;

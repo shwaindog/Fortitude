@@ -1,4 +1,7 @@
-﻿namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 
 public interface IBufferedFormatWriter : IFormatWriter
 {

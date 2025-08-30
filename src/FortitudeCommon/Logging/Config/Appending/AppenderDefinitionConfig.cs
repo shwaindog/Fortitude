@@ -2,8 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Configuration;
-using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -27,7 +25,7 @@ public interface IMutableAppenderDefinitionConfig : IAppenderDefinitionConfig, I
 
     new string? InheritFromAppenderName { get; set; }
 
-    new int                  RunOnAsyncQueueNumber { get; set; }
+    new int RunOnAsyncQueueNumber { get; set; }
 
     IMutableAppenderReferenceConfig GenerateReferenceToThis(bool deactivateHere = false);
 }
@@ -52,7 +50,7 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
 
     protected AppenderDefinitionConfig
     (IConfigurationRoot root, string path, string appenderName, string appenderType, int runOnAsyncQueueNumber = 0
-      , string? inheritFromAppenderName = null , bool isTemplateOnlyDefinition = false, bool deactivateHere = false) 
+      , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
         : base(root, path, appenderName, appenderType, deactivateHere)
     {
         RunOnAsyncQueueNumber    = runOnAsyncQueueNumber;
@@ -62,7 +60,7 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
 
     protected AppenderDefinitionConfig
     (IConfigurationRoot root, string path, string appenderName, int runOnAsyncQueueNumber = 0
-      , string? inheritFromAppenderName = null , bool isTemplateOnlyDefinition = false, bool deactivateHere = false) 
+      , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
         : base(root, path, appenderName, deactivateHere)
     {
         RunOnAsyncQueueNumber    = runOnAsyncQueueNumber;
@@ -85,8 +83,8 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
         set => this[nameof(AppenderType)] = value;
     }
 
-    public string? InheritFromAppenderName 
-    { 
+    public string? InheritFromAppenderName
+    {
         get => this[nameof(InheritFromAppenderName)];
         set => this[nameof(InheritFromAppenderName)] = value;
     }
@@ -115,8 +113,6 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
 
     IAppenderDefinitionConfig IAppenderDefinitionConfig.Clone() => Clone();
 
-    public override AppenderDefinitionConfig Clone() => throw new NotImplementedException("Derived classes must override this method");
-
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {
         if (other is not IAppenderDefinitionConfig appenderDefCfg) return false;
@@ -130,6 +126,8 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
 
         return allAreSame;
     }
+
+    public override AppenderDefinitionConfig Clone() => throw new NotImplementedException("Derived classes must override this method");
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IAppenderReferenceConfig, true);
 
@@ -145,16 +143,16 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
         }
     }
 
-    public override string ToString() => this.DefaultToString();
-
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         using var typeBuilder = sbc.StartComplexType(nameof(AppenderDefinitionConfig))
-           .AddBaseFieldsStart();
+                                   .AddBaseFieldsStart();
         base.ToString(sbc);
-            typeBuilder.Field.WhenNonDefaultAdd(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
-                       .Field.WhenNonNullOrDefaultAdd(nameof(InheritFromAppenderName), InheritFromAppenderName)
-                       .Field.WhenNonDefaultAdd(nameof(IsTemplateOnlyDefinition), IsTemplateOnlyDefinition);
+        typeBuilder.Field.WhenNonDefaultAdd(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
+                   .Field.WhenNonNullOrDefaultAdd(nameof(InheritFromAppenderName), InheritFromAppenderName)
+                   .Field.WhenNonDefaultAdd(nameof(IsTemplateOnlyDefinition), IsTemplateOnlyDefinition);
         return typeBuilder;
     }
+
+    public override string ToString() => this.DefaultToString();
 }

@@ -3,7 +3,6 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -19,8 +18,8 @@ public interface IAppenderReferenceConfig : IInterfacesComparable<IAppenderRefer
     string AppenderType { get; }
 
     bool DeactivateHere { get; }
-    
-    ushort AppendOrder { get; }  // If Synchronised will send from lowest to highest order
+
+    ushort AppendOrder { get; } // If Synchronised will send from lowest to highest order
 
     IAppenderDefinitionConfig? ResolveAppenderDefinition();
 
@@ -33,8 +32,8 @@ public interface IMutableAppenderReferenceConfig : IAppenderReferenceConfig, IMu
 
     // can have the values FLoggerBuiltinAppenderType or a .net fully qualified assembly and type namespace
     new string AppenderType { get; set; }
-    
-    new ushort AppendOrder { get; set; } 
+
+    new ushort AppendOrder { get; set; }
 
     new bool DeactivateHere { get; set; }
 
@@ -56,23 +55,23 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
     public AppenderReferenceConfig
         (IConfigurationRoot root, string path, string appenderName, string appenderType, bool deactivateHere = false) : base(root, path)
     {
-        AppenderName = appenderName;
-        AppenderType = appenderType;
-        DeactivateHere  = deactivateHere;
+        AppenderName   = appenderName;
+        AppenderType   = appenderType;
+        DeactivateHere = deactivateHere;
     }
 
     public AppenderReferenceConfig
         (IConfigurationRoot root, string path, string appenderName, bool deactivateHere = false) : base(root, path)
     {
-        AppenderName = appenderName;
-        DeactivateHere  = deactivateHere;
+        AppenderName   = appenderName;
+        DeactivateHere = deactivateHere;
     }
 
     public AppenderReferenceConfig(IAppenderReferenceConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        AppenderName = toClone.AppenderName;
-        AppenderType = toClone.AppenderType;
-        DeactivateHere  = toClone.DeactivateHere;
+        AppenderName   = toClone.AppenderName;
+        AppenderType   = toClone.AppenderType;
+        DeactivateHere = toClone.DeactivateHere;
     }
 
     public AppenderReferenceConfig(IAppenderReferenceConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -94,7 +93,7 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
         get => bool.TryParse(this[nameof(DeactivateHere)], out var disabled) && disabled;
         set => this[nameof(DeactivateHere)] = value.ToString();
     }
-    
+
     public ushort AppendOrder
     {
         get => ushort.TryParse(this[nameof(AppendOrder)], out var procOrder) ? procOrder : (ushort)0;
@@ -103,10 +102,7 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
 
     IAppenderDefinitionConfig? IAppenderReferenceConfig.ResolveAppenderDefinition() => ResolveAppenderDefinition();
 
-    public virtual IMutableAppenderDefinitionConfig? ResolveAppenderDefinition()
-    {
-        return null;
-    }
+    public virtual IMutableAppenderDefinitionConfig? ResolveAppenderDefinition() => null;
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
@@ -116,12 +112,8 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
 
     IAppenderReferenceConfig IAppenderReferenceConfig.Clone() => Clone();
 
-    public virtual AppenderReferenceConfig Clone() => new(this);
-
-    public virtual IAppenderReferenceConfig CloneConfigTo(IConfigurationRoot configRoot, string path)
-    {
-        return new AppenderReferenceConfig(this, configRoot, path);
-    }
+    public virtual IAppenderReferenceConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        new AppenderReferenceConfig(this, configRoot, path);
 
     public virtual bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {
@@ -131,10 +123,12 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
         var typeSame     = AppenderType == other.AppenderType;
         var disabledSame = DeactivateHere == other.DeactivateHere;
 
-        var allAreSame = nameSame && typeSame  && disabledSame;
+        var allAreSame = nameSame && typeSame && disabledSame;
 
         return allAreSame;
     }
+
+    public virtual AppenderReferenceConfig Clone() => new(this);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IAppenderReferenceConfig, true);
 
@@ -149,15 +143,12 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(AppenderReferenceConfig))
-               .Field.WhenNonNullOrDefaultAdd(nameof(AppenderName), AppenderName)
-               .Field.WhenNonNullOrDefaultAdd(nameof(AppenderType), AppenderType)
-               .Field.WhenNonDefaultAdd(nameof(DeactivateHere), DeactivateHere)
-               .Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(AppenderReferenceConfig))
+           .Field.WhenNonNullOrDefaultAdd(nameof(AppenderName), AppenderName)
+           .Field.WhenNonNullOrDefaultAdd(nameof(AppenderType), AppenderType)
+           .Field.WhenNonDefaultAdd(nameof(DeactivateHere), DeactivateHere)
+           .Complete();
 
     public override string ToString() => this.DefaultToString();
 }

@@ -1,8 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -29,14 +27,14 @@ public interface IMutableMatchEntryContainsStringConfig : IMatchEntryContainsStr
 
 public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatchEntryContainsStringConfig
 {
-    public MatchEntryContainsStringConfig(IConfigurationRoot root, string path) 
+    public MatchEntryContainsStringConfig(IConfigurationRoot root, string path)
         : base(root, path) { }
 
-    public MatchEntryContainsStringConfig() 
+    public MatchEntryContainsStringConfig()
         : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public MatchEntryContainsStringConfig
-    (string entryContains, LogEntryField matchOn = LogEntryField.MessageBody, bool isRegEx = false)
+        (string entryContains, LogEntryField matchOn = LogEntryField.MessageBody, bool isRegEx = false)
         : this(InMemoryConfigRoot, InMemoryPath, entryContains, matchOn, isRegEx)
     {
         EntryContains = entryContains;
@@ -46,7 +44,7 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
     }
 
     public MatchEntryContainsStringConfig
-    (IConfigurationRoot root, string path, string entryContains, LogEntryField matchOn = LogEntryField.MessageBody, bool isRegEx = false)
+        (IConfigurationRoot root, string path, string entryContains, LogEntryField matchOn = LogEntryField.MessageBody, bool isRegEx = false)
         : base(root, path, FLoggerEntryMatchType.LogLevelComparison)
     {
         EntryContains = entryContains;
@@ -55,7 +53,7 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
         IsRegEx = isRegEx;
     }
 
-    public MatchEntryContainsStringConfig(IMatchEntryContainsStringConfig toClone, IConfigurationRoot root, string path) 
+    public MatchEntryContainsStringConfig(IMatchEntryContainsStringConfig toClone, IConfigurationRoot root, string path)
         : base(toClone, root, path)
     {
         EntryContains = toClone.EntryContains;
@@ -64,7 +62,7 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
         IsRegEx = toClone.IsRegEx;
     }
 
-    public MatchEntryContainsStringConfig(IMatchEntryContainsStringConfig toClone) 
+    public MatchEntryContainsStringConfig(IMatchEntryContainsStringConfig toClone)
         : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
     public string EntryContains
@@ -90,10 +88,9 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    public override MatchEntryContainsStringConfig Clone() => new(this);
+    public override MatchEntryContainsStringConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 
-    public override MatchEntryContainsStringConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
-        new (this, configRoot, path);
+    public override MatchEntryContainsStringConfig Clone() => new(this);
 
     public override bool AreEquivalent(IMatchConditionConfig? other, bool exactTypes = false)
     {
@@ -118,14 +115,11 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        return
-            sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
-               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
-               .Field.AlwaysAdd(nameof(MatchOn), MatchOn)
-               .Field.AlwaysAdd(nameof(EntryContains), EntryContains)
-               .Field.WhenNonDefaultAdd(nameof(IsRegEx), IsRegEx)
-               .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
+           .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
+           .Field.AlwaysAdd(nameof(MatchOn), MatchOn)
+           .Field.AlwaysAdd(nameof(EntryContains), EntryContains)
+           .Field.WhenNonDefaultAdd(nameof(IsRegEx), IsRegEx)
+           .Complete();
 }

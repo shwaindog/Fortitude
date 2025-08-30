@@ -1,4 +1,7 @@
-﻿using System.Globalization;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Globalization;
 using System.Reflection;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending;
@@ -20,22 +23,20 @@ public static class AppenderBuiltinFactoryMethods
         var appenderTypeConfig = appenderConfig.AppenderType;
         switch (appenderTypeConfig)
         {
-            case nameof(NullEntry):               return new NullAppender((NullAppenderConfig)appenderConfig);
+            case nameof(NullEntry):          return new NullAppender((NullAppenderConfig)appenderConfig);
             case nameof(BufferedForwarding): return new FLogBufferingAppender((IBufferingAppenderConfig)appenderConfig, context);
             case nameof(ConsoleOut):         return new FLogConsoleAppender((IConsoleAppenderConfig)appenderConfig, context);
-            case nameof(NullConsole):         return new NullConsoleAppender((IConsoleAppenderConfig)appenderConfig, context);
+            case nameof(NullConsole):        return new NullConsoleAppender((IConsoleAppenderConfig)appenderConfig, context);
             case nameof(FileUnbounded):      return new FLogFileAppender((IFileAppenderConfig)appenderConfig, context);
-            case nameof(NullFile):      return new NullFileAppender((IFileAppenderConfig)appenderConfig, context);
+            case nameof(NullFile):           return new NullFileAppender((IFileAppenderConfig)appenderConfig, context);
             case nameof(ForwardingAppender): return new FLogForwardingAppender((IForwardingAppenderConfig)appenderConfig, context);
 
             default:
                 string[] assemblyAndTypeFullName;
                 if (appenderTypeConfig.IsNotNullOrEmpty() && (assemblyAndTypeFullName = appenderTypeConfig.Split(',', 2)).Length == 2)
-                {
                     return (IMutableFLogAppender?)Activator.CreateInstanceFrom
                         (assemblyAndTypeFullName[0], assemblyAndTypeFullName[1], true, BindingFlags.CreateInstance
                        , null, [appenderConfig, context], CultureInfo.InvariantCulture, [])!.Unwrap();
-                }
                 return null;
         }
     }

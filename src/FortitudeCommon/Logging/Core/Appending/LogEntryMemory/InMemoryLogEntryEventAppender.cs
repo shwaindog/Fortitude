@@ -9,14 +9,10 @@ namespace FortitudeCommon.Logging.Core.Appending.LogEntryMemory;
 
 public abstract class InMemoryLogEntryEventAppender : FLogAppender
 {
-    protected InMemoryLogEntryEventAppender(string appenderName) : base(new SizedMemoryAppenderConfig(appenderName), FLogContext.Context)
-    {
-    }
+    protected InMemoryLogEntryEventAppender(string appenderName) : base(new SizedMemoryAppenderConfig(appenderName), FLogContext.Context) { }
 
-    protected InMemoryLogEntryEventAppender(string appenderName, int initialCapacity) 
-        : base(new SizedMemoryAppenderConfig(appenderName, initialCapacity), FLogContext.Context)
-    {
-    }
+    protected InMemoryLogEntryEventAppender(string appenderName, int initialCapacity)
+        : base(new SizedMemoryAppenderConfig(appenderName, initialCapacity), FLogContext.Context) { }
 
     public override ISizedMemoryAppenderConfig GetAppenderConfig() => (ISizedMemoryAppenderConfig)AppenderConfig;
 

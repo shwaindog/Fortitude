@@ -1,10 +1,13 @@
-﻿using FortitudeCommon.Logging.Config;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConditionalFormattingCommands;
 
-public class LogLevelConditionalFormatTemplatePart(FLogLevel fLogLevel, string command) 
+public class LogLevelConditionalFormatTemplatePart(FLogLevel fLogLevel, string command)
     : AppenderCommandTemplatePart(FormattingAppenderSinkType.Any, command)
 {
     private readonly List<ITemplatePart> conditionalMetRunParts = TokenisedLogEntryFormatStringParser.Instance.BuildTemplateParts(command);
@@ -13,12 +16,8 @@ public class LogLevelConditionalFormatTemplatePart(FLogLevel fLogLevel, string c
     {
         var charsAppended = 0;
         if (logEntry.LogLevel == fLogLevel)
-        {
             foreach (var conditionalMetRunPart in conditionalMetRunParts)
-            {
                 charsAppended += conditionalMetRunPart.Apply(formatWriter, logEntry);
-            }
-        }
         return charsAppended;
     }
 }
