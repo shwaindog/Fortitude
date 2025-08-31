@@ -184,17 +184,12 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb =
-            sbc.StartComplexType(nameof(AsyncForwardingAppendersConfig))
-               .Field.AlwaysAdd(nameof(AsyncType), AsyncType)
-               .AddBaseFieldsStart();
-        base.ToString(sbc);
-        tb.Field.AlwaysAdd(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling)
-          .Field.AlwaysAdd(nameof(Broadcast), Broadcast)
-          .Field.AlwaysAdd(nameof(MaxDispatchUnconfirmed), MaxDispatchUnconfirmed)
-          .Field.AlwaysAdd(nameof(AsyncReceiveQueue), AsyncReceiveQueue);
-        return tb;
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(AsyncForwardingAppendersConfig))
+           .Field.AlwaysAdd(nameof(AsyncType), AsyncType)
+           .AddBaseStyledToStringFields(this)
+           .Field.AlwaysAdd(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling)
+           .Field.AlwaysAdd(nameof(Broadcast), Broadcast)
+           .Field.AlwaysAdd(nameof(MaxDispatchUnconfirmed), MaxDispatchUnconfirmed)
+           .Field.AlwaysAdd(nameof(AsyncReceiveQueue), AsyncReceiveQueue).Complete();
 }

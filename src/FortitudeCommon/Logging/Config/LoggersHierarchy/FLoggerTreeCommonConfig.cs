@@ -23,9 +23,9 @@ public interface IFLoggerTreeCommonConfig : IFLoggerMatchedAppenders, IInterface
 
     FLogLevel LogLevel { get; }
 
-    IActivationProfileConfig DescendantActivation { get; }
+    IFLoggerActivationConfig DescendantActivation { get; }
 
-    IActivationProfileConfig FLogEnvironment { get; }
+    IFLogBuildTypeAndDeployEnvConfig FLogEnvironment { get; }
 
     IFLogEntryPoolConfig? LogEntryPool { get; }
 
@@ -38,9 +38,9 @@ public interface IMutableFLoggerTreeCommonConfig : IFLoggerTreeCommonConfig, IMu
 
     new FLogLevel LogLevel { get; set; }
 
-    new IMutableActivationProfileConfig DescendantActivation { get; set; }
+    new IMutableFLoggerActivationConfig DescendantActivation { get; set; }
 
-    new IMutableActivationProfileConfig FLogEnvironment { get; set; }
+    new IMutableFLogBuildTypeAndDeployEnvConfig FLogEnvironment { get; set; }
 
     new IMutableFLogEntryPoolConfig? LogEntryPool { get; set; }
 
@@ -51,8 +51,8 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
 {
     private IMutableNamedChildLoggersLookupConfig? loggersConfig;
 
-    protected IMutableActivationProfileConfig? LoggerActivationConfig;
-    protected IMutableActivationProfileConfig? FlogLoggerEnvironment;
+    protected IMutableFLoggerActivationConfig?         LoggerActivationConfig;
+    protected IMutableFLogBuildTypeAndDeployEnvConfig? FlogLoggerEnvironment;
 
     public FLoggerTreeCommonConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
@@ -148,16 +148,16 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         set => this[nameof(Name)] = value;
     }
 
-    IActivationProfileConfig IFLoggerTreeCommonConfig.DescendantActivation => DescendantActivation;
+    IFLoggerActivationConfig IFLoggerTreeCommonConfig.DescendantActivation => DescendantActivation;
 
-    IActivationProfileConfig IFLoggerTreeCommonConfig.FLogEnvironment => FLogEnvironment;
+    IFLogBuildTypeAndDeployEnvConfig IFLoggerTreeCommonConfig.FLogEnvironment => FLogEnvironment;
 
-    public virtual IMutableActivationProfileConfig DescendantActivation
+    public virtual IMutableFLoggerActivationConfig DescendantActivation
     {
         get
         {
             if (LoggerActivationConfig != null) return LoggerActivationConfig;
-            IActivationProfileConfig? parentActivation = null;
+            IFLoggerActivationConfig? parentActivation = null;
             if (ParentConfig is IFLoggerTreeCommonConfig parentLoggerConfig)
             {
                 parentActivation = parentLoggerConfig.DescendantActivation;
@@ -166,32 +166,32 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         }
         set
         {
-            _ = new ActivationProfileConfig(value, ConfigRoot, $"{Path}{Split}{nameof(DescendantActivation)}");
+            _ = new FLogBuildTypeAndDeployEnvConfig(value, ConfigRoot, $"{Path}{Split}{nameof(DescendantActivation)}");
 
             value.ParentConfig = this;
         }
     }
 
-    protected IMutableActivationProfileConfig GetDescendantConfig(IActivationProfileConfig? parentActivation = null)
+    protected IMutableFLoggerActivationConfig GetDescendantConfig(IFLoggerActivationConfig? parentActivation = null)
     {
-        LoggerActivationConfig = new ActivationProfileConfig(ConfigRoot, $"{Path}{Split}{nameof(DescendantActivation)}", parentActivation)
+        LoggerActivationConfig = new FLoggerActivationConfig(ConfigRoot, $"{Path}{Split}{nameof(DescendantActivation)}", parentActivation)
         {
             ParentConfig = this
         };
         return LoggerActivationConfig;
     }
 
-    public IMutableActivationProfileConfig FLogEnvironment
+    public IMutableFLogBuildTypeAndDeployEnvConfig FLogEnvironment
     {
         get
         {
             if (FlogLoggerEnvironment != null) return FlogLoggerEnvironment;
-            IActivationProfileConfig? parentActivation = null;
+            IFLogBuildTypeAndDeployEnvConfig? parentActivation = null;
             if (ParentConfig is IFLoggerTreeCommonConfig parentLoggerConfig)
             {
                 parentActivation = parentLoggerConfig.FLogEnvironment;
             }
-            FlogLoggerEnvironment = new ActivationProfileConfig(ConfigRoot, $"{Path}{Split}{nameof(FLogEnvironment)}", parentActivation)
+            FlogLoggerEnvironment = new FLogBuildTypeAndDeployEnvConfig(ConfigRoot, $"{Path}{Split}{nameof(FLogEnvironment)}", parentActivation)
             {
                 ParentConfig = this
             };
@@ -199,7 +199,7 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         }
         set
         {
-            _ = new ActivationProfileConfig(value, ConfigRoot, $"{Path}{Split}{nameof(FLogEnvironment)}");
+            _ = new FLogBuildTypeAndDeployEnvConfig(value, ConfigRoot, $"{Path}{Split}{nameof(FLogEnvironment)}");
 
             value.ParentConfig = this;
         }

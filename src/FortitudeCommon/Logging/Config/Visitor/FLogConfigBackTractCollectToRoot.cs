@@ -76,10 +76,10 @@ public class FLogConfigBackTractCollectToRoot<T, TCollect>(List<TCollect> found,
         return Me;
     }
 
-    public override T Accept(IMutableActivationProfileConfig activationProfileConfig)
+    public override T Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig)
     {
-        if (activationProfileConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        activationProfileConfig.ParentConfig?.Visit(Me);
+        if (fLogDeployEnvBuildTypeConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        fLogDeployEnvBuildTypeConfig.ParentConfig?.Visit(Me);
         return Me;
     }
 

@@ -35,7 +35,7 @@ public interface IFLogConfigVisitor<TBase> : IReusableObject<IFLogConfigVisitor<
 
     TBase Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig);
     
-    TBase Accept(IMutableActivationProfileConfig activationProfileConfig);
+    TBase Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig);
 
     TBase Accept(IMutableAppenderReferenceConfig appenderConfig);
 
@@ -105,7 +105,7 @@ public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLog
 
     public virtual T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig) => (T)this;
     
-    public virtual T Accept(IMutableActivationProfileConfig activationProfileConfig) => (T)this;
+    public virtual T Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig) => (T)this;
 
     public virtual T Accept(IMutableFLogEntryPoolConfig entryPoolConfig) => (T)this;
 

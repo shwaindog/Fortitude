@@ -44,9 +44,9 @@ public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
             base.Config = value;
 
             CurrentFLoggerExecutionEnvironment = value.FLogEnvironment.AsLoggerActionFlags;
-            ConfigActivationProfile = (value is IMutableFLoggerDescendantConfig descendantConfig
-                ? descendantConfig.JustThisLoggerActivation?.AsLoggerActionFlags
-                : null) ?? value.DescendantActivation.AsLoggerActionFlags;
+            var descendantConfig = value as IMutableFLoggerDescendantConfig;
+            ConfigActivationProfile = descendantConfig?.JustThisLoggerActivation?.AsLoggerActionFlags
+                 ?? value.DescendantActivation.AsLoggerActionFlags;
         }
     }
 

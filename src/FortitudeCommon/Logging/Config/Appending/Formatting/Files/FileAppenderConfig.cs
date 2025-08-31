@@ -234,18 +234,13 @@ public class FileAppenderConfig : BufferingFormatAppenderConfig, IMutableFileApp
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb =
-            sbc.StartComplexType(nameof(FileAppenderConfig))
-               .Field.AlwaysAdd(nameof(FileAppenderType), FileAppenderType)
-               .Field.AlwaysAdd(nameof(CompressionType), CompressionType)
-               .Field.AlwaysAdd(nameof(FileEncoding), FileEncoding)
-               .Field.AlwaysAdd(nameof(FileName), FileName)
-               .Field.AlwaysAdd(nameof(FilePath), FilePath)
-               .Field.WhenNonDefaultAdd(nameof(CloseDelayMs), CloseDelayMs, 2_000)
-               .AddBaseFieldsStart();
-        base.ToString(sbc);
-        return tb.Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FileAppenderConfig))
+           .Field.AlwaysAdd(nameof(FileAppenderType), FileAppenderType)
+           .Field.AlwaysAdd(nameof(CompressionType), CompressionType)
+           .Field.AlwaysAdd(nameof(FileEncoding), FileEncoding)
+           .Field.AlwaysAdd(nameof(FileName), FileName)
+           .Field.AlwaysAdd(nameof(FilePath), FilePath)
+           .Field.WhenNonDefaultAdd(nameof(CloseDelayMs), CloseDelayMs, 2_000)
+           .AddBaseStyledToStringFields(this).Complete();
 }

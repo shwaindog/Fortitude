@@ -126,13 +126,10 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb = sbc.StartComplexType(nameof(BufferingAppenderConfig))
-                          .AddBaseFieldsStart();
-        base.ToString(sbc);
-        return tb.Field.AlwaysAdd(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
-                 .Field.AlwaysAdd(nameof(FlushLogLevel), FlushLogLevel)
-                 .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(BufferingAppenderConfig))
+           .AddBaseStyledToStringFields(this)
+           .Field.AlwaysAdd(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
+           .Field.AlwaysAdd(nameof(FlushLogLevel), FlushLogLevel)
+           .Complete();
 }

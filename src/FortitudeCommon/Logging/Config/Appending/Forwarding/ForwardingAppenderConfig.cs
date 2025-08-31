@@ -118,12 +118,8 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb = sbc.StartComplexType(nameof(ForwardingAppenderConfig))
-                          .AddBaseFieldsStart();
-        base.ToString(sbc);
-        tb.Field.AlwaysAdd(nameof(ForwardToAppenders), ForwardToAppenders);
-        return tb;
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(ForwardingAppenderConfig))
+           .AddBaseStyledToStringFields(this)
+           .Field.AlwaysAdd(nameof(ForwardToAppenders), ForwardToAppenders).Complete();
 }

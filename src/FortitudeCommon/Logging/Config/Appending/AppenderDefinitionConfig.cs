@@ -143,16 +143,12 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
         }
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var typeBuilder = sbc.StartComplexType(nameof(AppenderDefinitionConfig))
-                                   .AddBaseFieldsStart();
-        base.ToString(sbc);
-        typeBuilder.Field.WhenNonDefaultAdd(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
-                   .Field.WhenNonNullOrDefaultAdd(nameof(InheritFromAppenderName), InheritFromAppenderName)
-                   .Field.WhenNonDefaultAdd(nameof(IsTemplateOnlyDefinition), IsTemplateOnlyDefinition);
-        return typeBuilder;
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(AppenderDefinitionConfig))
+           .AddBaseStyledToStringFields(this)
+           .Field.WhenNonDefaultAdd(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
+           .Field.WhenNonNullOrDefaultAdd(nameof(InheritFromAppenderName), InheritFromAppenderName)
+           .Field.WhenNonDefaultAdd(nameof(IsTemplateOnlyDefinition), IsTemplateOnlyDefinition).Complete();
 
     public override string ToString() => this.DefaultToString();
 }

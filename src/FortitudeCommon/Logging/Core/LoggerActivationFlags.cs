@@ -9,42 +9,42 @@ namespace FortitudeCommon.Logging.Core;
 [Flags]
 public enum LoggerActivationFlags : uint
 {
-    Disabled                      = 0x00_00_00_00
-  , MergeConfigBuildType          = 0x00_00_00_01
-  , MergeConfigDeployEnv          = 0x00_00_00_02
-  , MergeLoggerActivationConfig   = 0x00_00_00_03
-  , DebugBuild                    = 0x00_00_00_04
-  , DebugBuildAnyDeployEnv        = 0x08_00_00_04
-  , ReleaseBuild                  = 0x00_00_00_08
-  , ReleaseBuildAnyDeployEnv      = 0x08_00_00_08
-  , AnyBuildType                  = 0x00_00_00_0C
-  , DevEnv                        = 0x00_00_00_10
-  , DevEnvBuildType               = 0x04_00_00_10
-  , TestEnv                       = 0x00_00_00_20
-  , TestEnvAnyBuildType           = 0x04_00_00_20
-  , TestEnvOrLower                = 0x00_00_00_30
-  , TestEnvOrLowerAnyBuildType    = 0x04_00_00_30
-  , PreReleaseEnv                 = 0x00_00_00_40
-  , PreReleaseAnyBuildType        = 0x04_00_00_40
-  , PreReleaseOrLower             = 0x00_00_00_70
-  , PreReleaseOrLowerAnyBuildType = 0x04_00_00_70
-  , PerfEnv                       = 0x00_00_00_80
-  , PerfEnvAnyBuildType           = 0x04_00_00_80
-  , PerfEnvOrLower                = 0x00_00_00_F0
-  , PerfEnvOrLowerAnyBuildType    = 0x04_00_00_F0
-  , ProdEnv                       = 0x00_00_01_00
-  , ProdEnvAnyBuildType           = 0x04_00_01_00
-  , AnyDeployEnv                  = 0x00_00_01_F0
-  , AnyDeployEnvAnyBuildType      = 0x0C_00_01_F0
-  , StopWatch                     = 0x00_00_02_00
-  , AlwaysForFLogLevel            = 0x0C_00_03_FC
+    Disabled                         = 0x00_00_00_00
+  , MergeConfigBuildType             = 0x00_00_00_01
+  , MergeConfigDeployEnv             = 0x00_00_00_02
+  , MergeLoggerActivationConfig      = 0x00_00_00_03
+  , DebugBuild                       = 0x00_00_00_04
+  , DebugBuildAnyDeployEnv           = 0x08_00_00_04
+  , ReleaseBuild                     = 0x00_00_00_08
+  , ReleaseBuildAnyDeployEnv         = 0x08_00_00_08
+  , AnyBuildType                     = 0x00_00_00_0C
+  , DevEnv                           = 0x00_00_00_10
+  , DevEnvBuildType                  = 0x04_00_00_10
+  , TestEnv                          = 0x00_00_00_20
+  , TestEnvAnyBuildType              = 0x04_00_00_20
+  , TestEnvOrLower                   = 0x00_00_00_30
+  , TestEnvOrLowerAnyBuildType       = 0x04_00_00_30
+  , PreReleaseEnv                    = 0x00_00_00_40
+  , PreReleaseEnvAnyBuildType        = 0x04_00_00_40
+  , PreReleaseEnvOrLower             = 0x00_00_00_70
+  , PreReleaseEnvOrLowerAnyBuildType = 0x04_00_00_70
+  , PerfEnv                          = 0x00_00_00_80
+  , PerfEnvAnyBuildType              = 0x04_00_00_80
+  , PerfEnvOrLower                   = 0x00_00_00_F0
+  , PerfEnvOrLowerAnyBuildType       = 0x04_00_00_F0
+  , ProdEnv                          = 0x00_00_01_00
+  , ProdEnvAnyBuildType              = 0x04_00_01_00
+  , AnyDeployEnv                     = 0x00_00_01_F0
+  , AnyDeployEnvAnyBuildType         = 0x0C_00_01_F0
+  , StopWatch                        = 0x00_00_02_00
+  , AlwaysForFLogLevel               = 0x0C_00_03_FC
 
-  , AtIntervalPerCallLocation = 0x00_00_04_00
-  , AtIntervalLoggerGlobal    = 0x00_00_08_00
-  , PerCorrelationIdInterval  = 0x00_00_10_00
-  , AddSkipCount              = 0x00_00_20_00
-  , PerLocationTimeInterval   = 0x00_00_40_00
-  , GlobalLoggerTimeInterval  = 0x00_00_80_00
+  , AtIntervalPerCallLocation        = 0x00_00_04_00
+  , AtIntervalLoggerGlobal           = 0x00_00_08_00
+  , PerCorrelationIdInterval         = 0x00_00_10_00
+  , PerLocationPercentilesAtInterval = 0x00_00_20_00
+  , PerLocationTimeInterval          = 0x00_00_40_00
+  , GlobalLoggerTimeInterval         = 0x00_00_80_00
 
   , LargeMessage     = 0x00_01_00_00
   , VeryLargeMessage = 0x00_02_00_00
@@ -66,10 +66,10 @@ public enum LoggerActivationFlags : uint
   , NoDeployEnvExclusions  = 0x08_00_00_03
   , NoActivationExclusions = 0x0C_00_00_03
 
-  , PerLocationPercentilesAtInterval = 0x10_00_00_00
-  , CacheBacktraceReleaseOnly        = 0x20_00_00_03
-  , CheckMemberCallConfig            = 0x40_00_00_00
-  , IgnoreLogLevelExclusions         = 0x80_00_00_00
+  , CacheBacktraceReleaseOnly = 0x10_00_00_03
+  , CheckMemberCallConfig     = 0x20_00_00_00
+  , IgnoreLogLevelExclusions  = 0x40_00_00_00
+  , ConfigReplaceCallerFlags  = 0x80_00_00_00
 }
 
 public static class LoggerActivationFlagsExtensions
@@ -100,34 +100,34 @@ public static class LoggerActivationFlagsExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool DeploymentProfileMeetsCriteria(this LoggerActivationFlags loggerActivationFlags
+    public static bool DeploymentProfileMeetsCriteria(this LoggerActivationFlags requestActivationFlags
       , FlogDeploymentEnvironmentProfileType currentBuildProfile)
     {
         var buildProfileUint    = (uint)currentBuildProfile;
         var buildProfileShifted = currentBuildProfile.AllToNoneOrOriginalAsUint() << 16;
-        var activateFlagsUint   = (uint)loggerActivationFlags;
+        var activateFlagsUint   = (uint)requestActivationFlags;
         return (buildProfileUint & activateFlagsUint) > 0 && (buildProfileShifted & activateFlagsUint) == 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool BuildProfileMeetsCriteria(this LoggerActivationFlags loggerActivationFlags, FLogBuildTypeProfile currentFLogBuildTypeProfile)
+    public static bool BuildProfileMeetsCriteria(this LoggerActivationFlags requestActivationFlags, FLogBuildTypeProfile currentFLogBuildTypeProfile)
     {
         var buildProfileUint    = (uint)currentFLogBuildTypeProfile;
         var buildProfileShifted = currentFLogBuildTypeProfile.AllToNoneOrOriginalAsUint() << 16;
-        var activateFlagsUint   = (uint)loggerActivationFlags;
+        var activateFlagsUint   = (uint)requestActivationFlags;
         return (buildProfileUint & activateFlagsUint) > 0 && (buildProfileShifted & activateFlagsUint) == 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static LoggerActivationFlags MergeWithConfigIfAllowed(this LoggerActivationFlags received, LoggerActivationFlags configActivationProfile)
+    public static LoggerActivationFlags MergeWithConfigIfAllowed(this LoggerActivationFlags callerFlags, LoggerActivationFlags configActivationProfile)
     {
-        if (received.HasMergeInConfigProfile())
-        {
-            var activationProfile                                   = (uint)configActivationProfile;
-            if (received.HasMergeBuildConfigProfile()) received     |= (LoggerActivationFlags)(activationProfile & BuildTypesMask);
-            if (received.HasMergeDeployEnvConfigProfile()) received |= (LoggerActivationFlags)(activationProfile & DeploymentEnvironmentMask);
-        }
-        return received;
+        if (configActivationProfile.HasConfigReplaceCallerFlags()) return configActivationProfile;
+
+        var activationProfile = (uint)configActivationProfile;
+
+        if (callerFlags.HasMergeBuildConfigProfile()) callerFlags     |= (LoggerActivationFlags)(activationProfile & BuildTypesMask);
+        if (callerFlags.HasMergeDeployEnvConfigProfile()) callerFlags |= (LoggerActivationFlags)(activationProfile & DeploymentEnvironmentMask);
+        return callerFlags;
     }
 
 
@@ -151,7 +151,7 @@ public static class LoggerActivationFlagsExtensions
     public static bool HasPreReleaseEnv(this LoggerActivationFlags flags) => (flags & LoggerActivationFlags.PreReleaseEnv) > 0;
 
     public static bool HasPreReleaseOrLower(this LoggerActivationFlags flags) =>
-        (flags & LoggerActivationFlags.PreReleaseOrLower) == LoggerActivationFlags.PreReleaseOrLower;
+        (flags & LoggerActivationFlags.PreReleaseEnvOrLower) == LoggerActivationFlags.PreReleaseEnvOrLower;
 
     public static bool HasPerfEnv(this LoggerActivationFlags flags) => (flags & LoggerActivationFlags.PerfEnv) > 0;
 
@@ -172,7 +172,10 @@ public static class LoggerActivationFlagsExtensions
     public static bool HasAtIntervalPerLocation(this LoggerActivationFlags flags)    => (flags & LoggerActivationFlags.AtIntervalPerCallLocation) > 0;
     public static bool HasAtIntervalLoggerGlobal(this LoggerActivationFlags flags)   => (flags & LoggerActivationFlags.AtIntervalLoggerGlobal) > 0;
     public static bool HasPerCorrelationIdInterval(this LoggerActivationFlags flags) => (flags & LoggerActivationFlags.PerCorrelationIdInterval) > 0;
-    public static bool HasAddSkipCount(this LoggerActivationFlags flags)             => (flags & LoggerActivationFlags.AddSkipCount) > 0;
+
+    public static bool HasPerLocationPercentilesAtInterval(this LoggerActivationFlags flags) =>
+        (flags & LoggerActivationFlags.PerLocationPercentilesAtInterval) > 0;
+
     public static bool HasPerLocationTimeInterval(this LoggerActivationFlags flags)  => (flags & LoggerActivationFlags.PerLocationTimeInterval) > 0;
     public static bool HasGlobalLoggerTimeInterval(this LoggerActivationFlags flags) => (flags & LoggerActivationFlags.GlobalLoggerTimeInterval) > 0;
 
@@ -199,11 +202,9 @@ public static class LoggerActivationFlagsExtensions
 
     public static bool HasNoActivationExclusions(this LoggerActivationFlags flags) => (flags & LoggerActivationFlags.NoActivationExclusions) > 0;
 
-    public static bool HasPerLocationPercentilesAtInterval(this LoggerActivationFlags flags) =>
-        (flags & LoggerActivationFlags.PerLocationPercentilesAtInterval) > 0;
+    public static bool HasConfigReplaceCallerFlags(this LoggerActivationFlags flags) => (flags & LoggerActivationFlags.ConfigReplaceCallerFlags) > 0;
 
-    public static bool HasCacheBacktraceReleaseOnly(this LoggerActivationFlags flags) =>
-        (flags & LoggerActivationFlags.CacheBacktraceReleaseOnly) > 0;
+    public static bool HasCacheBacktraceReleaseOnly(this LoggerActivationFlags flags) => (flags & LoggerActivationFlags.CacheBacktraceReleaseOnly) > 0;
 
     public static bool HasCheckMemberCallConfig(this LoggerActivationFlags flags) => (flags & LoggerActivationFlags.CheckMemberCallConfig) > 0;
 

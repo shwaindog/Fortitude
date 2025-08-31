@@ -19,7 +19,7 @@ public interface IFLoggerDescendantConfig : IFLoggerTreeCommonConfig, IConfigClo
 
     bool Inherits { get; }
 
-    IActivationProfileConfig? JustThisLoggerActivation { get; }
+    IFLoggerActivationConfig? JustThisLoggerActivation { get; }
 
     new IFLoggerDescendantConfig Clone();
 
@@ -31,7 +31,8 @@ public interface IMutableFLoggerDescendantConfig : IFLoggerDescendantConfig, IMu
     new IFLoggerTreeCommonConfig ParentLoggerConfig { get; set; }
 
     new bool Inherits { get; set; }
-    new IMutableActivationProfileConfig? JustThisLoggerActivation { get; set; }
+    
+    new IMutableFLoggerActivationConfig? JustThisLoggerActivation { get; set; }
 
     IMutableFLoggerDescendantConfig CreateInheritedDescendantConfig(IFLoggerTreeCommonConfig ancestorConfig);
 
@@ -73,21 +74,21 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
         set => this[nameof(Inherits)] = value.ToString();
     }
 
-    IActivationProfileConfig? IFLoggerDescendantConfig.JustThisLoggerActivation => JustThisLoggerActivation;
+    IFLoggerActivationConfig? IFLoggerDescendantConfig.JustThisLoggerActivation => JustThisLoggerActivation;
 
-    public IMutableActivationProfileConfig? JustThisLoggerActivation
+    public IMutableFLoggerActivationConfig? JustThisLoggerActivation
     {
         get
         {
             if (GetSection(nameof(LogEntryPool)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
             {
                 if (LoggerActivationConfig != null) return LoggerActivationConfig;
-                IActivationProfileConfig? parentActivation = null;
+                IFLoggerActivationConfig? parentActivation = null;
                 if (ParentConfig is IFLoggerTreeCommonConfig parentLoggerConfig)
                 {
                     parentActivation = parentLoggerConfig.DescendantActivation;
                 }
-                return new ActivationProfileConfig(ConfigRoot, $"{Path}{Split}{nameof(FLogEnvironment)}", parentActivation)
+                return new FLoggerActivationConfig(ConfigRoot, $"{Path}{Split}{nameof(FLogEnvironment)}", parentActivation)
                 {
                     ParentConfig = this
                 };
@@ -97,7 +98,7 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
         set
         {
             if (value == null) return;
-            _ = new ActivationProfileConfig(value, ConfigRoot, $"{Path}{Split}{nameof(JustThisLoggerActivation)}");
+            _ = new FLogBuildTypeAndDeployEnvConfig(value, ConfigRoot, $"{Path}{Split}{nameof(JustThisLoggerActivation)}");
 
             value.ParentConfig = this;
         }

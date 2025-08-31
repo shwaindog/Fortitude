@@ -90,9 +90,9 @@ public class FlogConfigVisitChildrenCollect<T, TCollect>(List<TCollect> found, P
         return Me;
     }
 
-    public override T Accept(IMutableActivationProfileConfig activationProfileConfig)
+    public override T Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig)
     {
-        if (activationProfileConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        if (fLogDeployEnvBuildTypeConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 

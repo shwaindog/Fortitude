@@ -116,15 +116,11 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
         }
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb =
-            sbc.StartComplexType(nameof(FLogFileConfigSourceConfig))
-               .AddBaseFieldsStart();
-        base.ToString(sbc);
-        return tb.Field.AlwaysAdd(nameof(FilePath), FilePath)
-                 .Field.AlwaysAdd(nameof(FileSystemMonitored), FileSystemMonitored)
-                 .Field.AlwaysAdd(nameof(PollInterval), PollInterval)
-                 .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FLogFileConfigSourceConfig))
+           .AddBaseStyledToStringFields(this)
+           .Field.AlwaysAdd(nameof(FilePath), FilePath)
+           .Field.AlwaysAdd(nameof(FileSystemMonitored), FileSystemMonitored)
+           .Field.AlwaysAdd(nameof(PollInterval), PollInterval)
+           .Complete();
 }
