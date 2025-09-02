@@ -107,13 +107,9 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb =
-            sbc.StartComplexType(nameof(FilteringForwardingAppenderConfig))
-               .AddBaseFieldsStart();
-        base.ToString(sbc);
-        return tb.Field.AlwaysAdd(nameof(When), When)
-                 .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FilteringForwardingAppenderConfig))
+           .AddBaseStyledToStringFields(this)
+           .Field.AlwaysAdd(nameof(When), When)
+           .Complete();
 }

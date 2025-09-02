@@ -15,36 +15,6 @@ using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core;
 
-[Flags]
-public enum LoggerActivationFlags : uint
-{
-    Disabled                    = 0x00_00_00_00
-  , WhenNoBacktrace             = 0x00_00_00_01
-  , WhenBacktrace               = 0x00_00_00_02
-  , WhenDebugBuildProfile       = 0x00_00_00_04
-  , WhenReleaseBuildProfile     = 0x00_00_00_08
-  , WhenUatTestProfile          = 0x00_00_00_10
-  , WhenNoUatTestProfile        = 0x00_00_00_20
-  , WhenPerfTestProfile         = 0x00_00_00_40
-  , WhenNoPerfTestProfile       = 0x00_00_00_80
-  , WhenProdTestProfile         = 0x00_00_01_00
-  , WhenNoProdTestProfile       = 0x00_00_02_00
-  , WhenNoStopWatch             = 0x00_00_04_00
-  , WhenStopWatch               = 0x00_00_08_00
-  , AtEveryInterval             = 0x00_00_10_00
-  , DefaultLogger               = 0x00_00_3F_FF
-  , OnlyAsCacheBacktrace        = 0x00_00_40_00
-  , PerLocationAttemptInterval  = 0x00_00_80_00
-  , LoggerGlobalAttemptInterval = 0x00_01_00_00
-  , PerCorrelationIdInterval    = 0x00_02_00_00
-  , AddSkipCount                = 0x00_04_00_00
-  , PerLocationTimeInterval     = 0x00_08_00_00
-  , GlobalLoggerTimeInterval    = 0x00_10_00_00
-  , DefaultTimingLogger         = 0x00_20_00_00
-
-  , PerLocationPercentilesAtInterval = 0x00_40_00_00
-}
-
 public delegate void NotifyLogEntryDispatched(IFLogEntry logEntry);
 
 public interface IFLogger : IFLoggerDescendant, ISwitchFLoggerView
@@ -63,68 +33,68 @@ public interface IFLogger : IFLoggerDescendant, ISwitchFLoggerView
 
     IMutableFLogEntry? AtLevelWithStaticFilter<T>
     (FLogLevel level, T filterContext, [RequireStaticDelegate] Func<T, IFLogger, FLogCallLocation, bool> continuePredicate
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     IMutableFLogEntry? AtLevelWithClosureFilter<T>
-    (FLogLevel level, T filterContext, Func<T, IFLogger, FLogCallLocation, bool> continuePredicate, [CallerMemberName] string memberName = ""
+    (FLogLevel level, T filterContext, Func<T, IFLogger, FLogCallLocation, bool> continuePredicate
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     IMutableFLogEntry? AtLevel
-    (FLogLevel level, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (FLogLevel level, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     IMutableFLogEntry? Trace<T>
-    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger,
+    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     IMutableFLogEntry? Trace
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger,
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    IMutableFLogEntry? PerfTrace(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger);
+    IMutableFLogEntry? PerfTrace(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig);
 
     IMutableFLogEntry? Debug<T>
-    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
-      , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = ""
-      , [CallerLineNumber] int sourceLineNumber = 0);
-
-    IMutableFLogEntry? Debug
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    IMutableFLogEntry? PerfDebug(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger);
+    IMutableFLogEntry? Debug
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
+      , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
+
+    IMutableFLogEntry? PerfDebug(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig);
 
     IMutableFLogEntry? Info<T>
     (T filterContext,
-        LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger,
+        LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     IMutableFLogEntry? Info
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger,
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    IMutableFLogEntry? PerfInfo(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger);
+    IMutableFLogEntry? PerfInfo(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig);
 
     IMutableFLogEntry? Warn<T>
-    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger, [CallerMemberName] string memberName = ""
-      , [CallerFilePath] string sourceFilePath = ""
-      , [CallerLineNumber] int sourceLineNumber = 0);
+    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig, [CallerMemberName] string memberName = ""
+      , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     IMutableFLogEntry? Warn
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    IMutableFLogEntry? PerfWarn(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger);
+    IMutableFLogEntry? PerfWarn(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig);
 
     IMutableFLogEntry? Error<T>
-    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     IMutableFLogEntry? Error
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    IMutableFLogEntry? PerfError(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger);
+    IMutableFLogEntry? PerfError(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig);
 
     ISystemTraceBuilder GlobalTraceBuilder();
 }
@@ -145,7 +115,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
     private List<ILoggerView>? createdViews;
 
-    private IFLoggerExecutionDuration? executionDurationFLogger = null;
+    private IFLoggerExecutionDuration? executionDurationFLogger;
 
     private uint timingDurationSeqNum;
 
@@ -157,8 +127,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         PublishEndpoint =
             new FLogEntryPipelineEndpoint(FullName, ForwardToCallback, FLogEntrySourceSinkType.Source, FLogEntryProcessChainState.Active);
     }
-
-
+    
     public event NotifyLogEntryDispatched? LogEntryDispatched;
 
     public FLoggerDebugBuild? DebugBuildOnlyLogger { get; private set; }
@@ -186,12 +155,22 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         LogEntryDispatched?.Invoke(fLogEntry);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsLoggingDeactivated(FLogLevel level, LoggerActivationFlags activationFlags)
+    {
+        activationFlags = activationFlags.MergeWithConfigIfAllowed(ConfigActivationProfile);
+        if (LogLevel.IsLevelDisabled(level) && activationFlags.LogLevelExclusionsEnabled()) return true;
+        if (activationFlags.HasActivationExclusion(CurrentFLoggerExecutionEnvironment)) return true;
+
+        return false;
+    }
+
     public IMutableFLogEntry? AtLevelWithStaticFilter<T>
-    (FLogLevel level, T filterContext
-      , [RequireStaticDelegate] Func<T, IFLogger, FLogCallLocation, bool> continuePredicate
+    (FLogLevel level, T filterContext, [RequireStaticDelegate] Func<T, IFLogger, FLogCallLocation, bool> continuePredicate
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (level < LogLevel) return null;
+        if (IsLoggingDeactivated(level, activationFlags)) return null;
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         if (!continuePredicate(filterContext, this, logEntryLocation)) return null;
@@ -204,11 +183,11 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? AtLevelWithClosureFilter<T>
-    (FLogLevel level, T filterContext
-      , Func<T, IFLogger, FLogCallLocation, bool> continuePredicate
-      , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+    (FLogLevel level, T filterContext, Func<T, IFLogger, FLogCallLocation, bool> continuePredicate
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig, [CallerMemberName] string memberName = ""
+      , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (level < LogLevel) return null;
+        if (IsLoggingDeactivated(level, activationFlags)) return null;
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         if (!continuePredicate(filterContext, this, logEntryLocation)) return null;
@@ -221,10 +200,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? AtLevel
-    (FLogLevel level, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger,
+    (FLogLevel level, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (level < LogLevel) return null;
+        if (IsLoggingDeactivated(level, activationFlags)) return null;
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -235,10 +214,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
 
     public IMutableFLogEntry? Trace<T>
-    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger,
+    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Trace < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Trace, activationFlags)) return null;
 
         var receivedType = typeof(T);
         if (!receivedTypes.Contains(receivedType)) receivedTypes.Add(receivedType);
@@ -250,10 +229,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? Trace
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger,
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Trace < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Trace, activationFlags)) return null;
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -262,9 +241,9 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         return logEntry;
     }
 
-    public IMutableFLogEntry? PerfTrace(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger)
+    public IMutableFLogEntry? PerfTrace(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig)
     {
-        if (FLogLevel.Trace < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Trace, activationFlags)) return null;
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -274,10 +253,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? Debug<T>
-    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Debug < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Debug, activationFlags)) return null;
 
         var receivedType = typeof(T);
         if (!receivedTypes.Contains(receivedType)) receivedTypes.Add(receivedType);
@@ -289,10 +268,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? Debug
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Debug < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Debug, activationFlags)) return null;
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -301,9 +280,9 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         return logEntry;
     }
 
-    public IMutableFLogEntry? PerfDebug(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger)
+    public IMutableFLogEntry? PerfDebug(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig)
     {
-        if (FLogLevel.Debug < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Debug, activationFlags)) return null;
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -313,10 +292,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? Info<T>
-    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Info < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Info, activationFlags)) return null;
 
         var receivedType = typeof(T);
         if (!receivedTypes.Contains(receivedType)) receivedTypes.Add(receivedType);
@@ -328,10 +307,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? Info
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger, [CallerMemberName] string memberName = ""
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Info < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Info, activationFlags)) return null;
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -340,9 +319,9 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         return logEntry;
     }
 
-    public IMutableFLogEntry? PerfInfo(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger)
+    public IMutableFLogEntry? PerfInfo(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig)
     {
-        if (FLogLevel.Info < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Info, activationFlags)) return null;
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -352,10 +331,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? Warn<T>
-    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Warn < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Warn, activationFlags)) return null;
 
         var receivedType = typeof(T);
         if (!receivedTypes.Contains(receivedType)) receivedTypes.Add(receivedType);
@@ -367,10 +346,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? Warn
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Warn < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Warn, activationFlags)) return null;
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -379,9 +358,9 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         return logEntry;
     }
 
-    public IMutableFLogEntry? PerfWarn(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger)
+    public IMutableFLogEntry? PerfWarn(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig)
     {
-        if (FLogLevel.Warn < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Warn, activationFlags)) return null;
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -391,10 +370,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? Error<T>
-    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger,
+    (T filterContext, LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Error < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Error, activationFlags)) return null;
 
         var receivedType = typeof(T);
         if (!receivedTypes.Contains(receivedType)) receivedTypes.Add(receivedType);
@@ -406,10 +385,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     }
 
     public IMutableFLogEntry? Error
-    (LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+    (LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        if (FLogLevel.Error < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Error, activationFlags)) return null;
 
         var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var logEntry         = LogEntryPool.SourceLogEntry();
@@ -418,9 +397,9 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         return logEntry;
     }
 
-    public IMutableFLogEntry? PerfError(LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger)
+    public IMutableFLogEntry? PerfError(LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig)
     {
-        if (FLogLevel.Error < LogLevel) return null;
+        if (IsLoggingDeactivated(FLogLevel.Error, activationFlags)) return null;
 
         var logEntryLocation = PerfFLogCallLocation;
         var logEntry         = LogEntryPool.SourceLogEntry();

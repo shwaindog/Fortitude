@@ -8,9 +8,7 @@ using FortitudeCommon.Logging.Config.LoggersHierarchy;
 namespace FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 
 public class RootToLoggerCollectVisitor<T, TCollect>(List<TCollect> found, Predicate<TCollect>? meetsCondition = null)
-    : FLogConfigVisitor<T>, IEnumerable<TCollect>
-    where T : RootToLoggerCollectVisitor<T, TCollect>
-    where TCollect : IMutableFLoggerTreeCommonConfig
+    : FLogConfigVisitor<T>, IEnumerable<TCollect> where T : RootToLoggerCollectVisitor<T, TCollect> where TCollect : IMutableFLoggerTreeCommonConfig
 {
     protected static readonly Predicate<TCollect> Always = _ => true;
 

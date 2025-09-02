@@ -5,10 +5,14 @@ namespace FortitudeCommon.Types.StyledToString;
 public delegate StyledTypeBuildResult CustomTypeStyler<in TToStyle>(TToStyle toStyle, IStyledTypeStringAppender toAppendTo);
 
 
+
 public interface ICustomTypeStylerProvider<in TToStyle> : ICustomFormattableProvider
 {
     CustomTypeStyler<TToStyle>  CustomTypeStyler { get; }
 }
+
+
+
 
 public delegate int CustomSpanFormattable<in TToFormat>(TToFormat toFormat, Span<char> destination, ReadOnlySpan<char> format, IFormatProvider? provider);
 

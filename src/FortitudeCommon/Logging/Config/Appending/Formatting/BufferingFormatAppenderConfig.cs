@@ -209,13 +209,10 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb = sbc.StartComplexType(nameof(FormattingAppenderConfig))
-                          .AddBaseFieldsStart();
-        base.ToString(sbc);
-        return tb.Field.AlwaysAdd(nameof(CharBufferSize), CharBufferSize)
-                 .Field.AlwaysAdd(nameof(FlushConfig), FlushConfig)
-                 .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(FormattingAppenderConfig))
+           .AddBaseStyledToStringFields(this)
+           .Field.AlwaysAdd(nameof(CharBufferSize), CharBufferSize)
+           .Field.AlwaysAdd(nameof(FlushConfig), FlushConfig)
+           .Complete();
 }

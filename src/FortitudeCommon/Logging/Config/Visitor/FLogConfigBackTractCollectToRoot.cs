@@ -14,6 +14,7 @@ using FortitudeCommon.Logging.Config.ConfigSources;
 using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Config.Pooling;
 
 namespace FortitudeCommon.Logging.Config.Visitor;
@@ -72,6 +73,13 @@ public class FLogConfigBackTractCollectToRoot<T, TCollect>(List<TCollect> found,
     {
         if (childLoggersConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         childLoggersConfig.ParentConfig?.Visit(Me);
+        return Me;
+    }
+
+    public override T Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig)
+    {
+        if (fLogDeployEnvBuildTypeConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        fLogDeployEnvBuildTypeConfig.ParentConfig?.Visit(Me);
         return Me;
     }
 

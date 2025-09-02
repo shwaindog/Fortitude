@@ -57,12 +57,7 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb = 
-            sbc.StartComplexType(nameof(NullAppenderConfig))
-           .AddBaseFieldsStart();
-        base.ToString(sbc);
-        return tb.Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(NullAppenderConfig))
+           .AddBaseStyledToStringFields(this).Complete();
 }

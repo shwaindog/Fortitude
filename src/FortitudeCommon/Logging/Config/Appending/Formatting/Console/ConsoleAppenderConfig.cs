@@ -120,13 +120,9 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb =
-            sbc.StartComplexType(nameof(ConsoleAppenderConfig))
-               .AddBaseFieldsStart();
-        base.ToString(sbc);
-        return tb.Field.AlwaysAdd(nameof(DisableColoredConsole), DisableColoredConsole)
-                 .Complete();
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(ConsoleAppenderConfig))
+           .AddBaseStyledToStringFields(this)
+           .Field.AlwaysAdd(nameof(DisableColoredConsole), DisableColoredConsole)
+           .Complete();
 }

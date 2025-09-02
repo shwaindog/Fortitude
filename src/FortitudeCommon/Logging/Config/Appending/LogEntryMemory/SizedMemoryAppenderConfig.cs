@@ -97,12 +97,8 @@ internal class SizedMemoryAppenderConfig : AppenderDefinitionConfig, ISizedMemor
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        using var tb = sbc.StartComplexType(nameof(ForwardingAppenderConfig))
-                          .AddBaseFieldsStart();
-        base.ToString(sbc);
-        tb.Field.AlwaysAdd(nameof(MemorySize), MemorySize);
-        return tb;
-    }
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(ForwardingAppenderConfig))
+           .AddBaseStyledToStringFields(this)
+           .Field.AlwaysAdd(nameof(MemorySize), MemorySize);
 }

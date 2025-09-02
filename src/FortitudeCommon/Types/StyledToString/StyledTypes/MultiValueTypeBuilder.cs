@@ -39,10 +39,11 @@ public abstract class MultiValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt>
         CompAccess = null!;
     }
 
-    public TExt AddBaseFieldsStart()
+    public TExt AddBaseStyledToStringFields<T>(T thisType) where T : IStyledToStringObject
     {
         CompAccess.OwningAppender.AddBaseFieldsStart();
-
+        TargetToStringInvoker.CallBaseStyledToStringIfSupported(thisType, CompAccess.OwningAppender);
+        
         return Me;
     }
 }

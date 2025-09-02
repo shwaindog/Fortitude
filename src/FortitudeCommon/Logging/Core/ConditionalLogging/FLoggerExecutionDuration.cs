@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.ConditionalLogging;
@@ -14,17 +15,17 @@ public interface IFLoggerExecutionDuration
 
     IMutableFLogEntry? StopTimingAllowLogEntryWhenExceeds
     (ExecutionTimingStart startTime, FLogLevel logLevel, long logThresholdMicros
-      , LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger, int interval = 1
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig, int interval = 1
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     IMutableFLogEntry? StopTimingAllowLogEntryWhenAverageExceeds
     (ExecutionTimingStart startTime, FLogLevel logLevel, long logThresholdAverageMicros
-      , LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger, int averageEntryInterval = 10
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig, int averageEntryInterval = 10
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     TimingTraceExecutionPath? StartTraceTime
     (FLogLevel logLevel
-      , LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void StopTraceLogTraceWhenExceeds
@@ -41,7 +42,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
 
     public IMutableFLogEntry? StopTimingAllowLogEntryWhenExceeds
     (ExecutionTimingStart startTime, FLogLevel logLevel, long logThresholdMicros
-      , LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger, int interval = 1
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig, int interval = 1
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
         var getDuration = startTime.StopClock(wrappingLogger);
@@ -57,7 +58,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
 
     public IMutableFLogEntry? StopTimingAllowLogEntryWhenAverageExceeds
     (ExecutionTimingStart startTime, FLogLevel logLevel, long logThresholdAverageMicros
-      , LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger, int averageEntryInterval = 10
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig, int averageEntryInterval = 10
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
         var getDuration      = startTime.StopClock(wrappingLogger);
@@ -74,7 +75,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
     }
 
     public TimingTraceExecutionPath? StartTraceTime(FLogLevel logLevel
-      , LoggerActivationFlags activationFlags = LoggerActivationFlags.DefaultLogger
+      , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
         var flogEntry        = wrappingLogger.LogEntryPool.SourceLogEntry();

@@ -225,13 +225,9 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
-    {
-        var tb =
-            sbc.StartComplexType(nameof(LogEntryDataTemplatePart))
-               .AddBaseFieldsStart();
-        return tb.Complete();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+        sbc.StartComplexType(nameof(LogEntryDataTemplatePart))
+           .AddBaseStyledToStringFields(this).Complete();
 
     public override string ToString() => this.DefaultToString();
 }

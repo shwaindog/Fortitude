@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.StyledToString;
@@ -18,88 +19,88 @@ public interface ISimplifiedFLogger : ILoggerView
 {
     [MustUseReturnValue("Use AtLevel if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     IFLogFirstFormatterParameterEntry? AtLevelFormat(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use AtLevel if you do not plan on using the returned IFLogStringAppender")]
-    IFLogStringAppender? AtLevelAppend<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    IFLogStringAppender? AtLevelAppend<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void AtLevel<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = DefaultLogger
+    void AtLevel<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Trace if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     IFLogFirstFormatterParameterEntry? TraceFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Trace if you do not plan on using the returned IFLogStringAppender")]
-    IFLogStringAppender? TraceAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    IFLogStringAppender? TraceAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Trace<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+    void Trace<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Debug if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     IFLogFirstFormatterParameterEntry? DebugFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Debug if you do not plan on using the returned IFLogStringAppender")]
-    IFLogStringAppender? DebugAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    IFLogStringAppender? DebugAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Debug<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+    void Debug<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Info if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     IFLogFirstFormatterParameterEntry? InfoFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Info if you do not plan on using the returned IFLogStringAppender")]
-    IFLogStringAppender? InfoAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    IFLogStringAppender? InfoAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Info<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+    void Info<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Warn if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     IFLogFirstFormatterParameterEntry? WarnFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Warn if you do not plan on using the returned IFLogStringAppender")]
-    IFLogStringAppender? WarnAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    IFLogStringAppender? WarnAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Warn<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+    void Warn<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Error if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     IFLogFirstFormatterParameterEntry? ErrorFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Error if you do not plan on using the returned IFLogStringAppender")]
-    IFLogStringAppender? ErrorAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = DefaultLogger
+    IFLogStringAppender? ErrorAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
-    void Error<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger, StringBuildingStyle style = StringBuildingStyle.Default
+    void Error<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 }
 
 public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifiedFLogger
 {
     [MustUseReturnValue("Use AtLevel if you do not plan on using the returned IFLogStringAppender")]
-    public IFLogStringAppender? AtLevelAppend<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = Disabled
+    public IFLogStringAppender? AtLevelAppend<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
@@ -109,14 +110,14 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
 
     [MustUseReturnValue("Use AtLevel if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     public IFLogFirstFormatterParameterEntry? AtLevelFormat(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         return logEntry?.FormatBuilder(formatString, style);
     }
 
-    public void AtLevel<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = Disabled
+    public void AtLevel<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -124,7 +125,7 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
     }
 
     [MustUseReturnValue("Use Trace if you do not plan on using the returned IFLogStringAppender")]
-    public IFLogStringAppender? TraceAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = Disabled
+    public IFLogStringAppender? TraceAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
@@ -134,14 +135,14 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
 
     [MustUseReturnValue("Use Trace if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     public IFLogFirstFormatterParameterEntry? TraceFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         return logEntry?.FormatBuilder(formatString, style);
     }
 
-    public void Trace<T>(T toLog, LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+    public void Trace<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -149,7 +150,7 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
     }
 
     [MustUseReturnValue("Use Debug if you do not plan on using the returned IFLogStringAppender")]
-    public IFLogStringAppender? DebugAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = Disabled
+    public IFLogStringAppender? DebugAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -158,14 +159,14 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
 
     [MustUseReturnValue("Use Debug if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     public IFLogFirstFormatterParameterEntry? DebugFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         return logEntry?.FormatBuilder(formatString, style);
     }
 
-    public void Debug<T>(T toLog, LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+    public void Debug<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -173,7 +174,7 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
     }
 
     [MustUseReturnValue("Use Info if you do not plan on using the returned IFLogStringAppender")]
-    public IFLogStringAppender? InfoAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = Disabled
+    public IFLogStringAppender? InfoAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -182,14 +183,14 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
 
     [MustUseReturnValue("Use Info if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     public IFLogFirstFormatterParameterEntry? InfoFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         return logEntry?.FormatBuilder(formatString, style);
     }
 
-    public void Info<T>(T toLog, LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+    public void Info<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -197,7 +198,7 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
     }
 
     [MustUseReturnValue("Use Warn if you do not plan on using the returned IFLogStringAppender")]
-    public IFLogStringAppender? WarnAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = Disabled
+    public IFLogStringAppender? WarnAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -206,14 +207,14 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
 
     [MustUseReturnValue("Use Warn if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     public IFLogFirstFormatterParameterEntry? WarnFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         return logEntry?.FormatBuilder(formatString, style);
     }
 
-    public void Warn<T>(T toLog, LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+    public void Warn<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -221,7 +222,7 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
     }
 
     [MustUseReturnValue("Use Error if you do not plan on using the returned IFLogStringAppender")]
-    public IFLogStringAppender? ErrorAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = Disabled
+    public IFLogStringAppender? ErrorAppend<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
       , StringBuildingStyle style = StringBuildingStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -230,14 +231,14 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
 
     [MustUseReturnValue("Use Error if you do not plan on using the returned IFLogFirstFormatterParameterEntry")]
     public IFLogFirstFormatterParameterEntry? ErrorFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         return logEntry?.FormatBuilder(formatString, style);
     }
 
-    public void Error<T>(T toLog, LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
+    public void Error<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);

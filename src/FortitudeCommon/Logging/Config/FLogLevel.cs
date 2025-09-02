@@ -11,6 +11,7 @@ public enum FLogLevel
   , Info
   , Warn
   , Error
+  , Disabled
 }
 
 public enum FLogLevelMatch
@@ -29,13 +30,15 @@ public static class FLogLevelExtensions
 {
     public static int LoggableRange => FLogLevel.Error - FLogLevel.None;
 
-    public static bool IsTraceEnabled(this FLogLevel level) => level >= FLogLevel.Trace;
+    public static bool IsLevelDisabled(this FLogLevel level, FLogLevel checkEnabled) => checkEnabled < level;
 
-    public static bool IsDebugEnabled(this FLogLevel level) => level >= FLogLevel.Debug;
+    public static bool IsTraceDisabled(this FLogLevel level) => FLogLevel.Trace < level;
 
-    public static bool IsInfoEnabled(this FLogLevel level) => level >= FLogLevel.Info;
+    public static bool IsDebugDisabled(this FLogLevel level) => FLogLevel.Debug < level;
 
-    public static bool IsWarnEnabled(this FLogLevel level) => level >= FLogLevel.Warn;
+    public static bool IsInfoDisabled(this FLogLevel level) => FLogLevel.Info < level;
 
-    public static bool IsErrorEnabled(this FLogLevel level) => level >= FLogLevel.Error;
+    public static bool IsWarnDisabled(this FLogLevel level) => FLogLevel.Warn < level;
+
+    public static bool IsErrorDisabled(this FLogLevel level) => FLogLevel.Error < level;
 }

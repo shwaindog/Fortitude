@@ -253,17 +253,17 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     IStyledTypeStringAppender IStyleTypeAppenderBuilderAccess.AddBaseFieldsEnd()
     {
-        var nextAppender = nextTypeAppendSettings ?? 
-                           new TypeAppendSettings(CurrentTypeAccess?.IndentLevel ?? 0, IgnoreWriteFlags.All);
-        nextAppender.IgnoreWriteFlags = IgnoreWriteFlags.TypeStart | IgnoreWriteFlags.TypeName | IgnoreWriteFlags.TypeEnd;
-        nextTypeAppendSettings        = nextAppender;
+        PopCurrentSettings();
 
         return this;
     }
 
     IStyledTypeStringAppender IStyleTypeAppenderBuilderAccess.AddBaseFieldsStart()
     {
-        PopCurrentSettings();
+        var nextAppender = nextTypeAppendSettings ?? 
+                           new TypeAppendSettings(CurrentTypeAccess?.IndentLevel ?? 0, IgnoreWriteFlags.All);
+        nextAppender.IgnoreWriteFlags = IgnoreWriteFlags.TypeStart | IgnoreWriteFlags.TypeName | IgnoreWriteFlags.TypeEnd;
+        nextTypeAppendSettings        = nextAppender;
 
         return this;
     }

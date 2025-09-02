@@ -14,6 +14,7 @@ using FortitudeCommon.Logging.Config.ConfigSources;
 using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
+using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types.Mutable;
 
@@ -33,6 +34,8 @@ public interface IFLogConfigVisitor<TBase> : IReusableObject<IFLogConfigVisitor<
     TBase Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig);
 
     TBase Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig);
+    
+    TBase Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig);
 
     TBase Accept(IMutableAppenderReferenceConfig appenderConfig);
 
@@ -101,6 +104,8 @@ public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLog
     public virtual T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig) => (T)this;
 
     public virtual T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig) => (T)this;
+    
+    public virtual T Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig) => (T)this;
 
     public virtual T Accept(IMutableFLogEntryPoolConfig entryPoolConfig) => (T)this;
 

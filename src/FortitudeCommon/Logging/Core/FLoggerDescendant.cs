@@ -23,6 +23,10 @@ public interface IMutableFLoggerDescendant : IFLoggerDescendant, IMutableFLogger
 
 public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
 {
+    protected LoggerActivationFlags ConfigActivationProfile;
+
+    protected LoggerActivationFlags CurrentFLoggerExecutionEnvironment;
+
     public FLoggerDescendant(IMutableFLoggerDescendantConfig loggerConsolidatedConfig, IFLoggerCommon myParent, IFLogLoggerRegistry loggerRegistry)
         : base(loggerConsolidatedConfig, loggerRegistry)
     {
@@ -30,6 +34,20 @@ public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
 
         Parent   = myParent;
         FullName = Visit(new BaseToLeafCollectVisitor()).FullName;
+    }
+
+    protected override IMutableFLoggerTreeCommonConfig Config
+    {
+        get => base.Config;
+        set
+        {
+            base.Config = value;
+
+            CurrentFLoggerExecutionEnvironment = value.FLogEnvironment.AsLoggerActionFlags;
+            var descendantConfig = value as IMutableFLoggerDescendantConfig;
+            ConfigActivationProfile = descendantConfig?.JustThisLoggerActivation?.AsLoggerActionFlags
+                 ?? value.DescendantActivation.AsLoggerActionFlags;
+        }
     }
 
     protected IMutableFLoggerRoot Root => Parent is FLoggerDescendant parentDescendant ? parentDescendant.Root : (IMutableFLoggerRoot)Parent;

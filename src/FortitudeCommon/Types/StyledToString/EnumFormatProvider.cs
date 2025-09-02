@@ -169,7 +169,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
     public IStructEnumFormatProvider<TEnum>? AsStructEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable =>
         typeof(TEnum) == ForType ? (IStructEnumFormatProvider<TEnum>)this : null;
 
-    public IEnumFormatProvider<TEnum>? AsEnumFormatProvider<TEnum>() where TEnum : Enum => 
+    public IEnumFormatProvider<TEnum>? AsEnumFormatProvider<TEnum>() where TEnum : Enum =>
         typeof(TEnum) == ForType ? (IEnumFormatProvider<TEnum>)this : null;
 
     public CustomTypeStyler<TEnumValue> CustomTypeStyler { get; }
@@ -193,8 +193,15 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         {
             return SourceSingleNameFromEnum(enumValue, buildNames, format, provider);
         }
+        var countChars = 0;
+        foreach (var eachEnumValue in enumValues)
+        {
+            if (eachEnumValue.CompareTo(enumValue) != 0) continue;
+            countChars += SourceSingleNameFromEnum(eachEnumValue, buildNames, format, provider);
+            return countChars;
+        }
+        // else check each flag combination
         var hasWrittenValues = false;
-        var countChars       = 0;
         foreach (var eachEnumValue in enumValues)
             if (enumValue.HasFlag(eachEnumValue))
             {
@@ -211,6 +218,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
     private int SourceSingleNameFromEnum(TEnumValue singleEnumValue, Span<char> buildNames, ReadOnlySpan<char> format
       , IFormatProvider? provider = null)
     {
+        
         if (format.Length == 0)
         {
             if (isShortRangeEnum)
