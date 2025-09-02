@@ -8,9 +8,9 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
 public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : StyledTypeBuilder
 {
     public ValueTypeBuilder<TExt> InitializeValueTypeBuilder
-        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName)
+        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName, int  existingRefId)
     {
-        InitializeTypedStyledTypeBuilder(owningAppender, typeSettings, typeName);
+        InitializeTypedStyledTypeBuilder(owningAppender, typeSettings, typeName,  existingRefId);
 
         return this;
     }

@@ -14,38 +14,12 @@ public enum StringBuildingStyle
   , Compact   = 0x01
   , Pretty    = 0x02
   , Log       = 0x04
-  , Default   = 0x05
+  , Default   = 0x04
   , Json      = 0x08
 }
 
 public static class StringBuildingStyleExtensions
 { // ReSharper disable UnusedMember.Global
-    
-    
-    public static CustomTypeStyler<StringBuildingStyle> StringBuildingStyleStyler
-        = FormatFileAppenderTypeAppender;
-    
-    public static CustomTypeStyler<StringBuildingStyle> Styler(this StringBuildingStyle stringBuildingStyle)
-        => StringBuildingStyleStyler;
-
-    public static StyledTypeBuildResult FormatFileAppenderTypeAppender(this StringBuildingStyle stringBuildingStyle, IStyledTypeStringAppender sbc)
-    {
-        var tb = sbc.StartSimpleValueType(nameof(StringBuildingStyle));
-        using (var sb = tb.StartDelimitedStringBuilder())
-        {
-            switch (stringBuildingStyle)
-            {
-                case PlainText: sb.Append($"{nameof(PlainText)}"); break;
-                case Compact:   sb.Append($"{nameof(Compact)}"); break;
-                case Pretty:    sb.Append($"{nameof(Pretty)}"); break;
-                case Log:       sb.Append($"{nameof(Log)}"); break;
-                case Json:      sb.Append($"{nameof(Json)}"); break;
-                default:        sb.Append($"{nameof(Default)}"); break;
-            }
-        }
-        return tb.Complete();
-    }
-    
     public static bool IsDefault(this StringBuildingStyle style) => style.IsExactly(Default);
 
     public static bool IsJustLogCompact(this StringBuildingStyle style) => style.IsExactly(Log | Pretty);
@@ -60,6 +34,8 @@ public static class StringBuildingStyleExtensions
 
     public static bool IsLog(this StringBuildingStyle style) => (style & Log) > 0;
 
+    public static bool IsNotLog(this StringBuildingStyle style) => (style & Log) == 0;
+
     public static bool IsLogNoJson(this StringBuildingStyle style) => (style & Log) > 0 && style.HasNoneOf(Json);
 
     public static bool IsNotJson(this StringBuildingStyle style) => style.HasNoneOf(Json);
@@ -67,6 +43,8 @@ public static class StringBuildingStyleExtensions
     public static bool IsJson(this StringBuildingStyle style) => (style & Json) > 0;
 
     public static bool IsPretty(this StringBuildingStyle style) => (style & Pretty) > 0;
+    
+    public static bool IsNotPretty(this StringBuildingStyle style) => (style & Pretty) == 0;
 
     public static bool IsCompact(this StringBuildingStyle style) => (style & Compact) > 0;
 

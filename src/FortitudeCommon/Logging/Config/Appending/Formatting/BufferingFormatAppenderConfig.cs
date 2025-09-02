@@ -209,8 +209,8 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FormattingAppenderConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(CharBufferSize), CharBufferSize)
            .Field.AlwaysAdd(nameof(FlushConfig), FlushConfig)

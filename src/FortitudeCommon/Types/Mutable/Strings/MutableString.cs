@@ -5,6 +5,7 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.DataStructures.Memory;
@@ -50,8 +51,10 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public MutableString(StringBuilder initializedBuilder) => sb = initializedBuilder;
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     IMaybeFrozen IFreezable.Freeze => Freeze;
-
+    
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public IFrozenString Freeze
     {
         get
@@ -119,7 +122,15 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         !ThrowOnMutateAttempt ? this : throw new ModifyFrozenObjectAttempt("Attempted to modify a frozen MutableString");
 
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ICharSequence? value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ICharSequence? value)
+    {
+        var end = value?.Length ?? 0;
+        for (int i = 0; i < end; i++)
+        {
+            Append(value![i]);
+        }
+        return this;
+    }
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(StringBuilder? value) => Append(value);
 

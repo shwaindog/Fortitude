@@ -3,9 +3,9 @@
 public class SimpleValueTypeBuilder : ValueTypeBuilder<SimpleValueTypeBuilder>
 {
     public SimpleValueTypeBuilder InitializeSimpleValueTypeBuilder
-        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName)
+        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName, int existingRefId)
     {
-        InitializeValueTypeBuilder(owningAppender, typeSettings, typeName);
+        InitializeValueTypeBuilder(owningAppender, typeSettings, typeName,  existingRefId);
 
         return this;
     }

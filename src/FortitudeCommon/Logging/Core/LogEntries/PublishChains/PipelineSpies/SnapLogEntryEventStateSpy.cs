@@ -20,7 +20,7 @@ public class SnapLogEntryEventStateSpy(IList<string> snappedLogEntryEvents, stri
                .Field.AlwaysAdd(nameof(flogEntry.LogDateTime), flogEntry.LogDateTime, "{0:HH:mm:ss.ffffff}")
                .Field.AlwaysAdd(nameof(flogEntry.LogLevel), flogEntry.LogLevel)
                .Field.AlwaysAdd(nameof(flogEntry.LogLocation), flogEntry.LogLocation, flogEntry.LogLocation.Styler())
-               .Field.WhenNonNullAdd(nameof(flogEntry.Style), flogEntry.Style, flogEntry.Style.Styler())
+               .Field.WhenNonNullAdd(nameof(flogEntry.Style), flogEntry.Style)
                .Field.WhenNonNullAdd("Thread.Id", flogEntry.Thread.ManagedThreadId)
                .Field.WhenNonNullAdd("Thread.Name", flogEntry.Thread.Name)
                .Field.WhenNonDefaultAdd(nameof(flogEntry.Logger), flogEntry.Logger?.FullName[^25..] ?? "".AsSpan())
@@ -45,7 +45,7 @@ public class SnapLogEntryEventStateSpy(IList<string> snappedLogEntryEvents, stri
             .Field.AlwaysAdd("CapturedAt", TimeContext.UtcNow, "{0:HH:mm:ss.ffffff}")
             .Field.AlwaysAdd("OnQueueNumber", FLogAsyncQueue.MyCallingQueueNumber)
             .Field.WhenNonNullAdd("LogEntry", logEntryEvent.LogEntry, SummarizedFLogEntry)
-            .Field.WhenNonDefaultAdd("LogEntryBatch", logEntryEvent.LogEntriesBatch).Complete();
+            .Field.WhenNonDefaultAddStyled("LogEntryBatch", logEntryEvent.LogEntriesBatch).Complete();
 
         var logEntryEventSnap = snapStateAppender.WriteBuffer.ToString();
         LogEntries.Add(logEntryEventSnap);

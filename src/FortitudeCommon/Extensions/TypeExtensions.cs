@@ -13,58 +13,101 @@ namespace FortitudeCommon.Extensions;
 
 public static class TypeExtensions
 {
+    public static readonly Type ArrayType                 = typeof(Array);
+    public static readonly Type ReadOnlyListTypeDef       = typeof(IReadOnlyList<>);
+    public static readonly Type EnumerableType            = typeof(IEnumerable);
+    public static readonly Type EnumerableTypeDef         = typeof(IEnumerable<>);
+    public static readonly Type EnumeratorType            = typeof(IEnumerator);
+    public static readonly Type EnumeratorTypeDef         = typeof(IEnumerator<>);
+    public static readonly Type KeyValuePairTypeDef       = typeof(KeyValuePair<,>);
+    public static readonly Type ReadOnlyDictionaryTypeDef = typeof(IReadOnlyDictionary<,>);
+    public static readonly Type CollectionTypeDef         = typeof(ICollection<>);
+    public static readonly Type CollectionType            = typeof(ICollection);
+    public static readonly Type SpanFormattableType       = typeof(ISpanFormattable);
+    public static readonly Type NullableTypeDef           = typeof(Nullable<>);
+
     public static bool IsCollection(this Type type) =>
-        type.GetInterfaces().Any(i => i == typeof(ICollection) || i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>));
+        type.GetInterfaces().Any(i => i == CollectionType || i.IsGenericType && i.GetGenericTypeDefinition() == CollectionTypeDef);
 
     public static bool IsNotCollection(this Type type) => !type.IsCollection();
 
-    public static bool IsArray(this Type type)                  => typeof(Array).IsAssignableFrom(type);
-    
-    public static bool IsNotArray(this Type type)               => !type.IsArray();
+    public static bool IsArray(this Type type) => ArrayType.IsAssignableFrom(type);
 
-    public static bool IsKeyValuePair(this Type type) => type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>);
+    public static bool IsNotArray(this Type type) => !type.IsArray();
+
+    public static bool IsKeyValuePair(this Type type)    => type.GetGenericTypeDefinition() == KeyValuePairTypeDef;
     public static bool IsNotKeyValuePair(this Type type) => !type.IsKeyValuePair();
-    
+
     public static bool IsArrayOf(this Type type, Type itemType) => type.IsArray() && type.GetElementType() == itemType;
 
+    public static bool IsArraySupporting(this Type type, Type itemType) => type.IsArray() && type.GetElementType()!.Supports(itemType);
+
+    public static bool IsNullableArrayOf(this Type type, Type valueType) => type.IsArray() && type.GetElementType()!.IsNullableOf(valueType);
+
     public static bool IsReadOnlyList(this Type type) =>
-        type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyList<>));
-    
+        type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef || 
+        type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef);
+
+    public static Type? IfReadOnlyListGetElementType(this Type type)
+    {
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef)
+        {
+            return type.GenericTypeArguments.FirstOrDefault();
+        } 
+        return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef)?.GenericTypeArguments.FirstOrDefault();
+    }
+
+    public static bool IsReadOnlyListAndNotArray(this Type type) =>
+        !type.IsArray() && type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef);
+
+    public static bool IsReadOnlyListOf(this Type type, Type itemType) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef && type.GetGenericArguments()[0] == itemType
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef
+                                                      && i.GenericTypeArguments[0] == itemType);
+
+    public static bool IsReadOnlyListSupporting(this Type type, Type itemType) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef && type.GetGenericArguments()[0].Derives(itemType)
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef
+                                                      && i.GenericTypeArguments[0].Derives(itemType));
+
+    public static bool IsReadOnlyListOfNullable(this Type type, Type valueType) =>
+        type.IsReadOnlyList() && type.IsGenericType && type.GenericTypeArguments[0].IsNullableOf(valueType)
+        || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef
+                                                         && i.GenericTypeArguments[0].IsNullableOf(valueType));
+
     public static bool IsNotReadOnlyList(this Type type) => !type.IsReadOnlyList();
 
     public static bool IsIndexableOrderedCollection(this Type type) => type.IsArray() || type.IsReadOnlyList();
-    
-    public static Type? GetArrayElementType(this Type type) => type.IsArray() ? type.GetElementType() : null;
 
-    public static Type? GetListElementType(this Type type) =>
-        type.IsReadOnlyList() ? type.GetGenericArguments().FirstOrDefault() : null;
+    public static Type? IfArrayGetElementType(this Type type) => type.IsArray() ? type.GetElementType() : null;
 
-    public static Type? GetIndexedCollectionElementType(this Type type) => type.GetArrayElementType() ?? type.GetListElementType();
-    
+    public static Type? GetListElementType(this Type type) => type.IsReadOnlyList() ? type.GenericTypeArguments.FirstOrDefault() : null;
+
+    public static Type? GetIndexedCollectionElementType(this Type type) => type.IfArrayGetElementType() ?? type.IfReadOnlyListGetElementType();
+
     public static bool IsReadOnlyDictionaryType(this Type type) =>
-        type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>));
-    
+        type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef);
+
     public static bool IsNotReadOnlyDictionaryType(this Type type) => !type.IsReadOnlyDictionaryType();
-    
+
     public static bool IsKeyValueOrderedCollection(this Type type) =>
-        type.IsIndexableOrderedCollection() && (type.GetIndexedCollectionElementType()?.IsKeyValuePair() ?? false) ;
-    
+        type.IsIndexableOrderedCollection() && (type.GetIndexedCollectionElementType()?.IsKeyValuePair() ?? false);
+
     public static bool IsNotKeyValueOrderedCollection(this Type type) => !type.IsKeyValueOrderedCollection();
-    
-    public static bool IsKeyedCollection(this Type type) =>
-        type.IsReadOnlyDictionaryType() || type.IsKeyValueOrderedCollection();
-    
+
+    public static bool IsKeyedCollection(this Type type) => type.IsReadOnlyDictionaryType() || type.IsKeyValueOrderedCollection();
+
     public static bool IsNotKeyedCollection(this Type type) => !type.IsKeyedCollection();
-    
+
     public static KeyValuePair<Type, Type>? GetKeyedCollectionTypes(this Type type)
     {
         if (type.IsReadOnlyDictionaryType())
         {
-            var dictionaryInterface = 
+            var dictionaryInterface =
                 type.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>))!;
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef)!;
             return new KeyValuePair<Type, Type>(dictionaryInterface.GenericTypeArguments[0], dictionaryInterface.GenericTypeArguments[1]);
-        } 
+        }
         if (type.IsKeyValueOrderedCollection())
         {
             var keyValueType = type.GetIndexedCollectionElementType()!;
@@ -81,63 +124,111 @@ public static class TypeExtensions
         return null;
     }
 
-    public static bool IsReadOnlyListOf(this Type type, Type itemType) =>
-        type.GetInterfaces()
-            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyList<>)
-                                      && i.GetGenericArguments()[0] == itemType);
-
-    public static bool IsReadOnlyListSupporting(this Type type, Type itemType) =>
-        type.GetInterfaces()
-            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyList<>)
-                                      && i.GetGenericArguments()[0].IsAssignableFrom(itemType));
-
     public static bool Supports(this Type type, Type maybeDerivedType) => type.IsAssignableFrom(maybeDerivedType);
 
     public static bool Derives(this Type type, Type maybeBaseType) => maybeBaseType.IsAssignableFrom(type);
 
-    public static bool IsValueTypeArray(this Type type)  => typeof(Array).IsAssignableFrom(type) && (type.GetElementType()?.IsValueType ?? false);
-    public static bool IsObjectTypeArray(this Type type) => typeof(Array).IsAssignableFrom(type) && !(type.GetElementType()?.IsValueType ?? false);
+    public static bool IsValueTypeArray(this Type type)  => ArrayType.IsAssignableFrom(type) && (type.GetElementType()?.IsValueType ?? false);
+    public static bool IsObjectTypeArray(this Type type) => ArrayType.IsAssignableFrom(type) && !(type.GetElementType()?.IsValueType ?? false);
 
     public static bool IsCollectionOf(this Type type, Type itemType) =>
-        type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>)
-                                                      && i.GetGenericArguments()[0] == itemType);
+        type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == CollectionTypeDef
+                                                      && i.GenericTypeArguments[0] == itemType);
 
     public static bool IsEnumerable(this Type type) =>
-        type.GetInterfaces().Any(i => i == typeof(IEnumerable) || i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+        (type == EnumerableType || type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef) ||
+        type.GetInterfaces().Any(i => i == EnumerableType || i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef);
 
-    public static bool  IsNotEnumerable(this Type type)   => !type.IsEnumerable();
-    public static Type? GetEnumerableElementType(this Type type) => type.IsEnumerator() ? type.GetElementType() : null;
-    
-    public static bool IsEnumerator(this Type type) =>
-        type.GetInterfaces().Any(i => i == typeof(IEnumerator) || i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerator<>));
-    
-    public static bool  IsNotEnumerator(this Type type)     => !type.IsEnumerator();
-    public static Type? GetEnumeratorElementType(this Type type) => type.IsEnumerator() ? type.GetElementType() : null;
-
-    public static bool IsIterable(this Type type) => type.IsEnumerable() || type.IsEnumerator();
-    
-    public static Type? GetIterableElementType(this Type type) => type.GetEnumerableElementType() ?? type.GetEnumeratorElementType();
-
-    public static bool IsSpanFormattable(this Type type) => type.GetInterfaces().Any(i => i == typeof(ISpanFormattable));
 
     public static bool IsEnumerableOf(this Type type, Type itemType) =>
-        type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)
-                                                      && i.GetGenericArguments()[0] == itemType);
+        (type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef && type.GenericTypeArguments[0] == itemType)
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef
+                                                      && i.GenericTypeArguments[0] == itemType);
+
+
+    public static bool IsEnumerableOfNullable(this Type type, Type itemType) =>
+        (type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef && type.GenericTypeArguments[0].IsNullableOf(itemType))
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef
+                                                      && i.GenericTypeArguments[0].IsNullableOf(itemType));
+
+
+    public static bool IsEnumerableSupporting(this Type type, Type itemType) =>
+        (type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef && type.GenericTypeArguments[0].Supports(itemType))
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef
+                                                      && i.GenericTypeArguments[0].Supports(itemType));
+
+    public static bool  IsNotEnumerable(this Type type)          => !type.IsEnumerable();
+    
+    public static Type? IfEnumerableGetElementType(this Type type) 
+    {
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef)
+        {
+            return type.GenericTypeArguments.FirstOrDefault();
+        } 
+        return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef)?.GenericTypeArguments.FirstOrDefault();
+    }
+
+    public static bool IsEnumerator(this Type type) =>
+        type.GetInterfaces().Any(i => i == EnumeratorType || i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef);
+
+
+    public static bool IsEnumeratorOf(this Type type, Type itemType) =>
+        (type.IsGenericType && type.GetGenericTypeDefinition() == EnumeratorTypeDef && type.GenericTypeArguments[0] == itemType)
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef
+                                                      && i.GenericTypeArguments[0] == itemType);
+
+
+    public static bool IsEnumeratorOfNullable(this Type type, Type itemType) =>
+        (type.IsGenericType && type.GetGenericTypeDefinition() == EnumeratorTypeDef && type.GenericTypeArguments[0].IsNullableOf(itemType))
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef
+                                                      && i.GenericTypeArguments[0].IsNullableOf(itemType));
+
+
+    public static bool IsEnumeratorSupporting(this Type type, Type itemType) =>
+        (type.IsGenericType && type.GetGenericTypeDefinition() == EnumeratorTypeDef && type.GenericTypeArguments[0].Supports(itemType))
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef
+                                                      && i.GenericTypeArguments[0].Supports(itemType));
+
+    public static bool  IsNotEnumerator(this Type type)          => !type.IsEnumerator();
+    
+    public static Type? IfEnumeratorGetElementType(this Type type) 
+    {
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == EnumeratorTypeDef)
+        {
+            return type.GenericTypeArguments.FirstOrDefault();
+        } 
+        return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef)?.GenericTypeArguments.FirstOrDefault();
+    }
+
+    public static bool IsIterable(this Type type) => type.IsEnumerable() || type.IsEnumerator();
+
+    public static Type? GetIterableElementType(this Type type) =>
+        type.GetIndexedCollectionElementType() ??
+        type.IfEnumerableGetElementType() ?? type.IfEnumeratorGetElementType();
+
+    public static bool IsSpanFormattable(this Type type) => type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType);
+
+    public static bool IsNullableOf(this Type type, Type valueType) =>
+        valueType.IsValueType && type is { IsValueType: true, IsGenericType: true }
+                              && type.GetGenericTypeDefinition() == NullableTypeDef
+                              && type.GenericTypeArguments[0] == valueType;
+
+    public static bool IsNullableSpanFormattable(this Type type) =>
+        type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef
+                                                           && type.GenericTypeArguments[0].IsSpanFormattable();
+
+    public static bool IsSpanFormattableArray(this Type check) => check.IsArray() && check.IfArrayGetElementType()!.IsSpanFormattable();
+
+    public static bool IsNullableSpanFormattableArray(this Type check) => check.IsArray() && check.IfArrayGetElementType()!.IsNullableSpanFormattable();
 
     public static bool IsBool(this Type check)              => check == typeof(bool);
     public static bool IsNullableBool(this Type check)      => check == typeof(bool?);
     public static bool IsBoolArray(this Type check)         => check == typeof(bool[]);
     public static bool IsNullableBoolArray(this Type check) => check == typeof(bool?[]);
 
-    public static bool IsBoolList(this Type check) =>
-        check == typeof(List<bool>)
-     || check == typeof(IList<bool>)
-     || check == typeof(IReadOnlyList<bool>);
+    public static bool IsBoolList(this Type check) => check.IsReadOnlyListOf(typeof(bool));
 
-    public static bool IsNullableBoolList(this Type check) =>
-        check == typeof(List<bool?>)
-     || check == typeof(IList<bool?>)
-     || check == typeof(IReadOnlyList<bool?>);
+    public static bool IsNullableBoolList(this Type check) => check.IsReadOnlyListOfNullable(typeof(bool));
 
     public static bool IsByte(this Type check)              => check == typeof(byte) || check.IsByteEnum();
     public static bool IsNullableByte(this Type check)      => check == typeof(byte?);
@@ -276,7 +367,7 @@ public static class TypeExtensions
      || check == typeof(IReadOnlyList<DateTime?>);
 
     public static bool IsString(this Type check)      => check == typeof(string);
-    public static bool IsNotString(this Type check)      => !check.IsString();
+    public static bool IsNotString(this Type check)   => !check.IsString();
     public static bool IsStringArray(this Type check) => check == typeof(string[]);
 
     public static bool IsStringList(this Type check) =>

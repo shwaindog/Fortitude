@@ -183,9 +183,9 @@ public class TimeSpanConfig: ConfigSection, ITimeSpanConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa)
     {
-        return sbc.StartComplexType(nameof(TimeSpanConfig))
+        return stsa.StartComplexType( this)
            .Field.AlwaysAdd(nameof(Days), Days)
            .Field.AlwaysAdd(nameof(Hours), Hours)
            .Field.AlwaysAdd(nameof(Minutes), Minutes)

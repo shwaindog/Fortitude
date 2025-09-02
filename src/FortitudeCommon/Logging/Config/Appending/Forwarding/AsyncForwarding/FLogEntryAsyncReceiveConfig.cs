@@ -89,12 +89,12 @@ public class FLogEntryAsyncReceiveConfig : FLogEntryQueueConfig, IMutableFLogEnt
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLogEntryAsyncReceiveConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
            .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
            .Field.AlwaysAdd(nameof(ConfirmSequenceNumberInterval), ConfirmSequenceNumberInterval)
            .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
-           .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
+           .Field.WhenNonNullAddStyled(nameof(LogEntryPool), LogEntryPool)
            .Complete();
 }

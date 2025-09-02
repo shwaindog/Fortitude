@@ -184,8 +184,8 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(AsyncForwardingAppendersConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(AsyncType), AsyncType)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling)

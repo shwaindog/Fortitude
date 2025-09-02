@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
@@ -11,39 +12,41 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
 
 public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 {
-    public TExt WhenNonNullOrDefaultAdd
-    (string fieldName, bool? value, bool? defaultValue = false
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value != null && value != defaultValue ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+    private static readonly ConcurrentDictionary<Type, object?> EmptyConstructInstance = new();
     
-    public TExt WhenNonNullOrDefaultAdd<TFmt>(string fieldName, TFmt? value, TFmt? defaultValue = default
+    public TExt WhenNonNullOrDefaultAdd
+    (string fieldName, bool? value, bool? defaultValue = false) =>
+        !stb.SkipBody && value != null && value != defaultValue ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+    
+    public TExt WhenNonNullOrDefaultAdd<TFmt>(string fieldName, TFmt? value, TFmt defaultValue = default!
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TFmt : ISpanFormattable => 
-        value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipBody && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd<TToStyle, TStylerType>(string fieldName, TToStyle? value
-      , CustomTypeStyler<TStylerType> customTypeStyler, TToStyle? defaultValue = default) where TToStyle : TStylerType =>
-        value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
+      , CustomTypeStyler<TStylerType> customTypeStyler, TToStyle defaultValue = default!) where TToStyle : TStylerType =>
+        !stb.SkipBody && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, string? defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
-       value != null && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipBody && value != null && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, string? defaultValue = "") => 
-       value is { Length: > 0 } ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        !stb.SkipBody && value is { Length: > 0 } ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, IStyledToStringObject? value, IStyledToStringObject? defaultValue = null) => 
-        value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullOrDefaultAddStyled<TStyled>(string fieldName, TStyled? value, TStyled defaultValue = default!) 
+        where TStyled : IStyledToStringObject => 
+        !stb.SkipBody && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, string? defaultValue = "") =>
-        value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        !stb.SkipBody && value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, string? defaultValue = "") =>
-        value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        !stb.SkipBody && value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue
       , string? formatString = null, string? defaultValue = null)
     {
-        if (value == null) return stb.StyleTypeBuilder;
+        if (stb.SkipBody || value == null) return stb.StyleTypeBuilder;
         if (defaultValue != null)
         {
             if (value.Equals(defaultValue))
@@ -57,7 +60,7 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, int startIndex, int length = int.MaxValue
       , string? formatString = null, string? defaultValue = null)
     {
-        if (value == null) return stb.StyleTypeBuilder;
+        if (stb.SkipBody || value == null) return stb.StyleTypeBuilder;
         if (defaultValue != null)
         {
             if (value.Equals(defaultValue))
@@ -71,7 +74,7 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, int startIndex, int length = int.MaxValue
       , string? formatString = null, string? defaultValue = null)
     {
-        if (value == null) return stb.StyleTypeBuilder;
+        if (stb.SkipBody || value == null) return stb.StyleTypeBuilder;
         if (defaultValue != null)
         {
             var valueSpan   = value.AsSpan();
@@ -87,7 +90,7 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, int startIndex, int length = int.MaxValue
       , string? formatString = null, string? defaultValue = null)
     {
-        if (value == null) return stb.StyleTypeBuilder;
+        if (stb.SkipBody || value == null) return stb.StyleTypeBuilder;
         if (defaultValue != null)
         {
             var valueSpan   = value.AsSpan();
@@ -100,8 +103,12 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
         return AlwaysAdd(fieldName, value, startIndex, length, formatString);
     }
     
-    [CallsObjectToString]
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, object? value, object? defaultValue
+    public TExt WhenNonNullOrDefaultAddMatch<T>(string fieldName, T? value, T? defaultValue = default
       ,[StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
-        value != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipBody && value != null && value.Equals(defaultValue) ? AlwaysAddMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    
+    [CallsObjectToString]
+    public TExt WhenNonNullOrDefaultAddObject(string fieldName, object? value, object? defaultValue = null
+      ,[StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
+        !stb.SkipBody && value != null && value.Equals(defaultValue) ? AlwaysAddObject(fieldName, value, formatString) : stb.StyleTypeBuilder;
 }

@@ -1,4 +1,6 @@
-﻿namespace FortitudeCommon.Types.Mutable;
+﻿using System.Diagnostics;
+
+namespace FortitudeCommon.Types.Mutable;
 
 
 public class ModifyFrozenObjectAttempt : Exception
@@ -22,6 +24,8 @@ where T : IFreezable
 public interface IFreezable : IMaybeFrozen
 {
     bool ThrowOnMutateAttempt { get; set; }
+    
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
 
     IMaybeFrozen Freeze { get; }
 }

@@ -199,8 +199,8 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(MatchSequenceOccurenceConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
            .Field.AlwaysAdd(nameof(OnSequenceAbort), OnSequenceAbort)
            .Field.AlwaysAdd(nameof(OnSequenceTimeout), OnSequenceTimeout)

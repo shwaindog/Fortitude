@@ -151,8 +151,8 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(ConfigPriorityOrder), ConfigPriorityOrder)
            .Field.AlwaysAdd(nameof(ConfigSourceName), ConfigSourceName)
            .Field.AlwaysAdd(nameof(Optional), Optional)

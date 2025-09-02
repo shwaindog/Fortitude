@@ -294,8 +294,8 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(LogEntryPoolsInitializationConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(DefaultLogEntryCharCapacity), DefaultLogEntryCharCapacity)
            .Field.AlwaysAdd(nameof(DefaultLogEntryBatchSize), DefaultLogEntryBatchSize)
            .Field.AlwaysAdd(nameof(GlobalLogEntryPool), GlobalLogEntryPool)

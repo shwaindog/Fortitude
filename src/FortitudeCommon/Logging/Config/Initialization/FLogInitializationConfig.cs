@@ -127,8 +127,8 @@ public class FLogInitializationConfig : FLogConfig, IMutableFLogInitializationCo
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLogInitializationConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(AsyncBufferingInit), AsyncBufferingInit)
            .Field.AlwaysAdd(nameof(LogEntryPoolsInit), LogEntryPoolsInit)
            .Complete();

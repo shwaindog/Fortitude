@@ -22,13 +22,11 @@ public class LogEntriesBatch : ReusableList<IFLogEntry>, ILogEntriesBatch
     public IReadOnlyList<IFLogEntry> AsReadOnly => this;
     public IEnumerable<IFLogEntry> AsEnumerable => this;
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa)
     {
-        var tb = sbc.StartComplexCollectionType(nameof(LogEntriesBatch));
+        var tb = stsa.StartComplexCollectionType(this);
         tb.LogOnlyField?.AlwaysAdd(nameof(RefCount), RefCount);
         tb.LogOnlyField?.AlwaysAdd(nameof(Count), Count);
-        tb.AddFiltered(AsReadOnly, FirstThree);
-
-        return tb.Complete();
+        return tb.AddFiltered(AsReadOnly, FirstThree).Complete();
     }
 }

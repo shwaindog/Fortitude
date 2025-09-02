@@ -108,8 +108,8 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
            .Field.AlwaysAdd(nameof(Lhs), Lhs)
            .Field.AlwaysAdd(nameof(Is), Is)

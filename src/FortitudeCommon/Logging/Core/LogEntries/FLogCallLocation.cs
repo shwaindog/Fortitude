@@ -26,7 +26,7 @@ public static class FLogCallLocationExtensions
 
 
     public static StyledTypeBuildResult FormatFlogLevelAppender(this FLogCallLocation callLoc, IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLogCallLocation))
+        sbc.StartComplexType(callLoc)
            .Field.AlwaysAdd(nameof(callLoc.MemberName), callLoc.MemberName)
            .Field.AlwaysAdd(nameof(callLoc.SourceLineNumber), callLoc.SourceLineNumber)
            .Field.AlwaysAdd(nameof(callLoc.SourceFilePath), callLoc.SourceFilePath)

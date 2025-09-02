@@ -9,9 +9,9 @@ public partial class KeyValueCollectionBuilder : MultiValueTypeBuilder<KeyValueC
     private IStyleTypeBuilderComponentAccess<KeyValueCollectionBuilder> stb = null!;
 
     public KeyValueCollectionBuilder InitializeKeyValueCollectionBuilder (IStyleTypeAppenderBuilderAccess owningStyledTypeAppender
-      , TypeAppendSettings appendSettings, string typeName)
+      , TypeAppendSettings appendSettings, string typeName, int existingRefId)
     {
-        InitializeMultiValueTypeBuilder(owningStyledTypeAppender, appendSettings, typeName);
+        InitializeMultiValueTypeBuilder(owningStyledTypeAppender, appendSettings, typeName, existingRefId);
 
         stb = CompAccess;
 

@@ -318,8 +318,8 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartKeyedCollectionType(nameof(NamedAppendersLookupConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartKeyedCollectionType(this)
            .AddAll(AppendersByName)
            .Complete();
 

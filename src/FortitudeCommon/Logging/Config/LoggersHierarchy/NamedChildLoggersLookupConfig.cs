@@ -213,8 +213,8 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartKeyedCollectionType(nameof(NamedChildLoggersLookupConfig))
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartKeyedCollectionType(this)
            .AddAll(loggersByName)
            .Complete();
 

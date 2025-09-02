@@ -14,10 +14,9 @@ public class ComplexTypeBuilder : MultiValueTypeBuilder<ComplexTypeBuilder>
     private SelectTypeField<ComplexTypeBuilder>?           addField;
 
     public ComplexTypeBuilder InitializeComplexTypeBuilder
-    (StyledTypeStringAppender owningStyledTypeAppender
-      , TypeAppendSettings appendSettings, string typeName)
+    (StyledTypeStringAppender owningStyledTypeAppender, TypeAppendSettings appendSettings, string typeName, int existingRefId)
     {
-        InitializeMultiValueTypeBuilder(owningStyledTypeAppender, appendSettings, typeName);
+        InitializeMultiValueTypeBuilder(owningStyledTypeAppender, appendSettings, typeName, existingRefId);
 
         return this;
     }

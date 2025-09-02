@@ -9,9 +9,9 @@ public partial class OrderedCollectionBuilder<TExt> : TypedStyledTypeBuilder<TEx
     private CollectionBuilderCompAccess<TExt> stb = null!;
 
     public OrderedCollectionBuilder<TExt> InitializeOrderedCollectionBuilder(IStyleTypeAppenderBuilderAccess owningAppender
-      , TypeAppendSettings typeSettings, string typeName)
+      , TypeAppendSettings typeSettings, string typeName, int existingRefId)
     {
-        InitializeTypedStyledTypeBuilder(owningAppender, typeSettings, typeName);
+        InitializeTypedStyledTypeBuilder(owningAppender, typeSettings, typeName, existingRefId);
 
         stb = CompAsOrderedCollection;
 
@@ -27,9 +27,9 @@ public partial class OrderedCollectionBuilder<TExt> : TypedStyledTypeBuilder<TEx
 public class SimpleOrderedCollectionBuilder : OrderedCollectionBuilder<SimpleOrderedCollectionBuilder>
 {
     public SimpleOrderedCollectionBuilder InitializeSimpleOrderedCollectionBuilder(IStyleTypeAppenderBuilderAccess owningAppender
-      , TypeAppendSettings typeSettings, string typeName)
+      , TypeAppendSettings typeSettings, string typeName, int  existingRefId)
     {
-        InitializeOrderedCollectionBuilder(owningAppender, typeSettings, typeName);
+        InitializeOrderedCollectionBuilder(owningAppender, typeSettings, typeName,  existingRefId);
 
         return this;
     }
@@ -51,9 +51,9 @@ public class ComplexOrderedCollectionBuilder : OrderedCollectionBuilder<ComplexO
     protected override string TypeClosingDelimiter => CompAsOrderedCollection.CollectionInComplexType ? "}" : "]";
 
     public ComplexOrderedCollectionBuilder InitializeComplexOrderedCollectionBuilder
-        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName)
+        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName, int existingRefId)
     {
-        InitializeOrderedCollectionBuilder(owningAppender, typeSettings, typeName);
+        InitializeOrderedCollectionBuilder(owningAppender, typeSettings, typeName,  existingRefId);
 
         return this;
     }

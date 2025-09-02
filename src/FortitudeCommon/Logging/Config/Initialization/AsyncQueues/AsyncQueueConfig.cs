@@ -194,8 +194,8 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(AsyncQueueConfig))
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(QueueNumber), QueueNumber)
            .Field.AlwaysAdd(nameof(QueueType), QueueType)
            .Field.AlwaysAdd(nameof(QueueCapacity), QueueCapacity)

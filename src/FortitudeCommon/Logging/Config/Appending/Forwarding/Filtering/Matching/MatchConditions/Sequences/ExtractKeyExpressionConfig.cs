@@ -109,8 +109,8 @@ public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressi
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(KeyName), KeyName)
            .Field.AlwaysAdd(nameof(ExtractRegEx), ExtractRegEx)
            .Field.AlwaysAdd(nameof(ExtractGroupNumber), ExtractGroupNumber)

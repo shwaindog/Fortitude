@@ -70,8 +70,8 @@ public class FLoggerActivationConfig : FLogBuildTypeAndDeployEnvConfig, IMutable
         new (this, configRoot, path);
     
     
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLoggerActivationConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(LoggerActivationFlags), LoggerActivationFlags)
            .AddBaseStyledToStringFields(this)
            .Complete();

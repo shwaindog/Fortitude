@@ -169,8 +169,8 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLogEntryPoolConfig))
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(PoolName), PoolName)
            .Field.AlwaysAdd(nameof(PoolScope), PoolScope.ToString())
            .Field.AlwaysAdd(nameof(LogEntryCharCapacity), LogEntryCharCapacity)

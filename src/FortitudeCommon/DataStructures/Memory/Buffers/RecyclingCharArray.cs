@@ -1026,14 +1026,14 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         return CompareTo(toCompare) == 0;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa)
     {
         return
-            sbc.StartSimpleValueType(nameof(RecyclingCharArray))
+            stsa.StartSimpleValueType(this)
                .String(nameof(backingArray), backingArray, 0, length).Complete();
     }
 
-    public override string ToString() => this.DefaultToString(Recycler);
+    public override string ToString() => new (WrittenAsSpan());
 
     public string ToString(int fromIndex, int maxLength)
     {

@@ -281,8 +281,8 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartKeyedCollectionType(nameof(OrderedConfigSourcesLookupConfig))
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartKeyedCollectionType(this)
            .AddAll(priorityConfigSources)
            .Complete();
 
