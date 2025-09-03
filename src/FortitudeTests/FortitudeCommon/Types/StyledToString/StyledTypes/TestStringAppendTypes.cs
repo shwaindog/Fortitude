@@ -761,7 +761,9 @@ public class TradesInstructor(string tradeSkill) : AccredittedInstructor
     public override string ToString() =>
         $"{base.ToString()}, {nameof(RecentAccreditations)}: {RecentAccreditations}, {nameof(TradeSkill)}: {TradeSkill}";
 }
-
+[JsonDerivedType(typeof(ArtsSubject))]
+[JsonDerivedType(typeof(EngineeringSubject))]
+[JsonDerivedType(typeof(TradesSubject))]
 public record CourseSubject(string SubjectName) : IStyledToStringObject
 {
     public LinkedList<double?> RecentGrades { get; set; } = new();
@@ -782,9 +784,9 @@ public record ArtsSubject(string SubjectName) : CourseSubject(SubjectName)
 
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
         stsa.StartComplexType(this)
-            .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(ManagingArtsFaculty), ManagingArtsFaculty)
             .Field.AlwaysAdd(nameof(SubjectOwner), SubjectOwner)
+            .AddBaseStyledToStringFields(this)
             .Complete();
 
     public override string ToString() =>
@@ -798,8 +800,8 @@ public record EngineeringSubject(string SubjectName) : CourseSubject(SubjectName
 
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
         stsa.StartComplexType(this)
-            .AddBaseStyledToStringFields(this)
             .CollectionField.WhenPopulatedAddAll(nameof(RequiredPrerequisiteSubjects), RequiredPrerequisiteSubjects)
+            .AddBaseStyledToStringFields(this)
             .Complete();
 
     public override string ToString() =>
@@ -810,21 +812,18 @@ public record EngineeringSubject(string SubjectName) : CourseSubject(SubjectName
 
 public record TradesSubject(string SubjectName) : CourseSubject(SubjectName)
 {
-    [JsonInclude]
     public License? RequiredAttendeeLicense { get; set; }
 
-    [JsonInclude]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public License RequiredTeacherLicense { get; set; } = null!;
 
     public AccredittedInstructor SubjectOwner { get; set; } = null!;
 
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
         stsa.StartComplexType(this)
-            .AddBaseStyledToStringFields(this)
-            .Field.WhenNonNullOrDefaultAddStyled(nameof(RequiredTeacherLicense), RequiredTeacherLicense)
-            .Field.WhenNonNullOrDefaultAddStyled(nameof(RequiredAttendeeLicense), RequiredAttendeeLicense)
+            .Field.AlwaysAdd(nameof(RequiredAttendeeLicense), RequiredAttendeeLicense)
+            .Field.AlwaysAdd(nameof(RequiredTeacherLicense), RequiredTeacherLicense)
             .Field.AlwaysAdd(nameof(SubjectOwner), SubjectOwner)
+            .AddBaseStyledToStringFields(this)
             .Complete();
 
     public override string ToString() =>
@@ -977,7 +976,7 @@ public class HighVoltageElectriciansLicense : License
 
     public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
         stsa.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(Issued), Issued)
+            .Field.WhenNonDefaultAdd(nameof(Issued), Issued)
             .Field.AlwaysAdd(nameof(GradeOfAccess), GradeOfAccess)
             .AddBaseStyledToStringFields(this);
 

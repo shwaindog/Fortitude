@@ -186,7 +186,7 @@ public static class StyledTypeBuilderExtensions
     (this IStringBuilder sb, T value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false) where T : class, ISpanFormattable
     {
-        return sb.Qt(inQuotes).AppendSpanFormattable(formatString, value).Qt(inQuotes);
+        return sb.Qt(inQuotes).AppendFormat(formatString, value).Qt(inQuotes);
     }
 
     public static IStringBuilder AppendFormatted

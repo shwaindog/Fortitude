@@ -701,7 +701,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     public TExt AlwaysAddAllEnumerate<TFmt>(string fieldName, IEnumerator<TFmt>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "{0}") 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TFmt : ISpanFormattable
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
