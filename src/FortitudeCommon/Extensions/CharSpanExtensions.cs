@@ -330,6 +330,7 @@ public static class CharSpanExtensions
         for (int i = 0; i < toAppend.Length && spanIndex < toUpdate.Length; i++)
         {
             toUpdate[spanIndex++] = toAppend[i];
+            charsWritten++;
         }
         return charsWritten;
     }
@@ -343,6 +344,7 @@ public static class CharSpanExtensions
         for (int i = buildIndex; i < builderMaxLength && spanIndex < spanLength; i++)
         {
             toUpdate[spanIndex++] = toAppend[i];
+            charsWritten++;
         }
         return charsWritten;
     }
@@ -356,6 +358,7 @@ public static class CharSpanExtensions
         for (int i = buildIndex; i < builderMaxLength && spanIndex < spanLength; i++)
         {
             toUpdate[spanIndex++] = toAppend[i];
+            charsWritten++;
         }
         return charsWritten;
     }
@@ -385,6 +388,22 @@ public static class CharSpanExtensions
             toUpdate[updateLength++] = toAppend[i];
         }
         return toUpdate;
+    }
+
+    public static int AppendReturnAddCount(this Span<char> toUpdate, string toAppend, int startIndex = 0, int count = int.MaxValue)
+    {
+        var cappedLength = Math.Clamp(count, 0, toAppend.Length - startIndex);
+        var startAt      = toUpdate.PopulatedLength();
+        cappedLength = Math.Clamp(cappedLength, 0, toUpdate.Length - startAt);
+        var endIndex     = startIndex + cappedLength;
+        var updateLength = startAt;
+        int addedChars   = 0;
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            toUpdate[updateLength++] = toAppend[i];
+            addedChars++;
+        }
+        return addedChars;
     }
 
     public static Span<char> Append(this Span<char> toUpdate, ReadOnlySpan<char> toAppend, int startIndex = 0, int count = int.MaxValue)

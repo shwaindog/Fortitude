@@ -194,9 +194,9 @@ public abstract partial class FLogEntryMessageBuilder : RecyclableObject, IFLogM
             case IPNetwork valueIntPtr:  stringBuilder.Append(valueIntPtr); break;
             case string valueString:     stringBuilder.Append(valueString); break;
             case char[] valueCharArray:  stringBuilder.Append(valueCharArray); break;
-            case Version valueGuid:      stringBuilder.AppendSpanFormattable("{0}", valueGuid); break;
-            case IPAddress valueIntPtr:  stringBuilder.AppendSpanFormattable("{0}", valueIntPtr); break;
-            case Uri valueUri:           stringBuilder.AppendSpanFormattable("{0}", valueUri); break;
+            case Version valueGuid:      stringBuilder.AppendFormat("{0}", valueGuid); break;
+            case IPAddress valueIntPtr:  stringBuilder.AppendFormat("{0}", valueIntPtr); break;
+            case Uri valueUri:           stringBuilder.AppendFormat("{0}", valueUri); break;
 
             case DateTimeOffset valueDateTimeOffset:   stringBuilder.Append(valueDateTimeOffset); break;
             case ICharSequence valueCharSeq:           stringBuilder.Append(valueCharSeq); break;
@@ -204,7 +204,7 @@ public abstract partial class FLogEntryMessageBuilder : RecyclableObject, IFLogM
             case IStyledToStringObject valueStyledObj: AppendStyledObject(valueStyledObj, toAppendTo); break;
 
             default:
-                if (value is ISpanFormattable spanFormattableValue) stringBuilder.AppendSpanFormattable("{0}", spanFormattableValue);
+                if (value is ISpanFormattable spanFormattableValue) stringBuilder.AppendFormat("{0}", spanFormattableValue);
                 BuildCacheCallGenericAppend(value, toAppendTo);
                 break;
         }

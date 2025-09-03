@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types.StyledToString;
 
 namespace FortitudeTests.FortitudeCommon.Types.StyledToString.StyledTypes;
@@ -19,7 +20,10 @@ public class StyledTypeStringAppenderJsonTests
         
         var shakespeare = objectGraph.Shakespeare;
         
-        var shakeJsonSer = JsonSerializer.Serialize(shakespeare);
+        var shakeJsonSer = JsonSerializer.Serialize(shakespeare, new JsonSerializerOptions()
+        {
+            ReferenceHandler = ReferenceHandler.Preserve
+        });
 
         Console.Out.WriteLine("Json Serializer");
         Console.Out.WriteLine(shakeJsonSer);
