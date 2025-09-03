@@ -102,7 +102,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     private readonly TEnumValue[] enumValues;
 
-    private readonly ConcurrentDictionary<long, string>? longRangeEnumMaterializedNames;
+    private ConcurrentDictionary<long, string>? longRangeEnumMaterializedNames;
 
     private readonly string enumName;
 
@@ -176,7 +176,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     public StyledTypeBuildResult EnumStyler(TEnumValue toFormatEnum, IStyledTypeStringAppender sbc)
     {
-        var tb = sbc.StartSimpleValueType(enumName);
+        var tb = sbc.StartSimpleValueType(toFormatEnum);
         using (var sb = tb.StartDelimitedStringBuilder())
         {
             var buildNames = stackalloc char[allValuesCharCount].ResetMemory();
@@ -223,7 +223,19 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         {
             if (isShortRangeEnum)
             {
-                var valueShort    = (ushort)(singleEnumValue.ToInt64(null) - lowestOffset);
+                var enumValue     = singleEnumValue.ToInt64(null);
+                if (enumValue < lowestOffset || enumValue > (lowestOffset + shortRangeEnumMaterializedNames!.Length))
+                {
+                    longRangeEnumMaterializedNames ??= new ConcurrentDictionary<long, string>();
+                    if (!longRangeEnumMaterializedNames!.TryGetValue(enumValue, out var outOfRangeValue))
+                    {
+                        outOfRangeValue = enumValue.ToString();
+                        longRangeEnumMaterializedNames.TryAdd(enumValue, enumValue.ToString());
+                    }
+                    buildNames.Append(outOfRangeValue);
+                    return outOfRangeValue.Length;
+                }
+                var valueShort    = (short)enumValue - lowestOffset;
                 var enumValueName = shortRangeEnumMaterializedNames![valueShort];
                 buildNames.Append(enumValueName);
                 return enumValueName.Length;

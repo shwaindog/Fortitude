@@ -185,8 +185,8 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(RollingFileAppenderConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(RollAtSize), RollAtSize)
            .Field.AlwaysAdd(nameof(RollFileNameFormat), RollFileNameFormat)
            .AddBaseStyledToStringFields(this).Complete();

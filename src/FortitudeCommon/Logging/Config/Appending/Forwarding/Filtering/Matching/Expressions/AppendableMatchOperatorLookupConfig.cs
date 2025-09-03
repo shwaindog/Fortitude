@@ -252,8 +252,8 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartKeyedCollectionType(nameof(AppendableMatchOperatorLookupConfig))
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartKeyedCollectionType(this)
            .AddAll(evalOrderKeyedExpressions)
            .Complete();
 

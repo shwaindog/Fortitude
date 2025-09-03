@@ -90,8 +90,8 @@ public class TokenFormatting : ITokenReplacedTemplatePart
     public bool IsLeftAligned { get; }
     public int Padding { get; }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(TokenFormatting))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(TokenName), TokenName)
            .Field.AlwaysAdd(nameof(FormatString), FormatString)
            .Field.WhenNonDefaultAdd(nameof(Layout), Layout)
@@ -99,8 +99,8 @@ public class TokenFormatting : ITokenReplacedTemplatePart
            .Field.WhenNonDefaultAdd(nameof(Padding), Padding)
            .Field.WhenNonDefaultAdd(nameof(IsLeftAligned), IsLeftAligned)
            .Field.WhenNonDefaultAdd(nameof(IsRightAligned), IsRightAligned, true)
-           .Field.WhenNonDefaultAdd(nameof(CharsRange), CharsRange, Range.All)
-           .Field.WhenNonDefaultAdd(nameof(SplitRange), SplitRange, Range.All)
+           .Field.WhenNonDefaultAddMatch(nameof(CharsRange), CharsRange, Range.All)
+           .Field.WhenNonDefaultAddMatch(nameof(SplitRange), SplitRange, Range.All)
            .Complete();
 
     public override string ToString() => this.DefaultToString();

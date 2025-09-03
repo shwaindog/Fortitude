@@ -19,6 +19,8 @@ public interface IStyleTypeBuilderComponentAccess
     ushort IndentLevel { get; }
 
     bool IsComplete { get; }
+    
+    bool SkipBody { get; }
 
     StringBuildingStyle Style { get; }
 
@@ -65,6 +67,8 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
     public string Indent => typeBuilderState.OwningAppender.Indent;
 
     public bool IsComplete => StyleTypeBuilder.IsComplete;
+    
+    public bool SkipBody => typeBuilderState.ExistingRefId > 0;
 
     public int DecrementIndent()
     {

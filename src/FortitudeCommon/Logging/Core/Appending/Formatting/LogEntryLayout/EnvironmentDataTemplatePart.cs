@@ -102,8 +102,8 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
         return allEnvVariablesExpanded;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(LogEntryDataTemplatePart))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(tokenFormatting), tokenFormatting).Complete();
 
     public override string ToString() => this.DefaultToString();

@@ -300,13 +300,13 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(MatchSequenceTriggerConfig))
-           .Field.WhenNonNullAdd(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
-           .Field.WhenNonNullAdd(nameof(NextTriggerStep), NextTriggerStep)
-           .Field.WhenNonNullAdd(nameof(OnTriggerExtract), OnTriggerExtract)
-           .Field.WhenNonNullAdd(nameof(CompletedWhenEntry), CompletedWhenEntry)
-           .Field.WhenNonNullAdd(nameof(AbortWhenEntry), AbortWhenEntry)
-           .Field.WhenNonNullAdd(nameof(TimeOut), TimeOut)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+           .Field.WhenNonNullAddStyled(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
+           .Field.WhenNonNullAddStyled(nameof(NextTriggerStep), NextTriggerStep)
+           .Field.WhenNonNullAddStyled(nameof(OnTriggerExtract), OnTriggerExtract)
+           .Field.WhenNonNullAddStyled(nameof(CompletedWhenEntry), CompletedWhenEntry)
+           .Field.WhenNonNullAddStyled(nameof(AbortWhenEntry), AbortWhenEntry)
+           .Field.WhenNonNullAddStyled(nameof(TimeOut), TimeOut)
            .Complete();
 }

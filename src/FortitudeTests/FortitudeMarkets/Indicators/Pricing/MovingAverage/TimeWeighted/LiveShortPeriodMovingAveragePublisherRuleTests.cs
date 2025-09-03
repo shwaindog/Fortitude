@@ -124,7 +124,8 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
         for (var i = 1; i <= numberToGenerate; i++)
         {
             if (i % incAt == 0) currentMid += midIncrement;
-            quotes.Add(tickerInfo.CreatePublishableLevel1Quote(quoteTime = quoteGap.PeriodEnd(quoteTime), currentMid, spread).ToPublishableL1PQQuote());
+            quotes.Add(tickerInfo.CreatePublishableLevel1Quote(quoteTime = quoteGap.PeriodEnd(quoteTime), currentMid, spread)
+                                 .ToPublishableL1PQQuote());
         }
         lastGeneratedQuotesEndTime = quoteTime;
         return quotes;
@@ -275,8 +276,9 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
         private ISubscription? historicalQuoteReturnResultsSubscription;
 
         private List<PQPublishableLevel1Quote> historicalRepositoryQuotesToReturn = new();
-        private ISubscription?      listenForPublishPricesSubscription;
-        private ISubscription?      live15SMovingAveragePublishSubscription;
+
+        private ISubscription? listenForPublishPricesSubscription;
+        private ISubscription? live15SMovingAveragePublishSubscription;
 
         private ISubscription? live30SMovingAveragePublishSubscription;
 

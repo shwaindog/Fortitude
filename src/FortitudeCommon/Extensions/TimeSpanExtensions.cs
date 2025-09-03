@@ -20,7 +20,7 @@ public static class TimeSpanExtensions
 
     public static StyledTypeBuildResult FormatTimeSpanAsStringAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
-        var tb = sbc.StartSimpleValueType(nameof(TimeSpan));
+        var tb = sbc.StartSimpleValueType(timeSpan);
         using(var sb = tb.StartDelimitedStringBuilder())
         {
             IStringBuilder? setSb = null;
@@ -40,7 +40,7 @@ public static class TimeSpanExtensions
     public static StyledTypeBuildResult FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
         return
-        sbc.StartComplexType(nameof(TimeSpan))
+        sbc.StartComplexType(timeSpan)
            .Field.WhenNonDefaultAdd(nameof(TimeSpan.Days), timeSpan.Days)
            .Field.WhenNonDefaultAdd(nameof(TimeSpan.Hours), timeSpan.Hours)
            .Field.WhenNonDefaultAdd(nameof(TimeSpan.Minutes), timeSpan.Minutes)

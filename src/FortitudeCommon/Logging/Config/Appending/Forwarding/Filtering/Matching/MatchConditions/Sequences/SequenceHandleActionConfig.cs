@@ -143,10 +143,10 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
-           .Field.WhenNonNullAdd(nameof(SendMessage), SendMessage)
-           .Field.WhenNonNullAdd(nameof(SendToAppender), SendToAppender)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+           .Field.WhenNonNullAddStyled(nameof(SendMessage), SendMessage)
+           .Field.WhenNonNullAddStyled(nameof(SendToAppender), SendToAppender)
            .Field.AlwaysAdd(nameof(SendTriggeringLogEntries), SendTriggeringLogEntries)
            .Complete();
 }

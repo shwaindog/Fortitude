@@ -259,8 +259,8 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartKeyedCollectionType(nameof(AsyncQueueLookupConfig))
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartKeyedCollectionType(this)
            .AddAll(queueConfigByQueueNumber)
            .Complete();
 

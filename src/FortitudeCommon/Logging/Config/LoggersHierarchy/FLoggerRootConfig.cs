@@ -109,12 +109,12 @@ public class FLoggerRootConfig : FLoggerTreeCommonConfig, IMutableFLoggerRootCon
         }
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(Name), Name)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
            .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
-           .Field.WhenNonNullAdd(nameof(Appenders), Appenders)
-           .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
+           .Field.WhenNonNullAddStyled(nameof(Appenders), Appenders)
+           .Field.WhenNonNullAddStyled(nameof(LogEntryPool), LogEntryPool)
            .Complete();
 }

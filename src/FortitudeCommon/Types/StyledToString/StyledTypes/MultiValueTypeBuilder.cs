@@ -12,9 +12,9 @@ public abstract class MultiValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt>
     private SelectTypeField<TExt>?           logOnlyInternalField;
     
     protected void InitializeMultiValueTypeBuilder(IStyleTypeAppenderBuilderAccess owningStyledTypeAppender
-      , TypeAppendSettings appendSettings, string typeName)
+      , TypeAppendSettings appendSettings, string typeName, int existingRefId)
     {
-        InitializeTypedStyledTypeBuilder(owningStyledTypeAppender, appendSettings, typeName);
+        InitializeTypedStyledTypeBuilder(owningStyledTypeAppender, appendSettings, typeName, existingRefId);
     }
 
 
@@ -41,6 +41,7 @@ public abstract class MultiValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt>
 
     public TExt AddBaseStyledToStringFields<T>(T thisType) where T : IStyledToStringObject
     {
+        if (CompAccess.SkipBody) return CompAccess.StyleTypeBuilder;
         CompAccess.OwningAppender.AddBaseFieldsStart();
         TargetToStringInvoker.CallBaseStyledToStringIfSupported(thisType, CompAccess.OwningAppender);
         

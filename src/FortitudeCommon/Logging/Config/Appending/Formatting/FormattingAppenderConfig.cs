@@ -148,10 +148,10 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FormattingAppenderConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(LogEntryFormatLayout), LogEntryFormatLayout)
-           .Field.WhenNonNullOrDefaultAdd(nameof(InheritsFrom), InheritsFrom)
+           .Field.WhenNonNullOrDefaultAddStyled(nameof(InheritsFrom), InheritsFrom)
            .Complete();
 }

@@ -186,12 +186,12 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLogEntryQueueConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
            .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
            .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
            .Field.AlwaysAdd(nameof(QueueDropInterval), QueueDropInterval)
-           .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
+           .Field.WhenNonNullAddStyled(nameof(LogEntryPool), LogEntryPool)
            .Complete();
 }

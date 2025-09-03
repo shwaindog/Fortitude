@@ -96,8 +96,8 @@ public class MatchLogLevelConfigConfig : MatchConditionConfig, IMutableMatchLogL
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
            .Field.AlwaysAdd(nameof(CheckLogLevel), CheckLogLevel)
            .Field.AlwaysAdd(nameof(Is), Is)

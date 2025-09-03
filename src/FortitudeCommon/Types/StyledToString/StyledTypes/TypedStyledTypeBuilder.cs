@@ -14,9 +14,9 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
     protected virtual string TypeClosingDelimiter => "}";
 
     protected void InitializeTypedStyledTypeBuilder(IStyleTypeAppenderBuilderAccess owningAppender
-      , TypeAppendSettings typeSettings, string typeName)
+      , TypeAppendSettings typeSettings, string typeName, int existingRefId)
     {
-        InitializeStyledTypeBuilder(owningAppender, typeSettings, typeName);
+        InitializeStyledTypeBuilder(owningAppender, typeSettings, typeName,  existingRefId);
 
         SourceBuilderComponentAccess();
     }
@@ -44,9 +44,9 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
 
     public override StyledTypeBuildResult Complete()
     {
-        CompAccess.RemoveLastWhiteSpacedCommaIfFound();
         if (!PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeEndFlag())
         {
+            CompAccess.RemoveLastWhiteSpacedCommaIfFound();
             CompAccess.Sb.Append(TypeClosingDelimiter);
             CompAccess.DecrementIndent();
         }

@@ -254,13 +254,13 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(Name), Name)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
            .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
-           .Field.WhenNonNullAdd(nameof(Appenders), Appenders)
-           .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
+           .Field.WhenNonNullAddStyled(nameof(Appenders), Appenders)
+           .Field.WhenNonNullAddStyled(nameof(LogEntryPool), LogEntryPool)
            .Complete();
 
     public override string ToString() => this.DefaultToString();

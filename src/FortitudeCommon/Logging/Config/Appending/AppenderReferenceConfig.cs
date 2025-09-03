@@ -143,8 +143,8 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(AppenderReferenceConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(AppenderName), AppenderName)
            .Field.WhenNonNullOrDefaultAdd(nameof(AppenderType), AppenderType)
            .Field.WhenNonDefaultAdd(nameof(DeactivateHere), DeactivateHere)

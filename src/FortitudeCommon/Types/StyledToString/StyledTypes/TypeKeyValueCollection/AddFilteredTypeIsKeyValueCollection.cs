@@ -21,6 +21,7 @@ public partial class KeyValueCollectionBuilder
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKey : TKBase where TValue : TVBase 
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -28,11 +29,11 @@ public partial class KeyValueCollectionBuilder
                 var kvp = value[i];
                 if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
+                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendOrNull(kvp.Value);
+                    : stb.AppendNullOrValue(kvp.Value);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -45,6 +46,7 @@ public partial class KeyValueCollectionBuilder
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKey : TKBase where TValue : TVBase 
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
@@ -52,11 +54,11 @@ public partial class KeyValueCollectionBuilder
                 var kvp = value[i];
                 if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
+                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendOrNull(kvp.Value);
+                    : stb.AppendNullOrValue(kvp.Value);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -69,6 +71,7 @@ public partial class KeyValueCollectionBuilder
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase 
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
             int count = 0;
@@ -76,11 +79,11 @@ public partial class KeyValueCollectionBuilder
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
+                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendOrNull(kvp.Value);
+                    : stb.AppendNullOrValue(kvp.Value);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -93,6 +96,7 @@ public partial class KeyValueCollectionBuilder
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase 
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
@@ -106,11 +110,11 @@ public partial class KeyValueCollectionBuilder
                     continue;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
+                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendOrNull(kvp.Value);
+                    : stb.AppendNullOrValue(kvp.Value);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }
@@ -130,6 +134,7 @@ public partial class KeyValueCollectionBuilder
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -137,8 +142,8 @@ public partial class KeyValueCollectionBuilder
                 var kvp = value[i];
                 if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
+                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
@@ -152,6 +157,7 @@ public partial class KeyValueCollectionBuilder
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
@@ -159,8 +165,8 @@ public partial class KeyValueCollectionBuilder
                 var kvp = value[i];
                 if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
+                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
@@ -173,6 +179,7 @@ public partial class KeyValueCollectionBuilder
       , CustomTypeStyler<TVBase2> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
             int count = 0;
@@ -180,8 +187,8 @@ public partial class KeyValueCollectionBuilder
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
+                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
@@ -194,6 +201,7 @@ public partial class KeyValueCollectionBuilder
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
@@ -207,8 +215,8 @@ public partial class KeyValueCollectionBuilder
                     continue;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
+                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
@@ -228,13 +236,14 @@ public partial class KeyValueCollectionBuilder
       , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
                 if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
-                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
@@ -247,13 +256,14 @@ public partial class KeyValueCollectionBuilder
           , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
                 if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
-                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
@@ -265,13 +275,14 @@ public partial class KeyValueCollectionBuilder
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
             int count = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
-                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
@@ -283,6 +294,7 @@ public partial class KeyValueCollectionBuilder
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
@@ -295,7 +307,7 @@ public partial class KeyValueCollectionBuilder
                     hasValue = value.MoveNext();
                     continue;
                 }
-                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();

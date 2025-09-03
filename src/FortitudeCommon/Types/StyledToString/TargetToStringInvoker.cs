@@ -62,7 +62,7 @@ public static class TargetToStringInvoker
         var methodToCall = baseType.GetMethod("ToString", [StyledStringAppenderType]);
 
         var baseTypeCustomStyler = typeof(CustomTypeStyler<>).MakeGenericType(baseType);
-        if (methodToCall == null)
+        if (methodToCall == null || methodToCall.IsAbstract)
         {
             var myType         = typeof(TargetToStringInvoker);
             methodToCall = myType.GetMethod("NoOpBaseDoesntSupportStyledToString", [baseType, StyledStringAppenderType]);

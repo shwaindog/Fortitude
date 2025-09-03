@@ -12,9 +12,9 @@ public class ComplexValueTypeBuilder : ValueTypeBuilder<ComplexValueTypeBuilder>
     private SelectTypeField<ComplexValueTypeBuilder>?           logOnlyInternalField;
 
     public ComplexValueTypeBuilder InitializeComplexValueTypeBuilder
-        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName)
+        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName, int existingRefId)
     {
-        InitializeValueTypeBuilder(owningAppender, typeSettings, typeName);
+        InitializeValueTypeBuilder(owningAppender, typeSettings, typeName,  existingRefId);
 
         return this;
     }

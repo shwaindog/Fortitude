@@ -281,14 +281,14 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLogEntryQueueConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(EvaluateOrder), EvaluateOrder)
-           .Field.WhenNonNullAdd(nameof(All), All)
-           .Field.WhenNonNullAdd(nameof(Any), Any)
-           .Field.WhenNonNullAdd(nameof(And), And)
-           .Field.WhenNonNullAdd(nameof(Or), Or)
-           .Field.WhenNonNullAdd(nameof(IsTrue), IsTrue)
-           .Field.WhenNonNullAdd(nameof(IsFalse), IsFalse)
+           .Field.WhenNonNullAddStyled(nameof(All), All)
+           .Field.WhenNonNullAddStyled(nameof(Any), Any)
+           .Field.WhenNonNullAddStyled(nameof(And), And)
+           .Field.WhenNonNullAddStyled(nameof(Or), Or)
+           .Field.WhenNonNullAddStyled(nameof(IsTrue), IsTrue)
+           .Field.WhenNonNullAddStyled(nameof(IsFalse), IsFalse)
            .Complete();
 }

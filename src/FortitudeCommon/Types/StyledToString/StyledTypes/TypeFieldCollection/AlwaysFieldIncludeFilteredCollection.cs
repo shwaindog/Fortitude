@@ -11,6 +11,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 {
     public TExt AlwaysAddFiltered(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -38,6 +39,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddFiltered(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -63,11 +65,45 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TFmtStruct>
-    (string fieldName, TFmtStruct[]? value, OrderedCollectionPredicate<TFmtStruct> filterPredicate
+    public TExt AlwaysAddFiltered<TFmt>
+    (string fieldName, TFmt[]? value, OrderedCollectionPredicate<TFmt> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : ISpanFormattable
+        where TFmt : ISpanFormattable
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var found = false;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.StartCollection();
+                    found = true;
+                }
+                _ = formatString.IsNotNullOrEmpty()
+                    ? stb.AppendFormattedOrNull(item, formatString)
+                    : stb.AppendOrNull(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
+    }
+
+    public TExt AlwaysAddFiltered<TFmtStruct>
+    (string fieldName, TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -99,6 +135,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     (string fieldName, TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
       , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -128,6 +165,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     (string fieldName, string?[]? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -158,6 +196,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt AlwaysAddFiltered
     (string fieldName, ICharSequence?[]? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -185,6 +224,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddFiltered(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -214,6 +254,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TStyledObj : class, IStyledToStringObject, TBase
         where TBase : class
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -244,6 +285,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where T : TBase
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -259,7 +301,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 }
                 _ = formatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                    : stb.AppendObjectOrNull(item);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -274,6 +316,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -301,6 +344,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -326,10 +370,43 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddFiltered<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct>? value, OrderedCollectionPredicate<TFmtStruct> filterPredicate
+    public TExt AlwaysAddFiltered<TFmt>(string fieldName, IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TFmt> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmtStruct : ISpanFormattable
+        where TFmt : ISpanFormattable
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var found = false;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.StartCollection();
+                    found = true;
+                }
+                _ = formatString.IsNotNullOrEmpty()
+                    ? stb.AppendFormattedOrNull(item, formatString)
+                    : stb.AppendOrNull(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
+    }
+
+    public TExt AlwaysAddFiltered<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -361,6 +438,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         (string fieldName, IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
           , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -389,6 +467,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -419,6 +498,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<ICharSequence?>? value
       , OrderedCollectionPredicate<ICharSequence?> filterPredicate)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -446,6 +526,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate)
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -475,6 +556,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where T : class, IStyledToStringObject, TBase
         where TBase : class
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -507,6 +589,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where T : class, TBase
         where TBase : class
     {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -522,7 +605,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 }
                 _ = formatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                    : stb.AppendObjectOrNull(item);
                 stb.GoToNextCollectionItemStart();
             }
         }

@@ -97,7 +97,7 @@ public static class TimeRangeExtensions
 
     public static StyledTypeBuildResult FormatUnboundedTimeRangeAppender(this UnboundedTimeRange timeRange, IStyledTypeStringAppender sbc)
     {
-        return sbc.StartComplexType(nameof(UnboundedTimeRange))
+        return sbc.StartComplexType( timeRange)
            .Field.AlwaysAdd(nameof(timeRange.FromTime), timeRange.FromTime, "{0:yyyy-MM-dd HH:mm:ss}")
            .Field.AlwaysAdd(nameof(timeRange.ToTime), timeRange.ToTime, "{0:yyyy-MM-dd HH:mm:ss}").Complete();
     }
@@ -107,7 +107,7 @@ public static class TimeRangeExtensions
 
     public static StyledTypeBuildResult FormatUnboundedTimeSpanRangeAppender(this UnboundedTimeSpanRange timeRange, IStyledTypeStringAppender sbc)
     {
-        return sbc.StartComplexType(nameof(UnboundedTimeSpanRange))
+        return sbc.StartComplexType(timeRange)
            .Field.AlwaysAdd(nameof(timeRange.LowerLimit), timeRange.LowerLimit, "{0:dd HH:mm:ss}")
            .Field.AlwaysAdd(nameof(timeRange.UpperLimit), timeRange.UpperLimit, "{0:dd HH:mm:ss}").Complete();
     }
@@ -117,7 +117,7 @@ public static class TimeRangeExtensions
 
     public static StyledTypeBuildResult FormatBoundedTimeRangeAppender(this BoundedTimeRange timeRange, IStyledTypeStringAppender sbc)
     {
-        return sbc.StartComplexType(nameof(BoundedTimeRange))
+        return sbc.StartComplexType(timeRange)
            .Field.AlwaysAdd(nameof(timeRange.FromTime), timeRange.FromTime, "{0:yyyy-MM-dd HH:mm:ss}")
            .Field.AlwaysAdd(nameof(timeRange.ToTime), timeRange.ToTime, "{0:yyyy-MM-dd HH:mm:ss}").Complete();
     }
@@ -128,7 +128,7 @@ public static class TimeRangeExtensions
 
     public static StyledTypeBuildResult FormatBoundedTimeSpanRangeAppender(this BoundedTimeSpanRange timeRange, IStyledTypeStringAppender sbc)
     {
-        return sbc.StartComplexType(nameof(BoundedTimeSpanRange))
+        return sbc.StartComplexType(timeRange)
            .Field.AlwaysAdd(nameof(timeRange.LowerLimit), timeRange.LowerLimit, "{0:dd HH:mm:ss}")
            .Field.AlwaysAdd(nameof(timeRange.UpperLimit), timeRange.UpperLimit, "{0:dd HH:mm:ss}").Complete();
     }

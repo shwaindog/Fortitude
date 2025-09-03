@@ -292,10 +292,10 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         return this;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa)
     {
         using var tb =
-            sbc.StartComplexType(nameof(FLogEntry))
+            stsa.StartComplexType(this)
                .Field.AlwaysAdd(nameof(IssueSequenceNumber), IssueSequenceNumber)
                .Field.AlwaysAdd(nameof(InstanceNumber), InstanceNumber)
                .Field.AlwaysAdd(nameof(RefCount), RefCount)
@@ -304,11 +304,11 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
                .Field.AlwaysAdd(nameof(LogLevel), LogLevel)
                .Field.AlwaysAdd(nameof(LogLocation), LogLocation, LogLocation.Styler())
                .Field.WhenNonDefaultAdd(nameof(Logger), Logger.FullName)
-               .Field.WhenNonNullAdd(nameof(Style), Style, Style.Styler())
+               .Field.WhenNonNullAdd(nameof(Style), Style)
                .Field.WhenNonNullAdd("Thread.Id", Thread?.ManagedThreadId)
                .Field.WhenNonNullAdd("Thread.Name", Thread?.Name)
                .Field.AlwaysAdd(nameof(Message), messageBuilder)
-               .Field.WhenNonNullAdd(nameof(CallerContextObject), CallerContextObject);
+               .Field.WhenNonNullAddObject(nameof(CallerContextObject), CallerContextObject);
 
         return tb.Complete();
     }

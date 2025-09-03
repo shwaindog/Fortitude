@@ -114,8 +114,8 @@ public class FLogBuildTypeAndDeployEnvConfig : FLogConfig, IMutableFLogBuildType
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
-        sbc.StartComplexType(nameof(FLogBuildTypeAndDeployEnvConfig))
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(BuildType), BuildType)
            .Field.AlwaysAdd(nameof(DeploymentEnvironment), DeploymentEnvironment)
            .Complete();

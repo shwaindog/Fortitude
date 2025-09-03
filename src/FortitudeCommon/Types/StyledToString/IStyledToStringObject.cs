@@ -14,7 +14,7 @@ public class CreatesParamsObjectArray : System.Attribute { }
 
 public interface IStyledToStringObject
 {
-    StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc);
+    StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa);
 }
 
 public interface IOverridesStyledToStringObject : IStyledToStringObject
@@ -31,6 +31,14 @@ public interface IReceivesNotificationOfStyledToString : IStyledToStringObject
 
 public static class StyledToStringObjectExtensions
 {
+    public static string SelectStyleToString(this IStyledToStringObject makeString, StringBuildingStyle style, IRecycler? recycler = null)
+    {
+        var styledStringBuilder = recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender();
+        styledStringBuilder.ClearAndReinitialize(style);
+        makeString.ToString(styledStringBuilder);
+        return styledStringBuilder.ToString();
+    }
+    
     public static string DefaultToString(this IStyledToStringObject makeString, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender();

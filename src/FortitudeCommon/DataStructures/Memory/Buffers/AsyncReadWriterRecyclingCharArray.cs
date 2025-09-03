@@ -480,10 +480,10 @@ public class AsyncReadWriterRecyclingCharArray : ReusableObject<AsyncReadWriterR
         return this;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa)
     {
         return
-         sbc.StartSimpleValueType(nameof(AsyncReadWriterRecyclingCharArray))
+         stsa.StartSimpleValueType(this)
            .StringWithFallback(nameof(protectedCharArray), (ICharSequence?)protectedCharArray)
            .Complete();
     }
