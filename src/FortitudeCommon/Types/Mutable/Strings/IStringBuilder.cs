@@ -16,6 +16,10 @@ public interface IStringBuilder : ICharSequence, IMutableStringBuilder<IStringBu
     IStringBuilder ToLower();
     IStringBuilder Remove(int startIndex);
     IStringBuilder ToUpper();
+    
+    int LineChars { get; }
+    int LineContentStartColumn { get; }
+    int LineContentWidth { get; }
 
     IStringBuilder CopyFrom(string source);
 

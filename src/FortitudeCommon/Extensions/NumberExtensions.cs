@@ -3,6 +3,7 @@
 
 #region
 
+using System.Runtime.CompilerServices;
 using System.Text;
 
 #endregion
@@ -81,43 +82,45 @@ public static class NumberExtensions
     public static LongComparer   LongComparer   = new();
     public static ULongComparer  ULongComparer  = new();
 
-    public static Type[] NumberTypes = [
-            typeof(byte)
-          , typeof(sbyte)
-          , typeof(char)
-          , typeof(short)
-          , typeof(ushort)
-          , typeof(int)
-          , typeof(uint)
-          , typeof(nint)
-          , typeof(float)
-          , typeof(long)
-          , typeof(ulong)
-          , typeof(double)
-          , typeof(decimal)
-        ];
+    public static Type[] NumberTypes =
+    [
+        typeof(byte)
+      , typeof(sbyte)
+      , typeof(char)
+      , typeof(short)
+      , typeof(ushort)
+      , typeof(int)
+      , typeof(uint)
+      , typeof(nint)
+      , typeof(float)
+      , typeof(long)
+      , typeof(ulong)
+      , typeof(double)
+      , typeof(decimal)
+    ];
 
-    public static Type[] NullableNumberTypes = [
-            typeof(byte?)
-          , typeof(sbyte?)
-          , typeof(char?)
-          , typeof(short?)
-          , typeof(ushort?)
-          , typeof(int?)
-          , typeof(uint?)
-          , typeof(nint?)
-          , typeof(float?)
-          , typeof(long?)
-          , typeof(ulong?)
-          , typeof(double?)
-          , typeof(decimal?)
-        ];
+    public static Type[] NullableNumberTypes =
+    [
+        typeof(byte?)
+      , typeof(sbyte?)
+      , typeof(char?)
+      , typeof(short?)
+      , typeof(ushort?)
+      , typeof(int?)
+      , typeof(uint?)
+      , typeof(nint?)
+      , typeof(float?)
+      , typeof(long?)
+      , typeof(ulong?)
+      , typeof(double?)
+      , typeof(decimal?)
+    ];
 
     public static bool IsNumericType(this Type toCheck)
     {
         for (int i = 0; i < NumberTypes.Length; i++)
         {
-            if(toCheck == NumberTypes[i]) return true;
+            if (toCheck == NumberTypes[i]) return true;
         }
         return false;
     }
@@ -126,7 +129,7 @@ public static class NumberExtensions
     {
         for (int i = 0; i < NullableNumberTypes.Length; i++)
         {
-            if(toCheck == NullableNumberTypes[i]) return true;
+            if (toCheck == NullableNumberTypes[i]) return true;
         }
         return false;
     }
@@ -145,139 +148,672 @@ public static class NumberExtensions
         return ceiling;
     }
 
-    public static string ToHex2(this ulong toConvert, bool isUpperCaseHex = true)
+    public static string TorHexFormat_2(this ulong toConvert, bool isUpperCaseHex = true)
     {
-        var sb                 = new StringBuilder();
-        var groupShift         = 8;
-        var currentShiftAmount = 7;
-        while (currentShiftAmount >= 0)
+        var buildSpan = stackalloc char[23].ResetMemory();
+        if (isUpperCaseHex)
         {
-            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFF);
-            sb.AppendFormat(isUpperCaseHex ? "{0:X2}" : "{0:x2}", currentByteGroup);
-            if (currentShiftAmount > 0) sb.Append("_");
-            --currentShiftAmount;
+            buildSpan.ToUpperHexFormat_2(toConvert);
         }
-        return sb.ToString();
+        else
+        {
+            buildSpan.ToLowerHexFormat_2(toConvert);
+        }
+        return new string(buildSpan);
     }
 
-    public static string ToHex4(this ulong toConvert, bool isUpperCaseHex = true)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_2(this Span<char> buffer, ulong toConvert, int bufferOffset = 0)
     {
-        var sb                 = new StringBuilder();
-        var groupShift         = 16;
-        var currentShiftAmount = 3;
-        while (currentShiftAmount >= 0)
-        {
-            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFFFF);
-            sb.AppendFormat(isUpperCaseHex ? "{0:X4}" : "{0:x4}", currentByteGroup);
-            if (currentShiftAmount > 0) sb.Append("_");
-            --currentShiftAmount;
-        }
-        return sb.ToString();
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 24) return -1;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        return 23;
     }
 
-    public static string ToHex2(this long toConvert, bool isUpperCaseHex = true)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_2(this Span<char> buffer, ulong toConvert, int bufferOffset = 0)
     {
-        var sb                 = new StringBuilder();
-        var groupShift         = 8;
-        var currentShiftAmount = 7;
-        while (currentShiftAmount >= 0)
-        {
-            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFF);
-            sb.AppendFormat(isUpperCaseHex ? "{0:X2}" : "{0:x2}", currentByteGroup);
-            if (currentShiftAmount > 0) sb.Append("_");
-            --currentShiftAmount;
-        }
-        return sb.ToString();
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 24) return -1;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        return 23;
     }
 
-    public static string ToHex4(this long toConvert, bool isUpperCaseHex = true)
+    public static string TorHexFormat_4(this ulong toConvert, bool isUpperCaseHex = true)
     {
-        var sb                 = new StringBuilder();
-        var groupShift         = 16;
-        var currentShiftAmount = 3;
-        while (currentShiftAmount >= 0)
+        var buildSpan = stackalloc char[19].ResetMemory();
+        if (isUpperCaseHex)
         {
-            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFFFF);
-            sb.AppendFormat(isUpperCaseHex ? "{0:X4}" : "{0:x4}", currentByteGroup);
-            if (currentShiftAmount > 0) sb.Append("_");
-            --currentShiftAmount;
+            buildSpan.ToUpperHexFormat_2(toConvert);
         }
-        return sb.ToString();
+        else
+        {
+            buildSpan.ToLowerHexFormat_2(toConvert);
+        }
+        return new string(buildSpan);
     }
 
-    public static string ToHex2(this int toConvert, bool isUpperCaseHex = true)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_4(this Span<char> buffer, ulong toConvert, int bufferOffset = 0)
     {
-        var sb                 = new StringBuilder();
-        var groupShift         = 8;
-        var currentShiftAmount = 3;
-        while (currentShiftAmount >= 0)
-        {
-            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFF);
-            sb.AppendFormat(isUpperCaseHex ? "{0:X2}" : "{0:x2}", currentByteGroup);
-            if (currentShiftAmount > 0) sb.Append("_");
-            --currentShiftAmount;
-        }
-        return sb.ToString();
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 20) return -1;
+        
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+        
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        return 19;
     }
 
-    public static string ToHex4(this int toConvert, bool isUpperCaseHex = true)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_4(this Span<char> buffer, ulong toConvert, int bufferOffset = 0)
     {
-        var sb                 = new StringBuilder();
-        var groupShift         = 16;
-        var currentShiftAmount = 1;
-        while (currentShiftAmount >= 0)
-        {
-            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFFFF);
-            sb.AppendFormat(isUpperCaseHex ? "{0:X4}" : "{0:x4}", currentByteGroup);
-            if (currentShiftAmount > 0) sb.Append("_");
-            --currentShiftAmount;
-        }
-        return sb.ToString();
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 24) return -1;
+        
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+        
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        return 19;
     }
 
-    public static string ToHex2(this uint toConvert, bool isUpperCaseHex = true)
+    public static string ToHexFormat_2(this long toConvert, bool isUpperCaseHex = true)
     {
-        var sb                 = new StringBuilder();
-        var groupShift         = 8;
-        var currentShiftAmount = 3;
-        while (currentShiftAmount >= 0)
+        var buildSpan = stackalloc char[23].ResetMemory();
+        if (isUpperCaseHex)
         {
-            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFF);
-            sb.AppendFormat(isUpperCaseHex ? "{0:X2}" : "{0:x2}", currentByteGroup);
-            if (currentShiftAmount > 0) sb.Append("_");
-            --currentShiftAmount;
+            buildSpan.ToUpperHexFormat_2(toConvert);
         }
-        return sb.ToString();
+        else
+        {
+            buildSpan.ToLowerHexFormat_2(toConvert);
+        }
+        return new string(buildSpan);
     }
 
-    public static string ToHex2(this ushort toConvert, bool isUpperCaseHex = true)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_2(this Span<char> buffer, long toConvert, int bufferOffset = 0)
     {
-        var sb                 = new StringBuilder();
-        var groupShift         = 8;
-        var currentShiftAmount = 3;
-        while (currentShiftAmount >= 0)
-        {
-            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFF);
-            sb.AppendFormat(isUpperCaseHex ? "{0:X2}" : "{0:x2}", currentByteGroup);
-            if (currentShiftAmount > 0) sb.Append("_");
-            --currentShiftAmount;
-        }
-        return sb.ToString();
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 24) return -1;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        return 23;
     }
 
-    public static string ToHex4(this uint toConvert, bool isUpperCaseHex = true)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_2(this Span<char> buffer, long toConvert, int bufferOffset = 0)
     {
-        var sb                 = new StringBuilder();
-        var groupShift         = 16;
-        var currentShiftAmount = 1;
-        while (currentShiftAmount >= 0)
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 24) return -1;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        return 23;
+    }
+
+    public static string ToHexFormat_4(this long toConvert, bool isUpperCaseHex = true)
+    {
+        var buildSpan = stackalloc char[19].ResetMemory();
+        if (isUpperCaseHex)
         {
-            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFFFF);
-            sb.AppendFormat(isUpperCaseHex ? "{0:X4}" : "{0:x4}", currentByteGroup);
-            if (currentShiftAmount > 0) sb.Append("_");
-            --currentShiftAmount;
+            buildSpan.ToUpperHexFormat_4(toConvert);
         }
-        return sb.ToString();
+        else
+        {
+            buildSpan.ToLowerHexFormat_4(toConvert);
+        }
+        return new string(buildSpan);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_4(this Span<char> buffer, long toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 20) return -1;
+        
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+        
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        return 19;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_4(this Span<char> buffer, long toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 20) return -1;
+        
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+        
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        return 19;
+    }
+
+    public static string ToHex(this int toConvert, bool isUpperCaseHex = true)
+    {
+        var buildSpan = stackalloc char[8].ResetMemory();
+        if (isUpperCaseHex)
+        {
+            buildSpan.AppendAsUpperHex(toConvert);
+        }
+        else
+        {
+            buildSpan.AppendAsLowerHex(toConvert);
+        }
+        return new string(buildSpan);
+    }
+
+    public static string ToHexFormat_2(this int toConvert, bool isUpperCaseHex = true)
+    {
+        var buildSpan = stackalloc char[11].ResetMemory();
+        if (isUpperCaseHex)
+        {
+            buildSpan.ToUpperHexFormat_4(toConvert);
+        }
+        else
+        {
+            buildSpan.ToLowerHexFormat_4(toConvert);
+        }
+        return new string(buildSpan);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_2(this Span<char> buffer, int toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 12) return -1;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        return 11;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_2(this Span<char> buffer, int toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 12) return -1;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        return 11;
+    }
+
+    public static string ToHexFormat_4(this int toConvert, bool isUpperCaseHex = true)
+    {
+        var buildSpan = stackalloc char[9].ResetMemory();
+        if (isUpperCaseHex)
+        {
+            buildSpan.ToUpperHexFormat_4(toConvert);
+        }
+        else
+        {
+            buildSpan.ToLowerHexFormat_4(toConvert);
+        }
+        return new string(buildSpan);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_4(this Span<char> buffer, int toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 10) return -1;
+        
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        return 9;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_4(this Span<char> buffer, int toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 10) return -1;
+        
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        return 9;
+    }
+
+    public static string ToHex(this uint toConvert, bool isUpperCaseHex = true)
+    {
+        var buildSpan = stackalloc char[8].ResetMemory();
+        if (isUpperCaseHex)
+        {
+            buildSpan.AppendAsUpperHex(toConvert);
+        }
+        else
+        {
+            buildSpan.AppendAsLowerHex(toConvert);
+        }
+        return new string(buildSpan);
+    }
+
+    public static string ToHexFormat_2(this uint toConvert, bool isUpperCaseHex = true)
+    {
+        var buildSpan = stackalloc char[11].ResetMemory();
+        if (isUpperCaseHex)
+        {
+            buildSpan.ToUpperHexFormat_4(toConvert);
+        }
+        else
+        {
+            buildSpan.ToLowerHexFormat_4(toConvert);
+        }
+        return new string(buildSpan);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_2(this Span<char> buffer, uint toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 12) return -1;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        return 11;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_2(this Span<char> buffer, uint toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 12) return -1;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        return 11;
+    }
+
+    public static string ToHexFormat_4(this uint toConvert, bool isUpperCaseHex = true)
+    {
+        var buildSpan = stackalloc char[9].ResetMemory();
+        if (isUpperCaseHex)
+        {
+            buildSpan.ToUpperHexFormat_4(toConvert);
+        }
+        else
+        {
+            buildSpan.ToLowerHexFormat_4(toConvert);
+        }
+        return new string(buildSpan);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_4(this Span<char> buffer, uint toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 10) return -1;
+        
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsUpperHexUnchecked(toConvert, offset);
+        return 9;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_4(this Span<char> buffer, uint toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 10) return -1;
+        
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  4;
+        buffer[offset++] =   '_';
+        toConvert        >>= 16;
+
+        buffer.AppendLowestShortAsLowerHexUnchecked(toConvert, offset);
+        return 9;
+    }
+
+    public static string ToHexFormat_2(this short toConvert, bool isUpperCaseHex = true)
+    {
+        var buildSpan = stackalloc char[5].ResetMemory();
+        if (isUpperCaseHex)
+        {
+            buildSpan.ToUpperHexFormat_4(toConvert);
+        }
+        else
+        {
+            buildSpan.ToLowerHexFormat_4(toConvert);
+        }
+        return new string(buildSpan);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_2(this Span<char> buffer, short toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 6) return -1;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        return 5;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_2(this Span<char> buffer, short toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 6) return -1;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        return 5;
+    }
+
+    public static string ToHexFormat_2(this ushort toConvert, bool isUpperCaseHex = true)
+    {
+        var buildSpan = stackalloc char[5].ResetMemory();
+        if (isUpperCaseHex)
+        {
+            buildSpan.ToUpperHexFormat_4(toConvert);
+        }
+        else
+        {
+            buildSpan.ToLowerHexFormat_4(toConvert);
+        }
+        return new string(buildSpan);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToUpperHexFormat_2(this Span<char> buffer, ushort toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 6) return -1;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsUpperHexUnchecked(toConvert, offset);
+        return 5;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToLowerHexFormat_2(this Span<char> buffer, ushort toConvert, int bufferOffset = 0)
+    {
+        var offset     = bufferOffset;
+        if (buffer.Length - bufferOffset < 6) return -1;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        offset           +=  2;
+        buffer[offset++] =   '_';
+        toConvert        >>= 8;
+        
+        buffer.AppendLowestByteAsLowerHexUnchecked(toConvert, offset);
+        return 5;
     }
 
     public static int NumOfDigits(this int findDigits, bool includeMinusSign = true)
@@ -307,19 +843,19 @@ public static class NumberExtensions
     }
 
 
-    public const ulong KiloByte  = 1024;
-    public const ulong MegaByte  = KiloByte * KiloByte;
-    public const ulong GigaByte  = KiloByte * MegaByte;
-    public const ulong TeraByte  = KiloByte * GigaByte;
-    public const ulong PetaByte  = KiloByte * TeraByte;
-    public const ulong ExaByte   = KiloByte * PetaByte;
+    public const ulong KiloByte = 1024;
+    public const ulong MegaByte = KiloByte * KiloByte;
+    public const ulong GigaByte = KiloByte * MegaByte;
+    public const ulong TeraByte = KiloByte * GigaByte;
+    public const ulong PetaByte = KiloByte * TeraByte;
+    public const ulong ExaByte  = KiloByte * PetaByte;
 
     public static ulong AsKiloBytes(this ulong change) => change * KiloByte;
     public static ulong AsMegaBytes(this ulong change) => change * MegaByte;
     public static ulong AsGigaBytes(this ulong change) => change * GigaByte;
     public static ulong AsTeraBytes(this ulong change) => change * TeraByte;
     public static ulong AsPetaBytes(this ulong change) => change * PetaByte;
-    public static ulong AsExaBytes(this ulong change) => change * ExaByte;
+    public static ulong AsExaBytes(this ulong change)  => change * ExaByte;
 
 
     private static readonly (string, ulong)[] byteSuffixesAndSizes =

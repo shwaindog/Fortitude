@@ -53,7 +53,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value == null)
         {
-            Sb.Append(OwningAppender.NullStyle);
+            Sb.Append(Settings.NullStyle);
         }
         else
         {
@@ -85,7 +85,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value == null)
         {
-            Sb.Append(OwningAppender.NullStyle);
+            Sb.Append(Settings.NullStyle);
         }
         else
         {
@@ -109,7 +109,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value == null)
         {
-            Sb.Append(OwningAppender.NullStyle);
+            Sb.Append(Settings.NullStyle);
         }
         else
         {
@@ -153,7 +153,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         }
         else
         {
-            Sb.Append(OwningAppender.NullStyle);
+            Sb.Append(Settings.NullStyle);
         }
         return ConditionalCollectionSuffix();
     }
@@ -256,7 +256,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         }
         else
         {
-            Sb.Append(OwningAppender.NullStyle);
+            Sb.Append(Settings.NullStyle);
         }
         return ConditionalCollectionSuffix();
     }
@@ -325,7 +325,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         }
         else
         {
-            Sb.Append(OwningAppender.NullStyle);
+            Sb.Append(Settings.NullStyle);
         }
         return ConditionalCollectionSuffix();
     }
@@ -357,7 +357,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         }
         else
         {
-            Sb.Append(OwningAppender.NullStyle);
+            Sb.Append(Settings.NullStyle);
         }
         return ConditionalCollectionSuffix();
     }
@@ -389,7 +389,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         }
         else
         {
-            Sb.Append(OwningAppender.NullStyle);
+            Sb.Append(Settings.NullStyle);
         }
         return ConditionalCollectionSuffix();
     }
@@ -444,7 +444,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         }
         else
         {
-            Sb.Append(OwningAppender.NullStyle);
+            Sb.Append(Settings.NullStyle);
         }
         return ConditionalCollectionSuffix();
     }

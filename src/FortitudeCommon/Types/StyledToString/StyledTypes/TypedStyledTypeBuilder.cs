@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes;
 
@@ -13,10 +14,15 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
     protected virtual string TypeOpeningDelimiter => "{";
     protected virtual string TypeClosingDelimiter => "}";
 
-    protected void InitializeTypedStyledTypeBuilder(IStyleTypeAppenderBuilderAccess owningAppender
-      , TypeAppendSettings typeSettings, string typeName, int existingRefId)
+    protected void InitializeTypedStyledTypeBuilder(
+        Type typeBeingBuilt
+      , IStyleTypeAppenderBuilderAccess owningAppender
+      , TypeAppendSettings typeSettings
+      , string typeName
+      , IStyledTypeFormatting typeFormatting
+      , int existingRefId)
     {
-        InitializeStyledTypeBuilder(owningAppender, typeSettings, typeName,  existingRefId);
+        InitializeStyledTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
 
         SourceBuilderComponentAccess();
     }
@@ -27,7 +33,7 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
 
     public override void Start()
     {
-        if ( !CompAccess.StyleTypeBuilder.Style.IsJson()
+        if ( !CompAccess.Style.IsJson()
          && !PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeNameFlag()
          && PortableState.TypeName.IsNotNullOrEmpty())
         {

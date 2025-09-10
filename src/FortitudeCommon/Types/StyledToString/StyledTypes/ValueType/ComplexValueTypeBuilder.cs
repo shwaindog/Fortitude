@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
 
@@ -12,9 +13,15 @@ public class ComplexValueTypeBuilder : ValueTypeBuilder<ComplexValueTypeBuilder>
     private SelectTypeField<ComplexValueTypeBuilder>?           logOnlyInternalField;
 
     public ComplexValueTypeBuilder InitializeComplexValueTypeBuilder
-        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName, int existingRefId)
+        (
+            Type typeBeingBuilt
+          , IStyleTypeAppenderBuilderAccess owningAppender
+          , TypeAppendSettings typeSettings
+          , string typeName
+          , IStyledTypeFormatting typeFormatting  
+          , int existingRefId)
     {
-        InitializeValueTypeBuilder(owningAppender, typeSettings, typeName,  existingRefId);
+        InitializeValueTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
 
         return this;
     }
@@ -31,12 +38,12 @@ public class ComplexValueTypeBuilder : ValueTypeBuilder<ComplexValueTypeBuilder>
     
 
     public SelectTypeField<ComplexValueTypeBuilder>? LogOnlyField =>
-        logOnlyInternalField ??= Style.AllowsUnstructured()
+        logOnlyInternalField ??= StyleSettings.Style.AllowsUnstructured()
             ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeField<ComplexValueTypeBuilder>>().Initialize(CompAccess)
             : null;
 
     public SelectTypeCollectionField<ComplexValueTypeBuilder>? LogOnlyCollectionField =>
-        logOnlyInternalCollectionField ??= Style.AllowsUnstructured()
+        logOnlyInternalCollectionField ??= StyleSettings.Style.AllowsUnstructured()
             ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeCollectionField<ComplexValueTypeBuilder>>().Initialize(CompAccess)
             : null;
 

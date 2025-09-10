@@ -15,7 +15,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
     private static readonly ConcurrentDictionary<Type, Delegate> OrderedCollAddAllInvokers = new();
     private static readonly ConcurrentDictionary<Type, Delegate> CallCollAddAll            = new();
 
-    private const string AddAllMethodName                      = $"{nameof(SimpleOrderedCollectionBuilder.AddAll)}";
+    private const string AddAllMethodName                      = $"{nameof(SimpleOrderedCollectionBuilder.AddAllStyled)}";
     private const string AddAllEnumerateMethodName             = $"{nameof(SimpleOrderedCollectionBuilder.AddAllEnumerate)}";
     private const string AddAllCharSequenceMethodName          = $"{nameof(SimpleOrderedCollectionBuilder.AddAllCharSequence)}";
     private const string AddAllCharSequenceEnumerateMethodName = $"{nameof(SimpleOrderedCollectionBuilder.AddAllCharSequenceEnumerate)}";

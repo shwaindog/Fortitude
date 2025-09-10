@@ -1,4 +1,5 @@
-﻿using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
+﻿using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
+using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
 
@@ -14,9 +15,15 @@ public class ComplexTypeBuilder : MultiValueTypeBuilder<ComplexTypeBuilder>
     private SelectTypeField<ComplexTypeBuilder>?           addField;
 
     public ComplexTypeBuilder InitializeComplexTypeBuilder
-    (StyledTypeStringAppender owningStyledTypeAppender, TypeAppendSettings appendSettings, string typeName, int existingRefId)
+    (
+        Type typeBeingBuilt
+      , StyledTypeStringAppender owningStyledTypeAppender
+      , TypeAppendSettings appendSettings
+      , string typeName
+      , IStyledTypeFormatting typeFormatting
+      , int existingRefId)
     {
-        InitializeMultiValueTypeBuilder(owningStyledTypeAppender, appendSettings, typeName, existingRefId);
+        InitializeMultiValueTypeBuilder(typeBeingBuilt, owningStyledTypeAppender, appendSettings, typeName, typeFormatting, existingRefId);
 
         return this;
     }

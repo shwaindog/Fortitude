@@ -10,6 +10,7 @@ using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.Mutable.Strings.CustomFormatting;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -20,7 +21,10 @@ namespace FortitudeCommon.Types.Mutable.Strings;
 [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
 public sealed class MutableString : ReusableObject<IMutableString>, IMutableString, ITransferState<MutableString>, IScopeDelimitedStringBuilder
 {
-    private static readonly Recycler                                               EnumeratorPool                           = new();
+    public static MutableString SmallScratchBuffer = 128.SourceMutableString();
+    public static MutableString MediumScratchBuffer = 512.SourceMutableString();
+    public static MutableString LargeScratchBuffer = 2048.SourceMutableString();
+    public static MutableString VeryLargeScratchBuffer = 8192.SourceMutableString();
 
     internal static readonly char[] WhiteSpaceChars = [' ', '\t', '\r', '\n'];
 
@@ -86,6 +90,56 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         set => sb.Capacity = value;
     }
     public int MaxCapacity => sb.MaxCapacity;
+
+    public int LineChars
+    {
+        get
+        {
+            var charCount = 0;
+            for (var i = sb.Length - 1; i >= 0 ; i--)
+            {
+                var checkChar = sb[i];
+                if (checkChar is '\n' or '\r') return charCount;
+                charCount++;
+            }
+            return sb.Length;
+        }
+    }
+
+    public int LineContentStartColumn
+    {
+        get
+        {
+            var columnCount = 0;
+            for (int i = 0; i < sb.Length - LineChars; i++)
+            {
+                var checkChar = sb[i];
+                if(!checkChar.IsWhiteSpace()) return columnCount;
+                columnCount++;
+            }
+            return -1;
+        }
+    }
+    
+    public int LineContentWidth
+    {
+        get
+        {
+            var contentStartColumn = LineContentStartColumn;
+            if (contentStartColumn < 0) return 0;
+            var lineContentFromEnd= 0;
+            for (var i = sb.Length - 1; i >= 0 ; i--)
+            {
+                var checkChar                             = sb[i];
+                if (checkChar is '\n' or '\r' || !checkChar.IsWhiteSpace())
+                {
+                    lineContentFromEnd = sb.Length - i;
+                    break;
+                }
+            }
+            return Math.Max(0, LineChars - contentStartColumn - lineContentFromEnd);
+        }
+    }
 
     private MutableString ShouldThrow() =>
         !ThrowOnMutateAttempt ? this : throw new ModifyFrozenObjectAttempt("Attempted to modify a frozen MutableString");
@@ -172,11 +226,20 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ulong value) => Append(value);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TFmt>(string format, TFmt arg0) => AppendFormat(format, arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TFmt>(ReadOnlySpan<char> format, TFmt arg0) => 
+        AppendFormat(format, arg0);
     
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter, string format, TFmt arg0) => 
         AppendFormat(customStringFormatter, format, arg0);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
+      , ReadOnlySpan<char> format, TFmt arg0) => AppendFormat(customStringFormatter, format, arg0);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, string arg0) => AppendFormat(format, arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(ReadOnlySpan<char> format, ReadOnlySpan<char> arg0) => 
+        AppendFormat(format, arg0);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
         ([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0) =>
@@ -840,7 +903,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         where TFmt : ISpanFormattable
     {
         customStringFormatter ??= ICustomStringFormatter.DefaultBufferFormatter;
-        customStringFormatter.Format(arg0, this);
+        customStringFormatter.Format(arg0, this, "");
         return this;
     }
 
@@ -998,11 +1061,22 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) 
         where TFmt : ISpanFormattable
     {
+        return AppendFormat(customStringFormatter, format.AsSpan(), arg0);
+    }
+
+    public MutableString AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter,
+        [StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0) 
+        where TFmt : ISpanFormattable
+    {
         customStringFormatter.Format(arg0, this,  format);
         return this;
     }
 
     public MutableString AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) 
+        where TFmt : ISpanFormattable =>
+        AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, format, arg0);
+
+    public MutableString AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0) 
         where TFmt : ISpanFormattable =>
         AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, format, arg0);
 
@@ -1013,16 +1087,21 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0)
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, ReadOnlySpan<char> arg0)
     {
         if (IsFrozen) return ShouldThrow();
-        format.AsSpan().ExtractStringFormatStages(out var _, out var layout, out _);
+        format.ExtractStringFormatStages(out var _, out var layout, out _);
         if(layout.Length == 0) return Append(arg0);
         var cappedSize   = Math.Min(4096, arg0.Length + 256);
         var charSpan     = stackalloc char[cappedSize].ResetMemory();
         var charsWritten = charSpan.PadAndAlign(arg0, layout);
         sb.Append(charSpan[..charsWritten]);
         return this;
+    }
+
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0)
+    {
+        return AppendFormat(format.AsSpan(), arg0);
     }
 
     public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0)
@@ -1554,7 +1633,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<char> GetEnumerator() => sb.RecycledEnumerator(EnumeratorPool);
+    public IEnumerator<char> GetEnumerator() => sb.RecycledEnumerator(DataStructures.Memory.Recycler.ThreadStaticRecycler);
 
     public override void StateReset()
     {

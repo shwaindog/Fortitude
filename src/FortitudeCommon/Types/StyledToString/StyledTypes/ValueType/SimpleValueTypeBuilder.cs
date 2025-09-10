@@ -1,11 +1,19 @@
-﻿namespace FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
+﻿using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
+
+namespace FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
 
 public class SimpleValueTypeBuilder : ValueTypeBuilder<SimpleValueTypeBuilder>
 {
     public SimpleValueTypeBuilder InitializeSimpleValueTypeBuilder
-        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName, int existingRefId)
+        (
+            Type typeBeingBuilt
+          , IStyleTypeAppenderBuilderAccess owningAppender
+          , TypeAppendSettings typeSettings
+          , string typeName
+          , IStyledTypeFormatting typeFormatting  
+          , int existingRefId)
     {
-        InitializeValueTypeBuilder(owningAppender, typeSettings, typeName,  existingRefId);
+        InitializeValueTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
 
         return this;
     }

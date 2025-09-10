@@ -1,4 +1,5 @@
-﻿using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
+﻿using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
+using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
@@ -8,10 +9,15 @@ public partial class OrderedCollectionBuilder<TExt> : TypedStyledTypeBuilder<TEx
 {
     private CollectionBuilderCompAccess<TExt> stb = null!;
 
-    public OrderedCollectionBuilder<TExt> InitializeOrderedCollectionBuilder(IStyleTypeAppenderBuilderAccess owningAppender
-      , TypeAppendSettings typeSettings, string typeName, int existingRefId)
+    public OrderedCollectionBuilder<TExt> InitializeOrderedCollectionBuilder(
+        Type typeBeingBuilt
+      , IStyleTypeAppenderBuilderAccess owningAppender
+      , TypeAppendSettings typeSettings
+      , string typeName
+      , IStyledTypeFormatting typeFormatting
+      , int existingRefId)
     {
-        InitializeTypedStyledTypeBuilder(owningAppender, typeSettings, typeName, existingRefId);
+        InitializeTypedStyledTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting, existingRefId);
 
         stb = CompAsOrderedCollection;
 
@@ -26,10 +32,15 @@ public partial class OrderedCollectionBuilder<TExt> : TypedStyledTypeBuilder<TEx
 
 public class SimpleOrderedCollectionBuilder : OrderedCollectionBuilder<SimpleOrderedCollectionBuilder>
 {
-    public SimpleOrderedCollectionBuilder InitializeSimpleOrderedCollectionBuilder(IStyleTypeAppenderBuilderAccess owningAppender
-      , TypeAppendSettings typeSettings, string typeName, int  existingRefId)
+    public SimpleOrderedCollectionBuilder InitializeSimpleOrderedCollectionBuilder(
+        Type typeBeingBuilt
+      , IStyleTypeAppenderBuilderAccess owningAppender
+      , TypeAppendSettings typeSettings
+      , string typeName
+      , IStyledTypeFormatting typeFormatting
+      , int  existingRefId)
     {
-        InitializeOrderedCollectionBuilder(owningAppender, typeSettings, typeName,  existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
 
         return this;
     }
@@ -51,9 +62,15 @@ public class ComplexOrderedCollectionBuilder : OrderedCollectionBuilder<ComplexO
     protected override string TypeClosingDelimiter => CompAsOrderedCollection.CollectionInComplexType ? "}" : "]";
 
     public ComplexOrderedCollectionBuilder InitializeComplexOrderedCollectionBuilder
-        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName, int existingRefId)
+        (
+            Type typeBeingBuilt
+          , IStyleTypeAppenderBuilderAccess owningAppender
+          , TypeAppendSettings typeSettings
+          , string typeName
+          , IStyledTypeFormatting typeFormatting
+          , int existingRefId)
     {
-        InitializeOrderedCollectionBuilder(owningAppender, typeSettings, typeName,  existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
 
         return this;
     }
@@ -66,12 +83,12 @@ public class ComplexOrderedCollectionBuilder : OrderedCollectionBuilder<ComplexO
     }
 
     public SelectTypeField<ComplexOrderedCollectionBuilder>? LogOnlyField =>
-        logOnlyInternalField ??= Style.AllowsUnstructured()
+        logOnlyInternalField ??= Settings.Style.AllowsUnstructured()
             ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeField<ComplexOrderedCollectionBuilder>>().Initialize(CompAccess)
             : null;
 
     public SelectTypeCollectionField<ComplexOrderedCollectionBuilder>? LogOnlyCollectionField =>
-        logOnlyInternalCollectionField ??= Style.AllowsUnstructured()
+        logOnlyInternalCollectionField ??= Settings.Style.AllowsUnstructured()
             ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeCollectionField<ComplexOrderedCollectionBuilder>>().Initialize(CompAccess)
             : null;
 

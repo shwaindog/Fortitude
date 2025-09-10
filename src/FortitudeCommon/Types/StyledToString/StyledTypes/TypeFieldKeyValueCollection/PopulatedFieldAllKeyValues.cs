@@ -42,6 +42,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             stb.StartDictionary();
             while(hasValue)
             {
@@ -53,7 +55,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendNullOrValue(kvp.Value);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
             stb.EndDictionary();
             return stb.Sb.AddGoToNext(stb);
@@ -100,6 +102,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             stb.StartDictionary();
             while(hasValue)
             {
@@ -109,7 +113,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
             stb.EndDictionary();
             return stb.Sb.AddGoToNext(stb);
@@ -151,6 +155,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             stb.StartDictionary();
             while(hasValue)
             {
@@ -158,7 +164,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 stb.AppendOrNull(kvp.Key, keyStyler);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
             stb.EndDictionary();
             return stb.Sb.AddGoToNext(stb);

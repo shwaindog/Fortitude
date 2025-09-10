@@ -26,6 +26,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
@@ -41,7 +42,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendNullOrValue(kvp.Value);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -50,7 +51,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -67,6 +68,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
@@ -82,7 +84,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendNullOrValue(kvp.Value);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -91,7 +93,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -106,7 +108,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            int count = 0;
+            int count     = 0;
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
@@ -121,7 +125,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendNullOrValue(kvp.Value);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType,  itemCount++);
             }
         }
         if (foundValues)
@@ -130,7 +134,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -145,8 +149,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
-        var  count    = 0;
-        var hasValue = value?.MoveNext() ?? false;
+        var count     = 0;
+        var hasValue  = value?.MoveNext() ?? false;
+        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+        var itemCount = 0;
         while(hasValue) 
         {
             var kvp = value!.Current;
@@ -166,7 +172,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
             _ = valueFormatString.IsNotNullOrEmpty()
                 ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                 : stb.AppendNullOrValue(kvp.Value);
-            stb.GoToNextCollectionItemStart();
+            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = value.MoveNext();
         } 
         if (foundValues)
@@ -175,7 +181,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -198,6 +204,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
+        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -213,7 +220,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
                     : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -222,7 +229,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -239,6 +246,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
@@ -252,7 +260,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
                     : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -261,7 +269,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -278,7 +286,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var count = 0;
+            var count     = 0;
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
@@ -291,7 +301,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
                     : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         if (foundValues)
@@ -300,7 +310,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -314,8 +324,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
-        var count    = 0;
-        var hasValue = value?.MoveNext() ?? false;
+        var count     = 0;
+        var hasValue  = value?.MoveNext() ?? false;
+        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+        var itemCount = 0;
         while(hasValue) 
         {
             var kvp = value!.Current;
@@ -333,7 +345,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
                 : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
             stb.AppendOrNull(kvp.Value, valueStyler);
-            stb.GoToNextCollectionItemStart();
+            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = value.MoveNext();
         } 
         if (foundValues)
@@ -342,7 +354,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -363,6 +375,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
@@ -374,7 +388,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         if (foundValues)
@@ -383,7 +397,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -398,6 +412,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
@@ -409,7 +425,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount);
             }
         }
         if (foundValues)
@@ -418,7 +434,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -433,7 +449,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var count = 0;
+            var count     = 0;
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
@@ -444,7 +462,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         if (foundValues)
@@ -453,7 +471,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }
@@ -466,8 +484,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
-        var count    = 0;
-        var hasValue = value?.MoveNext() ?? false;
+        var count     = 0;
+        var hasValue  = value?.MoveNext() ?? false;
+        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+        var itemCount = 0;
         while(hasValue) 
         {
             var kvp = value!.Current;
@@ -483,7 +503,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
             }
             stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
             stb.AppendOrNull(kvp.Value, valueStyler);
-            stb.GoToNextCollectionItemStart();
+            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = value.MoveNext();
         } 
         if (foundValues)
@@ -492,7 +512,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         else
         {
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
+            stb.Sb.Append(stb.Settings.NullStyle);
         }
         return stb.Sb.AddGoToNext(stb);
     }

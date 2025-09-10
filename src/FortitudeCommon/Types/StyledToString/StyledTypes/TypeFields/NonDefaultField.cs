@@ -21,6 +21,11 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         !stb.SkipBody && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
+    public TExt WhenNonDefaultAdd<TFmtStruct>
+    (string fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+        !stb.SkipBody && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+
     public TExt WhenNonDefaultAdd<TToStyle, TStylerType>
     (string fieldName, TToStyle value
       , CustomTypeStyler<TStylerType> customTypeStyler, TToStyle? defaultValue = default) where TToStyle : TStylerType =>

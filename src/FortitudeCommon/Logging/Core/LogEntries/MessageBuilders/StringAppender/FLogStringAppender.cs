@@ -49,8 +49,8 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
 
     public string Indent
     {
-        get => MessageStsa.Indent;
-        set => MessageStsa.Indent = value;
+        get => MessageStsa.Settings.Indent;
+        set => MessageStsa.Settings.Indent = value;
     }
 
     public int Count => MessageSb.Length;

@@ -16,7 +16,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
-            var count = 0;
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
+            var count     = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
@@ -32,7 +34,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendNullOrValue(kvp.Value);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         if (foundValues)
@@ -53,6 +55,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
@@ -69,7 +72,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendNullOrValue(kvp.Value);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -91,6 +94,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
@@ -107,7 +111,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendNullOrValue(kvp.Value);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -129,7 +133,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
-            var count = 0;
+            var count     = 0;
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
@@ -145,7 +151,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendNullOrValue(kvp.Value);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         if (foundValues)
@@ -165,8 +171,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var foundValues = false;
-        var  count    = 0;
-        var hasValue = value?.MoveNext() ?? false;
+        var count       = 0;
+        var hasValue    = value?.MoveNext() ?? false;
+        var kvpType     = typeof(KeyValuePair<TKey, TValue>);
+        var itemCount   = 0;
         while(hasValue) 
         {
             var kvp = value!.Current;
@@ -187,7 +195,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
             _ = valueFormatString.IsNotNullOrEmpty()
                 ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
                 : stb.AppendNullOrValue(kvp.Value);
-            stb.GoToNextCollectionItemStart();
+            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = value.MoveNext();
         } 
         if (foundValues)
@@ -209,7 +217,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
-            var count = 0;
+            var count     = 0;
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
@@ -223,7 +233,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
                     : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType,  itemCount++);
             }
         }
         if (foundValues)
@@ -243,6 +253,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
@@ -257,7 +268,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
                     : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -279,6 +290,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
@@ -293,7 +305,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
                     : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -315,7 +327,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
-            var count = 0;
+            var count     = 0;
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
@@ -329,7 +343,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
                     : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         if (foundValues)
@@ -349,8 +363,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var foundValues = false;
-        var count    = 0;
-        var hasValue = value?.MoveNext() ?? false;
+        var count       = 0;
+        var hasValue    = value?.MoveNext() ?? false;
+        var kvpType     = typeof(KeyValuePair<TKey, TValue>);
+        var itemCount   = 0;
         while(hasValue) 
         {
             var kvp = value!.Current;
@@ -369,7 +385,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
                 : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
             stb.AppendOrNull(kvp.Value, valueStyler);
-            stb.GoToNextCollectionItemStart();
+            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = value.MoveNext();
         } 
         if (foundValues)
@@ -388,7 +404,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
-            var count = 0;
+            var count     = 0;
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
@@ -400,7 +418,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         if (foundValues)
@@ -419,6 +437,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
@@ -431,7 +450,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -450,6 +469,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
@@ -462,7 +482,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         if (foundValues)
@@ -481,7 +501,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         var foundValues = false;
         if (value != null)
         {
-            var count = 0;
+            var count     = 0;
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
@@ -493,7 +515,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         if (foundValues)
@@ -510,8 +532,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var foundValues = false;
-        var count    = 0;
-        var hasValue = value?.MoveNext() ?? false;
+        var count       = 0;
+        var hasValue    = value?.MoveNext() ?? false;
+        var kvpType     = typeof(KeyValuePair<TKey, TValue>);
+        var itemCount   = 0;
         while(hasValue) 
         {
             var kvp = value!.Current;
@@ -528,7 +552,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
             }
             stb.AppendOrNull(kvp.Key, keyStyler).FieldEnd(stb);
             stb.AppendOrNull(kvp.Value, valueStyler);
-            stb.GoToNextCollectionItemStart();
+            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = value.MoveNext();
         } 
         if (foundValues)

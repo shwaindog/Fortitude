@@ -3,6 +3,8 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString.Options;
+using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes;
 
@@ -14,15 +16,19 @@ public interface IStyleTypeBuilderComponentAccess
 
     TypeAppendSettings AppendSettings { get; set; }
 
-    string Indent { get; }
+    char IndentChar { get; }
 
     ushort IndentLevel { get; }
 
     bool IsComplete { get; }
     
     bool SkipBody { get; }
+    
+    IStyledTypeFormatting StyleFormatter { get; }
 
     StringBuildingStyle Style { get; }
+    
+    StyleOptions Settings { get; }
 
     IStringBuilder Sb { get; }
 
@@ -64,11 +70,15 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
 
     public ushort IndentLevel => typeBuilderState.AppenderSettings.IndentLvl;
 
-    public string Indent => typeBuilderState.OwningAppender.Indent;
+    public char IndentChar => Settings.IndentChar;
+
+    public IStyledTypeFormatting StyleFormatter => typeBuilderState.TypeFormatting;
 
     public bool IsComplete => StyleTypeBuilder.IsComplete;
     
     public bool SkipBody => typeBuilderState.ExistingRefId > 0;
+
+    public StyleOptions Settings => typeBuilderState.OwningAppender.Settings;
 
     public int DecrementIndent()
     {
@@ -95,7 +105,7 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
 
     public new IRecycler Recycler => base.Recycler ?? typeBuilderState.OwningAppender.Recycler;
 
-    public StringBuildingStyle Style => typeBuilderState.OwningAppender.Style;
+    public StringBuildingStyle Style => Settings.Style;
 
     public IStringBuilder Sb => typeBuilderState.OwningAppender.WriteBuffer;
 

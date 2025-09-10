@@ -6,6 +6,8 @@ using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString.Options;
+using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
 
@@ -27,11 +29,18 @@ public abstract class StyledTypeBuilder : ExplicitRecyclableObject, IDisposable
 
     protected int StartIndex;
 
-    protected void InitializeStyledTypeBuilder(IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName
+    protected void InitializeStyledTypeBuilder(
+        Type typeBeingBuilt
+      , IStyleTypeAppenderBuilderAccess owningAppender
+      , TypeAppendSettings typeSettings
+      , string typeName
+      , IStyledTypeFormatting typeFormatting
       , int existingRefId)
     {
+        PortableState.TypeBeingBuilt   = typeBeingBuilt;
         PortableState.OwningAppender   = owningAppender;
         PortableState.TypeName         = typeName;
+        PortableState.TypeFormatting    = typeFormatting;
         PortableState.AppenderSettings = typeSettings;
         PortableState.CompleteResult   = null;
         PortableState.ExistingRefId    = existingRefId;
@@ -45,11 +54,15 @@ public abstract class StyledTypeBuilder : ExplicitRecyclableObject, IDisposable
 
     public abstract void Start();
 
+    public Type TypeBeingBuilt => PortableState.TypeBeingBuilt;
+
+    public StyleOptions Settings => PortableState.OwningAppender.Settings;
+    
     public string TypeName => PortableState.TypeName;
 
     public abstract StyledTypeBuildResult Complete();
 
-    public StringBuildingStyle Style => PortableState.OwningAppender.Style;
+    public StyleOptions StyleSettings => PortableState.OwningAppender.Settings;
 
     public void Dispose()
     {
@@ -76,8 +89,10 @@ public abstract class StyledTypeBuilder : ExplicitRecyclableObject, IDisposable
     {
         public TypeAppendSettings AppenderSettings;
 
+        public Type TypeBeingBuilt { get; set; } = null!;
         public string TypeName { get; set; } = null!;
 
+        public IStyledTypeFormatting TypeFormatting { get; set; } = null!;
         public int ExistingRefId { get; set; }
 
         public IStyleTypeAppenderBuilderAccess OwningAppender { get; set; } = null!;
@@ -102,9 +117,9 @@ public static class StyledTypeBuilderExtensions
 {
     internal const string Null = "null";
 
-    public static IStringBuilder AddIndents(this IStringBuilder sb, string indentString, int indentLevel)
+    public static IStringBuilder AddIndents(this IStringBuilder sb, char indentChar, int settingsIndentSize, int indentLevel)
     {
-        for (var i = 0; i < indentLevel; i++) sb.Append(indentString);
+        sb.Append(indentChar, indentLevel*settingsIndentSize);
         return sb;
     }
 
@@ -673,21 +688,16 @@ public static class StyledTypeBuilderExtensions
         return stb.StyleTypeBuilder;
     }
 
-    public static void StartCollection<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb)
+    public static void StartCollection<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, Type elementType, bool hasElements)
         where TExt : StyledTypeBuilder
     {
-        stb.Sb.Append("[");
-        if (stb.Style.IsPretty())
-        {
-            stb.IncrementIndent();
-            stb.Sb.Append(stb.OwningAppender.NewLineStyle).AddIndents(stb.OwningAppender.Indent, stb.IndentLevel);
-        }
+        stb.StyleFormatter.FormatCollectionStart(stb, elementType, hasElements);
     }
 
     public static IStringBuilder FieldNameJoin<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, string fieldName)
         where TExt : StyledTypeBuilder
     {
-        if (stb.Style.IsPretty()) stb.Sb.Append(stb.OwningAppender.Indent);
+        if (stb.Style.IsPretty()) stb.Sb.Append(stb.Settings.IndentChar, stb.Settings.IndentRepeat(stb.OwningAppender.IndentLevel));
 
         if (stb.Style.IsJson())
             stb.Sb.Append("\"").Append(fieldName).Append("\"").FieldEnd(stb);
@@ -701,7 +711,7 @@ public static class StyledTypeBuilderExtensions
       , IStyleTypeBuilderComponentAccess<TExt> toReturn)
         where TExt : StyledTypeBuilder
     {
-        if (stb.Style.IsPretty()) stb.Sb.Append(stb.OwningAppender.Indent);
+        if (stb.Style.IsPretty()) stb.Sb.Append(stb.Settings.IndentChar, stb.Settings.IndentRepeat(stb.OwningAppender.IndentLevel));
 
         if (stb.Style.IsJson())
             stb.Sb.Append("\"").Append(fieldName).Append("\"").FieldEnd(stb);
@@ -714,24 +724,20 @@ public static class StyledTypeBuilderExtensions
     public static IStringBuilder FieldEnd(this IStringBuilder sb, IStyleTypeBuilderComponentAccess stb) =>
         sb.Append(stb.Style.IsCompact() ? ":" : ": ");
 
-    public static void GoToNextCollectionItemStart<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb)
+    public static void GoToNextCollectionItemStart<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, Type elementType, int elementAt)
         where TExt : StyledTypeBuilder
     {
-        if (stb.Style.IsPretty())
-            stb.Sb.ItemNext(stb).Append(stb.OwningAppender.NewLineStyle).AddIndents(stb.OwningAppender.Indent, stb.IndentLevel);
-        else
-            stb.Sb.ItemNext(stb);
+        stb.StyleFormatter.AddCollectionElementSeparator(stb, elementType,  elementAt + 1);
     }
 
     public static IStringBuilder ItemNext(this IStringBuilder sb, IStyleTypeBuilderComponentAccess stb) =>
         sb.Append(stb.Style.IsCompact() ? "," : ", ");
 
 
-    public static void EndCollection<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb)
+    public static void EndCollection<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, Type elementType, int numberOfElements)
         where TExt : StyledTypeBuilder
     {
-        stb.RemoveLastWhiteSpacedCommaIfFound();
-        stb.Sb.Append("]");
+        stb.StyleFormatter.FormatCollectionEnd(stb, elementType, numberOfElements);
     }
 
     public static IStringBuilder RemoveLastWhiteSpacedCommaIfFound<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb)
@@ -765,7 +771,7 @@ public static class StyledTypeBuilderExtensions
         if (stb.Style.IsPretty())
         {
             stb.IncrementIndent();
-            stb.Sb.Append(stb.OwningAppender.NewLineStyle).AddIndents(stb.OwningAppender.Indent, stb.IndentLevel);
+            stb.Sb.Append(stb.Settings.NewLineStyle).AddIndents(stb.Settings.IndentChar, stb.Settings.IndentSize, stb.IndentLevel);
         }
     }
 
