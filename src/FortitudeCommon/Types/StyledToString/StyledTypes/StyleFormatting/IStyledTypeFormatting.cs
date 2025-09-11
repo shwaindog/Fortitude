@@ -15,8 +15,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     IStringBuilder AppendFieldName<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName) where TTypeBuilder : IStyleTypeBuilderComponentAccess;
     
-    IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName) 
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess;
+    IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess;
 
     IStringBuilder AppendTypeClosing<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess;
     
@@ -29,6 +28,6 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder AddCollectionElementSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, Type elementType, int nextItemNumber)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess;
 
-    IStringBuilder AddNextFieldSeparator<TTypeBuilder, TItem>(TTypeBuilder typeBuilder, TItem lastItem, int nextItemNumber)
+    IStringBuilder AddNextFieldSeparator<TTypeBuilder>(TTypeBuilder typeBuilder)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess;
 }

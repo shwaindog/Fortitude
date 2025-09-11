@@ -17,10 +17,12 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     public IStringBuilder AppendFieldName<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append("\"").Append(fieldName).Append("\"");
-
-    public IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
+    
+    public IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append(":");
+    
+    public IStringBuilder AddNextFieldSeparator<TTypeBuilder>(TTypeBuilder typeBuilder)
+        where TTypeBuilder : IStyleTypeBuilderComponentAccess => typeBuilder.Sb.Append(",");
 
     public IStringBuilder AppendTypeClosing<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append("}");
@@ -52,9 +54,6 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         base.AddCollectionElementSeparator(elementType, typeBuilder.Sb, nextItemNumber);
         return typeBuilder.Sb;
     }
-
-    public IStringBuilder AddNextFieldSeparator<TTypeBuilder, TItem>(TTypeBuilder typeBuilder, TItem lastItem, int nextItemNumber)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess => typeBuilder.Sb.Append(", ");
 
     public IStringBuilder FormatCollectionEnd<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType
       , int totalItemCount) where TTypeBuilder : IStyleTypeBuilderComponentAccess

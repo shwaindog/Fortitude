@@ -455,8 +455,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
     {
         if (ValueInComplexType)
         {
-            Sb.AddGoToNext(this);
-            return StyleTypeBuilder;
+            this.AddGoToNext();
         }
         return StyleTypeBuilder;
     }

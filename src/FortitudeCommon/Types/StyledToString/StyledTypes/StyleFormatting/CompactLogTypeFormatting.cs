@@ -18,9 +18,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append(fieldName);
 
-    public IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
+    public IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append(": ");
+
+    public IStringBuilder AddNextFieldSeparator<TTypeBuilder>(TTypeBuilder typeBuilder)
+        where TTypeBuilder : IStyleTypeBuilderComponentAccess => typeBuilder.Sb.Append(", ");
 
     public IStringBuilder AppendTypeClosing<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append("}");
@@ -49,14 +51,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         return typeBuilder.Sb.Append(", ");
     }
-
-    public IStringBuilder AddNextFieldSeparator<TTypeBuilder, TItem>(TTypeBuilder typeBuilder, TItem lastItem, int nextItemNumber)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
-        lastItem switch
-        {
-            byte => typeBuilder.Sb.Append(nextItemNumber % 4 == 0 ? " " : "")
-          , _    => typeBuilder.Sb.Append(", ")
-        };
     
     public IStringBuilder FormatCollectionEnd<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType, int totalItemCount)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess

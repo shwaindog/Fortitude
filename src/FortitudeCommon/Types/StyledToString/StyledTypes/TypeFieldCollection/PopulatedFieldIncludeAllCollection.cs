@@ -154,7 +154,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             stb.EndCollection(elementType, itemCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -176,7 +176,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             stb.EndCollection(elementType, itemCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -203,7 +203,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             stb.EndCollection(elementType, itemCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -230,7 +230,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             stb.EndCollection(elementType, itemCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -254,7 +254,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             stb.EndCollection(elementType, itemCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -281,7 +281,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             stb.EndCollection(elementType, itemCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -307,7 +307,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             stb.EndCollection(elementType, itemCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -333,7 +333,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             stb.EndCollection(elementType, itemCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -360,7 +360,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             stb.EndCollection(elementType, itemCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }

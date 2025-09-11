@@ -34,9 +34,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
@@ -64,9 +65,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TFmt>
@@ -100,9 +102,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TFmtStruct>
@@ -136,9 +139,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TToStyle, TToStyleBase, TStylerType>
@@ -168,9 +172,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered
@@ -203,9 +208,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredCharSequence<TCharSeq>
@@ -239,9 +245,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
@@ -273,9 +280,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TStyledObj, TBase>(string fieldName, TStyledObj[]? value, OrderedCollectionPredicate<TBase> filterPredicate)
@@ -304,9 +312,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     [CallsObjectToString]
@@ -340,9 +349,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     
@@ -371,9 +381,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
@@ -401,9 +412,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TFmt>(string fieldName, IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TFmt> filterPredicate
@@ -436,9 +448,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
@@ -471,9 +484,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TToStyle, TToStyleBase, TStylerType>
@@ -503,9 +517,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
@@ -537,9 +552,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredCharSequence<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq?>? value
@@ -573,9 +589,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
@@ -607,9 +624,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 
 
@@ -645,8 +663,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         if (found)
         {
             stb.EndCollection(elementType, matchCount);
-            return stb.Sb.AddGoToNext(stb);
+            return stb.AddGoToNext();
         }
-        return stb.Sb.Append(stb.Settings.NullStyle).AddGoToNext(stb);
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
     }
 }

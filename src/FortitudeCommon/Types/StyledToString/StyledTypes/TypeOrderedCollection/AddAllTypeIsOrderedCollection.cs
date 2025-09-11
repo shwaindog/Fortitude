@@ -29,7 +29,7 @@ public partial class OrderedCollectionBuilder<TExt>
             stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(bool?[]? value)
@@ -48,7 +48,7 @@ public partial class OrderedCollectionBuilder<TExt>
             stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(ReadOnlySpan<bool> value)
@@ -68,7 +68,7 @@ public partial class OrderedCollectionBuilder<TExt>
             stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(ReadOnlySpan<bool?> value)
@@ -87,7 +87,7 @@ public partial class OrderedCollectionBuilder<TExt>
             stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(IReadOnlyList<bool>? value)
@@ -106,7 +106,7 @@ public partial class OrderedCollectionBuilder<TExt>
             stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(IReadOnlyList<bool?>? value)
@@ -125,7 +125,7 @@ public partial class OrderedCollectionBuilder<TExt>
             stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate(IEnumerable<bool>? value)
@@ -147,7 +147,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate(IEnumerable<bool?>? value)
@@ -169,7 +169,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate(IEnumerator<bool>? value)
@@ -195,7 +195,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate(IEnumerator<bool?>? value)
@@ -221,7 +221,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll<TFmt>(TFmt[]? value
@@ -248,7 +248,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll<TFmtStruct>(TFmtStruct?[]? value
@@ -275,7 +275,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TExt AddAll<TFmt>(ReadOnlySpan<TFmt> value
@@ -302,7 +302,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TExt AddAll<TFmtStruct>(ReadOnlySpan<TFmtStruct?> value
@@ -329,7 +329,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TExt AddAll<TFmt>(IReadOnlyList<TFmt>? value
@@ -356,7 +356,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TExt AddAll<TFmtStruct>(IReadOnlyList<TFmtStruct?>? value
@@ -383,7 +383,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate<TFmt>(IEnumerable<TFmt>? value
@@ -409,7 +409,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate<TFmtStruct>(IEnumerable<TFmtStruct?>? value
@@ -435,7 +435,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate<TFmt>(IEnumerator<TFmt>? value
@@ -464,7 +464,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate<TFmtStruct>(IEnumerator<TFmtStruct?>? value
@@ -493,7 +493,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     
@@ -518,7 +518,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll<TToStyle, TStylerType>(ReadOnlySpan<TToStyle?> value, CustomTypeStyler<TStylerType> customTypeStyler)
@@ -542,7 +542,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll<TToStyle, TStylerType>(IReadOnlyList<TToStyle?>? value, CustomTypeStyler<TStylerType> customTypeStyler)
@@ -566,7 +566,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle?>? value, CustomTypeStyler<TStylerType> customTypeStyler)
@@ -589,7 +589,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
@@ -615,7 +615,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
 
@@ -642,7 +642,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(ReadOnlySpan<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -668,7 +668,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(IReadOnlyList<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -694,7 +694,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate(IEnumerable<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -719,7 +719,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate(IEnumerator<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -748,7 +748,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllCharSequence<T>(T?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
@@ -775,7 +775,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
-        return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return any ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllCharSequence<T>(ReadOnlySpan<T?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
@@ -802,7 +802,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllCharSequence<T>(IReadOnlyList<T?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
@@ -829,7 +829,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllCharSequenceEnumerate<T>(IEnumerable<T?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -855,7 +855,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllCharSequenceEnumerate<T>(IEnumerator<T?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
@@ -885,7 +885,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(StringBuilder?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -911,7 +911,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(ReadOnlySpan<StringBuilder?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -937,7 +937,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAll(IReadOnlyList<StringBuilder?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -963,7 +963,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0 );
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate(IEnumerable<StringBuilder?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -988,7 +988,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllEnumerate(IEnumerator<StringBuilder?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
@@ -1017,7 +1017,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllStyled<TStyledObj>(TStyledObj[]? value)
@@ -1041,7 +1041,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0 );
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllStyled<TStyledObj>(ReadOnlySpan<TStyledObj> value)
@@ -1065,7 +1065,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllStyled<TStyledObj>(IReadOnlyList<TStyledObj>? value)
@@ -1089,7 +1089,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllStyledEnumerate<TStyledObj>(IEnumerable<TStyledObj>? value)
@@ -1112,7 +1112,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TExt AddAllStyledEnumerate<TStyledObj>(IEnumerator<TStyledObj>? value)
@@ -1139,7 +1139,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString] 
@@ -1166,7 +1166,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString] 
@@ -1193,7 +1193,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString] 
@@ -1220,7 +1220,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString] 
@@ -1246,7 +1246,7 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString] 
@@ -1276,6 +1276,6 @@ public partial class OrderedCollectionBuilder<TExt>
             else stb.RemoveLastWhiteSpacedCommaIfFound();
         }
         stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 }

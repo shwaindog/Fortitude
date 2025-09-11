@@ -32,7 +32,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll(string fieldName, bool?[]? value)
@@ -53,7 +53,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll<TFmt>(string fieldName, TFmt[]? value
@@ -79,7 +79,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll<TStructFmt>(string fieldName, TStructFmt?[]? value
@@ -105,7 +105,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll<TToStyle, TStylerType>
@@ -127,7 +127,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll(string fieldName, string?[]? value
@@ -152,7 +152,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllCharSequence<TCharSeq>(string fieldName, TCharSeq?[]? value
@@ -178,7 +178,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll(string fieldName, StringBuilder?[]? value
@@ -203,7 +203,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll<TStyledObj>(string fieldName, TStyledObj[]? value)
@@ -225,7 +225,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     [CallsObjectToString]
@@ -252,7 +252,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll(string fieldName, IReadOnlyList<bool>? value)
@@ -273,7 +273,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll(string fieldName, IReadOnlyList<bool?>? value)
@@ -294,7 +294,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt>? value
@@ -320,7 +320,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
@@ -346,7 +346,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll<TToStyle, TStylerType>
@@ -369,7 +369,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll(string fieldName, IReadOnlyList<string?>? value
@@ -394,7 +394,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllCharSequence<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq?>? value
@@ -420,7 +420,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll(string fieldName, IReadOnlyList<StringBuilder?>? value
@@ -445,7 +445,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAll<TStyledObj>(string fieldName, IReadOnlyList<TStyledObj>? value)
@@ -467,7 +467,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
     
     public TExt AlwaysAddAllMatch<T>(string fieldName, IReadOnlyList<T>? value
@@ -492,7 +492,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<bool>? value)
@@ -514,7 +514,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<bool?>? value)
@@ -535,7 +535,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate<TFmt>(string fieldName, IEnumerable<TFmt>? value
@@ -561,7 +561,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct?>? value
@@ -587,7 +587,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate<TToStyle, TStylerType>
@@ -610,7 +610,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<string?>? value
@@ -635,7 +635,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllCharSequenceEnumerate<TCharSeq>(string fieldName, IEnumerable<TCharSeq?>? value
@@ -661,7 +661,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<StringBuilder?>? value
@@ -686,7 +686,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate<TStyledObj>(string fieldName, IEnumerable<TStyledObj>? value)
@@ -708,7 +708,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     [CallsObjectToString]
@@ -735,7 +735,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<bool>? value)
@@ -758,7 +758,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<bool?>? value)
@@ -781,7 +781,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate<TFmt>(string fieldName, IEnumerator<TFmt>? value
@@ -809,7 +809,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value
@@ -837,7 +837,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate<TToStyle, TStylerType>
@@ -862,7 +862,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<string?>? value
@@ -889,7 +889,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllCharSequenceEnumerate<TCharSeq>(string fieldName, IEnumerator<TCharSeq?>? value
@@ -917,7 +917,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<StringBuilder?>? value
@@ -944,7 +944,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     public TExt AlwaysAddAllEnumerate<TStyledObj>(string fieldName, IEnumerator<TStyledObj>? value)
@@ -968,7 +968,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 
     [CallsObjectToString]
@@ -997,6 +997,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
+        return stb.AddGoToNext();
     }
 }

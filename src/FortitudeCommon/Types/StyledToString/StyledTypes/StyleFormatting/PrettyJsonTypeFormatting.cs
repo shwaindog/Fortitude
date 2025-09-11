@@ -24,9 +24,11 @@ public class PrettyJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatti
         where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append("\"").Append(fieldName).Append("\"");
 
-    public IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
+    public IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append(": ");
+
+    public IStringBuilder AddNextFieldSeparator<TTypeBuilder>(TTypeBuilder typeBuilder)
+        where TTypeBuilder : IStyleTypeBuilderComponentAccess => typeBuilder.Sb.Append(", ");
 
     public IStringBuilder AppendTypeClosing<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess
     {
@@ -96,13 +98,6 @@ public class PrettyJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatti
         return typeBuilder.Sb;
     }
 
-    public IStringBuilder AddNextFieldSeparator<TTypeBuilder, TItem>(TTypeBuilder typeBuilder, TItem lastItem, int nextItemNumber)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess 
-    {
-        base.AddCollectionElementSeparator(typeof(TItem), typeBuilder.Sb, nextItemNumber);
-        return typeBuilder.Sb;
-    }
-    
     public IStringBuilder FormatCollectionEnd<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType, int totalItemCount)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess
     {
