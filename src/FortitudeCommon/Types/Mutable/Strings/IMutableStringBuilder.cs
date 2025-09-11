@@ -11,10 +11,14 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
 
     char this[int index] { get; set; }
 
-    T Append(ICharSequence? value);
-    T Append(StringBuilder? value);
-    T Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null);
-    T Append(StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null);
+    T Append(ICharSequence? value, ICustomStringFormatter? customStringFormatter = null);
+    T Append(StringBuilder? value, ICustomStringFormatter? customStringFormatter = null);
+    T Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null
+      , ICustomStringFormatter? customStringFormatter = null);
+    
+    T Append(StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null
+      , ICustomStringFormatter? customStringFormatter = null);
+    
     T Append(bool value);
     T Append(byte value);
     T Append(char value);
@@ -29,24 +33,39 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(sbyte value);
     T Append(float value);
     T Append(string? value);
-    T Append(string? value, int startIndex, int length =  int.MaxValue, string? formatString = null);
-    T Append<TFmt>(TFmt arg0) where TFmt : ISpanFormattable;
-    T Append(Span<char> value);
-    T Append(Span<char> value, int startIndex, int length =  int.MaxValue, string? formatString = null);
-    T Append(ReadOnlySpan<char> value);
-    T Append(ReadOnlySpan<char> value, int startIndex, int length =  int.MaxValue, string? formatString = null);
-    T Append(ReadOnlyMemory<char> value);
-    T Append(ReadOnlyMemory<char> value, int startIndex, int length =  int.MaxValue, string? formatString = null);
-    T Append(char[]? value, int startIndex, int length, string? formatString = null);
+    
+    T Append(string? value, int startIndex, int length = int.MaxValue, string? formatString = null
+      , ICustomStringFormatter? customStringFormatter = null);
+    
+    T Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter = null) where TFmt : ISpanFormattable;
+    T Append(Span<char> value, ICustomStringFormatter? customStringFormatter = null);
+    
+    T Append(Span<char> value, int startIndex, int length = int.MaxValue, string? formatString = null
+      , ICustomStringFormatter? customStringFormatter = null);
+    
+    T Append(ReadOnlySpan<char> value, ICustomStringFormatter? customStringFormatter = null);
+    
+    T Append(ReadOnlySpan<char> value, int startIndex, int length = int.MaxValue, string? formatString = null
+    , ICustomStringFormatter? customStringFormatter = null);
+    
+    T Append(ReadOnlyMemory<char> value, ICustomStringFormatter? customStringFormatter = null);
+    
+    T Append(ReadOnlyMemory<char> value, int startIndex, int length = int.MaxValue, string? formatString = null
+    , ICustomStringFormatter? customStringFormatter = null);
+    
+    T Append(char[]? value, int startIndex, int length, string? formatString = null, ICustomStringFormatter? customStringFormatter = null);
+    
     T Append(ushort value);
     T Append(uint value);
     T Append(ulong value);
 
     unsafe T Append(char* value, int valueCount);
 
-    T AppendSpanFormattable<TClass>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TClass? arg0) where TClass : class, ISpanFormattable;
-
     T AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) where TFmt : ISpanFormattable;
+    
+    T AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
+    , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) where TFmt : ISpanFormattable;
+    
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0);

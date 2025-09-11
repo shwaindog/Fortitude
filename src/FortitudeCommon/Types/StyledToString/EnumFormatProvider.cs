@@ -203,14 +203,15 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         // else check each flag combination
         var hasWrittenValues = false;
         foreach (var eachEnumValue in enumValues)
-            if (enumValue.HasFlag(eachEnumValue))
+            if (enumValue.HasFlag(eachEnumValue) && (eachEnumValue.CompareTo((TEnumValue)default) != 0 || enumValue.CompareTo((TEnumValue)default) == 0))
             {
                 if (hasWrittenValues)
                 {
                     countChars += 2;
                     buildNames.Append(", ");
                 }
-                countChars += SourceSingleNameFromEnum(eachEnumValue, buildNames, format, provider);
+                countChars       += SourceSingleNameFromEnum(eachEnumValue, buildNames, format, provider);
+                hasWrittenValues =  true;
             }
         return countChars;
     }

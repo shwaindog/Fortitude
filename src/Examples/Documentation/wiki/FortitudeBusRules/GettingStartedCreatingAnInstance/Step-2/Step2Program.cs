@@ -29,7 +29,7 @@ public class Step2Program
 
         var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
         
-        var appender = logger.InfApnd("Started Step2 application in ");
+        var appender = logger.DbgApnd("Started Step2 application in ");
         #if DEBUG
         appender?.Args("Debug build.");
         #else
@@ -44,7 +44,7 @@ public class Step2Program
         logger.Inf("Finished creating message bus");
 
         messageBus.Start();
-        logger.Inf("Finished starting message bus");
+        logger.Dbg("Finished starting message bus");
         messageBus.DeployDaemonRule(new StartingBootstrapRule()
                                   , new DeploymentOptions(messageGroupType: MessageQueueType.Custom));
 
