@@ -161,8 +161,9 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         switch (forBuildingStyle)
         {
             case StringBuildingStyle.Json | StringBuildingStyle.Compact: return new CompactJsonTypeFormatting();
-            case StringBuildingStyle.Json | StringBuildingStyle.Pretty: return new PrettyJsonTypeFormatting();
-            default:                                                     return new CompactLogTypeFormatting();
+            case StringBuildingStyle.Json | StringBuildingStyle.Pretty:  return new PrettyJsonTypeFormatting();
+
+            default: return new CompactLogTypeFormatting();
         }
     }
 
@@ -349,7 +350,6 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         newType.Start();
     }
 
-
     protected void PopCurrentSettings()
     {
         var currentNode = CurrentNode;
@@ -357,10 +357,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         {
             OrderedObjectGraph[CurrentGraphNodeIndex] = currentNode.Value.ClearComponentAccess();
             CurrentGraphNodeIndex                     = currentNode.Value.ParentVisitIndex;
-            if (CurrentGraphNodeIndex < 0)
-            {
-                OrderedObjectGraph.Clear();
-            }
+            if (CurrentGraphNodeIndex < 0) { OrderedObjectGraph.Clear(); }
         }
     }
 
@@ -402,10 +399,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
             var isSameInstance = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
             if (isSameInstance)
             {
-                if (checkExisting.VistedAsType == objAsType || !checkExisting.VistedAsType.IsAssignableTo(objAsType))
-                {
-                    return false;
-                }
+                if (checkExisting.VistedAsType == objAsType || !checkExisting.VistedAsType.IsAssignableTo(objAsType)) { return false; }
             }
         }
         return true;

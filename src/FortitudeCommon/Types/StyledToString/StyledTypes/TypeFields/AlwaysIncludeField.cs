@@ -106,7 +106,11 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 
     public TExt AlwaysAddWithFormatting<TFmt>(string fieldName, TFmt value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TFmt : ISpanFormattable =>
-        stb.SkipBody ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
+        stb.SkipBody 
+            ? stb.StyleTypeBuilder 
+            : stb.FieldNameJoin(fieldName, stb)
+                 .StyleFormatter.Format(value, stb.Sb, formatString)
+                 .AnyToTypeBuilder(stb);
 
     public TExt AlwaysAddWithFormatting<TFmt>(string fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TFmt : struct, ISpanFormattable =>

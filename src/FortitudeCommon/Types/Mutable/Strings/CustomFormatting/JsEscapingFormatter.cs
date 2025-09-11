@@ -99,7 +99,6 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     protected virtual int NextBase64Chars(byte source, IStringBuilder sb)
     {
         var b = source;
-        // Console.Out.WriteLine("Next byte : byte  Bits = {0} ", Convert.ToString(b, 2).PadLeft(8, '0'));
 
         int firstChar;
         switch (previousByteBitCount)
@@ -108,23 +107,17 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 previousByteUnusedBits = (byte)((0x3 & b) << 4);
                 previousByteBitCount   = 2;
                 firstChar              = b >> 2;
-                // Console.Out.WriteLine("On 0 : firstChar  Bits = {0} ", Convert.ToString(firstChar, 2).PadLeft(6, '0'));
                 sb.Append(Base64LookupTable[firstChar]);
-                // Console.Out.WriteLine("After 0 : previous Bits = {0} ", Convert.ToString(previousByteUnusedBits, 2).PadLeft(2, '0'));
                 return 1;
             case 2:
                 firstChar              = previousByteUnusedBits | ((0xF0 & b) >> 4);
-                // Console.Out.WriteLine("On 2 : firstChar  Bits = {0} ", Convert.ToString(firstChar, 2).PadLeft(6, '0'));
                 previousByteUnusedBits = (byte)((0xF & b) << 2);
-                // Console.Out.WriteLine("After 2 : previous Bits = {0} ", Convert.ToString(previousByteUnusedBits, 2).PadLeft(6, '0'));
                 previousByteBitCount   = 4;
                 sb.Append(Base64LookupTable[firstChar]);
                 return 1;
             case 4:
                 var secondChar = (byte)((0x3F & b));
-                firstChar            = previousByteUnusedBits | ((0xC0 & b) >> 6);
-                // Console.Out.WriteLine("On 4 : firstChar  Bits = {0} ", Convert.ToString(firstChar, 2).PadLeft(6, '0'));
-                // Console.Out.WriteLine("On 4 : secondChar  Bits = {0} ", Convert.ToString(secondChar, 2).PadLeft(6, '0'));
+                firstChar = previousByteUnusedBits | ((0xC0 & b) >> 6);
                 sb.Append(Base64LookupTable[firstChar]);
                 sb.Append(Base64LookupTable[secondChar]);
                 previousByteBitCount = 0;
@@ -159,7 +152,6 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     protected virtual int NextBase64Chars(byte source, Span<char> dest, int destIndex)
     {
         var b = source;
-        // Console.Out.WriteLine("Next byte : byte  Bits = {0} ", Convert.ToString(b, 2).PadLeft(8, '0'));
 
         int firstChar;
         switch (previousByteBitCount)
@@ -168,23 +160,17 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 previousByteUnusedBits = (byte)((0x3 & b) << 4);
                 previousByteBitCount   = 2;
                 firstChar              = b >> 2;
-                // Console.Out.WriteLine("On 0 : firstChar  Bits = {0} ", Convert.ToString(firstChar, 2).PadLeft(6, '0'));
                 dest.OverWriteAt(destIndex, Base64LookupTable[firstChar]);
-                // Console.Out.WriteLine("After 0 : previous Bits = {0} ", Convert.ToString(previousByteUnusedBits, 2).PadLeft(2, '0'));
                 return 1;
             case 2:
                 firstChar              = previousByteUnusedBits | ((0xF0 & b) >> 4);
-                // Console.Out.WriteLine("On 2 : firstChar  Bits = {0} ", Convert.ToString(firstChar, 2).PadLeft(6, '0'));
                 previousByteUnusedBits = (byte)((0xF & b) << 2);
-                // Console.Out.WriteLine("After 2 : previous Bits = {0} ", Convert.ToString(previousByteUnusedBits, 2).PadLeft(6, '0'));
                 previousByteBitCount   = 4;
                 dest.OverWriteAt(destIndex, Base64LookupTable[firstChar]);
                 return 1;
             case 4:
                 var secondChar = (byte)((0x3F & b));
-                firstChar            = previousByteUnusedBits | ((0xC0 & b) >> 6);
-                // Console.Out.WriteLine("On 4 : firstChar  Bits = {0} ", Convert.ToString(firstChar, 2).PadLeft(6, '0'));
-                // Console.Out.WriteLine("On 4 : secondChar  Bits = {0} ", Convert.ToString(secondChar, 2).PadLeft(6, '0'));
+                firstChar = previousByteUnusedBits | ((0xC0 & b) >> 6);
                 dest.OverWriteAt(destIndex, Base64LookupTable[firstChar]);
                 dest.OverWriteAt(destIndex + 1, Base64LookupTable[firstChar]);
                 previousByteBitCount = 0;
@@ -1192,18 +1178,14 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case char charItem:
-                if (CharArrayWritesString)
-                {
-                    return sb.Append(charItem).ReturnCharCount(1);
-                } 
-                if (formatString.IsNullOrEmpty())
-                {
-                    return sb.Append("\"").Append(charItem).Append("\"").ReturnCharCount(3);
-                }
+                if (CharArrayWritesString) { return sb.Append(charItem).ReturnCharCount(1); }
+                if (formatString.IsNullOrEmpty()) { return sb.Append("\"").Append(charItem).Append("\"").ReturnCharCount(3); }
                 break;
             case byte byteItem:
-                if(ByteArrayWritesBase64String)
-                    return NextBase64Chars(byteItem, sb);
+                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
+                break;
+            case DateTime dateTimeItem:
+                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, sb, "yyyy-MM-ddTHH:mm:ss");
                 break;
         }
         return Format(nextItem, sb, formatString);
@@ -1219,7 +1201,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     destCharSpan[destStartIndex] = charItem;
                     return 1;
-                } 
+                }
                 if (formatString.IsNullOrEmpty())
                 {
                     destCharSpan.OverWriteAt(destStartIndex, "\"");
@@ -1229,37 +1211,35 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
                 break;
             case byte byteItem:
-                if(ByteArrayWritesBase64String)
-                    return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
+                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
+                break;
+            case DateTime dateTimeItem:
+                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, destCharSpan, destStartIndex, "yyyy-MM-ddTHH:mm:ss");
                 break;
         }
         return Format(nextItem, destCharSpan, destStartIndex, formatString);
     }
 
-    public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString) 
+    public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString)
     {
         switch (nextItem)
         {
             case char charItem:
-                if (CharArrayWritesString)
-                {
-                    return sb.Append(charItem).ReturnCharCount(1);
-                } 
-                if (formatString.IsNullOrEmpty())
-                {
-                    return sb.Append("\"").Append(charItem).Append("\"").ReturnCharCount(3);
-                }
+                if (CharArrayWritesString) { return sb.Append(charItem).ReturnCharCount(1); }
+                if (formatString.IsNullOrEmpty()) { return sb.Append("\"").Append(charItem).Append("\"").ReturnCharCount(3); }
                 break;
             case byte byteItem:
-                if(ByteArrayWritesBase64String)
-                    return NextBase64Chars(byteItem, sb);
+                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
+                break;
+            case DateTime dateTimeItem:
+                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, sb, "yyyy-MM-ddTHH:mm:ss");
                 break;
         }
         return Format(nextItem, sb, formatString);
     }
 
     public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
-      , string formatString) 
+      , string formatString)
     {
         switch (nextItem)
         {
@@ -1268,7 +1248,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     destCharSpan[destStartIndex] = charItem;
                     return 1;
-                } 
+                }
                 if (formatString.IsNullOrEmpty())
                 {
                     destCharSpan.OverWriteAt(destStartIndex, "\"");
@@ -1278,8 +1258,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
                 break;
             case byte byteItem:
-                if(ByteArrayWritesBase64String)
-                    return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
+                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
+                break;
+            case DateTime dateTimeItem:
+                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, destCharSpan, destStartIndex, "yyyy-MM-ddTHH:mm:ss");
                 break;
         }
         return Format(nextItem, destCharSpan, destStartIndex, formatString);
@@ -1298,6 +1280,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 return ByteArrayWritesBase64String
                     ? NextBase64Chars(byteItem, sb)
                     : sb.Append(byteItem).ReturnCharCount(3);
+            case DateTime dateTimeItem: return Format(dateTimeItem, sb, "yyyy-MM-ddTHH:mm:ss");
         }
         return sb.Append(nextItem).ReturnCharCount(sb.Length - preAppendLen);
     }
@@ -1311,15 +1294,15 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     destCharSpan[destStartIndex] = charItem;
                     return 1;
-                } 
+                }
                 destCharSpan.OverWriteAt(destStartIndex, "\"");
                 destCharSpan.OverWriteAt(destStartIndex + 1, charItem);
                 destCharSpan.OverWriteAt(destStartIndex + 2, "\"");
                 return 3;
             case byte byteItem:
-                if(ByteArrayWritesBase64String)
-                    return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
+                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
                 break;
+            case DateTime dateTimeItem: return Format(dateTimeItem, destCharSpan, destStartIndex, "yyyy-MM-ddTHH:mm:ss");
         }
         CharSpanCollectionScratchBuffer ??= MutableString.MediumScratchBuffer;
         CharSpanCollectionScratchBuffer.Clear();
