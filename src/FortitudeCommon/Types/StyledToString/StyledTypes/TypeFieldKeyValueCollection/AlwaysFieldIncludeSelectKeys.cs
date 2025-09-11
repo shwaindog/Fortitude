@@ -28,11 +28,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(key).FieldEnd(stb);
                 _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendNullOrValue(keyValue);
+                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                    : stb.AppendMatchOrNull(keyValue);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
@@ -69,11 +69,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(key).FieldEnd(stb);
                 _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendNullOrValue(keyValue);
+                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                    : stb.AppendMatchOrNull(keyValue);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
@@ -110,11 +110,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(key).FieldEnd(stb);
                 _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendNullOrValue(keyValue);
+                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                    : stb.AppendMatchOrNull(keyValue);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
@@ -151,11 +151,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(key).FieldEnd(stb);
                 _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendNullOrValue(keyValue);
+                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                    : stb.AppendMatchOrNull(keyValue);
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
@@ -196,11 +196,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 foundValues = true;
             }
             _ = keyFormatString.IsNotNullOrEmpty()
-                ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                : stb.AppendNullOrValue(key).FieldEnd(stb);
+                ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                : stb.AppendMatchOrNull(key).FieldEnd(stb);
             _ = valueFormatString.IsNotNullOrEmpty()
-                ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                : stb.AppendNullOrValue(keyValue);
+                ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                : stb.AppendMatchOrNull(keyValue);
             stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = selectKeys.MoveNext();
         } 
@@ -236,8 +236,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(key).FieldEnd(stb);
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
@@ -275,8 +275,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(key).FieldEnd(stb);
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -314,8 +314,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(key).FieldEnd(stb);
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -352,8 +352,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(key).FieldEnd(stb);
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
@@ -394,8 +394,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 foundValues = true;
             }
             _ = keyFormatString.IsNotNullOrEmpty()
-                ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                : stb.AppendNullOrValue(key).FieldEnd(stb);
+                ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd(stb)
+                : stb.AppendMatchOrNull(key).FieldEnd(stb);
             stb.AppendOrNull(keyValue, valueStyler);
             stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = selectKeys.MoveNext();

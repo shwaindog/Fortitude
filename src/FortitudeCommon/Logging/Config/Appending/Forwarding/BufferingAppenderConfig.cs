@@ -87,7 +87,7 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
         set => this[nameof(MaxBufferTimeMs)] = value.ToString();
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IBufferingAppenderConfig IConfigCloneTo<IBufferingAppenderConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);

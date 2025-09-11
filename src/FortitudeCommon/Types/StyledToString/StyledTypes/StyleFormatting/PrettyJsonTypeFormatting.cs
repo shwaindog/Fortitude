@@ -24,7 +24,7 @@ public class PrettyJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatti
         where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append("\"").Append(fieldName).Append("\"");
 
-    public IStringBuilder AppendFieldToValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName)
+    public IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
         typeBuilder.Sb.Append(": ");
 

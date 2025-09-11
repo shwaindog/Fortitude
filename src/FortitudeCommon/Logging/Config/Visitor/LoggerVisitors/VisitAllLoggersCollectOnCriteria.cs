@@ -32,36 +32,36 @@ public class VisitAllLoggersCollectOnCriteria<T>
 
     public IMutableFLoggerRootConfig? FoundRootLoggerConfig { get; private set; }
 
-    public override T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
+    public override T Visit(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
     {
         switch (loggerCommonConfig)
         {
-            case IMutableFLoggerRootConfig rootLogger:             return Accept(rootLogger);
-            case IMutableFLoggerDescendantConfig descendantLogger: return Accept(descendantLogger);
+            case IMutableFLoggerRootConfig rootLogger:             return Visit(rootLogger);
+            case IMutableFLoggerDescendantConfig descendantLogger: return Visit(descendantLogger);
 
             default: return Me;
         }
     }
 
-    public override T Accept(IMutableFLoggerRootConfig loggerRootConfig)
+    public override T Visit(IMutableFLoggerRootConfig loggerRootConfig)
     {
         FoundRootLoggerConfig = loggerRootConfig;
-        loggerRootConfig.DescendantLoggers.Visit(Me);
+        loggerRootConfig.DescendantLoggers.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig)
+    public override T Visit(IMutableFLoggerDescendantConfig loggerDescendantConfig)
     {
-        if (FoundRootLoggerConfig == null) return loggerDescendantConfig.ParentConfig?.Visit(Me) ?? Me;
+        if (FoundRootLoggerConfig == null) return loggerDescendantConfig.ParentConfig?.Accept(Me) ?? Me;
         if (meets(loggerDescendantConfig)) found.Add(loggerDescendantConfig);
-        loggerDescendantConfig.DescendantLoggers.Visit(Me);
+        loggerDescendantConfig.DescendantLoggers.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig)
+    public override T Visit(IMutableNamedChildLoggersLookupConfig childLoggersConfig)
     {
-        if (FoundRootLoggerConfig == null) return childLoggersConfig.ParentConfig?.Visit(Me) ?? Me;
-        foreach (var childLogger in childLoggersConfig) childLogger.Value.Visit(Me);
+        if (FoundRootLoggerConfig == null) return childLoggersConfig.ParentConfig?.Accept(Me) ?? Me;
+        foreach (var childLogger in childLoggersConfig) childLogger.Value.Accept(Me);
         return Me;
     }
 

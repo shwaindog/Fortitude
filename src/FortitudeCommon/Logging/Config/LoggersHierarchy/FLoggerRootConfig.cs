@@ -55,13 +55,13 @@ public class FLoggerRootConfig : FLoggerTreeCommonConfig, IMutableFLoggerRootCon
     IMutableNamedChildLoggersLookupConfig IMutableFLoggerRootConfig.AllLoggers()
     {
         var results = new NamedChildLoggersLookupConfig();
-        foreach (var childLoggerConfig in Visit(new AllLoggers())) results.Add(childLoggerConfig.FullName, childLoggerConfig);
+        foreach (var childLoggerConfig in Accept(new AllLoggers())) results.Add(childLoggerConfig.FullName, childLoggerConfig);
         return results;
     }
 
     public IFLoggerDescendantConfig ResolveLoggerConfig(string loggerFullName) => throw new NotImplementedException();
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IFLoggerRootConfig IConfigCloneTo<IFLoggerRootConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) => 
         CloneConfigTo(configRoot, path);

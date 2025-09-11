@@ -92,7 +92,7 @@ public class FLogInitializationConfig : FLogConfig, IMutableFLogInitializationCo
         }
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IFLogInitializationConfig IConfigCloneTo<IFLogInitializationConfig>.CloneConfigTo
         (IConfigurationRoot configRoot, string path) =>

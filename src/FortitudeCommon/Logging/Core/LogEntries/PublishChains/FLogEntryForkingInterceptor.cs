@@ -40,7 +40,7 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
 
     public bool RemoveFromPublishChain() => Remove(this);
 
-    public override T LogEntryChainVisit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public IFLogEntryRootPublisher? RootInBoundEndpoint =>
         InBound as IFLogEntryRootPublisher ?? (InBound is IFLogEntryForkingInterceptor branch ? branch.RootInBoundEndpoint : null);

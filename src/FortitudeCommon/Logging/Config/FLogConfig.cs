@@ -12,7 +12,7 @@ public interface IFLogConfig
     string ConfigSubPath { get; }
 
     IFLogConfig? ParentConfig { get; }
-    T Visit<T>(T visitor) where T : IFLogConfigVisitor<T>;
+    T Accept<T>(T visitor) where T : IFLogConfigVisitor<T>;
 }
 
 public interface IMutableFLogConfig : IFLogConfig
@@ -30,5 +30,5 @@ public abstract class FLogConfig : ConfigSection, IMutableFLogConfig
 
     public string ConfigSubPath => Path;
 
-    public abstract T Visit<T>(T visitor) where T : IFLogConfigVisitor<T>;
+    public abstract T Accept<T>(T visitor) where T : IFLogConfigVisitor<T>;
 }

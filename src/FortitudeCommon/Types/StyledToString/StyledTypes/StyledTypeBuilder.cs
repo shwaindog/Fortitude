@@ -25,7 +25,7 @@ public record struct StyledTypeBuildResult(string TypeName, StyledTypeStringAppe
 
 public abstract class StyledTypeBuilder : ExplicitRecyclableObject, IDisposable
 {
-    protected StyleTypeBuilderPortableState PortableState = new();
+    protected readonly StyleTypeBuilderPortableState PortableState = new();
 
     protected int StartIndex;
 
@@ -108,7 +108,7 @@ public interface ITypeBuilderComponentSource
     IStyleTypeBuilderComponentAccess ComponentAccess { get; }
 }
 
-public interface ITypeBuilderComponentSource<T> : ITypeBuilderComponentSource where T : StyledTypeBuilder
+public interface ITypeBuilderComponentSource<out T> : ITypeBuilderComponentSource where T : StyledTypeBuilder
 {
     IStyleTypeBuilderComponentAccess<T> CompAccess { get; }
 }
@@ -116,6 +116,7 @@ public interface ITypeBuilderComponentSource<T> : ITypeBuilderComponentSource wh
 public static class StyledTypeBuilderExtensions
 {
     internal const string Null = "null";
+    internal const string NoFormattingFormatString = "{0}";
 
     public static IStringBuilder AddIndents(this IStringBuilder sb, char indentChar, int settingsIndentSize, int indentLevel)
     {
@@ -157,60 +158,33 @@ public static class StyledTypeBuilderExtensions
         return stb.StyleTypeBuilder;
     }
 
-    public static IStringBuilder AppendOrNull(this IStringBuilder sb, string? value, bool inQuotes = false) =>
-        value != null ? sb.Qt(inQuotes).Append(value).Qt(inQuotes) : sb.Append(Null);
-
     public static IStringBuilder AppendOrNull<T>(this IStringBuilder sb, T? value, bool inQuotes = false) where T : ISpanFormattable =>
         value != null ? sb.Qt(inQuotes).Append(value).Qt(inQuotes) : sb.Append(Null);
 
-    public static IStringBuilder AppendOrNull<T>(this IStringBuilder sb, T? value, bool inQuotes = false) where T : struct, ISpanFormattable =>
-        value != null ? sb.Qt(inQuotes).Append(value.Value).Qt(inQuotes) : sb.Append(Null);
+    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, bool? value)
+        where TExt : StyledTypeBuilder => value != null ? stb.Sb.Append(value) : stb.Sb.Append(Null);
 
-    public static IStringBuilder AppendOrNull(this IStringBuilder sb, bool? value, bool inQuotes = false) =>
-        value != null ? sb.Qt(inQuotes).Append(value).Qt(inQuotes) : sb.Append(Null);
-
-    public static IStringBuilder Append(this IStringBuilder sb, bool value, bool inQuotes = false) => 
-        sb.Qt(inQuotes).Append(value).Qt(inQuotes);
-
-    public static TExt Append<TExt, TFmt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TFmt value, bool inQuotes = false)
-        where TExt : StyledTypeBuilder where TFmt : ISpanFormattable =>
-        stb.Sb.Append(value, stb.StyleFormatter).AnyToTypeBuilder(stb);
+    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, bool value)
+        where TExt : StyledTypeBuilder => stb.Sb.Append(value);
 
     public static IStringBuilder Append<T>(this IStringBuilder sb, T value, bool inQuotes = false) where T : struct, ISpanFormattable =>
         sb.Qt(inQuotes).Append(value).Qt(inQuotes);
 
-    public static IStringBuilder Append(this IStringBuilder sb, string value, bool inQuotes = false) => sb.Qt(inQuotes).Append(value).Qt(inQuotes);
-
-    public static IStringBuilder Append<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, string value, bool inQuotes = false)
-        where TExt : StyledTypeBuilder =>
-        stb.Sb.Qt(inQuotes).Append(value).Qt(inQuotes);
-
-    public static IStringBuilder AppendFormatted<T>
-    (this IStringBuilder sb, T value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false) where T : ISpanFormattable =>
-        sb.Qt(inQuotes).AppendFormat(formatString, value).Qt(inQuotes);
-
-    public static TExt AppendFormatted<TExt, T>
-    (this IStyleTypeBuilderComponentAccess<TExt> stb, T value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
-        where TExt : StyledTypeBuilder  where T : ISpanFormattable =>
-        stb.StyleFormatter.Format(value, stb.Sb, formatString).AnyToTypeBuilder(stb);
-
     public static IStringBuilder AppendFormattedCollectionItem<TExt, T>
     (this IStyleTypeBuilderComponentAccess<TExt> stb, T value, int retrieveCount
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
         where TExt : StyledTypeBuilder where T : ISpanFormattable =>
          stb.StyleFormatter.CollectionNextItemFormat(value, retrieveCount, stb.Sb, formatString).AnyToSb(stb.Sb);
 
     public static IStringBuilder AppendFormattedCollectionItem<TExt, T>
     (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value, int retrieveCount
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
         where TExt : StyledTypeBuilder where T : struct, ISpanFormattable =>
          stb.StyleFormatter.CollectionNextItemFormat(value, retrieveCount, stb.Sb, formatString).AnyToSb(stb.Sb);
 
     public static IStringBuilder AppendFormattedCollectionItemOrNull<TExt>
     (this IStyleTypeBuilderComponentAccess<TExt> stb, string? value, int retrieveCount
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
         where TExt : StyledTypeBuilder =>
         value != null 
             ? stb.StyleFormatter.Format(value, 0, stb.Sb, formatString).AnyToSb(stb.Sb)
@@ -218,7 +192,7 @@ public static class StyledTypeBuilderExtensions
 
     public static IStringBuilder AppendFormattedCollectionItemOrNull<TExt>
     (this IStyleTypeBuilderComponentAccess<TExt> stb, ICharSequence? value, int retrieveCount
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
         where TExt : StyledTypeBuilder =>
         value != null 
             ? stb.StyleFormatter.Format(value, 0, stb.Sb, formatString).AnyToSb(stb.Sb)
@@ -226,7 +200,7 @@ public static class StyledTypeBuilderExtensions
 
     public static IStringBuilder AppendFormattedCollectionItemOrNull<TExt>
     (this IStyleTypeBuilderComponentAccess<TExt> stb, StringBuilder? value, int retrieveCount
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
         where TExt : StyledTypeBuilder =>
         value != null 
             ? stb.StyleFormatter.Format(value, 0, stb.Sb, formatString).AnyToSb(stb.Sb)
@@ -242,183 +216,229 @@ public static class StyledTypeBuilderExtensions
             ? stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb).AnyToSb(stb.Sb)
             : stb.Sb.Append(stb.Settings.NullStyle);
 
-    public static IStringBuilder AppendCollectionItemFormattedOrNull<TExt, T>
-    (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value, int retrieveCount
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
-        where TExt : StyledTypeBuilder where T : struct, ISpanFormattable =>
-        value != null 
-            ? stb.StyleFormatter.CollectionNextItemFormat(value.Value, retrieveCount, stb.Sb, formatString).AnyToSb(stb.Sb) 
-            : stb.StyleFormatter.CollectionNextItem(Null, retrieveCount, stb.Sb).AnyToSb(stb.Sb);
-
     public static IStringBuilder                         AnyToSb<T>(this T _, IStringBuilder sbToReturn)                    => sbToReturn;
     
     public static TExt AnyToTypeBuilder<TExt, T>(this T _, IStyleTypeBuilderComponentAccess<TExt> typeBuilder)
         where TExt : StyledTypeBuilder  => typeBuilder.StyleTypeBuilder;
-     
-    public static IStringBuilder AppendFormattedOrNull<TExt, T>
-    (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
-        where TExt : StyledTypeBuilder where T : struct, ISpanFormattable =>
-        stb.StyleFormatter.Format(value, stb.Sb, formatString).AnyToSb(stb.Sb);
-    
 
-    public static IStringBuilder AppendFormatted
-    (this IStringBuilder sb, ReadOnlySpan<char> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+    public static IStringBuilder AppendFormatted<TExt, T>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
+        where TExt : StyledTypeBuilder  where T : ISpanFormattable
     {
-        return sb.Qt(inQuotes).AppendFormat(formatString, value).Qt(inQuotes);
+        var sb        = stb.Sb;
+        stb.StyleFormatter.Format(value, sb, formatString);
+        return sb;
+    }
+
+    public static IStringBuilder AppendValue<TExt, T>(this IStyleTypeBuilderComponentAccess<TExt> stb, T value)
+        where TExt : StyledTypeBuilder  where T : ISpanFormattable
+    {
+        var sb        = stb.Sb;
+        stb.StyleFormatter.Format(value, sb, NoFormattingFormatString);
+        return sb;
+    }
+
+    public static IStringBuilder AppendNullableFormattedOrNull<TExt, T>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TExt : StyledTypeBuilder where T : struct, ISpanFormattable
+    {
+        var sb        = stb.Sb;
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        stb.StyleFormatter.Format(value.Value, sb, formatString ?? NoFormattingFormatString);
+        return sb;
+    }
+
+    public static IStringBuilder AppendOrNull<TExt, T>(this IStyleTypeBuilderComponentAccess<TExt> stb, T? value)
+        where TExt : StyledTypeBuilder where T : struct, ISpanFormattable
+    {
+        var sb        = stb.Sb;
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        stb.StyleFormatter.Format(value.Value, sb, NoFormattingFormatString);
+        return sb;
+    }
+
+    public static IStringBuilder AppendFormattedOrNullOnZeroLength<TExt>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, ReadOnlySpan<char> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue)
+        where TExt : StyledTypeBuilder
+    {
+        var sb        = stb.Sb;
+        if (value.Length == 0)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
+        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
+        var len        = cappedTo - cappedFrom;
+        stb.StyleFormatter.Format(value, cappedFrom, sb, formatString ?? NoFormattingFormatString, len);
+        return sb;
     }
 
     public static IStringBuilder Qt(this IStringBuilder sb, bool writeQuote) => writeQuote ? sb.Append("\"") : sb;
 
-    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, string? value, bool? inQuotes = null)
+    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, string? value)
         where TExt : StyledTypeBuilder
     {
         var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value).Qt(addQuotes);
-        else
-            sb.Append(Null);
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        stb.StyleFormatter.Format(value, 0, sb, NoFormattingFormatString);
         return sb;
     }
 
-    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, ICharSequence? value, bool? inQuotes = null)
+    public static IStringBuilder AppendFormattedOrNull<TExt>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, string? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue)
         where TExt : StyledTypeBuilder
     {
         var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value).Qt(addQuotes);
-        else
-            sb.Append(Null);
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
+        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
+        var len        = cappedTo - cappedFrom;
+        stb.StyleFormatter.Format(value, cappedFrom, sb, formatString ?? NoFormattingFormatString, len);
+        return sb;
+    }
+
+    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, ReadOnlySpan<char> value)
+        where TExt : StyledTypeBuilder
+    {
+        var sb        = stb.Sb;
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        stb.StyleFormatter.Format(value, 0, sb, NoFormattingFormatString);
+        return sb;
+    }
+
+    public static IStringBuilder AppendFormattedOrNull<TExt>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, ReadOnlySpan<char> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue)
+        where TExt : StyledTypeBuilder
+    {
+        var sb        = stb.Sb;
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
+        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
+        var len        = cappedTo - cappedFrom;
+        stb.StyleFormatter.Format(value, cappedFrom, sb, formatString ?? NoFormattingFormatString, len);
+        return sb;
+    }
+
+    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, ICharSequence? value)
+        where TExt : StyledTypeBuilder
+    {
+        var sb        = stb.Sb;
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        stb.StyleFormatter.Format(value, 0, sb, NoFormattingFormatString);
         return sb;
     }
 
     public static IStringBuilder AppendFormattedOrNull<TExt>
     (this IStyleTypeBuilderComponentAccess<TExt> stb, ICharSequence? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool? inQuotes = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue)
         where TExt : StyledTypeBuilder
     {
         var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
+        if (value == null)
         {
-            if (addQuotes) sb.Append("\"");
-            sb.Qt(addQuotes).AppendFormat(formatString, value).Qt(addQuotes);
-            if (addQuotes) sb.Append("\"");
+            return sb.Append(stb.Settings.NullStyle);
         }
-        else
-            sb.Append(Null);
+        var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
+        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
+        var len        = cappedTo - cappedFrom;
+        stb.StyleFormatter.Format(value, cappedFrom, sb, formatString ?? NoFormattingFormatString, len);
         return sb;
     }
 
-    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb
-      , IStringBuilder? value, bool? inQuotes = null)
+    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, StringBuilder? value)
         where TExt : StyledTypeBuilder
     {
         var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value).Qt(addQuotes);
-        else
-            sb.Append(Null);
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        stb.StyleFormatter.Format(value, 0, sb, NoFormattingFormatString);
         return sb;
     }
 
     public static IStringBuilder AppendFormattedOrNull<TExt>
-    (this IStyleTypeBuilderComponentAccess<TExt> stb, IStringBuilder? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool? inQuotes = null)
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, StringBuilder? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue)
         where TExt : StyledTypeBuilder
     {
         var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).AppendFormat(formatString, value).Qt(addQuotes);
-        else
-            sb.Append(Null);
-        return sb;
-    }
-
-    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb
-      , StringBuilder? value, bool? inQuotes = null) where TExt : StyledTypeBuilder
-    {
-        var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value).Qt(addQuotes);
-        else
-            sb.Append(Null);
-        return sb;
-    }
-
-    public static IStringBuilder AppendFormattedOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb
-      , StringBuilder? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool? inQuotes = null) where TExt : StyledTypeBuilder
-    {
-        var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).AppendFormat(formatString, value).Qt(addQuotes);
-        else
-            sb.Append(Null);
-        return sb;
-    }
-
-    public static IStringBuilder AppendObjectOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, object? value, bool? inQuotes = null)
-        where TExt : StyledTypeBuilder
-    {
-        var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value).Qt(addQuotes);
-        else
-            sb.Append(Null);
-        return sb;
-    }
-
-    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb
-      , char[]? value, bool? inQuotes = null)
-        where TExt : StyledTypeBuilder
-    {
-        var sb        = stb.Sb;
-        var isJson    = stb.Style.IsJson();
-        var addQuotes = inQuotes ?? false;
-        if (value != null)
+        if (value == null)
         {
-            if (!isJson)
-            {
-                if(addQuotes) sb.Qt(addQuotes);
-                sb.Append(value);
-                if(addQuotes) sb.Qt(addQuotes);
-            }
-            else
-            {
-                var hasAdded = false;
-                for (int i = 0; i < value.Length; i++)
-                {
-                    if (hasAdded) sb.ItemNext(stb);
-                    sb.Qt(true).Append(value[i]).Qt(true);
-                }
-            }
+            return sb.Append(stb.Settings.NullStyle);
         }
-        else
-            sb.Append(Null);
+        var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
+        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
+        var len = cappedTo - cappedFrom;
+        stb.StyleFormatter.Format(value, cappedFrom, sb, formatString ?? NoFormattingFormatString, len);
+        return sb;
+    }
+
+    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, char[]? value)
+        where TExt : StyledTypeBuilder
+    {
+        var sb        = stb.Sb;
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        stb.StyleFormatter.Format(value, 0, sb, NoFormattingFormatString);
+        return sb;
+    }
+
+    public static IStringBuilder AppendFormattedOrNull<TExt>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, char[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue)
+        where TExt : StyledTypeBuilder
+    {
+        var sb        = stb.Sb;
+        if (value == null)
+        {
+            return sb.Append(stb.Settings.NullStyle);
+        }
+        var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
+        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
+        var len        = cappedTo - cappedFrom;
+        stb.StyleFormatter.Format(value, cappedFrom, sb, formatString ?? NoFormattingFormatString, len);
         return sb;
     }
 
     public static IStringBuilder AppendFormattedOrNull<TExt>
     (this IStyleTypeBuilderComponentAccess<TExt> stb, object? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool? inQuotes = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
         where TExt : StyledTypeBuilder
     {
-        var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
         if (value != null)
-            sb.Qt(addQuotes).AppendFormat(formatString, value).Qt(addQuotes);
+            stb.Sb.AppendFormat(stb.StyleFormatter, formatString, value);
         else
-            sb.Append(Null);
-        return sb;
+            stb.Sb.Append(Null);
+        return stb.Sb;
     }
 
     public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb
@@ -434,78 +454,6 @@ public static class StyledTypeBuilderExtensions
             sb.Append(Null);
         }
         return sb;
-    }
-
-    public static IStringBuilder Append<T, TBase, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, T value
-      , CustomTypeStyler<TBase> styledToStringAction, bool? inQuotes = null)
-        where T : class, TBase where TBase : class where TExt : StyledTypeBuilder
-    {
-        var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (addQuotes) sb.Append("\"");
-        styledToStringAction(value, stb.OwningAppender);
-        if (addQuotes) sb.Append("\"");
-        return stb.Sb;
-    }
-
-    public static IStringBuilder AppendOrNull<TFmt, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TFmt? value
-      , bool? inQuotes = null) where TFmt : ISpanFormattable where TExt : StyledTypeBuilder
-    {
-        var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? false;
-        if (value != null)
-        {
-            var isJson    = stb.Style.IsJson();
-            if (!isJson)
-            {
-                if(addQuotes) sb.Qt(addQuotes);
-                sb.Append(value);
-                if(addQuotes) sb.Qt(addQuotes);
-            }
-            else
-            {
-                var typeOfTFmt = typeof(TFmt);
-                var isNumeric  = typeOfTFmt.IsNumericType();
-                var isChar     = typeof(char) == typeOfTFmt;
-                addQuotes |= !isNumeric || isChar;
-                sb.Qt(addQuotes).Append(value).Qt(addQuotes);
-            }
-        }
-        else
-        {
-            sb.Append(Null);
-        }
-        return stb.Sb;
-    }
-
-    public static IStringBuilder AppendOrNull<TFmtStruct, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TFmtStruct? value
-      , bool? inQuotes = null) where TFmtStruct : struct, ISpanFormattable where TExt : StyledTypeBuilder
-    {
-        var sb        = stb.Sb;
-        var addQuotes = inQuotes ?? false;
-        if (value != null)
-        {
-            var isJson    = stb.Style.IsJson();
-            if (!isJson)
-            {
-                if(addQuotes) sb.Qt(addQuotes);
-                sb.Append(value);
-                if(addQuotes) sb.Qt(addQuotes);
-            }
-            else
-            {
-                var typeOfTFmt = typeof(TFmtStruct);
-                var isNumeric  = typeOfTFmt.IsNumericType();
-                var isChar     = typeof(char) == typeOfTFmt;
-                addQuotes |= !isNumeric || isChar;
-                sb.Qt(addQuotes).Append(value).Qt(addQuotes);
-            }
-        }
-        else
-        {
-            sb.Append(Null);
-        }
-        return stb.Sb;
     }
 
     public static IStringBuilder AppendOrNull<TToStyle, TStylerType, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TToStyle? value
@@ -590,15 +538,14 @@ public static class StyledTypeBuilderExtensions
         return sb;
     }
 
-    public static IStringBuilder AppendFormattedOrNull<TValue, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb
-      , TValue value, string formatString, bool? inQuotes = null) where TExt : StyledTypeBuilder
+    public static IStringBuilder AppendMatchFormattedOrNull<TValue, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb
+      , TValue value, string formatString) where TExt : StyledTypeBuilder
     {
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
         var sb        = stb.Sb;
         if (value != null)
             switch (value)
             {
-                case bool valueBool:         sb.Append(valueBool, addQuotes); break;
+                case bool valueBool:         stb.AppendOrNull(valueBool); break;
                 case byte valueByte:         stb.AppendFormatted(valueByte, formatString); break;
                 case sbyte valueSByte:       stb.AppendFormatted(valueSByte, formatString); break;
                 case char valueChar:         stb.AppendFormatted(valueChar, formatString); break;
@@ -624,15 +571,15 @@ public static class StyledTypeBuilderExtensions
                 case Rune valueTimeSpan:     stb.AppendFormatted(valueTimeSpan, formatString); break;
                 case Guid valueGuid:         stb.AppendFormatted(valueGuid, formatString); break;
                 case IPNetwork valueIntPtr:  stb.AppendFormatted(valueIntPtr, formatString); break;
-                case char[] valueCharArray:  stb.AppendOrNull(valueCharArray, addQuotes); break;
-                case string valueString:     sb.AppendFormat(formatString, valueString); break;
+                case char[] valueCharArray:  stb.AppendFormattedOrNull(valueCharArray, formatString); break;
+                case string valueString:     stb.AppendFormattedOrNull(valueString, formatString); break;
                 case Enum valueEnum:         stb.AppendFormatted(valueEnum, formatString); break;
                 case Version valueGuid:      stb.AppendFormatted(valueGuid, formatString); break;
                 case IPAddress valueIntPtr:  stb.AppendFormatted(valueIntPtr, formatString); break;
                 case Uri valueUri:           stb.AppendFormatted(valueUri, formatString); break;
 
-                case ICharSequence valueCharSequence:   stb.AppendFormattedOrNull(valueCharSequence, formatString, addQuotes); break;
-                case StringBuilder valueSb:             stb.AppendFormattedOrNull(valueSb, formatString, addQuotes); break;
+                case ICharSequence valueCharSequence:   stb.AppendFormattedOrNull(valueCharSequence, formatString); break;
+                case StringBuilder valueSb:             stb.AppendFormattedOrNull(valueSb, formatString); break;
 
                 case IStyledToStringObject styledToStringObj: stb.AppendOrNull(styledToStringObj); break;
                 case IEnumerator:
@@ -650,100 +597,13 @@ public static class StyledTypeBuilderExtensions
                     orderedCollectionBuilder.Complete();
                     break;
 
-                default: sb.Qt(addQuotes).Append(value).Qt(addQuotes); break;
+                default: sb.AppendFormat(stb.StyleFormatter, formatString, value); break;
             }
         else
             sb.Append(Null);
         return sb;
     }
 
-
-    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, IStyledToStringObject? value
-      , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
-        where TExt : StyledTypeBuilder
-    {
-        inQuotes |= stb.Style.IsJson();
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-        {
-            if (addQuotes) sb.Append("\"");
-            value.ToString(stb.OwningAppender);
-            if (addQuotes) sb.Append("\"");
-        }
-        else
-        {
-            sb.Append(Null);
-        }
-        return stb.AddGoToNext();
-    }
-
-    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, ICharSequence? value
-      , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
-        where TExt : StyledTypeBuilder
-    {
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value).Qt(addQuotes);
-        else
-            sb.Append(Null);
-        return stb.AddGoToNext();
-    }
-
-    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, string? value, int startIndex, int length, string? formatString
-      , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
-        where TExt : StyledTypeBuilder
-    {
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value, startIndex, length).Qt(addQuotes);
-        else
-            sb.Append(Null);
-        return stb.AddGoToNext();
-    }
-
-    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, char[]? value, int startIndex, int length, string? formatString
-      , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
-        where TExt : StyledTypeBuilder
-    {
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value, startIndex, length, formatString).Qt(addQuotes);
-        else
-            sb.Append(Null);
-        return stb.AddGoToNext();
-    }
-
-    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, ICharSequence? value, int startIndex, int length
-      , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
-        where TExt : StyledTypeBuilder
-    {
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value, startIndex, length).Qt(addQuotes);
-        else
-            sb.Append(Null);
-        return stb.AddGoToNext();
-    }
-
-    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, StringBuilder? value, int startIndex, int length
-      , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
-        where TExt : StyledTypeBuilder
-    {
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
-        if (value != null)
-            sb.Qt(addQuotes).Append(value, startIndex, length).Qt(addQuotes);
-        else
-            sb.Append(Null);
-        return stb.AddGoToNext();
-    }
-
-    public static IStringBuilder AppendNullOrValue<TValue, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TValue value, bool? inQuotes = null)
-        where TExt : StyledTypeBuilder
-    {
-        var sb = stb.Sb;
-        sb.AddNullOrValue(value, stb, inQuotes);
-        return sb;
-    }
 
     public static TExt AppendCollectionItemMatchOrNull<TValue, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TValue value, int retrieveCount)
         where TExt : StyledTypeBuilder
@@ -801,7 +661,7 @@ public static class StyledTypeBuilderExtensions
                     }
 
                     var orderedCollectionBuilder = stb.OwningAppender.StartSimpleCollectionType(value, "");
-                    SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll(orderedCollectionBuilder, value!);
+                    SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll(orderedCollectionBuilder, value);
                     orderedCollectionBuilder.Complete();
                     break;
 
@@ -812,50 +672,56 @@ public static class StyledTypeBuilderExtensions
         return stb.StyleTypeBuilder;
     }
 
-    public static TExt AddNullOrValue<TValue, TExt>(this IStringBuilder sb, TValue value
+    public static IStringBuilder AppendMatchOrNull<TValue, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TValue value, bool? inQuotes = null)
+        where TExt : StyledTypeBuilder
+    {
+        var sb = stb.Sb;
+        sb.AppendMatchOrNull(value, stb, inQuotes);
+        return sb;
+    }
+
+    public static TExt AppendMatchOrNull<TValue, TExt>(this IStringBuilder sb, TValue value
       , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
         where TExt : StyledTypeBuilder
     {
-        var addQuotes = inQuotes ?? stb.Style.IsJson();
         if (value != null)
             switch (value)
             {
-                case bool valueBool:         sb.Append(valueBool, addQuotes); break;
-                case byte valueByte:         sb.Append(valueByte, addQuotes); break;
-                case sbyte valueSByte:       sb.Append(valueSByte, addQuotes); break;
-                case char valueChar:         sb.Append(valueChar, addQuotes); break;
-                case short valueShort:       sb.Append(valueShort, addQuotes); break;
-                case ushort valueUShort:     sb.Append(valueUShort, addQuotes); break;
-                case Half valueHalfFloat:    sb.Append(valueHalfFloat, addQuotes); break;
-                case int valueInt:           sb.Append(valueInt, addQuotes); break;
-                case uint valueUInt:         sb.Append(valueUInt, addQuotes); break;
-                case nint valueUInt:         sb.Append(valueUInt, addQuotes); break;
-                case float valueFloat:       sb.Append(valueFloat, addQuotes); break;
-                case long valueLong:         sb.Append(valueLong, addQuotes); break;
-                case ulong valueULong:       sb.Append(valueULong, addQuotes); break;
-                case double valueDouble:     sb.Append(valueDouble, addQuotes); break;
-                case decimal valueDecimal:   sb.Append(valueDecimal, addQuotes); break;
-                case Int128 veryLongInt:     sb.Append(veryLongInt, addQuotes); break;
-                case UInt128 veryLongUInt:   sb.Append(veryLongUInt, addQuotes); break;
-                case BigInteger veryLongInt: sb.Append(veryLongInt, addQuotes); break;
-                case Complex veryLongInt:    sb.Append(veryLongInt, addQuotes); break;
-                case DateTime valueDateTime: sb.Append(valueDateTime, addQuotes); break;
-                case DateOnly valueDateOnly: sb.Append(valueDateOnly, addQuotes); break;
-                case TimeSpan valueTimeSpan: sb.Append(valueTimeSpan, addQuotes); break;
-                case TimeOnly valueTimeSpan: sb.Append(valueTimeSpan, addQuotes); break;
-                case Rune valueTimeSpan:     sb.Append(valueTimeSpan, addQuotes); break;
-                case Guid valueGuid:         sb.Append(valueGuid, addQuotes); break;
-                case IPNetwork valueIntPtr:  sb.Append(valueIntPtr, addQuotes); break;
-                case char[] valueCharArray:  stb.AppendOrNull(valueCharArray, addQuotes); break;
-                case string valueString:     stb.AppendOrNull(valueString, addQuotes); break;
-                case Enum valueEnum:         stb.AppendFormatted(valueEnum, "{0}"); break;
-                case Version valueGuid:      stb.AppendFormatted(valueGuid, "{0}"); break;
-                case IPAddress valueIntPtr:  stb.AppendFormatted(valueIntPtr, "{0}"); break;
-                case Uri valueUri:           stb.AppendFormatted(valueUri, "{0}"); break;
+                case bool valueBool:         stb.AppendOrNull(valueBool); break;
+                case byte valueByte:         stb.AppendValue(valueByte); break;
+                case sbyte valueSByte:       stb.AppendValue(valueSByte); break;
+                case char valueChar:         stb.AppendValue(valueChar); break;
+                case short valueShort:       stb.AppendValue(valueShort); break;
+                case ushort valueUShort:     stb.AppendValue(valueUShort); break;
+                case Half valueHalfFloat:    stb.AppendValue(valueHalfFloat); break;
+                case int valueInt:           stb.AppendValue(valueInt); break;
+                case uint valueUInt:         stb.AppendValue(valueUInt); break;
+                case nint valueUInt:         stb.AppendValue(valueUInt); break;
+                case float valueFloat:       stb.AppendValue(valueFloat); break;
+                case long valueLong:         stb.AppendValue(valueLong); break;
+                case ulong valueULong:       stb.AppendValue(valueULong); break;
+                case double valueDouble:     stb.AppendValue(valueDouble); break;
+                case decimal valueDecimal:   stb.AppendValue(valueDecimal); break;
+                case Int128 veryLongInt:     stb.AppendValue(veryLongInt); break;
+                case UInt128 veryLongUInt:   stb.AppendValue(veryLongUInt); break;
+                case BigInteger veryLongInt: stb.AppendValue(veryLongInt); break;
+                case Complex veryLongInt:    stb.AppendValue(veryLongInt); break;
+                case DateTime valueDateTime: stb.AppendValue(valueDateTime); break;
+                case DateOnly valueDateOnly: stb.AppendValue(valueDateOnly); break;
+                case TimeSpan valueTimeSpan: stb.AppendValue(valueTimeSpan); break;
+                case TimeOnly valueTimeSpan: stb.AppendValue(valueTimeSpan); break;
+                case Rune valueTimeSpan:     stb.AppendValue(valueTimeSpan); break;
+                case Guid valueGuid:         stb.AppendValue(valueGuid); break;
+                case IPNetwork valueIntPtr:  stb.AppendValue(valueIntPtr); break;
+                case char[] valueCharArray:  stb.AppendOrNull(valueCharArray); break;
+                case string valueString:     stb.AppendOrNull(valueString); break;
+                case Enum valueEnum:         stb.AppendFormatted(valueEnum, NoFormattingFormatString); break;
+                case Version valueGuid:      stb.AppendFormatted(valueGuid, NoFormattingFormatString); break;
+                case IPAddress valueIntPtr:  stb.AppendFormatted(valueIntPtr, NoFormattingFormatString); break;
+                case Uri valueUri:           stb.AppendFormatted(valueUri, NoFormattingFormatString); break;
 
-                case IFrozenString valueFrozenString:  stb.AppendOrNull(valueFrozenString, addQuotes); break;
-                case IStringBuilder valueFrozenString: stb.AppendOrNull(valueFrozenString, addQuotes); break;
-                case StringBuilder valueFrozenString:  stb.AppendOrNull(valueFrozenString, addQuotes); break;
+                case ICharSequence charSequence:  stb.AppendOrNull(charSequence); break;
+                case StringBuilder stringBuilder:  stb.AppendOrNull(stringBuilder); break;
 
                 case IStyledToStringObject styledToStringObject: stb.AppendOrNull(styledToStringObject); break;
                 case IEnumerator:
@@ -870,11 +736,11 @@ public static class StyledTypeBuilderExtensions
                     }
 
                     var orderedCollectionBuilder = stb.OwningAppender.StartSimpleCollectionType(value, "");
-                    SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll(orderedCollectionBuilder, value!);
+                    SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll(orderedCollectionBuilder, value);
                     orderedCollectionBuilder.Complete();
                     break;
 
-                default: sb.Qt(addQuotes).Append(value).Qt(addQuotes); break;
+                default: sb.AppendFormat(stb.StyleFormatter, NoFormattingFormatString, value); break;
             }
         else
             sb.Append(Null);
@@ -887,30 +753,20 @@ public static class StyledTypeBuilderExtensions
         stb.StyleFormatter.FormatCollectionStart(stb, elementType, hasElements);
     }
 
-    public static IStringBuilder FieldNameJoin<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, string fieldName)
+    public static IStyleTypeBuilderComponentAccess<TExt> FieldNameJoin<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, string fieldName)
         where TExt : StyledTypeBuilder
     {
-        if (stb.Style.IsPretty()) stb.Sb.Append(stb.Settings.IndentChar, stb.Settings.IndentRepeat(stb.OwningAppender.IndentLevel));
-
-        if (stb.Style.IsJson())
-            stb.Sb.Append("\"").Append(fieldName).Append("\"").FieldEnd(stb);
-        else
-            stb.Sb.Append(fieldName).FieldEnd(stb);
-
-        return stb.Sb;
+        stb.StyleFormatter.AppendFieldName(stb, fieldName);
+        stb.StyleFormatter.AppendFieldValueSeparator(stb, fieldName); // field name added in case it variaries in the future 
+        return stb;
     }
 
     public static IStyleTypeBuilderComponentAccess<TExt> FieldNameJoin<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, string fieldName
       , IStyleTypeBuilderComponentAccess<TExt> toReturn)
         where TExt : StyledTypeBuilder
     {
-        if (stb.Style.IsPretty()) stb.Sb.Append(stb.Settings.IndentChar, stb.Settings.IndentRepeat(stb.OwningAppender.IndentLevel));
-
-        if (stb.Style.IsJson())
-            stb.Sb.Append("\"").Append(fieldName).Append("\"").FieldEnd(stb);
-        else
-            stb.Sb.Append(fieldName).FieldEnd(stb);
-
+        stb.StyleFormatter.AppendFieldName(stb, fieldName);
+        stb.StyleFormatter.AppendFieldValueSeparator(stb, fieldName); // field name added in case it variaries in the future 
         return toReturn;
     }
 

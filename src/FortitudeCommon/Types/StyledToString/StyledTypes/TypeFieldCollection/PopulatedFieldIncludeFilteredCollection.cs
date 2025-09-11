@@ -407,7 +407,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     found = true;
                 }
                 _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
+                    ? stb.AppendNullableFormattedOrNull(item, formatString)
                     : stb.AppendOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -468,7 +468,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     found = true;
                 }
                 _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
+                    ? stb.AppendFormattedOrNull(item, formatString, 0)
                     : stb.AppendOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }

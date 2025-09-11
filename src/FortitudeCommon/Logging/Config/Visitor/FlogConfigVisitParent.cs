@@ -21,82 +21,82 @@ public class FlogConfigVisitParent<T> : FLogConfigVisitor<T> where T : FlogConfi
 {
     public IMutableFLogAppConfig? FoundAppConfig { get; private set; }
 
-    public override T Accept(IMutableFLogAppConfig appConfig)
+    public override T Visit(IMutableFLogAppConfig appConfig)
     {
         FoundAppConfig = appConfig;
         return Me; // is the root of all configs
     }
 
-    public override T Accept(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup) => configSourcesLookup.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup) => configSourcesLookup.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig) => loggerCommonConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableFLoggerTreeCommonConfig loggerCommonConfig) => loggerCommonConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableFLoggerRootConfig loggerRootConfig) => loggerRootConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableFLoggerRootConfig loggerRootConfig) => loggerRootConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig) => loggerDescendantConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableFLoggerDescendantConfig loggerDescendantConfig) => loggerDescendantConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig) => childLoggersConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableNamedChildLoggersLookupConfig childLoggersConfig) => childLoggersConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableFLogEntryPoolConfig entryPoolConfig) => entryPoolConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableFLogEntryPoolConfig entryPoolConfig) => entryPoolConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableAppenderReferenceConfig appenderConfig) => appenderConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableAppenderReferenceConfig appenderConfig) => appenderConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableConsoleAppenderConfig consoleAppenderConfig) => consoleAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableConsoleAppenderConfig consoleAppenderConfig) => consoleAppenderConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig) =>
-        appendersCollectionConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IAppendableNamedAppendersLookupConfig appendersCollectionConfig) =>
+        appendersCollectionConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig) => forwardingAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableForwardingAppenderConfig forwardingAppenderConfig) => forwardingAppenderConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableBufferingAppenderConfig bufferingAppenderConfig) => bufferingAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Accept(IMutableBufferingAppenderConfig bufferingAppenderConfig) => bufferingAppenderConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableFLogEntryQueueConfig queueConfig) => queueConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableFLogEntryQueueConfig queueConfig) => queueConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableMatchEntryContainsStringConfig containsStringMatchConfig) =>
-        containsStringMatchConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableMatchEntryContainsStringConfig containsStringMatchConfig) =>
+        containsStringMatchConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableMatchLogLevelConfig logLevelMatchConfig) => logLevelMatchConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableMatchLogLevelConfig logLevelMatchConfig) => logLevelMatchConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableMatchSequenceKeysComparisonConfig logLevelMatchConfig) => logLevelMatchConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableMatchSequenceKeysComparisonConfig logLevelMatchConfig) => logLevelMatchConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig) =>
-        matchOperatorLookupConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig) =>
+        matchOperatorLookupConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig) =>
-        matchOperatorExpressionConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig) =>
+        matchOperatorExpressionConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig) =>
-        extractKeyExpressionConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig) =>
+        extractKeyExpressionConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig) =>
-        extractKeyValuesLookupConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig) =>
+        extractKeyValuesLookupConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableMatchSequenceOccurenceConfig matchSequenceOccurenceConfig) =>
-        matchSequenceOccurenceConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableMatchSequenceOccurenceConfig matchSequenceOccurenceConfig) =>
+        matchSequenceOccurenceConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig) => matchSeqTriggerConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig) => matchSeqTriggerConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableLogMessageTemplateConfig messageTemplateConfig) => messageTemplateConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableLogMessageTemplateConfig messageTemplateConfig) => messageTemplateConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableSequenceHandleActionConfig sequenceHandleActionConfig) =>
-        sequenceHandleActionConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableSequenceHandleActionConfig sequenceHandleActionConfig) =>
+        sequenceHandleActionConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig) =>
-        logEntryPoolsInitConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig) =>
+        logEntryPoolsInitConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig) => asyncQueuesInitConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig) => asyncQueuesInitConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig) => asyncQueuesLookupConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig) => asyncQueuesLookupConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableAsyncQueueConfig asyncQueueConfig) => asyncQueueConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableAsyncQueueConfig asyncQueueConfig) => asyncQueueConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableFLogInitializationConfig initializationConfig) => initializationConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableFLogInitializationConfig initializationConfig) => initializationConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig) => fileConfigSourceConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig) => fileConfigSourceConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableFlushBufferConfig flushBufferConfig) => flushBufferConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableFlushBufferConfig flushBufferConfig) => flushBufferConfig.ParentConfig?.Accept(Me) ?? Me;
 
-    public override T Accept(IMutableFileAppenderConfig fileAppenderConfig) => fileAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableFileAppenderConfig fileAppenderConfig) => fileAppenderConfig.ParentConfig?.Accept(Me) ?? Me;
 }
 
 public class FlogConfigVisitParent : FlogConfigVisitParent<FlogConfigVisitParent> { }

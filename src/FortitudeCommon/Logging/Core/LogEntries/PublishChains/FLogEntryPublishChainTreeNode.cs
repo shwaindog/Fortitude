@@ -16,7 +16,7 @@ public interface IFLogEntryPublishChainTreeNode : IRecyclableObject
 
     IReadWriterSyncLock? AcquireReadTreeLock(int timeoutMs);
 
-    T LogEntryChainVisit<T>(T visitor) where T : IFLogEntryPublishChainVisitor<T>;
+    T Accept<T>(T visitor) where T : IFLogEntryPublishChainVisitor<T>;
 }
 
 public abstract class FLogEntryPublishChainTreeNode : RecyclableObject, IFLogEntryPublishChainTreeNode
@@ -43,7 +43,7 @@ public abstract class FLogEntryPublishChainTreeNode : RecyclableObject, IFLogEnt
     public abstract FLogEntrySourceSinkType LogEntryLinkType { get; }
     public abstract FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
 
-    public abstract T LogEntryChainVisit<T>(T visitor) where T : IFLogEntryPublishChainVisitor<T>;
+    public abstract T Accept<T>(T visitor) where T : IFLogEntryPublishChainVisitor<T>;
 
     public virtual IReadWriterSyncLock? AcquireUpdateTreeLock(int timeoutMs)
     {

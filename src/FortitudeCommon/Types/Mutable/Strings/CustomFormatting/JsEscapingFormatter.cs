@@ -518,7 +518,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     }
 
 
-    public override int FormatCollection<TFmt>(ReadOnlySpan<TFmt> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
 
@@ -544,7 +544,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(ReadOnlySpan<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars  = 0;
         var elementType = typeof(TFmt);
@@ -573,7 +573,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return addedChars;
     }
 
-    public override int FormatCollection<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
 
@@ -599,7 +599,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(ReadOnlySpan<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars  = 0;
         var elementType = typeof(TFmt);
@@ -628,7 +628,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return addedChars;
     }
 
-    public override int FormatCollection<TFmt>(TFmt[] arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatArray<TFmt>(TFmt[] arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
         if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
@@ -653,7 +653,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(TFmt[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatArray<TFmt>(TFmt[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
         if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull) { return destCharSpan.OverWriteAt(destStartIndex, NullString); }
@@ -684,7 +684,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return addedChars;
     }
 
-    public override int FormatCollection<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatArray<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
         if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
@@ -709,7 +709,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatArray<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
         if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull) { return destCharSpan.OverWriteAt(destStartIndex, NullString); }
@@ -741,7 +741,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     }
 
 
-    public override int FormatCollection<TFmt>(IReadOnlyList<TFmt> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatList<TFmt>(IReadOnlyList<TFmt> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
 
@@ -767,7 +767,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(IReadOnlyList<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatList<TFmt>(IReadOnlyList<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars  = 0;
         var elementType = typeof(TFmt);
@@ -796,7 +796,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return addedChars;
     }
 
-    public override int FormatCollection<TFmt>(IReadOnlyList<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
 
@@ -822,7 +822,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(IReadOnlyList<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars  = 0;
         var elementType = typeof(TFmt);
@@ -851,7 +851,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return addedChars;
     }
 
-    public override int FormatCollection<TFmt>(IEnumerable<TFmt> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatEnumerable<TFmt>(IEnumerable<TFmt> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen         = sb.Length;
         var hasStartedCollection = false;
@@ -890,7 +890,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(IEnumerable<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatEnumerable<TFmt>(IEnumerable<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars           = 0;
         var hasStartedCollection = false;
@@ -935,7 +935,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return addedChars;
     }
 
-    public override int FormatCollection<TFmt>(IEnumerable<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen         = sb.Length;
         var hasStartedCollection = false;
@@ -974,7 +974,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(IEnumerable<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars           = 0;
         var hasStartedCollection = false;
@@ -1019,7 +1019,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return addedChars;
     }
 
-    public override int FormatCollection<TFmt>(IEnumerator<TFmt> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatEnumerator<TFmt>(IEnumerator<TFmt> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
         var hasNext      = arg0.MoveNext();
@@ -1046,7 +1046,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(IEnumerator<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatEnumerator<TFmt>(IEnumerator<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
         var hasNext    = arg0.MoveNext();
@@ -1082,7 +1082,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return addedChars;
     }
 
-    public override int FormatCollection<TFmt>(IEnumerator<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
         var hasNext      = arg0.MoveNext();
@@ -1109,7 +1109,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollection<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
         var hasNext    = arg0.MoveNext();

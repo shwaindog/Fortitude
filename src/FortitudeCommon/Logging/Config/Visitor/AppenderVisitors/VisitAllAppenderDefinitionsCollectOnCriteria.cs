@@ -43,92 +43,92 @@ public class VisitAllAppenderDefinitionsCollectOnCriteria<T, TAppendConfig>
         return this;
     }
 
-    public override T Accept(IMutableFLogAppConfig appConfig)
+    public override T Visit(IMutableFLogAppConfig appConfig)
     {
         FoundRootAppConfig = appConfig;
-        appConfig.RootLogger.Visit(Me);
-        foreach (var appender in appConfig.Appenders) appender.Value.Visit(Me);
+        appConfig.RootLogger.Accept(Me);
+        foreach (var appender in appConfig.Appenders) appender.Value.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
+    public override T Visit(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
     {
         switch (loggerCommonConfig)
         {
-            case IMutableFLoggerRootConfig rootLogger:             return Accept(rootLogger);
-            case IMutableFLoggerDescendantConfig descendantLogger: return Accept(descendantLogger);
+            case IMutableFLoggerRootConfig rootLogger:             return Visit(rootLogger);
+            case IMutableFLoggerDescendantConfig descendantLogger: return Visit(descendantLogger);
 
             default: return Me;
         }
     }
 
-    public override T Accept(IMutableFLoggerRootConfig loggerRootConfig)
+    public override T Visit(IMutableFLoggerRootConfig loggerRootConfig)
     {
-        if (FoundRootAppConfig == null) return loggerRootConfig.ParentConfig?.Visit(Me) ?? Me;
-        loggerRootConfig.DescendantLoggers.Visit(Me);
+        if (FoundRootAppConfig == null) return loggerRootConfig.ParentConfig?.Accept(Me) ?? Me;
+        loggerRootConfig.DescendantLoggers.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig)
+    public override T Visit(IMutableFLoggerDescendantConfig loggerDescendantConfig)
     {
-        if (FoundRootAppConfig == null) return loggerDescendantConfig.ParentConfig?.Visit(Me) ?? Me;
-        loggerDescendantConfig.Appenders.Visit(Me);
-        loggerDescendantConfig.DescendantLoggers.Visit(Me);
+        if (FoundRootAppConfig == null) return loggerDescendantConfig.ParentConfig?.Accept(Me) ?? Me;
+        loggerDescendantConfig.Appenders.Accept(Me);
+        loggerDescendantConfig.DescendantLoggers.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig)
+    public override T Visit(IMutableNamedChildLoggersLookupConfig childLoggersConfig)
     {
-        if (FoundRootAppConfig == null) return childLoggersConfig.ParentConfig?.Visit(Me) ?? Me;
-        foreach (var childLogger in childLoggersConfig) childLogger.Value.Visit(Me);
+        if (FoundRootAppConfig == null) return childLoggersConfig.ParentConfig?.Accept(Me) ?? Me;
+        foreach (var childLogger in childLoggersConfig) childLogger.Value.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableAppenderReferenceConfig appenderConfig)
+    public override T Visit(IMutableAppenderReferenceConfig appenderConfig)
     {
-        if (FoundRootAppConfig == null) return appenderConfig.ParentConfig?.Visit(Me) ?? Me;
+        if (FoundRootAppConfig == null) return appenderConfig.ParentConfig?.Accept(Me) ?? Me;
 
         if (appenderConfig is TAppendConfig toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableConsoleAppenderConfig consoleAppenderConfig)
+    public override T Visit(IMutableConsoleAppenderConfig consoleAppenderConfig)
     {
-        if (FoundRootAppConfig == null) return consoleAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
+        if (FoundRootAppConfig == null) return consoleAppenderConfig.ParentConfig?.Accept(Me) ?? Me;
 
         if (consoleAppenderConfig is TAppendConfig toAdd && meets(toAdd)) found.Add(toAdd);
-        consoleAppenderConfig.Defines?.Visit(Me);
+        consoleAppenderConfig.Defines?.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig)
+    public override T Visit(IAppendableNamedAppendersLookupConfig appendersCollectionConfig)
     {
-        if (FoundRootAppConfig == null) return appendersCollectionConfig.ParentConfig?.Visit(Me) ?? Me;
-        foreach (var childAppender in appendersCollectionConfig) childAppender.Value.Visit(Me);
+        if (FoundRootAppConfig == null) return appendersCollectionConfig.ParentConfig?.Accept(Me) ?? Me;
+        foreach (var childAppender in appendersCollectionConfig) childAppender.Value.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig)
+    public override T Visit(IMutableForwardingAppenderConfig forwardingAppenderConfig)
     {
-        if (FoundRootAppConfig == null) return forwardingAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
+        if (FoundRootAppConfig == null) return forwardingAppenderConfig.ParentConfig?.Accept(Me) ?? Me;
 
         if (forwardingAppenderConfig is TAppendConfig toAdd && meets(toAdd)) found.Add(toAdd);
-        forwardingAppenderConfig.ForwardToAppenders?.Visit(Me);
+        forwardingAppenderConfig.ForwardToAppenders?.Accept(Me);
         return Me;
     }
 
     public override T Accept(IMutableBufferingAppenderConfig bufferingAppenderConfig)
     {
-        if (FoundRootAppConfig == null) return bufferingAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
+        if (FoundRootAppConfig == null) return bufferingAppenderConfig.ParentConfig?.Accept(Me) ?? Me;
 
         if (bufferingAppenderConfig is TAppendConfig toAdd && meets(toAdd)) found.Add(toAdd);
-        bufferingAppenderConfig.ForwardToAppenders?.Visit(Me);
+        bufferingAppenderConfig.ForwardToAppenders?.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableFileAppenderConfig fileAppenderConfig)
+    public override T Visit(IMutableFileAppenderConfig fileAppenderConfig)
     {
-        if (FoundRootAppConfig == null) return fileAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
+        if (FoundRootAppConfig == null) return fileAppenderConfig.ParentConfig?.Accept(Me) ?? Me;
         if (fileAppenderConfig is TAppendConfig toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }

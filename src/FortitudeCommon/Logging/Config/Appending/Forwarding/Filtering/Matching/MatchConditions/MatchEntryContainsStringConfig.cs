@@ -86,7 +86,7 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
         set => this[nameof(MatchOn)] = value.ToString();
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public override MatchEntryContainsStringConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 

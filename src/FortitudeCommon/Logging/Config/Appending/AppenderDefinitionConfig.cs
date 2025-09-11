@@ -107,7 +107,7 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
         return appenderRef;
     }
 
-    public override T Visit<T>(T visitor) => throw new NotImplementedException("Derived classes must override this method");
+    public override T Accept<T>(T visitor) => throw new NotImplementedException("Derived classes must override this method");
 
     object ICloneable.Clone() => Clone();
 

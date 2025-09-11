@@ -11,14 +11,14 @@ internal class UpdateEmbodiedChildrenLoggerConfig(IMutableNamedChildLoggersLooku
 {
     private IMutableFLoggerTreeCommonConfig? parentConfig;
 
-    public override UpdateEmbodiedChildrenLoggerConfig Accept(IMutableFLoggerRoot node)
+    public override UpdateEmbodiedChildrenLoggerConfig Visit(IMutableFLoggerRoot node)
     {
         parentConfig = node.ResolvedConfig;
-        foreach (var childLogger in node.ImmediateEmbodiedChildren) childLogger.Visit(Me);
+        foreach (var childLogger in node.ImmediateEmbodiedChildren) childLogger.Accept(Me);
         return this;
     }
 
-    public override UpdateEmbodiedChildrenLoggerConfig Accept(IMutableFLoggerDescendant node)
+    public override UpdateEmbodiedChildrenLoggerConfig Visit(IMutableFLoggerDescendant node)
     {
         parentConfig ??= node.ResolvedConfig;
         if (explicitDefinedConfig.TryGetValue(node.FullName, out var definedConfig))
@@ -26,13 +26,13 @@ internal class UpdateEmbodiedChildrenLoggerConfig(IMutableNamedChildLoggersLooku
             var myParentConfig = parentConfig;
             parentConfig = definedConfig.CreateInheritedDescendantConfig(parentConfig);
             node.HandleConfigUpdate(parentConfig, appenderRegistry);
-            foreach (var childLogger in node.ImmediateEmbodiedChildren) childLogger.Visit(Me);
+            foreach (var childLogger in node.ImmediateEmbodiedChildren) childLogger.Accept(Me);
             parentConfig = myParentConfig;
         }
         else
         {
             node.HandleConfigUpdate(parentConfig, appenderRegistry);
-            foreach (var childLogger in node.ImmediateEmbodiedChildren) childLogger.Visit(Me);
+            foreach (var childLogger in node.ImmediateEmbodiedChildren) childLogger.Accept(Me);
         }
         return this;
     }

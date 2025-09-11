@@ -36,32 +36,32 @@ public class RootToLoggerCollectVisitor<T, TCollect>(List<TCollect> found, Predi
         return this;
     }
 
-    public override T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
+    public override T Visit(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
     {
         switch (loggerCommonConfig)
         {
-            case IMutableFLoggerRootConfig rootLogger:             return Accept(rootLogger);
-            case IMutableFLoggerDescendantConfig descendantLogger: return Accept(descendantLogger);
+            case IMutableFLoggerRootConfig rootLogger:             return Visit(rootLogger);
+            case IMutableFLoggerDescendantConfig descendantLogger: return Visit(descendantLogger);
 
             default: return Me;
         }
     }
 
-    public override T Accept(IMutableFLoggerRootConfig loggerRootConfig)
+    public override T Visit(IMutableFLoggerRootConfig loggerRootConfig)
     {
         FoundRootLoggerConfig = loggerRootConfig;
         if (loggerRootConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig)
+    public override T Visit(IMutableFLoggerDescendantConfig loggerDescendantConfig)
     {
-        loggerDescendantConfig.ParentConfig?.Visit(Me);
+        loggerDescendantConfig.ParentConfig?.Accept(Me);
         if (loggerDescendantConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig) => childLoggersConfig.ParentConfig?.Visit(Me) ?? Me;
+    public override T Visit(IMutableNamedChildLoggersLookupConfig childLoggersConfig) => childLoggersConfig.ParentConfig?.Accept(Me) ?? Me;
 
     public override void StateReset()
     {

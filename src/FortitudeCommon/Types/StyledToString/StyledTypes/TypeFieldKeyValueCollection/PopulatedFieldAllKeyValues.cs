@@ -49,11 +49,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
             {
                 var kvp = value!.Current;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(kvp.Key).FieldEnd(stb);
                 _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendNullOrValue(kvp.Value);
+                    ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
+                    : stb.AppendMatchOrNull(kvp.Value);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
@@ -109,8 +109,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
             {
                 var kvp = value!.Current;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(kvp.Key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString).FieldEnd(stb)
+                    : stb.AppendMatchOrNull(kvp.Key).FieldEnd(stb);
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);

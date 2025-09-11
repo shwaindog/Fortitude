@@ -857,9 +857,16 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
+    public CharArrayStringBuilder AppendFormat(ICustomStringFormatter customStringFormatter, string format, object? arg0)
+    {
+        var wasSuccessfull = customStringFormatter.TryFormat(arg0, this, format);
+        if (wasSuccessfull > 0) return this;
+        return AppendFormatHelper(null, format, new ReadOnlySpan<object?>(in arg0));
+    }
+
     public CharArrayStringBuilder AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0)
     {
-        return AppendFormatHelper(null, format, new ReadOnlySpan<object?>(in arg0));
+        return AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, format, arg0);
     }
 
     public CharArrayStringBuilder AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1)
@@ -1447,6 +1454,9 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(ReadOnlySpan<char> format, ReadOnlySpan<char> arg0) =>
         AppendFormat(format, arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(ICustomStringFormatter customStringFormatter, string format, object? arg0) => 
+        AppendFormat(customStringFormatter, format, arg0);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, object? arg0) => AppendFormat(format, arg0);
 

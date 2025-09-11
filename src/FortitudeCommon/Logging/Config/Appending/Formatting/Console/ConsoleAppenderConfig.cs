@@ -78,7 +78,7 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
         set => this[nameof(AppenderType)] = value;
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IConsoleAppenderConfig IConfigCloneTo<IConsoleAppenderConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);

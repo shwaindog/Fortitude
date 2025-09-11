@@ -33,259 +33,259 @@ public class FlogConfigVisitChildrenCollect<T, TCollect>(List<TCollect> found, P
 
     public IEnumerator<TCollect> GetEnumerator() => found.GetEnumerator();
 
-    public override T Accept(IMutableFLogAppConfig appConfig)
+    public override T Visit(IMutableFLogAppConfig appConfig)
     {
         if (appConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        appConfig.Appenders.Visit(Me);
-        appConfig.RootLogger.Visit(Me);
-        appConfig.ConfigSourcesLookup.Visit(Me);
+        appConfig.Appenders.Accept(Me);
+        appConfig.RootLogger.Accept(Me);
+        appConfig.ConfigSourcesLookup.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup)
+    public override T Visit(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup)
     {
         if (configSourcesLookup is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        foreach (var configSource in configSourcesLookup) configSource.Value.Visit(Me);
+        foreach (var configSource in configSourcesLookup) configSource.Value.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
+    public override T Visit(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
     {
         if (loggerCommonConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         switch (loggerCommonConfig)
         {
-            case IMutableFLoggerRootConfig rootLogger:             return rootLogger.Visit(Me);
-            case IMutableFLoggerDescendantConfig descendantLogger: return descendantLogger.Visit(Me);
+            case IMutableFLoggerRootConfig rootLogger:             return rootLogger.Accept(Me);
+            case IMutableFLoggerDescendantConfig descendantLogger: return descendantLogger.Accept(Me);
 
             default: return Me;
         }
     }
 
-    public override T Accept(IMutableFLoggerRootConfig loggerRootConfig)
+    public override T Visit(IMutableFLoggerRootConfig loggerRootConfig)
     {
         if (loggerRootConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        loggerRootConfig.LogEntryPool?.Visit(Me);
-        loggerRootConfig.Appenders.Visit(Me);
-        loggerRootConfig.DescendantLoggers.Visit(Me);
-        loggerRootConfig.DescendantActivation.Visit(Me);
-        loggerRootConfig.FLogEnvironment.Visit(Me);
+        loggerRootConfig.LogEntryPool?.Accept(Me);
+        loggerRootConfig.Appenders.Accept(Me);
+        loggerRootConfig.DescendantLoggers.Accept(Me);
+        loggerRootConfig.DescendantActivation.Accept(Me);
+        loggerRootConfig.FLogEnvironment.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig)
+    public override T Visit(IMutableFLoggerDescendantConfig loggerDescendantConfig)
     {
         if (loggerDescendantConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        loggerDescendantConfig.LogEntryPool?.Visit(Me);
-        loggerDescendantConfig.Appenders.Visit(Me);
-        loggerDescendantConfig.DescendantLoggers.Visit(Me);
-        loggerDescendantConfig.DescendantActivation.Visit(Me);
-        loggerDescendantConfig.FLogEnvironment.Visit(Me);
+        loggerDescendantConfig.LogEntryPool?.Accept(Me);
+        loggerDescendantConfig.Appenders.Accept(Me);
+        loggerDescendantConfig.DescendantLoggers.Accept(Me);
+        loggerDescendantConfig.DescendantActivation.Accept(Me);
+        loggerDescendantConfig.FLogEnvironment.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig)
+    public override T Visit(IMutableNamedChildLoggersLookupConfig childLoggersConfig)
     {
         if (childLoggersConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        foreach (var kvpLogger in childLoggersConfig) kvpLogger.Value.Visit(Me);
+        foreach (var kvpLogger in childLoggersConfig) kvpLogger.Value.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig)
+    public override T Visit(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig)
     {
         if (fLogDeployEnvBuildTypeConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableFLogEntryPoolConfig entryPoolConfig)
+    public override T Visit(IMutableFLogEntryPoolConfig entryPoolConfig)
     {
         if (entryPoolConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableAppenderReferenceConfig appenderConfig)
+    public override T Visit(IMutableAppenderReferenceConfig appenderConfig)
     {
         if (appenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableConsoleAppenderConfig consoleAppenderConfig)
+    public override T Visit(IMutableConsoleAppenderConfig consoleAppenderConfig)
     {
         if (consoleAppenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig)
+    public override T Visit(IAppendableNamedAppendersLookupConfig appendersCollectionConfig)
     {
         if (appendersCollectionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        foreach (var appender in appendersCollectionConfig) appender.Value.Visit(Me);
+        foreach (var appender in appendersCollectionConfig) appender.Value.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig)
+    public override T Visit(IMutableForwardingAppenderConfig forwardingAppenderConfig)
     {
         if (forwardingAppenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        forwardingAppenderConfig.ForwardToAppenders.Visit(Me);
+        forwardingAppenderConfig.ForwardToAppenders.Accept(Me);
         return Me;
     }
 
     public override T Accept(IMutableBufferingAppenderConfig bufferingAppenderConfig)
     {
         if (bufferingAppenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        bufferingAppenderConfig.InboundQueue.Visit(Me);
-        bufferingAppenderConfig.ForwardToAppenders.Visit(Me);
+        bufferingAppenderConfig.InboundQueue.Accept(Me);
+        bufferingAppenderConfig.ForwardToAppenders.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableFLogEntryQueueConfig queueConfig)
+    public override T Visit(IMutableFLogEntryQueueConfig queueConfig)
     {
         if (queueConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        queueConfig.LogEntryPool?.Visit(Me);
+        queueConfig.LogEntryPool?.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableMatchEntryContainsStringConfig containsStringMatchConfig)
+    public override T Visit(IMutableMatchEntryContainsStringConfig containsStringMatchConfig)
     {
         if (containsStringMatchConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableMatchLogLevelConfig logLevelMatchConfig)
+    public override T Visit(IMutableMatchLogLevelConfig logLevelMatchConfig)
     {
         if (logLevelMatchConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig)
+    public override T Visit(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig)
     {
         if (sequenceKeysComparisonConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig)
+    public override T Visit(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig)
     {
         if (matchOperatorLookupConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        foreach (var matchOperator in matchOperatorLookupConfig) matchOperator.Value.Visit(Me);
+        foreach (var matchOperator in matchOperatorLookupConfig) matchOperator.Value.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig)
+    public override T Visit(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig)
     {
         if (matchOperatorExpressionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        matchOperatorExpressionConfig.IsTrue?.Visit(Me);
-        matchOperatorExpressionConfig.IsFalse?.Visit(Me);
-        matchOperatorExpressionConfig.All?.Visit(Me);
-        matchOperatorExpressionConfig.Any?.Visit(Me);
-        matchOperatorExpressionConfig.Or?.Visit(Me);
-        matchOperatorExpressionConfig.And?.Visit(Me);
+        matchOperatorExpressionConfig.IsTrue?.Accept(Me);
+        matchOperatorExpressionConfig.IsFalse?.Accept(Me);
+        matchOperatorExpressionConfig.All?.Accept(Me);
+        matchOperatorExpressionConfig.Any?.Accept(Me);
+        matchOperatorExpressionConfig.Or?.Accept(Me);
+        matchOperatorExpressionConfig.And?.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig)
+    public override T Visit(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig)
     {
         if (extractKeyExpressionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig)
+    public override T Visit(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig)
     {
         if (extractKeyValuesLookupConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        foreach (var kvpExtractConfig in extractKeyValuesLookupConfig) kvpExtractConfig.Value.Visit(Me);
+        foreach (var kvpExtractConfig in extractKeyValuesLookupConfig) kvpExtractConfig.Value.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableMatchSequenceOccurenceConfig matchSequenceOccurenceConfig)
+    public override T Visit(IMutableMatchSequenceOccurenceConfig matchSequenceOccurenceConfig)
     {
         if (matchSequenceOccurenceConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        matchSequenceOccurenceConfig.StartSequence.Visit(Me);
-        matchSequenceOccurenceConfig.OnSequenceComplete.Visit(Me);
-        matchSequenceOccurenceConfig.OnSequenceAbort.Visit(Me);
-        matchSequenceOccurenceConfig.OnSequenceTimeout.Visit(Me);
+        matchSequenceOccurenceConfig.StartSequence.Accept(Me);
+        matchSequenceOccurenceConfig.OnSequenceComplete.Accept(Me);
+        matchSequenceOccurenceConfig.OnSequenceAbort.Accept(Me);
+        matchSequenceOccurenceConfig.OnSequenceTimeout.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig)
+    public override T Visit(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig)
     {
         if (matchSeqTriggerConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        matchSeqTriggerConfig.TriggeredWhenEntry?.Visit(Me);
-        matchSeqTriggerConfig.OnTriggerExtract?.Visit(Me);
-        matchSeqTriggerConfig.AbortWhenEntry?.Visit(Me);
-        matchSeqTriggerConfig.NextTriggerStep?.Visit(Me);
-        matchSeqTriggerConfig.CompletedWhenEntry?.Visit(Me);
-        matchSeqTriggerConfig.SequenceFinalTrigger?.Visit(Me);
+        matchSeqTriggerConfig.TriggeredWhenEntry?.Accept(Me);
+        matchSeqTriggerConfig.OnTriggerExtract?.Accept(Me);
+        matchSeqTriggerConfig.AbortWhenEntry?.Accept(Me);
+        matchSeqTriggerConfig.NextTriggerStep?.Accept(Me);
+        matchSeqTriggerConfig.CompletedWhenEntry?.Accept(Me);
+        matchSeqTriggerConfig.SequenceFinalTrigger?.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableLogMessageTemplateConfig messageTemplateConfig)
+    public override T Visit(IMutableLogMessageTemplateConfig messageTemplateConfig)
     {
         if (messageTemplateConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableSequenceHandleActionConfig sequenceHandleActionConfig)
+    public override T Visit(IMutableSequenceHandleActionConfig sequenceHandleActionConfig)
     {
         if (sequenceHandleActionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        sequenceHandleActionConfig.SendMessage?.Visit(Me);
-        sequenceHandleActionConfig.SendToAppender?.Visit(Me);
+        sequenceHandleActionConfig.SendMessage?.Accept(Me);
+        sequenceHandleActionConfig.SendToAppender?.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig)
+    public override T Visit(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig)
     {
         if (logEntryPoolsInitConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        logEntryPoolsInitConfig.GlobalLogEntryPool.Visit(Me);
-        logEntryPoolsInitConfig.LargeMessageLogEntryPool.Visit(Me);
-        logEntryPoolsInitConfig.VeryLargeMessageLogEntryPool.Visit(Me);
-        logEntryPoolsInitConfig.LoggersGlobalLogEntryPool.Visit(Me);
-        logEntryPoolsInitConfig.AppendersGlobalLogEntryPool.Visit(Me);
+        logEntryPoolsInitConfig.GlobalLogEntryPool.Accept(Me);
+        logEntryPoolsInitConfig.LargeMessageLogEntryPool.Accept(Me);
+        logEntryPoolsInitConfig.VeryLargeMessageLogEntryPool.Accept(Me);
+        logEntryPoolsInitConfig.LoggersGlobalLogEntryPool.Accept(Me);
+        logEntryPoolsInitConfig.AppendersGlobalLogEntryPool.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig)
+    public override T Visit(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig)
     {
         if (asyncQueuesInitConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        asyncQueuesInitConfig.AsyncQueues.Visit(Me);
+        asyncQueuesInitConfig.AsyncQueues.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig)
+    public override T Visit(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig)
     {
         if (asyncQueuesLookupConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        foreach (var formattingAppender in asyncQueuesLookupConfig) formattingAppender.Value.Visit(Me);
+        foreach (var formattingAppender in asyncQueuesLookupConfig) formattingAppender.Value.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableAsyncQueueConfig asyncQueueConfig)
+    public override T Visit(IMutableAsyncQueueConfig asyncQueueConfig)
     {
         if (asyncQueueConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableFLogInitializationConfig initializationConfig)
+    public override T Visit(IMutableFLogInitializationConfig initializationConfig)
     {
         if (initializationConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        initializationConfig.AsyncBufferingInit.Visit(Me);
-        initializationConfig.LogEntryPoolsInit.Visit(Me);
+        initializationConfig.AsyncBufferingInit.Accept(Me);
+        initializationConfig.LogEntryPoolsInit.Accept(Me);
         return Me;
     }
 
-    public override T Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig)
+    public override T Visit(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig)
     {
         if (fileConfigSourceConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableFlushBufferConfig flushBufferConfig)
+    public override T Visit(IMutableFlushBufferConfig flushBufferConfig)
     {
         if (flushBufferConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 
-    public override T Accept(IMutableFileAppenderConfig fileAppenderConfig)
+    public override T Visit(IMutableFileAppenderConfig fileAppenderConfig)
     {
         if (fileAppenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        fileAppenderConfig.FlushConfig.Visit(Me);
-        fileAppenderConfig.InheritsFrom?.Visit(Me);
-        fileAppenderConfig.Defines?.Visit(Me);
+        fileAppenderConfig.FlushConfig.Accept(Me);
+        fileAppenderConfig.InheritsFrom?.Accept(Me);
+        fileAppenderConfig.Defines?.Accept(Me);
         return Me;
     }
 }

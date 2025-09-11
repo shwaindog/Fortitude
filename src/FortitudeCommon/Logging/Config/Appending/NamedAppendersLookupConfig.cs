@@ -170,7 +170,7 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
 
     public List<IAppenderReferenceConfig> ClearAndCopyTo(List<IAppenderReferenceConfig> list) => ClearAndCopyEitherTo(list);
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IEnumerator IEnumerable.GetEnumerator() => CheckConfigGetAppendersDict.GetEnumerator();
 

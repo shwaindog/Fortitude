@@ -75,7 +75,12 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, ReadOnlySpan<char> arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0);
+    
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0);
+    
+    T AppendFormat(ICustomStringFormatter customStringFormatter,
+      [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0);
+    
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args);

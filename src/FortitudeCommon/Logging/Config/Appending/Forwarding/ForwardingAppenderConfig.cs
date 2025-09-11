@@ -58,7 +58,7 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         set => this[nameof(AppenderType)] = value;
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IForwardingAppenderConfig IForwardingAppenderConfig.CloneConfigTo(IConfigurationRoot configRoot, string path) => CloneConfigTo(configRoot, path);
 

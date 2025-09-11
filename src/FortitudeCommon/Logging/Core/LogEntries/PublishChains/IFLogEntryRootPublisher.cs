@@ -11,7 +11,7 @@ public abstract class FLogEntryRootPublisherBase : FLogEntrySource, IFLogEntryRo
 
     public override FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
 
-    public override T LogEntryChainVisit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 }
 
 public class FLogEntryPublishSource : FLogEntryRootPublisherBase, IFLogEntryRootPublisher

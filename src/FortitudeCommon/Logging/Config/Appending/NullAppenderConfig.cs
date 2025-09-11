@@ -39,7 +39,7 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
         set => this[nameof(AppenderType)] = value;
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public override NullAppenderConfig Clone() => new (this);
 

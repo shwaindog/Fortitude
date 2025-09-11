@@ -248,7 +248,7 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
             };
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     ILogEntryPoolsInitializationConfig IConfigCloneTo<ILogEntryPoolsInitializationConfig>.CloneConfigTo
         (IConfigurationRoot configRoot, string path) =>

@@ -107,7 +107,7 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
         set => this[nameof(SendTriggeringLogEntries)] = value.ToString();
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     ISequenceHandleActionConfig IConfigCloneTo<ISequenceHandleActionConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);

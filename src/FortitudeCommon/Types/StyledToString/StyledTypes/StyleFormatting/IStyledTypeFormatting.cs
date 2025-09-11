@@ -15,7 +15,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     IStringBuilder AppendFieldName<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName) where TTypeBuilder : IStyleTypeBuilderComponentAccess;
     
-    IStringBuilder AppendFieldToValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName) 
+    IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName) 
         where TTypeBuilder : IStyleTypeBuilderComponentAccess;
 
     IStringBuilder AppendTypeClosing<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess;

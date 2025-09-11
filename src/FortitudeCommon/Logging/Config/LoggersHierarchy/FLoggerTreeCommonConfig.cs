@@ -205,9 +205,9 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         }
     }
 
-    public string FullName => Visit(new ConfigAncestorsOfLogger()).FullName;
+    public string FullName => Accept(new ConfigAncestorsOfLogger()).FullName;
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     object ICloneable.Clone() => Clone();
 

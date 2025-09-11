@@ -132,7 +132,7 @@ public class FLogBootstrap
         var asyncRegistry = toBeUpdated.AsyncRegistry.UpdateConfig(asyncConfig) ?? FLogCreate.MakeAsyncRegistry(asyncConfig);
         toBeUpdated.AsyncRegistry = asyncRegistry;
 
-        var allAppenderDefinitions = config.Visit(new AllAppenderDefinitions()).Appenders;
+        var allAppenderDefinitions = config.Accept(new AllAppenderDefinitions()).Appenders;
         var appendersConfigsDict =
             allAppenderDefinitions.ToDictionary(a => a.AppenderName, a => a);
         var appenderReg = toBeUpdated.AppenderRegistry?.UpdateConfig(toBeUpdated, appendersConfigsDict)

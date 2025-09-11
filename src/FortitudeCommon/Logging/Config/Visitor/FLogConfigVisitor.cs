@@ -23,69 +23,69 @@ namespace FortitudeCommon.Logging.Config.Visitor;
 public interface IFLogConfigVisitor<TBase> : IReusableObject<IFLogConfigVisitor<TBase>>
     where TBase : IFLogConfigVisitor<TBase>
 {
-    TBase Accept(IMutableFLogAppConfig appConfig);
+    TBase Visit(IMutableFLogAppConfig appConfig);
 
-    TBase Accept(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup);
+    TBase Visit(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup);
 
-    TBase Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig);
+    TBase Visit(IMutableFLoggerTreeCommonConfig loggerCommonConfig);
 
-    TBase Accept(IMutableFLoggerRootConfig loggerRootConfig);
+    TBase Visit(IMutableFLoggerRootConfig loggerRootConfig);
 
-    TBase Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig);
+    TBase Visit(IMutableFLoggerDescendantConfig loggerDescendantConfig);
 
-    TBase Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig);
+    TBase Visit(IMutableNamedChildLoggersLookupConfig childLoggersConfig);
     
-    TBase Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig);
+    TBase Visit(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig);
 
-    TBase Accept(IMutableAppenderReferenceConfig appenderConfig);
+    TBase Visit(IMutableAppenderReferenceConfig appenderConfig);
 
-    TBase Accept(IMutableConsoleAppenderConfig consoleAppenderConfig);
+    TBase Visit(IMutableConsoleAppenderConfig consoleAppenderConfig);
 
-    TBase Accept(IMutableFLogEntryPoolConfig entryPoolConfig);
+    TBase Visit(IMutableFLogEntryPoolConfig entryPoolConfig);
 
-    TBase Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig);
+    TBase Visit(IAppendableNamedAppendersLookupConfig appendersCollectionConfig);
 
-    TBase Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig);
+    TBase Visit(IMutableForwardingAppenderConfig forwardingAppenderConfig);
 
-    TBase Accept(IMutableFLogEntryQueueConfig queueConfig);
+    TBase Visit(IMutableFLogEntryQueueConfig queueConfig);
 
-    TBase Accept(IMutableMatchEntryContainsStringConfig containsStringMatchConfig);
+    TBase Visit(IMutableMatchEntryContainsStringConfig containsStringMatchConfig);
 
-    TBase Accept(IMutableMatchLogLevelConfig logLevelMatchConfig);
+    TBase Visit(IMutableMatchLogLevelConfig logLevelMatchConfig);
 
-    TBase Accept(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig);
+    TBase Visit(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig);
 
-    TBase Accept(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig);
+    TBase Visit(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig);
 
-    TBase Accept(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig);
+    TBase Visit(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig);
 
-    TBase Accept(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig);
+    TBase Visit(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig);
 
-    TBase Accept(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig);
+    TBase Visit(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig);
 
-    TBase Accept(IMutableMatchSequenceOccurenceConfig sequenceOccurenceConfig);
+    TBase Visit(IMutableMatchSequenceOccurenceConfig sequenceOccurenceConfig);
 
-    TBase Accept(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig);
+    TBase Visit(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig);
 
-    TBase Accept(IMutableLogMessageTemplateConfig messageTemplateConfig);
+    TBase Visit(IMutableLogMessageTemplateConfig messageTemplateConfig);
 
-    TBase Accept(IMutableSequenceHandleActionConfig sequenceHandleActionConfig);
+    TBase Visit(IMutableSequenceHandleActionConfig sequenceHandleActionConfig);
 
-    TBase Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig);
+    TBase Visit(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig);
 
-    TBase Accept(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig);
+    TBase Visit(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig);
 
-    TBase Accept(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig);
+    TBase Visit(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig);
 
-    TBase Accept(IMutableAsyncQueueConfig asyncQueueConfig);
+    TBase Visit(IMutableAsyncQueueConfig asyncQueueConfig);
 
-    TBase Accept(IMutableFLogInitializationConfig initializationConfig);
+    TBase Visit(IMutableFLogInitializationConfig initializationConfig);
 
-    TBase Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig);
+    TBase Visit(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig);
 
-    TBase Accept(IMutableFlushBufferConfig flushBufferConfig);
+    TBase Visit(IMutableFlushBufferConfig flushBufferConfig);
 
-    TBase Accept(IMutableFileAppenderConfig fileAppenderConfig);
+    TBase Visit(IMutableFileAppenderConfig fileAppenderConfig);
 }
 
 public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLogConfigVisitor<T>
@@ -93,69 +93,69 @@ public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLog
 {
     protected T Me => (T)this;
 
-    public virtual T Accept(IMutableFLogAppConfig appConfig) => (T)this;
+    public virtual T Visit(IMutableFLogAppConfig appConfig) => (T)this;
 
-    public virtual T Accept(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup) => (T)this;
+    public virtual T Visit(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup) => (T)this;
 
-    public virtual T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig) => (T)this;
+    public virtual T Visit(IMutableFLoggerTreeCommonConfig loggerCommonConfig) => (T)this;
 
-    public virtual T Accept(IMutableFLoggerRootConfig loggerRootConfig) => (T)this;
+    public virtual T Visit(IMutableFLoggerRootConfig loggerRootConfig) => (T)this;
 
-    public virtual T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig) => (T)this;
+    public virtual T Visit(IMutableFLoggerDescendantConfig loggerDescendantConfig) => (T)this;
 
-    public virtual T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig) => (T)this;
+    public virtual T Visit(IMutableNamedChildLoggersLookupConfig childLoggersConfig) => (T)this;
     
-    public virtual T Accept(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig) => (T)this;
+    public virtual T Visit(IMutableFLogBuildTypeAndDeployEnvConfig fLogDeployEnvBuildTypeConfig) => (T)this;
 
-    public virtual T Accept(IMutableFLogEntryPoolConfig entryPoolConfig) => (T)this;
+    public virtual T Visit(IMutableFLogEntryPoolConfig entryPoolConfig) => (T)this;
 
-    public virtual T Accept(IMutableAppenderReferenceConfig appenderConfig) => (T)this;
+    public virtual T Visit(IMutableAppenderReferenceConfig appenderConfig) => (T)this;
 
-    public virtual T Accept(IMutableConsoleAppenderConfig consoleAppenderConfig) => (T)this;
+    public virtual T Visit(IMutableConsoleAppenderConfig consoleAppenderConfig) => (T)this;
 
-    public virtual T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig) => (T)this;
+    public virtual T Visit(IAppendableNamedAppendersLookupConfig appendersCollectionConfig) => (T)this;
 
-    public virtual T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig) => (T)this;
+    public virtual T Visit(IMutableForwardingAppenderConfig forwardingAppenderConfig) => (T)this;
 
-    public virtual T Accept(IMutableFLogEntryQueueConfig queueConfig) => (T)this;
+    public virtual T Visit(IMutableFLogEntryQueueConfig queueConfig) => (T)this;
 
-    public virtual T Accept(IMutableMatchEntryContainsStringConfig containsStringMatchConfig) => (T)this;
+    public virtual T Visit(IMutableMatchEntryContainsStringConfig containsStringMatchConfig) => (T)this;
 
-    public virtual T Accept(IMutableMatchLogLevelConfig logLevelMatchConfig) => (T)this;
+    public virtual T Visit(IMutableMatchLogLevelConfig logLevelMatchConfig) => (T)this;
 
-    public virtual T Accept(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig) => (T)this;
+    public virtual T Visit(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig) => (T)this;
 
-    public virtual T Accept(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig) => (T)this;
+    public virtual T Visit(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig) => (T)this;
 
-    public virtual T Accept(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig) => (T)this;
+    public virtual T Visit(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig) => (T)this;
 
-    public virtual T Accept(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig) => (T)this;
+    public virtual T Visit(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig) => (T)this;
 
-    public virtual T Accept(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig) => (T)this;
+    public virtual T Visit(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig) => (T)this;
 
-    public virtual T Accept(IMutableMatchSequenceOccurenceConfig matchSequenceOccurenceConfig) => (T)this;
+    public virtual T Visit(IMutableMatchSequenceOccurenceConfig matchSequenceOccurenceConfig) => (T)this;
 
-    public virtual T Accept(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig) => (T)this;
+    public virtual T Visit(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig) => (T)this;
 
-    public virtual T Accept(IMutableLogMessageTemplateConfig messageTemplateConfig) => (T)this;
+    public virtual T Visit(IMutableLogMessageTemplateConfig messageTemplateConfig) => (T)this;
 
-    public virtual T Accept(IMutableSequenceHandleActionConfig sequenceHandleActionConfig) => (T)this;
+    public virtual T Visit(IMutableSequenceHandleActionConfig sequenceHandleActionConfig) => (T)this;
 
-    public virtual T Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig) => (T)this;
+    public virtual T Visit(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig) => (T)this;
 
-    public virtual T Accept(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig) => (T)this;
+    public virtual T Visit(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig) => (T)this;
 
-    public virtual T Accept(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig) => (T)this;
+    public virtual T Visit(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig) => (T)this;
 
-    public virtual T Accept(IMutableAsyncQueueConfig asyncQueueConfig) => (T)this;
+    public virtual T Visit(IMutableAsyncQueueConfig asyncQueueConfig) => (T)this;
 
-    public virtual T Accept(IMutableFLogInitializationConfig initializationConfig) => (T)this;
+    public virtual T Visit(IMutableFLogInitializationConfig initializationConfig) => (T)this;
 
-    public virtual T Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig) => (T)this;
+    public virtual T Visit(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig) => (T)this;
 
-    public virtual T Accept(IMutableFlushBufferConfig flushBufferConfig) => (T)this;
+    public virtual T Visit(IMutableFlushBufferConfig flushBufferConfig) => (T)this;
 
-    public virtual T Accept(IMutableFileAppenderConfig fileAppenderConfig) => (T)this;
+    public virtual T Visit(IMutableFileAppenderConfig fileAppenderConfig) => (T)this;
 
     public override IFLogConfigVisitor<T> Clone() =>
         Recycler?.Borrow<FLogConfigVisitor<T>>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new FLogConfigVisitor<T>();
