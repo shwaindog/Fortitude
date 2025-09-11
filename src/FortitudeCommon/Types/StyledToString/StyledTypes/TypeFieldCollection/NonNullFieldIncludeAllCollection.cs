@@ -35,10 +35,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipBody && value != null ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAll
-    (string fieldName, ICharSequence?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipBody && value != null ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt  WhenNonNullAddAllCharSequence<TCharSeq>
+    (string fieldName, TCharSeq?[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        !stb.SkipBody && value != null ? AlwaysAddAllCharSequence(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAll
     (string fieldName, StringBuilder?[]? value
@@ -82,10 +82,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipBody && value != null ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAll
-    (string fieldName, IReadOnlyList<ICharSequence?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipBody && value != null ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt  WhenNonNullAddAllCharSequence<TCharSeq>
+    (string fieldName, IReadOnlyList<TCharSeq?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        !stb.SkipBody && value != null ? AlwaysAddAllCharSequence(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAll
     (string fieldName, IReadOnlyList<StringBuilder?>? value
@@ -129,10 +129,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipBody && value != null ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAllEnumerate
-    (string fieldName, IEnumerable<ICharSequence?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipBody && value != null ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt  WhenNonNullAddAllCharSequenceEnumerate<TCharSeq>
+    (string fieldName, IEnumerable<TCharSeq?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        !stb.SkipBody && value != null ? AlwaysAddAllCharSequenceEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAllEnumerate
     (string fieldName, IEnumerable<StringBuilder?>? value
@@ -176,10 +176,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipBody && value != null ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullAddAllEnumerate
-    (string fieldName, IEnumerator<ICharSequence?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipBody && value != null ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt  WhenNonNullAddAllCharSequenceEnumerate<TCharSeq>
+    (string fieldName, IEnumerator<TCharSeq?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq :  ICharSequence =>
+        !stb.SkipBody && value != null ? AlwaysAddAllCharSequenceEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAllEnumerate
     (string fieldName, IEnumerator<StringBuilder?>? value

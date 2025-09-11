@@ -12,7 +12,6 @@ public static class Base2SizingArrayPool
     public static Recycler CreateSizedRecyclerPool(int bufferSize) =>
         new Recycler($"Base2SizingArrayPool({bufferSize})")
             .RegisterFactory(() => new RecyclingCharArray(bufferSize))
-            .RegisterFactory(() => new CharArrayStringBuilder(bufferSize))
             .RegisterFactory(() => new RecyclingByteArray(bufferSize));
 
     public static RecyclingCharArray SourceRecyclingCharArray(this int atLeastOfSize)
@@ -22,24 +21,6 @@ public static class Base2SizingArrayPool
         var recycler = SizedRecyclerDict.GetOrAdd (power2Size, CreateSizedRecyclerPool);
 
         return recycler.Borrow<RecyclingCharArray>().EnsureIsAtSize(power2Size);
-    }
-
-    public static CharArrayStringBuilder SourceCharArrayStringBuilder(this int atLeastOfSize)
-    {
-        var power2Size = atLeastOfSize.NextPowerOfTwo();
-
-        var recycler = SizedRecyclerDict.GetOrAdd(power2Size, CreateSizedRecyclerPool);
-
-        return recycler.Borrow<CharArrayStringBuilder>().EnsureIsAtSize(power2Size);
-    }
-
-    public static bool EnsureRecyclerMatchesCurrentCapacity(this CharArrayStringBuilder checkRecyclerMatches)
-    {
-        if (checkRecyclerMatches.Recycler == null) return false;
-        var recycler = SizedRecyclerDict.GetOrAdd(checkRecyclerMatches.Capacity, CreateSizedRecyclerPool);
-        if(ReferenceEquals(recycler, checkRecyclerMatches.Recycler)) return false;
-        checkRecyclerMatches.Recycler =  recycler;
-        return true;
     }
 
     public static RecyclingByteArray SourceRecyclingByteArray(this int atLeastOfSize)

@@ -17,7 +17,7 @@ public class CollectionBuilderCompAccess<TExt> : InternalStyledTypeBuilderCompon
         return this;
     }
     
-    public void ConditionalCollectionPrefix()
+    public void ConditionalCollectionPrefix(Type elementType, bool hasAny)
     {
         if (CollectionInComplexType)
         {
@@ -25,7 +25,7 @@ public class CollectionBuilderCompAccess<TExt> : InternalStyledTypeBuilderCompon
         }
     }
 
-    public bool ConditionalCollectionSuffix()
+    public bool ConditionalCollectionSuffix(Type elementType, int count)
     {
         if (CollectionInComplexType)
         {

@@ -2,22 +2,29 @@
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
 
 public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : StyledTypeBuilder
 {
     public ValueTypeBuilder<TExt> InitializeValueTypeBuilder
-        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName, int  existingRefId)
+        (
+            Type typeBeingBuilt
+          , IStyleTypeAppenderBuilderAccess owningAppender
+          , TypeAppendSettings typeSettings
+          , string typeName
+          , IStyledTypeFormatting typeFormatting  
+          , int  existingRefId)
     {
-        InitializeTypedStyledTypeBuilder(owningAppender, typeSettings, typeName,  existingRefId);
+        InitializeTypedStyledTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
 
         return this;
     }
     
     public override void Start()
     {
-        if ( !CompAccess.StyleTypeBuilder.Style.IsJson()
+        if ( !CompAccess.Settings.Style.IsJson()
           && !PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeNameFlag()
           && PortableState.TypeName.IsNotNullOrEmpty())
         {
@@ -30,7 +37,7 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
         }
     }
     
-    protected override string TypeOpeningDelimiter => Stb.ValueInComplexType && CompAccess.StyleTypeBuilder.Style.IsNotJson() ? "." : "";
+    protected override string TypeOpeningDelimiter => Stb.ValueInComplexType && CompAccess.Settings.Style.IsNotJson() ? "." : "";
     
     protected override string TypeClosingDelimiter => "";
 

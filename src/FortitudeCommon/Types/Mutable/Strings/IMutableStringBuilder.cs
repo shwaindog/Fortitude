@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using FortitudeCommon.Types.Mutable.Strings.CustomFormatting;
 
 namespace FortitudeCommon.Types.Mutable.Strings;
 
@@ -13,6 +14,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
 
     T Append(ICharSequence? value, ICustomStringFormatter? customStringFormatter = null);
     T Append(StringBuilder? value, ICustomStringFormatter? customStringFormatter = null);
+    
     T Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null
       , ICustomStringFormatter? customStringFormatter = null);
     
@@ -62,13 +64,23 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     unsafe T Append(char* value, int valueCount);
 
     T AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) where TFmt : ISpanFormattable;
+    T AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0) where TFmt : ISpanFormattable;
     
     T AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) where TFmt : ISpanFormattable;
     
+    T AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
+    , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0) where TFmt : ISpanFormattable;
+    
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0);
+    T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, ReadOnlySpan<char> arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0);
+    
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0);
+    
+    T AppendFormat(ICustomStringFormatter customStringFormatter,
+      [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0);
+    
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args);

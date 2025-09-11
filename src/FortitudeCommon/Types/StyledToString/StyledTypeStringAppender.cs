@@ -3,11 +3,14 @@
 
 #region
 
+using System.Collections.Concurrent;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString.Options;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeCommon.Types.StyledToString.StyledTypes.ComplexType;
+using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
@@ -25,12 +28,9 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     // ReSharper disable UnusedMemberInSuper.Global
     StringBuildingStyle Style { get; }
 
+    StyleOptions Settings { get; }
+
     int IndentLevel { get; }
-
-    string Indent { get; set; }
-
-    string NewLineStyle { get; set; }
-    string NullStyle { get; set; }
 
     StyledTypeBuilder? CurrentTypeBuilder { get; }
 
@@ -82,10 +82,11 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     private static readonly IRecycler AlWaysRecycler = new Recycler();
 
+    private static readonly ConcurrentDictionary<Type, IStyledTypeFormatting> TypeFormattingOverrides = new();
+
+    private IStyledTypeFormatting defaultStyledTypeFormatter;
 
     public static Func<IStringBuilder> BufferFactory = () => AlWaysRecycler.Borrow<MutableString>();
-
-    protected StringBuildingStyle BuildStyle;
 
     protected int CurrentGraphNodeIndex = -1;
 
@@ -99,9 +100,18 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     protected IStringBuilder? Sb;
 
-    public StyledTypeStringAppender() => BuildStyle = StringBuildingStyle.Default;
+    public StyledTypeStringAppender()
+    {
+        Settings.Style             = StringBuildingStyle.Default;
+        defaultStyledTypeFormatter = SourceDefaultStyledTypeFormatter(Settings.Style);
+    }
 
-    public StyledTypeStringAppender(StringBuildingStyle withStyle) => BuildStyle = withStyle;
+    public StyledTypeStringAppender(StringBuildingStyle withStyle)
+    {
+        Settings.Style = withStyle;
+
+        defaultStyledTypeFormatter = SourceDefaultStyledTypeFormatter(Settings.Style);
+    }
 
     public StyledTypeStringAppender(StyledTypeStringAppender toClone)
     {
@@ -109,19 +119,27 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         Sb.Append(toClone.Sb);
         initialAppendSettings  = toClone.initialAppendSettings;
         nextTypeAppendSettings = toClone.nextTypeAppendSettings;
+
+        Settings.Style             = toClone.Style;
+        defaultStyledTypeFormatter = SourceDefaultStyledTypeFormatter(Settings.Style);
     }
 
     public StyledTypeStringAppender(IStyledTypeStringAppender toClone)
     {
         Sb = BufferFactory();
         Sb.Append(toClone.WriteBuffer);
+
+        Settings.Style             = toClone.Style;
+        defaultStyledTypeFormatter = SourceDefaultStyledTypeFormatter(Settings.Style);
     }
 
     public IStyledTypeStringAppender Initialize(IStringBuilder usingStringBuilder, StringBuildingStyle buildStyle = StringBuildingStyle.Default)
     {
         Sb?.DecrementRefCount();
-        Sb         = usingStringBuilder;
-        BuildStyle = buildStyle;
+        Sb             = usingStringBuilder;
+        Settings.Style = buildStyle;
+
+        defaultStyledTypeFormatter = SourceDefaultStyledTypeFormatter(buildStyle);
 
         return this;
     }
@@ -131,9 +149,22 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         Sb?.DecrementRefCount();
         Sb = SourceStringBuilder();
 
-        BuildStyle = buildStyle;
+        Settings.Style = buildStyle;
+
+        defaultStyledTypeFormatter = SourceDefaultStyledTypeFormatter(buildStyle);
 
         return this;
+    }
+
+    protected IStyledTypeFormatting SourceDefaultStyledTypeFormatter(StringBuildingStyle forBuildingStyle)
+    {
+        switch (forBuildingStyle)
+        {
+            case StringBuildingStyle.Json | StringBuildingStyle.Compact: return new CompactJsonTypeFormatting();
+            case StringBuildingStyle.Json | StringBuildingStyle.Pretty:  return new PrettyJsonTypeFormatting();
+
+            default: return new CompactLogTypeFormatting();
+        }
     }
 
     protected TypeAppendSettings AppendSettings => nextTypeAppendSettings ?? CurrentTypeAccess?.AppendSettings ?? initialAppendSettings;
@@ -146,19 +177,18 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         set => UseReferenceEqualsForVisited = !value;
     }
 
+    public StyleOptions Settings { get; set; } = new(new StyleOptionsValue());
+
+
+    public static StyleOptions DefaultSettings { get; set; } = new(new StyleOptionsValue());
+
     public bool UseReferenceEqualsForVisited { get; set; }
 
     public int IndentLevel => AppendSettings.IndentLvl;
 
     public IgnoreWriteFlags IgnoreWriteFlags => AppendSettings.IgnoreWriteFlags;
 
-    public string Indent { get; set; } = IStyledTypeStringAppender.DefaultIndentString;
-
-    public string NewLineStyle { get; set; } = Environment.NewLine;
-
-    public string NullStyle { get; set; } = Null;
-
-    public StringBuildingStyle Style => BuildStyle;
+    public StringBuildingStyle Style => Settings.Values.Style;
 
     public IStringBuilder WriteBuffer => Sb ??= BufferFactory();
 
@@ -174,9 +204,10 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     public IStyledTypeStringAppender ClearAndReinitialize(StringBuildingStyle stringStyle, int indentLevel = 0
       , IgnoreWriteFlags ignoreWrite = IgnoreWriteFlags.None)
     {
-        BuildStyle = stringStyle;
+        Settings.Style = stringStyle;
 
-        initialAppendSettings = new TypeAppendSettings((ushort)indentLevel, ignoreWrite);
+        defaultStyledTypeFormatter = SourceDefaultStyledTypeFormatter(stringStyle);
+        initialAppendSettings      = new TypeAppendSettings((ushort)indentLevel, ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
 
@@ -194,10 +225,11 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var keyedCollectionBuilder =
             Recycler.Borrow<KeyValueCollectionBuilder>()
                     .InitializeKeyValueCollectionBuilder
-                        (this, appendSettings, overrideName ?? type.Name, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
         TypeStart(toStyle, keyedCollectionBuilder, type);
         return keyedCollectionBuilder;
     }
@@ -207,10 +239,11 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var simpleOrderedCollectionBuilder =
             Recycler.Borrow<SimpleOrderedCollectionBuilder>()
                     .InitializeSimpleOrderedCollectionBuilder
-                        (this, appendSettings, overrideName ?? type.Name, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
         TypeStart(toStyle, simpleOrderedCollectionBuilder, type);
         return simpleOrderedCollectionBuilder;
     }
@@ -220,10 +253,11 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var complexOrderedCollectionBuilder =
             Recycler.Borrow<ComplexOrderedCollectionBuilder>()
                     .InitializeComplexOrderedCollectionBuilder
-                        (this, appendSettings, overrideName ?? type.Name, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
         TypeStart(toStyle, complexOrderedCollectionBuilder, type);
         return complexOrderedCollectionBuilder;
     }
@@ -233,10 +267,11 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var complexTypeBuilder =
             Recycler.Borrow<ComplexTypeBuilder>()
                     .InitializeComplexTypeBuilder
-                        (this, appendSettings, overrideName ?? type.Name, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
         TypeStart(toStyle, complexTypeBuilder, type);
         return complexTypeBuilder;
     }
@@ -246,10 +281,11 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var simpleValueBuilder =
             Recycler.Borrow<SimpleValueTypeBuilder>()
                     .InitializeSimpleValueTypeBuilder
-                        (this, appendSettings, overrideName ?? type.Name, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
         TypeStart(toStyle, simpleValueBuilder, type);
         return simpleValueBuilder;
     }
@@ -259,10 +295,11 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var keyedCollectionBuilder =
             Recycler.Borrow<ComplexValueTypeBuilder>()
                     .InitializeComplexValueTypeBuilder
-                        (this, appendSettings, overrideName ?? type.Name, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
         TypeStart(toStyle, keyedCollectionBuilder, type);
         return keyedCollectionBuilder;
     }
@@ -300,19 +337,18 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     protected void TypeStart<T>(T toStyle, StyledTypeBuilder newType, Type typeOfT)
     {
         var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeOfT
-                                        , typeOfT.IsValueType ? null : toStyle, AppendSettings.IndentLvl , Sb!.Length)
+                                        , typeOfT.IsValueType ? null : toStyle, AppendSettings.IndentLvl, Sb!.Length)
         {
             TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).ComponentAccess
         };
-        if(newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
+        if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
         OrderedObjectGraph.Add(newVisit);
-        
+
         CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
         nextTypeAppendSettings = new TypeAppendSettings((ushort)newVisit.IndentLevel, IgnoreWriteFlags.None);
-        
+
         newType.Start();
     }
-
 
     protected void PopCurrentSettings()
     {
@@ -321,10 +357,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         {
             OrderedObjectGraph[CurrentGraphNodeIndex] = currentNode.Value.ClearComponentAccess();
             CurrentGraphNodeIndex                     = currentNode.Value.ParentVisitIndex;
-            if (CurrentGraphNodeIndex < 0)
-            {
-                OrderedObjectGraph.Clear();
-            }
+            if (CurrentGraphNodeIndex < 0) { OrderedObjectGraph.Clear(); }
         }
     }
 
@@ -349,28 +382,24 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     protected bool HasVisited(object objToStyle, Type objAsType, GraphNodeVisit checkExisting)
     {
-        var checkRef = checkExisting.StylingObjInstance;
-        var hasVisited = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
-        if (hasVisited) 
-            hasVisited = !IsCallingAsBaseType(objToStyle, objAsType, checkExisting);
+        var checkRef               = checkExisting.StylingObjInstance;
+        var hasVisited             = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
+        if (hasVisited) hasVisited = !IsCallingAsBaseType(objToStyle, objAsType, checkExisting);
         return hasVisited;
     }
 
     protected void InsertRefId(GraphNodeVisit forThisNode) { }
-    
+
     protected bool IsCallingAsBaseType(object objToStyle, Type objAsType, GraphNodeVisit startToLast)
     {
         for (var i = startToLast.ObjVisitIndex; i < OrderedObjectGraph.Count; i++)
         {
-            var checkExisting = OrderedObjectGraph[i];
-            var checkRef      = checkExisting.StylingObjInstance;
-            var isSameInstance    = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
+            var checkExisting  = OrderedObjectGraph[i];
+            var checkRef       = checkExisting.StylingObjInstance;
+            var isSameInstance = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
             if (isSameInstance)
             {
-                if (checkExisting.VistedAsType == objAsType || !checkExisting.VistedAsType.IsAssignableTo(objAsType))
-                {
-                    return false;
-                }
+                if (checkExisting.VistedAsType == objAsType || !checkExisting.VistedAsType.IsAssignableTo(objAsType)) { return false; }
             }
         }
         return true;
@@ -447,7 +476,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         public int RefId { get; private init; }
 
         public bool IsValueTYpe = VistedAsType.IsValueType;
-        
+
         public IStyleTypeBuilderComponentAccess? TypeBuilderComponentAccess { get; init; }
 
         public GraphNodeVisit SetRefId(int newRefId)
@@ -455,7 +484,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
             return this with
             {
                 RefId = newRefId
-                , TypeBuilderComponentAccess = TypeBuilderComponentAccess
+              , TypeBuilderComponentAccess = TypeBuilderComponentAccess
               , CurrentBufferTypeStart = CurrentBufferTypeStart
               , CurrentBufferFirstFieldStart = CurrentBufferFirstFieldStart
             };
@@ -466,7 +495,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
             return this with
             {
                 RefId = RefId
-                , TypeBuilderComponentAccess = null
+              , TypeBuilderComponentAccess = null
               , CurrentBufferTypeStart = CurrentBufferTypeStart
               , CurrentBufferFirstFieldStart = CurrentBufferFirstFieldStart
             };

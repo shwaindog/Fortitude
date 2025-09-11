@@ -80,7 +80,7 @@ public class FLogBuildTypeAndDeployEnvConfig : FLogConfig, IMutableFLogBuildType
 
     public virtual LoggerActivationFlags AsLoggerActionFlags => (LoggerActivationFlags)((uint)DeploymentEnvironment | (uint)BuildType);
 
-    public override T Visit<T>(T visitor) => throw new NotImplementedException();
+    public override T Accept<T>(T visitor) => throw new NotImplementedException();
 
     object ICloneable.Clone() => Clone();
 

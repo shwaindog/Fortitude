@@ -166,7 +166,7 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
     ICollection<IMutableFLoggerDescendantConfig> IAppendableDictionary<string, IMutableFLoggerDescendantConfig>.Values =>
         CheckConfigGetLoggersDict.Values;
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     protected void PushToConfigStorage(IMutableFLoggerDescendantConfig value)
     {

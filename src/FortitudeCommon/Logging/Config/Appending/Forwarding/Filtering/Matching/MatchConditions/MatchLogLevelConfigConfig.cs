@@ -68,7 +68,7 @@ public class MatchLogLevelConfigConfig : MatchConditionConfig, IMutableMatchLogL
         set => this[nameof(Is)] = value.ToString();
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public override MatchLogLevelConfigConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 

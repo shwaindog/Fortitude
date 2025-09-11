@@ -100,6 +100,63 @@ public static class ExtendedSpanFormattableExtensions
         destination.OverWriteAt(addValueIndex, rangeCappedInsert);
         return Math.Max(rangeCappedSize, padding);
     }
-    
-    
+
+    public static int CalculatePaddedAlignedLength(this ReadOnlySpan<char> toInsert, ReadOnlySpan<char> layout)
+    {
+        if (layout.Length == 0)
+        {
+            return  toInsert.Length;
+        }
+        var isLeftAligned  = layout[0].IsMinus();
+        var isStringLength = layout[0].IsDigit() || isLeftAligned;
+        if (isStringLength)
+        {
+            layout.LayoutStringRangeIndexers(out var range);
+
+            int.TryParse(layout, out var padding);
+            padding = Math.Abs(padding);
+            
+            var finalLength = range.IsAllRange() 
+                ? Math.Max(padding, toInsert.Length) 
+                : Math.Max(padding, toInsert[range].Length);
+            return finalLength;
+        }
+        return  toInsert.Length;
+    }
+
+    public static int CalculatePaddedAlignedLength(this int toInsertLength, ReadOnlySpan<char> layout)
+    {
+        if (layout.Length == 0)
+        {
+            return  toInsertLength;
+        }
+        var isLeftAligned  = layout[0].IsMinus();
+        var isStringLength = layout[0].IsDigit() || isLeftAligned;
+        if (isStringLength)
+        {
+            layout.LayoutStringRangeIndexers(out var range);
+
+            int.TryParse(layout, out var padding);
+            padding = Math.Abs(padding);
+
+            if (range.IsAllRange())
+            {
+                return Math.Max(padding, toInsertLength);
+            }
+            var deduct = range.Start.IsFromEnd 
+                ? Math.Max(0, Math.Min(toInsertLength, toInsertLength - range.Start.Value)) 
+                : range.Start.Value;
+            if (range.End.IsFromEnd)
+            {
+                deduct += Math.Max(0, Math.Min(toInsertLength, range.End.Value));
+            }
+            else
+            {
+                deduct += Math.Min(toInsertLength, range.End.Value);
+            }
+            
+            return Math.Max(padding, toInsertLength - deduct);
+        }
+        return  toInsertLength;
+    }
 }

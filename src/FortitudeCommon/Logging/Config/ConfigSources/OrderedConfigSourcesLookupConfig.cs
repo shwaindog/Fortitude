@@ -194,7 +194,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
     ICollection<IMutableFlogConfigSource> IAppendableDictionary<ushort, IMutableFlogConfigSource>.Values =>
         OrderedConfigSources.Select(kvp => kvp.Value).ToList();
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     protected void PushToConfigStorage(IMutableFlogConfigSource value)
     {

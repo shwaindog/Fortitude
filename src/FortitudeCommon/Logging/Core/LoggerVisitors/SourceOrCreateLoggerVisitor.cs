@@ -19,7 +19,7 @@ public class SourceOrCreateLoggerVisitor
 
     public IFLogger? SourcedLogger { get; private set; }
 
-    public override SourceOrCreateLoggerVisitor Accept(IMutableFLoggerRoot node)
+    public override SourceOrCreateLoggerVisitor Visit(IMutableFLoggerRoot node)
     {
         foreach (var childLogger in node.ImmediateEmbodiedChildren)
             if (WalkDownTree(childLogger))

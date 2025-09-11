@@ -239,7 +239,7 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         }
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public IMatchOperatorExpressionConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         new MatchOperatorExpressionConfig(this, configRoot, path);

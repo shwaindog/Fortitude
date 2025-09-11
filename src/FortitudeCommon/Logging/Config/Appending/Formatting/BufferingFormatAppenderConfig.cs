@@ -173,7 +173,7 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
         set => _ = new FlushBufferConfig(value, ConfigRoot, $"{Path}{Split}{nameof(FlushConfig)}");
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public override BufferingFormatAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 

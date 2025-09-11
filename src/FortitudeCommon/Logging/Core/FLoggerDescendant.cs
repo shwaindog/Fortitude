@@ -33,7 +33,7 @@ public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
         Config = loggerConsolidatedConfig;
 
         Parent   = myParent;
-        FullName = Visit(new BaseToLeafCollectVisitor()).FullName;
+        FullName = Accept(new BaseToLeafCollectVisitor()).FullName;
     }
 
     protected override IMutableFLoggerTreeCommonConfig Config
@@ -60,7 +60,7 @@ public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
 
     public override LoggerTreeType TreeType => LoggerTreeType.Descendant;
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public void HandleConfigUpdateUpdateDescendants(IMutableFLoggerDescendantConfig newRootLoggerState, IFLogAppenderRegistry appenderRegistry)
     {
@@ -75,6 +75,6 @@ public class FLoggerDescendant : FLoggerBase, IMutableFLoggerDescendant
         HandleConfigUpdate(newRootLoggerState, appenderRegistry);
         Config = newRootLoggerState;
 
-        Visit(new UpdateEmbodiedChildrenLoggerConfig(Root.ResolvedConfig.AllLoggers(), appenderRegistry));
+        Accept(new UpdateEmbodiedChildrenLoggerConfig(Root.ResolvedConfig.AllLoggers(), appenderRegistry));
     }
 }

@@ -38,7 +38,7 @@ public interface IFLoggerCommon
 
     IReadOnlyList<IAppenderClient> Appenders { get; }
 
-    T Visit<T>(T visitor) where T : IFLoggerVisitor<T>;
+    T Accept<T>(T visitor) where T : IFLoggerVisitor<T>;
 }
 
 public interface IMutableFLoggerCommon : IFLoggerCommon
@@ -156,7 +156,7 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
         return newChild;
     }
 
-    public virtual T Visit<T>(T visitor) where T : IFLoggerVisitor<T> => visitor.Accept(this);
+    public virtual T Accept<T>(T visitor) where T : IFLoggerVisitor<T> => visitor.Visit(this);
 
     protected void ReInitializeRoot(IMutableFLoggerTreeCommonConfig loggerConfig, IFLogLoggerRegistry loggerRegistry)
     {

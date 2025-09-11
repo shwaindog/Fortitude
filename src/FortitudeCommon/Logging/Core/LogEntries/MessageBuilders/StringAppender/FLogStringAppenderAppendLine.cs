@@ -26,7 +26,7 @@ public partial class FLogStringAppender
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable =>
-        (formatString != null ? MessageSb.AppendFormattedOrNull(value, formatString) : MessageSb.Append(value)).AppendLine(this);
+        (formatString != null ? MessageSb.AppendFormat(formatString, value) : MessageSb.Append(value)).AppendLine(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine<TFmt>((TFmt, string) valueTuple) where TFmt : ISpanFormattable

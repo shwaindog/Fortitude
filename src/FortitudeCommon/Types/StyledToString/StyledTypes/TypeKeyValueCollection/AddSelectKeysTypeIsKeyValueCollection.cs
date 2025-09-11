@@ -17,17 +17,18 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                    : stb.AppendMatchOrNull(key).FieldEnd();
                 _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendNullOrValue(keyValue);
-                stb.GoToNextCollectionItemStart();
+                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                    : stb.AppendMatchOrNull(keyValue);
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         return stb.AddGoToNext();
@@ -42,17 +43,18 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                    : stb.AppendMatchOrNull(key).FieldEnd();
                 _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendNullOrValue(keyValue);
-                stb.GoToNextCollectionItemStart();
+                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                    : stb.AppendMatchOrNull(keyValue);
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         return stb.AddGoToNext();
@@ -67,17 +69,18 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < selectKeys.Count; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                    : stb.AppendMatchOrNull(key).FieldEnd();
                 _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendNullOrValue(keyValue);
-                stb.GoToNextCollectionItemStart();
+                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                    : stb.AppendMatchOrNull(keyValue);
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         return stb.AddGoToNext();
@@ -92,16 +95,18 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                    : stb.AppendMatchOrNull(key).FieldEnd();
                 _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendNullOrValue(keyValue);
-                stb.GoToNextCollectionItemStart();
+                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                    : stb.AppendMatchOrNull(keyValue);
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -114,7 +119,9 @@ public partial class KeyValueCollectionBuilder
         where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var hasValue = selectKeys.MoveNext();
+        var hasValue  = selectKeys.MoveNext();
+        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+        var itemCount = 0;
         while(hasValue && value != null) 
         {
             var key = selectKeys.Current;
@@ -124,12 +131,12 @@ public partial class KeyValueCollectionBuilder
                 continue;
             }
             _ = keyFormatString.IsNotNullOrEmpty()
-                ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                : stb.AppendNullOrValue(key).FieldEnd(stb);
+                ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                : stb.AppendMatchOrNull(key).FieldEnd();
             _ = valueFormatString.IsNotNullOrEmpty()
-                ? stb.AppendFormattedOrNull(keyValue, valueFormatString)
-                : stb.AppendNullOrValue(keyValue);
-            stb.GoToNextCollectionItemStart();
+                ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
+                : stb.AppendMatchOrNull(keyValue);
+            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = selectKeys.MoveNext();
         } 
         return stb.AddGoToNext();
@@ -144,14 +151,16 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                    : stb.AppendMatchOrNull(key).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -166,15 +175,17 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                    : stb.AppendMatchOrNull(key).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -189,15 +200,17 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             for (var i = 0; i < selectKeys.Count; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                    : stb.AppendMatchOrNull(key).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -211,14 +224,16 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                    : stb.AppendNullOrValue(key).FieldEnd(stb);
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                    : stb.AppendMatchOrNull(key).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -230,7 +245,9 @@ public partial class KeyValueCollectionBuilder
         where TKDerived : TKey  where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var hasValue = selectKeys.MoveNext();
+        var hasValue  = selectKeys.MoveNext();
+        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+        var itemCount = 0;
         while(hasValue && value != null) 
         {
             var key = selectKeys.Current;
@@ -240,10 +257,10 @@ public partial class KeyValueCollectionBuilder
                 continue;
             }
             _ = keyFormatString.IsNotNullOrEmpty()
-                ? stb.AppendFormattedOrNull(key, keyFormatString).FieldEnd(stb)
-                : stb.AppendNullOrValue(key).FieldEnd(stb);
+                ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
+                : stb.AppendMatchOrNull(key).FieldEnd();
             stb.AppendOrNull(keyValue, valueStyler);
-            stb.GoToNextCollectionItemStart();
+            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = selectKeys.MoveNext();
         } 
         return stb.AddGoToNext();
@@ -257,13 +274,15 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStyler).FieldEnd(stb);
+                stb.AppendOrNull(key, keyStyler).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount);
             }
         }
         return stb.AddGoToNext();
@@ -277,13 +296,14 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStyler).FieldEnd(stb);
+                stb.AppendOrNull(key, keyStyler).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, i);
             }
         }
         return stb.AddGoToNext();
@@ -297,12 +317,14 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStyler).FieldEnd(stb);
+                stb.AppendOrNull(key, keyStyler).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -316,12 +338,14 @@ public partial class KeyValueCollectionBuilder
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var itemCount = 0;
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStyler).FieldEnd(stb);
+                stb.AppendOrNull(key, keyStyler).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart();
+                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -333,7 +357,9 @@ public partial class KeyValueCollectionBuilder
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var hasValue = selectKeys.MoveNext();
+        var hasValue  = selectKeys.MoveNext();
+        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+        var itemCount = 0;
         while(hasValue && value != null) 
         {
             var key = selectKeys.Current;
@@ -342,9 +368,9 @@ public partial class KeyValueCollectionBuilder
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            stb.AppendOrNull(key, keyStyler).FieldEnd(stb);
+            stb.AppendOrNull(key, keyStyler).FieldEnd();
             stb.AppendOrNull(keyValue, valueStyler);
-            stb.GoToNextCollectionItemStart();
+            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = selectKeys.MoveNext();
         } 
         return stb.AddGoToNext();

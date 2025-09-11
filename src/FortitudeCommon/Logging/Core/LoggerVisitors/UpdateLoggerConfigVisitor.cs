@@ -14,7 +14,7 @@ public class UpdateLoggerConfigVisitor(string flogAppConfigPath, IFLogContext fl
 {
     private readonly MutableString loggerNameScratch = new();
 
-    public override UpdateLoggerConfigVisitor Accept(IMutableFLoggerRoot node)
+    public override UpdateLoggerConfigVisitor Visit(IMutableFLoggerRoot node)
     {
         foreach (var childLogger in node.ImmediateEmbodiedChildren) WalkDownTree(childLogger, node);
         return this;

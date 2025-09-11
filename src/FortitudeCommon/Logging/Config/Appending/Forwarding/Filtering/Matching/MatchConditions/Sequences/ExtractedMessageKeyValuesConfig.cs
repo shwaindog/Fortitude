@@ -163,7 +163,7 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public IEnumerator<KeyValuePair<string, IMutableExtractKeyExpressionConfig>> GetEnumerator() => CheckConfigGetLoggersDict.GetEnumerator();
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public IExtractedMessageKeyValuesConfig CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         new ExtractedMessageKeyValuesConfig(configRoot, path);

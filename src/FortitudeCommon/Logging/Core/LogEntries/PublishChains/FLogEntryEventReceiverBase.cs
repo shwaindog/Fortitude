@@ -71,7 +71,7 @@ public class FLogEntryEventReceiverContainer : FLogEntryPublishChainTreeNode, IF
 
     public string Name { get; protected set; }
 
-    public override T LogEntryChainVisit<T>(T visitor) => throw new ApplicationException("This should never be called by containing now");
+    public override T Accept<T>(T visitor) => throw new ApplicationException("This should never be called by containing now");
 
     public void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {

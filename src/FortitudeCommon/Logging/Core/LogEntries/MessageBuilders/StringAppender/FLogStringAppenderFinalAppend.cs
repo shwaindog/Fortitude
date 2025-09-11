@@ -20,7 +20,7 @@ public partial class FLogStringAppender
 
     public void FinalAppend<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable
     {
-        (formatString != null ? MessageSb.AppendFormattedOrNull(value, formatString) : MessageSb.Append(value))
+        (formatString != null ? MessageSb.AppendFormat(formatString, value) : MessageSb.Append(value))
             .ToAppender(this).CallOnComplete();
     }
 

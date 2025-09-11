@@ -76,7 +76,7 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
         set => this[nameof(PollInterval)] = value.ToString();
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public override IFlogConfigSource CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         new FLogFileConfigSourceConfig(this, configRoot, path);

@@ -147,7 +147,7 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
         set => _ = new MatchSequenceTriggerConfig(value, ConfigRoot, $"{Path}{Split}{nameof(StartSequence)}");
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IMatchConditionConfig IConfigCloneTo<IMatchConditionConfig>.CloneConfigTo
         (IConfigurationRoot configRoot, string path) =>

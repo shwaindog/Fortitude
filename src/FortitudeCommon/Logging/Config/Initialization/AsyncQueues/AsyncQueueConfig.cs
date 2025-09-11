@@ -147,7 +147,7 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
         (ParentConfig as IAppendableAsyncQueueLookupConfig)?.ParentDefaultQueuesInitConfig ??
         FLogContext.Context.AsyncRegistry.AsyncBufferingConfig as IMutableAsyncQueuesInitConfig;
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IAsyncQueueConfig IConfigCloneTo<IAsyncQueueConfig>.
         CloneConfigTo(IConfigurationRoot configRoot, string path) =>

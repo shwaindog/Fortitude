@@ -9,12 +9,12 @@ public class LeafToBaseCollectVisitor : LoggerVisitor<LeafToBaseCollectVisitor>
 
     public IReadOnlyList<IFLoggerDescendant> NodeSequence => nodes.AsReadOnly();
 
-    public override LeafToBaseCollectVisitor Accept(IMutableFLoggerRoot node) => this;
+    public override LeafToBaseCollectVisitor Visit(IMutableFLoggerRoot node) => this;
 
-    public override LeafToBaseCollectVisitor Accept(IMutableFLoggerDescendant node)
+    public override LeafToBaseCollectVisitor Visit(IMutableFLoggerDescendant node)
     {
         nodes.Add(node);
-        node.Parent.Visit(this);
+        node.Parent.Accept(this);
         return this;
     }
 }

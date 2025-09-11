@@ -77,7 +77,7 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
         }
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IFilteringForwardingAppenderConfig IFilteringForwardingAppenderConfig.Clone() => Clone();
 

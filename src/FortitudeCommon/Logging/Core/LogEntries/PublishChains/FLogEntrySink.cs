@@ -25,7 +25,7 @@ public abstract class FLogEntrySinkBase : FLogEntryEventReceiverBase, IFLogEntry
             ? branch.RootInBoundEndpoint
             : null);
 
-    public override T LogEntryChainVisit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public virtual void Dispose()
     {
@@ -95,7 +95,7 @@ public class FLogEntrySinkContainer : FLogEntrySinkBase, IFLogEntrySink
         protected set => _ = value;
     }
 
-    public override T LogEntryChainVisit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {

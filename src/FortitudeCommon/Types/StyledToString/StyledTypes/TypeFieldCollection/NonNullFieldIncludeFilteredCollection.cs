@@ -37,9 +37,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipBody && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered
-        (string fieldName, ICharSequence?[]? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate) =>
-        !stb.SkipBody && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAddFilteredCharSequence<TCharSeq>
+        (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate) where TCharSeq : ICharSequence =>
+        !stb.SkipBody && value != null ? AlwaysAddFilteredCharSequence(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
         (string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) =>
@@ -88,19 +88,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipBody && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered
-        (string fieldName, IReadOnlyList<ICharSequence?>? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate) =>
-        !stb.SkipBody && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAddFilteredCharSequence<TCharSeq>
+        (string fieldName, IReadOnlyList<ICharSequence?>? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate) 
+        where TCharSeq : ICharSequence =>
+        !stb.SkipBody && value != null ? AlwaysAddFilteredCharSequence(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
         (string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) =>
         !stb.SkipBody && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddFiltered<TStyledObj, TBase>(string fieldName, IReadOnlyList<TStyledObj?>? value
-      , OrderedCollectionPredicate<TBase?> filterPredicate)
-        where TStyledObj : class, IStyledToStringObject, TBase where TBase : class =>
-        !stb.SkipBody && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
-
 
     [CallsObjectToString]
     public TExt WhenNonNullAddFilteredMatch<T>

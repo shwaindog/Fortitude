@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
 
@@ -11,20 +12,26 @@ public abstract class MultiValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt>
     private SelectTypeCollectionField<TExt>? logOnlyInternalCollectionField;
     private SelectTypeField<TExt>?           logOnlyInternalField;
     
-    protected void InitializeMultiValueTypeBuilder(IStyleTypeAppenderBuilderAccess owningStyledTypeAppender
-      , TypeAppendSettings appendSettings, string typeName, int existingRefId)
+    protected void InitializeMultiValueTypeBuilder
+    (
+        Type typeBeingBuilt
+      , IStyleTypeAppenderBuilderAccess owningStyledTypeAppender
+      , TypeAppendSettings appendSettings
+      , string typeName
+      , IStyledTypeFormatting typeFormatting
+      , int existingRefId)
     {
-        InitializeTypedStyledTypeBuilder(owningStyledTypeAppender, appendSettings, typeName, existingRefId);
+        InitializeTypedStyledTypeBuilder(typeBeingBuilt, owningStyledTypeAppender, appendSettings, typeName, typeFormatting, existingRefId);
     }
 
 
     public SelectTypeField<TExt>? LogOnlyInternalField =>
-        logOnlyInternalField ??= Style.AllowsUnstructured()
+        logOnlyInternalField ??= Settings.Style.AllowsUnstructured()
             ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeField<TExt>>().Initialize(CompAccess)
             : null;
 
     public SelectTypeCollectionField<TExt>? LogOnlyInternalCollectionField =>
-        logOnlyInternalCollectionField ??= Style.AllowsUnstructured()
+        logOnlyInternalCollectionField ??= Settings.Style.AllowsUnstructured()
             ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeCollectionField<TExt>>().Initialize(CompAccess)
             : null;
 

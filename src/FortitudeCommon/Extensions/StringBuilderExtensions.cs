@@ -162,7 +162,7 @@ public static class StringBuilderExtensions
     }
 
     public static IEnumerator<char> RecycledEnumerator(this StringBuilder sb, IRecycler recycler) =>
-        recycler.Borrow<RecyclingStringBuilderEnumerator>().Initialize(sb);
+         Recycler.ThreadStaticRecycler.Borrow<RecyclingStringBuilderEnumerator>().Initialize(sb);
 
 
     

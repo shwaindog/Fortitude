@@ -57,17 +57,17 @@ public class FLoggerRoot : FLoggerBase, IMutableFLoggerRoot
         if (ResolvedConfig.AreEquivalent(newRootLoggerState)) return;
         HandleConfigUpdate(newRootLoggerState, appenderRegistry);
         Config = newRootLoggerState;
-        Visit(new UpdateEmbodiedChildrenLoggerConfig(newRootLoggerState.AllLoggers(), appenderRegistry));
+        Accept(new UpdateEmbodiedChildrenLoggerConfig(newRootLoggerState.AllLoggers(), appenderRegistry));
     }
 
     public IFLogger GetOrCreateLogger(string loggerFullName, IFLogContext flogContext)
     {
-        var sourceLogger = Visit(new SourceOrCreateLoggerVisitor(loggerFullName, flogContext, flogContext.ConfigRegistry.AppConfig.ConfigRootPath));
+        var sourceLogger = Accept(new SourceOrCreateLoggerVisitor(loggerFullName, flogContext, flogContext.ConfigRegistry.AppConfig.ConfigRootPath));
         if (sourceLogger.SourcedLogger == null) throw new ArgumentException($"Was not able to create a logger for {loggerFullName}");
         return sourceLogger.SourcedLogger;
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     internal void InitializeFinalStepSetContext(IFLogContext flogContext)
     {
@@ -78,6 +78,6 @@ public class FLoggerRoot : FLoggerBase, IMutableFLoggerRoot
         loggerRegistry = flogContext.LoggerRegistry;
         ReInitializeRoot((IMutableFLoggerRootConfig)flogContext.ConfigRegistry.AppConfig.RootLogger, loggerRegistry);
 
-        Visit(new UpdateLoggerConfigVisitor(flogContext.ConfigRegistry.AppConfig.ConfigRootPath, flogContext));
+        Accept(new UpdateLoggerConfigVisitor(flogContext.ConfigRegistry.AppConfig.ConfigRootPath, flogContext));
     }
 }

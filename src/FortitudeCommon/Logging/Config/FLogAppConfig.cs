@@ -137,7 +137,7 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
 
     public string ConfigRootPath => Path;
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public static FLogAppConfig BuildDefaultAppConfig()
     {

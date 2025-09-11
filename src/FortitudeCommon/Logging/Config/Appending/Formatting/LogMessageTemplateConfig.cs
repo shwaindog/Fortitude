@@ -78,7 +78,7 @@ public class LogMessageTemplateConfig : FLogConfig, IMutableLogMessageTemplateCo
         set => this[nameof(TemplateLoggerName)] = value;
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     ILogMessageTemplateConfig IConfigCloneTo<ILogMessageTemplateConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         new LogMessageTemplateConfig(configRoot, path);

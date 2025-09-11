@@ -18,7 +18,7 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     (string fieldName, bool? value, bool? defaultValue = false) =>
         !stb.SkipBody && value != null && value != defaultValue ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
     
-    public TExt WhenNonNullOrDefaultAdd<TFmt>(string fieldName, TFmt? value, TFmt defaultValue = default!
+    public TExt WhenNonNullOrDefaultAdd<TFmt>(string fieldName, TFmt? value, TFmt? defaultValue = default
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TFmt : ISpanFormattable => 
         !stb.SkipBody && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
@@ -33,7 +33,7 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, string? defaultValue = "") => 
         !stb.SkipBody && value is { Length: > 0 } ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAddStyled<TStyled>(string fieldName, TStyled? value, TStyled? defaultValue = default(TStyled)) 
+    public TExt WhenNonNullOrDefaultAddStyled<TStyled>(string fieldName, TStyled? value, TStyled? defaultValue = default) 
         where TStyled : IStyledToStringObject => 
         !stb.SkipBody && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 

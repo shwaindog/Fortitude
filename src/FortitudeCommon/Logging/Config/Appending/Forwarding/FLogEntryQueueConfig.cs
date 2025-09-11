@@ -84,7 +84,7 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
 
     public FLogEntryQueueConfig(IFLogEntryQueueConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IFLogEntryQueueConfig IConfigCloneTo<IFLogEntryQueueConfig>.
         CloneConfigTo(IConfigurationRoot configRoot, string path) =>

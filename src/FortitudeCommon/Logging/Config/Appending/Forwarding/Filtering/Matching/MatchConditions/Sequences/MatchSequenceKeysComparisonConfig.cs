@@ -79,7 +79,7 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
         set => this[nameof(Rhs)] = value;
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     public override MatchSequenceKeysComparisonConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => new(this, configRoot, path);
 

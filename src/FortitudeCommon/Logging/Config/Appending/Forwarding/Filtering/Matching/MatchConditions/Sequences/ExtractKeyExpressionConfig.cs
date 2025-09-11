@@ -73,7 +73,7 @@ public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressi
         set => this[nameof(KeyName)] = value;
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     IExtractKeyExpressionConfig IConfigCloneTo<IExtractKeyExpressionConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
         CloneConfigTo(configRoot, path);

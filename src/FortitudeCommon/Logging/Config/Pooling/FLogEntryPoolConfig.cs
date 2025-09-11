@@ -126,7 +126,7 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
         set => this[nameof(LogEntryCharCapacity)] = value.ToString();
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Accept<T>(T visitor) => visitor.Visit(this);
 
     protected virtual ILogEntryPoolsInitializationConfig SourcePoolsInitConfig()
     {

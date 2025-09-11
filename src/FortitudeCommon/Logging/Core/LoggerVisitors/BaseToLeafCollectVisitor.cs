@@ -13,11 +13,11 @@ public class BaseToLeafCollectVisitor : LoggerVisitor<BaseToLeafCollectVisitor>
 
     public string FullName => NodeSequence.Select(dctn => dctn.Name).JoinToString(".");
 
-    public override BaseToLeafCollectVisitor Accept(IMutableFLoggerRoot node) => this;
+    public override BaseToLeafCollectVisitor Visit(IMutableFLoggerRoot node) => this;
 
-    public override BaseToLeafCollectVisitor Accept(IMutableFLoggerDescendant node)
+    public override BaseToLeafCollectVisitor Visit(IMutableFLoggerDescendant node)
     {
-        node.Parent.Visit(this);
+        node.Parent.Accept(this);
         nodes.Add(node);
         return this;
     }

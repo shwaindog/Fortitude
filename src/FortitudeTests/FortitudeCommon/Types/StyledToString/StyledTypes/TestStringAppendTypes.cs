@@ -935,7 +935,7 @@ public class License : IStyledToStringObject
     public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(LicenseNumber), LicenseNumber)
-            .Field.AlwaysAddMatch(nameof(LicenseChipData), LicenseChipData)
+            .CollectionField.AlwaysAddAll(nameof(LicenseChipData), LicenseChipData)
             .Field.WhenNonDefaultAdd(nameof(ExpirationDate), ExpirationDate)
             .Field.AlwaysAdd(nameof(PhotoLocation), PhotoLocation);
 
