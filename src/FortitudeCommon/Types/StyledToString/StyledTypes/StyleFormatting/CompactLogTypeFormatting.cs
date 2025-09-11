@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.Mutable.Strings.CustomFormatting;
 
@@ -29,7 +28,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public IStringBuilder FormatCollectionStart<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType
       , bool hasItems) where TTypeBuilder : IStyleTypeBuilderComponentAccess 
     {
-        base.FormatCollectionStart(itemElementType, typeBuilder.Sb, hasItems);
+        base.CollectionStart(itemElementType, typeBuilder.Sb, hasItems);
         return typeBuilder.Sb;
     }
 
@@ -37,17 +36,19 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , string? formatString = null)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess where TItem : ISpanFormattable
     {
-        base.FormatCollectionNextItem(toFormat, itemAt, typeBuilder.Sb);
+        base.CollectionNextItem(toFormat, itemAt, typeBuilder.Sb);
         return typeBuilder.Sb;
     }
 
-    public IStringBuilder AddCollectionElementSeparator<TTypeBuilder, TItem>(TTypeBuilder typeBuilder, TItem lastItem, int nextItemNumber)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
-        lastItem switch
+    public IStringBuilder AddCollectionElementSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, Type elementType, int nextItemNumber)
+        where TTypeBuilder : IStyleTypeBuilderComponentAccess
+    {
+        if (elementType == typeof(byte))
         {
-            byte => typeBuilder.Sb.Append(nextItemNumber % 4 == 0 ? " " : "")
-          , _    => typeBuilder.Sb.Append(", ")
-        };
+            return typeBuilder.Sb.Append(nextItemNumber % 4 == 0 ? " " : "");
+        }
+        return typeBuilder.Sb.Append(", ");
+    }
 
     public IStringBuilder AddNextFieldSeparator<TTypeBuilder, TItem>(TTypeBuilder typeBuilder, TItem lastItem, int nextItemNumber)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
@@ -60,7 +61,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public IStringBuilder FormatCollectionEnd<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType, int totalItemCount)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess
     {
-        base.FormatCollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
+        base.CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
         return typeBuilder.Sb;
     }
 }

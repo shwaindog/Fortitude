@@ -27,6 +27,6 @@ public class LogEntriesBatch : ReusableList<IFLogEntry>, ILogEntriesBatch
         var tb = stsa.StartComplexCollectionType(this);
         tb.LogOnlyField?.AlwaysAdd(nameof(RefCount), RefCount);
         tb.LogOnlyField?.AlwaysAdd(nameof(Count), Count);
-        return tb.AddFiltered(AsReadOnly, FirstThree).Complete();
+        return tb.AddFilteredStyled(AsReadOnly, FirstThree).Complete();
     }
 }

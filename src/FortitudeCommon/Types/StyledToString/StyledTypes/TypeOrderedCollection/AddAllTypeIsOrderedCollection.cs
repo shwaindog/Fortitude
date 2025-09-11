@@ -23,7 +23,7 @@ public partial class OrderedCollectionBuilder<TExt>
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             stb.RemoveLastWhiteSpacedCommaIfFound();
@@ -42,14 +42,7 @@ public partial class OrderedCollectionBuilder<TExt>
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                if (item != null)
-                {
-                    stb.Sb.Append(item); 
-                }
-                else
-                {
-                    stb.Sb.Append(stb.Settings.NullStyle);
-                }
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             stb.RemoveLastWhiteSpacedCommaIfFound();
@@ -69,7 +62,7 @@ public partial class OrderedCollectionBuilder<TExt>
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             stb.RemoveLastWhiteSpacedCommaIfFound();
@@ -88,14 +81,7 @@ public partial class OrderedCollectionBuilder<TExt>
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                if (item != null)
-                {
-                    stb.Sb.Append(item); 
-                }
-                else
-                {
-                    stb.Sb.Append(stb.Settings.NullStyle);
-                }
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             stb.RemoveLastWhiteSpacedCommaIfFound();
@@ -114,7 +100,7 @@ public partial class OrderedCollectionBuilder<TExt>
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             stb.RemoveLastWhiteSpacedCommaIfFound();
@@ -133,14 +119,7 @@ public partial class OrderedCollectionBuilder<TExt>
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
-                if (item != null)
-                {
-                    stb.Sb.Append(item); 
-                }
-                else
-                {
-                    stb.Sb.Append(stb.Settings.NullStyle);
-                }
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             stb.RemoveLastWhiteSpacedCommaIfFound();
@@ -161,7 +140,7 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendObjectOrNull(item);
+                stb.AppendCollectionItem(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -183,7 +162,7 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendObjectOrNull(item);
+                stb.AppendCollectionItem(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -208,7 +187,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendObjectOrNull(item);
+                stb.AppendCollectionItem(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -234,14 +213,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value!.Current;
                 
                 any = true;
-                if (item != null)
-                {
-                    stb.Sb.Append(item); 
-                }
-                else
-                {
-                    stb.Sb.Append(stb.Settings.NullStyle);
-                }
+                stb.AppendCollectionItem(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -266,9 +238,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -292,9 +265,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -318,9 +292,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -344,9 +319,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -370,9 +346,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -396,9 +373,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -421,9 +399,10 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -446,9 +425,10 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -472,7 +452,11 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.Append(value!.Current);
+                var item = value!.Current;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -497,7 +481,11 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.Append(value!.Current);
+                var item = value!.Current;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -631,7 +619,7 @@ public partial class OrderedCollectionBuilder<TExt>
     }
 
 
-    public TExt AddAll(string?[]? value)
+    public TExt AddAll(string?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -644,7 +632,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.Sb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -654,7 +645,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(ReadOnlySpan<string?> value)
+    public TExt AddAll(ReadOnlySpan<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -667,7 +658,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.Sb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -677,7 +671,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(IReadOnlyList<string?>? value)
+    public TExt AddAll(IReadOnlyList<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -690,7 +684,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.Sb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -700,7 +697,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate(IEnumerable<string?>? value)
+    public TExt AddAllEnumerate(IEnumerable<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -712,7 +709,10 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -722,7 +722,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate(IEnumerator<string?>? value)
+    public TExt AddAllEnumerate(IEnumerator<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -737,7 +737,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -748,7 +751,8 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequence<T>(T?[]? value) where T : class, ICharSequence 
+    public TExt AddAllCharSequence<T>(T?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+        where T : class, ICharSequence 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -761,7 +765,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -771,7 +778,8 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequence<T>(ReadOnlySpan<T?> value)  where T : class, ICharSequence
+    public TExt AddAllCharSequence<T>(ReadOnlySpan<T?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
+        where T : class, ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -784,7 +792,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -794,7 +805,8 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequence<T>(IReadOnlyList<T?>? value)  where T : class, ICharSequence
+    public TExt AddAllCharSequence<T>(IReadOnlyList<T?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
+        where T : class, ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -807,7 +819,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -817,7 +832,8 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequenceEnumerate<T>(IEnumerable<T?>? value) where T : class, ICharSequence
+    public TExt AddAllCharSequenceEnumerate<T>(IEnumerable<T?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where T : class, ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -829,7 +845,10 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -839,7 +858,8 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequenceEnumerate<T>(IEnumerator<T?>? value) where T : class, ICharSequence
+    public TExt AddAllCharSequenceEnumerate<T>(IEnumerator<T?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+        where T : class, ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -854,7 +874,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -865,7 +888,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(StringBuilder?[]? value)
+    public TExt AddAll(StringBuilder?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -878,7 +901,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -888,7 +914,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(ReadOnlySpan<StringBuilder?> value)
+    public TExt AddAll(ReadOnlySpan<StringBuilder?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -901,7 +927,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -911,7 +940,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(IReadOnlyList<StringBuilder?>? value)
+    public TExt AddAll(IReadOnlyList<StringBuilder?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -924,7 +953,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -934,7 +966,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate(IEnumerable<StringBuilder?>? value)
+    public TExt AddAllEnumerate(IEnumerable<StringBuilder?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -946,7 +978,10 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -956,7 +991,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate(IEnumerator<StringBuilder?>? value)
+    public TExt AddAllEnumerate(IEnumerator<StringBuilder?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -971,7 +1006,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1118,9 +1156,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1144,9 +1183,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1170,9 +1210,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1195,9 +1236,10 @@ public partial class OrderedCollectionBuilder<TExt>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1223,9 +1265,10 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value!.Current;
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }

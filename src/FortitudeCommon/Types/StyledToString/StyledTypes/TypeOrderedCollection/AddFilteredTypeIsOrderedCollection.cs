@@ -25,7 +25,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -48,14 +48,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (item != null)
-                {
-                    stb.Sb.Append(item); 
-                }
-                else
-                {
-                    stb.Sb.Append(stb.Settings.NullStyle);
-                }
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -79,7 +72,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -102,7 +95,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -125,7 +118,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -148,7 +141,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -172,7 +165,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(count++, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendObjectOrNull(item);
+                stb.AppendCollectionItem(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -196,7 +189,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(count++, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendObjectOrNull(item);
+                stb.AppendCollectionItem(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -227,7 +220,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendObjectOrNull(item);
+                stb.AppendCollectionItem(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -259,7 +252,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendObjectOrNull(item);
+                stb.AppendCollectionItem(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -285,9 +278,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -312,9 +306,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -340,9 +335,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -367,9 +363,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -394,9 +391,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -421,9 +419,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, i, formatString);
+                else
+                    stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -449,9 +448,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(count++, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -477,9 +477,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(count++, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -512,9 +513,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -548,9 +550,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -561,7 +564,6 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    [CallsObjectToString] 
     public TExt AddFiltered<T, TBase1, TBase2>(T[]? value, OrderedCollectionPredicate<TBase1> itemPredicate
       , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
@@ -576,7 +578,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                customTypeStyler(item, stb.OwningAppender);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -586,7 +588,6 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    [CallsObjectToString] 
     public TExt AddFiltered<T, TBase1, TBase2>(ReadOnlySpan<T> value, OrderedCollectionPredicate<TBase1> itemPredicate
       , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
@@ -601,7 +602,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                customTypeStyler(item, stb.OwningAppender);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -611,7 +612,6 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    [CallsObjectToString] 
     public TExt AddFiltered<T, TBase1, TBase2>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase1> itemPredicate
       , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
@@ -626,7 +626,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                customTypeStyler(item, stb.OwningAppender);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -636,7 +636,6 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    [CallsObjectToString] 
     public TExt AddFilteredEnumerate<T, TBase1, TBase2>(IEnumerable<T>? value, OrderedCollectionPredicate<TBase1> itemPredicate
       , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
@@ -652,7 +651,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(count++, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                customTypeStyler(item, stb.OwningAppender);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -662,7 +661,6 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    [CallsObjectToString] 
     public TExt AddFilteredEnumerate<T, TBase1, TBase2>(IEnumerator<T>? value, OrderedCollectionPredicate<TBase1> itemPredicate
       , CustomTypeStyler<TBase2> customTypeStyler) where T : TBase1, TBase2
     {
@@ -685,7 +683,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                customTypeStyler(item, stb.OwningAppender);
+                stb.AppendOrNull(item, customTypeStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -696,7 +694,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    public TExt AddFiltered(string?[]? value, OrderedCollectionPredicate<string?> itemPredicate)
+    public TExt AddFiltered(string?[]? value, OrderedCollectionPredicate<string?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -709,7 +708,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -720,7 +722,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
 
-    public TExt AddFiltered(ReadOnlySpan<string?> value, OrderedCollectionPredicate<string?> itemPredicate)
+    public TExt AddFiltered(ReadOnlySpan<string?> value, OrderedCollectionPredicate<string?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -733,7 +736,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -743,7 +749,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFiltered(IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> itemPredicate)
+    public TExt AddFiltered(IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -756,7 +763,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.Sb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -766,7 +776,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredEnumerate(IEnumerable<string?>? value, OrderedCollectionPredicate<string?> itemPredicate)
+    public TExt AddFilteredEnumerate(IEnumerable<string?>? value, OrderedCollectionPredicate<string?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -780,7 +791,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(count++, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -791,7 +805,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
 
-    public TExt AddFilteredEnumerate(IEnumerator<string?>? value, OrderedCollectionPredicate<string?> itemPredicate)
+    public TExt AddFilteredEnumerate(IEnumerator<string?>? value, OrderedCollectionPredicate<string?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -812,7 +827,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -823,7 +841,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredCharSequence<TCharSeq>(TCharSeq?[]? value, OrderedCollectionPredicate<ICharSequence?> itemPredicate) 
+    public TExt AddFilteredCharSequence<TCharSeq>(TCharSeq?[]? value, OrderedCollectionPredicate<ICharSequence?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -837,7 +856,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -848,7 +870,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
 
-    public TExt AddFilteredCharSequence<TCharSeq>(ReadOnlySpan<TCharSeq?> value, OrderedCollectionPredicate<ICharSequence?> itemPredicate)
+    public TExt AddFilteredCharSequence<TCharSeq>(ReadOnlySpan<TCharSeq?> value, OrderedCollectionPredicate<ICharSequence?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -862,7 +885,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -872,7 +898,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredCharSequence<TCharSeq>(IReadOnlyList<TCharSeq?>? value, OrderedCollectionPredicate<ICharSequence?> itemPredicate)
+    public TExt AddFilteredCharSequence<TCharSeq>(IReadOnlyList<TCharSeq?>? value, OrderedCollectionPredicate<ICharSequence?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -886,7 +913,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -896,7 +926,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredCharSequenceEnumerate<TCharSeq>(IEnumerable<TCharSeq?>? value, OrderedCollectionPredicate<ICharSequence?> itemPredicate)
+    public TExt AddFilteredCharSequenceEnumerate<TCharSeq>(IEnumerable<TCharSeq?>? value, OrderedCollectionPredicate<ICharSequence?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -911,7 +942,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(count++, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -922,7 +956,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
 
-    public TExt AddFilteredCharSequenceEnumerate<TCharSeq>(IEnumerator<TCharSeq?>? value, OrderedCollectionPredicate<ICharSequence?> itemPredicate)
+    public TExt AddFilteredCharSequenceEnumerate<TCharSeq>(IEnumerator<TCharSeq?>? value, OrderedCollectionPredicate<ICharSequence?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -944,7 +979,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -955,7 +993,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFiltered(StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> itemPredicate)
+    public TExt AddFiltered(StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -968,7 +1007,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -979,7 +1021,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
 
-    public TExt AddFiltered(ReadOnlySpan<StringBuilder?> value, OrderedCollectionPredicate<StringBuilder?> itemPredicate)
+    public TExt AddFiltered(ReadOnlySpan<StringBuilder?> value, OrderedCollectionPredicate<StringBuilder?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -992,7 +1035,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1002,7 +1048,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFiltered(IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> itemPredicate)
+    public TExt AddFiltered(IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -1015,7 +1062,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1025,7 +1075,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredEnumerate(IEnumerable<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> itemPredicate)
+    public TExt AddFilteredEnumerate(IEnumerable<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -1039,7 +1090,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(count++, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1050,7 +1104,8 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
 
-    public TExt AddFilteredEnumerate(IEnumerator<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> itemPredicate)
+    public TExt AddFilteredEnumerate(IEnumerator<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> itemPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -1071,7 +1126,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1082,7 +1140,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    public TExt AddFiltered<TStyledObj, TBase>(TStyledObj[]? value, OrderedCollectionPredicate<TBase> itemPredicate)
+    public TExt AddFilteredStyled<TStyledObj, TBase>(TStyledObj[]? value, OrderedCollectionPredicate<TBase> itemPredicate)
     where TStyledObj : IStyledToStringObject, TBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1107,7 +1165,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
 
-    public TExt AddFiltered<TStyledObj, TBase>(ReadOnlySpan<TStyledObj> value, OrderedCollectionPredicate<TBase> itemPredicate)
+    public TExt AddFilteredStyled<TStyledObj, TBase>(ReadOnlySpan<TStyledObj> value, OrderedCollectionPredicate<TBase> itemPredicate)
         where TStyledObj : IStyledToStringObject, TBase  
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1131,7 +1189,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFiltered<TStyledObj, TBase>(IReadOnlyList<TStyledObj>? value, OrderedCollectionPredicate<TBase> itemPredicate)
+    public TExt AddFilteredStyled<TStyledObj, TBase>(IReadOnlyList<TStyledObj>? value, OrderedCollectionPredicate<TBase> itemPredicate)
         where TStyledObj : IStyledToStringObject, TBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1155,7 +1213,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.CollectionInComplexType ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredEnumerate<TStyledObj, TBase>(IEnumerable<TStyledObj>? value, OrderedCollectionPredicate<TBase> itemPredicate)
+    public TExt AddFilteredStyledEnumerate<TStyledObj, TBase>(IEnumerable<TStyledObj>? value, OrderedCollectionPredicate<TBase> itemPredicate)
         where TStyledObj : IStyledToStringObject, TBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1181,7 +1239,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
 
-    public TExt AddFilteredEnumerate<TStyledObj, TBase>(IEnumerator<TStyledObj>? value, OrderedCollectionPredicate<TBase> itemPredicate)
+    public TExt AddFilteredStyledEnumerate<TStyledObj, TBase>(IEnumerator<TStyledObj>? value, OrderedCollectionPredicate<TBase> itemPredicate)
         where TStyledObj : IStyledToStringObject, TBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1229,9 +1287,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1256,9 +1315,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1283,9 +1343,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 if (!itemPredicate(i, item)) continue;
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1310,9 +1371,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
             {
                 if (!itemPredicate(count++, item)) continue;
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1344,9 +1406,10 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
                 }
                 
                 any = true;
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }

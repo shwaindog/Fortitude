@@ -138,14 +138,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionStart(elementType, sb, arg0.Length > 0);
+            CollectionStart(elementType, sb, arg0.Length > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb);
+                CollectionNextItem(arg0[i], i, sb);
             }
         }
         else
@@ -153,12 +153,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb, formatString);
+                CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionEnd(elementType, sb, arg0.Length);
+            CollectionEnd(elementType, sb, arg0.Length);
         }
         return sb.Length - preAppendLen;
     }
@@ -173,14 +173,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
             }
         }
         else
@@ -188,12 +188,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
         return addedChars;
     }
@@ -208,14 +208,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionStart(elementType, sb, arg0.Length > 0);
+            CollectionStart(elementType, sb, arg0.Length > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb);
+                CollectionNextItem(arg0[i], i, sb);
             }
         }
         else
@@ -223,12 +223,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb, formatString);
+                CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionEnd(elementType, sb, arg0.Length);
+            CollectionEnd(elementType, sb, arg0.Length);
         }
         return sb.Length - preAppendLen;
     }
@@ -243,14 +243,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
             }
         }
         else
@@ -258,12 +258,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
         return addedChars;
     }
@@ -278,14 +278,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionStart(elementType, sb, arg0.Length > 0);
+            CollectionStart(elementType, sb, arg0.Length > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb);
+                CollectionNextItem(arg0[i], i, sb);
             }
         }
         else
@@ -293,12 +293,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb, formatString);
+                CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionEnd(elementType, sb, arg0.Length);
+            CollectionEnd(elementType, sb, arg0.Length);
         }
         return sb.Length - preAppendLen;
     }
@@ -313,14 +313,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
             }
         }
         else
@@ -328,12 +328,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
         return addedChars;
     }
@@ -348,14 +348,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionStart(elementType, sb, arg0.Length > 0);
+            CollectionStart(elementType, sb, arg0.Length > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb);
+                CollectionNextItem(arg0[i], i, sb);
             }
         }
         else
@@ -363,12 +363,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb, formatString);
+                CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionEnd(elementType, sb, arg0.Length);
+            CollectionEnd(elementType, sb, arg0.Length);
         }
         return sb.Length - preAppendLen;
     }
@@ -383,14 +383,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
             }
         }
         else
@@ -398,12 +398,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Length; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
         return addedChars;
     }
@@ -418,14 +418,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionStart(elementType, sb, arg0.Count > 0);
+            CollectionStart(elementType, sb, arg0.Count > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Count; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb);
+                CollectionNextItem(arg0[i], i, sb);
             }
         }
         else
@@ -433,12 +433,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Count; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb, formatString);
+                CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionEnd(elementType, sb, arg0.Count);
+            CollectionEnd(elementType, sb, arg0.Count);
         }
         return sb.Length - preAppendLen;
     }
@@ -453,14 +453,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex, arg0.Count > 0);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Count > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Count; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
             }
         }
         else
@@ -468,12 +468,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Count; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
         }
         return addedChars;
     }
@@ -488,14 +488,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionStart(elementType, sb, arg0.Count > 0);
+            CollectionStart(elementType, sb, arg0.Count > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Count; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb);
+                CollectionNextItem(arg0[i], i, sb);
             }
         }
         else
@@ -503,12 +503,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Count; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-                FormatCollectionNextItem(arg0[i], i, sb, formatString);
+                CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionEnd(elementType, sb, arg0.Count);
+            CollectionEnd(elementType, sb, arg0.Count);
         }
         return sb.Length - preAppendLen;
     }
@@ -523,14 +523,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex, arg0.Count > 0);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Count > 0);
         }
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
         {
             for (var i = 0; i < arg0.Count; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars);
             }
         }
         else
@@ -538,12 +538,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             for (var i = 0; i < arg0.Count; i++)
             {
                 if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-                addedChars += FormatCollectionNextItem(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
         }
         return addedChars;
     }
@@ -560,11 +560,11 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 if (!hasStartedCollection)
                 {
-                    FormatCollectionStart(elementType, sb, true);
+                    CollectionStart(elementType, sb, true);
                     hasStartedCollection = true;
                 }
                 if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-                FormatCollectionNextItem(item, itemCount, sb);
+                CollectionNextItem(item, itemCount, sb);
                 itemCount++;
             }
         }
@@ -574,17 +574,17 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 if (!hasStartedCollection)
                 {
-                    FormatCollectionStart(elementType, sb, true);
+                    CollectionStart(elementType, sb, true);
                     hasStartedCollection = true;
                 }
                 if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-                FormatCollectionNextItem(item, itemCount, sb, formatString);
+                CollectionNextItemFormat(item, itemCount, sb, formatString);
                 itemCount++;
             }
         }
         if (itemCount > 0)
         {
-            FormatCollectionEnd(elementType, sb, itemCount);
+            CollectionEnd(elementType, sb, itemCount);
         }
         else
         {
@@ -596,8 +596,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 }
                 else
                 {
-                    FormatCollectionStart(elementType, sb, false);
-                    FormatCollectionEnd(elementType, sb, 0);
+                    CollectionStart(elementType, sb, false);
+                    CollectionEnd(elementType, sb, 0);
                 }
             }
         }
@@ -616,11 +616,11 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 if (!hasStartedCollection)
                 {
-                    addedChars           += FormatCollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
+                    addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
                     hasStartedCollection =  true;
                 }
                 if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-                addedChars += FormatCollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
                 itemCount++;
             }
         }
@@ -630,17 +630,17 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 if (!hasStartedCollection)
                 {
-                    addedChars           += FormatCollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
+                    addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
                     hasStartedCollection =  true;
                 }
                 if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-                addedChars += FormatCollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
                 itemCount++;
             }
         }
         if (itemCount > 0)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
         }
         else
         {
@@ -652,8 +652,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 }
                 else
                 {
-                    addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false);
-                    addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+                    addedChars += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false);
+                    addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
                 }
             }
         }
@@ -672,11 +672,11 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 if (!hasStartedCollection)
                 {
-                    FormatCollectionStart(elementType, sb, true);
+                    CollectionStart(elementType, sb, true);
                     hasStartedCollection = true;
                 }
                 if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-                FormatCollectionNextItem(item, itemCount, sb);
+                CollectionNextItem(item, itemCount, sb);
                 itemCount++;
             }
         }
@@ -686,17 +686,17 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 if (!hasStartedCollection)
                 {
-                    FormatCollectionStart(elementType, sb, true);
+                    CollectionStart(elementType, sb, true);
                     hasStartedCollection = true;
                 }
                 if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-                FormatCollectionNextItem(item, itemCount, sb, formatString);
+                CollectionNextItemFormat(item, itemCount, sb, formatString);
                 itemCount++;
             }
         }
         if (itemCount > 0)
         {
-            FormatCollectionEnd(elementType, sb, itemCount);
+            CollectionEnd(elementType, sb, itemCount);
         }
         else
         {
@@ -708,8 +708,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 }
                 else
                 {
-                    FormatCollectionStart(elementType, sb, false);
-                    FormatCollectionEnd(elementType, sb, 0);
+                    CollectionStart(elementType, sb, false);
+                    CollectionEnd(elementType, sb, 0);
                 }
             }
         }
@@ -728,11 +728,11 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 if (!hasStartedCollection)
                 {
-                    addedChars           += FormatCollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
+                    addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
                     hasStartedCollection =  true;
                 }
                 if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-                addedChars += FormatCollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
                 itemCount++;
             }
         }
@@ -742,17 +742,17 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 if (!hasStartedCollection)
                 {
-                    addedChars           += FormatCollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
+                    addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
                     hasStartedCollection =  true;
                 }
                 if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-                addedChars += FormatCollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
                 itemCount++;
             }
         }
         if (itemCount > 0)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
         }
         else
         {
@@ -764,8 +764,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 }
                 else
                 {
-                    addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false);
-                    addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+                    addedChars += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false);
+                    addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
                 }
             }
         }
@@ -784,7 +784,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (!hasNext || !IgnoreEmptyCollection)
         {
-            FormatCollectionStart(elementType, sb, hasNext);
+            CollectionStart(elementType, sb, hasNext);
         }
         var itemCount   = 0;
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
@@ -793,7 +793,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 var item = arg0.Current;
                 if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-                FormatCollectionNextItem(item, itemCount, sb);
+                CollectionNextItem(item, itemCount, sb);
                 itemCount++;
                 hasNext = arg0.MoveNext();
             }
@@ -804,14 +804,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 var item = arg0.Current;
                 if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-                FormatCollectionNextItem(item, itemCount, sb);
+                CollectionNextItem(item, itemCount, sb);
                 itemCount++;
                 hasNext = arg0.MoveNext();
             }
         }
         if (itemCount > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionEnd(elementType, sb, itemCount);
+            CollectionEnd(elementType, sb, itemCount);
         }
         return sb.Length - preAppendLen;
     }
@@ -828,7 +828,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (!hasNext || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
         }
         var itemCount   = 0;
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
@@ -837,7 +837,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 var item                      = arg0.Current;
                 if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-                addedChars += FormatCollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
                 itemCount++;
                 hasNext = arg0.MoveNext();
             }
@@ -848,14 +848,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 var item                      = arg0.Current;
                 if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-                addedChars += FormatCollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
                 itemCount++;
                 hasNext = arg0.MoveNext();
             }
         }
         if (itemCount > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
         }
         return addedChars;
     }
@@ -872,7 +872,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (!hasNext || !IgnoreEmptyCollection)
         {
-            FormatCollectionStart(elementType, sb, hasNext);
+            CollectionStart(elementType, sb, hasNext);
         }
         var itemCount   = 0;
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
@@ -881,7 +881,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 var item = arg0.Current;
                 if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-                FormatCollectionNextItem(item, itemCount, sb);
+                CollectionNextItem(item, itemCount, sb);
                 itemCount++;
                 hasNext = arg0.MoveNext();
             }
@@ -892,14 +892,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 var item = arg0.Current;
                 if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-                FormatCollectionNextItem(item, itemCount, sb);
+                CollectionNextItem(item, itemCount, sb);
                 itemCount++;
                 hasNext = arg0.MoveNext();
             }
         }
         if (itemCount > 0 || !IgnoreEmptyCollection)
         {
-            FormatCollectionEnd(elementType, sb, itemCount);
+            CollectionEnd(elementType, sb, itemCount);
         }
         return sb.Length - preAppendLen;
     }
@@ -916,7 +916,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var elementType = typeof(TFmt);
         if (!hasNext || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
         }
         var itemCount   = 0;
         if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
@@ -925,7 +925,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 var item                      = arg0.Current;
                 if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-                addedChars += FormatCollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
+                addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
                 itemCount++;
                 hasNext = arg0.MoveNext();
             }
@@ -936,67 +936,61 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             {
                 var item                      = arg0.Current;
                 if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-                addedChars += FormatCollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
                 itemCount++;
                 hasNext = arg0.MoveNext();
             }
         }
         if (itemCount > 0 || !IgnoreEmptyCollection)
         {
-            addedChars += FormatCollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
         }
         return addedChars;
     }
 
-    public override int FormatCollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems) => 
+    public override int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems) => 
         sb.Append("[").ReturnCharCount(1);
 
-    public override int FormatCollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems) =>
-        destination.OverWriteAt(destStartIndex, "[");
+    public override int CollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems)
+    {
+        return destination.OverWriteAt(destStartIndex, "[");
+    }
 
-    public override int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) =>
+    public override int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) =>
         Format(nextItem, sb, formatString);
 
-    public override int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
+    public override int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
       , string formatString)
         => Format(nextItem, destCharSpan, destStartIndex, formatString);
 
-    public override int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString) =>
+    public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString) =>
         Format(nextItem, sb, formatString);
 
-    public override int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
+    public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
       , string formatString)
         => Format(nextItem, destCharSpan, destStartIndex, formatString);
 
-    public override int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb)
+    public override int CollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb)
     {
         var preAppendLen = sb.Length;
         sb.Append(nextItem);
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex)
+    public override int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destination, int destStartIndex)
     {
-        destination = destStartIndex > 0 ? destination[destStartIndex..] : destination;
-        if (nextItem.TryFormat(destination, out var charsWritten, "", null)) return charsWritten;
-        return 0;
+        CharSpanCollectionScratchBuffer ??= MutableString.MediumScratchBuffer;
+        CharSpanCollectionScratchBuffer.Clear();
+        CharSpanCollectionScratchBuffer.Append(nextItem);
+        return destination.OverWriteAt(destStartIndex, CharSpanCollectionScratchBuffer);
     }
 
-    public override int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb)
+    public override int CollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount) => sb.Append("]").ReturnCharCount(1);
+
+    public override int CollectionEnd(Type collectionType, Span<char> destination, int index, int itemsCount)
     {
-        var preAppendLen = sb.Length;
-        sb.Append(nextItem);
-        return sb.Length - preAppendLen;
+        CharSpanCollectionScratchBuffer?.DecrementRefCount();
+        CharSpanCollectionScratchBuffer = null;
+        return destination.OverWriteAt(index, "]");
     }
-
-    public override int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex)
-    {
-        if (nextItem == null) return IgnoreNullableValues ? 0 : destination.OverWriteAt(destStartIndex, NullString);
-        return FormatCollectionNextItem(nextItem.Value, retrieveCount, destination, destStartIndex);
-    }
-
-    public override int FormatCollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount) => sb.Append("]").ReturnCharCount(1);
-
-    public override int FormatCollectionEnd(Type collectionType, Span<char> destination, int index, int itemsCount) =>
-        destination.OverWriteAt(index, "]");
 }

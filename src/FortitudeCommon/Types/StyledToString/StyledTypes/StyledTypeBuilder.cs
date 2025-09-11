@@ -180,29 +180,73 @@ public static class StyledTypeBuilderExtensions
         where TExt : StyledTypeBuilder =>
         stb.Sb.Qt(inQuotes).Append(value).Qt(inQuotes);
 
-    public static IStringBuilder AppendFormattedOrNull<T>
-    (this IStringBuilder sb, T? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false) where T : ISpanFormattable =>
-        value != null ? sb.Qt(inQuotes).AppendFormat(formatString, value).Qt(inQuotes) : sb.Append(Null);
-
-    public static IStringBuilder AppendFormattedOrNull<T>
-    (this IStringBuilder sb, T? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false) where T : struct, ISpanFormattable =>
-        value != null ? sb.Qt(inQuotes).AppendFormat(formatString, value).Qt(inQuotes) : sb.Append(Null);
-
     public static IStringBuilder AppendFormatted<T>
     (this IStringBuilder sb, T value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false) where T : struct, ISpanFormattable
-    {
-        return sb.Qt(inQuotes).AppendFormat(formatString, value).Qt(inQuotes);
-    }
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false) where T : ISpanFormattable =>
+        sb.Qt(inQuotes).AppendFormat(formatString, value).Qt(inQuotes);
 
-    public static IStringBuilder AppendSpanFormattableClass<T>
-    (this IStringBuilder sb, T value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false) where T : class, ISpanFormattable
-    {
-        return sb.Qt(inQuotes).AppendFormat(formatString, value).Qt(inQuotes);
-    }
+    public static IStringBuilder AppendFormattedCollectionItem<TExt, T>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T value, int retrieveCount
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+        where TExt : StyledTypeBuilder where T : ISpanFormattable =>
+         stb.StyleFormatter.CollectionNextItemFormat(value, retrieveCount, stb.Sb, formatString).AnyToSb(stb.Sb);
+
+    public static IStringBuilder AppendFormattedCollectionItem<TExt, T>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value, int retrieveCount
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+        where TExt : StyledTypeBuilder where T : struct, ISpanFormattable =>
+         stb.StyleFormatter.CollectionNextItemFormat(value, retrieveCount, stb.Sb, formatString).AnyToSb(stb.Sb);
+
+    public static IStringBuilder AppendFormattedCollectionItemOrNull<TExt>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, string? value, int retrieveCount
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+        where TExt : StyledTypeBuilder =>
+        value != null 
+            ? stb.StyleFormatter.Format(value, 0, stb.Sb, formatString).AnyToSb(stb.Sb)
+            : stb.Sb.Append(stb.Settings.NullStyle);
+
+    public static IStringBuilder AppendFormattedCollectionItemOrNull<TExt>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, ICharSequence? value, int retrieveCount
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+        where TExt : StyledTypeBuilder =>
+        value != null 
+            ? stb.StyleFormatter.Format(value, 0, stb.Sb, formatString).AnyToSb(stb.Sb)
+            : stb.Sb.Append(stb.Settings.NullStyle);
+
+    public static IStringBuilder AppendFormattedCollectionItemOrNull<TExt>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, StringBuilder? value, int retrieveCount
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+        where TExt : StyledTypeBuilder =>
+        value != null 
+            ? stb.StyleFormatter.Format(value, 0, stb.Sb, formatString).AnyToSb(stb.Sb)
+            : stb.Sb.Append(stb.Settings.NullStyle);
+
+    public static IStringBuilder AppendCollectionItem<TExt, T>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T value, int retrieveCount) where TExt : StyledTypeBuilder =>
+        stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb).AnyToSb(stb.Sb);
+
+    public static IStringBuilder AppendCollectionItemOrNull<TExt, T>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value, int retrieveCount) where TExt : StyledTypeBuilder =>
+        value != null 
+            ? stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb).AnyToSb(stb.Sb)
+            : stb.Sb.Append(stb.Settings.NullStyle);
+
+    public static IStringBuilder AppendCollectionItemFormattedOrNull<TExt, T>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value, int retrieveCount
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool inQuotes = false)
+        where TExt : StyledTypeBuilder where T : struct, ISpanFormattable =>
+        value != null 
+            ? stb.StyleFormatter.CollectionNextItemFormat(value.Value, retrieveCount, stb.Sb, formatString).AnyToSb(stb.Sb) 
+            : stb.StyleFormatter.CollectionNextItem(Null, retrieveCount, stb.Sb).AnyToSb(stb.Sb);
+
+    public static IStringBuilder AnyToSb<T>(this T _, IStringBuilder sbToReturn) => sbToReturn;
+     
+    public static IStringBuilder AppendFormattedOrNull<TExt, T>
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
+        where TExt : StyledTypeBuilder where T : struct, ISpanFormattable =>
+        stb.StyleFormatter.Format(value, stb.Sb, formatString).AnyToSb(stb.Sb);
+    
 
     public static IStringBuilder AppendFormatted
     (this IStringBuilder sb, ReadOnlySpan<char> value
@@ -213,11 +257,11 @@ public static class StyledTypeBuilderExtensions
 
     public static IStringBuilder Qt(this IStringBuilder sb, bool writeQuote) => writeQuote ? sb.Append("\"") : sb;
 
-    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stsa, string? value, bool? inQuotes = null)
+    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, string? value, bool? inQuotes = null)
         where TExt : StyledTypeBuilder
     {
-        var sb        = stsa.Sb;
-        var addQuotes = inQuotes ?? stsa.Style.IsJson();
+        var sb        = stb.Sb;
+        var addQuotes = inQuotes ?? stb.Style.IsJson();
         if (value != null)
             sb.Qt(addQuotes).Append(value).Qt(addQuotes);
         else
@@ -225,11 +269,11 @@ public static class StyledTypeBuilderExtensions
         return sb;
     }
 
-    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stsa, ICharSequence? value, bool? inQuotes = null)
+    public static IStringBuilder AppendOrNull<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, ICharSequence? value, bool? inQuotes = null)
         where TExt : StyledTypeBuilder
     {
-        var sb        = stsa.Sb;
-        var addQuotes = inQuotes ?? stsa.Style.IsJson();
+        var sb        = stb.Sb;
+        var addQuotes = inQuotes ?? stb.Style.IsJson();
         if (value != null)
             sb.Qt(addQuotes).Append(value).Qt(addQuotes);
         else
@@ -465,6 +509,72 @@ public static class StyledTypeBuilderExtensions
         return stb.Sb;
     }
 
+    public static IStringBuilder AppendFormattedCollectionItemMatchOrNull<TValue, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb
+      , TValue value, int retrieveCount, string formatString) where TExt : StyledTypeBuilder
+    {
+        var sb        = stb.Sb;
+        if (value != null)
+            switch (value)
+            {
+                case bool valueBool:         stb.AppendCollectionItem(valueBool, retrieveCount); break;
+                case byte valueByte:         stb.AppendFormattedCollectionItem(valueByte, retrieveCount, formatString); break;
+                case sbyte valueSByte:       stb.AppendFormattedCollectionItem(valueSByte, retrieveCount, formatString); break;
+                case char valueChar:         stb.AppendFormattedCollectionItem(valueChar, retrieveCount, formatString); break;
+                case short valueShort:       stb.AppendFormattedCollectionItem(valueShort, retrieveCount, formatString); break;
+                case ushort valueUShort:     stb.AppendFormattedCollectionItem(valueUShort, retrieveCount, formatString); break;
+                case Half valueHalfFloat:    stb.AppendFormattedCollectionItem(valueHalfFloat, retrieveCount, formatString); break;
+                case int valueInt:           stb.AppendFormattedCollectionItem(valueInt, retrieveCount, formatString); break;
+                case uint valueUInt:         stb.AppendFormattedCollectionItem(valueUInt, retrieveCount, formatString); break;
+                case nint valueUInt:         stb.AppendFormattedCollectionItem(valueUInt, retrieveCount, formatString); break;
+                case float valueFloat:       stb.AppendFormattedCollectionItem(valueFloat, retrieveCount, formatString); break;
+                case long valueLong:         stb.AppendFormattedCollectionItem(valueLong, retrieveCount, formatString); break;
+                case ulong valueULong:       stb.AppendFormattedCollectionItem(valueULong, retrieveCount, formatString); break;
+                case double valueDouble:     stb.AppendFormattedCollectionItem(valueDouble, retrieveCount, formatString); break;
+                case decimal valueDecimal:   stb.AppendFormattedCollectionItem(valueDecimal, retrieveCount, formatString); break;
+                case Int128 veryLongInt:     stb.AppendFormattedCollectionItem(veryLongInt, retrieveCount, formatString); break;
+                case UInt128 veryLongUInt:   stb.AppendFormattedCollectionItem(veryLongUInt, retrieveCount, formatString); break;
+                case BigInteger veryLongInt: stb.AppendFormattedCollectionItem(veryLongInt, retrieveCount, formatString); break;
+                case Complex veryLongInt:    stb.AppendFormattedCollectionItem(veryLongInt, retrieveCount, formatString); break;
+                case DateTime valueDateTime: stb.AppendFormattedCollectionItem(valueDateTime, retrieveCount, formatString); break;
+                case DateOnly valueDateOnly: stb.AppendFormattedCollectionItem(valueDateOnly, retrieveCount, formatString); break;
+                case TimeSpan valueTimeSpan: stb.AppendFormattedCollectionItem(valueTimeSpan, retrieveCount, formatString); break;
+                case TimeOnly valueTimeSpan: stb.AppendFormattedCollectionItem(valueTimeSpan, retrieveCount, formatString); break;
+                case Rune valueTimeSpan:     stb.AppendFormattedCollectionItem(valueTimeSpan, retrieveCount, formatString); break;
+                case Guid valueGuid:         stb.AppendFormattedCollectionItem(valueGuid, retrieveCount, formatString); break;
+                case IPNetwork valueIntPtr:  stb.AppendFormattedCollectionItem(valueIntPtr, retrieveCount, formatString); break;
+                case char[] valueCharArray:  stb.AppendCollectionItem(valueCharArray, retrieveCount); break;
+                case string valueString:     stb.AppendFormattedCollectionItemOrNull(valueString, retrieveCount, formatString); break;
+                case Version valueGuid:      stb.AppendFormattedCollectionItem(valueGuid, retrieveCount, formatString); break;
+                case IPAddress valueIntPtr:  stb.AppendFormattedCollectionItem(valueIntPtr,retrieveCount, formatString); break;
+                case Uri valueUri:           stb.AppendFormattedCollectionItem(valueUri, retrieveCount, formatString); break;
+
+                case IFrozenString valueFrozenString:   stb.AppendFormattedCollectionItemOrNull(valueFrozenString, retrieveCount, formatString); break;
+                case IStringBuilder valueStringBuilder: stb.AppendFormattedCollectionItemOrNull(valueStringBuilder, retrieveCount, formatString); break;
+                case StringBuilder valueSb:             stb.AppendFormattedCollectionItemOrNull(valueSb, retrieveCount, formatString); break;
+
+                case IStyledToStringObject styledToStringObj: stb.AppendOrNull(styledToStringObj); break;
+                case IEnumerator:
+                case IEnumerable:
+                    var type = typeof(TValue);
+                    if (type.IsGenericType && type.IsKeyedCollection())
+                    {
+                        var keyedCollectionBuilder = stb.OwningAppender.StartKeyedCollectionType(value, "");
+                        KeyedCollectionGenericAddAllInvoker.CallAddAll<TValue>(keyedCollectionBuilder, value, formatString);
+                        keyedCollectionBuilder.Complete();
+                        break;
+                    }
+                    var orderedCollectionBuilder = stb.OwningAppender.StartSimpleCollectionType(value, "");
+                    SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll<TValue>(orderedCollectionBuilder, value, formatString);
+                    orderedCollectionBuilder.Complete();
+                    break;
+
+                default: stb.AppendCollectionItem(value, retrieveCount); break;
+            }
+        else
+            sb.Append(Null);
+        return sb;
+    }
+
     public static IStringBuilder AppendFormattedOrNull<TValue, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb
       , TValue value, string formatString, bool? inQuotes = null) where TExt : StyledTypeBuilder
     {
@@ -474,36 +584,36 @@ public static class StyledTypeBuilderExtensions
             switch (value)
             {
                 case bool valueBool:         sb.Append(valueBool, addQuotes); break;
-                case byte valueByte:         sb.AppendFormattedOrNull(valueByte, formatString, addQuotes); break;
-                case sbyte valueSByte:       sb.AppendFormattedOrNull(valueSByte, formatString, addQuotes); break;
-                case char valueChar:         sb.AppendFormattedOrNull(valueChar, formatString, addQuotes); break;
-                case short valueShort:       sb.AppendFormattedOrNull(valueShort, formatString, addQuotes); break;
-                case ushort valueUShort:     sb.AppendFormattedOrNull(valueUShort, formatString, addQuotes); break;
-                case Half valueHalfFloat:    sb.AppendFormattedOrNull(valueHalfFloat, formatString, addQuotes); break;
-                case int valueInt:           sb.AppendFormattedOrNull(valueInt, formatString, addQuotes); break;
-                case uint valueUInt:         sb.AppendFormattedOrNull(valueUInt, formatString, addQuotes); break;
-                case nint valueUInt:         sb.AppendFormattedOrNull(valueUInt, formatString, addQuotes); break;
-                case float valueFloat:       sb.AppendFormattedOrNull(valueFloat, formatString, addQuotes); break;
-                case long valueLong:         sb.AppendFormattedOrNull(valueLong, formatString, addQuotes); break;
-                case ulong valueULong:       sb.AppendFormattedOrNull(valueULong, formatString, addQuotes); break;
-                case double valueDouble:     sb.AppendFormattedOrNull(valueDouble, formatString, addQuotes); break;
-                case decimal valueDecimal:   sb.AppendFormattedOrNull(valueDecimal, formatString, addQuotes); break;
-                case Int128 veryLongInt:     sb.AppendFormattedOrNull(veryLongInt, formatString, addQuotes); break;
-                case UInt128 veryLongUInt:   sb.AppendFormattedOrNull(veryLongUInt, formatString, addQuotes); break;
-                case BigInteger veryLongInt: sb.AppendFormattedOrNull(veryLongInt, formatString, addQuotes); break;
-                case Complex veryLongInt:    sb.AppendFormattedOrNull(veryLongInt, formatString, addQuotes); break;
-                case DateTime valueDateTime: sb.AppendFormattedOrNull(valueDateTime, formatString, addQuotes); break;
-                case DateOnly valueDateOnly: sb.AppendFormattedOrNull(valueDateOnly, formatString, addQuotes); break;
-                case TimeSpan valueTimeSpan: sb.AppendFormattedOrNull(valueTimeSpan, formatString, addQuotes); break;
-                case TimeOnly valueTimeSpan: sb.AppendFormattedOrNull(valueTimeSpan, formatString, addQuotes); break;
-                case Rune valueTimeSpan:     sb.AppendFormattedOrNull(valueTimeSpan, formatString, addQuotes); break;
-                case Guid valueGuid:         sb.AppendFormattedOrNull(valueGuid, formatString, addQuotes); break;
-                case IPNetwork valueIntPtr:  sb.AppendFormattedOrNull(valueIntPtr, formatString, addQuotes); break;
+                case byte valueByte:         stb.AppendFormattedOrNull(valueByte, formatString, addQuotes); break;
+                case sbyte valueSByte:       stb.AppendFormattedOrNull(valueSByte, formatString, addQuotes); break;
+                case char valueChar:         stb.AppendFormattedOrNull(valueChar, formatString, addQuotes); break;
+                case short valueShort:       stb.AppendFormattedOrNull(valueShort, formatString, addQuotes); break;
+                case ushort valueUShort:     stb.AppendFormattedOrNull(valueUShort, formatString, addQuotes); break;
+                case Half valueHalfFloat:    stb.AppendFormattedOrNull(valueHalfFloat, formatString, addQuotes); break;
+                case int valueInt:           stb.AppendFormattedOrNull(valueInt, formatString, addQuotes); break;
+                case uint valueUInt:         stb.AppendFormattedOrNull(valueUInt, formatString, addQuotes); break;
+                case nint valueUInt:         stb.AppendFormattedOrNull(valueUInt, formatString, addQuotes); break;
+                case float valueFloat:       stb.AppendFormattedOrNull(valueFloat, formatString, addQuotes); break;
+                case long valueLong:         stb.AppendFormattedOrNull(valueLong, formatString, addQuotes); break;
+                case ulong valueULong:       stb.AppendFormattedOrNull(valueULong, formatString, addQuotes); break;
+                case double valueDouble:     stb.AppendFormattedOrNull(valueDouble, formatString, addQuotes); break;
+                case decimal valueDecimal:   stb.AppendFormattedOrNull(valueDecimal, formatString, addQuotes); break;
+                case Int128 veryLongInt:     stb.AppendFormattedOrNull(veryLongInt, formatString, addQuotes); break;
+                case UInt128 veryLongUInt:   stb.AppendFormattedOrNull(veryLongUInt, formatString, addQuotes); break;
+                case BigInteger veryLongInt: stb.AppendFormattedOrNull(veryLongInt, formatString, addQuotes); break;
+                case Complex veryLongInt:    stb.AppendFormattedOrNull(veryLongInt, formatString, addQuotes); break;
+                case DateTime valueDateTime: stb.AppendFormattedOrNull(valueDateTime, formatString, addQuotes); break;
+                case DateOnly valueDateOnly: stb.AppendFormattedOrNull(valueDateOnly, formatString, addQuotes); break;
+                case TimeSpan valueTimeSpan: stb.AppendFormattedOrNull(valueTimeSpan, formatString, addQuotes); break;
+                case TimeOnly valueTimeSpan: stb.AppendFormattedOrNull(valueTimeSpan, formatString, addQuotes); break;
+                case Rune valueTimeSpan:     stb.AppendFormattedOrNull(valueTimeSpan, formatString, addQuotes); break;
+                case Guid valueGuid:         stb.AppendFormattedOrNull(valueGuid, formatString, addQuotes); break;
+                case IPNetwork valueIntPtr:  stb.AppendFormattedOrNull(valueIntPtr, formatString, addQuotes); break;
                 case char[] valueCharArray:  stb.AppendOrNull(valueCharArray, addQuotes); break;
                 case string valueString:     sb.AppendFormat(formatString, valueString); break;
-                case Version valueGuid:      sb.AppendSpanFormattableClass(valueGuid, formatString, addQuotes); break;
-                case IPAddress valueIntPtr:  sb.AppendSpanFormattableClass(valueIntPtr, formatString, addQuotes); break;
-                case Uri valueUri:           sb.AppendSpanFormattableClass(valueUri, formatString, addQuotes); break;
+                case Version valueGuid:      sb.AppendFormatted(valueGuid, formatString, addQuotes); break;
+                case IPAddress valueIntPtr:  sb.AppendFormatted(valueIntPtr, formatString, addQuotes); break;
+                case Uri valueUri:           sb.AppendFormatted(valueUri, formatString, addQuotes); break;
 
                 case IFrozenString valueFrozenString:   stb.AppendFormattedOrNull(valueFrozenString, formatString, addQuotes); break;
                 case IStringBuilder valueStringBuilder: stb.AppendFormattedOrNull(valueStringBuilder, formatString, addQuotes); break;
@@ -620,6 +730,72 @@ public static class StyledTypeBuilderExtensions
         return sb;
     }
 
+    public static TExt AppendCollectionItemMatchOrNull<TValue, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, TValue value, int retrieveCount)
+        where TExt : StyledTypeBuilder
+    {
+        if (value != null)
+            switch (value)
+            {
+                case bool valueBool:         stb.AppendCollectionItem(valueBool, retrieveCount); break;
+                case byte valueByte:         stb.AppendCollectionItem(valueByte, retrieveCount); break;
+                case sbyte valueSByte:       stb.AppendCollectionItem(valueSByte, retrieveCount); break;
+                case char valueChar:         stb.AppendCollectionItem(valueChar, retrieveCount); break;
+                case short valueShort:       stb.AppendCollectionItem(valueShort, retrieveCount); break;
+                case ushort valueUShort:     stb.AppendCollectionItem(valueUShort, retrieveCount); break;
+                case Half valueHalfFloat:    stb.AppendCollectionItem(valueHalfFloat, retrieveCount); break;
+                case int valueInt:           stb.AppendCollectionItem(valueInt, retrieveCount); break;
+                case uint valueUInt:         stb.AppendCollectionItem(valueUInt, retrieveCount); break;
+                case nint valueUInt:         stb.AppendCollectionItem(valueUInt, retrieveCount); break;
+                case float valueFloat:       stb.AppendCollectionItem(valueFloat, retrieveCount); break;
+                case long valueLong:         stb.AppendCollectionItem(valueLong, retrieveCount); break;
+                case ulong valueULong:       stb.AppendCollectionItem(valueULong, retrieveCount); break;
+                case double valueDouble:     stb.AppendCollectionItem(valueDouble, retrieveCount); break;
+                case decimal valueDecimal:   stb.AppendCollectionItem(valueDecimal, retrieveCount); break;
+                case Int128 veryLongInt:     stb.AppendCollectionItem(veryLongInt, retrieveCount); break;
+                case UInt128 veryLongUInt:   stb.AppendCollectionItem(veryLongUInt, retrieveCount); break;
+                case BigInteger veryLongInt: stb.AppendCollectionItem(veryLongInt, retrieveCount); break;
+                case Complex veryLongInt:    stb.AppendCollectionItem(veryLongInt, retrieveCount); break;
+                case DateTime valueDateTime: stb.AppendCollectionItem(valueDateTime, retrieveCount); break;
+                case DateOnly valueDateOnly: stb.AppendCollectionItem(valueDateOnly, retrieveCount); break;
+                case TimeSpan valueTimeSpan: stb.AppendCollectionItem(valueTimeSpan, retrieveCount); break;
+                case TimeOnly valueTimeSpan: stb.AppendCollectionItem(valueTimeSpan, retrieveCount); break;
+                case Rune valueTimeSpan:     stb.AppendCollectionItem(valueTimeSpan, retrieveCount); break;
+                case Guid valueGuid:         stb.AppendCollectionItem(valueGuid, retrieveCount); break;
+                case IPNetwork valueIntPtr:  stb.AppendCollectionItem(valueIntPtr, retrieveCount); break;
+                case char[] valueCharArray:  stb.AppendCollectionItem(valueCharArray, retrieveCount); break;
+                case string valueString:     stb.AppendCollectionItem(valueString, retrieveCount); break;
+                case Version valueGuid:      stb.AppendCollectionItem(valueGuid, retrieveCount); break;
+                case IPAddress valueIntPtr:  stb.AppendCollectionItem(valueIntPtr, retrieveCount); break;
+                case Uri valueUri:           stb.AppendCollectionItem(valueUri, retrieveCount); break;
+
+                case IFrozenString valueFrozenString:  stb.AppendCollectionItem(valueFrozenString, retrieveCount); break;
+                case IStringBuilder valueFrozenString: stb.AppendCollectionItem(valueFrozenString, retrieveCount); break;
+                case StringBuilder valueFrozenString:  stb.AppendCollectionItem(valueFrozenString, retrieveCount); break;
+
+                case IStyledToStringObject styledToStringObject: stb.AppendOrNull(styledToStringObject); break;
+                case IEnumerator:
+                case IEnumerable:
+                    var type = value.GetType();
+                    if (type.IsGenericType && type.IsKeyedCollection())
+                    {
+                        var keyedCollectionBuilder = stb.OwningAppender.StartKeyedCollectionType(value, "");
+                        KeyedCollectionGenericAddAllInvoker.CallAddAll(keyedCollectionBuilder, value);
+                        keyedCollectionBuilder.Complete();
+                        break;
+                    }
+
+                    var orderedCollectionBuilder = stb.OwningAppender.StartSimpleCollectionType(value, "");
+                    SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll(orderedCollectionBuilder, value!);
+                    orderedCollectionBuilder.Complete();
+                    break;
+
+                default: stb.AppendCollectionItem(value, retrieveCount); break;
+            }
+        else
+            stb.Sb.Append(Null);
+        return stb.StyleTypeBuilder;
+    }
+
     public static TExt AddNullOrValue<TValue, TExt>(this IStringBuilder sb, TValue value
       , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
         where TExt : StyledTypeBuilder
@@ -656,9 +832,9 @@ public static class StyledTypeBuilderExtensions
                 case IPNetwork valueIntPtr:  sb.Append(valueIntPtr, addQuotes); break;
                 case char[] valueCharArray:  stb.AppendOrNull(valueCharArray, addQuotes); break;
                 case string valueString:     stb.AppendOrNull(valueString, addQuotes); break;
-                case Version valueGuid:      sb.AppendSpanFormattableClass(valueGuid, "{0}", addQuotes); break;
-                case IPAddress valueIntPtr:  sb.AppendSpanFormattableClass(valueIntPtr, "{0}", addQuotes); break;
-                case Uri valueUri:           sb.AppendSpanFormattableClass(valueUri, "{0}", addQuotes); break;
+                case Version valueGuid:      sb.AppendFormatted(valueGuid, "{0}", addQuotes); break;
+                case IPAddress valueIntPtr:  sb.AppendFormatted(valueIntPtr, "{0}", addQuotes); break;
+                case Uri valueUri:           sb.AppendFormatted(valueUri, "{0}", addQuotes); break;
 
                 case IFrozenString valueFrozenString:  stb.AppendOrNull(valueFrozenString, addQuotes); break;
                 case IStringBuilder valueFrozenString: stb.AppendOrNull(valueFrozenString, addQuotes); break;

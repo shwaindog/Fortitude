@@ -118,32 +118,27 @@ public interface ICustomStringFormatter
     int FormatCollection<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
         where TFmt : struct, ISpanFormattable;
 
-    int FormatCollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems);
-    int FormatCollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems);
+    int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems);
+    int CollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems);
 
-    int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : ISpanFormattable;
+    int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : ISpanFormattable;
 
-    int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString)
+    int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString)
         where TFmt : ISpanFormattable;
 
-    int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString)
+    int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString)
         where TFmt : struct, ISpanFormattable;
 
-    int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString)
+    int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString)
         where TFmt : struct, ISpanFormattable;
 
-    int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb) where TFmt : ISpanFormattable;
-    int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex) where TFmt : ISpanFormattable;
-
-    int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb) where TFmt : struct, ISpanFormattable;
-
-    int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex)
-        where TFmt : struct, ISpanFormattable;
+    int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb);
+    int CollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex);
 
 
-    int FormatCollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount);
+    int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount);
     
-    int FormatCollectionEnd(Type collectionType, Span<char> destination, int index, int totalItemCount);
+    int CollectionEnd(Type collectionType, Span<char> destination, int index, int totalItemCount);
 
 
     public static ICustomStringFormatter DefaultBufferFormatter { get; set; } = new DefaultStringFormatter();

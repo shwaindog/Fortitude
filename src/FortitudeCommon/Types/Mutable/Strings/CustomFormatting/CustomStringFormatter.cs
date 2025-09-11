@@ -43,6 +43,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         }
     }
 
+    protected MutableString? CharSpanCollectionScratchBuffer { get; set; }
+
     public string ItemSeparator { get; set; } = ", ";
 
     public bool IgnoreNullableValues { get; set; } = false;
@@ -652,16 +654,14 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public abstract int FormatCollection<TFmt>(IEnumerator<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null) where TFmt : ISpanFormattable;
     public abstract int FormatCollection<TFmt>(IEnumerator<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : struct, ISpanFormattable;
     public abstract int FormatCollection<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null) where TFmt : struct, ISpanFormattable;
-    public abstract int FormatCollectionStart(Type collectionType, IStringBuilder sb, bool hasItems);
-    public abstract int FormatCollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems);
-    public abstract int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : ISpanFormattable;
-    public abstract int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString) where TFmt : ISpanFormattable;
-    public abstract int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : struct, ISpanFormattable;
-    public abstract int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString) where TFmt : struct, ISpanFormattable;
-    public abstract int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb) where TFmt : ISpanFormattable;
-    public abstract int FormatCollectionNextItem<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex) where TFmt : ISpanFormattable;
-    public abstract int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb) where TFmt : struct, ISpanFormattable;
-    public abstract int FormatCollectionNextItem<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex) where TFmt : struct, ISpanFormattable;
-    public abstract int FormatCollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount);
-    public abstract int FormatCollectionEnd(Type collectionType, Span<char> destination, int index, int totalItemCount);
+    public abstract int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems);
+    public abstract int CollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems);
+    public abstract int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : ISpanFormattable;
+    public abstract int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString) where TFmt : ISpanFormattable;
+    public abstract int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : struct, ISpanFormattable;
+    public abstract int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString) where TFmt : struct, ISpanFormattable;
+    public abstract int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb);
+    public abstract int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destination, int destStartIndex);
+    public abstract int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount);
+    public abstract int CollectionEnd(Type collectionType, Span<char> destination, int index, int totalItemCount);
 }

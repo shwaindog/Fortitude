@@ -28,7 +28,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -56,7 +56,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                stb.Sb.AppendOrNull(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -87,9 +87,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(value[i], itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(value[i], itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -120,9 +121,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(value[i], itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(value[i], itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -182,9 +184,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -196,7 +199,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     public TExt WhenPopulatedWithFilterCharSequence<TCharSeq>
-        (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate)
+        (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -214,7 +218,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -225,7 +232,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var found       = false;
@@ -242,7 +250,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                stb.Sb.Append(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -253,7 +264,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    [CallsObjectToString]
     public TExt WhenPopulatedWithFilterMatch<T, TBase>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where T : TBase
@@ -273,9 +283,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -304,7 +315,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                stb.Sb.Append(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -332,7 +343,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                stb.Sb.AppendOrNull(item);
+                stb.AppendCollectionItem(item, i);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -362,9 +373,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItem(value[i], itemCount, formatString);
+                else
+                    stb.AppendCollectionItem(value[i], itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)
@@ -545,9 +557,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection(elementType, true);
                     found = true;
                 }
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendObjectOrNull(item);
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         if (found)

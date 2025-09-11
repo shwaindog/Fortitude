@@ -34,7 +34,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
     public TExt FieldValueNext<TFmt>(string nonJsonfieldName, TFmt? value, string? formatString = null) where TFmt : ISpanFormattable
     {
         var sb= (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb);
-        if (formatString != null) sb.AppendFormattedOrNull(value, formatString);
+        if (formatString != null) this.AppendFormattedOrNull(value, formatString);
         else sb.AddNullOrValue(value, this, false);
         return ConditionalCollectionSuffix();
     }
@@ -99,7 +99,7 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
     public TExt FieldStringNext<TFmt>(string nonJsonfieldName, TFmt? value, string? formatString = null) where TFmt : ISpanFormattable
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        if(formatString != null) Sb.AppendFormattedOrNull(value, formatString, true);
+        if(formatString != null) this.AppendFormattedOrNull(value, formatString, true);
         else Sb.Append("\"").AppendOrNull(value).Append("\"");
         return ConditionalCollectionSuffix();
     }

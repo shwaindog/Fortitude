@@ -51,14 +51,14 @@ public class PrettyJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatti
                                 , typeBuilder.OwningAppender.Settings.IndentRepeat(typeBuilder.OwningAppender.IndentLevel));
     }
     
-    public override int FormatCollectionStart(Type elementType, IStringBuilder sb, bool hasItems)
+    public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems)
     {
         if (elementType == typeof(char) && CharArrayWritesString) return sb.Append("\"").ReturnCharCount(1);
         if (elementType == typeof(byte) && ByteArrayWritesBase64String) return sb.Append("\"").ReturnCharCount(1);
         return sb.Append("[").ReturnCharCount(1);
     }
 
-    public override int FormatCollectionStart(Type elementType, Span<char> destination, int destStartIndex, bool hasItems)
+    public override int CollectionStart(Type elementType, Span<char> destination, int destStartIndex, bool hasItems)
     {
         if (elementType == typeof(char) && CharArrayWritesString) return destination.OverWriteAt(destStartIndex, "\"");
         if (elementType == typeof(byte) && ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, "\"");
@@ -79,10 +79,10 @@ public class PrettyJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatti
         return charSpan.OverWriteAt(atIndex, ", ");
     }
 
-    public IStringBuilder AddCollectionElementSeparator<TTypeBuilder, TItem>(TTypeBuilder typeBuilder, TItem lastItem, int nextItemNumber)
+    public IStringBuilder AddCollectionElementSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, Type elementType, int nextItemNumber)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess
     {
-        base.AddCollectionElementSeparator(typeof(TItem), typeBuilder.Sb, nextItemNumber);
+        base.AddCollectionElementSeparator(elementType, typeBuilder.Sb, nextItemNumber);
         if (typeBuilder.Settings.EnableColumnContentWidthWrap)
         {
             if (typeBuilder.Settings.PrettyCollectionsColumnContentWidthWrap < typeBuilder.Sb.LineContentWidth)
@@ -108,12 +108,12 @@ public class PrettyJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatti
     {
         if (itemElementType == typeof(char) && CharArrayWritesString)
         {
-            FormatCollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
+            CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
             return typeBuilder.Sb;
         }
         if (itemElementType == typeof(byte) && ByteArrayWritesBase64String)
         {
-            FormatCollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
+            CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
             return typeBuilder.Sb;
         }
         

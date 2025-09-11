@@ -26,7 +26,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatCollectionEnd<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType, int totalItemCount) 
         where TTypeBuilder : IStyleTypeBuilderComponentAccess;
     
-    IStringBuilder AddCollectionElementSeparator<TTypeBuilder, TItem>(TTypeBuilder typeBuilder, TItem lastItem, int nextItemNumber)
+    IStringBuilder AddCollectionElementSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, Type elementType, int nextItemNumber)
         where TTypeBuilder : IStyleTypeBuilderComponentAccess;
 
     IStringBuilder AddNextFieldSeparator<TTypeBuilder, TItem>(TTypeBuilder typeBuilder, TItem lastItem, int nextItemNumber)

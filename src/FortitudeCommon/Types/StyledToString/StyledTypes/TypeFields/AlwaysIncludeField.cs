@@ -40,9 +40,6 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
         stb.SkipBody ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName, stb).AppendOrNull(value, customTypeStyler).AddGoToNext(stb);
 
-    public TExt AlwaysAdd<TEnum>(string fieldName, TEnum? value) where TEnum : Enum =>
-        stb.SkipBody ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName, stb).AppendOrNull(value).AddGoToNext(stb);
-
     public TExt AlwaysAdd(string fieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipBody
@@ -109,11 +106,11 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 
     public TExt AlwaysAddWithFormatting<TFmt>(string fieldName, TFmt value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TFmt : ISpanFormattable =>
-        stb.SkipBody ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
+        stb.SkipBody ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
 
     public TExt AlwaysAddWithFormatting<TFmt>(string fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TFmt : struct, ISpanFormattable =>
-        stb.SkipBody ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
+        stb.SkipBody ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
 
     public TExt AlwaysAddWithFormatting(string fieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
