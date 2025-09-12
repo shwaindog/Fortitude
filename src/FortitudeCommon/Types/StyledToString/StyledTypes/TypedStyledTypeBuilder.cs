@@ -33,16 +33,10 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
 
     public override void Start()
     {
-        if ( !CompAccess.Style.IsJson()
-         && !PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeNameFlag()
-         && PortableState.TypeName.IsNotNullOrEmpty())
-        {
-            CompAccess.Sb.Append(PortableState.TypeName).Append(" ");
-        }
         if (!PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeStartFlag())
         {
-            CompAccess.Sb.Append(TypeOpeningDelimiter);
-            CompAccess.IncrementIndent();
+            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, PortableState.TypeName);
+            AppendRefIdIfAny();
         }
     }
 
@@ -62,6 +56,16 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
         PortableState.CompleteResult = result;
         CompAccess.OwningAppender.TypeComplete(CompAccess);
         return result;
+    }
+
+    protected bool AppendRefIdIfAny()
+    {
+        if (CompAccess.StyleTypeBuilder.ExistingRefId != 0)
+        {
+            CompAccess.Sb.Append("\"$ref\":\"").Append(CompAccess.StyleTypeBuilder.ExistingRefId).Append("\" ");
+            return true;
+        }
+        return false;
     }
 
 

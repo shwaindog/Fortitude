@@ -12,7 +12,8 @@ public class CollectionBuilderCompAccess<TExt> : InternalStyledTypeBuilderCompon
     {
         Initialize(externalTypeBuilder, typeBuilderPortableState);
 
-        CollectionInComplexType = isComplex && typeBuilderPortableState.OwningAppender.Style.AllowsUnstructured();
+        CollectionInComplexType = 
+            isComplex && typeBuilderPortableState.OwningAppender.Style.AllowsUnstructured() || externalTypeBuilder.ExistingRefId > 0;
         
         return this;
     }
@@ -21,7 +22,7 @@ public class CollectionBuilderCompAccess<TExt> : InternalStyledTypeBuilderCompon
     {
         if (CollectionInComplexType)
         {
-            Sb.Append("_original: [");
+            Sb.Append("$values: [");
         }
     }
 

@@ -21,7 +21,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null
       , ICustomStringFormatter? customStringFormatter = null);
     
-    T Append(bool value);
+    T Append(bool value, ICustomStringFormatter? customStringFormatter = null);
     T Append(byte value);
     T Append(char value);
     T Append(char value, int repeatCount);

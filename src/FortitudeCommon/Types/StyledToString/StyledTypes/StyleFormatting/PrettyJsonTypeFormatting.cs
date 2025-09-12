@@ -7,82 +7,83 @@ using FortitudeCommon.Types.Mutable.Strings.CustomFormatting;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 
-public class PrettyJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatting
+public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 {
-    public string Name => nameof(CompactJsonTypeFormatting);
+    protected const string CmaSpc = ", ";
+    protected const string ClnSpc = ": ";
+    
+    public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public IStringBuilder AppendTypeOpening<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess
+    public override IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, string? typeName = null)
     {
         typeBuilder.IncrementIndent();
-        return typeBuilder.Sb.Append("{")
+        return (typeBuilder.Sb.Append(BrcOpn)
                           .Append(typeBuilder.OwningAppender.Settings.NewLineStyle)
                           .Append(typeBuilder.OwningAppender.Settings.IndentChar
-                                , typeBuilder.OwningAppender.Settings.IndentRepeat(typeBuilder.OwningAppender.IndentLevel));
+                                , typeBuilder.OwningAppender.Settings.IndentRepeat(typeBuilder.OwningAppender.IndentLevel)))
+            .ToInternalTypeBuilder(typeBuilder);
     }
 
-    public IStringBuilder AppendFieldName<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
-        typeBuilder.Sb.Append("\"").Append(fieldName).Append("\"");
+    public override IStyleTypeBuilderComponentAccess<TB> AppendFieldValueSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder) =>
+        typeBuilder.Sb.Append(ClnSpc).ToInternalTypeBuilder(typeBuilder);
 
-    public IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess =>
-        typeBuilder.Sb.Append(": ");
+    public override IStyleTypeBuilderComponentAccess<TB> AddNextFieldSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder) => 
+        typeBuilder.Sb.Append(CmaSpc).ToInternalTypeBuilder(typeBuilder);
 
-    public IStringBuilder AddNextFieldSeparator<TTypeBuilder>(TTypeBuilder typeBuilder)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess => typeBuilder.Sb.Append(", ");
-
-    public IStringBuilder AppendTypeClosing<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess
+    public override IStyleTypeBuilderComponentAccess<TB> AppendTypeClosing<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
     {
         typeBuilder.DecrementIndent();
-        return typeBuilder.Sb.Append(typeBuilder.OwningAppender.Settings.NewLineStyle)
+        return (typeBuilder.Sb.Append(typeBuilder.OwningAppender.Settings.NewLineStyle)
                    .Append(typeBuilder.OwningAppender.Settings.IndentChar
                          , typeBuilder.OwningAppender.Settings.IndentRepeat(typeBuilder.OwningAppender.IndentLevel))
-                   .Append("}");
+                   .Append(BrcCls))
+            .ToInternalTypeBuilder(typeBuilder);;
     }
     
-    public IStringBuilder FormatCollectionStart<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType
-      , bool hasItems) where TTypeBuilder : IStyleTypeBuilderComponentAccess
+    public override IStyleTypeBuilderComponentAccess<TB> FormatCollectionStart<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type itemElementType
+      , bool hasItems, Type collectionType)
     {
-        if (itemElementType == typeof(char) && CharArrayWritesString) return typeBuilder.Sb.Append("\"");
-        if (itemElementType == typeof(byte) && ByteArrayWritesBase64String) return typeBuilder.Sb.Append("\"");
+        if (itemElementType == typeof(char) && CharArrayWritesString) return typeBuilder.Sb.Append(DblQt).ToInternalTypeBuilder(typeBuilder);
+        if (itemElementType == typeof(byte) && ByteArrayWritesBase64String) return typeBuilder.Sb.Append(DblQt).ToInternalTypeBuilder(typeBuilder);
         
         typeBuilder.IncrementIndent();
 
-        return typeBuilder.Sb.Append("[")
+        return (typeBuilder.Sb.Append(SqBrktOpn)
                           .Append(typeBuilder.OwningAppender.Settings.NewLineStyle)
                           .Append(typeBuilder.OwningAppender.Settings.IndentChar
-                                , typeBuilder.OwningAppender.Settings.IndentRepeat(typeBuilder.OwningAppender.IndentLevel));
+                                , typeBuilder.OwningAppender.Settings.IndentRepeat(typeBuilder.OwningAppender.IndentLevel)))
+            .ToInternalTypeBuilder(typeBuilder);
     }
     
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems)
     {
-        if (elementType == typeof(char) && CharArrayWritesString) return sb.Append("\"").ReturnCharCount(1);
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return sb.Append("\"").ReturnCharCount(1);
-        return sb.Append("[").ReturnCharCount(1);
+        if (elementType == typeof(char) && CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
+        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
+        return sb.Append(SqBrktOpn).ReturnCharCount(1);
     }
 
     public override int CollectionStart(Type elementType, Span<char> destination, int destStartIndex, bool hasItems)
     {
-        if (elementType == typeof(char) && CharArrayWritesString) return destination.OverWriteAt(destStartIndex, "\"");
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, "\"");
-        return destination.OverWriteAt(destStartIndex, "[");
+        if (elementType == typeof(char) && CharArrayWritesString) return destination.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, DblQt);
+        return destination.OverWriteAt(destStartIndex, SqBrktOpn);
     }
     
     public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber)
     {
         if (collectionElementType == typeof(char) && CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && ByteArrayWritesBase64String) return 0;
-        return sb.Append(", ").ReturnCharCount(1);
+        return sb.Append(CmaSpc).ReturnCharCount(1);
     }
 
     public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> charSpan, int atIndex, int nextItemNumber) 
     {
         if (collectionElementType == typeof(char) && CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && ByteArrayWritesBase64String) return 0;
-        return charSpan.OverWriteAt(atIndex, ", ");
+        return charSpan.OverWriteAt(atIndex, CmaSpc);
     }
 
-    public IStringBuilder AddCollectionElementSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, Type elementType, int nextItemNumber)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess
+    public override IStyleTypeBuilderComponentAccess<TB> AddCollectionElementSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type elementType, int nextItemNumber)
     {
         base.AddCollectionElementSeparator(elementType, typeBuilder.Sb, nextItemNumber);
         if (typeBuilder.Settings.EnableColumnContentWidthWrap)
@@ -95,21 +96,20 @@ public class PrettyJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatti
                                  , typeBuilder.OwningAppender.Settings.IndentRepeat(typeBuilder.OwningAppender.IndentLevel));
             }
         }
-        return typeBuilder.Sb;
+        return typeBuilder;
     }
 
-    public IStringBuilder FormatCollectionEnd<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType, int totalItemCount)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess
+    public override IStyleTypeBuilderComponentAccess<TB> FormatCollectionEnd<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type itemElementType, int totalItemCount)
     {
         if (itemElementType == typeof(char) && CharArrayWritesString)
         {
             CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
-            return typeBuilder.Sb;
+            return typeBuilder;
         }
         if (itemElementType == typeof(byte) && ByteArrayWritesBase64String)
         {
             CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
-            return typeBuilder.Sb;
+            return typeBuilder;
         }
         
         typeBuilder.DecrementIndent();
@@ -117,6 +117,6 @@ public class PrettyJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatti
                    .Append(typeBuilder.OwningAppender.Settings.IndentChar
                          , typeBuilder.OwningAppender.Settings.IndentRepeat(typeBuilder.OwningAppender.IndentLevel));
         
-        return typeBuilder.Sb.Append("]");
+        return typeBuilder.Sb.Append(SqBrktCls).ToInternalTypeBuilder(typeBuilder);
     }
 }

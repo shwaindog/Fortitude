@@ -107,6 +107,14 @@ public static class IStringBuilderExtensions
         return toExtend;
     }
 
+    public static IStringBuilder InsertAt(this IStringBuilder toExtend, Span<char> source, int insertIndex = 0, int count = int.MaxValue)
+    {
+        var cappedLength = Math.Min(source.Length, count);
+        toExtend.ShiftRightAt(insertIndex, cappedLength);
+        toExtend.OverwriteAt(insertIndex, source, cappedLength);
+        return toExtend;
+    }
+
     public static IStringBuilder OverwriteAt(this IStringBuilder toWriteTo, int insertIndex, StringBuilder source)
     {
         var endSizeDiff = source.Length - (toWriteTo.Length - insertIndex);
@@ -129,6 +137,20 @@ public static class IStringBuilderExtensions
             toWriteTo.Length += endSizeDiff;
         }
         for (var i = 0; i < source.Length; i++)
+        {
+            toWriteTo[insertIndex + i] = source[i];
+        }
+        return toWriteTo;
+    }
+
+    public static IStringBuilder OverwriteAt(this IStringBuilder toWriteTo, int insertIndex, Span<char> source, int length)
+    {
+        var endSizeDiff = source.Length - (toWriteTo.Length - insertIndex);
+        if (endSizeDiff > 0)
+        {
+            toWriteTo.Length += endSizeDiff;
+        }
+        for (var i = 0; i < source.Length && i < length; i++)
         {
             toWriteTo[insertIndex + i] = source[i];
         }

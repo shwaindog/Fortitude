@@ -9,9 +9,13 @@ public struct StyleOptionsValue
 {
     private StyleOptions? fallbackOptions;
 
+    public const string DefaultYyyyMMddTossFormat = "{0:yyyy-MM-ddTHH:mm:ss}";
+    public const string DefaultYyyyMMddTomsFormat = "{0:yyyy-MMd-dTHH:mm:ss.fff}";
+    public const string DefaultYyyyMMddTousFormat = "{0:yyyy-MM-ddTHH:mm:ss.ffffff}";
+
     public StyleOptionsValue(StringBuildingStyle style) => this.style = style;
     public StyleOptionsValue(StyleOptions defaultOptions) => fallbackOptions = defaultOptions;
-    
+
     public StyleOptionsValue(StringBuildingStyle style = StringBuildingStyle.Default, int indentSize = 2, char indentChar = ' '
       , bool byteSequenceToBase64 = true, bool disableCircularRefCheck = false, bool charSArraysAsString = false)
     {
@@ -36,24 +40,30 @@ public struct StyleOptionsValue
     private int?    prettyCollectionsColumnCountWrap;
     private bool?   enableColumnWrap;
 
+    private TimeStyleFormat? dateTimeFormat;
+
+    private string? dateTimeYyyyMMddTossFormat;
+    private string? dateTimeYyyyMMddTomsFormat;
+    private string? dateTimeYyyyMMddTousFormat;
+
     public StringBuildingStyle Style
     {
         readonly get => style ?? fallbackOptions?.Values.Style ?? StringBuildingStyle.Default;
         set => style = value;
     }
-    
+
     public char IndentChar
     {
         get => indentChar ?? fallbackOptions?.Values.IndentChar ?? ' ';
         set => indentChar = value;
     }
-    
+
     public int IndentSize
     {
         get => indentSize ?? fallbackOptions?.Values.IndentSize ?? 2;
         set => indentSize = value;
     }
-    
+
     public int IndentRepeat(int indentLevel) => indentLevel * IndentSize;
 
     public string NewLineStyle
@@ -64,8 +74,32 @@ public struct StyleOptionsValue
 
     public string NullStyle
     {
-        readonly get => nullStyle ??  fallbackOptions?.Values.NullStyle ?? "null";
+        readonly get => nullStyle ?? fallbackOptions?.Values.NullStyle ?? "null";
         set => nullStyle = value;
+    }
+
+    public TimeStyleFormat DateTimeFormat
+    {
+        readonly get => dateTimeFormat ?? fallbackOptions?.Values.DateTimeFormat ?? TimeStyleFormat.StringYyyyMMddToss;
+        set => dateTimeFormat = value;
+    }
+
+    public string DateTimeStringYyyyMMddTossFormatString
+    {
+        readonly get => dateTimeYyyyMMddTossFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddTossFormatString ?? DefaultYyyyMMddTossFormat;
+        set => dateTimeYyyyMMddTossFormat = value;
+    }
+
+    public string DateTimeStringYyyyMMddTomsFormatString
+    {
+        readonly get => dateTimeYyyyMMddTomsFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddTossFormatString ?? DefaultYyyyMMddTomsFormat;
+        set => dateTimeYyyyMMddTomsFormat = value;
+    }
+
+    public string DateTimeStringYyyyMMddTousFormatString
+    {
+        readonly get => dateTimeYyyyMMddTousFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddTossFormatString ?? DefaultYyyyMMddTousFormat;
+        set => dateTimeYyyyMMddTousFormat = value;
     }
 
     public bool DisableCircularRefCheck
@@ -73,7 +107,7 @@ public struct StyleOptionsValue
         get => disableCircularRefCheck ?? fallbackOptions?.Values.DisableCircularRefCheck ?? false;
         set => disableCircularRefCheck = value;
     }
-    
+
     public bool CharSArraysAsString
     {
         get => charSArraysAsString ?? fallbackOptions?.Values.CharSArraysAsString ?? false;
@@ -111,7 +145,6 @@ public struct StyleOptionsValue
     }
 }
 
-
 public class StyleOptions(StyleOptionsValue initialValues)
 {
     private StyleOptionsValue values = initialValues;
@@ -126,13 +159,13 @@ public class StyleOptions(StyleOptionsValue initialValues)
         get => values.Style;
         set => values.Style = value;
     }
-    
+
     public char IndentChar
     {
         get => values.IndentChar;
         set => values.IndentChar = value;
     }
-    
+
     public int IndentSize
     {
         get => values.IndentSize;
@@ -156,9 +189,9 @@ public class StyleOptions(StyleOptionsValue initialValues)
             IndentSize = value.Length;
         }
     }
-    
+
     public int IndentRepeat(int indentLevel) => values.IndentRepeat(indentLevel);
-    
+
     public string NewLineStyle
     {
         get => values.NewLineStyle;
@@ -171,12 +204,36 @@ public class StyleOptions(StyleOptionsValue initialValues)
         set => values.NullStyle = value;
     }
 
+    public TimeStyleFormat DateTimeFormat
+    {
+        get => values.DateTimeFormat;
+        set => values.DateTimeFormat = value;
+    }
+
+    public string DateTimeStringYyyyMMddTossFormatString
+    {
+        get => values.DateTimeStringYyyyMMddTossFormatString;
+        set => values.DateTimeStringYyyyMMddTossFormatString = value;
+    }
+
+    public string DateTimeStringYyyyMMddTomsFormatString
+    {
+        get => values.DateTimeStringYyyyMMddTomsFormatString;
+        set => values.DateTimeStringYyyyMMddTomsFormatString = value;
+    }
+
+    public string DateTimeStringYyyyMMddTousFormatString
+    {
+        get => values.DateTimeStringYyyyMMddTousFormatString;
+        set => values.DateTimeStringYyyyMMddTousFormatString = value;
+    }
+
     public bool DisableCircularRefCheck
     {
         get => values.DisableCircularRefCheck;
         set => values.DisableCircularRefCheck = value;
     }
-    
+
     public bool CharSArraysAsString
     {
         get => values.CharSArraysAsString;
@@ -212,5 +269,4 @@ public class StyleOptions(StyleOptionsValue initialValues)
         get => values.PrettyCollectionsColumnContentWidthWrap;
         set => values.PrettyCollectionsColumnContentWidthWrap = value;
     }
-    
 }

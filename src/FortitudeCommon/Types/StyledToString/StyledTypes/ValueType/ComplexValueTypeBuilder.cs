@@ -13,19 +13,19 @@ public class ComplexValueTypeBuilder : ValueTypeBuilder<ComplexValueTypeBuilder>
     private SelectTypeField<ComplexValueTypeBuilder>?           logOnlyInternalField;
 
     public ComplexValueTypeBuilder InitializeComplexValueTypeBuilder
-        (
-            Type typeBeingBuilt
-          , IStyleTypeAppenderBuilderAccess owningAppender
-          , TypeAppendSettings typeSettings
-          , string typeName
-          , IStyledTypeFormatting typeFormatting  
-          , int existingRefId)
+    (
+        Type typeBeingBuilt
+      , IStyleTypeAppenderBuilderAccess owningAppender
+      , TypeAppendSettings typeSettings
+      , string typeName
+      , IStyledTypeFormatting typeFormatting
+      , int existingRefId)
     {
-        InitializeValueTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
+        InitializeValueTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting, existingRefId);
 
         return this;
     }
-    
+
     protected override string TypeOpeningDelimiter => Stb.ValueInComplexType ? "{" : "";
     protected override string TypeClosingDelimiter => Stb.ValueInComplexType ? "}" : "";
 
@@ -35,17 +35,17 @@ public class ComplexValueTypeBuilder : ValueTypeBuilder<ComplexValueTypeBuilder>
         CompAccess = recycler.Borrow<ValueBuilderCompAccess<ComplexValueTypeBuilder>>()
                              .InitializeValueBuilderCompAccess(this, PortableState, true);
     }
-    
 
-    public SelectTypeField<ComplexValueTypeBuilder>? LogOnlyField =>
-        logOnlyInternalField ??= StyleSettings.Style.AllowsUnstructured()
-            ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeField<ComplexValueTypeBuilder>>().Initialize(CompAccess)
-            : null;
 
-    public SelectTypeCollectionField<ComplexValueTypeBuilder>? LogOnlyCollectionField =>
-        logOnlyInternalCollectionField ??= StyleSettings.Style.AllowsUnstructured()
-            ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeCollectionField<ComplexValueTypeBuilder>>().Initialize(CompAccess)
-            : null;
+    public SelectTypeField<ComplexValueTypeBuilder> LogOnlyField =>
+        logOnlyInternalField ??=
+            PortableState.OwningAppender.Recycler
+                         .Borrow<SelectTypeField<ComplexValueTypeBuilder>>().Initialize(CompAccess);
+
+    public SelectTypeCollectionField<ComplexValueTypeBuilder> LogOnlyCollectionField =>
+        logOnlyInternalCollectionField ??=
+            PortableState.OwningAppender.Recycler
+                         .Borrow<SelectTypeCollectionField<ComplexValueTypeBuilder>>().Initialize(CompAccess);
 
     protected override void InheritedStateReset()
     {

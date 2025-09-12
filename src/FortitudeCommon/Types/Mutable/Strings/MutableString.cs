@@ -155,7 +155,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         (StringBuilder? value, int startIndex, int length, string? formatString, ICustomStringFormatter? customStringFormatter) =>
         Append(value, startIndex, length, formatString, customStringFormatter);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(bool value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(bool value, ICustomStringFormatter? customStringFormatter) => Append(value, customStringFormatter);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(byte value) => Append(value);
 
@@ -656,10 +656,11 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Append(bool value)
+    public MutableString Append(bool value, ICustomStringFormatter? customStringFormatter = null)
     {
         if (IsFrozen) return ShouldThrow();
-        sb.Append(value);
+        customStringFormatter ??= ICustomStringFormatter.DefaultBufferFormatter;
+        sb.Append(value ? customStringFormatter.True : customStringFormatter.False);
         return this;
     }
 
@@ -1089,7 +1090,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         var wasSuccessfull = customStringFormatter.TryFormat(arg0, this, format);
         if (wasSuccessfull > 0) return this;
+        var preAppendLen = sb.Length;
         sb.AppendFormat(format, arg0);
+        if(preAppendLen < sb.Length) customStringFormatter.ProcessAppendedRange(this, preAppendLen);
         return this;
     }
 

@@ -2,9 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
-using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StyledToString;
 
 namespace FortitudeCommon.Types.Mutable.Strings.CustomFormatting;
 
@@ -127,6 +125,10 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         for (var i = 0; i < cappedLength; i++) destination[i + destStartIndex] = source[i];
         return cappedLength;
     }
+
+    public override int ProcessAppendedRange(IStringBuilder sb, int fromIndex) => 0;
+
+    public override int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length) => 0;
 
     public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt> arg0, IStringBuilder sb, string? formatString = null)
     {
@@ -949,11 +951,11 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     }
 
     public override int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems) => 
-        sb.Append("[").ReturnCharCount(1);
+        sb.Append(SqBrktOpn).ReturnCharCount(1);
 
     public override int CollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems)
     {
-        return destination.OverWriteAt(destStartIndex, "[");
+        return destination.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
     public override int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) =>
@@ -985,12 +987,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return destination.OverWriteAt(destStartIndex, CharSpanCollectionScratchBuffer);
     }
 
-    public override int CollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount) => sb.Append("]").ReturnCharCount(1);
+    public override int CollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount) => sb.Append(SqBrktCls).ReturnCharCount(1);
 
     public override int CollectionEnd(Type collectionType, Span<char> destination, int index, int itemsCount)
     {
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        return destination.OverWriteAt(index, "]");
+        return destination.OverWriteAt(index, SqBrktCls);
     }
 }

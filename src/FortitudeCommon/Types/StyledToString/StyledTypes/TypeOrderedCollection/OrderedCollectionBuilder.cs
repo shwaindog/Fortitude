@@ -1,4 +1,5 @@
-﻿using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
+﻿using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
 
@@ -24,10 +25,22 @@ public partial class OrderedCollectionBuilder<TExt> : TypedStyledTypeBuilder<TEx
         return this;
     }
 
-    protected CollectionBuilderCompAccess<TExt> CompAsOrderedCollection => (CollectionBuilderCompAccess<TExt>)CompAccess;
+    public override void Start()
+    {
+        if (CompAsOrderedCollection.CollectionInComplexType)
+        {
+            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.StyleTypeBuilder.TypeBeingBuilt.Name);
+            AppendRefIdIfAny();
+        }
+        else
+        {
+            var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
+            CompAccess.StyleFormatter.FormatCollectionStart
+                (CompAccess, elementType ?? typeof(object), true, CompAccess.StyleTypeBuilder.TypeBeingBuilt);
+        }
+    }
 
-    protected override string TypeOpeningDelimiter => "[";
-    protected override string TypeClosingDelimiter => "]";
+    protected CollectionBuilderCompAccess<TExt> CompAsOrderedCollection => (CollectionBuilderCompAccess<TExt>)CompAccess;
 }
 
 public class SimpleOrderedCollectionBuilder : OrderedCollectionBuilder<SimpleOrderedCollectionBuilder>
@@ -38,9 +51,9 @@ public class SimpleOrderedCollectionBuilder : OrderedCollectionBuilder<SimpleOrd
       , TypeAppendSettings typeSettings
       , string typeName
       , IStyledTypeFormatting typeFormatting
-      , int  existingRefId)
+      , int existingRefId)
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting, existingRefId);
 
         return this;
     }
@@ -58,19 +71,16 @@ public class ComplexOrderedCollectionBuilder : OrderedCollectionBuilder<ComplexO
     private SelectTypeCollectionField<ComplexOrderedCollectionBuilder>? logOnlyInternalCollectionField;
     private SelectTypeField<ComplexOrderedCollectionBuilder>?           logOnlyInternalField;
 
-    protected override string TypeOpeningDelimiter => CompAsOrderedCollection.CollectionInComplexType ? "{" : "[";
-    protected override string TypeClosingDelimiter => CompAsOrderedCollection.CollectionInComplexType ? "}" : "]";
-
     public ComplexOrderedCollectionBuilder InitializeComplexOrderedCollectionBuilder
-        (
-            Type typeBeingBuilt
-          , IStyleTypeAppenderBuilderAccess owningAppender
-          , TypeAppendSettings typeSettings
-          , string typeName
-          , IStyledTypeFormatting typeFormatting
-          , int existingRefId)
+    (
+        Type typeBeingBuilt
+      , IStyleTypeAppenderBuilderAccess owningAppender
+      , TypeAppendSettings typeSettings
+      , string typeName
+      , IStyledTypeFormatting typeFormatting
+      , int existingRefId)
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting, existingRefId);
 
         return this;
     }
@@ -82,15 +92,15 @@ public class ComplexOrderedCollectionBuilder : OrderedCollectionBuilder<ComplexO
                              .InitializeOrderCollectionComponentAccess(this, PortableState, true);
     }
 
-    public SelectTypeField<ComplexOrderedCollectionBuilder>? LogOnlyField =>
-        logOnlyInternalField ??= Settings.Style.AllowsUnstructured()
-            ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeField<ComplexOrderedCollectionBuilder>>().Initialize(CompAccess)
-            : null;
+    public SelectTypeField<ComplexOrderedCollectionBuilder> LogOnlyField =>
+        logOnlyInternalField ??=
+            PortableState.OwningAppender.Recycler
+                         .Borrow<SelectTypeField<ComplexOrderedCollectionBuilder>>().Initialize(CompAccess);
 
-    public SelectTypeCollectionField<ComplexOrderedCollectionBuilder>? LogOnlyCollectionField =>
-        logOnlyInternalCollectionField ??= Settings.Style.AllowsUnstructured()
-            ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeCollectionField<ComplexOrderedCollectionBuilder>>().Initialize(CompAccess)
-            : null;
+    public SelectTypeCollectionField<ComplexOrderedCollectionBuilder> LogOnlyCollectionField =>
+        logOnlyInternalCollectionField ??=
+            PortableState.OwningAppender.Recycler
+                         .Borrow<SelectTypeCollectionField<ComplexOrderedCollectionBuilder>>().Initialize(CompAccess);
 
     protected override void InheritedStateReset()
     {
@@ -99,7 +109,7 @@ public class ComplexOrderedCollectionBuilder : OrderedCollectionBuilder<ComplexO
         logOnlyInternalField?.DecrementRefCount();
         logOnlyInternalField = null!;
 
-        CompAccess?.DecrementIndent();
+        CompAccess.DecrementIndent();
         CompAccess = null!;
     }
 

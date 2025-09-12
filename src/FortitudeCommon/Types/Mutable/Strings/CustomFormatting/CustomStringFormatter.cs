@@ -22,6 +22,12 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     protected const char TokenClose = '}';
     protected const char TokenOpen  = '{';
 
+    protected const string DefaultTrueString  = "true";
+    protected const string DefaultFalseString = "false";
+
+    protected const string SqBrktOpn = "[";
+    protected const string SqBrktCls = "]";
+
     protected static readonly ConcurrentDictionary<Type, ICustomFormattableProvider> GlobalCustomSpanFormattableProviders = new();
 
     protected static readonly ConcurrentDictionary<Type, ICustomFormattableProvider> GlobalCustomStyledToStringFormattableProviders = new();
@@ -58,6 +64,9 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public bool IgnoreEmptyCollection { get; set; } = false;
 
     public string NullString { get; set; } = DefaultNullString;
+
+    public string True { get; set; } = DefaultTrueString;
+    public string False { get; set; } = DefaultFalseString;
 
     public virtual int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber) =>
         sb.Append(ItemSeparator).ReturnCharCount(ItemSeparator.Length);
@@ -127,6 +136,9 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public abstract int Transfer(ICharSequence source, int sourceFrom, Span<char> destination, int destStartIndex = 0
       , int maxTransferCount = Int32.MaxValue);
 
+    public abstract int ProcessAppendedRange(IStringBuilder sb, int fromIndex);
+    public abstract int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length);
+
     public virtual int Format(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString
       , int maxTransferCount = int.MaxValue)
     {
@@ -146,11 +158,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         if (layout.Length == 0)
         {
             charsAdded += Transfer(source, sourceFrom, sb, cappedLength);
-            if (afterClosingBracket < formatString.Length)
-            {
-                charsAdded += Transfer(formatString[afterClosingBracket..], sb);
-                ;
-            }
+            if (afterClosingBracket < formatString.Length) { charsAdded += Transfer(formatString[afterClosingBracket..], sb); }
             return charsAdded;
         }
         var alignedLength = source[..cappedLength].CalculatePaddedAlignedLength(layout);
@@ -620,22 +628,10 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         var maybeIterableElementType = type.GetIterableElementType();
         if (maybeIterableElementType == null) return 0;
         if (!((maybeIterableElementType.IsSpanFormattable()) || (maybeIterableElementType.IsNullableSpanFormattable()))) return 0;
-        if (type.IsArray)
-        {
-            return CheckIsKnownSpanFormattableArray(source, sb, formatString, type);
-        }
-        if (type.IsReadOnlyList())
-        {
-            return CheckIsKnownSpanFormattableList(source, sb, formatString, type);
-        }
-        if (type.IsEnumerable())
-        {
-            return CheckIsKnownSpanFormattableEnumerable(source, sb, formatString, type);
-        }
-        if (type.IsEnumerator())
-        {
-            return CheckIsKnownSpanFormattableEnumerator(source, sb, formatString, type);
-        }
+        if (type.IsArray) { return CheckIsKnownSpanFormattableArray(source, sb, formatString, type); }
+        if (type.IsReadOnlyList()) { return CheckIsKnownSpanFormattableList(source, sb, formatString, type); }
+        if (type.IsEnumerable()) { return CheckIsKnownSpanFormattableEnumerable(source, sb, formatString, type); }
+        if (type.IsEnumerator()) { return CheckIsKnownSpanFormattableEnumerator(source, sb, formatString, type); }
         return 0;
     }
 
@@ -678,7 +674,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case IEnumerator<Uri> uriArray:             return FormatEnumerator(uriArray, sb, formatString);
             }
         }
-        else if (enumeratorElementType is { IsValueType: true, IsGenericType: true } && enumeratorElementType.GetGenericTypeDefinition() == typeof(Nullable<>))
+        else if (enumeratorElementType is { IsValueType: true, IsGenericType: true } &&
+                 enumeratorElementType.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             switch (source)
             {
@@ -751,7 +748,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case IEnumerable<Uri> uriArray:             return FormatEnumerable(uriArray, sb, formatString);
             }
         }
-        else if (enumerableElementType is { IsValueType: true, IsGenericType: true } && enumerableElementType.GetGenericTypeDefinition() == typeof(Nullable<>))
+        else if (enumerableElementType is { IsValueType: true, IsGenericType: true } &&
+                 enumerableElementType.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             switch (source)
             {

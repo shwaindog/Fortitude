@@ -4,7 +4,9 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString.Options;
+using FortitudeCommon.Types.StyledToString.StyledTypes.ComplexType;
 using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
+using FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollection;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes;
 
@@ -21,8 +23,12 @@ public interface IStyleTypeBuilderComponentAccess
     ushort IndentLevel { get; }
 
     bool IsComplete { get; }
-    
+
+    Type TypeBeingBuilt { get; }
+    string TypeName { get; }
+
     bool SkipBody { get; }
+    bool SkipFields { get; }
     
     IStyledTypeFormatting StyleFormatter { get; }
 
@@ -50,6 +56,8 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
 {
     StyledTypeBuilder IStyleTypeBuilderComponentAccess.StyleTypeBuilder => StyleTypeBuilder;
 
+    private bool hasJsonFields;
+
     public TExt StyleTypeBuilder { get; private set; } = null!;
 
     private StyledTypeBuilder.StyleTypeBuilderPortableState typeBuilderState = null!;
@@ -59,6 +67,8 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
     {
         StyleTypeBuilder = externalTypeBuilder;
         typeBuilderState = typeBuilderPortableState;
+        
+        hasJsonFields = typeof(TExt) == typeof(ComplexTypeBuilder) || typeof(TExt) == typeof(KeyValueCollectionBuilder);
 
         return this;
     }
@@ -67,6 +77,8 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
     public IStyleTypeAppenderBuilderAccess OwningAppender => typeBuilderState.OwningAppender;
 
     public string TypeName => typeBuilderState.TypeName;
+    
+    public Type TypeBeingBuilt => typeBuilderState.TypeBeingBuilt;
 
     public ushort IndentLevel => typeBuilderState.AppenderSettings.IndentLvl;
 
@@ -77,6 +89,8 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
     public bool IsComplete => StyleTypeBuilder.IsComplete;
     
     public bool SkipBody => typeBuilderState.ExistingRefId > 0;
+    
+    public bool SkipFields => SkipBody || (Style.IsJson() && !hasJsonFields);
 
     public StyleOptions Settings => typeBuilderState.OwningAppender.Settings;
 

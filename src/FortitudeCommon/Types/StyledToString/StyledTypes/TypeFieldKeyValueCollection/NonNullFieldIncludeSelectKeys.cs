@@ -11,7 +11,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKey : notnull where TKDerived : TKey =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
     ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString) 
     : stb.StyleTypeBuilder;
 
@@ -20,7 +20,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKey : notnull  where TKDerived : TKey =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString) 
             : stb.StyleTypeBuilder;
 
@@ -29,7 +29,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKey : notnull  where TKDerived : TKey =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString) 
             : stb.StyleTypeBuilder;
 
@@ -38,7 +38,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKey : notnull where TKDerived : TKey =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueFormatString, keyFormatString) 
             : stb.StyleTypeBuilder;
 
@@ -47,7 +47,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKey : notnull where TKDerived : TKey =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueFormatString, keyFormatString) 
             : stb.StyleTypeBuilder;
 
@@ -56,7 +56,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey where TValue : TVBase =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
@@ -65,7 +65,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
       where TKDerived : TKey where TValue : TVBase =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
@@ -74,7 +74,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
       where TKDerived : TKey where TValue : TVBase =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
@@ -82,7 +82,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
       where TKDerived : TKey where TValue : TVBase =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
@@ -91,7 +91,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , IEnumerator<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
       where TKDerived : TKey where TValue : TVBase =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
@@ -99,7 +99,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
       , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
       where TKDerived : TKey where TKey : TKBase where TValue : TVBase =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 
@@ -107,7 +107,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
       , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
       where TKDerived : TKey where TKey : TKBase where TValue : TVBase  =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 
@@ -115,7 +115,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
       , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
       where TKDerived : TKey where TKey : TKBase where TValue : TVBase  =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 
@@ -123,7 +123,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
       , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
       where TKDerived : TKey where TKey : TKBase where TValue : TVBase  =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 
@@ -131,7 +131,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
       , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
       where TKDerived : TKey where TKey : TKBase where TValue : TVBase  =>
-      !stb.SkipBody && value != null 
+      !stb.SkipFields && value != null 
             ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 }

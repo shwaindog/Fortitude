@@ -391,9 +391,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return 0 == CompareTo(other);
     }
 
-    public CharArrayStringBuilder Append(bool value)
+    public CharArrayStringBuilder Append(bool value, ICustomStringFormatter? customStringFormatter)
     {
-        CharArray(5).Add(value ? "true" : "false");
+        customStringFormatter ??= ICustomStringFormatter.DefaultBufferFormatter;
+        CharArray(5).Add(value ? customStringFormatter.True : customStringFormatter.False);
         return this;
     }
 
@@ -861,7 +862,11 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     {
         var wasSuccessfull = customStringFormatter.TryFormat(arg0, this, format);
         if (wasSuccessfull > 0) return this;
-        return AppendFormatHelper(null, format, new ReadOnlySpan<object?>(in arg0));
+
+        var preAppendLen = Length;
+         AppendFormatHelper(null, format, new ReadOnlySpan<object?>(in arg0));
+         if(preAppendLen < Length) customStringFormatter.ProcessAppendedRange(ca.BackingArray.AsSpan(), preAppendLen, Length);
+         return this;
     }
 
     public CharArrayStringBuilder AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0)
@@ -1405,7 +1410,8 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char value) => Append(value);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(bool value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(bool value, ICustomStringFormatter? customStringFormatter) => 
+        Append(value, customStringFormatter);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value) => Append(value);
 

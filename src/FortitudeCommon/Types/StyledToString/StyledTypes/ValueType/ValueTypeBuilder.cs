@@ -24,16 +24,14 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
     
     public override void Start()
     {
-        if ( !CompAccess.Settings.Style.IsJson()
-          && !PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeNameFlag()
-          && PortableState.TypeName.IsNotNullOrEmpty())
+        if ( Stb.ValueInComplexType
+          && !PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeNameFlag())
         {
-            CompAccess.Sb.Append(PortableState.TypeName);
+            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, PortableState.TypeName);
         }
         if (!PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeStartFlag())
         {
-            CompAccess.Sb.Append(TypeOpeningDelimiter);
-            CompAccess.IncrementIndent();
+            CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess, CompAccess.TypeBeingBuilt);
         }
     }
     
@@ -49,7 +47,7 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
     public TExt Boolean(string nonJsonfieldName, bool? value) =>
         Stb.FieldValueNext(nonJsonfieldName, value);
     
-    public TExt Number<TFmt>(string nonJsonfieldName, TFmt? value, string? formatString = null )  where TFmt : ISpanFormattable => 
+    public TExt Number<TFmt>(string nonJsonfieldName, TFmt value, string? formatString = null )  where TFmt : ISpanFormattable => 
         Stb.FieldValueNext(nonJsonfieldName, value, formatString);
     
     public TExt NumberWithFallback<TFmt>(string nonJsonfieldName, TFmt? value, TFmt fallbackValue, string? formatString = null )  

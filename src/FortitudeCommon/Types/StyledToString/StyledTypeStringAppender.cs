@@ -4,7 +4,9 @@
 #region
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString.Options;
@@ -342,12 +344,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
             TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).ComponentAccess
         };
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
+        
+        newType.Start();
+        newVisit = newVisit.SetBufferFirstFieldStart(Sb.Length);
         OrderedObjectGraph.Add(newVisit);
 
         CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
         nextTypeAppendSettings = new TypeAppendSettings((ushort)newVisit.IndentLevel, IgnoreWriteFlags.None);
-
-        newType.Start();
     }
 
     protected void PopCurrentSettings()
@@ -372,7 +375,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
                     if (graphNodeVisit.RefId == 0)
                     {
                         OrderedObjectGraph[i] = graphNodeVisit.SetRefId(NextRefId());
-                        InsertRefId(graphNodeVisit);
+                        InsertRefId(OrderedObjectGraph[i], i);
                     }
                     return OrderedObjectGraph[i].RefId;
                 }
@@ -388,7 +391,38 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         return hasVisited;
     }
 
-    protected void InsertRefId(GraphNodeVisit forThisNode) { }
+    protected void InsertRefId(GraphNodeVisit forThisNode, int graphNodeIndex)
+    {
+        var indexToInsertAt = forThisNode.CurrentBufferFirstFieldStart;
+        var refId           = forThisNode.RefId;
+        var refDigitsCount =
+            refId switch
+            {
+                _ when refId < 10   => 1
+              , _ when refId < 100  => 2
+              , _ when refId < 1000 => 3
+              , _                   => 4
+            }; //
+        
+        var idSpan = stackalloc char[refDigitsCount + 9].ResetMemory();
+        idSpan.Append("\"$id\":\"");
+        var insert = idSpan[7..];
+        if(refId.TryFormat(insert, out var written,""))
+        {
+            idSpan.Append("\",");
+            Sb!.InsertAt(idSpan, indexToInsertAt);
+            for (int i = graphNodeIndex; i < OrderedObjectGraph.Count; i++)
+            {
+                var shiftCharsNode = OrderedObjectGraph[i];
+                OrderedObjectGraph[i] = shiftCharsNode.ShiftTypeBufferIndex(idSpan.Length);
+            }
+        } 
+        else
+        {
+            Debugger.Break();
+            Console.Out.WriteLine("Error could not add $ref:" + refId + " to existing object");
+        }
+    }
 
     protected bool IsCallingAsBaseType(object objToStyle, Type objAsType, GraphNodeVisit startToLast)
     {
@@ -498,6 +532,17 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
               , TypeBuilderComponentAccess = null
               , CurrentBufferTypeStart = CurrentBufferTypeStart
               , CurrentBufferFirstFieldStart = CurrentBufferFirstFieldStart
+            };
+        }
+
+        public GraphNodeVisit SetBufferFirstFieldStart(int bufferFirstFieldStart)
+        {
+            return this with
+            {
+                RefId = RefId
+              , TypeBuilderComponentAccess = TypeBuilderComponentAccess
+              , CurrentBufferTypeStart = CurrentBufferTypeStart
+              , CurrentBufferFirstFieldStart = bufferFirstFieldStart
             };
         }
 
