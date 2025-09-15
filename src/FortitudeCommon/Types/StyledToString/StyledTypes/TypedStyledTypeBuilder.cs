@@ -11,18 +11,16 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
 {
     protected IStyleTypeBuilderComponentAccess<T> CompAccess = null!;
 
-    protected virtual string TypeOpeningDelimiter => "{";
-    protected virtual string TypeClosingDelimiter => "}";
-
     protected void InitializeTypedStyledTypeBuilder(
         Type typeBeingBuilt
       , IStyleTypeAppenderBuilderAccess owningAppender
       , TypeAppendSettings typeSettings
       , string typeName
+      , int remainignGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId)
     {
-        InitializeStyledTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
+        InitializeStyledTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, remainignGraphDepth,  typeFormatting,  existingRefId);
 
         SourceBuilderComponentAccess();
     }
@@ -35,10 +33,13 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
     {
         if (!PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeStartFlag())
         {
-            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, PortableState.TypeName);
-            AppendRefIdIfAny();
+            AppendOpening();
+            AppendGraphFields();
         }
     }
+    
+    public abstract void AppendOpening();
+    public abstract void AppendClosing();
 
     protected T Me => (T)(StyledTypeBuilder)this;
 
@@ -47,7 +48,7 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
         if (!PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeEndFlag())
         {
             CompAccess.RemoveLastWhiteSpacedCommaIfFound();
-            CompAccess.Sb.Append(TypeClosingDelimiter);
+            AppendClosing();
             CompAccess.DecrementIndent();
         }
         var currentAppenderIndex = CompAccess.OwningAppender.WriteBuffer.Length;
@@ -58,16 +59,23 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
         return result;
     }
 
-    protected bool AppendRefIdIfAny()
+    protected bool AppendGraphFields()
     {
         if (CompAccess.StyleTypeBuilder.ExistingRefId != 0)
         {
             CompAccess.Sb.Append("\"$ref\":\"").Append(CompAccess.StyleTypeBuilder.ExistingRefId).Append("\" ");
             return true;
         }
+        if (CompAccess.RemainingGraphDepth <= 0)
+        {
+            CompAccess.Sb.Append("\"$clipped\":\"maxDepth\"").Append(" ");
+            CompAccess.SkipBody = true;
+            CompAccess.SkipFields = true;
+            return true;
+        }
+        
         return false;
     }
-
 
     protected virtual void SourceBuilderComponentAccess()
     {

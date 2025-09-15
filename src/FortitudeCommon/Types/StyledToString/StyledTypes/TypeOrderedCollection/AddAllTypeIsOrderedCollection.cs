@@ -751,11 +751,11 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequence<T>(T?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where T : class, ICharSequence 
+    public TExt AddAllCharSequence<TCharSeq>(TCharSeq?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+        where TCharSeq : ICharSequence 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TCharSeq);
         var any         = false;
         if (value != null)
         {
@@ -778,11 +778,11 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequence<T>(ReadOnlySpan<T?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
-        where T : class, ICharSequence
+    public TExt AddAllCharSequence<TCharSeq>(ReadOnlySpan<TCharSeq?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
+        where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TCharSeq);
         var any         = false;
         if (value != null)
         {
@@ -805,11 +805,11 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequence<T>(IReadOnlyList<T?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
-        where T : class, ICharSequence
+    public TExt AddAllCharSequence<TCharSeq>(IReadOnlyList<TCharSeq?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
+        where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TCharSeq);
         var any         = false;
         if (value != null)
         {
@@ -832,11 +832,11 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequenceEnumerate<T>(IEnumerable<T?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class, ICharSequence
+    public TExt AddAllCharSequenceEnumerate<TCharSeq>(IEnumerable<TCharSeq?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TCharSeq);
         var any         = false;
         var itemCount   = 0;
         if (value != null)
@@ -858,11 +858,11 @@ public partial class OrderedCollectionBuilder<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequenceEnumerate<T>(IEnumerator<T?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where T : class, ICharSequence
+    public TExt AddAllCharSequenceEnumerate<TCharSeq>(IEnumerator<TCharSeq?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+        where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TCharSeq);
         var any         = false;
         var hasValue    = value?.MoveNext() ?? false;
         var itemCount   = 0;

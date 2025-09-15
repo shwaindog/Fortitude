@@ -12,8 +12,7 @@ public class CollectionBuilderCompAccess<TExt> : InternalStyledTypeBuilderCompon
     {
         Initialize(externalTypeBuilder, typeBuilderPortableState);
 
-        CollectionInComplexType = 
-            isComplex && typeBuilderPortableState.OwningAppender.Style.AllowsUnstructured() || externalTypeBuilder.ExistingRefId > 0;
+        CollectionInComplexType = isComplex && Style.IsNotJson() || WriteAsComplex;
         
         return this;
     }
@@ -22,7 +21,9 @@ public class CollectionBuilderCompAccess<TExt> : InternalStyledTypeBuilderCompon
     {
         if (CollectionInComplexType)
         {
-            Sb.Append("$values: [");
+            StyleFormatter.AppendFieldName( this, "$values");
+            StyleFormatter.AppendFieldValueSeparator(this);
+            StyleFormatter.FormatCollectionStart(this, elementType, hasAny, TypeBeingBuilt);
         }
     }
 
@@ -30,8 +31,7 @@ public class CollectionBuilderCompAccess<TExt> : InternalStyledTypeBuilderCompon
     {
         if (CollectionInComplexType)
         {
-            Sb.Append("]");
-            return true;
+            StyleFormatter.FormatCollectionEnd(this, elementType, count);
         }
         return false;
     }

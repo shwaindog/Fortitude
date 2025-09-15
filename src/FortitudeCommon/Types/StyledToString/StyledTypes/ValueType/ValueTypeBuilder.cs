@@ -14,30 +14,39 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
           , IStyleTypeAppenderBuilderAccess owningAppender
           , TypeAppendSettings typeSettings
           , string typeName
+          , int remainingGraphDepth
           , IStyledTypeFormatting typeFormatting  
           , int  existingRefId)
     {
-        InitializeTypedStyledTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
+        InitializeTypedStyledTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, remainingGraphDepth, typeFormatting,  existingRefId);
 
         return this;
     }
     
     public override void Start()
     {
-        if ( Stb.ValueInComplexType
-          && !PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeNameFlag())
+        if (PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeStartFlag()) return;
+        if (Stb.ValueInComplexType)
         {
-            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, PortableState.TypeName);
+            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
         }
-        if (!PortableState.AppenderSettings.IgnoreWriteFlags.HasTypeStartFlag())
+        else
         {
             CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess, CompAccess.TypeBeingBuilt);
         }
     }
+
+    public override bool IsComplexType => false;
     
-    protected override string TypeOpeningDelimiter => Stb.ValueInComplexType && CompAccess.Settings.Style.IsNotJson() ? "." : "";
+    public override void AppendOpening()
+    {
+        CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess, CompAccess.TypeBeingBuilt);
+    }
     
-    protected override string TypeClosingDelimiter => "";
+    public override void AppendClosing()
+    {
+    }
+
 
     protected ValueBuilderCompAccess<TExt> Stb => (ValueBuilderCompAccess<TExt>)CompAccess;
 

@@ -39,6 +39,7 @@ public struct StyleOptionsValue
     private string? nullStyle;
     private int?    prettyCollectionsColumnCountWrap;
     private bool?   enableColumnWrap;
+    private int?    defaultGraphMaxDepth;
 
     private TimeStyleFormat? dateTimeFormat;
 
@@ -136,6 +137,12 @@ public struct StyleOptionsValue
     {
         get => circularRefUsesRefEquals ?? fallbackOptions?.Values.ByteSequenceToBase64 ?? true;
         set => circularRefUsesRefEquals = value;
+    }
+
+    public int DefaultGraphMaxDepth
+    {
+        readonly get => defaultGraphMaxDepth ?? fallbackOptions?.Values.DefaultGraphMaxDepth ?? int.MaxValue;
+        set => defaultGraphMaxDepth = value;
     }
 
     public StyleOptions? DefaultOptions
@@ -268,5 +275,11 @@ public class StyleOptions(StyleOptionsValue initialValues)
     {
         get => values.PrettyCollectionsColumnContentWidthWrap;
         set => values.PrettyCollectionsColumnContentWidthWrap = value;
+    }
+
+    public int DefaultGraphMaxDepth
+    {
+        get => values.DefaultGraphMaxDepth;
+        set => values.DefaultGraphMaxDepth = value;
     }
 }

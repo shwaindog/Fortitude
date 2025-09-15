@@ -25,7 +25,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -63,7 +63,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -102,7 +102,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -142,7 +142,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -186,7 +186,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
             if (!foundValues)
             {
                 stb.FieldNameJoin(fieldName);
-                stb.StartDictionary();
+                stb.StartDictionary(value);
                 foundValues = true;
             }
             _ = keyFormatString.IsNotNullOrEmpty()
@@ -226,7 +226,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -261,7 +261,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -298,7 +298,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -336,7 +336,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -378,7 +378,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
             if (!foundValues)
             {
                 stb.FieldNameJoin(fieldName);
-                stb.StartDictionary();
+                stb.StartDictionary(value);
                 foundValues = true;
             }
             _ = keyFormatString.IsNotNullOrEmpty()
@@ -413,7 +413,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
@@ -445,7 +445,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
@@ -477,7 +477,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
@@ -510,7 +510,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
                 if (!foundValues)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartDictionary();
+                    stb.StartDictionary(value);
                     foundValues = true;
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
@@ -547,7 +547,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
             if (!foundValues)
             {
                 stb.FieldNameJoin(fieldName);
-                stb.StartDictionary();
+                stb.StartDictionary(value);
                 foundValues = true;
             }
             stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();

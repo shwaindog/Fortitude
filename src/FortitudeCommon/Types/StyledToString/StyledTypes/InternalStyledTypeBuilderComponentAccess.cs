@@ -21,16 +21,20 @@ public interface IStyleTypeBuilderComponentAccess
     char IndentChar { get; }
 
     ushort IndentLevel { get; }
+    
+    bool WriteAsComplex { get; }
 
     bool IsComplete { get; }
 
     Type TypeBeingBuilt { get; }
     string TypeName { get; }
 
-    bool SkipBody { get; }
-    bool SkipFields { get; }
+    bool SkipBody { get; set; }
+    bool SkipFields { get; set; }
     
     IStyledTypeFormatting StyleFormatter { get; }
+    
+    int RemainingGraphDepth { get; set; }
 
     StringBuildingStyle Style { get; }
     
@@ -61,14 +65,22 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
     public TExt StyleTypeBuilder { get; private set; } = null!;
 
     private StyledTypeBuilder.StyleTypeBuilderPortableState typeBuilderState = null!;
+    private bool                                            skipFields;
 
     public InternalStyledTypeBuilderComponentAccess<TExt> Initialize
         (TExt externalTypeBuilder, StyledTypeBuilder.StyleTypeBuilderPortableState typeBuilderPortableState)
     {
-        StyleTypeBuilder = externalTypeBuilder;
-        typeBuilderState = typeBuilderPortableState;
+        StyleTypeBuilder    = externalTypeBuilder;
+        typeBuilderState    = typeBuilderPortableState;
+        RemainingGraphDepth = typeBuilderPortableState.RemainingGraphDepth;
+
+        var typeOfTExt = typeof(TExt);
+        hasJsonFields = typeOfTExt == typeof(ComplexTypeBuilder) 
+                     || typeOfTExt == typeof(KeyValueCollectionBuilder)
+                     || typeof(MultiValueTypeBuilder<TExt>).IsAssignableFrom(typeOfTExt);
         
-        hasJsonFields = typeof(TExt) == typeof(ComplexTypeBuilder) || typeof(TExt) == typeof(KeyValueCollectionBuilder);
+        SkipBody      = typeBuilderState.ExistingRefId > 0;
+        SkipFields    = SkipBody || (Style.IsJson() && !hasJsonFields);
 
         return this;
     }
@@ -80,17 +92,24 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
     
     public Type TypeBeingBuilt => typeBuilderState.TypeBeingBuilt;
 
+    public int RemainingGraphDepth { get; set; }
+
     public ushort IndentLevel => typeBuilderState.AppenderSettings.IndentLvl;
+    public bool WriteAsComplex => StyleTypeBuilder.IsComplexType || StyleTypeBuilder.ExistingRefId != 0 || RemainingGraphDepth <= 0;
 
     public char IndentChar => Settings.IndentChar;
 
     public IStyledTypeFormatting StyleFormatter => typeBuilderState.TypeFormatting;
 
     public bool IsComplete => StyleTypeBuilder.IsComplete;
-    
-    public bool SkipBody => typeBuilderState.ExistingRefId > 0;
-    
-    public bool SkipFields => SkipBody || (Style.IsJson() && !hasJsonFields);
+
+    public bool SkipBody { get; set; }
+
+    public bool SkipFields
+    {
+        get => skipFields || SkipBody;
+        set => skipFields = value;
+    }
 
     public StyleOptions Settings => typeBuilderState.OwningAppender.Settings;
 

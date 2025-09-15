@@ -18,16 +18,26 @@ public class ComplexValueTypeBuilder : ValueTypeBuilder<ComplexValueTypeBuilder>
       , IStyleTypeAppenderBuilderAccess owningAppender
       , TypeAppendSettings typeSettings
       , string typeName
+      , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId)
     {
-        InitializeValueTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting, existingRefId);
+        InitializeValueTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
 
         return this;
     }
 
-    protected override string TypeOpeningDelimiter => Stb.ValueInComplexType ? "{" : "";
-    protected override string TypeClosingDelimiter => Stb.ValueInComplexType ? "}" : "";
+    public override bool IsComplexType => true;
+    
+    public override void AppendOpening()
+    {
+        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
+    }
+    
+    public override void AppendClosing()
+    {
+        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+    }
 
     protected override void SourceBuilderComponentAccess()
     {

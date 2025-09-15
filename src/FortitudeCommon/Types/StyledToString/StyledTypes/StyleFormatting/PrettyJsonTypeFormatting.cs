@@ -14,7 +14,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public override IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, string? typeName = null)
+    public override IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type complextType, string? alternativeName = null)
     {
         typeBuilder.IncrementIndent();
         return (typeBuilder.Sb.Append(BrcOpn)

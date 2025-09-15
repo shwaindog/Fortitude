@@ -10,7 +10,7 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 
 public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeFormatting
 {
-    protected const string Dot    = ".";
+    protected const string Dot       = ".";
     protected const string CmaSpc    = ", ";
     protected const string Spc       = " ";
     protected const string ClnSpc    = ": ";
@@ -19,30 +19,33 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual string Name => nameof(CompactLogTypeFormatting);
 
     public IStyleTypeBuilderComponentAccess<TB> AppendValueTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder
-      , Type valueType) where TB : StyledTypeBuilder
+      , Type valueType, string? alternativeName) where TB : StyledTypeBuilder
     {
         var sb = typeBuilder.Sb;
-        sb.Append(valueType.Name);
+        sb.Append(alternativeName ?? valueType.Name);
         sb.Append(valueType.IsEnum ? Dot : Spc);
         return sb.Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
     }
 
-    public virtual IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, string? typeName = null)
+    public virtual IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type complexType
+      , string? alternativeName = null)
         where TB : StyledTypeBuilder
     {
-        if(typeName != null) typeBuilder.Sb.Append(typeName).Append(Spc);
+        typeBuilder.Sb.Append(alternativeName ?? complexType.Name).Append(Spc);
         return typeBuilder.Sb.Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
     }
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendFieldName<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, string fieldName)
-        where TB : StyledTypeBuilder => typeBuilder.Sb.Append(fieldName).ToInternalTypeBuilder(typeBuilder);
+        where TB : StyledTypeBuilder =>
+        typeBuilder.Sb.Append(fieldName).ToInternalTypeBuilder(typeBuilder);
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendFieldValueSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
         where TB : StyledTypeBuilder =>
         typeBuilder.Sb.Append(ClnSpc).ToInternalTypeBuilder(typeBuilder);
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AddNextFieldSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
-        where TB : StyledTypeBuilder => typeBuilder.Sb.Append(CmaSpc).ToInternalTypeBuilder(typeBuilder);
+        where TB : StyledTypeBuilder =>
+        typeBuilder.Sb.Append(CmaSpc).ToInternalTypeBuilder(typeBuilder);
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendTypeClosing<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
         where TB : StyledTypeBuilder =>
@@ -51,8 +54,70 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual IStyleTypeBuilderComponentAccess<TB> FormatCollectionStart<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder
       , Type itemElementType, bool hasItems, Type collectionType) where TB : StyledTypeBuilder
     {
-        if(!(collectionType.FullName?.StartsWith("System") ?? true)) typeBuilder.Sb.Append(collectionType.Name).Append(Spc);
+        if (!(collectionType.FullName?.StartsWith("System") ?? true)) typeBuilder.Sb.Append(collectionType.Name).Append(Spc);
         return base.CollectionStart(itemElementType, typeBuilder.Sb, hasItems).ToInternalTypeBuilder(typeBuilder);
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB, TCustStyle, TCustBase>(IStyleTypeBuilderComponentAccess<TB> typeBuilder
+      , TCustStyle item
+      , int retrieveCount, CustomTypeStyler<TCustBase> styler) where TB : StyledTypeBuilder where TCustStyle : TCustBase
+    {
+        styler(item, typeBuilder.OwningAppender);
+        return typeBuilder;
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, string? item, int retrieveCount
+      , string? formatString = null) where TB : StyledTypeBuilder
+    {
+        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
+            typeBuilder.Sb.AppendFormat(this, formatString, item);
+        else
+            typeBuilder.Sb.Append(item, this);
+        return typeBuilder;
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB, TCharSeq>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, TCharSeq? item
+      , int retrieveCount
+      , string? formatString = null) where TB : StyledTypeBuilder where TCharSeq : ICharSequence
+    {
+        if (item == null)
+        {
+            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
+        }
+        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
+            typeBuilder.Sb.Append(item, 0, item.Length, formatString, this);
+        else
+            typeBuilder.Sb.Append(item, this);
+        return typeBuilder;
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, StringBuilder? item
+      , int retrieveCount
+      , string? formatString = null) where TB : StyledTypeBuilder
+    {
+        if (item == null)
+        {
+            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
+        }
+        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
+            typeBuilder.Sb.Append(item, 0, item.Length, formatString, this);
+        else
+            typeBuilder.Sb.Append(item, this);
+        return typeBuilder;
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, IStyledToStringObject? item
+      , int retrieveCount) where TB : StyledTypeBuilder
+    {
+        if (item == null)
+        {
+            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
+        }
+        item.ToString(typeBuilder.OwningAppender);
+        return typeBuilder;
     }
 
     public IStyleTypeBuilderComponentAccess<TB> FormatFieldNameMatch<TB, T>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, T source

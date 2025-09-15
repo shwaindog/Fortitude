@@ -16,9 +16,11 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     public virtual string Name => nameof(CompactJsonTypeFormatting);
 
     public IStyleTypeBuilderComponentAccess<TB> AppendValueTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder
-      , Type valueType) where TB : StyledTypeBuilder => typeBuilder;
+      , Type valueType, string? alternativeName = null) where TB : StyledTypeBuilder =>
+        typeBuilder;
 
-    public virtual IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, string? typeName = null)
+    public virtual IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type complexType
+      , string? alternativeName = null)
         where TB : StyledTypeBuilder =>
         typeBuilder.Sb.Append(BrcOpn).ToInternalTypeBuilder(typeBuilder);
 
@@ -27,10 +29,12 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         typeBuilder.Sb.Append(DblQt).Append(fieldName).Append(DblQt).ToInternalTypeBuilder(typeBuilder);
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendFieldValueSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
-        where TB : StyledTypeBuilder => typeBuilder.Sb.Append(Cln).ToInternalTypeBuilder(typeBuilder);
+        where TB : StyledTypeBuilder =>
+        typeBuilder.Sb.Append(Cln).ToInternalTypeBuilder(typeBuilder);
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AddNextFieldSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
-        where TB : StyledTypeBuilder => typeBuilder.Sb.Append(Cma).ToInternalTypeBuilder(typeBuilder);
+        where TB : StyledTypeBuilder =>
+        typeBuilder.Sb.Append(Cma).ToInternalTypeBuilder(typeBuilder);
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendTypeClosing<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
         where TB : StyledTypeBuilder =>
@@ -145,7 +149,10 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , string? formatString = null)
         where TB : StyledTypeBuilder where TFmt : struct, ISpanFormattable
     {
-        if (source != null) { return FormatFieldName(typeBuilder, source.Value, formatString); }
+        if (source != null)
+        {
+            return FormatFieldName(typeBuilder, source.Value, formatString);
+        }
         var sb = typeBuilder.Sb;
         if (WrapValuesInQuotes) sb.Append(DblQt);
         base.Format(source, typeBuilder.Sb, formatString);
@@ -458,6 +465,71 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , Type itemElementType, bool hasItems, Type collectionType) where TB : StyledTypeBuilder
     {
         base.CollectionStart(itemElementType, typeBuilder.Sb, hasItems);
+        return typeBuilder;
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB, TCustStyle, TCustBase>(IStyleTypeBuilderComponentAccess<TB> typeBuilder
+      , TCustStyle item
+      , int retrieveCount, CustomTypeStyler<TCustBase> styler) where TB : StyledTypeBuilder where TCustStyle : TCustBase
+    {
+        styler(item, typeBuilder.OwningAppender);
+        return typeBuilder;
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, string? item, int retrieveCount
+      , string? formatString = null) where TB : StyledTypeBuilder
+    {
+        if (item == null)
+        {
+            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
+        }
+        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
+            typeBuilder.Sb.AppendFormat(this, formatString, item);
+        else
+            typeBuilder.Sb.Append(item, this);
+        return typeBuilder;
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB, TCharSeq>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, TCharSeq? item
+      , int retrieveCount, string? formatString = null) where TB : StyledTypeBuilder where TCharSeq : ICharSequence
+    {
+        if (item == null)
+        {
+            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
+        }
+        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
+            typeBuilder.Sb.Append(item, 0, item.Length, formatString, this);
+        else
+            typeBuilder.Sb.Append(item, this);
+        return typeBuilder;
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, StringBuilder? item
+      , int retrieveCount, string? formatString = null) where TB : StyledTypeBuilder
+    {
+        if (item == null)
+        {
+            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
+        }
+        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
+            typeBuilder.Sb.Append(item, 0, item.Length, formatString, this);
+        else
+            typeBuilder.Sb.Append(item, this);
+        return typeBuilder;
+    }
+
+    public IStyleTypeBuilderComponentAccess<TB> CollectionNextItemFormat<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, IStyledToStringObject? item
+      , int retrieveCount) where TB : StyledTypeBuilder
+    {
+        if (item == null)
+        {
+            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
+        }
+        item.ToString(typeBuilder.OwningAppender);
         return typeBuilder;
     }
 

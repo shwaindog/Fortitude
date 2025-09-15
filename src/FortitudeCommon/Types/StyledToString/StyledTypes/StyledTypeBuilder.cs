@@ -34,16 +34,19 @@ public abstract class StyledTypeBuilder : ExplicitRecyclableObject, IDisposable
       , IStyleTypeAppenderBuilderAccess owningAppender
       , TypeAppendSettings typeSettings
       , string typeName
+      , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId)
     {
-        PortableState.TypeBeingBuilt   = typeBeingBuilt;
-        PortableState.OwningAppender   = owningAppender;
-        PortableState.TypeName         = typeName;
-        PortableState.TypeFormatting    = typeFormatting;
-        PortableState.AppenderSettings = typeSettings;
-        PortableState.CompleteResult   = null;
-        PortableState.ExistingRefId    = existingRefId;
+        PortableState.TypeBeingBuilt      = typeBeingBuilt;
+        PortableState.TypeBeingBuilt      = typeBeingBuilt;
+        PortableState.OwningAppender      = owningAppender;
+        PortableState.TypeName            = typeName;
+        PortableState.RemainingGraphDepth = remainingGraphDepth;
+        PortableState.TypeFormatting      = typeFormatting;
+        PortableState.AppenderSettings    = typeSettings;
+        PortableState.CompleteResult      = null;
+        PortableState.ExistingRefId       = existingRefId;
 
         StartIndex = owningAppender.WriteBuffer.Length;
     }
@@ -59,6 +62,8 @@ public abstract class StyledTypeBuilder : ExplicitRecyclableObject, IDisposable
     public StyleOptions Settings => PortableState.OwningAppender.Settings;
     
     public string TypeName => PortableState.TypeName;
+    
+    public abstract bool IsComplexType { get; }
 
     public abstract StyledTypeBuildResult Complete();
 
@@ -94,6 +99,8 @@ public abstract class StyledTypeBuilder : ExplicitRecyclableObject, IDisposable
 
         public IStyledTypeFormatting TypeFormatting { get; set; } = null!;
         public int ExistingRefId { get; set; }
+        
+        public int RemainingGraphDepth { get; set; }
 
         public IStyleTypeAppenderBuilderAccess OwningAppender { get; set; } = null!;
 
@@ -413,8 +420,15 @@ public static class StyledTypeBuilderExtensions
         var sb        = stb.Sb;
         if (toStyle != null)
         {
-            if(isKeyName) stb.StyleFormatter.FormatFieldName(stb, toStyle, styler);
-            else stb.StyleFormatter.FormatFieldContents(stb, toStyle, styler);
+                if (isKeyName)
+                    stb.StyleFormatter.FormatFieldName(stb, toStyle, styler);
+                else
+                    stb.StyleFormatter.FormatFieldContents(stb, toStyle, styler);
+
+                if (!stb.Settings.DisableCircularRefCheck && !typeof(TToStyle).IsValueType)
+                {
+                    stb.OwningAppender.EnsureRegisteredVisited(toStyle);
+                }
         }
         else
         {
@@ -696,8 +710,18 @@ public static class StyledTypeBuilderExtensions
                     break;
 
                 default:
-                    if(isKeyName) stb.StyleFormatter.FormatFieldNameMatch(stb, value);
-                    else stb.StyleFormatter.FormatFieldContentsMatch(stb, value);
+                    var unknownType = value.GetType();
+                    if (unknownType.IsValueType)
+                    {
+                        if (isKeyName)
+                            stb.StyleFormatter.FormatFieldNameMatch(stb, value);
+                        else
+                            stb.StyleFormatter.FormatFieldContentsMatch(stb, value);
+                    }
+                    else
+                    {
+                        stb.OwningAppender.RegisterVisitedInstanceAndConvert(value);
+                    }
                     break;
             }
         else
@@ -769,20 +793,32 @@ public static class StyledTypeBuilderExtensions
     public static IStyleTypeBuilderComponentAccess<TExt> AppendFormattedCollectionItemOrNull<TExt>
     (this IStyleTypeBuilderComponentAccess<TExt> stb, StringBuilder? value, int retrieveCount
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
-        where TExt : StyledTypeBuilder =>
-        value != null 
+        where TExt : StyledTypeBuilder
+    {
+        return value != null
             ? stb.StyleFormatter.Format(value, 0, stb.Sb, formatString).AnyToCompAccess(stb)
             : stb.Sb.Append(stb.Settings.NullStyle).AnyToCompAccess(stb);
+    }
 
     public static IStyleTypeBuilderComponentAccess<TExt> AppendCollectionItem<TExt, T>
-    (this IStyleTypeBuilderComponentAccess<TExt> stb, T value, int retrieveCount) where TExt : StyledTypeBuilder =>
-        stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb).AnyToCompAccess(stb);
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T value, int retrieveCount) where TExt : StyledTypeBuilder
+    {
+        if (typeof(T).IsValueType || value == null || stb.OwningAppender.RegisterVisitedCheckCanContinue(value))
+        {
+            return stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb).AnyToCompAccess(stb);
+        }
+        return stb;
+    }
 
     public static IStyleTypeBuilderComponentAccess<TExt> AppendCollectionItemOrNull<TExt, T>
-    (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value, int retrieveCount) where TExt : StyledTypeBuilder =>
-        value != null 
-            ? stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb).AnyToCompAccess(stb)
-            : stb.Sb.Append(stb.Settings.NullStyle).AnyToCompAccess(stb);
+    (this IStyleTypeBuilderComponentAccess<TExt> stb, T? value, int retrieveCount) where TExt : StyledTypeBuilder
+    {
+        if (typeof(T).IsValueType || value == null || stb.OwningAppender.RegisterVisitedCheckCanContinue(value))
+        {
+            return stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb).AnyToCompAccess(stb);
+        }
+        return stb.Sb.Append(stb.Settings.NullStyle).AnyToCompAccess(stb);
+    }
 
     public static IStringBuilder RemoveLastWhiteSpacedCommaIfFound<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb)
         where TExt : StyledTypeBuilder
@@ -807,10 +843,10 @@ public static class StyledTypeBuilderExtensions
         return stb.Sb;
     }
     
-    public static void StartDictionary<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb)
-        where TExt : StyledTypeBuilder
+    public static void StartDictionary<TExt, TDict>(this IStyleTypeBuilderComponentAccess<TExt> stb, TDict keyValueInstances)
+        where TExt : StyledTypeBuilder where TDict : notnull
     {
-        stb.StyleFormatter.AppendComplexTypeOpening(stb);
+        stb.StyleFormatter.AppendComplexTypeOpening(stb, keyValueInstances.GetType());
     }
 
     public static void EndDictionary<TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb)

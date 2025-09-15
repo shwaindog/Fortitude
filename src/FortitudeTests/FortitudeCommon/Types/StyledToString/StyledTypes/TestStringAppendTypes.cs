@@ -761,6 +761,7 @@ public class TradesInstructor(string tradeSkill) : AccredittedInstructor
     public override string ToString() =>
         $"{base.ToString()}, {nameof(RecentAccreditations)}: {RecentAccreditations}, {nameof(TradeSkill)}: {TradeSkill}";
 }
+
 [JsonDerivedType(typeof(ArtsSubject))]
 [JsonDerivedType(typeof(EngineeringSubject))]
 [JsonDerivedType(typeof(TradesSubject))]

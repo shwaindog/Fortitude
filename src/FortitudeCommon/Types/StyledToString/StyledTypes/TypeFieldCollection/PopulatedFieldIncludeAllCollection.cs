@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
+
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
@@ -88,10 +90,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAllMatch<T>(string fieldName, IReadOnlyList<T>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where T : class =>
         !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
-    
+
     public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<bool>? value) =>
         !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
 
@@ -127,133 +129,122 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<T, TBase>(string fieldName, IEnumerable<T?>? value, CustomTypeStyler<TBase> customTypeStyler)
-        where T : class, TBase where TBase: class =>
+        where T : class, TBase where TBase : class =>
         !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllEnumerate(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
 
     [CallsObjectToString]
     public TExt WhenPopulatedAddAllMatchEnumerate<T>(string fieldName, IEnumerable<T>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where T : class =>
         !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllMatchEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool>? value) 
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool>? value)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
             stb.FieldNameJoin(fieldName);
-            var elementType = typeof(bool);
-            var itemCount   = 0;
-            stb.StartCollection(elementType, true, value!);
+            var eoctb = stb.OwningAppender.StartExplicitCollectionType<IEnumerator<bool>, bool>(value!);
             while (hasValue)
             {
-                stb.AppendCollectionItem(value!.Current, itemCount);
+                eoctb.AddElementAndGoToNextElement(value!.Current);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool?>? value) 
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool?>? value)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
-        {   
-            stb.FieldNameJoin(fieldName); 
-            var elementType = typeof(bool?);
-            var itemCount   = 0;
-            stb.StartCollection(elementType, true, value!);
+        {
+            stb.FieldNameJoin(fieldName);
+            var eoctb = stb.OwningAppender.StartExplicitCollectionType<IEnumerator<bool?>, bool?>(value!);
             while (hasValue)
             {
-                stb.AppendCollectionItem(value!.Current, itemCount);
+                eoctb.AddElementAndGoToNextElement(value!.Current);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
 
     public TExt WhenPopulatedAddAllEnumerate<TFmt>(string fieldName, IEnumerator<TFmt>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmt : ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
-        {   
+        {
             stb.FieldNameJoin(fieldName);
-            var elementType = typeof(TFmt);
-            var itemCount   = 0;
-            stb.StartCollection(elementType, true, value!);
+            var eoctb = stb.OwningAppender.StartExplicitCollectionType<IEnumerator<TFmt>, TFmt>(value!);
             while (hasValue)
             {
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(value!.Current, itemCount, formatString);
-                else
-                    stb.AppendCollectionItem(value!.Current, itemCount);
+                eoctb.AddElementAndGoToNextElement(value!.Current, formatString);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
 
     public TExt WhenPopulatedAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
-        {   
+        {
             stb.FieldNameJoin(fieldName);
-            var elementType = typeof(TFmtStruct?);
-            var itemCount   = 0;
-            stb.StartCollection(elementType, true, value!);
+            var eoctb = stb.OwningAppender.StartExplicitCollectionType<IEnumerator<TFmtStruct?>, TFmtStruct?>(value!);
             while (hasValue)
             {
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(value!.Current, itemCount, formatString);
-                else
-                    stb.AppendCollectionItem(value!.Current, itemCount);
+                eoctb.AddElementAndGoToNextElement(value!.Current, formatString);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
 
     public TExt WhenPopulatedAddAllEnumerate<TToStyle, TStylerType>
-        (string fieldName, IEnumerator<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler) 
+        (string fieldName, IEnumerator<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler)
         where TToStyle : TStylerType
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
-        {   
+        {
             stb.FieldNameJoin(fieldName);
-            var elementType = typeof(TToStyle?);
-            var itemCount   = 0;
-            stb.StartCollection(elementType, true, value!);
+            var eoctb = stb.OwningAppender.StartExplicitCollectionType<IEnumerator<TToStyle>, TToStyle>(value!);
             while (hasValue)
             {
-                stb.AppendOrNull(value!.Current, customTypeStyler);
+                eoctb.AddElementAndGoToNextElement(value!.Current, customTypeStyler);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -264,23 +255,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
-        {   
+        {
             stb.FieldNameJoin(fieldName);
-            var elementType = typeof(string);
-            var itemCount   = 0;
-            stb.StartCollection(elementType, true, value!);
+            var eoctb = stb.OwningAppender.StartExplicitCollectionType<IEnumerator<string>, string>(value!);
             while (hasValue)
             {
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(value!.Current, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(value!.Current, itemCount);
+                eoctb.AddElementAndGoToNextElement(value!.Current, formatString);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -290,23 +277,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
-        {   
+        {
             stb.FieldNameJoin(fieldName);
-            var elementType = typeof(TCharSeq);
-            var itemCount   = 0;
-            stb.StartCollection(elementType, true, value!);
+            var eoctb = stb.OwningAppender.StartExplicitCollectionType<IEnumerator<TCharSeq?>, TCharSeq?>(value!);
             while (hasValue)
             {
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(value!.Current, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(value!.Current, itemCount);
+                eoctb.AddCharSequenceElementAndGoToNextElement(value!.Current, formatString);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -316,23 +299,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
-        {   
+        {
             stb.FieldNameJoin(fieldName);
-            var elementType = typeof(StringBuilder);
-            var itemCount   = 0;
-            stb.StartCollection(elementType, true, value!);
+            var eoctb = stb.OwningAppender.StartExplicitCollectionType<IEnumerator<StringBuilder>, StringBuilder>(value!);
             while (hasValue)
             {
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(value!.Current, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(value!.Current, itemCount);
+                eoctb.AddElementAndGoToNextElement(value!.Current, formatString);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -342,24 +321,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
-        {   
+        {
             stb.FieldNameJoin(fieldName);
-            var elementType = typeof(T);
-            var itemCount   = 0;
-            stb.StartCollection(elementType, true, value!);
+            var eoctb = stb.OwningAppender.StartExplicitCollectionType<IEnumerator<T>, T>(value!);
             while (hasValue)
             {
-                var item = value!.Current;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                eoctb.AddMatchElementAndGoToNextElement(value!.Current, formatString);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;

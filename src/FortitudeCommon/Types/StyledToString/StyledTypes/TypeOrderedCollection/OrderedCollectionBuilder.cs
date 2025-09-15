@@ -15,28 +15,43 @@ public partial class OrderedCollectionBuilder<TExt> : TypedStyledTypeBuilder<TEx
       , IStyleTypeAppenderBuilderAccess owningAppender
       , TypeAppendSettings typeSettings
       , string typeName
+      , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId)
     {
-        InitializeTypedStyledTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting, existingRefId);
+        InitializeTypedStyledTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
 
         stb = CompAsOrderedCollection;
 
         return this;
     }
+    
 
-    public override void Start()
+    public override bool IsComplexType => false;
+    
+    public override void AppendOpening()
     {
         if (CompAsOrderedCollection.CollectionInComplexType)
         {
-            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.StyleTypeBuilder.TypeBeingBuilt.Name);
-            AppendRefIdIfAny();
+            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
         }
         else
         {
             var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            CompAccess.StyleFormatter.FormatCollectionStart
-                (CompAccess, elementType ?? typeof(object), true, CompAccess.StyleTypeBuilder.TypeBeingBuilt);
+            CompAccess.StyleFormatter.FormatCollectionStart(CompAccess, elementType!, true, CompAccess.TypeBeingBuilt);
+        }
+    }
+    
+    public override void AppendClosing()
+    {
+        if (CompAsOrderedCollection.CollectionInComplexType)
+        {
+            CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+        }
+        else
+        {
+            var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
+            CompAccess.StyleFormatter.FormatCollectionEnd(CompAccess, elementType!, 1);
         }
     }
 
@@ -50,10 +65,11 @@ public class SimpleOrderedCollectionBuilder : OrderedCollectionBuilder<SimpleOrd
       , IStyleTypeAppenderBuilderAccess owningAppender
       , TypeAppendSettings typeSettings
       , string typeName
+      , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId)
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting, existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
 
         return this;
     }
@@ -77,13 +93,16 @@ public class ComplexOrderedCollectionBuilder : OrderedCollectionBuilder<ComplexO
       , IStyleTypeAppenderBuilderAccess owningAppender
       , TypeAppendSettings typeSettings
       , string typeName
+      , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId)
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting, existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
 
         return this;
     }
+
+    public override bool IsComplexType => true;
 
     protected override void SourceBuilderComponentAccess()
     {
