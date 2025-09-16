@@ -13,7 +13,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 {
     public TExt WhenPopulatedWithFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(bool);
         var itemCount   = 0;
@@ -25,7 +25,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 stb.AppendCollectionItem(item, i);
@@ -41,7 +41,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt WhenPopulatedWithFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(bool?);
         var itemCount   = 0;
@@ -53,7 +53,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 stb.AppendCollectionItem(item, i);
@@ -72,7 +72,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmt : ISpanFormattable
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(TFmt);
         var itemCount   = 0;
@@ -84,7 +84,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 if (formatString.IsNotNullOrEmpty())
@@ -106,7 +106,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(TFmtStruct?);
         var itemCount   = 0;
@@ -118,7 +118,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 if (formatString.IsNotNullOrEmpty())
@@ -139,7 +139,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     (string fieldName, TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
       , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType, TToStyleBase
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(TToStyle);
         var itemCount   = 0;
@@ -151,7 +151,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 stb.AppendOrNull(item, customTypeStyler);
@@ -169,7 +169,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     (string fieldName, string?[]? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(string);
         var itemCount   = 0;
@@ -181,7 +181,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 if (formatString.IsNotNullOrEmpty())
@@ -203,7 +203,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     where TCharSeq : ICharSequence
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(TCharSeq);
         var itemCount   = 0;
@@ -215,7 +215,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 if (formatString.IsNotNullOrEmpty())
@@ -235,7 +235,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedWithFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(StringBuilder);
         var itemCount   = 0;
@@ -247,7 +247,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 if (formatString.IsNotNullOrEmpty())
@@ -268,7 +268,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where T : TBase
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(T);
         var itemCount   = 0;
@@ -280,7 +280,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 if (formatString.IsNotNullOrEmpty())
@@ -300,7 +300,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(bool);
         var itemCount   = 0;
@@ -312,7 +312,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 stb.AppendCollectionItem(item, i);
@@ -328,7 +328,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(bool?);
         var itemCount   = 0;
@@ -340,7 +340,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 stb.AppendCollectionItem(item, i);
@@ -358,7 +358,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmt : ISpanFormattable
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(TFmt);
         var itemCount   = 0;
@@ -370,7 +370,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 if (formatString.IsNotNullOrEmpty())
@@ -391,7 +391,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , OrderedCollectionPredicate<TFmtStruct?> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(TFmtStruct?);
         var itemCount   = 0;
@@ -403,7 +403,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 _ = formatString.IsNotNullOrEmpty()
@@ -423,7 +423,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     (string fieldName, IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
       , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType, TToStyleBase
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(TToStyle);
         var itemCount   = 0;
@@ -435,7 +435,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 stb.AppendOrNull(item, customTypeStyler);
@@ -452,7 +452,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(string);
         var itemCount   = 0;
@@ -464,7 +464,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 _ = formatString.IsNotNullOrEmpty()
@@ -483,7 +483,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedWithFilterCharSequence<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq?>? value
       , OrderedCollectionPredicate<ICharSequence?> filterPredicate) where TCharSeq : ICharSequence
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(TCharSeq);
         var itemCount   = 0;
@@ -495,7 +495,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 stb.Sb.Append(item);
@@ -512,7 +512,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<StringBuilder?>? value
       , OrderedCollectionPredicate<StringBuilder?> filterPredicate)
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(StringBuilder);
         var itemCount   = 0;
@@ -524,7 +524,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 stb.Sb.Append(item);
@@ -542,7 +542,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where T : TBase
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var found       = false;
         var elementType = typeof(T);
         var itemCount   = 0;
@@ -554,7 +554,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                 if (!found)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true);
+                    stb.StartCollection(elementType, true, value);
                     found = true;
                 }
                 if (formatString.IsNotNullOrEmpty())

@@ -16,6 +16,8 @@ public interface ICustomStringFormatter
     bool IgnoreNullableValues { get; set; }
     bool EmptyCollectionWritesNull { get; set; }
     bool IgnoreEmptyCollection { get; set; }
+    string True { get; set; }
+    string False { get; set; }
 
     int Transfer(char[] source, IStringBuilder sb);
     int Transfer(char[] source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
@@ -41,7 +43,9 @@ public interface ICustomStringFormatter
     int Transfer(ICharSequence source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
     int Transfer(ICharSequence source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue);
     int Transfer(ICharSequence source, int sourceFrom, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
-
+    
+    int ProcessAppendedRange(IStringBuilder sb, int fromIndex);
+    int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length);
 
     int Format(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue);
     int Format(char[] source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue);

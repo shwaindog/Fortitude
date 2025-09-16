@@ -11,23 +11,94 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 {
     string Name { get; }
 
-    IStringBuilder AppendTypeOpening<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess;
+    IStyleTypeBuilderComponentAccess<TB> AppendValueTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type valueType) where TB : StyledTypeBuilder;
+    
+    IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, string? typeName = null) where TB : StyledTypeBuilder;
 
-    IStringBuilder AppendFieldName<TTypeBuilder>(TTypeBuilder typeBuilder, string fieldName) where TTypeBuilder : IStyleTypeBuilderComponentAccess;
-    
-    IStringBuilder AppendFieldValueSeparator<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess;
+    IStyleTypeBuilderComponentAccess<TB> AppendFieldName<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, string fieldName) where TB : StyledTypeBuilder;
 
-    IStringBuilder AppendTypeClosing<TTypeBuilder>(TTypeBuilder typeBuilder) where TTypeBuilder : IStyleTypeBuilderComponentAccess;
-    
-    IStringBuilder FormatCollectionStart<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType, bool hasItems)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess;
-    
-    IStringBuilder FormatCollectionEnd<TTypeBuilder>(TTypeBuilder typeBuilder, Type itemElementType, int totalItemCount) 
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess;
-    
-    IStringBuilder AddCollectionElementSeparator<TTypeBuilder>(TTypeBuilder typeBuilder, Type elementType, int nextItemNumber)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess;
+    IStyleTypeBuilderComponentAccess<TB> AppendFieldValueSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder) where TB : StyledTypeBuilder;
 
-    IStringBuilder AddNextFieldSeparator<TTypeBuilder>(TTypeBuilder typeBuilder)
-        where TTypeBuilder : IStyleTypeBuilderComponentAccess;
+    IStyleTypeBuilderComponentAccess<TB> AppendTypeClosing<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder) where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatCollectionStart<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type itemElementType, bool hasItems, Type collectionType)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatCollectionEnd<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type itemElementType, int totalItemCount)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> AddCollectionElementSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type elementType, int nextItemNumber)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> AddNextFieldSeparator<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldNameMatch<TB, T>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, T source, string? formatString = null)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, bool source, string? formatString = null)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, bool? source, string? formatString = null)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB, TFmt>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, TFmt source, string? formatString = null)
+        where TB : StyledTypeBuilder where TFmt : ISpanFormattable;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB, TFmt>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, TFmt? source, string? formatString = null)
+        where TB : StyledTypeBuilder where TFmt : struct, ISpanFormattable;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = Int32.MaxValue)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, char[] source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = Int32.MaxValue) where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, ICharSequence source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = Int32.MaxValue) where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, StringBuilder source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = Int32.MaxValue) where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB, T, TBase>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, T toStyle, CustomTypeStyler<TBase> styler)
+        where TB : StyledTypeBuilder where T : TBase;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldName<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, IStyledToStringObject styledObj)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContentsMatch<TB, T>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, T source, string? formatString = null)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, bool source, string? formatString = null)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, bool? source, string? formatString = null)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB, TFmt>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, TFmt source, string? formatString = null)
+        where TB : StyledTypeBuilder where TFmt : ISpanFormattable;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB, TFmt>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, TFmt? source, string? formatString = null)
+        where TB : StyledTypeBuilder where TFmt : struct, ISpanFormattable;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, ReadOnlySpan<char> source, int sourceFrom = 0
+      , string? formatString = null
+      , int maxTransferCount = Int32.MaxValue)
+        where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, char[] source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = Int32.MaxValue) where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, ICharSequence source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = Int32.MaxValue) where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, StringBuilder source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = Int32.MaxValue) where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB, T, TBase>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, T toStyle, CustomTypeStyler<TBase> styler)
+        where TB : StyledTypeBuilder where T : TBase;
+
+    IStyleTypeBuilderComponentAccess<TB> FormatFieldContents<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, IStyledToStringObject styledObj)
+        where TB : StyledTypeBuilder;
 }

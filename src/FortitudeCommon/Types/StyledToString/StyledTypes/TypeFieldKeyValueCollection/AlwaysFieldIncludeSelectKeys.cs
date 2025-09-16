@@ -12,7 +12,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKDerived : TKey
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -28,8 +28,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                    : stb.AppendMatchOrNull(key).FieldEnd();
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                    : stb.AppendMatchOrNull(key, true).FieldEnd();
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
                     : stb.AppendMatchOrNull(keyValue);
@@ -53,7 +53,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -69,8 +69,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                    : stb.AppendMatchOrNull(key).FieldEnd();
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                    : stb.AppendMatchOrNull(key, true).FieldEnd();
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
                     : stb.AppendMatchOrNull(keyValue);
@@ -94,7 +94,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKDerived : TKey
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -110,8 +110,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                    : stb.AppendMatchOrNull(key).FieldEnd();
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                    : stb.AppendMatchOrNull(key, true).FieldEnd();
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
                     : stb.AppendMatchOrNull(keyValue);
@@ -135,7 +135,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -151,8 +151,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                    : stb.AppendMatchOrNull(key).FieldEnd();
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                    : stb.AppendMatchOrNull(key, true).FieldEnd();
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
                     : stb.AppendMatchOrNull(keyValue);
@@ -176,7 +176,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         var hasValue  = selectKeys.MoveNext();
@@ -196,8 +196,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 foundValues = true;
             }
             _ = keyFormatString.IsNotNullOrEmpty()
-                ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                : stb.AppendMatchOrNull(key).FieldEnd();
+                ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                : stb.AppendMatchOrNull(key, true).FieldEnd();
             _ = valueFormatString.IsNotNullOrEmpty()
                 ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
                 : stb.AppendMatchOrNull(keyValue);
@@ -220,7 +220,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , CustomTypeStyler<TVBase> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey where TValue : TVBase  
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -236,8 +236,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                    : stb.AppendMatchOrNull(key).FieldEnd();
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                    : stb.AppendMatchOrNull(key, true).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
@@ -259,7 +259,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey where TValue : TVBase   
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -275,8 +275,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                    : stb.AppendMatchOrNull(key).FieldEnd();
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                    : stb.AppendMatchOrNull(key, true).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -298,7 +298,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey where TValue : TVBase   
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -314,8 +314,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                    : stb.AppendMatchOrNull(key).FieldEnd();
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                    : stb.AppendMatchOrNull(key, true).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -336,7 +336,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey where TValue : TVBase   
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -352,8 +352,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     foundValues = true;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                    : stb.AppendMatchOrNull(key).FieldEnd();
+                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                    : stb.AppendMatchOrNull(key, true).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
@@ -374,7 +374,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey where TValue : TVBase   
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         var hasValue  = selectKeys.MoveNext();
@@ -394,8 +394,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 foundValues = true;
             }
             _ = keyFormatString.IsNotNullOrEmpty()
-                ? stb.AppendMatchFormattedOrNull(key, keyFormatString).FieldEnd()
-                : stb.AppendMatchOrNull(key).FieldEnd();
+                ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
+                : stb.AppendMatchOrNull(key, true).FieldEnd();
             stb.AppendOrNull(keyValue, valueStyler);
             stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = selectKeys.MoveNext();
@@ -416,7 +416,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
         where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -431,7 +431,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     stb.StartDictionary();
                     foundValues = true;
                 }
-                stb.AppendOrNull(key, keyStyler).FieldEnd();
+                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -451,7 +451,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , ReadOnlySpan<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
         where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -466,7 +466,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     stb.StartDictionary();
                     foundValues = true;
                 }
-                stb.AppendOrNull(key, keyStyler).FieldEnd();
+                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -487,7 +487,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
         where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -502,7 +502,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     stb.StartDictionary();
                     foundValues = true;
                 }
-                stb.AppendOrNull(key, keyStyler).FieldEnd();
+                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
@@ -523,7 +523,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
           , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
         where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -538,7 +538,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     stb.StartDictionary();
                     foundValues = true;
                 }
-                stb.AppendOrNull(key, keyStyler).FieldEnd();
+                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
@@ -559,7 +559,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
         where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
     {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
         var hasValue  = selectKeys.MoveNext();
@@ -578,7 +578,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 stb.StartDictionary();
                 foundValues = true;
             }
-            stb.AppendOrNull(key, keyStyler).FieldEnd();
+            stb.AppendOrNull(key, keyStyler, true).FieldEnd();
             stb.AppendOrNull(keyValue, valueStyler);
             stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             hasValue = selectKeys.MoveNext();
