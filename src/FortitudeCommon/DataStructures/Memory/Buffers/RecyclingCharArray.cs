@@ -499,7 +499,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
             var itemLen         = Math.Min(item.Length - fromIndex, itemMaxCopy);
             var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
 
-            for (int i = cappedLengthEnd; i > index && i > 0; i--) backingArray[i] = backingArray![i - itemLen];
+            for (int i = cappedLengthEnd; i >= index + itemLen && i - itemLen > 0; i--) backingArray[i] = backingArray![i - itemLen];
 
             var stopIndex = Math.Min(RemainingCapacity, itemLen);
 

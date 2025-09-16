@@ -94,7 +94,7 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
 
     public int RemainingGraphDepth { get; set; }
 
-    public ushort IndentLevel => typeBuilderState.AppenderSettings.IndentLvl;
+    public ushort IndentLevel => (ushort)typeBuilderState.OwningAppender.IndentLevel;
     public bool WriteAsComplex => StyleTypeBuilder.IsComplexType || StyleTypeBuilder.ExistingRefId != 0 || RemainingGraphDepth <= 0;
 
     public char IndentChar => Settings.IndentChar;
@@ -115,14 +115,14 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
 
     public int DecrementIndent()
     {
-        typeBuilderState.AppenderSettings.IndentLvl--;
-        return typeBuilderState.AppenderSettings.IndentLvl;
+        typeBuilderState.OwningAppender.IndentLevel--;
+        return typeBuilderState.OwningAppender.IndentLevel;
     }
 
     public int IncrementIndent()
     {
-        typeBuilderState.AppenderSettings.IndentLvl++;
-        return typeBuilderState.AppenderSettings.IndentLvl;
+        typeBuilderState.OwningAppender.IndentLevel++;
+        return typeBuilderState.OwningAppender.IndentLevel;
     }
 
     public TypeAppendSettings AppendSettings

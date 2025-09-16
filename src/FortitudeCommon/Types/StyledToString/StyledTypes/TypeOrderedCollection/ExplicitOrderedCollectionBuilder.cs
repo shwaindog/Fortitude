@@ -176,7 +176,7 @@ public class ExplicitOrderedCollectionBuilder<TElement> : OrderedCollectionBuild
     public ExplicitOrderedCollectionBuilder<TElement> AppendNextCollectionItemSeparator()
     {
         if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.GoToNextCollectionItemStart(TypeOfElement, elementCount);
+        CompAsOrderedCollection.StyleFormatter.AddCollectionElementSeparator(CompAsOrderedCollection, TypeOfElement, elementCount);
         return this;
     }
 

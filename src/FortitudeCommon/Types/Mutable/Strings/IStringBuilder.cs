@@ -93,6 +93,13 @@ public static class IStringBuilderExtensions
         return toAppendTo;
     }
 
+    public static IStringBuilder InsertAt(this IStringBuilder toExtend, string source, int insertIndex = 0)
+    {
+        toExtend.ShiftRightAt(insertIndex, source.Length);
+        toExtend.OverwriteAt(insertIndex, source);
+        return toExtend;
+    }
+
     public static IStringBuilder InsertAt(this IStringBuilder toExtend, StringBuilder source, int insertIndex = 0)
     {
         toExtend.ShiftRightAt(insertIndex, source.Length);
@@ -115,21 +122,7 @@ public static class IStringBuilderExtensions
         return toExtend;
     }
 
-    public static IStringBuilder OverwriteAt(this IStringBuilder toWriteTo, int insertIndex, StringBuilder source)
-    {
-        var endSizeDiff = source.Length - (toWriteTo.Length - insertIndex);
-        if (endSizeDiff > 0)
-        {
-            toWriteTo.Length += endSizeDiff;
-        }
-        for (var i = 0; i < source.Length; i++)
-        {
-            toWriteTo[insertIndex + i] = source[i];
-        }
-        return toWriteTo;
-    }
-
-    public static IStringBuilder OverwriteAt(this IStringBuilder toWriteTo, int insertIndex, ICharSequence source)
+    public static IStringBuilder OverwriteAt(this IStringBuilder toWriteTo, int insertIndex, string source)
     {
         var endSizeDiff = source.Length - (toWriteTo.Length - insertIndex);
         if (endSizeDiff > 0)
@@ -151,6 +144,34 @@ public static class IStringBuilderExtensions
             toWriteTo.Length += endSizeDiff;
         }
         for (var i = 0; i < source.Length && i < length; i++)
+        {
+            toWriteTo[insertIndex + i] = source[i];
+        }
+        return toWriteTo;
+    }
+
+    public static IStringBuilder OverwriteAt(this IStringBuilder toWriteTo, int insertIndex, ICharSequence source)
+    {
+        var endSizeDiff = source.Length - (toWriteTo.Length - insertIndex);
+        if (endSizeDiff > 0)
+        {
+            toWriteTo.Length += endSizeDiff;
+        }
+        for (var i = 0; i < source.Length; i++)
+        {
+            toWriteTo[insertIndex + i] = source[i];
+        }
+        return toWriteTo;
+    }
+
+    public static IStringBuilder OverwriteAt(this IStringBuilder toWriteTo, int insertIndex, StringBuilder source)
+    {
+        var endSizeDiff = source.Length - (toWriteTo.Length - insertIndex);
+        if (endSizeDiff > 0)
+        {
+            toWriteTo.Length += endSizeDiff;
+        }
+        for (var i = 0; i < source.Length; i++)
         {
             toWriteTo[insertIndex + i] = source[i];
         }

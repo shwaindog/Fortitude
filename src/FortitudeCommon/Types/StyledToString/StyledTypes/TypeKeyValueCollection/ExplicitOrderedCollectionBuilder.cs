@@ -9,7 +9,7 @@ public class ExplicitKeyedCollectionBuilder<TKey, TValue> : MultiValueTypeBuilde
 
     protected static readonly Type TypeOfElement = typeof(TKey);
 
-    private int elementCount = -1;
+    private int elementCount;
 
     public ExplicitKeyedCollectionBuilder<TKey, TValue> InitializeExplicitKeyValueCollectionBuilder
     (
@@ -32,12 +32,14 @@ public class ExplicitKeyedCollectionBuilder<TKey, TValue> : MultiValueTypeBuilde
 
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
+        var keyValueTypes = CompAccess.TypeBeingBuilt.GetKeyedCollectionTypes()!;
+        CompAccess.StyleFormatter.AppendKeyedCollectionStart(CompAccess, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
     }
 
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+        var keyValueTypes = CompAccess.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
+        CompAccess.StyleFormatter.AppendKeyedCollectionEnd(CompAccess, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value, elementCount);
     }
 
     protected override void InheritedStateReset()
@@ -51,12 +53,7 @@ public class ExplicitKeyedCollectionBuilder<TKey, TValue> : MultiValueTypeBuilde
       , string? keyFormatString = null)
     {
         if (stb.SkipBody) return this;
-        _ = keyFormatString.IsNotNullOrEmpty()
-            ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-            : stb.AppendMatchOrNull(key, true).FieldEnd();
-        _ = valueFormatString.IsNotNullOrEmpty()
-            ? stb.AppendMatchFormattedOrNull(value, valueFormatString)
-            : stb.AppendMatchOrNull(value);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueFormatString, keyFormatString);
         return this;
     }
 
@@ -64,10 +61,7 @@ public class ExplicitKeyedCollectionBuilder<TKey, TValue> : MultiValueTypeBuilde
       , string? keyFormatString = null) where TK : TKey where TV : TValue, TVBase
     {
         if (stb.SkipBody) return this;
-        _ = keyFormatString.IsNotNullOrEmpty()
-            ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-            : stb.AppendMatchOrNull(key, true).FieldEnd();
-        valueStyler(value, stb.OwningAppender);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString);
         return this;
     }
 
@@ -75,9 +69,7 @@ public class ExplicitKeyedCollectionBuilder<TKey, TValue> : MultiValueTypeBuilde
       , CustomTypeStyler<TKBase> keyStyler) where TK : TKey, TKBase where TV : TValue, TVBase
     {
         if (stb.SkipBody) return this;
-        keyStyler(key, stb.OwningAppender);
-        stb.FieldEnd();
-        valueStyler(value, stb.OwningAppender);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler);
         return this;
     }
 
@@ -93,19 +85,14 @@ public class ExplicitKeyedCollectionBuilder<TKey, TValue> : MultiValueTypeBuilde
       , string? keyFormatString = null) where TK : TKey where TV : TValue, TVBase
     {
         if (stb.SkipBody) return this;
-        _ = keyFormatString.IsNotNullOrEmpty()
-            ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-            : stb.AppendMatchOrNull(key, true).FieldEnd();
-        valueStyler(value, stb.OwningAppender);
+        AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
     public ExplicitKeyedCollectionBuilder<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKBase, TVBase>(TK key, TV value, CustomTypeStyler<TVBase> valueStyler
       , CustomTypeStyler<TKBase> keyStyler) where TK : TKey, TKBase where TV : TValue, TVBase
     {
-        keyStyler(key, stb.OwningAppender);
-        stb.FieldEnd();
-        valueStyler(value, stb.OwningAppender);
+        AddKeyValueMatchEntry(key, value, valueStyler, keyStyler);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 

@@ -35,7 +35,7 @@ public static class TypeExtensions
 
     public static bool IsNotArray(this Type type) => !type.IsArray();
 
-    public static bool IsKeyValuePair(this Type type)    => type.GetGenericTypeDefinition() == KeyValuePairTypeDef;
+    public static bool IsKeyValuePair(this Type type) => type.GetGenericTypeDefinition() == KeyValuePairTypeDef;
     public static bool IsNotKeyValuePair(this Type type) => !type.IsKeyValuePair();
 
     public static bool IsArrayOf(this Type type, Type itemType) => type.IsArray() && type.GetElementType() == itemType;
@@ -45,7 +45,7 @@ public static class TypeExtensions
     public static bool IsNullableArrayOf(this Type type, Type valueType) => type.IsArray() && type.GetElementType()!.IsNullableOf(valueType);
 
     public static bool IsReadOnlyList(this Type type) =>
-        type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef || 
+        type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef ||
         type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef);
 
     public static Type? IfReadOnlyListGetElementType(this Type type)
@@ -53,8 +53,9 @@ public static class TypeExtensions
         if (type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef)
         {
             return type.GenericTypeArguments.FirstOrDefault();
-        } 
-        return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef)?.GenericTypeArguments.FirstOrDefault();
+        }
+        return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef)?.GenericTypeArguments
+                   .FirstOrDefault();
     }
 
     public static bool IsReadOnlyListAndNotArray(this Type type) =>
@@ -72,8 +73,8 @@ public static class TypeExtensions
 
     public static bool IsReadOnlyListOfNullable(this Type type, Type valueType) =>
         type.IsReadOnlyList() && type.IsGenericType && type.GenericTypeArguments[0].IsNullableOf(valueType)
-        || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef
-                                                         && i.GenericTypeArguments[0].IsNullableOf(valueType));
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef
+                                                      && i.GenericTypeArguments[0].IsNullableOf(valueType));
 
     public static bool IsNotReadOnlyList(this Type type) => !type.IsReadOnlyList();
 
@@ -86,7 +87,8 @@ public static class TypeExtensions
     public static Type? GetIndexedCollectionElementType(this Type type) => type.IfArrayGetElementType() ?? type.IfReadOnlyListGetElementType();
 
     public static bool IsReadOnlyDictionaryType(this Type type) =>
-        type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef);
+        (type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef)
+     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef);
 
     public static bool IsNotReadOnlyDictionaryType(this Type type) => !type.IsReadOnlyDictionaryType();
 
@@ -128,7 +130,7 @@ public static class TypeExtensions
 
     public static bool Derives(this Type type, Type maybeBaseType) => maybeBaseType.IsAssignableFrom(type);
 
-    public static bool IsValueTypeArray(this Type type)  => ArrayType.IsAssignableFrom(type) && (type.GetElementType()?.IsValueType ?? false);
+    public static bool IsValueTypeArray(this Type type) => ArrayType.IsAssignableFrom(type) && (type.GetElementType()?.IsValueType ?? false);
     public static bool IsObjectTypeArray(this Type type) => ArrayType.IsAssignableFrom(type) && !(type.GetElementType()?.IsValueType ?? false);
 
     public static bool IsCollectionOf(this Type type, Type itemType) =>
@@ -157,15 +159,16 @@ public static class TypeExtensions
      || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef
                                                       && i.GenericTypeArguments[0].Supports(itemType));
 
-    public static bool  IsNotEnumerable(this Type type)          => !type.IsEnumerable();
-    
-    public static Type? IfEnumerableGetElementType(this Type type) 
+    public static bool IsNotEnumerable(this Type type) => !type.IsEnumerable();
+
+    public static Type? IfEnumerableGetElementType(this Type type)
     {
         if (type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef)
         {
             return type.GenericTypeArguments.FirstOrDefault();
-        } 
-        return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef)?.GenericTypeArguments.FirstOrDefault();
+        }
+        return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef)?.GenericTypeArguments
+                   .FirstOrDefault();
     }
 
     public static bool IsEnumerator(this Type type) =>
@@ -189,15 +192,16 @@ public static class TypeExtensions
      || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef
                                                       && i.GenericTypeArguments[0].Supports(itemType));
 
-    public static bool  IsNotEnumerator(this Type type)          => !type.IsEnumerator();
-    
-    public static Type? IfEnumeratorGetElementType(this Type type) 
+    public static bool IsNotEnumerator(this Type type) => !type.IsEnumerator();
+
+    public static Type? IfEnumeratorGetElementType(this Type type)
     {
         if (type.IsGenericType && type.GetGenericTypeDefinition() == EnumeratorTypeDef)
         {
             return type.GenericTypeArguments.FirstOrDefault();
-        } 
-        return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef)?.GenericTypeArguments.FirstOrDefault();
+        }
+        return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef)?.GenericTypeArguments
+                   .FirstOrDefault();
     }
 
     public static bool IsIterable(this Type type) => type.IsEnumerable() || type.IsEnumerator();
@@ -221,18 +225,18 @@ public static class TypeExtensions
 
     public static bool IsNullableSpanFormattableArray(this Type check) => check.IsArray() && check.IfArrayGetElementType()!.IsNullableSpanFormattable();
 
-    public static bool IsBool(this Type check)              => check == typeof(bool);
-    public static bool IsNullableBool(this Type check)      => check == typeof(bool?);
-    public static bool IsBoolArray(this Type check)         => check == typeof(bool[]);
+    public static bool IsBool(this Type check) => check == typeof(bool);
+    public static bool IsNullableBool(this Type check) => check == typeof(bool?);
+    public static bool IsBoolArray(this Type check) => check == typeof(bool[]);
     public static bool IsNullableBoolArray(this Type check) => check == typeof(bool?[]);
 
     public static bool IsBoolList(this Type check) => check.IsReadOnlyListOf(typeof(bool));
 
     public static bool IsNullableBoolList(this Type check) => check.IsReadOnlyListOfNullable(typeof(bool));
 
-    public static bool IsByte(this Type check)              => check == typeof(byte) || check.IsByteEnum();
-    public static bool IsNullableByte(this Type check)      => check == typeof(byte?);
-    public static bool IsByteArray(this Type check)         => check == typeof(byte[]);
+    public static bool IsByte(this Type check) => check == typeof(byte) || check.IsByteEnum();
+    public static bool IsNullableByte(this Type check) => check == typeof(byte?);
+    public static bool IsByteArray(this Type check) => check == typeof(byte[]);
     public static bool IsNullableByteArray(this Type check) => check == typeof(byte?[]);
 
     public static bool IsByteList(this Type check) =>
@@ -245,9 +249,9 @@ public static class TypeExtensions
      || check == typeof(IList<byte?>)
      || check == typeof(IReadOnlyList<byte?>);
 
-    public static bool IsShort(this Type check)              => check == typeof(short) || check.IsShortEnum();
-    public static bool IsNullableShort(this Type check)      => check == typeof(short?);
-    public static bool IsShortArray(this Type check)         => check == typeof(short[]);
+    public static bool IsShort(this Type check) => check == typeof(short) || check.IsShortEnum();
+    public static bool IsNullableShort(this Type check) => check == typeof(short?);
+    public static bool IsShortArray(this Type check) => check == typeof(short[]);
     public static bool IsNullableShortArray(this Type check) => check == typeof(short?[]);
 
     public static bool IsShortList(this Type check) =>
@@ -260,9 +264,9 @@ public static class TypeExtensions
      || check == typeof(IList<short?>)
      || check == typeof(IReadOnlyList<short?>);
 
-    public static bool IsUShort(this Type check)              => check == typeof(ushort) || check.IsUShortEnum();
-    public static bool IsNullableUShort(this Type check)      => check == typeof(ushort?);
-    public static bool IsUShortArray(this Type check)         => check == typeof(ushort[]);
+    public static bool IsUShort(this Type check) => check == typeof(ushort) || check.IsUShortEnum();
+    public static bool IsNullableUShort(this Type check) => check == typeof(ushort?);
+    public static bool IsUShortArray(this Type check) => check == typeof(ushort[]);
     public static bool IsNullableUShortArray(this Type check) => check == typeof(ushort?[]);
 
     public static bool IsUShortList(this Type check) =>
@@ -275,9 +279,9 @@ public static class TypeExtensions
      || check == typeof(IList<ushort?>)
      || check == typeof(IReadOnlyList<ushort?>);
 
-    public static bool IsInt(this Type check)              => check == typeof(int) || check.IsIntEnum();
-    public static bool IsNullableInt(this Type check)      => check == typeof(int?);
-    public static bool IsIntArray(this Type check)         => check == typeof(int[]);
+    public static bool IsInt(this Type check) => check == typeof(int) || check.IsIntEnum();
+    public static bool IsNullableInt(this Type check) => check == typeof(int?);
+    public static bool IsIntArray(this Type check) => check == typeof(int[]);
     public static bool IsNullableIntArray(this Type check) => check == typeof(int?[]);
 
     public static bool IsIntList(this Type check) =>
@@ -291,9 +295,9 @@ public static class TypeExtensions
      || check == typeof(IReadOnlyList<int?>);
 
 
-    public static bool IsUInt(this Type check)              => check == typeof(uint) || check.IsUIntEnum();
-    public static bool IsNullableUInt(this Type check)      => check == typeof(uint?);
-    public static bool IsUIntArray(this Type check)         => check == typeof(uint[]);
+    public static bool IsUInt(this Type check) => check == typeof(uint) || check.IsUIntEnum();
+    public static bool IsNullableUInt(this Type check) => check == typeof(uint?);
+    public static bool IsUIntArray(this Type check) => check == typeof(uint[]);
     public static bool IsNullableUIntArray(this Type check) => check == typeof(uint?[]);
 
     public static bool IsUIntList(this Type check) =>
@@ -306,9 +310,9 @@ public static class TypeExtensions
      || check == typeof(IList<uint?>)
      || check == typeof(IReadOnlyList<uint?>);
 
-    public static bool IsLong(this Type check)              => check == typeof(long) || check.IsLongEnum();
-    public static bool IsNullableLong(this Type check)      => check == typeof(long?);
-    public static bool IsLongArray(this Type check)         => check == typeof(long[]);
+    public static bool IsLong(this Type check) => check == typeof(long) || check.IsLongEnum();
+    public static bool IsNullableLong(this Type check) => check == typeof(long?);
+    public static bool IsLongArray(this Type check) => check == typeof(long[]);
     public static bool IsNullableLongArray(this Type check) => check == typeof(long?[]);
 
     public static bool IsLongList(this Type check) =>
@@ -321,9 +325,9 @@ public static class TypeExtensions
      || check == typeof(IList<long?>)
      || check == typeof(IReadOnlyList<long?>);
 
-    public static bool IsULong(this Type check)              => check == typeof(long) || check.IsULongEnum();
-    public static bool IsNullableULong(this Type check)      => check == typeof(ulong?);
-    public static bool IsULongArray(this Type check)         => check == typeof(ulong[]);
+    public static bool IsULong(this Type check) => check == typeof(long) || check.IsULongEnum();
+    public static bool IsNullableULong(this Type check) => check == typeof(ulong?);
+    public static bool IsULongArray(this Type check) => check == typeof(ulong[]);
     public static bool IsNullableULongArray(this Type check) => check == typeof(ulong?[]);
 
     public static bool IsULongList(this Type check) =>
@@ -336,9 +340,9 @@ public static class TypeExtensions
      || check == typeof(IList<ulong?>)
      || check == typeof(IReadOnlyList<ulong?>);
 
-    public static bool IsDecimal(this Type check)              => check == typeof(decimal);
-    public static bool IsNullableDecimal(this Type check)      => check == typeof(decimal?);
-    public static bool IsDecimalArray(this Type check)         => check == typeof(decimal[]);
+    public static bool IsDecimal(this Type check) => check == typeof(decimal);
+    public static bool IsNullableDecimal(this Type check) => check == typeof(decimal?);
+    public static bool IsDecimalArray(this Type check) => check == typeof(decimal[]);
     public static bool IsNullableDecimalArray(this Type check) => check == typeof(decimal?[]);
 
     public static bool IsDecimalList(this Type check) =>
@@ -351,9 +355,9 @@ public static class TypeExtensions
      || check == typeof(IList<decimal?>)
      || check == typeof(IReadOnlyList<decimal?>);
 
-    public static bool IsDateTime(this Type check)              => check == typeof(DateTime);
-    public static bool IsNullableDateTime(this Type check)      => check == typeof(DateTime?);
-    public static bool IsDateTimeArray(this Type check)         => check == typeof(DateTime[]);
+    public static bool IsDateTime(this Type check) => check == typeof(DateTime);
+    public static bool IsNullableDateTime(this Type check) => check == typeof(DateTime?);
+    public static bool IsDateTimeArray(this Type check) => check == typeof(DateTime[]);
     public static bool IsNullableDateTimeArray(this Type check) => check == typeof(DateTime?[]);
 
     public static bool IsDateTimeList(this Type check) =>
@@ -366,8 +370,8 @@ public static class TypeExtensions
      || check == typeof(IList<DateTime?>)
      || check == typeof(IReadOnlyList<DateTime?>);
 
-    public static bool IsString(this Type check)      => check == typeof(string);
-    public static bool IsNotString(this Type check)   => !check.IsString();
+    public static bool IsString(this Type check) => check == typeof(string);
+    public static bool IsNotString(this Type check) => !check.IsString();
     public static bool IsStringArray(this Type check) => check == typeof(string[]);
 
     public static bool IsStringList(this Type check) =>
@@ -375,7 +379,7 @@ public static class TypeExtensions
      || check == typeof(IList<string>)
      || check == typeof(IReadOnlyList<string>);
 
-    public static bool IsMutableString(this Type check)      => check == typeof(MutableString);
+    public static bool IsMutableString(this Type check) => check == typeof(MutableString);
     public static bool IsMutableStringArray(this Type check) => check == typeof(MutableString[]);
 
     public static bool IsMutableStringList(this Type check) =>

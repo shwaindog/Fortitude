@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollection;
@@ -9,6 +10,8 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollectio
 public partial class KeyValueCollectionBuilder : MultiValueTypeBuilder<KeyValueCollectionBuilder>
 {
     private IStyleTypeBuilderComponentAccess<KeyValueCollectionBuilder> stb = null!;
+
+    protected int ItemCount = 0;
 
     public KeyValueCollectionBuilder InitializeKeyValueCollectionBuilder 
     (
@@ -31,12 +34,14 @@ public partial class KeyValueCollectionBuilder : MultiValueTypeBuilder<KeyValueC
     
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
+        var keyValueTypes = CompAccess.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
+        CompAccess.StyleFormatter.AppendKeyedCollectionStart(CompAccess, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
     }
     
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+        var keyValueTypes = CompAccess.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
+        CompAccess.StyleFormatter.AppendKeyedCollectionEnd(CompAccess, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount);
     }
 
     protected override void InheritedStateReset()

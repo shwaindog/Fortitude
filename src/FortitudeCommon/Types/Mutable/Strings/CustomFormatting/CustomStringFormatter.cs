@@ -26,7 +26,9 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     protected const string DefaultFalseString = "false";
 
     protected const string SqBrktOpn = "[";
+    protected const char SqBrktOpnChar = '[';
     protected const string SqBrktCls = "]";
+    protected const char SqBrktClsChar = ']';
 
     protected static readonly ConcurrentDictionary<Type, ICustomFormattableProvider> GlobalCustomSpanFormattableProviders = new();
 

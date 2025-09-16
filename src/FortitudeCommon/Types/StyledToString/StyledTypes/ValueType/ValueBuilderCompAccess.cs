@@ -39,6 +39,13 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
+    public TExt ValueMatchNext<T>(T value, string? formatString = null)
+    {
+        if (SkipBody) return StyleTypeBuilder;
+        StyleFormatter.FormatFieldContentsMatch(Sb, value, formatString);
+        return ConditionalCollectionSuffix();
+    }
+
     public TExt FieldValueNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) 
         where TToStyle : TStylerType
     {

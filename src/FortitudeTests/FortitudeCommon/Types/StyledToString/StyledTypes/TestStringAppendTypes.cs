@@ -637,6 +637,7 @@ public class Person : IStyledToStringObject
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FirstName), FirstName)
             .Field.WhenNonDefaultAdd(nameof(DateOfBirth), DateOfBirth)
+            .Field.WhenNonNullOrDefaultAdd(nameof(LastName), LastName)
             .CollectionField.WhenNonNullAddAll(nameof(Licenses), Licenses)
             .Complete();
 
@@ -923,6 +924,10 @@ public class Engineering : Faculty
     public override string ToString() => $"{nameof(MajorOfFaculty)}: {MajorOfFaculty}, {nameof(DeanOfFaculty)}.FirstName: {DeanOfFaculty.FirstName}";
 }
 
+[JsonDerivedType(typeof(HighVoltageElectriciansLicense))]
+[JsonDerivedType(typeof(HighPressureHydraulicsLicense))]
+[JsonDerivedType(typeof(MotorbikeLicense))]
+[JsonDerivedType(typeof(AutomobileLicense))]
 public class License : IStyledToStringObject
 {
     public decimal LicenseNumber { get; set; }
@@ -1060,7 +1065,7 @@ public class AutomobileLicense : License
         stsa.StartComplexType(this)
             .Field.WhenNonDefaultAdd(nameof(Manual), Manual)
             .CollectionField.AlwaysAddAll(nameof(CurrentRestrictions), CurrentRestrictions, Restrictions.Styler)
-            .KeyedCollectionField.WhenPopulatedAddAll(nameof(CurrentRestrictions), Citations, null, "givenOn_{0:yyyyMMdd}")
+            .KeyedCollectionField.AlwaysAddAll(nameof(Citations), Citations, null, "givenOn_{0:yyyyMMdd}")
             .AddBaseStyledToStringFields(this);
 
     public override string ToString() =>
@@ -1081,7 +1086,7 @@ public struct Restrictions(TimeSpan length)
     public static CustomTypeStyler<Restrictions> Styler { get; } =
         (restriction, stsa) =>
             stsa.StartComplexType(restriction, nameof(Restrictions))
-                .Field.AlwaysAdd(nameof(lengthRemaining), restriction.lengthRemaining, restriction.lengthRemaining.StylerAsStringFormatter())
+                .Field.AlwaysAdd(nameof(lengthRemaining), restriction.lengthRemaining)
                 .Field.AlwaysAdd(nameof(Name), restriction.Name)
                 .Field.WhenNonNullOrDefaultAdd(nameof(Type), restriction.Type)
                 .KeyedCollectionField

@@ -56,12 +56,14 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
                 ? AlwaysAddWithFormatting(fieldName, value, formatString)
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value ?? "null").AddGoToNext();
 
-    public TExt AlwaysAdd(string fieldName, string? value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
+    public TExt AlwaysAdd(string fieldName, string? value, int startIndex, int length = int.MaxValue
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields 
             ? stb.StyleTypeBuilder 
             : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
 
-    public TExt AlwaysAdd(string fieldName, char[]? value) =>
+    public TExt AlwaysAdd(string fieldName, char[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
     public TExt AlwaysAdd(string fieldName, char[]? value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
@@ -72,17 +74,20 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt AlwaysAdd(string fieldName, IStyledToStringObject? value) =>
         stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
-    public TExt AlwaysAdd(string fieldName, ICharSequence? value) =>
+    public TExt AlwaysAdd(string fieldName, ICharSequence? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields 
             ? stb.StyleTypeBuilder 
             : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
-    public TExt AlwaysAdd(string fieldName, ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
+    public TExt AlwaysAdd(string fieldName, ICharSequence? value, int startIndex, int length = int.MaxValue
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
 
-    public TExt AlwaysAdd(string fieldName, StringBuilder? value) =>
+    public TExt AlwaysAdd(string fieldName, StringBuilder? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
     public TExt AlwaysAdd(string fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null) =>

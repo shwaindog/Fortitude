@@ -49,7 +49,6 @@ public abstract class TypedStyledTypeBuilder<T> : StyledTypeBuilder, ITypeBuilde
         {
             CompAccess.RemoveLastWhiteSpacedCommaIfFound();
             AppendClosing();
-            CompAccess.DecrementIndent();
         }
         var currentAppenderIndex = CompAccess.OwningAppender.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));

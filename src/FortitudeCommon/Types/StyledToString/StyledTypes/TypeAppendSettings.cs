@@ -3,9 +3,7 @@
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes;
 
-public struct TypeAppendSettings(ushort indentLvl, IgnoreWriteFlags ignoreWriteFlags)
+public struct TypeAppendSettings(IgnoreWriteFlags ignoreWriteFlags)
 {
-    public ushort IndentLvl = indentLvl;
-
     public IgnoreWriteFlags IgnoreWriteFlags = ignoreWriteFlags;
 }

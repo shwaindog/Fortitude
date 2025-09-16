@@ -71,6 +71,9 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
       , CustomTypeStyler<TBase> customTypeStyler) where T : TBase =>
         Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
 
+    public TExt ValueMatch(object value, string? formatString = null) =>
+        Stb.ValueMatchNext(value, formatString);
+
     public TExt ValueWithFallback<T, TBase>(string nonJsonfieldName, T? value
       , CustomTypeStyler<TBase> customTypeStyler, T fallbackValue) 
         where T : class, TBase where TBase : class =>

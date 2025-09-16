@@ -5,6 +5,8 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
@@ -32,7 +34,7 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
 
     StyleOptions Settings { get; }
 
-    int IndentLevel { get; }
+    int IndentLevel { get; set; }
 
     StyledTypeBuilder? CurrentTypeBuilder { get; }
 
@@ -77,7 +79,7 @@ public interface IStyleTypeAppenderBuilderAccess : IStyledTypeStringAppender
 
     StyledTypeStringAppender ToTypeStringAppender { get; }
     
-    StyledTypeBuildResult RegisterVisitedInstanceAndConvert(object obj);
+    StyledTypeBuildResult RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null);
     
     bool RegisterVisitedCheckCanContinue(object obj);
     int EnsureRegisteredVisited(object obj);
@@ -196,7 +198,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public bool UseReferenceEqualsForVisited { get; set; }
 
-    public int IndentLevel => AppendSettings.IndentLvl;
+    public int IndentLevel { get; set; }
 
     public IgnoreWriteFlags IgnoreWriteFlags => AppendSettings.IgnoreWriteFlags;
 
@@ -218,8 +220,10 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         Settings.Style = stringStyle;
 
+        IndentLevel                = indentLevel;
+        
         defaultStyledTypeFormatter = SourceDefaultStyledTypeFormatter(stringStyle);
-        initialAppendSettings      = new TypeAppendSettings((ushort)indentLevel, ignoreWrite);
+        initialAppendSettings      = new TypeAppendSettings(ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
 
@@ -232,15 +236,15 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         ((IRecyclableObject)completeType).DecrementRefCount();
     }
 
-    public StyledTypeBuildResult RegisterVisitedInstanceAndConvert(object obj)
+    public StyledTypeBuildResult RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null)
     {
-        var type           = obj.GetType();
-        var existingRefId  = SourceGraphVisitRefId(obj, type);
-        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        var    type            = obj.GetType();
+        var    existingRefId   = SourceGraphVisitRefId(obj, type);
+        var    remainingDepth  = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
 
         return existingRefId > 0 || remainingDepth <= 0 
-            ? StartComplexValueType(obj).String("", obj.ToString()).Complete() 
-            : StartSimpleValueType(obj).String("", obj.ToString()).Complete();
+            ? StartComplexValueType(obj).ValueMatch(obj, formatString).Complete() 
+            : StartSimpleValueType(obj).ValueMatch(obj, formatString).Complete();
     }
 
     public bool RegisterVisitedCheckCanContinue(object obj)
@@ -254,7 +258,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
             return false;
         }
         var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false, obj, (CurrentNode?.GraphDepth ?? -1) + 1
-                                        , AppendSettings.IndentLvl, Sb!.Length
+                                        , IndentLevel, Sb!.Length
                                         , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, null);
         
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
@@ -275,7 +279,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
             return firstVisitedIndex;
         }
         var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false, obj, (CurrentNode?.GraphDepth ?? -1) + 1
-                                        , AppendSettings.IndentLvl, Sb!.Length
+                                        , IndentLevel, Sb!.Length
                                         , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, null);
         
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
@@ -293,6 +297,10 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        if (type == typeof(object))
+        {
+            type = toStyle?.GetType() ?? type;
+        }
         var keyedCollectionBuilder =
             Recycler.Borrow<KeyValueCollectionBuilder>()
                     .InitializeKeyValueCollectionBuilder
@@ -329,6 +337,10 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        if (type == typeof(object))
+        {
+            type = toStyle?.GetType() ?? type;
+        }
         var simpleOrderedCollectionBuilder =
             Recycler.Borrow<SimpleOrderedCollectionBuilder>()
                     .InitializeSimpleOrderedCollectionBuilder
@@ -344,6 +356,10 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        if (type == typeof(object))
+        {
+            type = toStyle?.GetType() ?? type;
+        }
         var complexOrderedCollectionBuilder =
             Recycler.Borrow<ComplexOrderedCollectionBuilder>()
                     .InitializeComplexOrderedCollectionBuilder
@@ -359,6 +375,10 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        if (type == typeof(object))
+        {
+            type = toStyle?.GetType() ?? type;
+        }
         var explicitOrderedCollectionBuilder =
             Recycler.Borrow<ExplicitOrderedCollectionBuilder<TElement>>()
                     .InitializeExplicitOrderedCollectionBuilder
@@ -424,7 +444,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     IStyledTypeStringAppender IStyleTypeAppenderBuilderAccess.AddBaseFieldsStart()
     {
         var nextAppender = nextTypeAppendSettings ??
-                           new TypeAppendSettings(CurrentTypeAccess?.IndentLevel ?? 0, IgnoreWriteFlags.All);
+                           new TypeAppendSettings(IgnoreWriteFlags.All);
         nextAppender.IgnoreWriteFlags = IgnoreWriteFlags.TypeStart | IgnoreWriteFlags.TypeName | IgnoreWriteFlags.TypeEnd;
         nextTypeAppendSettings        = nextAppender;
 
@@ -433,7 +453,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public IStyledTypeStringAppender Clear(int indentLevel = 0, IgnoreWriteFlags ignoreWrite = IgnoreWriteFlags.None)
     {
-        initialAppendSettings = new TypeAppendSettings((ushort)indentLevel, ignoreWrite);
+        initialAppendSettings = new TypeAppendSettings(ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
 
@@ -449,7 +469,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeOfT, newType.IsComplexType
                                         , typeOfT.IsValueType ? null : toStyle, (CurrentNode?.GraphDepth ?? -1) + 1
-                                        , AppendSettings.IndentLvl, Sb!.Length
+                                        , IndentLevel, Sb!.Length
                                         , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, null)
         {
             TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).ComponentAccess
@@ -461,7 +481,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         OrderedObjectGraph.Add(newVisit);
 
         CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
-        nextTypeAppendSettings = new TypeAppendSettings((ushort)newVisit.IndentLevel, IgnoreWriteFlags.None);
+        nextTypeAppendSettings = new TypeAppendSettings(IgnoreWriteFlags.None);
     }
 
     protected void PopCurrentSettings()
@@ -534,17 +554,19 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
               , _                   => 4
             }; //
 
-        var idSpan = stackalloc char[refDigitsCount + 9].ResetMemory();
+        var idSpan = stackalloc char[refDigitsCount + 8].ResetMemory();
         idSpan.Append("\"$id\":\"");
         var insert = idSpan[7..];
         if (refId.TryFormat(insert, out var written, ""))
         {
-            idSpan.Append("\",");
+            idSpan.Append("\"");
+            var shiftBy = idSpan.Length;
             Sb!.InsertAt(idSpan, indexToInsertAt);
+            shiftBy += defaultStyledTypeFormatter.InsertFieldSeparatorAt(Sb!, indexToInsertAt + idSpan.Length, Settings, forThisNode.IndentLevel + 1);
             for (int i = graphNodeIndex; i < OrderedObjectGraph.Count; i++)
             {
                 var shiftCharsNode = OrderedObjectGraph[i];
-                OrderedObjectGraph[i] = shiftCharsNode.ShiftTypeBufferIndex(idSpan.Length);
+                OrderedObjectGraph[i] = shiftCharsNode.ShiftTypeBufferIndex(shiftBy);
             }
         }
         else

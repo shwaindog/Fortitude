@@ -46,6 +46,7 @@ public struct StyleOptionsValue
     private string? dateTimeYyyyMMddTossFormat;
     private string? dateTimeYyyyMMddTomsFormat;
     private string? dateTimeYyyyMMddTousFormat;
+    private bool?    writeKeyValuePairsAsCollection;
 
     public StringBuildingStyle Style
     {
@@ -133,6 +134,12 @@ public struct StyleOptionsValue
         set => byteSequenceToBase64 = value;
     }
 
+    public bool WriteKeyValuePairsAsCollection
+    {
+        readonly get => writeKeyValuePairsAsCollection ?? fallbackOptions?.Values.WriteKeyValuePairsAsCollection ?? false;
+        set => writeKeyValuePairsAsCollection = value;
+    }
+
     public bool? CircularRefUsesRefEquals
     {
         get => circularRefUsesRefEquals ?? fallbackOptions?.Values.ByteSequenceToBase64 ?? true;
@@ -155,6 +162,11 @@ public struct StyleOptionsValue
 public class StyleOptions(StyleOptionsValue initialValues)
 {
     private StyleOptionsValue values = initialValues;
+
+    public StyleOptions() : this(new StyleOptionsValue())
+    {
+    }
+    
     public StyleOptionsValue Values
     {
         get => values;
@@ -251,6 +263,12 @@ public class StyleOptions(StyleOptionsValue initialValues)
     {
         get => values.ByteSequenceToBase64;
         set => values.ByteSequenceToBase64 = value;
+    }
+
+    public bool WriteKeyValuePairsAsCollection
+    {
+        get => values.WriteKeyValuePairsAsCollection;
+        set => values.WriteKeyValuePairsAsCollection = value;
     }
 
     public bool? CircularRefUsesRefEquals

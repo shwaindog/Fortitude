@@ -45,8 +45,7 @@ public class ComplexValueTypeBuilder : ValueTypeBuilder<ComplexValueTypeBuilder>
         CompAccess = recycler.Borrow<ValueBuilderCompAccess<ComplexValueTypeBuilder>>()
                              .InitializeValueBuilderCompAccess(this, PortableState, true);
     }
-
-
+    
     public SelectTypeField<ComplexValueTypeBuilder> LogOnlyField =>
         logOnlyInternalField ??=
             PortableState.OwningAppender.Recycler

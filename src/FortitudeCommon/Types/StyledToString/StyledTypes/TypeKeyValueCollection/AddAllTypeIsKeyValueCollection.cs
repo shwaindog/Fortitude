@@ -32,6 +32,7 @@ public partial class KeyValueCollectionBuilder
                     : stb.AppendMatchOrNull(kvp.Value);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
+            ItemCount = value.Length;
         }
         return stb.AddGoToNext();
     }
@@ -55,6 +56,7 @@ public partial class KeyValueCollectionBuilder
                     : stb.AppendMatchOrNull(kvp.Value);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
+            ItemCount = value.Count;
         }
         return stb.AddGoToNext();
     }
@@ -67,7 +69,7 @@ public partial class KeyValueCollectionBuilder
         if (value != null)
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
+            ItemCount = 0;
             foreach (var kvp in value)
             {
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -76,7 +78,7 @@ public partial class KeyValueCollectionBuilder
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendMatchOrNull(kvp.Value);
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -91,7 +93,7 @@ public partial class KeyValueCollectionBuilder
         if (hasValue)
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
+            ItemCount = 0;
             while(hasValue)
             {
                 var kvp = value!.Current;
@@ -102,7 +104,7 @@ public partial class KeyValueCollectionBuilder
                     ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendMatchOrNull(kvp.Value);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -132,6 +134,7 @@ public partial class KeyValueCollectionBuilder
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
+            ItemCount = value.Length;
         }
         return stb.AddGoToNext();
     }
@@ -155,6 +158,7 @@ public partial class KeyValueCollectionBuilder
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
+            ItemCount = value.Count;
         }
         return stb.AddGoToNext();
     }
@@ -167,14 +171,14 @@ public partial class KeyValueCollectionBuilder
         if (value != null)
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
+            ItemCount = 0;
             foreach (var kvp in value)
             {
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
                     : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -190,7 +194,7 @@ public partial class KeyValueCollectionBuilder
         if (hasValue)
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
+            ItemCount = 0;
             while(hasValue)
             {
                 var kvp = value!.Current;
@@ -199,7 +203,7 @@ public partial class KeyValueCollectionBuilder
                     : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -223,6 +227,7 @@ public partial class KeyValueCollectionBuilder
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
+            ItemCount = value.Length;
         }
         return stb.AddGoToNext();
     }
@@ -241,6 +246,7 @@ public partial class KeyValueCollectionBuilder
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
+            ItemCount = value.Count;
         }
         return stb.AddGoToNext();
     }
@@ -252,12 +258,12 @@ public partial class KeyValueCollectionBuilder
         if (value != null)
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
+            ItemCount = 0;
             foreach (var kvp in value)
             {
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
         return stb.AddGoToNext();
@@ -271,14 +277,14 @@ public partial class KeyValueCollectionBuilder
         if (hasValue)
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
+            ItemCount = 0;
             while(hasValue)
             {
                 var kvp = value!.Current;
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
         return stb.AddGoToNext();

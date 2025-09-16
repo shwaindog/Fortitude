@@ -129,10 +129,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         where TOrdColl : IEnumerable<TItem>
     {
         var keyedCollType = keyColl.GetType();
-        var callBaseToString = (Func<SimpleOrderedCollectionBuilder, TOrdColl, string?, SimpleOrderedCollectionBuilder>)
+        var callAddAllMatch = (Func<SimpleOrderedCollectionBuilder, TOrdColl, string?, SimpleOrderedCollectionBuilder>)
             OrderedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
-        callBaseToString(builder, keyColl, valueFormatString);
+        callAddAllMatch(builder, keyColl, valueFormatString);
     }
 
     public static void CallAddAllEnumerator<TKeyColl, TItem>(
@@ -140,10 +140,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         where TKeyColl : IEnumerator<TItem>
     {
         var keyedCollType = keyColl.GetType();
-        var callBaseToString = (Func<SimpleOrderedCollectionBuilder, TKeyColl, string?, SimpleOrderedCollectionBuilder>)
+        var callAddAllEnumerator = (Func<SimpleOrderedCollectionBuilder, TKeyColl, string?, SimpleOrderedCollectionBuilder>)
             OrderedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
-        callBaseToString(builder, keyColl, valueFormatString);
+        callAddAllEnumerator(builder, keyColl, valueFormatString);
     }
 
     public static void CallAddAll<TOrdColl>(SimpleOrderedCollectionBuilder builder, TOrdColl keyColl, string? valueFormatString = null)
@@ -152,23 +152,23 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         var orderedCollType = keyColl!.GetType();
         if (tOrdType.IsEnumerable() || tOrdType.IsEnumerator())
         {
-            var callBaseToString = (Func<SimpleOrderedCollectionBuilder, TOrdColl, string?, SimpleOrderedCollectionBuilder>)
+            var callAddAllDelegate = (Func<SimpleOrderedCollectionBuilder, TOrdColl, string?, SimpleOrderedCollectionBuilder>)
                 OrderedCollAddAllInvokers.GetOrAdd(orderedCollType, CreateInvokeMethod);
 
-            callBaseToString(builder, keyColl, valueFormatString);
+            callAddAllDelegate(builder, keyColl, valueFormatString);
         }
         else
         {
             if (orderedCollType != tOrdType)
             {
-                var callBaseToString = (Action<object?[]>)
+                var callAddAllDelegate = (Action<object?[]>)
                     CallCollAddAll.GetOrAdd(orderedCollType, type =>
                     {
                         var genericMethod = MyCallAddAll.MakeGenericMethod(type);
                         void Converter(object?[] arguments) => genericMethod.Invoke(null, arguments);
                         return (Action<object?[]>)Converter;
                     });
-                callBaseToString([builder, keyColl, valueFormatString]);
+                callAddAllDelegate([builder, keyColl, valueFormatString]);
             }
         }
     }

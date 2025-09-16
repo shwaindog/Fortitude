@@ -61,6 +61,10 @@ public static class TargetToStringInvoker
     {
         var methodToCall = baseType.GetMethod("ToString", [StyledStringAppenderType]);
 
+        if (methodToCall?.MethodImplementationFlags == MethodImplAttributes.ForwardRef && baseType.BaseType != null)
+        {
+            return CreateInvokeMethod(baseType.BaseType);
+        }
         var baseTypeCustomStyler = typeof(CustomTypeStyler<>).MakeGenericType(baseType);
         if (methodToCall == null || methodToCall.IsAbstract)
         {
