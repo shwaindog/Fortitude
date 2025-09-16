@@ -3,6 +3,8 @@
 using System.Net;
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 
@@ -13,7 +15,7 @@ namespace FortitudeIO.Transports.Network.Config;
 
 
 
-public interface IEndpointConfig : ICloneable<IEndpointConfig>
+public interface IEndpointConfig : ICloneable<IEndpointConfig>, IStyledToStringObject
 {
     string  Hostname     { get; set; }
     ushort  Port         { get; set; }
@@ -122,6 +124,14 @@ public class EndpointConfig : ConfigSection, IEndpointConfig
         hashCode.Add(SubnetMask);
         return hashCode.ToHashCode();
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(Hostname), Hostname)
+            .Field.AlwaysAdd(nameof(Port), Port)
+            .Field.AlwaysAdd(nameof(InstanceName), InstanceName)
+            .Field.WhenNonNullAdd(nameof(SubnetMask), SubnetMask)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(EndpointConfig)} ({nameof(Hostname)}: {Hostname}, {nameof(Port)}: {Port}, {nameof(InstanceName)}: {InstanceName}, " +

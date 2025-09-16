@@ -7,6 +7,8 @@ using System.Collections;
 using System.Text.Json.Serialization;
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -14,7 +16,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config;
 
-public interface IMarketsConfig : IConnection, IEnumerable<IMarketConnectionConfig>
+public interface IMarketsConfig : IConnection, IEnumerable<IMarketConnectionConfig>, IStyledToStringObject
 {
     CountryCityCodes MyLocation { get; set; }
 
@@ -227,4 +229,11 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
             });
         return true;
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .Field.WhenNonNullAdd(nameof(ConnectionName), ConnectionName)
+            .Field.AlwaysAdd(nameof(MyLocation), MyLocation)
+            .KeyedCollectionField.AlwaysAddAll(nameof(Markets), Markets)
+            .Complete();
 }

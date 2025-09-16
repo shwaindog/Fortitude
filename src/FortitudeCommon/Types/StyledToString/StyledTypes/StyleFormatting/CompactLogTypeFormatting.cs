@@ -26,8 +26,22 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         var sb = typeBuilder.Sb;
         sb.Append(alternativeName ?? valueType.Name);
-        sb.Append(valueType.IsEnum ? Dot : Spc);
-        return sb.Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
+        if (valueType.IsEnum)
+        {
+            sb.Append(Dot);
+            return typeBuilder;
+        }
+        return sb.Append(Spc).Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
+    }
+
+    public virtual IStyleTypeBuilderComponentAccess<TB> AppendValueTypeClosing<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type valueType) where TB : StyledTypeBuilder
+    {
+        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        if (valueType.IsEnum)
+        {
+            return typeBuilder;
+        }
+        return typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
     }
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type complexType
@@ -56,8 +70,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendTypeClosing<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
-        where TB : StyledTypeBuilder =>
-        typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
+        where TB : StyledTypeBuilder
+    {
+        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        return typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
+    }
 
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendKeyedCollectionStart<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type keyedCollectionType, Type keyType

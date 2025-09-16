@@ -11,7 +11,8 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Indicators.Pricing.Candles.Construction;
 using FortitudeMarkets.Pricing;
@@ -95,7 +96,7 @@ public struct LivePublishCandleParams
 
 public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote> where TQuote : class, IPublishableLevel1Quote
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(LiveCandlePublisherRule<TQuote>));
+    private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
     private static readonly TimeSpan LogNoDataPeriod = TimeSpan.FromHours(1);
 
@@ -204,8 +205,8 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
         foreach (var subPeriodCompleteSubscription in liveSubCandleCompletePublisherSubscriptions.Values)
             await subPeriodCompleteSubscription.NullSafeUnsubscribe();
         if (asyncSubPeriodExecutions?.Any() == true)
-            Logger.Warn("Incomplete sub period complete subscription or historical period request before LiveCandlePublisherRule " +
-                        "shut down for tickerIdl {0} and period {1}", sourceTickerIdentifier, periodToPublish);
+            Logger.WarnFormat("Incomplete sub period complete subscription or historical period request before LiveCandlePublisherRule " +
+                        "shut down for tickerIdl {0} and period {1}")?.WithParams(sourceTickerIdentifier, SourceTickerIdentifier.Styler)?.AndFinalParam(periodToPublish);
     }
 
     private void EnsureLiveSubPeriodCandlePublishersRunning()
@@ -233,8 +234,8 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
             (IndicatorServiceConstants.PricingIndicatorsServiceStartRequest, tickerSubPeriodService);
         if (!response.IsRunning())
         {
-            Logger.Info("Problem starting LiveCandlePublisherRule for ticker {0} sub period {1} got {2}",
-                        sourceTickerIdentifier.SourceInstrumentShortName(), subPeriod.ShortName(), response.RunStatus);
+            Logger.InfoFormat("Problem starting LiveCandlePublisherRule for ticker {0} sub period {1} got {2}")
+                  ?.WithParams( sourceTickerIdentifier.SourceInstrumentShortName())?.And(subPeriod.ShortName())?.AndFinalParam(response.RunStatus);
             return;
         }
         var completeLiveSubSummarySubscription
@@ -286,9 +287,8 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
             }
         }
         if (continuousEmptyPeriod > 0 && continuousEmptyPeriod % logInterval == 0)
-            Logger.Warn("Have received {0} empty live price periods for {1} {2}", continuousEmptyPeriod
-                      , sourceTickerIdentifier.SourceInstrumentShortName()
-                      , periodToPublish);
+            Logger.WarnFormat("Have received {0} empty live price periods for {1} {2}")
+                  ?.WithParams(continuousEmptyPeriod)?.And(sourceTickerIdentifier.SourceInstrumentShortName())?.AndFinalParam(periodToPublish);
     }
 
     private void PublishSummaryTo(Candle candle, ResponsePublishParams responsePublishParams)
@@ -296,10 +296,12 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
         if (responsePublishParams.ResponsePublishMethod is ResponsePublishMethod.AlternativeBroadcastAddress
                                                         or ResponsePublishMethod.ListenerDefaultBroadcastAddress)
         {
+            Logger.TraceFormat("Publishing candle: {0} from rule {1} on Default Listener Broadcast Address")?.WithParams(candle)?.AndFinalParam(this);
             this.Publish(responsePublishParams.AlternativePublishAddress!, candle, responsePublishParams.PublishDispatchOptions);
         }
         else
         {
+            Logger.TraceFormat("Publishing candle: {0} from rule {1} on Channel Request")?.WithParams(candle)?.AndFinalParam(this);
             var publishChannel = (IChannel<ICandle>)responsePublishParams.ChannelRequest!.Channel;
             publishChannel.Publish(this, candle);
         }
@@ -317,8 +319,8 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
             (IndicatorServiceConstants.PricingIndicatorsServiceStartRequest, tickerSubPeriodService);
         if (!response.IsRunning())
         {
-            Logger.Info("Problem starting HistoricalCandleResolverRule for ticker {0} sub period {1} got {2}",
-                        sourceTickerIdentifier.SourceInstrumentShortName(), liveConstructingSubPeriod.ShortName(), response.RunStatus);
+            Logger.InfoFormat("Problem starting HistoricalCandleResolverRule for ticker {0} sub period {1} got {2}")
+                ?.WithParams(sourceTickerIdentifier.SourceInstrumentShortName())?.And(liveConstructingSubPeriod.ShortName())?.AndFinalParam(response.RunStatus);
             return;
         }
         var subPeriods = await this.RequestAsync<HistoricalCandleResponseRequest, List<Candle>>
@@ -379,7 +381,7 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
                     PreviousPeriodBidAskEnd = lastCandleState.SubCandlesPeriods.Tail?.EndBidAsk
                 };
             }
-            else
+            else if(subCandle.PeriodEndTime > currentCandleState.PeriodEnd())
             {
                 var lastPeriodEnd = lastCandleState!.SubCandlesPeriods.Tail?.EndBidAsk;
 

@@ -132,8 +132,8 @@ public class FLogFirstFormatterParameterEntryTests
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Formatting TimeSpan as StringFormat : {0,-14}")
-              ?.WithOnlyParam(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter());
-        Assert.AreEqual($"Formatting TimeSpan as StringFormat : {TimeSpanSpanFormatAsString}"
+              ?.WithOnlyParam(ToFormatTimeSpan);
+        Assert.AreEqual($"Formatting TimeSpan as StringFormat : {TimeSpanSpanUnformattedAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
     }
 
@@ -340,9 +340,8 @@ public class FLogFirstFormatterParameterEntryTests
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Formatting 2 TimeSpan as StringFormat : 1) {0,-14}, 2) {1,14}")?
-            .WithParams(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter())?
-            .AndFinalParam(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter());
-        Assert.AreEqual($"Formatting 2 TimeSpan as StringFormat : 1) {TimeSpanSpanFormatAsString}, 2) {TimeSpanSpanFormatAsString}"
+            .WithParams(ToFormatTimeSpan)?.AndFinalParam(ToFormatTimeSpan);
+        Assert.AreEqual($"Formatting 2 TimeSpan as StringFormat : 1) {TimeSpanSpanUnformattedAsString}, 2) {TimeSpanSpanUnformattedAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
     }
 
@@ -579,9 +578,8 @@ public class FLogFirstFormatterParameterEntryTests
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
 
         logger.InfoFormat("Formatting 2 TimeSpan as StringFormat : 1) {0,-14}, 2) ")?
-              .WithOnlyParamThenToAppender(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter())
-              .FinalAppend(ToFormatTimeSpan, ToFormatTimeSpan.StylerAsStringFormatter());
-        Assert.AreEqual($"Formatting 2 TimeSpan as StringFormat : 1) {TimeSpanSpanFormatAsString}, 2) {TimeSpanSpanUnformattedAsString}"
+              .WithOnlyParamThenToAppender(ToFormatTimeSpan).FinalAppend(ToFormatTimeSpan);
+        Assert.AreEqual($"Formatting 2 TimeSpan as StringFormat : 1) {TimeSpanSpanUnformattedAsString}, 2) {TimeSpanSpanUnformattedAsString}"
                       , spyRing.GetPurgeCacheLastLogEntry().Message.ToString());
     }
 

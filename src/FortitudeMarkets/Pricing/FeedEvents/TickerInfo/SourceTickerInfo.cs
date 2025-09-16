@@ -9,6 +9,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Protocols;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Transports.Network.Config;
@@ -25,16 +27,16 @@ public interface ISourceTickerInfo : IPricingInstrumentId, IInterfacesComparable
 {
     [JsonIgnore] TickerQuoteDetailLevel PublishedTickerQuoteDetailLevel { get; set; }
 
-    [JsonIgnore] decimal RoundingPrecision      { get; set; }
-    [JsonIgnore] decimal Pip                    { get; set; }
-    [JsonIgnore] decimal MinSubmitSize          { get; set; }
-    [JsonIgnore] decimal MaxSubmitSize          { get; set; }
-    [JsonIgnore] decimal IncrementSize          { get; set; }
-    [JsonIgnore] ushort  MaximumPublishedLayers { get; set; }
-    [JsonIgnore] ushort  MinimumQuoteLife       { get; set; }
-    [JsonIgnore] uint    DefaultMaxValidMs      { get; set; }
-    [JsonIgnore] bool    SubscribeToPrices      { get; set; }
-    [JsonIgnore] bool    TradingEnabled         { get; set; }
+    [JsonIgnore] decimal RoundingPrecision { get; set; }
+    [JsonIgnore] decimal Pip { get; set; }
+    [JsonIgnore] decimal MinSubmitSize { get; set; }
+    [JsonIgnore] decimal MaxSubmitSize { get; set; }
+    [JsonIgnore] decimal IncrementSize { get; set; }
+    [JsonIgnore] ushort MaximumPublishedLayers { get; set; }
+    [JsonIgnore] ushort MinimumQuoteLife { get; set; }
+    [JsonIgnore] uint DefaultMaxValidMs { get; set; }
+    [JsonIgnore] bool SubscribeToPrices { get; set; }
+    [JsonIgnore] bool TradingEnabled { get; set; }
 
 
     LayerFlags LayerFlags { get; set; }
@@ -263,21 +265,21 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
 
 
     public uint MessageId => SourceInstrumentId;
-    public byte Version   => 1;
+    public byte Version => 1;
 
     public TickerQuoteDetailLevel PublishedTickerQuoteDetailLevel { get; set; }
 
     public ushort MaximumPublishedLayers { get; set; }
 
     public decimal RoundingPrecision { get; set; }
-    public decimal Pip               { get; set; }
-    public decimal MinSubmitSize     { get; set; }
-    public decimal MaxSubmitSize     { get; set; }
-    public decimal IncrementSize     { get; set; }
-    public ushort  MinimumQuoteLife  { get; set; }
-    public uint    DefaultMaxValidMs { get; set; }
-    public bool    SubscribeToPrices { get; set; }
-    public bool    TradingEnabled    { get; set; }
+    public decimal Pip { get; set; }
+    public decimal MinSubmitSize { get; set; }
+    public decimal MaxSubmitSize { get; set; }
+    public decimal IncrementSize { get; set; }
+    public ushort MinimumQuoteLife { get; set; }
+    public uint DefaultMaxValidMs { get; set; }
+    public bool SubscribeToPrices { get; set; }
+    public bool TradingEnabled { get; set; }
 
     public LayerFlags LayerFlags { get; set; }
 
@@ -393,6 +395,24 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
         $"{nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags}, " +
         $"{nameof(QuoteBehaviorFlags)}: {QuoteBehaviorFlags}";
 
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .AddBaseStyledToStringFields(this)
+            .Field.AlwaysAdd(nameof(RoundingPrecision), RoundingPrecision)
+            .Field.AlwaysAdd(nameof(Pip), Pip)
+            .Field.AlwaysAdd(nameof(MinSubmitSize), MinSubmitSize)
+            .Field.AlwaysAdd(nameof(MaxSubmitSize), MaxSubmitSize)
+            .Field.AlwaysAdd(nameof(IncrementSize), IncrementSize)
+            .Field.AlwaysAdd(nameof(MinimumQuoteLife), MinimumQuoteLife)
+            .Field.AlwaysAdd(nameof(DefaultMaxValidMs), DefaultMaxValidMs)
+            .Field.AlwaysAdd(nameof(SubscribeToPrices), SubscribeToPrices)
+            .Field.AlwaysAdd(nameof(TradingEnabled), TradingEnabled)
+            .Field.AlwaysAdd(nameof(LayerFlags), LayerFlags)
+            .Field.AlwaysAdd(nameof(MaximumPublishedLayers), MaximumPublishedLayers)
+            .Field.AlwaysAdd(nameof(LastTradedFlags), LastTradedFlags)
+            .Field.AlwaysAdd(nameof(QuoteBehaviorFlags), QuoteBehaviorFlags)
+            .Complete();
+
     public override string ToString() => $"{nameof(SourceTickerInfo)}{{{SourceTickerInfoToStringMembers}}}";
 
 
@@ -418,20 +438,16 @@ public static class SourceTickerInfoExtensions
     public static SourceTickerInfo WithSubscribeToPrices(this SourceTickerInfo toCopy, bool subscribeToPrice) =>
         new(toCopy) { SubscribeToPrices = subscribeToPrice };
 
-    public static SourceTickerInfo WithTradingEnabled(this SourceTickerInfo toCopy, bool tradingEnabled) =>
-        new(toCopy) { TradingEnabled = tradingEnabled };
+    public static SourceTickerInfo WithTradingEnabled(this SourceTickerInfo toCopy, bool tradingEnabled) => new(toCopy) { TradingEnabled = tradingEnabled };
 
     public static SourceTickerInfo WithMaximumPublishedLayers(this SourceTickerInfo toCopy, ushort maxPublishedLayers) =>
         new(toCopy) { MaximumPublishedLayers = maxPublishedLayers };
 
-    public static SourceTickerInfo WithMinSubmitSize(this SourceTickerInfo toCopy, decimal minSubmitSize) =>
-        new(toCopy) { MinSubmitSize = minSubmitSize };
+    public static SourceTickerInfo WithMinSubmitSize(this SourceTickerInfo toCopy, decimal minSubmitSize) => new(toCopy) { MinSubmitSize = minSubmitSize };
 
-    public static SourceTickerInfo WithMaxSubmitSize(this SourceTickerInfo toCopy, decimal maxSubmitSize) =>
-        new(toCopy) { MaxSubmitSize = maxSubmitSize };
+    public static SourceTickerInfo WithMaxSubmitSize(this SourceTickerInfo toCopy, decimal maxSubmitSize) => new(toCopy) { MaxSubmitSize = maxSubmitSize };
 
-    public static SourceTickerInfo WithIncrementSize(this SourceTickerInfo toCopy, decimal incrementSize) =>
-        new(toCopy) { IncrementSize = incrementSize };
+    public static SourceTickerInfo WithIncrementSize(this SourceTickerInfo toCopy, decimal incrementSize) => new(toCopy) { IncrementSize = incrementSize };
 
     public static SourceTickerInfo WithMinimumQuoteLife(this SourceTickerInfo toCopy, ushort minQuoteLifeMs) =>
         new(toCopy) { MinimumQuoteLife = minQuoteLifeMs };

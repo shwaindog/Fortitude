@@ -32,7 +32,7 @@ public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<IFL
             NextPostAppendIsLast = true;
 
             var completeParamCollection =
-                Recycler?.Borrow<FinalFirstPParamCollectionAppend>() ?? new FinalFirstPParamCollectionAppend();
+                Recycler?.Borrow<FinalFirstParamCollectionAppend>() ?? new FinalFirstParamCollectionAppend();
 
             completeParamCollection.Initialize(Me, LogEntry);
 

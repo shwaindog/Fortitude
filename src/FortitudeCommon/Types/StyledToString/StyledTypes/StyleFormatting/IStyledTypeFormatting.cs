@@ -13,6 +13,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     string Name { get; }
 
     IStyleTypeBuilderComponentAccess<TB> AppendValueTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type valueType, string? alternativeName = null) where TB : StyledTypeBuilder;
+
+    IStyleTypeBuilderComponentAccess<TB> AppendValueTypeClosing<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type valueType) where TB : StyledTypeBuilder;
     
     IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type complexType, string? alternativeName = null) where TB : StyledTypeBuilder;
     

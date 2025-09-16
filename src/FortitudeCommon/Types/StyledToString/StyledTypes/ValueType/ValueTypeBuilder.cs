@@ -45,6 +45,7 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
     
     public override void AppendClosing()
     {
+        CompAccess.StyleFormatter.AppendValueTypeClosing(CompAccess, CompAccess.TypeBeingBuilt);
     }
 
 

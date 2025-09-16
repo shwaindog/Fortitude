@@ -4,7 +4,8 @@
 #region
 
 using FortitudeCommon.Config;
-using FortitudeIO.Storage.TimeSeries.FileSystem;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Storage.TimeSeries.FileSystem.DirectoryStructure;
 using Microsoft.Extensions.Configuration;
 
@@ -18,7 +19,7 @@ public interface IRepositoryBuilder
     ITimeSeriesRepository BuildRepository(string? repositoryName = null);
 }
 
-public interface IRepositoryBuilderConfig : IRepositoryBuilder
+public interface IRepositoryBuilderConfig : IRepositoryBuilder, IStyledToStringObject
 {
     string?        RepoPathBuilderClassName              { get; set; }
     Type?          RepoPathBuilderType                   { get; set; }
@@ -141,4 +142,13 @@ public abstract class RepositoryBuilderConfig : ConfigSection, IRepositoryBuilde
             foreach (var extraKey in existingKeys) existingSection[extraKey] = null;
         }
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(RepoPathBuilderClassName), RepoPathBuilderClassName)
+            .Field.AlwaysAdd(nameof(RepositoryType), RepositoryType)
+            .Field.AlwaysAdd(nameof(CreateIfNotExists), CreateIfNotExists)
+            .CollectionField.AlwaysAddAll(nameof(RequiredInstrumentAttributeFieldNames), RequiredInstrumentAttributeFieldNames)
+            .CollectionField.AlwaysAddAll(nameof(OptionalInstrumentAttributeFieldNames), OptionalInstrumentAttributeFieldNames)
+            .Complete();
 }

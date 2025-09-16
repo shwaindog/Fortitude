@@ -4,13 +4,15 @@
 #region
 
 using FortitudeCommon.Config;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 #endregion
 
 namespace FortitudeMarkets.Indicators.Config;
 
-public interface IPersistenceConfig
+public interface IPersistenceConfig : IStyledToStringObject
 {
     bool PersistPrices           { get; set; }
     bool PersistPriceSummaries   { get; set; }
@@ -91,4 +93,13 @@ public class PersistenceConfig : ConfigSection, IPersistenceConfig
         }
         set => this[nameof(DefaultAutoCloseAfter)] = value.ToString();
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(PersistPrices), PersistPrices)
+            .Field.AlwaysAdd(nameof(PersistPriceSummaries), PersistPriceSummaries)
+            .Field.AlwaysAdd(nameof(PersistIndicatorState), PersistIndicatorState)
+            .Field.AlwaysAdd(nameof(PersistIndicatorSignals), PersistIndicatorSignals)
+            .Field.AlwaysAdd(nameof(DefaultAutoCloseAfter), DefaultAutoCloseAfter)
+            .Complete();
 }

@@ -9,6 +9,8 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Protocols;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents;
@@ -449,6 +451,12 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
     public virtual string QuoteToStringMembers => $"{nameof(SingleTickValue)}: {SingleTickValue}";
 
     protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    stsa.StartComplexType(this)
+        .Field.AlwaysAdd(nameof(SingleTickValue), SingleTickValue)
+        .Field.WhenNonDefaultAdd(nameof(UpdatedFlags), UpdatedFlags)
+        .Complete();
 
     public override string ToString() => $"{GetType().Name}({QuoteToStringMembers}, {UpdatedFlagsToString})";
 }
@@ -1014,6 +1022,17 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
         $"{PQReusableMessageToStringMembers}, {MessageUpdatedFlagsToString} ";
 
     protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
+
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(PQSourceTickerInfo), PQSourceTickerInfo)
+            .Field.AlwaysAdd(nameof(PQSequenceId), PQSequenceId)
+            .AddBaseStyledToStringFields(this)
+            .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)
+            .Field.WhenNonDefaultAdd(nameof(LastPublicationTime), LastPublicationTime, DateTime.MinValue, "{0:O}")
+            .Field.WhenNonDefaultAdd(nameof(IsFeedSyncStatusUpdated), IsFeedSyncStatusUpdated)
+            .Field.WhenNonDefaultAdd(nameof(HasUpdates), HasUpdates)
+            .Complete();
 
     public override string ToString() =>
         $"{GetType().Name}({QuoteToStringMembers}, {PQQuoteContainer.QuoteToStringMembers}, {JustFeedStatusToStringMembers}, {UpdatedFlagsToString})";

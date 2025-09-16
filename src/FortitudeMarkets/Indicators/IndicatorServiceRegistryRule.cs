@@ -8,7 +8,9 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
+using FortitudeCommon.Types.StyledToString;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Indicators.Config;
 using FortitudeMarkets.Indicators.Persistence;
@@ -249,11 +251,17 @@ public struct IndicatorServiceRegistryParams
     public Dictionary<ServiceType, Func<GlobalServiceRequest, ServiceRuntimeState>>       GlobalServiceFactoryOverrides       { get; }
 
     public IIndicatorServicesConfig IndicatorServiceConfig { get; }
+    
+    public static CustomTypeStyler<IndicatorServiceRegistryParams> Styler { get; } =
+        (isrp, stsa) =>
+            stsa.StartComplexType(isrp)
+                .Field.AlwaysAdd(nameof(isrp.IndicatorServiceConfig), isrp.IndicatorServiceConfig)
+                .Complete();
 }
 
 public class IndicatorServiceRegistryRule : Rule
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(IndicatorServiceRegistryRule));
+    private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
     private readonly IIndicatorServicesConfig config;
 
@@ -300,6 +308,7 @@ public class IndicatorServiceRegistryRule : Rule
 
     public override async ValueTask StartAsync()
     {
+        Logger.InfoAppend("Starting IndicatorServiceRegistryRule with ")?.FinalAppend(indicatorServiceParams, IndicatorServiceRegistryParams.Styler);
         tickerPeriodServiceRequestSubscription = await this.RegisterRequestListenerAsync<TickerPeriodServiceRequest, ServiceRunStateResponse>
             (IndicatorServiceConstants.PricingIndicatorsServiceStartRequest, HandleTickerPeriodServiceStartRequest);
         globalServiceRequestSubscription = await this.RegisterRequestListenerAsync<GlobalServiceRequest, ServiceRunStateResponse>
@@ -322,15 +331,17 @@ public class IndicatorServiceRegistryRule : Rule
         var launchResult = await this.RequestAsync<GlobalServiceRequest, ServiceRunStateResponse>
             (IndicatorServiceConstants.GlobalIndicatorsServiceStartRequest, new GlobalServiceRequest(RequestType.StartOrStatus, serviceType));
         if (launchResult.RunStatus is ServiceRunStatus.NoServiceFound or ServiceRunStatus.ServiceStartFailed)
-            Logger.Warn("Start of Global Service {0} returned {1}", serviceType, launchResult.RunStatus);
+            Logger.WrnFmt("Start of Global Service {0} returned {1}").Args(serviceType, launchResult.RunStatus);
         return launchResult;
     }
 
     public override async ValueTask StopAsync()
     {
+        Logger.Info("Stopping IndicatorServiceRegistryRule");
         await tickerPeriodServiceRequestSubscription.NullSafeUnsubscribe();
         await globalServiceRequestSubscription.NullSafeUnsubscribe();
         await base.StopAsync();
+        Logger.Info("Stopped IndicatorServiceRegistryStubRule");
     }
 
     protected ServiceRuntimeState SimpleGlobalServiceLookup(GlobalServiceRequest globalServiceRequest)
@@ -524,7 +535,7 @@ public class IndicatorServiceRegistryRule : Rule
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn("When attempt to start rule {0}. Got {1}", serviceInfo.Rule!.FriendlyName, ex);
+                    Logger.WrnFmt("When attempt to start rule {0}. Got {1}").Args(serviceInfo.Rule!.FriendlyName, ex);
                     return GlobalServiceStateLookup[serviceReq.ServiceType].LastStartResult
                         = new ServiceRunStateResponse(serviceInfo.Rule!, ServiceRunStatus.ServiceStartFailed, DateTime.UtcNow);
                 }
@@ -560,7 +571,7 @@ public class IndicatorServiceRegistryRule : Rule
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warn("When attempt to start rule {0}. Got {1}", serviceInfo.Rule!.FriendlyName, ex);
+                    Logger.WrnFmt("When attempt to start rule {0}. Got {1}").Args(serviceInfo.Rule!.FriendlyName, ex);
                     return TickerPeriodServiceStateLookup[serviceReq.TickerPeriodServiceInfo].LastStartResult
                         = new ServiceRunStateResponse(serviceInfo.Rule!, ServiceRunStatus.ServiceStartFailed, DateTime.UtcNow);
                 }

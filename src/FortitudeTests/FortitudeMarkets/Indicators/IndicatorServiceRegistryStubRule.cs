@@ -6,7 +6,8 @@
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Indicators;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -19,7 +20,7 @@ namespace FortitudeTests.FortitudeMarkets.Indicators;
 [NoMatchingProductionClass]
 public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(IndicatorServiceRegistryStubRule));
+    private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
     public IndicatorServiceRegistryStubRule(IndicatorServiceRegistryParams overrideParams)
         : base(overrideParams) { }
@@ -38,7 +39,9 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
 
     public override async ValueTask StopAsync()
     {
+        Logger.Info("Stopping IndicatorServiceRegistryStubRule");
         foreach (var asyncDisposable in DeployedServices) await asyncDisposable.DisposeAsync();
+        Logger.Info("Stopped IndicatorServiceRegistryStubRule");
     }
 
     public async ValueTask RegisterAndDeployGlobalService(ServiceType service, IRule rule)
@@ -52,7 +55,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
         }
         catch (Exception ex)
         {
-            Logger.Warn("Deployment of rule {0} failed.  Got {1}", rule.FriendlyName, ex);
+            Logger.WarnFormat("Deployment of rule {0} failed.  Got {1}").WithParams(rule.FriendlyName).AndFinalObjectParam(ex);
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStartFailed);
             GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
         }
@@ -78,7 +81,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
         }
         catch (Exception ex)
         {
-            Logger.Warn("Deployment of rule {0} failed.  Got {1}", rule.FriendlyName, ex);
+            Logger.WarnFormat("Deployment of rule {0} failed.  Got {1}").WithParams(rule.FriendlyName).AndFinalObjectParam(ex);
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStartFailed);
             GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
         }

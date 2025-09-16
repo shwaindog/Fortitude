@@ -8,6 +8,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
@@ -758,6 +760,26 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
             return hashCode;
         }
     }
+    
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(TimeBoundaryPeriod), TimeBoundaryPeriod)
+            .Field.AlwaysAdd(nameof(PeriodStartTime), PeriodStartTime)
+            .Field.AlwaysAdd(nameof(PeriodEndTime), PeriodEndTime)
+            .Field.AlwaysAdd(nameof(StartBidPrice), StartBidPrice)
+            .Field.AlwaysAdd(nameof(StartAskPrice), StartAskPrice)
+            .Field.AlwaysAdd(nameof(HighestBidPrice), HighestBidPrice)
+            .Field.AlwaysAdd(nameof(HighestAskPrice), HighestAskPrice)
+            .Field.AlwaysAdd(nameof(LowestBidPrice), LowestBidPrice)
+            .Field.AlwaysAdd(nameof(LowestAskPrice), LowestAskPrice)
+            .Field.AlwaysAdd(nameof(EndBidPrice), EndBidPrice)
+            .Field.AlwaysAdd(nameof(EndAskPrice), EndAskPrice)
+            .Field.AlwaysAdd(nameof(TickCount), TickCount)
+            .Field.AlwaysAdd(nameof(PeriodVolume), PeriodVolume)
+            .Field.AlwaysAdd(nameof(CandleFlags), CandleFlags)
+            .Field.AlwaysAdd(nameof(AverageBidPrice), AverageBidPrice)
+            .Field.AlwaysAdd(nameof(AverageAskPrice), AverageAskPrice)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(PQStorageCandle)} {{ {nameof(TimeBoundaryPeriod)}: {TimeBoundaryPeriod}, {nameof(PeriodStartTime)}: {PeriodStartTime}, " +

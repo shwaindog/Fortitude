@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 
@@ -12,30 +11,6 @@ public static class TimeSpanExtensions
     public static CustomTypeStyler<TimeSpan> TimeSpanStyler = FormatTimeSpanAsStructAppender;
 
     public static CustomTypeStyler<TimeSpan> StylerComplexType(this TimeSpan _) => TimeSpanStyler;
-    
-
-    public static CustomTypeStyler<TimeSpan> TimeSpanFormatter = FormatTimeSpanAsStringAppender;
-    
-    public static CustomTypeStyler<TimeSpan> StylerAsStringFormatter(this TimeSpan _) => TimeSpanFormatter;
-
-    public static StyledTypeBuildResult FormatTimeSpanAsStringAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
-    {
-        var tb = sbc.StartSimpleValueType(timeSpan);
-        using(var sb = tb.StartDelimitedStringBuilder())
-        {
-            IStringBuilder? setSb = null;
-            if (timeSpan.Days != 0) setSb = sb.AppendFormat("{0:N0}", timeSpan.Days).Append(":");
-
-            if (timeSpan.Hours != 0 || setSb != null) setSb   = sb.AppendFormat("{0:00}", timeSpan.Hours).Append(":");
-            if (timeSpan.Minutes != 0 || setSb != null) setSb = sb.AppendFormat("{0:00}", timeSpan.Minutes).Append(":");
-            if (timeSpan.Seconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:00}", timeSpan.Seconds).Append(".");
-
-            if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Milliseconds);
-            if (timeSpan.Microseconds != 0 || setSb != null) sb.AppendFormat("{0:000}", timeSpan.Microseconds);
-        }
-        
-        return tb.Complete();
-    }
 
     public static StyledTypeBuildResult FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {

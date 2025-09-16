@@ -1,12 +1,13 @@
 ﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.FeedEvents;
 
 public interface IFeedEventStatusUpdate : IReusableObject<IFeedEventStatusUpdate>, IInterfacesComparable<IFeedEventStatusUpdate>
-  , IPartialSequenceUpdates, ICanHaveSourceTickerDefinition
+  , IPartialSequenceUpdates, ICanHaveSourceTickerDefinition, IStyledToStringObject
 {
     FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; }
 

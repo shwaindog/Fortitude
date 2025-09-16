@@ -3,8 +3,11 @@
 using FortitudeBusRules.BusMessaging.Pipelines.Timers;
 using FortitudeBusRules.Messages;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 #endregion
 
@@ -13,19 +16,17 @@ namespace FortitudeBusRules.Rules;
 public enum RuleLifeCycle
 {
     NotStarted = 0
-    , Starting
-    , Started
-    , ShutDownRequested
-    , ShuttingDown
-    , Stopped
+  , Starting
+  , Started
+  , ShutDownRequested
+  , ShuttingDown
+  , Stopped
 }
 
 public delegate void LifeCycleChangeHandler(IRule sender, RuleLifeCycle oldState, RuleLifeCycle newState);
 
-public interface IRule
+public interface IRule : IStyledToStringObject
 {
-    IEnumerable<IAsyncValueTaskDisposable> OnStopResourceCleanup();
-    T AddOnStopResourceCleanup<T>(T resourceCleanup) where T : IAsyncValueTaskDisposable;
     IRule ParentRule { get; }
     IQueueContext Context { get; set; }
     string FriendlyName { get; }
@@ -36,6 +37,8 @@ public interface IRule
     IEnumerable<IRule> ChildRules { get; }
     RuleFilter AppliesToThisRule { get; }
     RuleFilter NotAppliesToThisRule { get; }
+    IEnumerable<IAsyncValueTaskDisposable> OnStopResourceCleanup();
+    T AddOnStopResourceCleanup<T>(T resourceCleanup) where T : IAsyncValueTaskDisposable;
 
     event LifeCycleChangeHandler LifeCycleChanged;
     ValueTask StartAsync();
@@ -55,15 +58,17 @@ public interface IListeningRule : IRule
     ValueTask MessageBusStopAsync();
 }
 
-public class InvalidRuleTransitionStateException(string name, RuleLifeCycle current, RuleLifeCycle proposed
-        , List<RuleLifeCycle> allowed)
+public class InvalidRuleTransitionStateException
+(
+    string name
+  , RuleLifeCycle current
+  , RuleLifeCycle proposed
+  , List<RuleLifeCycle> allowed)
     : Exception($"Invalid rule: '{name}' state transition from {current} to {proposed} allowed are [{allowed}]");
 
 public class Rule : IListeningRule
 {
-    private IRuleTimer? ruleTimer;
-    private ReusableList<IAsyncValueTaskDisposable> onStopResourceCleanup = new ();
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(Rule));
+    private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
     public static readonly Rule NoKnownSender = new()
     {
@@ -71,30 +76,43 @@ public class Rule : IListeningRule
     };
 
     private readonly ReusableList<IRule> children = [];
-    private RuleFilter? appliesToThisRuleFilter;
-    private RuleFilter? notAppliesToThisRuleFilter;
-    private IRule? parentRule;
 
-    private int           aliveRefCount;
-    private RuleLifeCycle ruleLifeCycle;
+    private static int instanceCount;
+
+    private int instanceNumber;
+
+    private int aliveRefCount;
+
+    private RuleFilter?   appliesToThisRuleFilter;
     private IQueueContext context = null!;
+    private RuleFilter?   notAppliesToThisRuleFilter;
+
+    private ReusableList<IAsyncValueTaskDisposable> onStopResourceCleanup = new();
+    private IRule?                                  parentRule;
+
+    private RuleLifeCycle ruleLifeCycle;
+    private IRuleTimer?   ruleTimer;
 
     public Rule()
     {
+        instanceNumber = Interlocked.Increment(ref instanceCount);
+
         LifeCycleState = RuleLifeCycle.NotStarted;
-        parentRule = null!;
-        FriendlyName = GetType().Name + TypeInstanceCounter.Instance.GetNextInstanceNumber(GetType());
+        parentRule     = null!;
+        FriendlyName   = GetType().Name + TypeInstanceCounter.Instance.GetNextInstanceNumber(GetType());
     }
 
     public Rule(string friendlyName, string id) : this()
     {
         FriendlyName = friendlyName;
+
         Id = id;
     }
 
     public Rule(string id) : this()
     {
         FriendlyName = id;
+
         Id = id;
     }
 
@@ -145,25 +163,10 @@ public class Rule : IListeningRule
         if (child.LifeCycleState is RuleLifeCycle.NotStarted or RuleLifeCycle.Starting or RuleLifeCycle.Started)
         {
             IncrementLifeTimeCount();
-            if (child is IListeningRule listeningChild)
-            {
-                listeningChild.ParentRule = this;
-            }
+            if (child is IListeningRule listeningChild) listeningChild.ParentRule = this;
         }
 
         child.LifeCycleChanged += Child_LifeCycleChanged;
-    }
-
-    private void RemoveChild(IRule child)
-    {
-        if (child == this) return;
-        children.Remove(child);
-        if (child.LifeCycleState is RuleLifeCycle.ShutDownRequested or RuleLifeCycle.ShuttingDown or RuleLifeCycle.Stopped)
-        {
-            DecrementLifeTimeCount();
-        }
-
-        child.LifeCycleChanged -= Child_LifeCycleChanged;
     }
 
     public IEnumerable<IRule> ChildRules => children;
@@ -172,7 +175,7 @@ public class Rule : IListeningRule
         get => context;
         set
         {
-            context                        = value;
+            context = value;
 
             onStopResourceCleanup.Recycler = context?.PooledRecycler;
             children.Recycler              = context?.PooledRecycler;
@@ -209,19 +212,29 @@ public class Rule : IListeningRule
 
     public bool ShouldBeStopped() => LifeCycleState == RuleLifeCycle.Started && aliveRefCount <= 0;
 
-    public virtual ValueTask StartAsync()
-    {
-        return new ValueTask(StartTaskAsync());
-    }
+    public virtual ValueTask StartAsync() => new(StartTaskAsync());
 
-    public virtual ValueTask StopAsync()
-    {
-        return new ValueTask(StopTaskAsync());
-    }
+    public virtual ValueTask StopAsync() => new(StopTaskAsync());
 
     public virtual void Start() { }
 
     public virtual void Stop() { }
+
+    public async ValueTask MessageBusStopAsync()
+    {
+        if (LifeCycleState != RuleLifeCycle.ShutDownRequested) return;
+        LifeCycleState = RuleLifeCycle.ShuttingDown;
+        await StopAsync();
+    }
+
+    private void RemoveChild(IRule child)
+    {
+        if (child == this) return;
+        children.Remove(child);
+        if (child.LifeCycleState is RuleLifeCycle.ShutDownRequested or RuleLifeCycle.ShuttingDown or RuleLifeCycle.Stopped) DecrementLifeTimeCount();
+
+        child.LifeCycleChanged -= Child_LifeCycleChanged;
+    }
 
     public virtual Task StartTaskAsync()
     {
@@ -243,35 +256,32 @@ public class Rule : IListeningRule
             case RuleLifeCycle.NotStarted:
                 if (value != RuleLifeCycle.Starting)
                     throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
-                        , [ RuleLifeCycle.Starting ]);
+                                                                , [RuleLifeCycle.Starting]);
                 break;
             case RuleLifeCycle.Starting:
                 if (value != RuleLifeCycle.Started)
                     throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
-                        , [ RuleLifeCycle.Started ]);
+                                                                , [RuleLifeCycle.Started]);
                 break;
             case RuleLifeCycle.Started:
                 if (value != RuleLifeCycle.ShutDownRequested)
                     throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
-                        , [ RuleLifeCycle.ShutDownRequested ]);
+                                                                , [RuleLifeCycle.ShutDownRequested]);
                 break;
             case RuleLifeCycle.ShutDownRequested:
-                if (value is RuleLifeCycle.ShuttingDown)
-                    break;
+                if (value is RuleLifeCycle.ShuttingDown) break;
 
                 throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
-                    , [ RuleLifeCycle.ShuttingDown ]);
+                                                            , [RuleLifeCycle.ShuttingDown]);
             case RuleLifeCycle.ShuttingDown:
-                if (value is RuleLifeCycle.Stopped)
-                    break;
+                if (value is RuleLifeCycle.Stopped) break;
 
                 throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
-                    , [ RuleLifeCycle.Stopped ]);
+                                                            , [RuleLifeCycle.Stopped]);
             case RuleLifeCycle.Stopped:
-                if (value is RuleLifeCycle.NotStarted)
-                    break;
+                if (value is RuleLifeCycle.NotStarted) break;
                 throw new InvalidRuleTransitionStateException(FriendlyName, ruleLifeCycle, value
-                    , [RuleLifeCycle.NotStarted ]);
+                                                            , [RuleLifeCycle.NotStarted]);
         }
 
         return oldState;
@@ -280,27 +290,28 @@ public class Rule : IListeningRule
     private void ParentRule_LifeCycleChanged(IRule sender, RuleLifeCycle oldState, RuleLifeCycle newState)
     {
         if (newState is RuleLifeCycle.ShuttingDown or RuleLifeCycle.ShutDownRequested)
-        {
-            Logger.Debug("Parent rule: '{0}' shuttingDown on sending Stop to rule: '{1}'", sender.FriendlyName
-                , FriendlyName);
-        }
+            Logger.DebugFormat("Parent rule: '{0}' shuttingDown on sending Stop to rule: '{1}'").WithParams(sender.FriendlyName)
+                  .AndFinalParam(FriendlyName);
     }
 
     private void Child_LifeCycleChanged(IRule sender, RuleLifeCycle oldState, RuleLifeCycle newState)
     {
         if (newState == RuleLifeCycle.Stopped)
         {
-            Logger.Debug("Child rule: '{0}' stopped on rule: '{1}'", sender.FriendlyName, FriendlyName);
+            Logger.DebugFormat("Child rule: '{0}' stopped on rule: '{1}'").WithParams(sender.FriendlyName)
+                  .AndFinalParam(FriendlyName);
             RemoveChild(sender);
         }
     }
 
-    public async ValueTask MessageBusStopAsync()
-    {
-        if (LifeCycleState != RuleLifeCycle.ShutDownRequested) return;
-        LifeCycleState = RuleLifeCycle.ShuttingDown;
-        await StopAsync();
-    }
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(Context), Context)
+            .Field.AlwaysAdd(nameof(FriendlyName), FriendlyName)
+            .Field.AlwaysAdd(nameof(Id), Id)
+            .Field.AlwaysAdd(nameof(LifeCycleState), LifeCycleState)
+            .Field.AlwaysAdd(nameof(instanceNumber), instanceNumber)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(Context)}: {Context}, {nameof(FriendlyName)}: " +

@@ -10,6 +10,8 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Storage.TimeSeries.FileSystem;
 using FortitudeMarkets.Config;
@@ -33,6 +35,8 @@ using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Candles.CandleTests;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
+// ReSharper disable FormatStringProblem
+
 #endregion
 
 namespace FortitudeTests.FortitudeMarkets.Indicators.Pricing.Candles;
@@ -40,6 +44,9 @@ namespace FortitudeTests.FortitudeMarkets.Indicators.Pricing.Candles;
 [TestClass]
 public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
+    private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
+
+
     private readonly List<InstrumentFileEntryInfo> lastFileEntryInfoRetrieved = new();
     private readonly List<InstrumentFileInfo>      lastFileInfoRetrieved      = new();
 
@@ -112,7 +119,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
            , new ResponsePublishParams());
         fifteenSecondsLivePeriodParams
             = new LivePublishCandleParams(tickerId15SPeriod, FifteenSeconds, new IndicatorPublishInterval(TimeSpan.FromSeconds(1))
-                                                    , new ResponsePublishParams());
+                                        , new ResponsePublishParams());
         thirtySecondsLivePeriodParams = new LivePublishCandleParams
             (tickerId30SPeriod, ThirtySeconds, new IndicatorPublishInterval(TimeSpan.FromSeconds(1)), new ResponsePublishParams());
         oneMinuteLivePeriodParams = new LivePublishCandleParams
@@ -127,7 +134,6 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         var preqDeploy
             = await EventQueue1.LaunchRuleAsync
                 (indicatorRegistryStubRule, indicatorRegistryStubRule, EventQueue1SelectionResult);
-        undeploy.Add(preqDeploy);
         indicatorRegistryStubRule.RegisterGlobalServiceStatus(ServiceType.CandleFilePersister, ServiceRunStatus.ServiceStarted);
         indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
             (tickerId1MPeriod, new DiscreetTimePeriod(FifteenSeconds), ServiceType.LiveCandle, ServiceRunStatus.ServiceStarted);
@@ -141,6 +147,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
             (tickerId1MPeriod, new DiscreetTimePeriod(ThirtySeconds), ServiceType.HistoricalCandlesResolver
            , ServiceRunStatus.ServiceStarted);
+        undeploy.Add(preqDeploy);
     }
 
     private List<InstrumentFileInfo> GetStubRepoFileInfo
@@ -159,7 +166,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
             var fileStartDate = lastHistoricalEntryTime.TruncToWeekBoundary();
             lastFileInfoRetrieved
                 .Add(new InstrumentFileInfo(tickerId5SPeriod, OneWeek, earliestHistoricalEntryTime, lastHistoricalEntryTime
-                                          , new List<DateTime> { fileStartDate }));
+                                          , [fileStartDate]));
             return lastFileInfoRetrieved;
         }
         if (period?.Period == FifteenSeconds)
@@ -174,7 +181,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
             var fileStartDate = lastHistoricalEntryTime.TruncToWeekBoundary();
             lastFileInfoRetrieved
                 .Add(new InstrumentFileInfo(tickerId15SPeriod, OneWeek, earliestHistoricalEntryTime, lastHistoricalEntryTime
-                                          , new List<DateTime> { fileStartDate }));
+                                          , [fileStartDate]));
             return lastFileInfoRetrieved;
         }
         var latestCandleStartTime = ThirtySeconds.ContainingPeriodBoundaryStart(testEpochTime);
@@ -186,7 +193,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
             : testEpochTime;
         var fileStartTime = lastEntryTime.TruncToWeekBoundary();
         lastFileInfoRetrieved
-            .Add(new InstrumentFileInfo(tickerId30SPeriod, OneWeek, earliestEntryTime, lastEntryTime, new List<DateTime> { fileStartTime }));
+            .Add(new InstrumentFileInfo(tickerId30SPeriod, OneWeek, earliestEntryTime, lastEntryTime, [fileStartTime]));
         return lastFileInfoRetrieved;
     }
 
@@ -215,8 +222,13 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         oneSecondLevel1Quotes = new List<PublishableLevel1PriceQuote>(numberToGenerate);
         for (var i = 0; i < numberToGenerate; i++)
-            oneSecondLevel1Quotes.Add
-                (tickerId15SPeriod.CreatePublishableLevel1Quote(entriesStartTime = OneSecond.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2, spread));
+        {
+            var l1Quote = tickerId15SPeriod.CreatePublishableLevel1Quote(entriesStartTime = OneSecond.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2
+                                                                       , spread);
+
+            // logger.TrcApnd("Generated 1s quote {0}")?.Args(l1Quote);
+            oneSecondLevel1Quotes.Add(l1Quote);
+        }
     }
 
     private void Generate15SSummaries(int numberToGenerate = 8)
@@ -225,9 +237,13 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         fifteenSecondPeriodSummaries = new List<Candle>(numberToGenerate);
         for (var i = 0; i < numberToGenerate; i++)
-            fifteenSecondPeriodSummaries.Add
-                (CreateCandle
-                    (FifteenSeconds, entriesStartTime = FifteenSeconds.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2, spread, highLowSpread));
+        {
+            var candle = CreateCandle
+                (FifteenSeconds, entriesStartTime = FifteenSeconds.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2, spread, highLowSpread);
+
+            // logger.TrcApnd("Generated 15S Candle {0}")?.Args(candle);
+            fifteenSecondPeriodSummaries.Add(candle);
+        }
     }
 
     private void Generate30SSummaries(int numberToGenerate = 4)
@@ -236,9 +252,12 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         thirtySecondPeriodSummaries = new List<Candle>(numberToGenerate);
         for (var i = 0; i < numberToGenerate; i++)
-            thirtySecondPeriodSummaries.Add
-                (CreateCandle
-                    (ThirtySeconds, entriesStartTime = ThirtySeconds.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2, spread, highLowSpread));
+        {
+            var candle = CreateCandle
+                (ThirtySeconds, entriesStartTime = ThirtySeconds.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2, spread, highLowSpread);
+            // logger.TrcApnd("Generated 30S Candle {0}")?.Args(candle);
+            thirtySecondPeriodSummaries.Add(candle);
+        }
     }
 
 
@@ -255,8 +274,8 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
             (new PricingInstrumentIdValue
-                ((SourceTickerIdentifier)tickerId5SPeriod
-               , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
+                 ((SourceTickerIdentifier)tickerId5SPeriod
+                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LiveCandlePublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -276,8 +295,8 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
             (new PricingInstrumentIdValue
-                ((SourceTickerIdentifier)tickerId5SPeriod
-               , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
+                 ((SourceTickerIdentifier)tickerId5SPeriod
+                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LiveCandlePublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -291,7 +310,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         };
         await test5SLivePeriodClient.SendPricesToLivePeriodRule(oneSecondLevel1Quotes.Take(9).ToList(), stubTimeContext);
 
-        var receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults(1);
+        var receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults();
         Assert.AreEqual(1, receivedCompletePeriods.Count);
         test5SLivePeriodClient.CreateNewWait(1, 8);
         var receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(8);
@@ -304,8 +323,8 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
             (new PricingInstrumentIdValue
-                ((SourceTickerIdentifier)tickerId5SPeriod
-               , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
+                 ((SourceTickerIdentifier)tickerId5SPeriod
+                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LiveCandlePublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -319,17 +338,17 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         };
         var quotesToSend = oneSecondLevel1Quotes.Skip(1).Take(6).ToList();
         await test5SLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            ([quotesToSend.First()], stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test5SLivePeriodClient.CreateNewWait();
-            await test5SLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
+            await test5SLivePeriodClient.SendPricesToLivePeriodRule([quote], stubTimeContext);
             var receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count, $"For Loop {i} ");
         }
         await stubTimeContext.AddSecondsAsync(2);
-        var receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults(1);
+        var receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults();
         Assert.AreEqual(1, receivedCompletePeriods.Count);
     }
 
@@ -340,8 +359,8 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         await stubTimeContext.AddSecondsAsync(45);
         var test1MLivePeriodClient = new TestLivePeriodClient
             (new PricingInstrumentIdValue
-                ((SourceTickerIdentifier)tickerId1MPeriod
-               , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(OneMinute))));
+                 ((SourceTickerIdentifier)tickerId1MPeriod
+                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(OneMinute))));
         test1MLivePeriodClient.RegisterSubPeriodResponse
             (FifteenSeconds
            , () => new ValueTask<List<Candle>>(fifteenSecondPeriodSummaries.Skip(2).Take(1).ToList()));
@@ -362,17 +381,17 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         var quotesToSend = oneSecondLevel1Quotes.Skip(46).Take(14).ToList();
         await test1MLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            ([quotesToSend.First()], stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test1MLivePeriodClient.CreateNewWait();
-            await test1MLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
+            await test1MLivePeriodClient.SendPricesToLivePeriodRule([quote], stubTimeContext);
             var receivedLivePeriods = await test1MLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
         await stubTimeContext.AddSecondsAsync(6);
-        var receivedCompletePeriods = await test1MLivePeriodClient.GetPopulatedCompleteResults(1);
+        var receivedCompletePeriods = await test1MLivePeriodClient.GetPopulatedCompleteResults();
         Assert.AreEqual(1, receivedCompletePeriods.Count);
         var summary = receivedCompletePeriods.First();
         Assert.AreEqual((ushort)0, (ushort)((uint)summary.CandleFlags >> 16));
@@ -385,8 +404,8 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         await stubTimeContext.AddSecondsAsync(15);
         var test30SLivePeriodClient = new TestLivePeriodClient
             (new PricingInstrumentIdValue
-                ((SourceTickerIdentifier)tickerId30SPeriod
-               , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(ThirtySeconds))));
+                 ((SourceTickerIdentifier)tickerId30SPeriod
+                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(ThirtySeconds))));
         var taskCompletionsSource = new TaskCompletionSource<int>();
         test30SLivePeriodClient.RegisterSubPeriodResponse
             (FifteenSeconds
@@ -409,18 +428,18 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         var quotesToSend = oneSecondLevel1Quotes.Skip(16).Take(17).ToList();
         await test30SLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            ([quotesToSend.First()], stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test30SLivePeriodClient.CreateNewWait();
-            await test30SLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
+            await test30SLivePeriodClient.SendPricesToLivePeriodRule([quote], stubTimeContext);
             var receivedLivePeriods = await test30SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
         taskCompletionsSource.SetResult(0);
         await stubTimeContext.AddSecondsAsync(4);
-        var receivedCompletePeriods = await test30SLivePeriodClient.GetPopulatedCompleteResults(1);
+        var receivedCompletePeriods = await test30SLivePeriodClient.GetPopulatedCompleteResults();
         Assert.AreEqual(1, receivedCompletePeriods.Count);
         var summary = receivedCompletePeriods.First();
         Assert.AreEqual((ushort)0, (ushort)((uint)summary.CandleFlags >> 16));
@@ -433,8 +452,8 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         await stubTimeContext.AddSecondsAsync(15);
         var test30SLivePeriodClient = new TestLivePeriodClient
             (new PricingInstrumentIdValue
-                ((SourceTickerIdentifier)tickerId30SPeriod
-               , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(ThirtySeconds))));
+                 ((SourceTickerIdentifier)tickerId30SPeriod
+                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(ThirtySeconds))));
         test30SLivePeriodClient.RegisterSubPeriodResponse
             (FifteenSeconds, () => new ValueTask<List<Candle>>(new List<Candle>()));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test30SLivePeriodClient);
@@ -451,17 +470,17 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         var quotesToSend = oneSecondLevel1Quotes.Skip(16).Take(17).ToList();
         await test30SLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            ([quotesToSend.First()], stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test30SLivePeriodClient.CreateNewWait();
-            await test30SLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
+            await test30SLivePeriodClient.SendPricesToLivePeriodRule([quote], stubTimeContext);
             var receivedLivePeriods = await test30SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
         await stubTimeContext.AddSecondsAsync(4);
-        var receivedCompletePeriods = await test30SLivePeriodClient.GetPopulatedCompleteResults(1);
+        var receivedCompletePeriods = await test30SLivePeriodClient.GetPopulatedCompleteResults();
         Assert.AreEqual(1, receivedCompletePeriods.Count);
         var summary = receivedCompletePeriods.First();
         Assert.AreEqual((ushort)0x01FF, (ushort)((uint)summary.CandleFlags >> 16));
@@ -473,8 +492,8 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
             (new PricingInstrumentIdValue
-                ((SourceTickerIdentifier)tickerId5SPeriod
-               , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
+                 ((SourceTickerIdentifier)tickerId5SPeriod
+                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LiveCandlePublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -495,8 +514,8 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
             (new PricingInstrumentIdValue
-                ((SourceTickerIdentifier)tickerId5SPeriod
-               , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
+                 ((SourceTickerIdentifier)tickerId5SPeriod
+                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LiveCandlePublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
@@ -517,38 +536,36 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         var quotesToSend = oneSecondLevel1Quotes.Skip(22).Take(7).ToList();
         await test5SLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            ([quotesToSend.First()], stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test5SLivePeriodClient.CreateNewWait();
-            await test5SLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
+            Logger.DbgFmt("Sending quote {0}")?.Args(quote);
+            await test5SLivePeriodClient.SendPricesToLivePeriodRule([quote], stubTimeContext);
             receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
 
-        receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults(1);
+        receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults();
+        Logger.DebugFormat("Received {0} complete periods")?.WithOnlyParamCollection.Add(receivedCompletePeriods);
         Assert.AreEqual(1, receivedCompletePeriods.Count);
         receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(7);
         Assert.AreEqual(7, receivedLivePeriods.Count);
     }
 
-    private struct PublishQuotesWithTimeProgress
+    private readonly struct PublishQuotesWithTimeProgress(List<PublishableLevel1PriceQuote> toPublish, IUpdateTime timeUpdater)
     {
-        public PublishQuotesWithTimeProgress(List<PublishableLevel1PriceQuote> toPublish, IUpdateTime timeUpdater)
-        {
-            TimeUpdater = timeUpdater;
-            ToPublish   = toPublish;
-        }
+        public List<PublishableLevel1PriceQuote> ToPublish { get; } = toPublish;
 
-        public List<PublishableLevel1PriceQuote> ToPublish { get; }
-
-        public IUpdateTime TimeUpdater { get; }
+        public IUpdateTime TimeUpdater { get; } = timeUpdater;
     }
 
     private class TestLivePeriodClient
         (PricingInstrumentIdValue pricingInstrumentId, int waitNumberForCompleted = 1, int waitNumberForLive = 1) : Rule
     {
+        private static readonly IVersatileFLogger TestClientLogger = FLog.FLoggerForType.As<IVersatileFLogger>();
+
         private const string LivePeriodTestClientPublishPricesAddress
             = "TestClient.LiveCandle.Publish.Quotes";
 
@@ -571,7 +588,10 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         private ISubscription? listenForPublishPricesSubscription;
         private ISubscription? livePublishSubscription;
 
-        private string quoteListenAddress = null!;
+        private string quoteListenAddress     = null!;
+        
+        private int    waitNumberForCompleted = waitNumberForCompleted;
+        private int    waitNumberForLive      = waitNumberForLive;
 
         private List<ICandle> ReceivedLivePublishEvents { get; } = new();
 
@@ -581,6 +601,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         public override async ValueTask StartAsync()
         {
+            TestClientLogger.DebugFormat("Starting TestLivePeriodClient with {0}")?.WithOnlyParamCollection.Add(ReceivedCompletePublishEvents);
             quoteListenAddress = pricingInstrumentId.SourceName.SubscribeToTickerQuotes(pricingInstrumentId.InstrumentName);
             listenForPublishPricesSubscription = await this.RegisterRequestListenerAsync<PublishQuotesWithTimeProgress, ValueTask>
                 (LivePeriodTestClientPublishPricesAddress, PublishPriceQuotesHandler);
@@ -591,20 +612,25 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
             foreach (var subPeriod in pricingInstrumentId.CoveringPeriod.Period.WholeSecondConstructingDivisiblePeriods()
                                                          .Where(tsp => tsp >= CandleConstants.PersistPeriodsFrom))
             {
+                TestClientLogger.Dbg(((SourceTickerIdentifier)pricingInstrumentId).HistoricalCandleResponseRequest(subPeriod));
+                TestClientLogger.DbgFmt("Subscribing to {0}")?.Args(((SourceTickerIdentifier)pricingInstrumentId).HistoricalCandleResponseRequest(subPeriod));
                 historicalSubPeriodRequestSubscriptions.Add
                     (subPeriod, await this.RegisterRequestListenerAsync<HistoricalCandleResponseRequest, List<Candle>>
-                        (((SourceTickerIdentifier)pricingInstrumentId).HistoricalCandleResponseRequest(subPeriod)
-                       , ReceivedHistoricalSubPeriodResponseRequest));
+                         (((SourceTickerIdentifier)pricingInstrumentId).HistoricalCandleResponseRequest(subPeriod)
+                        , ReceivedHistoricalSubPeriodResponseRequest));
                 historicalSubPeriodAddressToSubPeriodLookup
                     .Add(((SourceTickerIdentifier)pricingInstrumentId).HistoricalCandleResponseRequest(subPeriod), subPeriod);
+                TestClientLogger.Dbg(((SourceTickerIdentifier)pricingInstrumentId).CompleteCandleAddress(subPeriod));
+                TestClientLogger.DbgFmt("Subscribing to {0}")?.Args(((SourceTickerIdentifier)pricingInstrumentId).CompleteCandleAddress(subPeriod));
                 liveSubPeriodCompletePublisherSubscriptions.Add
                     (subPeriod, await this.RegisterListenerAsync<Candle>
-                        (((SourceTickerIdentifier)pricingInstrumentId).CompleteCandleAddress(subPeriod)
-                       , ReceivedCompleteSubCandles));
+                         (((SourceTickerIdentifier)pricingInstrumentId).CompleteCandleAddress(subPeriod)
+                        , ReceivedCompleteSubCandles));
                 liveSubPeriodAddressToSubReceivedHistorical.Add
                     (((SourceTickerIdentifier)pricingInstrumentId).CompleteCandleAddress(subPeriod), subPeriod);
             }
             await base.StartAsync();
+            TestClientLogger.DebugFormat("Started TestLivePeriodClient with {0}")?.WithOnlyParamCollection.Add(ReceivedCompletePublishEvents);
         }
 
         public void CreateNewWait(int waitForComplete = 1, int waitForLive = 1)
@@ -624,19 +650,23 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         public async ValueTask<List<ICandle>> GetPopulatedCompleteResults(int waitNumber = 1)
         {
+            TestClientLogger.DebugFormat("Starting GetPopulatedCompleteResults {0} complete periods")?.WithOnlyParamCollection.Add(ReceivedCompletePublishEvents);
             waitNumberForCompleted = waitNumber;
             if (ReceivedCompletePublishEvents.Count < waitNumber) await Task.WhenAny(awaitCompleteSource.Task, Task.Delay(2_000));
+            TestClientLogger.DebugFormat("On Event or timeout GetPopulatedCompleteResults {0} complete periods")?.WithOnlyParamCollection.Add(ReceivedCompletePublishEvents);
             return ReceivedCompletePublishEvents;
         }
 
         private void ReceivedLiveCandles(Candle candle)
         {
+            TestClientLogger.DebugFormat("TestLivePeriodClient Received Live cancle {0}")?.WithOnlyParam(candle);
             ReceivedLivePublishEvents.Add(candle);
             if (ReceivedLivePublishEvents.Count >= waitNumberForLive) awaitLiveSource.TrySetResult(0);
         }
 
         private void ReceivedCompleteCandles(Candle candle)
         {
+            TestClientLogger.DebugFormat("TestLivePeriodClient Received Complete cancle {0}")?.WithOnlyParam(candle);
             ReceivedCompletePublishEvents.Add(candle);
             if (ReceivedCompletePublishEvents.Count >= waitNumberForCompleted) awaitCompleteSource.TrySetResult(0);
         }
@@ -645,6 +675,8 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
             (IBusRespondingMessage<HistoricalCandleResponseRequest, List<Candle>> completePublishMsg)
         {
             var historicalSubPeriodRequest = completePublishMsg.Payload.Body();
+            TestClientLogger.DebugAppend("TestLivePeriodClient Received Sub Period Response for Request: ")
+                  ?.FinalAppend(historicalSubPeriodRequest, HistoricalCandleResponseRequest.Styler);
             ReceivedSubPeriodHistoricalRequests.Add(historicalSubPeriodRequest);
             var subPeriod = historicalSubPeriodAddressToSubPeriodLookup[completePublishMsg.DestinationAddress!];
             if (!historicalSubPeriodResponseCallbacks.TryGetValue(subPeriod, out var resultCallback))
@@ -655,6 +687,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         private void ReceivedCompleteSubCandles(IBusMessage<Candle> livePublishMsg)
         {
             var candle = livePublishMsg.Payload.Body();
+            TestClientLogger.DebugAppend("TestLivePeriodClient Received Live Completed Candles: ")?.FinalAppend(candle);
             ReceivedLivePublishEvents.Add(candle);
             var subPeriod = liveSubPeriodAddressToSubReceivedHistorical[livePublishMsg.DestinationAddress!];
             if (!receivedCompleteSubPeriods.TryGetValue(subPeriod, out var resultCallback))
@@ -667,11 +700,13 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         public void RegisterSubPeriodResponse(TimeBoundaryPeriod subPeriod, Func<ValueTask<List<Candle>>> returnedResults)
         {
+            TestClientLogger.DebugAppend("TestLivePeriodClient Received Sub Period Response for Request: ")?.FinalAppend(subPeriod);
             historicalSubPeriodResponseCallbacks.Add(subPeriod, returnedResults);
         }
 
         public async ValueTask SendPricesToLivePeriodRule(List<PublishableLevel1PriceQuote> publishPrices, IUpdateTime progressTime)
         {
+            TestClientLogger.DebugAppend("TestLivePeriodClient SendPricesToLivePeriodRule: ")?.FinalAppendCollection.Add(publishPrices);
             await this.RequestAsync<PublishQuotesWithTimeProgress, ValueTask>
                 (LivePeriodTestClientPublishPricesAddress, new PublishQuotesWithTimeProgress(publishPrices, progressTime));
         }
@@ -689,12 +724,14 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         public override async ValueTask StopAsync()
         {
+            TestClientLogger.Debug("Stopping TestLivePeriodClient ");
             await livePublishSubscription.NullSafeUnsubscribe();
             await listenForPublishPricesSubscription.NullSafeUnsubscribe();
             await completePublishSubscription.NullSafeUnsubscribe();
             foreach (var listenHistoricalSub in historicalSubPeriodRequestSubscriptions.Values) await listenHistoricalSub.NullSafeUnsubscribe();
             foreach (var listenLiveSub in liveSubPeriodCompletePublisherSubscriptions.Values) await listenLiveSub.NullSafeUnsubscribe();
             await base.StopAsync();
+            TestClientLogger.Debug("Stopped TestLivePeriodClient ");
         }
     }
 }

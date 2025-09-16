@@ -11,7 +11,9 @@ using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Connectivity.Network.Dispatcher;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Logging.Config.ExampleConfig;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeTests.FortitudeCommon.Types;
 
@@ -24,7 +26,7 @@ public class OneOfEachMessageQueueTypeTestSetup
 {
     public const int DefaultRingPollerSize = 2550;
 
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OneOfEachMessageQueueTypeTestSetup));
+    private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
     public    MessageQueue         CustomQueue1 = null!;
     protected RouteSelectionResult CustomQueue1SelectionResult;
@@ -46,6 +48,7 @@ public class OneOfEachMessageQueueTypeTestSetup
     [TestInitialize]
     public void SetupMessageBus()
     {
+        FLogConfigExamples.SyncColoredConsoleExample.LoadExampleAsCurrentContext();
         Logger.Info("Creating test message bus.");
         OneOfQueueTypeMessageBus();
     }

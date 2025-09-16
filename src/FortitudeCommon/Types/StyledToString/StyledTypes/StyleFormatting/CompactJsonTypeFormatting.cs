@@ -20,6 +20,12 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , Type valueType, string? alternativeName = null) where TB : StyledTypeBuilder =>
         typeBuilder;
 
+    public virtual IStyleTypeBuilderComponentAccess<TB> AppendValueTypeClosing<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type valueType) where TB : StyledTypeBuilder
+    {
+        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        return typeBuilder;
+    }
+
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendComplexTypeOpening<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder, Type complexType
       , string? alternativeName = null)
         where TB : StyledTypeBuilder =>
@@ -43,8 +49,11 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     }
 
     public virtual IStyleTypeBuilderComponentAccess<TB> AppendTypeClosing<TB>(IStyleTypeBuilderComponentAccess<TB> typeBuilder)
-        where TB : StyledTypeBuilder =>
-        typeBuilder.Sb.Append(BrcCls).ToInternalTypeBuilder(typeBuilder);
+        where TB : StyledTypeBuilder
+    {
+        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        return typeBuilder.Sb.Append(BrcCls).ToInternalTypeBuilder(typeBuilder);
+    }
 
     public virtual IStringBuilder FormatFieldNameMatch<T>(IStringBuilder sb, T source, string? formatString = null)
     {

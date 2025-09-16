@@ -5,6 +5,7 @@
 
 using System.Text;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StyledToString;
 using MathNet.Numerics;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
@@ -410,6 +411,13 @@ public readonly struct DiscreetTimePeriod
         if (toConvert.NumberOfPeriods > 1) throw new ArgumentException("Can only convert a single period to TimeBoundaryPeriods");
         return toConvert.Period;
     }
+    
+    public static CustomTypeStyler<DiscreetTimePeriod> Styler { get; } =
+        (dtp, stsa) =>
+            stsa.StartComplexType(dtp, nameof(dtp))
+                .Field.AlwaysAddObject(nameof(dtp.NumberOfPeriods), dtp.NumberOfPeriods)
+                .Field.AlwaysAdd(nameof(dtp.Period), dtp.Period)
+                .Complete();
 }
 
 public static class DiscreetTimePeriodExtensions

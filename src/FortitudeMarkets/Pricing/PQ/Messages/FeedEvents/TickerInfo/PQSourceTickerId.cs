@@ -8,6 +8,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
@@ -434,5 +436,16 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
     protected string UpdateFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(SourceInstrumentId), SourceInstrumentId)
+            .Field.AlwaysAdd(nameof(SourceId), SourceId)
+            .Field.AlwaysAdd(nameof(InstrumentId), InstrumentId)
+            .Field.AlwaysAdd(nameof(SourceName), SourceName)
+            .Field.AlwaysAdd(nameof(SourceNameId), SourceNameId)
+            .Field.AlwaysAdd(nameof(InstrumentName), InstrumentName)
+            .Field.AlwaysAdd(nameof(InstrumentNameId), InstrumentNameId)
+            .Complete();
+    
     public override string ToString() => $"{nameof(PQSourceTickerId)}{{{PQSourceTickerIdToStringMembers}, {SourceInstrumentIdToString}, {UpdateFlagsToString}}}";
 }

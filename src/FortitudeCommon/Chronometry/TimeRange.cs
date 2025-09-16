@@ -22,6 +22,12 @@ public struct UnboundedTimeRange
     public DateTime? FromTime { get; }
     public DateTime? ToTime { get; }
 
+    public static CustomTypeStyler<UnboundedTimeRange> Styler { get; } =
+        (utr, stsa) =>
+            stsa.StartComplexType(utr, nameof(utr))
+                .Field.WhenNonDefaultAdd(nameof(utr.FromTime), utr.FromTime, DateTime.MinValue, "{0:O}")
+                .Field.WhenNonDefaultAdd(nameof(utr.ToTime), utr.ToTime, DateTime.MinValue, "{0:O}")
+                .Complete();
 
     public static explicit operator BoundedTimeRange(UnboundedTimeRange toConvert) => new(toConvert.FromTime!.Value, toConvert.ToTime!.Value);
 }
@@ -36,6 +42,13 @@ public struct UnboundedTimeSpanRange
 
     public TimeSpan? LowerLimit { get; }
     public TimeSpan? UpperLimit { get; }
+    
+    public static CustomTypeStyler<UnboundedTimeSpanRange> Styler { get; } =
+        (utsr, stsa) =>
+            stsa.StartComplexType(utsr, nameof(utsr))
+                .Field.WhenNonDefaultAdd(nameof(utsr.LowerLimit), utsr.LowerLimit, TimeSpan.Zero)
+                .Field.WhenNonDefaultAdd(nameof(utsr.UpperLimit), utsr.UpperLimit, TimeSpan.Zero)
+                .Complete();
 
 
     public static explicit operator BoundedTimeSpanRange
@@ -55,8 +68,14 @@ public struct BoundedTimeRange
 
     public DateTime FromTime { get; }
     public DateTime ToTime { get; }
-
-
+    
+    public static CustomTypeStyler<BoundedTimeRange> Styler { get; } =
+        (btr, stsa) =>
+            stsa.StartComplexType(btr, nameof(btr))
+                .Field.WhenNonDefaultAdd(nameof(btr.FromTime), btr.FromTime, DateTime.MinValue, "{0:O}")
+                .Field.WhenNonDefaultAdd(nameof(btr.ToTime), btr.ToTime, DateTime.MinValue, "{0:O}")
+                .Complete();
+    
     public static implicit operator UnboundedTimeRange(BoundedTimeRange toConvert) => new(toConvert.FromTime, toConvert.ToTime);
 }
 
@@ -74,6 +93,13 @@ public struct BoundedTimeSpanRange
     public TimeSpan LowerLimit { get; }
     public TimeSpan UpperLimit { get; }
 
+    
+    public static CustomTypeStyler<BoundedTimeSpanRange> Styler { get; } =
+        (btsr, stsa) =>
+            stsa.StartComplexType(btsr, nameof(btsr))
+                .Field.WhenNonDefaultAdd(nameof(btsr.LowerLimit), btsr.LowerLimit, TimeSpan.Zero)
+                .Field.WhenNonDefaultAdd(nameof(btsr.UpperLimit), btsr.UpperLimit, TimeSpan.Zero)
+                .Complete();
 
     public static implicit operator UnboundedTimeSpanRange(BoundedTimeSpanRange toConvert) => new(toConvert.LowerLimit, toConvert.UpperLimit);
 }

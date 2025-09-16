@@ -4,16 +4,17 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Trading.Orders;
-using FortitudeMarkets.Trading.Orders.Products;
 using Microsoft.Extensions.Configuration;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeMarkets.Trading.Orders.SpotOrders;
 
 #endregion
 
 namespace FortitudeMarkets.Config.TradingConfig;
 
-public interface ITradingServerConfig : IInterfacesComparable<ITradingServerConfig>, IConnection
+public interface ITradingServerConfig : IInterfacesComparable<ITradingServerConfig>, IConnection, IStyledToStringObject
 {
     INetworkTopicConnectionConfig TradingServerConnectionConfig { get; set; }
     OrderType SupportedOrderTypes { get; set; }
@@ -192,4 +193,14 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
         hashCode.Add(SupportedVenueFeatures);
         return hashCode.ToHashCode();
     }
+
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
+            .Field.AlwaysAdd(nameof(ParentConnectionName), ParentConnectionName)
+            .Field.AlwaysAdd(nameof(TradingServerConnectionConfig), TradingServerConnectionConfig)
+            .Field.AlwaysAdd(nameof(SupportedOrderTypes), SupportedOrderTypes)
+            .Field.AlwaysAdd(nameof(SupportedTimeInForce), SupportedTimeInForce)
+            .Field.AlwaysAdd(nameof(SupportedVenueFeatures), SupportedVenueFeatures)
+            .Complete();
 }

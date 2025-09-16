@@ -8,6 +8,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 
@@ -33,17 +35,17 @@ public class QuoteWrappingCandle : ReusableObject<ICandle>, ICandle, ICloneable<
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame          = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
-        var startTimeSame          = PeriodStartTime.Equals(other.PeriodStartTime);
-        var endTimeSame            = PeriodEndTime.Equals(other.PeriodEndTime);
-        var startBidAskSame        = Equals(StartBidAsk, other.StartBidAsk);
-        var highestBidAskSame      = Equals(HighestBidAsk, other.HighestBidAsk);
-        var lowestBidAskSame       = Equals(LowestBidAsk, other.LowestBidAsk);
-        var endBidAskSame          = Equals(EndBidAsk, other.EndBidAsk);
-        var tickCountSame          = TickCount == other.TickCount;
-        var periodVolumeSame       = PeriodVolume == other.PeriodVolume;
-        var candleFlagsSame = CandleFlags == other.CandleFlags;
-        var averageBidAskSame      = Equals(AverageBidAsk, other.AverageBidAsk);
+        var timeFrameSame     = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
+        var startTimeSame     = PeriodStartTime.Equals(other.PeriodStartTime);
+        var endTimeSame       = PeriodEndTime.Equals(other.PeriodEndTime);
+        var startBidAskSame   = Equals(StartBidAsk, other.StartBidAsk);
+        var highestBidAskSame = Equals(HighestBidAsk, other.HighestBidAsk);
+        var lowestBidAskSame  = Equals(LowestBidAsk, other.LowestBidAsk);
+        var endBidAskSame     = Equals(EndBidAsk, other.EndBidAsk);
+        var tickCountSame     = TickCount == other.TickCount;
+        var periodVolumeSame  = PeriodVolume == other.PeriodVolume;
+        var candleFlagsSame   = CandleFlags == other.CandleFlags;
+        var averageBidAskSame = Equals(AverageBidAsk, other.AverageBidAsk);
 
         var allAreSame = timeFrameSame && startTimeSame && endTimeSame && startBidAskSame && highestBidAskSame
                       && lowestBidAskSame && endBidAskSame && tickCountSame && periodVolumeSame && averageBidAskSame
@@ -51,9 +53,9 @@ public class QuoteWrappingCandle : ReusableObject<ICandle>, ICandle, ICloneable<
         return allAreSame;
     }
 
-    public DateTime           PeriodStartTime    => level1Quote?.SourceTime ?? DateTime.MinValue;
+    public DateTime PeriodStartTime => level1Quote?.SourceTime ?? DateTime.MinValue;
     public TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.Tick;
-    public DateTime           PeriodEndTime      => Next?.PeriodStartTime ?? (level1Quote?.SourceTime ?? DateTime.MinValue);
+    public DateTime PeriodEndTime => Next?.PeriodStartTime ?? (level1Quote?.SourceTime ?? DateTime.MinValue);
 
     public DateTime StorageTime(IStorageTimeResolver? resolver)
     {
@@ -76,12 +78,12 @@ public class QuoteWrappingCandle : ReusableObject<ICandle>, ICandle, ICloneable<
             level1Quote = null;
         }
     }
-    public BidAskPair StartBidAsk   => level1Quote?.BidAskTop ?? new BidAskPair();
+    public BidAskPair StartBidAsk => level1Quote?.BidAskTop ?? new BidAskPair();
     public BidAskPair HighestBidAsk => level1Quote?.BidAskTop ?? new BidAskPair();
-    public BidAskPair LowestBidAsk  => level1Quote?.BidAskTop ?? new BidAskPair();
-    public BidAskPair EndBidAsk     => level1Quote?.BidAskTop ?? new BidAskPair();
+    public BidAskPair LowestBidAsk => level1Quote?.BidAskTop ?? new BidAskPair();
+    public BidAskPair EndBidAsk => level1Quote?.BidAskTop ?? new BidAskPair();
 
-    public uint TickCount    => level1Quote != null ? (uint)1 : 0;
+    public uint TickCount => level1Quote != null ? (uint)1 : 0;
     public long PeriodVolume { get; set; }
 
     public BidAskPair AverageBidAsk => level1Quote?.BidAskTop ?? new BidAskPair();
@@ -131,6 +133,22 @@ public class QuoteWrappingCandle : ReusableObject<ICandle>, ICandle, ICloneable<
 
     public static ICandle Wrap(IPublishableLevel1Quote level1Quote, IRecycler? recycler = null) =>
         recycler?.Borrow<QuoteWrappingCandle>().CopyFrom(level1Quote) ?? new QuoteWrappingCandle(level1Quote);
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(level1Quote), level1Quote)
+            .Field.AlwaysAdd(nameof(TimeBoundaryPeriod), TimeBoundaryPeriod)
+            .Field.AlwaysAdd(nameof(PeriodStartTime), PeriodStartTime)
+            .Field.AlwaysAdd(nameof(PeriodEndTime), PeriodEndTime)
+            .Field.AlwaysAdd(nameof(StartBidAsk), StartBidAsk, BidAskPair.Styler)
+            .Field.AlwaysAdd(nameof(HighestBidAsk), HighestBidAsk, BidAskPair.Styler)
+            .Field.AlwaysAdd(nameof(LowestBidAsk), LowestBidAsk, BidAskPair.Styler)
+            .Field.AlwaysAdd(nameof(EndBidAsk), EndBidAsk, BidAskPair.Styler)
+            .Field.AlwaysAdd(nameof(TickCount), TickCount)
+            .Field.AlwaysAdd(nameof(PeriodVolume), PeriodVolume)
+            .Field.AlwaysAdd(nameof(CandleFlags), CandleFlags)
+            .Field.AlwaysAdd(nameof(AverageBidAsk), AverageBidAsk, BidAskPair.Styler)
+            .Complete();
 
     public override string ToString() => $"{nameof(QuoteWrappingCandle)}({nameof(level1Quote)}: {level1Quote})";
 }

@@ -10,6 +10,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Storage.TimeSeries;
 
 #endregion
@@ -112,7 +114,7 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
     }
 
     [JsonIgnore] ICandle? IDoublyLinkedListNode<ICandle>.Previous { get; set; }
-    [JsonIgnore] ICandle? IDoublyLinkedListNode<ICandle>.Next     { get; set; }
+    [JsonIgnore] ICandle? IDoublyLinkedListNode<ICandle>.Next { get; set; }
 
     public bool IsEmpty
     {
@@ -150,36 +152,35 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         var totalCompletePercentage = 0.0;
         foreach (var subRange in this.To16SubTimeRanges(recycler))
         {
-            if (subRange.IntersectsWith(timeRange) && !currentRangeMissing)
-                totalCompletePercentage += subRange.ContributingPercentageOfTimeRange(timeRange);
+            if (subRange.IntersectsWith(timeRange) && !currentRangeMissing) totalCompletePercentage += subRange.ContributingPercentageOfTimeRange(timeRange);
             missingTickPeriods  >>= 1;
             currentRangeMissing =   (missingTickPeriods & checkBitMask) > 0;
         }
         return totalCompletePercentage;
     }
 
-    public CandleFlags        CandleFlags        { get; set; }
+    public CandleFlags CandleFlags { get; set; }
     public TimeBoundaryPeriod TimeBoundaryPeriod { get; set; }
 
     public DateTime PeriodStartTime { get; set; }
-    public DateTime PeriodEndTime   { get; set; }
+    public DateTime PeriodEndTime { get; set; }
 
-    public BidAskPair StartBidAsk   => new(StartBidPrice, StartAskPrice);
+    public BidAskPair StartBidAsk => new(StartBidPrice, StartAskPrice);
     public BidAskPair HighestBidAsk => new(HighestBidPrice, HighestAskPrice);
-    public BidAskPair LowestBidAsk  => new(LowestBidPrice, LowestAskPrice);
-    public BidAskPair EndBidAsk     => new(EndBidPrice, EndAskPrice);
+    public BidAskPair LowestBidAsk => new(LowestBidPrice, LowestAskPrice);
+    public BidAskPair EndBidAsk => new(EndBidPrice, EndAskPrice);
     public BidAskPair AverageBidAsk => new(AverageBidPrice, AverageAskPrice);
 
-    public decimal StartBidPrice   { get; set; }
-    public decimal StartAskPrice   { get; set; }
+    public decimal StartBidPrice { get; set; }
+    public decimal StartAskPrice { get; set; }
     public decimal HighestBidPrice { get; set; }
     public decimal HighestAskPrice { get; set; }
-    public decimal LowestBidPrice  { get; set; }
-    public decimal LowestAskPrice  { get; set; }
-    public decimal EndBidPrice     { get; set; }
-    public decimal EndAskPrice     { get; set; }
-    public uint    TickCount       { get; set; }
-    public long    PeriodVolume    { get; set; }
+    public decimal LowestBidPrice { get; set; }
+    public decimal LowestAskPrice { get; set; }
+    public decimal EndBidPrice { get; set; }
+    public decimal EndAskPrice { get; set; }
+    public uint TickCount { get; set; }
+    public long PeriodVolume { get; set; }
     public decimal AverageBidPrice { get; set; }
     public decimal AverageAskPrice { get; set; }
 
@@ -255,8 +256,8 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         EndAskPrice     = 0m;
         AverageBidPrice = 0m;
         AverageAskPrice = 0m;
-        TickCount    = 0;
-        PeriodVolume = 0;
+        TickCount       = 0;
+        PeriodVolume    = 0;
 
         return this;
     }
@@ -358,12 +359,26 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         }
     }
 
-    public override string ToString() =>
-        $"{nameof(Candle)} ({nameof(TimeBoundaryPeriod)}: {TimeBoundaryPeriod}, {nameof(PeriodStartTime)}: {PeriodStartTime:O}, " +
-        $"{nameof(PeriodEndTime)}: {PeriodEndTime:O}, {nameof(StartBidPrice)}: {StartBidPrice:N5}, " +
-        $"{nameof(StartAskPrice)}: {StartAskPrice:N5}, {nameof(HighestBidPrice)}: {HighestBidPrice:N5}, " +
-        $"{nameof(HighestAskPrice)}: {HighestAskPrice:N5}, {nameof(LowestBidPrice)}: {LowestBidPrice:N5}, " +
-        $"{nameof(LowestAskPrice)}: {LowestAskPrice:N5}, {nameof(EndBidPrice)}: {EndBidPrice:N5}, " +
-        $"{nameof(EndAskPrice)}: {EndAskPrice:N5}, {nameof(TickCount)}: {TickCount}, {nameof(PeriodVolume)}: {PeriodVolume:N2}, " +
-        $"{nameof(CandleFlags)}: {CandleFlags}, {nameof(AverageBidPrice)}: {AverageBidPrice}, {nameof(AverageAskPrice)}: {AverageAskPrice})";
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(TimeBoundaryPeriod), TimeBoundaryPeriod)
+            .Field.AlwaysAdd(nameof(PeriodStartTime), PeriodStartTime, "{0:O}")
+            .Field.AlwaysAdd(nameof(PeriodEndTime), PeriodEndTime, "{0:O}")
+            .Field.AlwaysAdd(nameof(StartBidPrice), StartBidPrice, "{0:N5}")
+            .Field.AlwaysAdd(nameof(StartAskPrice), StartAskPrice, "{0:N5}")
+            .Field.AlwaysAdd(nameof(HighestBidPrice), HighestBidPrice, "{0:N5}")
+            .Field.AlwaysAdd(nameof(HighestAskPrice), HighestAskPrice, "{0:N5}")
+            .Field.AlwaysAdd(nameof(LowestBidPrice), LowestBidPrice, "{0:N5}")
+            .Field.AlwaysAdd(nameof(LowestAskPrice), LowestAskPrice, "{0:N5}")
+            .Field.AlwaysAdd(nameof(EndBidPrice), EndBidPrice, "{0:N5}")
+            .Field.AlwaysAdd(nameof(EndAskPrice), EndAskPrice, "{0:N5}")
+            .Field.AlwaysAdd(nameof(TickCount), TickCount)
+            .Field.AlwaysAdd(nameof(PeriodVolume), PeriodVolume, "{0:N2}")
+            .Field.AlwaysAdd(nameof(CandleFlags), CandleFlags)
+            .Field.AlwaysAdd(nameof(AverageBidPrice), AverageBidPrice, "{0:N5}")
+            .Field.AlwaysAdd(nameof(AverageAskPrice), AverageAskPrice, "{0:N5}")
+            .Complete();
+
+
+    public override string ToString() => this.DefaultToString();
 }

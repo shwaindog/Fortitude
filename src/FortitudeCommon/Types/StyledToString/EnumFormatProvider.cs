@@ -32,7 +32,7 @@ public static class EnumFormatterRegistry
                 }
             }
         }
-        return formatter.AsStructEnumFormatProvider<TEnumValue>()!;
+        return formatter.AsSpanFormattableEnumFormatProvider<TEnumValue>()!;
     }
 
     public static IEnumFormatProvider<TEnum> GetOrCreateEnumFormatProvider<TEnum>()
@@ -54,7 +54,7 @@ public static class EnumFormatterRegistry
                 }
             }
         }
-        return formatter.AsEnumFormatProvider<TEnum>()!;
+        return formatter.AsTypedEnumFormatProvider<TEnum>()!;
     }
 
     public static IEnumFormatter GetOrCreateEnumFormatProvider(Type enumType)
@@ -78,9 +78,10 @@ public static class EnumFormatterRegistry
 
 public interface IEnumFormatter : ICustomFormattableProvider
 {
-    IStructEnumFormatProvider<TEnum>? AsStructEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable;
+    IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable;
 
-    IEnumFormatProvider<TEnum>? AsEnumFormatProvider<TEnum>() where TEnum : Enum;
+    IEnumFormatProvider<TEnum>? AsTypedEnumFormatProvider<TEnum>() where TEnum : Enum;
+    IEnumFormatProvider<Enum>? AsEnumFormatProvider();
 }
 
 public interface IStructEnumFormatProvider<in TEnum> : IEnumFormatter, ICustomTypeStylerProvider<TEnum>, ICustomSpanFormattableProvider<TEnum> { }
@@ -105,6 +106,11 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
     private ConcurrentDictionary<long, string>? longRangeEnumMaterializedNames;
 
     private readonly string enumName;
+
+    private IEnumFormatProvider<Enum>? enumAdapterCompanion;
+
+    private CustomTypeStyler<Enum>      asEnumTypeStyler;
+    private CustomSpanFormattable<Enum> asEnumSpanFormattable;
 
     public EnumFormatProvider()
     {
@@ -156,6 +162,9 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         CustomTypeStyler      = EnumStyler;
         CustomSpanFormattable = EnumExtendedSpanFormattable;
 
+        asEnumTypeStyler      = EnumStyler;
+        asEnumSpanFormattable = EnumExtendedSpanFormattable;
+
         isFlagsEnum = enumType.GetCustomAttributes<FlagsAttribute>().Any();
         ForType     = enumType;
     }
@@ -164,19 +173,28 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     public bool SupportStyleToString => true;
 
+    public IEnumFormatProvider<Enum> EnumAdapterCompanion
+    {
+        get => enumAdapterCompanion ??= new CompanionEnumAdapter(this);
+        set => enumAdapterCompanion = value;
+    }
+
     public Type ForType { get; }
 
-    public IStructEnumFormatProvider<TEnum>? AsStructEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable =>
+    public IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable =>
         typeof(TEnum) == ForType ? (IStructEnumFormatProvider<TEnum>)this : null;
 
-    public IEnumFormatProvider<TEnum>? AsEnumFormatProvider<TEnum>() where TEnum : Enum =>
-        typeof(TEnum) == ForType ? (IEnumFormatProvider<TEnum>)this : null;
+    public IEnumFormatProvider<TEnum>? AsTypedEnumFormatProvider<TEnum>() where TEnum : Enum =>
+        typeof(TEnum).IsAssignableFrom(ForType) ? (IEnumFormatProvider<TEnum>)this : null;
+
+    public IEnumFormatProvider<Enum>? AsEnumFormatProvider() =>
+        typeof(Enum).IsAssignableFrom(ForType) ? EnumAdapterCompanion : null;
 
     public CustomTypeStyler<TEnumValue> CustomTypeStyler { get; }
 
-    public StyledTypeBuildResult EnumStyler(TEnumValue toFormatEnum, IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult EnumStyler(TEnumValue toFormatEnum, IStyledTypeStringAppender stsa)
     {
-        var tb = sbc.StartSimpleValueType(toFormatEnum);
+        var tb = stsa.StartSimpleValueType(toFormatEnum);
         using (var sb = tb.StartDelimitedStringBuilder())
         {
             var buildNames = stackalloc char[allValuesCharCount].ResetMemory();
@@ -185,6 +203,11 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         }
 
         return tb.Complete();
+    }
+
+    public StyledTypeBuildResult EnumStyler(Enum toFormatEnum, IStyledTypeStringAppender stsa)
+    {
+        return EnumStyler((TEnumValue)toFormatEnum, stsa);
     }
 
     private int SourceEnumNamesFromEnum(TEnumValue enumValue, Span<char> buildNames, ReadOnlySpan<char> format, IFormatProvider? provider = null)
@@ -219,12 +242,11 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
     private int SourceSingleNameFromEnum(TEnumValue singleEnumValue, Span<char> buildNames, ReadOnlySpan<char> format
       , IFormatProvider? provider = null)
     {
-        
         if (format.Length == 0)
         {
             if (isShortRangeEnum)
             {
-                var enumValue     = singleEnumValue.ToInt64(null);
+                var enumValue = singleEnumValue.ToInt64(null);
                 if (enumValue < lowestOffset || enumValue > (lowestOffset + shortRangeEnumMaterializedNames!.Length))
                 {
                     longRangeEnumMaterializedNames ??= new ConcurrentDictionary<long, string>();
@@ -273,6 +295,11 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     protected virtual string? CachedResult(TEnumValue toFormat, ReadOnlySpan<char> format, IFormatProvider? provider) => null;
 
+    private int EnumExtendedSpanFormattable(Enum toFormat, Span<char> destination, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        return EnumExtendedSpanFormattable((TEnumValue)toFormat, destination, format, provider);
+    }
+
     private int EnumExtendedSpanFormattable(TEnumValue toFormat, Span<char> destination, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
         var cachedResult = CachedResult(toFormat, format, provider);
@@ -288,5 +315,43 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         format.ExtractStringFormatStages(out _, out var layout, out _);
 
         return destination.PadAndAlign(vanillaEnumNames, layout);
+    }
+    
+    private class CompanionEnumAdapter : IEnumFormatProvider<Enum>
+    {
+        private readonly EnumFormatProvider<TEnumValue> parent;
+        
+        public CompanionEnumAdapter(EnumFormatProvider<TEnumValue> parent)
+        {
+            this.parent = parent;
+        }
+
+        public bool SupportSpanFormattable => parent.SupportSpanFormattable;
+        public bool SupportStyleToString => parent.SupportStyleToString;
+        public Type ForType => typeof(Enum);
+
+        public IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable
+        {
+            if (typeof(TEnum) == typeof(TEnumValue))
+            {
+                return (IStructEnumFormatProvider<TEnum>)parent;
+            }
+            return null;
+        }
+
+        public IEnumFormatProvider<TEnum>? AsTypedEnumFormatProvider<TEnum>() where TEnum : Enum
+        {
+            if (typeof(TEnum).IsAssignableFrom(typeof(TEnumValue)))
+            {
+                return (IEnumFormatProvider<TEnum>)parent;
+            }
+            return null;
+        }
+        
+        public IEnumFormatProvider<Enum>? AsEnumFormatProvider() => this;
+
+        public CustomTypeStyler<Enum> CustomTypeStyler => parent.asEnumTypeStyler;
+
+        public CustomSpanFormattable<Enum> CustomSpanFormattable => parent.asEnumSpanFormattable;
     }
 }

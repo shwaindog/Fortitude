@@ -6,6 +6,8 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Config.Availability;
 using FortitudeMarkets.Config.PricingConfig;
@@ -18,28 +20,29 @@ using Microsoft.Extensions.Configuration;
 namespace FortitudeMarkets.Config;
 
 public interface IMarketConnectionConfig : IConnection, ICloneable<IMarketConnectionConfig>, IInterfacesComparable<IMarketConnectionConfig>
+  , IStyledToStringObject
 {
     public const ushort DefaultEmptySourceIdValue   = 0;
     public const string DefaultEmptySourceNameValue = "";
 
-    ushort  SourceId       { get; set; }
-    string  SourceName     { get; set; }
+    ushort SourceId { get; set; }
+    string SourceName { get; set; }
 
     ITimeTableConfig? VenueOperatingTimeTableConfig { get; set; }
 
-    MarketConnectionType  MarketConnectionType { get; set; }
-    ISourceTickersConfig? SourceTickerConfig   { get; set; }
-    IPricingServerConfig? PricingServerConfig  { get; set; }
-    ITradingServerConfig? TradingServerConfig  { get; set; }
-    CountryCityCodes      MyLocation           { get; set; }
+    MarketConnectionType MarketConnectionType { get; set; }
+    ISourceTickersConfig? SourceTickerConfig { get; set; }
+    IPricingServerConfig? PricingServerConfig { get; set; }
+    ITradingServerConfig? TradingServerConfig { get; set; }
+    CountryCityCodes MyLocation { get; set; }
 
-    IEnumerable<ISourceTickerInfo> AllSourceTickerInfos            { get; }
+    IEnumerable<ISourceTickerInfo> AllSourceTickerInfos { get; }
     IEnumerable<ISourceTickerInfo> PricingEnabledSourceTickerInfos { get; }
     IEnumerable<ISourceTickerInfo> TradingEnabledSourceTickerInfos { get; }
 
     IMarketConnectionConfig ShiftPortsBy(ushort deltaPorts);
 
-    ISourceTickerInfo?      GetSourceTickerInfo(string ticker);
+    ISourceTickerInfo? GetSourceTickerInfo(string ticker);
     IMarketConnectionConfig ToggleProtocolDirection(string connectionName);
 }
 
@@ -57,9 +60,9 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
       , ISourceTickersConfig sourceTickersConfig
       , IPricingServerConfig? pricingServerConfig = null, ITradingServerConfig? tradingServerConfig = null) : this()
     {
-        SourceId       = sourceId;
-        SourceName     = sourceName;
-        MyLocation     = myLocation;
+        SourceId   = sourceId;
+        SourceName = sourceName;
+        MyLocation = myLocation;
 
         ConnectionName = sourceName;
 
@@ -77,7 +80,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
             ConnectionName           = marketConnectionConfig[nameof(ConnectionName)];
             ParentConnectionName     = marketConnectionConfig.ParentConnectionName;
             this[nameof(MyLocation)] = marketConnectionConfig[nameof(MyLocation)];
-            ParentLocation = marketConnectionConfig.ParentLocation;
+            ParentLocation           = marketConnectionConfig.ParentLocation;
         }
         else
         {
@@ -85,7 +88,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
             MyLocation     = toClone.MyLocation;
         }
 
-        SourceId   = toClone.SourceId;
+        SourceId = toClone.SourceId;
 
         MarketConnectionType = toClone.MarketConnectionType;
         SourceTickerConfig   = toClone.SourceTickerConfig;
@@ -97,7 +100,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 
     public string? ConnectionName
     {
-        get => this[nameof(ConnectionName)] ?? ParentConnectionName ?? this[nameof(SourceName)] ;
+        get => this[nameof(ConnectionName)] ?? ParentConnectionName ?? this[nameof(SourceName)];
 
         set
         {
@@ -109,7 +112,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
                 {
                     pricingServerConfig.ParentConnectionName = value + PricingConnectionNameSuffix;
                 }
-                else if(PricingServerConfig.ConnectionName.IsNullOrEmpty())
+                else if (PricingServerConfig.ConnectionName.IsNullOrEmpty())
                 {
                     PricingServerConfig.ConnectionName = value + PricingConnectionNameSuffix;
                 }
@@ -120,7 +123,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
                 {
                     pricingServerConfig.ParentConnectionName = value + TradingConnectionNameSuffix;
                 }
-                else if(TradingServerConfig.ConnectionName.IsNullOrEmpty())
+                else if (TradingServerConfig.ConnectionName.IsNullOrEmpty())
                 {
                     TradingServerConfig.ConnectionName = value + TradingConnectionNameSuffix;
                 }
@@ -179,7 +182,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         {
             if (GetSection(nameof(SourceTickerConfig)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
             {
-                var sourceTickersConfig =  new SourceTickersConfig(ConfigRoot, $"{Path}{Split}{nameof(SourceTickerConfig)}")
+                var sourceTickersConfig = new SourceTickersConfig(ConfigRoot, $"{Path}{Split}{nameof(SourceTickerConfig)}")
                 {
                     ParentVenueOperatingTimeTableConfig = VenueOperatingTimeTableConfig
                 };
@@ -248,7 +251,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
             {
                 value.TradingServerConnectionConfig.ConversationProtocol = SocketConversationProtocol.TcpAcceptor;
             }
-            
+
             if (value is TradingServerConfig valueTradingServerConfig)
             {
                 valueTradingServerConfig.ParentConnectionName = ConnectionName + TradingConnectionNameSuffix;
@@ -349,6 +352,17 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
             return hashCode;
         }
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
+            .Field.AlwaysAdd(nameof(SourceId), SourceId)
+            .Field.AlwaysAdd(nameof(SourceName), SourceName)
+            .Field.AlwaysAdd(nameof(MarketConnectionType), MarketConnectionType)
+            .Field.AlwaysAdd(nameof(SourceTickerConfig), SourceTickerConfig)
+            .Field.AlwaysAdd(nameof(PricingServerConfig), PricingServerConfig)
+            .Field.AlwaysAdd(nameof(TradingServerConfig), TradingServerConfig)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(MarketConnectionConfig)}({nameof(ConnectionName)}: {ConnectionName}, {nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, " +

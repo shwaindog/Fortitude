@@ -11,6 +11,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Storage.TimeSeries.FileSystem;
 using FortitudeIO.Storage.TimeSeries.FileSystem.DirectoryStructure;
@@ -461,6 +463,18 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category}, {nameof(SourcePublishLocation)}: {SourcePublishLocation}, " +
         $"{nameof(AdapterReceiveLocation)}: {AdapterReceiveLocation}, {nameof(ClientReceiveLocation)}: {ClientReceiveLocation}";
 
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .AddBaseStyledToStringFields(this)
+            .Field.AlwaysAdd(nameof(CoveringPeriod), CoveringPeriod, DiscreetTimePeriod.Styler)
+            .Field.AlwaysAdd(nameof(InstrumentType), InstrumentType)
+            .Field.AlwaysAdd(nameof(MarketClassification), MarketClassification, MarketClassification.Styler)
+            .Field.AlwaysAdd(nameof(Category), Category)
+            .Field.WhenNonDefaultAdd(nameof(SourcePublishLocation), SourcePublishLocation)
+            .Field.WhenNonDefaultAdd(nameof(AdapterReceiveLocation), AdapterReceiveLocation)
+            .Field.WhenNonDefaultAdd(nameof(ClientReceiveLocation), ClientReceiveLocation)
+            .Complete();
+
     public override string ToString() => $"{nameof(PricingInstrumentId)}{{{PricingInstrumentIdToStringMembers}}}";
 }
 
@@ -609,6 +623,24 @@ public readonly struct PricingInstrumentIdValue // not inheriting from IPricingI
     public string InstrumentName => SourceTickerIdentifierExtensions.GetRegisteredInstrumentName(SourceTickerId);
     public string SourceName     => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
 
+    
+    public static CustomTypeStyler<PricingInstrumentIdValue> Styler { get; } =
+        (piiv, stsa) =>
+            stsa.StartComplexType(piiv, nameof(piiv))
+                .Field.AlwaysAdd(nameof(piiv.SourceTickerId), piiv.SourceTickerId)
+                .Field.AlwaysAdd(nameof(piiv.SourceId), piiv.SourceId)
+                .Field.AlwaysAdd(nameof(piiv.InstrumentId), piiv.InstrumentId)
+                .Field.AlwaysAdd(nameof(piiv.InstrumentName), piiv.InstrumentName)
+                .Field.AlwaysAdd(nameof(piiv.SourceName), piiv.SourceName)
+                .Field.AlwaysAdd(nameof(piiv.CoveringPeriod), piiv.CoveringPeriod, DiscreetTimePeriod.Styler)
+                .Field.AlwaysAdd(nameof(piiv.InstrumentType), piiv.InstrumentType)
+                .Field.AlwaysAdd(nameof(piiv.MarketClassification), piiv.MarketClassification, MarketClassification.Styler)
+                .Field.AlwaysAdd(nameof(piiv.Category), piiv.Category)
+                .Field.WhenNonDefaultAdd(nameof(piiv.SourcePublishLocation), piiv.SourcePublishLocation)
+                .Field.WhenNonDefaultAdd(nameof(piiv.AdapterReceiveLocation), piiv.AdapterReceiveLocation)
+                .Field.WhenNonDefaultAdd(nameof(piiv.ClientReceiveLocation), piiv.ClientReceiveLocation)
+                .Complete();
+    
     public override string ToString() =>
         $"{nameof(PricingInstrumentIdValue)}({nameof(SourceId)}: {SourceId}, {nameof(InstrumentId)}: {InstrumentId}, {nameof(InstrumentName)}: {InstrumentName}, " +
         $"{nameof(SourceName)}: {SourceName}, {nameof(CoveringPeriod)}: {CoveringPeriod}, {nameof(InstrumentType)}: {InstrumentType}, " +

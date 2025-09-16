@@ -8,6 +8,8 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
@@ -268,6 +270,20 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
             return hashCode;
         }
     }
+
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .AddBaseStyledToStringFields(this)
+            .Field.AlwaysAdd(nameof(SourceBidTime), SourceBidTime, "O")
+            .Field.AlwaysAdd(nameof(ValidFrom), ValidFrom, "O")
+            .Field.AlwaysAdd(nameof(ValidTo), ValidTo, "O")
+            .Field.AlwaysAdd(nameof(BidPriceTop), BidPriceTop, "N5")
+            .Field.AlwaysAdd(nameof(IsBidPriceTopChanged), IsBidPriceTopChanged)
+            .Field.AlwaysAdd(nameof(SourceAskTime), SourceAskTime, "O")
+            .Field.AlwaysAdd(nameof(AskPriceTop), AskPriceTop, "N5")
+            .Field.AlwaysAdd(nameof(IsAskPriceTopChanged), IsAskPriceTopChanged)
+            .Field.AlwaysAdd(nameof(Executable), Executable)
+            .Complete();
 
     public override string QuoteToStringMembers =>
         $"{base.QuoteToStringMembers}, {nameof(SourceBidTime)}: {SourceBidTime:O}, {nameof(ValidFrom)}: {ValidFrom:O}, {nameof(ValidTo)}: {ValidTo:O}, " +
@@ -602,6 +618,14 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     }
 
     public override string QuoteToStringMembers => $"{base.QuoteToStringMembers}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
+
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .AddBaseStyledToStringFields(this)
+            .Field.AlwaysAdd(nameof(QuoteContainer), QuoteContainer)
+            .Field.AlwaysAdd(nameof(ConflatedTicksCandle), ConflatedTicksCandle)
+            .Field.AlwaysAdd(nameof(QuoteBehavior), QuoteBehavior)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(PublishableLevel1PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}, " +

@@ -9,6 +9,8 @@ using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Config.Availability;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
@@ -44,7 +46,7 @@ public static class TickerAvailabilityExtensions
     public static bool IsPricingEnabled(this TickerAvailability tickerAvailability) => (tickerAvailability & TickerAvailability.PricingEnabled) > 0;
 }
 
-public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConfig>, ITradingAvailability
+public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConfig>, ITradingAvailability, IStyledToStringObject
 {
     const decimal DefaultPipValue           = SourceTickerInfo.DefaultPip;
     const decimal DefaultMinSubmitSizeValue = SourceTickerInfo.DefaultMinSubmitSize;
@@ -527,6 +529,24 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         hashCode.Add(Tickers);
         return hashCode.ToHashCode();
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(DefaultTickerAvailability), DefaultTickerAvailability)
+            .Field.AlwaysAdd(nameof(DefaultPublishTickerQuoteDetailLevel), DefaultPublishTickerQuoteDetailLevel)
+            .Field.AlwaysAdd(nameof(DefaultMarketClassificationConfig), DefaultMarketClassificationConfig)
+            .Field.AlwaysAdd(nameof(DefaultRoundingPrecision), DefaultRoundingPrecision)
+            .Field.AlwaysAdd(nameof(DefaultPip), DefaultPip)
+            .Field.AlwaysAdd(nameof(DefaultMaximumPublishedLayers), DefaultMaximumPublishedLayers)
+            .Field.AlwaysAdd(nameof(DefaultMinSubmitSize), DefaultMinSubmitSize)
+            .Field.AlwaysAdd(nameof(DefaultMaxSubmitSize), DefaultMaxSubmitSize)
+            .Field.AlwaysAdd(nameof(DefaultIncrementSize), DefaultIncrementSize)
+            .Field.AlwaysAdd(nameof(DefaultMinimumQuoteLifeMs), DefaultMinimumQuoteLifeMs)
+            .Field.AlwaysAdd(nameof(DefaultMaxValidMs), DefaultMaxValidMs)
+            .Field.AlwaysAdd(nameof(DefaultLayerFlags), DefaultLayerFlags)
+            .Field.AlwaysAdd(nameof(DefaultLastTradedFlags), DefaultLastTradedFlags)
+            .KeyedCollectionField.AlwaysAddAll(nameof(Tickers), Tickers)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(SourceTickersConfig)}({nameof(DefaultTickerAvailability)}: {DefaultTickerAvailability}, " +

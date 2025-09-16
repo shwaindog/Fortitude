@@ -5,6 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StyledToString;
 
 #endregion
 
@@ -20,6 +21,13 @@ public struct TimeSeriesSpan
 
     public int                NumberOfPeriods { get; set; }
     public TimeBoundaryPeriod Period          { get; set; }
+    
+    public static CustomTypeStyler<TimeSeriesSpan?> Styler { get; } =
+        (tss, stsa) =>
+            stsa.StartComplexType(tss, nameof(tss))
+                .Field.AlwaysAdd(nameof(tss.Value.Period), tss?.Period)
+                .Field.AlwaysAdd(nameof(tss.Value.NumberOfPeriods), tss?.NumberOfPeriods)
+                .Complete();
 }
 
 public enum TimeLengthType
@@ -46,6 +54,15 @@ public struct TimeLength
     public TimeLengthType  Type             { get; set; }
     public TimeSpan?       TimeSpanLength   { get; set; }
     public TimeSeriesSpan? TimeSeriesLength { get; set; }
+    
+    
+    public static CustomTypeStyler<TimeLength> Styler { get; } =
+        (tl, stsa) =>
+            stsa.StartComplexType(tl, nameof(tl))
+                .Field.AlwaysAdd(nameof(tl.Type), tl.Type)
+                .Field.AlwaysAdd(nameof(tl.TimeSpanLength), tl.TimeSpanLength)
+                .Field.AlwaysAdd(nameof(tl.TimeSeriesLength), tl.TimeSeriesLength, TimeSeriesSpan.Styler)
+                .Complete();
 }
 
 public static class TimeLengthExtensions

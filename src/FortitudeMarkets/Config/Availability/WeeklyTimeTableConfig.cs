@@ -6,13 +6,15 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 #endregion
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface IWeeklyTimeTableConfig : IWeeklyAvailability, IInterfacesComparable<IWeeklyTimeTableConfig>
+public interface IWeeklyTimeTableConfig : IWeeklyAvailability, IInterfacesComparable<IWeeklyTimeTableConfig>, IStyledToStringObject
 {
     TimeZoneInfo? OverrideTimeZone { get; set; }
 
@@ -243,6 +245,17 @@ public class WeeklyTimeTableConfig : ConfigSection, IWeeklyTimeTableConfig
         }
     }
 
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    {
+        return sbc.StartComplexType(this)
+           .Field.AlwaysAddObject(nameof(StartTimes), StartTimes)
+           .Field.AlwaysAddObject(nameof(StopTimes), StopTimes)
+           .Field.AlwaysAddObject(nameof(OverrideTimeZone), OverrideTimeZone)
+           .Field.AlwaysAdd(nameof(DaysOfWeek), DaysOfWeek)
+           .Field.AlwaysAddObject(nameof(ParentTimeZone), ParentTimeZone)
+           .Complete();
+    }
+    
     public override string ToString() =>
         $"{nameof(StartTimes)}: {StartTimes}, {nameof(StopTimes)}: {StopTimes}, {nameof(OverrideTimeZone)}: {OverrideTimeZone}, " +
         $"{nameof(DaysOfWeek)}: {DaysOfWeek}, {nameof(ParentTimeZone)}: {ParentTimeZone}";
