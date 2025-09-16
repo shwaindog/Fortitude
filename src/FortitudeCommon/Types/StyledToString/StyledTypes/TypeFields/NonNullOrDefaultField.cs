@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -26,79 +27,67 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , CustomTypeStyler<TStylerType> customTypeStyler, TToStyle? defaultValue = default) where TToStyle : TStylerType =>
         !stb.SkipFields && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, string? defaultValue = ""
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
         !stb.SkipFields && value != null && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, string? defaultValue = "") => 
-        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, string defaultValue = ""
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
+        !stb.SkipFields && value is { Length: > 0 } && !value.IsEquivalentTo(defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAddStyled<TStyled>(string fieldName, TStyled? value, TStyled? defaultValue = default) 
         where TStyled : IStyledToStringObject => 
         !stb.SkipFields && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, string? defaultValue = "") =>
-        !stb.SkipFields && value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, string defaultValue = ""
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value != null && !value.IsEquivalentTo(defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, string? defaultValue = "") =>
-        !stb.SkipFields && value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, string defaultValue = ""
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value != null && !value.IsEquivalentTo(defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue
-      , string? formatString = null, string? defaultValue = null)
+      , string defaultValue = ""
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields || value == null) return stb.StyleTypeBuilder;
-        if (defaultValue != null)
+        if (value.IsEquivalentTo(defaultValue, startIndex, length))
         {
-            if (value.Equals(defaultValue))
-            {
-                return stb.StyleTypeBuilder;
-            }
+            return stb.StyleTypeBuilder;
         }
         return AlwaysAdd(fieldName, value, startIndex, length, formatString);
     }
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, int startIndex, int length = int.MaxValue
-      , string? formatString = null, string? defaultValue = null)
+      , string? formatString = null, string defaultValue = "")
     {
         if (stb.SkipFields || value == null) return stb.StyleTypeBuilder;
-        if (defaultValue != null)
+        if (value.IsEquivalentTo(defaultValue, startIndex, length))
         {
-            if (value.Equals(defaultValue))
-            {
-                return stb.StyleTypeBuilder;
-            }
+            return stb.StyleTypeBuilder;
         }
         return AlwaysAdd(fieldName, value, startIndex, length, formatString);
     }
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, int startIndex, int length = int.MaxValue
-      , string? formatString = null, string? defaultValue = null)
+      , string? formatString = null, string defaultValue = "")
     {
         if (stb.SkipFields || value == null) return stb.StyleTypeBuilder;
-        if (defaultValue != null)
+        if (value.IsEquivalentTo(defaultValue, startIndex, length))
         {
-            var valueSpan   = value.AsSpan();
-            var defaultSpan = defaultValue.AsSpan();
-            if (valueSpan == defaultSpan)
-            {
-                return stb.StyleTypeBuilder;
-            }
+            return stb.StyleTypeBuilder;
         }
         return AlwaysAdd(fieldName, value, startIndex, length, formatString);
     }
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, int startIndex, int length = int.MaxValue
-      , string? formatString = null, string? defaultValue = null)
+      , string? formatString = null, string defaultValue = "")
     {
         if (stb.SkipFields || value == null) return stb.StyleTypeBuilder;
-        if (defaultValue != null)
+        if (value.IsEquivalentTo(defaultValue, startIndex, length))
         {
-            var valueSpan   = value.AsSpan();
-            var defaultSpan = defaultValue.AsSpan();
-            if (valueSpan == defaultSpan)
-            {
-                return stb.StyleTypeBuilder;
-            }
+            return stb.StyleTypeBuilder;
         }
         return AlwaysAdd(fieldName, value, startIndex, length, formatString);
     }

@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 
@@ -14,26 +15,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedWithFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(bool);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<bool>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<bool[], bool>(value);
                 }
-                stb.AppendCollectionItem(item, i);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -42,26 +41,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedWithFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(bool?);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<bool?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<bool?[], bool?>(value);
                 }
-                stb.AppendCollectionItem(item, i);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -73,29 +70,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TFmt : ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(TFmt);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<TFmt>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<TFmt[], TFmt>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(value[i], itemCount, formatString);
-                else
-                    stb.AppendCollectionItem(value[i], itemCount);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -107,29 +99,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(TFmtStruct?);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<TFmtStruct?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<TFmtStruct?[], TFmtStruct?>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(value[i], itemCount, formatString);
-                else
-                    stb.AppendCollectionItem(value[i], itemCount);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -140,26 +127,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType, TToStyleBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(TToStyle);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<TToStyle>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<TToStyle[], TToStyle>(value);
                 }
-                stb.AppendOrNull(item, customTypeStyler);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, customTypeStyler);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -170,29 +155,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(string);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<string?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<string?[], string?>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -204,29 +184,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     where TCharSeq : ICharSequence
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(TCharSeq);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<TCharSeq?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<TCharSeq?[], TCharSeq?>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddCharSequenceElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -236,29 +211,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(StringBuilder);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<StringBuilder?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<StringBuilder?[], StringBuilder?>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -269,29 +239,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where T : TBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(T);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<T>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<T[], T>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddMatchElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -301,26 +266,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(bool);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<bool?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<IReadOnlyList<bool>, bool?>(value);
                 }
-                stb.AppendCollectionItem(item, i);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -329,26 +292,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(bool?);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<bool?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<IReadOnlyList<bool?>, bool?>(value);
                 }
-                stb.AppendCollectionItem(item, i);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -359,29 +320,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TFmt : ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(TFmt);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<TFmt>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<IReadOnlyList<TFmt>, TFmt>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(value[i], itemCount, formatString);
-                else
-                    stb.AppendCollectionItem(value[i], itemCount);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -392,28 +348,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(TFmtStruct?);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<TFmtStruct?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<IReadOnlyList<TFmtStruct?>, TFmtStruct?>(value);
                 }
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendNullableFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -424,26 +376,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType, TToStyleBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(TToStyle);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<TToStyle>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<IReadOnlyList<TToStyle>, TToStyle>(value);
                 }
-                stb.AppendOrNull(item, customTypeStyler);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, customTypeStyler);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -453,86 +403,80 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(string);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<string?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<IReadOnlyList<string?>, string?>(value);
                 }
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString, 0)
-                    : stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
 
     public TExt WhenPopulatedWithFilterCharSequence<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq?>? value
-      , OrderedCollectionPredicate<ICharSequence?> filterPredicate) where TCharSeq : ICharSequence
+      , OrderedCollectionPredicate<ICharSequence?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(TCharSeq);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<TCharSeq?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<IReadOnlyList<TCharSeq?>, TCharSeq?>(value);
                 }
-                stb.Sb.Append(item);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddCharSequenceElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
 
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<StringBuilder?>? value
-      , OrderedCollectionPredicate<StringBuilder?> filterPredicate)
+      , OrderedCollectionPredicate<StringBuilder?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(StringBuilder);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<StringBuilder?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<IReadOnlyList<StringBuilder?>, StringBuilder?>(value);
                 }
-                stb.Sb.Append(item);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -543,29 +487,24 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         where T : TBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var found       = false;
-        var elementType = typeof(T);
-        var itemCount   = 0;
+        ExplicitOrderedCollectionBuilder<T?>? eoctb = null;
         if (value != null)
+        {
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
                 if (!filterPredicate(i, item)) continue;
-                if (!found)
+                if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StartCollection(elementType, true, value);
-                    found = true;
+                    eoctb = stb.OwningAppender.StartExplicitCollectionType<IReadOnlyList<T?>, T?>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                eoctb.AddMatchElementAndGoToNextElement(item, formatString);
             }
-        if (found)
+        }
+        if (eoctb != null)
         {
-            stb.EndCollection(elementType, itemCount);
+            eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;

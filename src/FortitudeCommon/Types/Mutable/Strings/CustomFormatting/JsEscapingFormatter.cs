@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
+using System.Text.Json.Nodes;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 
@@ -14,7 +15,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     private byte    previousByteUnusedBits;
     private byte    previousByteBitCount;
     private string? jsonDateTImeFormat;
-    
+
     protected const string DblQt      = "\"";
     protected const char   DblQtChar  = '"';
     protected const string BrcOpn     = "{";
@@ -22,10 +23,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     protected const string BrcCls     = "}";
     protected const char   BrcClsChar = '}';
 
-    public const string DefaultJsonDateTImeFormat  = "yyyy-MM-ddTHH:mm:ss";
+    public const string DefaultJsonDateTImeFormat = "yyyy-MM-ddTHH:mm:ss";
 
-    private static string[] booleanStrings = [ "true", "false", "True", "False" ];
-    
+    private static string[] booleanStrings = ["true", "false", "True", "False"];
+
     public JsEscapingFormatter()
     {
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -78,7 +79,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         get => jsonDateTImeFormat ??= DefaultJsonDateTImeFormat;
         set => jsonDateTImeFormat = value;
     }
-    
+
     public bool WrapValuesInQuotes { get; set; }
 
     public override int Transfer(ReadOnlySpan<char> source, IStringBuilder sb)
@@ -222,21 +223,25 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         }
     }
 
-    protected int JsEscapingTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue, int destInsertIndex = -1)
+    protected int JsEscapingTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue
+      , int destInsertIndex = -1)
     {
         var preTransferLen = sb.Length;
-        var sbStartIndex = destInsertIndex < 0 ? sb.Length : destInsertIndex;
-        var i         = sourceFrom;
-        var end       = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        var hexBuffer = stackalloc char[6].ResetMemory();
-        var sbIndex = sbStartIndex;
+        var sbStartIndex   = destInsertIndex < 0 ? sb.Length : destInsertIndex;
+        var i              = sourceFrom;
+        var end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var hexBuffer      = stackalloc char[6].ResetMemory();
+        var sbIndex        = sbStartIndex;
         for (; i < end; i++)
         {
             var iChar = (int)source[i];
             if (iChar < 128)
             {
                 var mappedChar = jsEscapeChars[iChar];
-                if (destInsertIndex == sb.Length) { sb.Append(mappedChar); }
+                if (destInsertIndex == sb.Length)
+                {
+                    sb.Append(mappedChar);
+                }
                 else
                 {
                     if (sb.Length <= sbIndex + mappedChar.Length) sb.Length   = sbIndex + mappedChar.Length;
@@ -290,7 +295,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                         destination[desti++] = jsEscapeChar[5];
                         break;
                     default:
-                        for (int j = 0; j < jsEscapeChar.Length; j++) { destination[desti++] = jsEscapeChar[j]; }
+                        for (int j = 0; j < jsEscapeChar.Length; j++)
+                        {
+                            destination[desti++] = jsEscapeChar[j];
+                        }
                         break;
                 }
             }
@@ -332,7 +340,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         for (; i < end; i++)
         {
             var iChar = (int)source[i];
-            if (iChar < 128) { sb.Append(jsEscapeChars[iChar]); }
+            if (iChar < 128)
+            {
+                sb.Append(jsEscapeChars[iChar]);
+            }
             else
             {
                 hexBuffer[0] = '\\';
@@ -372,7 +383,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                         destination[desti++] = jsEscapeChar[5];
                         break;
                     default:
-                        for (int j = 0; j < jsEscapeChar.Length; j++) { destination[desti++] = jsEscapeChar[j]; }
+                        for (int j = 0; j < jsEscapeChar.Length; j++)
+                        {
+                            destination[desti++] = jsEscapeChar[j];
+                        }
                         break;
                 }
             }
@@ -417,7 +431,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         for (; i < end; i++)
         {
             var iChar = (int)source[i];
-            if (iChar < 128) { sb.Append(jsEscapeChars[iChar]); }
+            if (iChar < 128)
+            {
+                sb.Append(jsEscapeChars[iChar]);
+            }
             else
             {
                 hexBuffer[0] = '\\';
@@ -457,7 +474,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                         destination[desti++] = jsEscapeChar[5];
                         break;
                     default:
-                        for (int j = 0; j < jsEscapeChar.Length; j++) { destination[desti++] = jsEscapeChar[j]; }
+                        for (int j = 0; j < jsEscapeChar.Length; j++)
+                        {
+                            destination[desti++] = jsEscapeChar[j];
+                        }
                         break;
                 }
             }
@@ -491,18 +511,47 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int Transfer(ICharSequence source, int sourceFrom, Span<char> destination, int destStartIndex = 0
       , int maxTransferCount = int.MaxValue)
     {
+        if (!CharArrayWritesString)
+        {
+            var charsAdded = 0;
+            var cappedEnd  = Math.Clamp(maxTransferCount, 0, source.Length);
+            int j          = 0;
+            for (; j < cappedEnd; j++)
+            {
+                var item = source[j];
+
+                if (j > 0) charsAdded += AddCollectionElementSeparator(typeof(char), destination, destStartIndex + charsAdded, j);
+                charsAdded += CollectionNextItem(item, j, destination, destStartIndex + charsAdded);
+            }
+            return j;
+        }
         return JsEscapingTransfer(source, sourceFrom, destination, destStartIndex, maxTransferCount);
     }
 
     protected int JsEscapingTransfer(ICharSequence source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue)
     {
+        if (!CharArrayWritesString)
+        {
+            var cappedEnd = Math.Clamp(maxTransferCount, 0, source.Length);
+            int j         = 0;
+            for (; j < cappedEnd; j++)
+            {
+                var item = source[j];
+                if (j > 0) AddCollectionElementSeparator(typeof(char), sb, j);
+                CollectionNextItem(item, j, sb);
+            }
+            return j;
+        }
         var i         = sourceFrom;
         var hexBuffer = stackalloc char[6].ResetMemory();
         var end       = Math.Min(source.Length, maxTransferCount + sourceFrom);
         for (; i < end; i++)
         {
             var iChar = (int)source[i];
-            if (iChar < 128) { sb.Append(jsEscapeChars[iChar]); }
+            if (iChar < 128)
+            {
+                sb.Append(jsEscapeChars[iChar]);
+            }
             else
             {
                 hexBuffer[0] = '\\';
@@ -542,7 +591,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                         destination[desti++] = jsEscapeChar[5];
                         break;
                     default:
-                        for (int j = 0; j < jsEscapeChar.Length; j++) { destination[desti++] = jsEscapeChar[j]; }
+                        for (int j = 0; j < jsEscapeChar.Length; j++)
+                        {
+                            destination[desti++] = jsEscapeChar[j];
+                        }
                         break;
                 }
             }
@@ -559,26 +611,27 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 
     private bool IsDoubleQuoteEnclosed(Span<char> toCheck) => toCheck[0] == DblQtChar && toCheck[^1] == DblQtChar;
     private bool IsBracesEnclosed(Span<char> toCheck) => toCheck[0] == BrcOpnChar && toCheck[^1] == BrcClsChar;
+    private bool IsSquareBracketsEnclosed(Span<char> toCheck) => toCheck[0] == SqBrktOpnChar && toCheck[^1] == SqBrktClsChar;
 
-    
+
     public override int ProcessAppendedRange(IStringBuilder sb, int fromIndex)
     {
         var originalSbLen = sb.Length;
-        var appendLen = originalSbLen - fromIndex;
+        var appendLen     = originalSbLen - fromIndex;
         if (appendLen < 4096)
         {
             var scratchFull = stackalloc char[appendLen + 2].ResetMemory();
             for (int i = 0; i < appendLen; i++)
             {
-                scratchFull[i+1] = sb[fromIndex + i];
+                scratchFull[i + 1] = sb[fromIndex + i];
             }
             return ProcessAppended(sb, scratchFull, fromIndex);
         }
         var largeScrachBuffer = (appendLen + 2).SourceRecyclingCharArray();
-        var fullSpan     = largeScrachBuffer.RemainingAsSpan();
+        var fullSpan          = largeScrachBuffer.RemainingAsSpan();
         largeScrachBuffer.Insert(1, sb, fromIndex, appendLen);
-        var boundedScratchSpan = fullSpan[0.. (appendLen+2)];  
-        var change = ProcessAppended(sb, boundedScratchSpan, fromIndex);
+        var boundedScratchSpan = fullSpan[0.. (appendLen + 2)];
+        var change             = ProcessAppended(sb, boundedScratchSpan, fromIndex);
         largeScrachBuffer.DecrementRefCount();
         return change;
     }
@@ -588,7 +641,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var originalSbLen = sb.Length;
         var appendLen     = originalSbLen - fromIndex;
         var justAppended  = scratchFull[1..^1];
-        if (IsBracesEnclosed(justAppended))
+        if (IsBracesEnclosed(justAppended) || IsSquareBracketsEnclosed(justAppended))
         {
             return 0;
         }
@@ -608,20 +661,20 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 
     public override int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length)
     {
-        var appendLen     = length - fromIndex;
+        var appendLen = length - fromIndex;
         if (appendLen < 4096)
         {
             var scratchFull = stackalloc char[appendLen + 2].ResetMemory();
             for (int i = 0; i < appendLen; i++)
             {
-                scratchFull[i+1] = destSpan[fromIndex + i];
+                scratchFull[i + 1] = destSpan[fromIndex + i];
             }
             return ProcessAppended(destSpan, scratchFull, fromIndex, length);
         }
         var largeScrachBuffer = (appendLen + 2).SourceRecyclingCharArray();
         var fullSpan          = largeScrachBuffer.RemainingAsSpan();
         largeScrachBuffer.Insert(1, destSpan, fromIndex, appendLen);
-        var boundedScratchSpan = fullSpan[0.. (appendLen+2)];  
+        var boundedScratchSpan = fullSpan[0.. (appendLen + 2)];
         var change             = ProcessAppended(destSpan, boundedScratchSpan, fromIndex, length);
         largeScrachBuffer.DecrementRefCount();
         return change;
@@ -631,7 +684,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         var appendLen    = length - fromIndex;
         var justAppended = scratchFull[1..^1];
-        if (IsBracesEnclosed(justAppended))
+        if (IsBracesEnclosed(justAppended) || IsSquareBracketsEnclosed(justAppended))
         {
             return 0;
         }
@@ -660,20 +713,38 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             return sb.Append(NullString).ReturnCharCount(NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { CollectionStart(elementType, sb, arg0.Length > 0); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, arg0.Length > 0);
+        }
         for (var i = 0; i < arg0.Length; i++)
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, i, sb); }
-                else { CollectionNextItemFormat(item, i, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, i, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, i, sb, formatString);
+                }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { CollectionEnd(elementType, sb, arg0.Length); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, arg0.Length);
+        }
         return sb.Length - preAppendLen;
     }
 
@@ -685,7 +756,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -696,7 +770,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
@@ -715,20 +792,38 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             return sb.Append(NullString).ReturnCharCount(NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { CollectionStart(elementType, sb, arg0.Length > 0); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, arg0.Length > 0);
+        }
         for (var i = 0; i < arg0.Length; i++)
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, i, sb); }
-                else { CollectionNextItemFormat(item, i, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, i, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, i, sb, formatString);
+                }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { CollectionEnd(elementType, sb, arg0.Length); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, arg0.Length);
+        }
         return sb.Length - preAppendLen;
     }
 
@@ -740,7 +835,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -751,7 +849,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
@@ -769,34 +870,61 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             return sb.Append(NullString).ReturnCharCount(NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { CollectionStart(elementType, sb, arg0.Length > 0); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, arg0.Length > 0);
+        }
         for (var i = 0; i < arg0.Length; i++)
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, i, sb); }
-                else { CollectionNextItemFormat(item, i, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, i, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, i, sb, formatString);
+                }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { CollectionEnd(elementType, sb, arg0.Length); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, arg0.Length);
+        }
         return sb.Length - preAppendLen;
     }
 
     public override int FormatArray<TFmt>(TFmt[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull) { return destCharSpan.OverWriteAt(destStartIndex, NullString); }
+        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        {
+            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+        }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
+        }
         for (var i = 0; i < arg0.Length; i++)
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -807,7 +935,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
@@ -825,34 +956,61 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             return sb.Append(NullString).ReturnCharCount(NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { CollectionStart(elementType, sb, arg0.Length > 0); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, arg0.Length > 0);
+        }
         for (var i = 0; i < arg0.Length; i++)
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, i, sb); }
-                else { CollectionNextItemFormat(item, i, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, i, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, i, sb, formatString);
+                }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { CollectionEnd(elementType, sb, arg0.Length); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, arg0.Length);
+        }
         return sb.Length - preAppendLen;
     }
 
     public override int FormatArray<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull) { return destCharSpan.OverWriteAt(destStartIndex, NullString); }
+        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        {
+            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+        }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection) { addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0); }
+        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        {
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
+        }
         for (var i = 0; i < arg0.Length; i++)
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -863,7 +1021,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
         }
         if (arg0.Length > 0 || !IgnoreEmptyCollection)
@@ -883,20 +1044,38 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             return sb.Append(NullString).ReturnCharCount(NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Count > 0 || !IgnoreEmptyCollection) { CollectionStart(elementType, sb, arg0.Count > 0); }
+        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, arg0.Count > 0);
+        }
         for (var i = 0; i < arg0.Count; i++)
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, i, sb); }
-                else { CollectionNextItemFormat(item, i, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, i, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, i, sb, formatString);
+                }
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection) { CollectionEnd(elementType, sb, arg0.Count); }
+        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, arg0.Count);
+        }
         return sb.Length - preAppendLen;
     }
 
@@ -908,7 +1087,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -919,7 +1101,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
         }
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
@@ -938,20 +1123,38 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             return sb.Append(NullString).ReturnCharCount(NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Count > 0 || !IgnoreEmptyCollection) { CollectionStart(elementType, sb, arg0.Count > 0); }
+        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, arg0.Count > 0);
+        }
         for (var i = 0; i < arg0.Count; i++)
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, i, sb); }
-                else { CollectionNextItemFormat(item, i, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, i, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, i, sb, formatString);
+                }
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection) { CollectionEnd(elementType, sb, arg0.Count); }
+        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, arg0.Count);
+        }
         return sb.Length - preAppendLen;
     }
 
@@ -963,7 +1166,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -974,7 +1180,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
         }
         if (arg0.Count > 0 || !IgnoreEmptyCollection)
@@ -998,21 +1207,39 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection = true;
             }
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, itemCount, sb); }
-                else { CollectionNextItemFormat(item, itemCount, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, itemCount, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, itemCount, sb, formatString);
+                }
             }
             itemCount++;
         }
-        if (itemCount > 0) { CollectionEnd(elementType, sb, itemCount); }
+        if (itemCount > 0)
+        {
+            CollectionEnd(elementType, sb, itemCount);
+        }
         else
         {
             if (!IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull) { sb.Append(NullString); }
+                if (EmptyCollectionWritesNull)
+                {
+                    sb.Append(NullString);
+                }
                 else
                 {
                     CollectionStart(elementType, sb, false);
@@ -1037,7 +1264,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection =  true;
             }
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -1048,16 +1278,25 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
             itemCount++;
         }
-        if (itemCount > 0) { addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount); }
+        if (itemCount > 0)
+        {
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+        }
         else
         {
             if (!IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull) { addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, NullString); }
+                if (EmptyCollectionWritesNull)
+                {
+                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, NullString);
+                }
                 else
                 {
                     addedChars += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false);
@@ -1082,21 +1321,39 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection = true;
             }
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, itemCount, sb); }
-                else { CollectionNextItemFormat(item, itemCount, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, itemCount, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, itemCount, sb, formatString);
+                }
             }
             itemCount++;
         }
-        if (itemCount > 0) { CollectionEnd(elementType, sb, itemCount); }
+        if (itemCount > 0)
+        {
+            CollectionEnd(elementType, sb, itemCount);
+        }
         else
         {
             if (!IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull) { sb.Append(NullString); }
+                if (EmptyCollectionWritesNull)
+                {
+                    sb.Append(NullString);
+                }
                 else
                 {
                     CollectionStart(elementType, sb, false);
@@ -1121,7 +1378,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection =  true;
             }
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -1132,16 +1392,25 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
             itemCount++;
         }
-        if (itemCount > 0) { addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount); }
+        if (itemCount > 0)
+        {
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+        }
         else
         {
             if (!IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull) { addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, NullString); }
+                if (EmptyCollectionWritesNull)
+                {
+                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, NullString);
+                }
                 else
                 {
                     addedChars += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false);
@@ -1157,25 +1426,46 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var preAppendLen = sb.Length;
         var hasNext      = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull) { return sb.Append(NullString).ReturnCharCount(NullString.Length); }
+        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        {
+            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+        }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection) { CollectionStart(elementType, sb, hasNext); }
+        if (!hasNext || !IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, hasNext);
+        }
         var itemCount = 0;
         while (hasNext)
         {
             var item = arg0.Current;
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, itemCount, sb); }
-                else { CollectionNextItemFormat(item, itemCount, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, itemCount, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, itemCount, sb, formatString);
+                }
             }
             itemCount++;
             hasNext = arg0.MoveNext();
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection) { CollectionEnd(elementType, sb, itemCount); }
+        if (itemCount > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, itemCount);
+        }
         return sb.Length - preAppendLen;
     }
 
@@ -1184,15 +1474,24 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var addedChars = 0;
         var hasNext    = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull) { return destCharSpan.OverWriteAt(destStartIndex, NullString); }
+        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        {
+            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+        }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection) { addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext); }
+        if (!hasNext || !IgnoreEmptyCollection)
+        {
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
+        }
         var itemCount = 0;
         while (hasNext)
         {
             var item                      = arg0.Current;
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -1203,7 +1502,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
             itemCount++;
             hasNext = arg0.MoveNext();
@@ -1220,25 +1522,46 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var preAppendLen = sb.Length;
         var hasNext      = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull) { return sb.Append(NullString).ReturnCharCount(NullString.Length); }
+        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        {
+            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+        }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection) { CollectionStart(elementType, sb, hasNext); }
+        if (!hasNext || !IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, hasNext);
+        }
         var itemCount = 0;
         while (hasNext)
         {
             var item = arg0.Current;
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && CharArrayWritesString) { Transfer(iChar, sb); }
-            else if (item is byte iByte && ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                Transfer(iChar, sb);
+            }
+            else if (item is byte iByte && ByteArrayWritesBase64String)
+            {
+                NextBase64Chars(iByte, sb);
+            }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, itemCount, sb); }
-                else { CollectionNextItemFormat(item, itemCount, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    CollectionNextItem(item, itemCount, sb);
+                }
+                else
+                {
+                    CollectionNextItemFormat(item, itemCount, sb, formatString);
+                }
             }
             itemCount++;
             hasNext = arg0.MoveNext();
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection) { CollectionEnd(elementType, sb, itemCount); }
+        if (itemCount > 0 || !IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, itemCount);
+        }
         return sb.Length - preAppendLen;
     }
 
@@ -1247,15 +1570,24 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var addedChars = 0;
         var hasNext    = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull) { return destCharSpan.OverWriteAt(destStartIndex, NullString); }
+        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        {
+            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+        }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection) { addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext); }
+        if (!hasNext || !IgnoreEmptyCollection)
+        {
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
+        }
         var itemCount = 0;
         while (hasNext)
         {
             var item                      = arg0.Current;
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-            if (item is char iChar && CharArrayWritesString) { addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars); }
+            if (item is char iChar && CharArrayWritesString)
+            {
+                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+            }
             else if (item is byte iByte && ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
@@ -1266,7 +1598,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                }
             }
             itemCount++;
             hasNext = arg0.MoveNext();
@@ -1282,6 +1617,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         if (elementType == typeof(char) && CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
         if (elementType == typeof(byte) && ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
+        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return sb.Append(BrcOpn).ReturnCharCount(1);
         return sb.Append(SqBrktOpn).ReturnCharCount(1);
     }
 
@@ -1289,6 +1625,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         if (elementType == typeof(char) && CharArrayWritesString) return destination.OverWriteAt(destStartIndex, DblQt);
         if (elementType == typeof(byte) && ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destination.OverWriteAt(destStartIndex, BrcOpn);
         return destination.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
@@ -1311,8 +1648,14 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case char charItem:
-                if (CharArrayWritesString) { return sb.Append(charItem).ReturnCharCount(1); }
-                if (formatString.IsNullOrEmpty()) { return sb.Append(DblQt).Append(charItem).Append(DblQt).ReturnCharCount(3); }
+                if (CharArrayWritesString)
+                {
+                    return sb.Append(charItem).ReturnCharCount(1);
+                }
+                if (formatString.IsNullOrEmpty())
+                {
+                    return sb.Append(DblQt).Append(charItem).Append(DblQt).ReturnCharCount(3);
+                }
                 break;
             case byte byteItem:
                 if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
@@ -1358,8 +1701,14 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case char charItem:
-                if (CharArrayWritesString) { return sb.Append(charItem).ReturnCharCount(1); }
-                if (formatString.IsNullOrEmpty()) { return sb.Append(DblQt).Append(charItem).Append(DblQt).ReturnCharCount(3); }
+                if (CharArrayWritesString)
+                {
+                    return sb.Append(charItem).ReturnCharCount(1);
+                }
+                if (formatString.IsNullOrEmpty())
+                {
+                    return sb.Append(DblQt).Append(charItem).Append(DblQt).ReturnCharCount(3);
+                }
                 break;
             case byte byteItem:
                 if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
@@ -1414,6 +1763,9 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                     ? NextBase64Chars(byteItem, sb)
                     : sb.Append(byteItem).ReturnCharCount(3);
             case DateTime dateTimeItem: return Format(dateTimeItem, sb, JsonDateTImeFormat);
+            case KeyValuePair<string,JsonNode> jsonNodeKvp :
+                var jsonString = jsonNodeKvp.Value.ToJsonString();
+                return sb.Append(DblQt).Append(jsonNodeKvp.Key).Append(DblQt).Append(":").Append(jsonString).ReturnCharCount(jsonString.Length);
         }
         return sb.Append(nextItem).ReturnCharCount(sb.Length - preAppendLen);
     }
@@ -1436,6 +1788,14 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
                 break;
             case DateTime dateTimeItem: return Format(dateTimeItem, destCharSpan, destStartIndex, JsonDateTImeFormat);
+            case KeyValuePair<string,JsonNode> jsonNodeKvp :
+                var jsonString = jsonNodeKvp.Value.ToJsonString();
+                var charsAdded =  destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, jsonNodeKvp.Key);
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded,DblQt);
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded,":");
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, jsonString);
+                return charsAdded;                                          
         }
         CharSpanCollectionScratchBuffer ??= MutableString.MediumScratchBuffer;
         CharSpanCollectionScratchBuffer.Clear();
@@ -1452,6 +1812,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             var addedChars = CompleteBase64Sequence(sb);
             return sb.Append(DblQt).ReturnCharCount(1 + addedChars);
         }
+        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return sb.Append(BrcCls).ReturnCharCount(1);
         return sb.Append(SqBrktCls).ReturnCharCount(1);
     }
 
@@ -1465,6 +1826,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             var addedChars = CompleteBase64Sequence(destination, index);
             return destination.OverWriteAt(index + addedChars, DblQt) + addedChars;
         }
+        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destination.OverWriteAt(index, BrcCls);
         return destination.OverWriteAt(index, SqBrktCls);
     }
 }

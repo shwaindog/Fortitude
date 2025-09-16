@@ -12,25 +12,29 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false)
+            ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString)
+            : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAllEnumerate(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false)
+            ? AlwaysAddAllEnumerate(fieldName, value, valueFormatString, keyFormatString)
+            : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
@@ -44,8 +48,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             var itemCount = 0;
-            stb.StartDictionary();
-            while(hasValue)
+            stb.StartDictionary(value);
+            while (hasValue)
             {
                 var kvp = value!.Current;
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -66,35 +70,39 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     public TExt WhenPopulatedAddAll<TKey, TValue, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , CustomTypeStyler<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : TVBase =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false)
+            ? AlwaysAddAll(fieldName, value, valueStyler, keyFormatString)
+            : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TKey, TValue, TVBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , CustomTypeStyler<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : TVBase =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TKey, TValue, TVBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , CustomTypeStyler<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : TVBase =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TVBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , CustomTypeStyler<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : TVBase =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+         where TValue : TVBase =>
+        !stb.SkipFields && (value?.Any() ?? false)
+            ? AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyFormatString)
+            : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TVBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , CustomTypeStyler<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -104,8 +112,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             var itemCount = 0;
-            stb.StartDictionary();
-            while(hasValue)
+            stb.StartDictionary(value);
+            while (hasValue)
             {
                 var kvp = value!.Current;
                 _ = keyFormatString.IsNotNullOrEmpty()
@@ -123,32 +131,36 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt WhenPopulatedAddAll<TKey, TValue, TKBase, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
         where TKey : TKBase where TValue : TVBase =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false)
+            ? AlwaysAddAll(fieldName, value, valueStyler, keyStyler)
+            : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TKey, TValue, TKBase, TVBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
         where TKey : TKBase where TValue : TVBase =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TKey, TValue, TKBase, TVBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
         where TKey : TKBase where TValue : TVBase =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
+        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TKBase, TVBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
-        where TKey : TKBase where TValue : TVBase =>
-        !stb.SkipFields && (value?.Any() ?? false) ?  AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+         where TKey : TKBase where TValue : TVBase =>
+        !stb.SkipFields && (value?.Any() ?? false)
+            ? AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyStyler)
+            : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TKBase, TVBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
-        where TKey : TKBase where TValue : TVBase 
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+        where TKey : TKBase where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -157,8 +169,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             var itemCount = 0;
-            stb.StartDictionary();
-            while(hasValue)
+            stb.StartDictionary(value);
+            while (hasValue)
             {
                 var kvp = value!.Current;
                 stb.AppendOrNull(kvp.Key, keyStyler, true);
@@ -171,5 +183,4 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         }
         return stb.StyleTypeBuilder;
     }
-
 }

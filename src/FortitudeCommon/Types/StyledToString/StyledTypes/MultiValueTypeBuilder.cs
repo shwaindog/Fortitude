@@ -18,10 +18,11 @@ public abstract class MultiValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt>
       , IStyleTypeAppenderBuilderAccess owningStyledTypeAppender
       , TypeAppendSettings appendSettings
       , string typeName
+      , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId)
     {
-        InitializeTypedStyledTypeBuilder(typeBeingBuilt, owningStyledTypeAppender, appendSettings, typeName, typeFormatting, existingRefId);
+        InitializeTypedStyledTypeBuilder(typeBeingBuilt, owningStyledTypeAppender, appendSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
     }
 
 

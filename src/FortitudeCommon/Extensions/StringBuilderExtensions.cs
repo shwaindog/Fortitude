@@ -160,6 +160,19 @@ public static class StringBuilderExtensions
         buildChars[index++] = '}';
         return buildChars.ToString();
     }
+    
+    public static bool IsEquivalentTo(this StringBuilder search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
+    {
+        var cappedLength = Math.Min(count, checkIsSame.Length - fromIndex);
+        if(checkIsSame.Length == cappedLength) return false;
+        for (int i = 0; i < search.Length; i++)
+        {
+            var checkChar   = search[fromIndex + i];
+            var compareChar = checkIsSame[i];
+            if (checkChar != compareChar) return false;
+        }
+        return true;
+    }
 
     public static IEnumerator<char> RecycledEnumerator(this StringBuilder sb, IRecycler recycler) =>
          Recycler.ThreadStaticRecycler.Borrow<RecyclingStringBuilderEnumerator>().Initialize(sb);

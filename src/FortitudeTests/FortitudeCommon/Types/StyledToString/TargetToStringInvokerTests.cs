@@ -27,15 +27,15 @@ public class TargetToStringInvokerTests
         
         Console.Out.WriteLine("Without virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLogBuildTypeAndDeployEnvConfig {BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv}", stsa.WriteBuffer.ToString());
+        Assert.AreEqual("FLogBuildTypeAndDeployEnvConfig { BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
 
         stsa.Clear();
         baseHasStyledToString.ToString(stsa);
         
         Console.Out.WriteLine("With virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLoggerActivationConfig {LoggerActivationFlags: StopWatch, GlobalLoggerTimeInterval, " +
-                        "BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv}" 
+        Assert.AreEqual("FLoggerActivationConfig { LoggerActivationFlags: StopWatch, GlobalLoggerTimeInterval, " +
+                        "BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }" 
                       , stsa.WriteBuffer.ToString());
         
     }
@@ -57,15 +57,15 @@ public class TargetToStringInvokerTests
         
         Console.Out.WriteLine("Without virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLogBuildTypeAndDeployEnvConfig {BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv}", stsa.WriteBuffer.ToString());
+        Assert.AreEqual("FLogBuildTypeAndDeployEnvConfig { BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
 
         stsa.Clear();
         baseHasStyledToString.ToString(stsa);
         
         Console.Out.WriteLine("With virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLoggerActivationConfig {LoggerActivationFlags: StopWatch, GlobalLoggerTimeInterval, " +
-                        "BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv}", stsa.WriteBuffer.ToString());
+        Assert.AreEqual("FLoggerActivationConfig { LoggerActivationFlags: StopWatch, GlobalLoggerTimeInterval, " +
+                        "BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
         
     }
 }

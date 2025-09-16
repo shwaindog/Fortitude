@@ -9,12 +9,14 @@ using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Pipelines.Timers;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 #endregion
 
 namespace FortitudeBusRules.Rules;
 
-public interface IQueueContext
+public interface IQueueContext : IStyledToStringObject
 {
     IMessageQueue RegisteredOn   { get; }
     IMessageBus   MessageBus     { get; }
@@ -46,6 +48,12 @@ public class QueueContext : IQueueContext
 
     public IMessageQueueList<IMessageQueue> GetEventQueues(MessageQueueType selector) =>
         configureMessageBus.AllMessageQueues.SelectEventQueues(selector);
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(RegisteredOn), RegisteredOn)
+            .Field.AlwaysAdd(nameof(QueueTimer), QueueTimer)
+            .Complete();
 
     public override string ToString() => $"{nameof(QueueContext)}({nameof(RegisteredOn)}: {RegisteredOn})";
 }

@@ -12,6 +12,7 @@ using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Types.StyledToString;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Storage.TimeSeries.FileSystem;
 using FortitudeMarkets.Indicators.Persistence;
@@ -39,6 +40,15 @@ public struct HistoricalCandleParams(SourceTickerIdentifier sourceTickerIdentifi
         new(SourceTickerIdentifier, new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(Period)));
 
     public TimeLength CacheLength { get; set; } = cacheLength;
+    
+    public static CustomTypeStyler<HistoricalCandleParams> Styler { get; } =
+        (bap, stsa) =>
+            stsa.StartComplexType(bap, nameof(bap))
+                .Field.AlwaysAdd(nameof(bap.SourceTickerIdentifier), bap.SourceTickerIdentifier, SourceTickerIdentifier.Styler)
+                .Field.AlwaysAdd(nameof(bap.Period), bap.Period)
+                .Field.AlwaysAdd(nameof(bap.PricingInstrumentId), bap.PricingInstrumentId, PricingInstrumentIdValue.Styler)
+                .Field.AlwaysAdd(nameof(bap.CacheLength), bap.CacheLength, TimeLength.Styler)
+                .Complete();
 }
 
 public struct HistoricalCandleStreamRequest(UnboundedTimeRange? requestTimeRange, ResponsePublishParams publishParams)
@@ -50,6 +60,12 @@ public struct HistoricalCandleStreamRequest(UnboundedTimeRange? requestTimeRange
 public struct HistoricalCandleResponseRequest(BoundedTimeRange requestTimeRange)
 {
     public BoundedTimeRange RequestTimeRange { get; set; } = requestTimeRange;
+    
+    public static CustomTypeStyler<HistoricalCandleResponseRequest> Styler { get; } =
+        (bap, stsa) =>
+            stsa.StartComplexType(bap, nameof(bap))
+                .Field.AlwaysAdd(nameof(bap.RequestTimeRange), bap.RequestTimeRange, BoundedTimeRange.Styler)
+                .Complete();
 }
 
 public interface IHistoricalCandleResolverRule : IListeningRule

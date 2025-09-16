@@ -157,5 +157,18 @@ public static class StringExtensions
     public static string Format(this string formatString, object? arg0, object? arg1)          => string.Format(formatString, arg0, arg1);
 
     public static string Format(this string formatString, object? arg0, object? arg1, object? arg2) => string.Format(formatString, arg0, arg1, arg2);
+    
+    public static bool IsEquivalentTo(this string search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
+    {
+        var cappedLength = Math.Min(count, checkIsSame.Length - fromIndex);
+        if(checkIsSame.Length == cappedLength) return false;
+        for (int i = 0; i < search.Length; i++)
+        {
+            var checkChar   = search[fromIndex + i];
+            var compareChar = checkIsSame[i];
+            if (checkChar != compareChar) return false;
+        }
+        return true;
+    }
 
 }

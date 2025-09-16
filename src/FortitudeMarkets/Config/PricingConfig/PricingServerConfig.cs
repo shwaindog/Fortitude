@@ -3,6 +3,8 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -10,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.PricingConfig;
 
-public interface IPricingServerConfig : IInterfacesComparable<IPricingServerConfig>, IConnection
+public interface IPricingServerConfig : IInterfacesComparable<IPricingServerConfig>, IConnection, IStyledToStringObject
 {
     public const int DefaultHeartBeatPublishIntervalMs      = 1_000;
     public const int DefaultHeartBeatServerToleranceRangeMs = 250;
@@ -302,6 +304,20 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
             return hashCode;
         }
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
+            .Field.AlwaysAdd(nameof(SnapshotConnectionConfig), SnapshotConnectionConfig)
+            .Field.AlwaysAdd(nameof(UpdateConnectionConfig), UpdateConnectionConfig)
+            .Field.AlwaysAdd(nameof(HeartBeatPublishIntervalMs), HeartBeatPublishIntervalMs)
+            .Field.AlwaysAdd(nameof(HeartBeatServerToleranceRangeMs), HeartBeatServerToleranceRangeMs)
+            .Field.AlwaysAdd(nameof(MaxMissedHeartBeats), MaxMissedHeartBeats)
+            .Field.AlwaysAdd(nameof(IsLastLook), IsLastLook)
+            .Field.AlwaysAdd(nameof(SupportsIceBergs), SupportsIceBergs)
+            .Field.AlwaysAdd(nameof(SyncRetryIntervalMs), SyncRetryIntervalMs)
+            .Field.AlwaysAdd(nameof(AllowUpdatesCatchup), AllowUpdatesCatchup)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(PricingServerConfig)}({nameof(ConnectionName)}: {ConnectionName}, {nameof(SnapshotConnectionConfig)}: {SnapshotConnectionConfig}, " +

@@ -10,10 +10,11 @@ public class SimpleValueTypeBuilder : ValueTypeBuilder<SimpleValueTypeBuilder>
           , IStyleTypeAppenderBuilderAccess owningAppender
           , TypeAppendSettings typeSettings
           , string typeName
+          , int remainingGraphDepth
           , IStyledTypeFormatting typeFormatting  
           , int existingRefId)
     {
-        InitializeValueTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, typeFormatting,  existingRefId);
+        InitializeValueTypeBuilder(typeBeingBuilt, owningAppender, typeSettings, typeName, remainingGraphDepth, typeFormatting,  existingRefId);
 
         return this;
     }

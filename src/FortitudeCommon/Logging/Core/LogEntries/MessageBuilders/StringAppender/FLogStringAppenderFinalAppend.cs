@@ -30,8 +30,11 @@ public partial class FLogStringAppender
         CallOnComplete();
     }
 
-    public void FinalAppend<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
-        MessageSb.Append(value).ToAppender(this).CallOnComplete();
+    public void FinalAppend<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType
+    {
+        customTypeStyler(value, MessageStsa);
+        CallOnComplete();
+    }
 
     public void FinalAppend<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
         where TToStyle : TStylerType

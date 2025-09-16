@@ -15,12 +15,14 @@ using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 #endregion
 
 namespace FortitudeBusRules.BusMessaging.Pipelines;
 
-public interface IMessageQueue : IComparable<IMessageQueue>
+public interface IMessageQueue : IComparable<IMessageQueue>, IStyledToStringObject
 {
     // ReSharper disable UnusedMember.Global
     // ReSharper disable UnusedMemberInSuper.Global
@@ -551,6 +553,14 @@ public class MessageQueue : IMessageQueue
     {
         LatestMessageFinishedProcessing = queueEventTime;
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(Name), Name)
+            .Field.AlwaysAdd(nameof(Id), Id)
+            .Field.AlwaysAdd(nameof(IsRunning), IsRunning)
+            .Field.AlwaysAdd(nameof(Context), Context)
+            .Complete() ;
 
     public override string ToString() => $"{nameof(MessageQueue)}({nameof(name)}: \"{name}\")";
 }

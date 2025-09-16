@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text.Json.Serialization;
+using FortitudeCommon.Types.StyledToString;
 
 namespace FortitudeMarkets.Config.Availability;
 
@@ -35,6 +36,13 @@ public readonly struct MonthFloatingWeekday(MonthlyFloatingWeekDayOccurence floa
             return ((int)OccurenceInMonth * 397) ^ (int)Weekday;
         }
     }
+    
+    public static CustomTypeStyler<MonthFloatingWeekday?> Styler { get; } =
+        (mfwd, stsa) =>
+            stsa.StartComplexType(mfwd)
+                .Field.AlwaysAdd(nameof(mfwd.Value.OccurenceInMonth), mfwd?.OccurenceInMonth)
+                .Field.AlwaysAdd(nameof(mfwd.Value.Weekday), mfwd?.Weekday)
+                .Complete();
 
     public override string ToString() => $"{nameof(MonthFloatingWeekday)}{{{nameof(OccurenceInMonth)}: {OccurenceInMonth}, {nameof(Weekday)}: {Weekday}}}";
 }

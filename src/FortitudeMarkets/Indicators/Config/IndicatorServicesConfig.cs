@@ -4,6 +4,8 @@
 #region
 
 using FortitudeCommon.Config;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Storage.TimeSeries.FileSystem.Config;
 using FortitudeMarkets.Config;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Indicators.Config;
 
-public interface IIndicatorServicesConfig
+public interface IIndicatorServicesConfig : IStyledToStringObject
 {
     IMarketsConfig?        MarketsConfig                  { get; set; }
     IFileRepositoryConfig? TimeSeriesFileRepositoryConfig { get; set; }
@@ -88,4 +90,13 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
         get => new PersistenceConfig(ConfigRoot, $"{Path}{Split}{nameof(PersistenceConfig)}");
         set => ignoreSuppressWarnings = new PersistenceConfig(value, ConfigRoot, $"{Path}{Split}{nameof(PersistenceConfig)}");
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(MarketsConfig), MarketsConfig)
+            .Field.AlwaysAdd(nameof(TimeSeriesFileRepositoryConfig), TimeSeriesFileRepositoryConfig)
+            .Field.AlwaysAdd(nameof(DefaultCachePricesTimeSpan), DefaultCachePricesTimeSpan)
+            .Field.AlwaysAdd(nameof(DefaultCacheCandlesTimeSpan), DefaultCacheCandlesTimeSpan)
+            .Field.AlwaysAdd(nameof(PersistenceConfig), PersistenceConfig)
+            .Complete();
 }

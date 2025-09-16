@@ -7,6 +7,8 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Protocols;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -449,7 +451,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     }
 
     [JsonIgnore] IPQMessage? IDoublyLinkedListNode<IPQMessage>.Previous { get; set; }
-    [JsonIgnore] IPQMessage? IDoublyLinkedListNode<IPQMessage>.Next     { get; set; }
+    [JsonIgnore] IPQMessage? IDoublyLinkedListNode<IPQMessage>.Next { get; set; }
 
     [JsonIgnore]
     public IPQMessage? Previous
@@ -527,9 +529,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         PQSequenceId = updateSequenceId;
     }
 
-    public virtual void TriggerTimeUpdates(DateTime atDateTime)
-    {
-    }
+    public virtual void TriggerTimeUpdates(DateTime atDateTime) { }
 
 
     public virtual void UpdateComplete(uint updateSequenceId = 0)
@@ -982,6 +982,18 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     protected string MessageUpdatedFlagsToString => $"{nameof(MessageUpdatedFlags)}: {MessageUpdatedFlags}";
     protected string JustFeedStatusToStringMembers =>
         $"{nameof(FeedMarketConnectivityStatus)}: {FeedMarketConnectivityStatus}, {nameof(FeedSyncStatus)}: {FeedSyncStatus}, {nameof(PQSequenceId)}: {PQSequenceId}";
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(FeedMarketConnectivityStatus), FeedMarketConnectivityStatus)
+            .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)
+            .Field.WhenNonDefaultAdd(nameof(ClientReceivedTime), ClientReceivedTime, DateTime.MinValue, "{0:O}")
+            .Field.WhenNonDefaultAdd(nameof(InboundSocketReceivingTime), InboundSocketReceivingTime, DateTime.MinValue, "{0:O}")
+            .Field.WhenNonDefaultAdd(nameof(SubscriberDispatchedTime), SubscriberDispatchedTime, DateTime.MinValue, "{0:O}")
+            .Field.WhenNonDefaultAdd(nameof(AdapterSentTime), AdapterSentTime, DateTime.MinValue, "{0:O}")
+            .Field.WhenNonDefaultAdd(nameof(AdapterReceivedTime), AdapterReceivedTime, DateTime.MinValue, "{0:O}")
+            .Field.AlwaysAdd(nameof(IsCompleteUpdate), IsCompleteUpdate)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(PQReusableMessage)}{{{PQReusableMessageToStringMembers}, {JustFeedStatusToStringMembers}, {MessageUpdatedFlagsToString}}}";

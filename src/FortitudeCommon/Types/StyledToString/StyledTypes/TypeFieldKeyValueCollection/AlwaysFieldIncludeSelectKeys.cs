@@ -1,44 +1,28 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
-using FortitudeCommon.Extensions;
+﻿using System.Diagnostics.CodeAnalysis;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueCollection;
 
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : StyledTypeBuilder
 {
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived>
-        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKDerived : TKey
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(key, true).FieldEnd();
-                _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendMatchOrNull(keyValue);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -50,36 +34,21 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+         where TKDerived : TKey
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(key, true).FieldEnd();
-                _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendMatchOrNull(keyValue);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -95,32 +64,17 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         where TKDerived : TKey
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             for (var i = 0; i < selectKeys.Count; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(key, true).FieldEnd();
-                _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendMatchOrNull(keyValue);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -132,36 +86,20 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKDerived : TKey
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(key, true).FieldEnd();
-                _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
-                    : stb.AppendMatchOrNull(keyValue);
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -171,18 +109,21 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     }
 
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived>
-        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKDerived : TKey
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
-        var hasValue  = selectKeys.MoveNext();
-        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-        var itemCount = 0;
-        while(hasValue && value != null) 
+        var hasValue = selectKeys.MoveNext();
+        if (value == null)
+        {
+            stb.Sb.Append(stb.Settings.NullStyle);
+            return stb.AddGoToNext();
+        }
+        var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
+        while (hasValue)
         {
             var key = selectKeys.Current;
             if (!value.TryGetValue(key, out var keyValue))
@@ -190,100 +131,30 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            if (!foundValues)
-            {
-                stb.StartDictionary();
-                foundValues = true;
-            }
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                : stb.AppendMatchOrNull(key, true).FieldEnd();
-            _ = valueFormatString.IsNotNullOrEmpty()
-                ? stb.AppendMatchFormattedOrNull(keyValue, valueFormatString)
-                : stb.AppendMatchOrNull(keyValue);
-            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+            ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
             hasValue = selectKeys.MoveNext();
-        } 
-        if (foundValues)
-        {
-            stb.EndDictionary();
         }
-        else
-        {
-            stb.Sb.Append(stb.Settings.NullStyle);
-        }
+        ekcb.AppendCollectionComplete();
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived, TVBase>
+    public TExt AlwaysWithSelectKeysWithValueStyler<TKey, TValue, TKDerived, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
-      , CustomTypeStyler<TVBase> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey where TValue : TVBase  
+      , CustomTypeStyler<TVBase> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKDerived : TKey where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(key, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
-            }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
-        }
-        else
-        {
-            stb.Sb.Append(stb.Settings.NullStyle);
-        }
-        return stb.AddGoToNext();
-    }
-
-    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived, TVBase>
-        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
-          , CustomTypeStyler<TVBase> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey where TValue : TVBase   
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(key, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyFormatString);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -292,37 +163,50 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
+    public TExt AlwaysWithSelectKeysWithValueStyler<TKey, TValue, TKDerived, TVBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
       , CustomTypeStyler<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey where TValue : TVBase   
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKDerived : TKey where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyFormatString);
+            }
+            ekcb.AppendCollectionComplete();
+        }
+        else
+        {
+            stb.Sb.Append(stb.Settings.NullStyle);
+        }
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysWithSelectKeysWithValueStyler<TKey, TValue, TKDerived, TVBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
+      , CustomTypeStyler<TVBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKDerived : TKey where TValue : TVBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             for (var i = 0; i < selectKeys.Count; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(key, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyFormatString);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -331,36 +215,22 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>
+    public TExt AlwaysWithSelectKeysEnumerateWithValueStyler<TKey, TValue, TKDerived, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey where TValue : TVBase   
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKDerived : TKey where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(key, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyFormatString);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -369,18 +239,21 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler 
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TKDerived : TKey where TValue : TVBase   
+    public TExt AlwaysWithSelectKeysEnumerateWithValueStyler<TKey, TValue, TKDerived, TVBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
+      , IEnumerator<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TKDerived : TKey where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
-        var hasValue  = selectKeys.MoveNext();
-        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-        var itemCount = 0;
-        while(hasValue && value != null) 
+        var hasValue = selectKeys.MoveNext();
+        if (value == null)
+        {
+            stb.Sb.Append(stb.Settings.NullStyle);
+            return stb.AddGoToNext();
+        }
+        var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
+        while (hasValue)
         {
             var key = selectKeys.Current;
             if (!value.TryGetValue(key, out var keyValue))
@@ -388,57 +261,30 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            if (!foundValues)
-            {
-                stb.StartDictionary();
-                foundValues = true;
-            }
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                : stb.AppendMatchOrNull(key, true).FieldEnd();
-            stb.AppendOrNull(keyValue, valueStyler);
-            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+            ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyFormatString);
             hasValue = selectKeys.MoveNext();
-        } 
-        if (foundValues)
-        {
-            stb.EndDictionary();
         }
-        else
-        {
-            stb.Sb.Append(stb.Settings.NullStyle);
-        }
+        ekcb.AppendCollectionComplete();
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
+    public TExt AlwaysWithSelectKeysWithStylers<TKey, TValue, TKDerived, TKBase, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
-        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyStyler);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -447,33 +293,22 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , ReadOnlySpan<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
-        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
+    public TExt AlwaysWithSelectKeysWithStylers<TKey, TValue, TKDerived, TKBase, TVBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
+      , ReadOnlySpan<TKDerived> selectKeys, CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             for (var i = 0; i < selectKeys.Length; i++)
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyStyler);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -482,34 +317,23 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
+    public TExt AlwaysWithSelectKeysWithStylers<TKey, TValue, TKDerived, TKBase, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
-        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
-            foreach (var key in selectKeys)
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            for (var i = 0; i < selectKeys.Count; i++)
             {
+                var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyStyler);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -518,34 +342,22 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
-        (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
-          , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
-        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
+    public TExt AlwaysWithSelectKeysEnumerateWithStylers<TKey, TValue, TKDerived, TKBase, TVBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
+            var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value);
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                if (!foundValues)
-                {
-                    stb.StartDictionary();
-                    foundValues = true;
-                }
-                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyStyler);
             }
-        }
-        if (foundValues)
-        {
-            stb.EndDictionary();
+            ekcb.AppendCollectionComplete();
         }
         else
         {
@@ -554,18 +366,21 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
+    public TExt AlwaysWithSelectKeysEnumerateWithStylers<TKey, TValue, TKDerived, TKBase, TVBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) 
-        where TKDerived : TKey where TKey : TKBase where TValue : TVBase 
+      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler)
+        where TKDerived : TKey where TKey : TKBase where TValue : TVBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var foundValues = false;
         stb.FieldNameJoin(fieldName);
-        var hasValue  = selectKeys.MoveNext();
-        var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-        var itemCount = 0;
-        while(hasValue && value != null) 
+        var hasValue = selectKeys.MoveNext();
+        if (value == null)
+        {
+            stb.Sb.Append(stb.Settings.NullStyle);
+            return stb.AddGoToNext();
+        }
+        var ekcb = stb.OwningAppender.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
+        while (hasValue)
         {
             var key = selectKeys.Current;
             if (!value.TryGetValue(key, out var keyValue))
@@ -573,24 +388,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            if (!foundValues)
-            {
-                stb.StartDictionary();
-                foundValues = true;
-            }
-            stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-            stb.AppendOrNull(keyValue, valueStyler);
-            stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+            ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueStyler, keyStyler);
             hasValue = selectKeys.MoveNext();
-        } 
-        if (foundValues)
-        {
-            stb.EndDictionary();
         }
-        else
-        {
-            stb.Sb.Append(stb.Settings.NullStyle);
-        }
+        ekcb.AppendCollectionComplete();
         return stb.AddGoToNext();
     }
 }

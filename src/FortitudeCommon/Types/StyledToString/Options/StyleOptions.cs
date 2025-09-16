@@ -39,12 +39,14 @@ public struct StyleOptionsValue
     private string? nullStyle;
     private int?    prettyCollectionsColumnCountWrap;
     private bool?   enableColumnWrap;
+    private int?    defaultGraphMaxDepth;
 
     private TimeStyleFormat? dateTimeFormat;
 
     private string? dateTimeYyyyMMddTossFormat;
     private string? dateTimeYyyyMMddTomsFormat;
     private string? dateTimeYyyyMMddTousFormat;
+    private bool?    writeKeyValuePairsAsCollection;
 
     public StringBuildingStyle Style
     {
@@ -132,10 +134,22 @@ public struct StyleOptionsValue
         set => byteSequenceToBase64 = value;
     }
 
+    public bool WriteKeyValuePairsAsCollection
+    {
+        readonly get => writeKeyValuePairsAsCollection ?? fallbackOptions?.Values.WriteKeyValuePairsAsCollection ?? false;
+        set => writeKeyValuePairsAsCollection = value;
+    }
+
     public bool? CircularRefUsesRefEquals
     {
         get => circularRefUsesRefEquals ?? fallbackOptions?.Values.ByteSequenceToBase64 ?? true;
         set => circularRefUsesRefEquals = value;
+    }
+
+    public int DefaultGraphMaxDepth
+    {
+        readonly get => defaultGraphMaxDepth ?? fallbackOptions?.Values.DefaultGraphMaxDepth ?? int.MaxValue;
+        set => defaultGraphMaxDepth = value;
     }
 
     public StyleOptions? DefaultOptions
@@ -148,6 +162,11 @@ public struct StyleOptionsValue
 public class StyleOptions(StyleOptionsValue initialValues)
 {
     private StyleOptionsValue values = initialValues;
+
+    public StyleOptions() : this(new StyleOptionsValue())
+    {
+    }
+    
     public StyleOptionsValue Values
     {
         get => values;
@@ -246,6 +265,12 @@ public class StyleOptions(StyleOptionsValue initialValues)
         set => values.ByteSequenceToBase64 = value;
     }
 
+    public bool WriteKeyValuePairsAsCollection
+    {
+        get => values.WriteKeyValuePairsAsCollection;
+        set => values.WriteKeyValuePairsAsCollection = value;
+    }
+
     public bool? CircularRefUsesRefEquals
     {
         get => values.CircularRefUsesRefEquals;
@@ -268,5 +293,11 @@ public class StyleOptions(StyleOptionsValue initialValues)
     {
         get => values.PrettyCollectionsColumnContentWidthWrap;
         set => values.PrettyCollectionsColumnContentWidthWrap = value;
+    }
+
+    public int DefaultGraphMaxDepth
+    {
+        get => values.DefaultGraphMaxDepth;
+        set => values.DefaultGraphMaxDepth = value;
     }
 }

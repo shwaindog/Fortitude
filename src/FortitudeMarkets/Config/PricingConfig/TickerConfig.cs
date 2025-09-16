@@ -6,6 +6,8 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeMarkets.Config.Availability;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -16,7 +18,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.PricingConfig;
 
-public interface ITickerConfig : IInterfacesComparable<ITickerConfig>, IWeeklyAvailability
+public interface ITickerConfig : IInterfacesComparable<ITickerConfig>, IWeeklyAvailability, IStyledToStringObject
 {
     ushort  InstrumentId          { get; set; }
     string  InstrumentName        { get; set; }
@@ -423,6 +425,32 @@ public class TickerConfig : ConfigSection, ITickerConfig
         return hashCode.ToHashCode();
     }
 
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this, nameof(TickerConfig))
+            .Field.AlwaysAdd(nameof(InstrumentId), InstrumentId)
+            .Field.AlwaysAdd(nameof(InstrumentName), InstrumentName)
+            .Field.AlwaysAdd(nameof(TickerAvailability), TickerAvailability)
+            .Field.AlwaysAdd(nameof(PublishedDetailLevel), PublishedDetailLevel)
+            .Field.AlwaysAdd(nameof(MarketClassificationConfig), MarketClassificationConfig)
+            .Field.AlwaysAdd(nameof(MaximumPublishedLayers), MaximumPublishedLayers)
+            .Field.AlwaysAdd(nameof(RoundingPrecision), RoundingPrecision)
+            .Field.AlwaysAdd(nameof(Pip), Pip)
+            .Field.AlwaysAdd(nameof(MinSubmitSize), MinSubmitSize)
+            .Field.AlwaysAdd(nameof(MaxSubmitSize), MaxSubmitSize)
+            .Field.AlwaysAdd(nameof(IncrementSize), IncrementSize)
+            .Field.AlwaysAdd(nameof(MinimumQuoteLife), MinimumQuoteLife)
+            .Field.AlwaysAdd(nameof(DefaultMaxValidMs), DefaultMaxValidMs)
+            .Field.AlwaysAdd(nameof(SubscribeToPrices), SubscribeToPrices)
+            .Field.AlwaysAdd(nameof(TradingEnabled), TradingEnabled)
+            .Field.AlwaysAdd(nameof(LayerFlags), LayerFlags)
+            .Field.AlwaysAdd(nameof(LastTradedFlags), LastTradedFlags)
+            .Field.AlwaysAdd(nameof(VenuePricingSymbol), VenuePricingSymbol)
+            .Field.AlwaysAdd(nameof(VenueTradingSymbol), VenueTradingSymbol)
+            .Field.AlwaysAdd(nameof(TradingTimeTableConfig), TradingTimeTableConfig)
+            .Field.AlwaysAdd(nameof(QuoteBehaviorFlags), QuoteBehaviorFlags)
+            .Field.AlwaysAdd(nameof(Path), Path)
+            .Complete();
+    
     public override string ToString() =>
         $"{nameof(TickerConfig)}({nameof(InstrumentId)}: {InstrumentId}, {nameof(InstrumentName)}: {InstrumentName}, " +
         $"{nameof(TickerAvailability)}: {TickerAvailability}, {nameof(PublishedDetailLevel)}: {PublishedDetailLevel}, " +

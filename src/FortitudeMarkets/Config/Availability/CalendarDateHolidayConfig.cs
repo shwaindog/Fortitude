@@ -1,6 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.Availability;
@@ -55,7 +57,7 @@ public enum NamedHoliday
 }
 // ReSharper restore UnusedMember.Global
 
-public interface ICalendarDateHolidayConfig : ICalendarDateMatchConfig, ICloneable<ICalendarDateHolidayConfig>
+public interface ICalendarDateHolidayConfig : ICalendarDateMatchConfig, ICloneable<ICalendarDateHolidayConfig>, IStyledToStringObject
 {
     public const short DefaultFirstNonWeekdayCarry  = 2;
     public const short DefaultSecondNonWeekdayCarry = 1;
@@ -189,6 +191,16 @@ public class CalendarDateHolidayConfig : CalendarDateMatchConfig, ICalendarDateH
             return hashCode;
         }
     }
+    
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(HolidayName), HolidayName)
+            .Field.AlwaysAdd(nameof(Year), Year)
+            .Field.AlwaysAdd(nameof(Month), Month)
+            .Field.AlwaysAdd(nameof(Day), Day)
+            .Field.AlwaysAdd(nameof(FloatingWeekday), FloatingWeekday, MonthFloatingWeekday.Styler)
+            .Complete();
+    
 
     public override string ToString() =>
         $"{nameof(CalendarDateHolidayConfig)}{{{nameof(HolidayName)}: {HolidayName}, {nameof(Year)}: {Year}, {nameof(Month)}: {Month}, " +

@@ -3,7 +3,6 @@
 
 #region
 
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
@@ -11,6 +10,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.TimeSeries;
@@ -89,6 +90,12 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
         var hashCode = SingleTickValue.GetHashCode();
         return hashCode;
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(SourceTime), SourceTime, "{0:O}")
+            .Field.AlwaysAdd(nameof(SingleTickValue), SingleTickValue, "{0:N5}")
+            .Complete();
 
     public virtual string QuoteToStringMembers => $"{nameof(SourceTime)}: {SourceTime:O}, {nameof(SingleTickValue)}: {SingleTickValue:N5}";
 
@@ -356,6 +363,14 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
             return hashCode;
         }
     }
+
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+        .Field.AlwaysAdd(nameof(SourceTickerInfo), SourceTickerInfo)
+        .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)
+        .Field.AlwaysAdd(nameof(ClientReceivedTime), ClientReceivedTime, "{0:O}")
+        .AddBaseStyledToStringFields(this)
+        .Complete();
 
     public virtual string QuoteToStringMembers =>
         $"{nameof(SourceTickerInfo)}: {SourceTickerInfo}, {nameof(FeedSyncStatus)}: {FeedSyncStatus}, " +

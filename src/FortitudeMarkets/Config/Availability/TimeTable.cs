@@ -7,6 +7,8 @@ using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 using static FortitudeMarkets.Config.Availability.TradingPeriodTypeFlags;
 
@@ -14,7 +16,7 @@ using static FortitudeMarkets.Config.Availability.TradingPeriodTypeFlags;
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface ITimeTableConfig : ICalendarAvailability, IInterfacesComparable<ITimeTableConfig>
+public interface ITimeTableConfig : ICalendarAvailability, IInterfacesComparable<ITimeTableConfig>, IStyledToStringObject
 {
     TimeZoneInfo OperatingTimeZone { get; set; }
 
@@ -450,6 +452,15 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
             return hashCode;
         }
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(OperatingTimeZone), OperatingTimeZone.Id)
+            .Field.AlwaysAdd(nameof(WeeklyTimeTableConfig), WeeklyTimeTableConfig)
+            .CollectionField.AlwaysAddAll(nameof(CalendarHolidays), CalendarHolidays)
+            .CollectionField.AlwaysAddAll(nameof(FollowsIrregularHolidays), FollowsIrregularHolidays)
+            .CollectionField.AlwaysAddAll(nameof(UpcomingIrregularHolidays), UpcomingIrregularHolidays)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(TimeTableConfig)}{{{nameof(OperatingTimeZone)}: {OperatingTimeZone}, {nameof(WeeklyTimeTableConfig)}: {WeeklyTimeTableConfig}, " +

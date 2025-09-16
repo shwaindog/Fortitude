@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Types.StyledToString;
 
 #endregion
 
@@ -26,4 +27,11 @@ public readonly struct PeriodInstrumentTypePair(InstrumentType instrumentType, D
     public DiscreetTimePeriod CoveringPeriod { get; } = period;
 
     public InstrumentType InstrumentType { get; } = instrumentType;
+    
+    public static CustomTypeStyler<PeriodInstrumentTypePair> Styler { get; } =
+        (pitp, stsa) =>
+            stsa.StartComplexType(pitp, nameof(pitp))
+                .Field.AlwaysAdd(nameof(pitp.InstrumentType), pitp.InstrumentType)
+                .Field.AlwaysAdd(nameof(pitp.CoveringPeriod), pitp.CoveringPeriod, DiscreetTimePeriod.Styler)
+                .Complete();
 }

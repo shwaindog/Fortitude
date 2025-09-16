@@ -8,6 +8,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
@@ -15,7 +16,7 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes;
 
-public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesComparable<ITickInstant>, ITimeSeriesEntry
+public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesComparable<ITickInstant>, ITimeSeriesEntry, IStyledToStringObject
 {
     DateTime SourceTime      { get; }
     decimal  SingleTickValue { get; }

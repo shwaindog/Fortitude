@@ -1,10 +1,12 @@
 ﻿using FortitudeCommon.Config;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface ITimeZoneStartStopTimeConfig : IInterfacesComparable<ITimeZoneStartStopTimeConfig>
+public interface ITimeZoneStartStopTimeConfig : IInterfacesComparable<ITimeZoneStartStopTimeConfig>, IStyledToStringObject
 {
     public TimeZoneInfo? OverrideTimeZone { get; set; }
 
@@ -93,6 +95,14 @@ public class TimeZoneStartStopTimeConfig : ConfigSection, ITimeZoneStartStopTime
 
     public override int GetHashCode() => HashCode.Combine(StartTime, StopTime, OverrideTimeZone);
 
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) => 
+        sbc.StartComplexType(this)
+           .Field.AlwaysAdd(nameof(OverrideTimeZone), this[nameof(OverrideTimeZone)])
+           .Field.AlwaysAdd(nameof(ParentTimeZone), ParentTimeZone?.Id)
+           .Field.AlwaysAdd(nameof(StartTime), StartTime)
+           .Field.AlwaysAdd(nameof(StopTime), StopTime)
+           .Complete();
+    
     public override string ToString() => 
         $"{nameof(TimeZoneStartStopTimeConfig)}{{{nameof(OverrideTimeZone)}: {this[nameof(OverrideTimeZone)]}, {nameof(ParentTimeZone)}: {ParentTimeZone}, " +
         $"{nameof(StartTime)}: {StartTime}, {nameof(StopTime)}: {StopTime}}}";

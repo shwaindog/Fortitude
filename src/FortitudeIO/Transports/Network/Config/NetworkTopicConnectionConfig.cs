@@ -8,6 +8,8 @@ using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Config;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +30,7 @@ public enum ConnectionSelectionOrder
 }
 
 public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IConnection, IEnumerable<IEndpointConfig>
-  , ICloneable<INetworkTopicConnectionConfig>, IInterfacesComparable<INetworkTopicConnectionConfig>
+  , ICloneable<INetworkTopicConnectionConfig>, IInterfacesComparable<INetworkTopicConnectionConfig>, IStyledToStringObject
 {
     static readonly uint DefaultRetryAttempts = 3u;
     static readonly TimeSpanConfig DefaultFirstRetryInterval = new (seconds: 1);
@@ -434,6 +436,23 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         hashCode.Add(TopicName);
         return hashCode.ToHashCode();
     }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
+            .Field.AlwaysAdd(nameof(TopicName), TopicName)
+            .Field.AlwaysAdd(nameof(ConversationProtocol), ConversationProtocol)
+            .CollectionField.AlwaysAddAllEnumerate(nameof(AvailableConnections), AvailableConnections)
+            .Field.AlwaysAdd(nameof(TopicDescription), TopicDescription)
+            .Field.AlwaysAdd(nameof(ReceiveBufferSize), ReceiveBufferSize)
+            .Field.AlwaysAdd(nameof(SendBufferSize), SendBufferSize)
+            .Field.AlwaysAdd(nameof(NumberOfReceivesPerPoll), NumberOfReceivesPerPoll)
+            .Field.AlwaysAdd(nameof(ConnectionAttributes), ConnectionAttributes)
+            .Field.AlwaysAdd(nameof(ConnectionSelectionOrder), ConnectionSelectionOrder)
+            .Field.AlwaysAdd(nameof(ConnectionTimeoutMs), ConnectionTimeoutMs)
+            .Field.AlwaysAdd(nameof(ResponseTimeoutMs), ResponseTimeoutMs)
+            .Field.AlwaysAddObject(nameof(ReconnectConfig), ReconnectConfig)
+            .Complete();
 
     public override string ToString() =>
         $"{nameof(NetworkTopicConnectionConfig)}({nameof(ConnectionName)}: {ConnectionName}, {nameof(TopicName)}: {TopicName}, " +

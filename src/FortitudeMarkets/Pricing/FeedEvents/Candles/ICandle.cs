@@ -9,15 +9,15 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
 using FortitudeIO.Storage.TimeSeries;
-using FortitudeMarkets.Pricing.FeedEvents.AdapterExecutionDetails;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Candles;
 
 public interface ICandle : IReusableObject<ICandle>, IInterfacesComparable<ICandle>, ITimeBoundaryPeriodRange
-  , ITimeSeriesEntry, IDoublyLinkedListNode<ICandle>
+  , ITimeSeriesEntry, IDoublyLinkedListNode<ICandle>, IStyledToStringObject
 {
     CandleFlags CandleFlags { get; }
 

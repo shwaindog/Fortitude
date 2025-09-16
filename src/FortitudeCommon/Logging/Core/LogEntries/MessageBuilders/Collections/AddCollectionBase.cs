@@ -7,7 +7,7 @@ using FortitudeCommon.Types.StyledToString;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 
-public class AddCollectionBase<TToReturn, TCallerType> : FLogEntryMessageBuilderBase<TToReturn, TCallerType>, IMessageBuilderAppendChecks<TToReturn>
+public class AddCollectionBase<TToReturn, TCallerType> : FLogEntryMessageBuilderBase<TToReturn, AddCollectionBase<TToReturn, TCallerType>>, IMessageBuilderAppendChecks<TToReturn>
     where TCallerType : FLogEntryMessageBuilderBase<TToReturn, TCallerType>, TToReturn where TToReturn : class, IFLogMessageBuilder
 {
     protected static readonly Action<IStringBuilder?> NoOpOnCompleteHandler = _ => { };

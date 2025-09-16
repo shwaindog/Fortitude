@@ -6,13 +6,15 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 #endregion
 
 namespace FortitudeMarkets.Config.PricingConfig;
 
-public interface IMarketClassificationConfig : IInterfacesComparable<IMarketClassificationConfig>
+public interface IMarketClassificationConfig : IInterfacesComparable<IMarketClassificationConfig>, IStyledToStringObject
 {
     MarketClassification MarketClassification { get; set; }
 
@@ -114,6 +116,14 @@ public class MarketClassificationConfig : ConfigSection, IMarketClassificationCo
 
     public override int GetHashCode() => MarketClassification.GetHashCode();
 
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+        stsa.StartComplexType(this, nameof(MarketClassificationConfig))
+            .Field.AlwaysAdd(nameof(AssetType), AssetType)
+            .Field.AlwaysAdd(nameof(AssetCategory), AssetCategory)
+            .Field.AlwaysAdd(nameof(MarketRegion), MarketRegion)
+            .Field.AlwaysAdd(nameof(ProductType), ProductType)
+            .Complete();
+    
     public override string ToString() =>
         $"{nameof(MarketClassificationConfig)}({nameof(AssetType)}: {AssetType}, {nameof(AssetCategory)}: {AssetCategory}, " +
         $"{nameof(MarketRegion)}: {MarketRegion}, {nameof(ProductType)}: {ProductType})";

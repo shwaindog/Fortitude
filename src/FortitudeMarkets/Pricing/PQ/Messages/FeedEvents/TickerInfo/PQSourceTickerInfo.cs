@@ -8,6 +8,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeIO.Protocols;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Transports.Network.Config;
@@ -882,6 +884,24 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
         $"{nameof(SubscribeToPrices)}: {SubscribeToPrices}, {nameof(TradingEnabled)}: {TradingEnabled}, {nameof(LayerFlags)}: {LayerFlags:F}, " +
         $"{nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags}, " +
         $"{nameof(QuoteBehaviorFlags)}: {QuoteBehaviorFlags}";
+
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .AddBaseStyledToStringFields(this)
+            .Field.AlwaysAdd(nameof(RoundingPrecision), RoundingPrecision)
+            .Field.AlwaysAdd(nameof(Pip), Pip)
+            .Field.AlwaysAdd(nameof(MinSubmitSize), MinSubmitSize)
+            .Field.AlwaysAdd(nameof(MaxSubmitSize), MaxSubmitSize)
+            .Field.AlwaysAdd(nameof(IncrementSize), IncrementSize)
+            .Field.AlwaysAdd(nameof(MinimumQuoteLife), MinimumQuoteLife)
+            .Field.AlwaysAdd(nameof(DefaultMaxValidMs), DefaultMaxValidMs)
+            .Field.AlwaysAdd(nameof(SubscribeToPrices), SubscribeToPrices)
+            .Field.AlwaysAdd(nameof(TradingEnabled), TradingEnabled)
+            .Field.AlwaysAdd(nameof(LayerFlags), LayerFlags)
+            .Field.AlwaysAdd(nameof(MaximumPublishedLayers), MaximumPublishedLayers)
+            .Field.AlwaysAdd(nameof(LastTradedFlags), LastTradedFlags)
+            .Field.AlwaysAdd(nameof(QuoteBehaviorFlags), QuoteBehaviorFlags)
+            .Complete();
 
     public override string ToString() => $"{nameof(PQSourceTickerInfo)}{{{PQSourceTickerInfoToStringMembers}, {UpdateFlagsToString}}}";
 }

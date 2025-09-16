@@ -42,7 +42,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : TVBase =>
+       where TValue : TVBase =>
       !stb.SkipFields && value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue, TVBase>
@@ -59,14 +59,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         where TValue : TVBase =>
       !stb.SkipFields && value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TVBase>
+    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TVBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : TVBase =>
+       where TValue : TVBase =>
       !stb.SkipFields && value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TVBase>
+    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TVBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , CustomTypeStyler<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
@@ -77,7 +77,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , CustomTypeStyler<TVBase> valueStyler
       , CustomTypeStyler<TKBase> keyStyler) 
-        where TKey : TKBase where TValue : TVBase =>
+       where TKey : TKBase where TValue : TVBase =>
       !stb.SkipFields && value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue, TKBase, TVBase>
@@ -98,7 +98,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , CustomTypeStyler<TVBase> valueStyler
       , CustomTypeStyler<TKBase> keyStyler) 
-        where TKey : TKBase where TValue : TVBase =>
+       where TKey : TKBase where TValue : TVBase =>
       !stb.SkipFields && value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TKBase, TVBase>

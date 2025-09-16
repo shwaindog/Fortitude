@@ -5,6 +5,8 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
@@ -32,7 +34,7 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
 
     StyleOptions Settings { get; }
 
-    int IndentLevel { get; }
+    int IndentLevel { get; set; }
 
     StyledTypeBuilder? CurrentTypeBuilder { get; }
 
@@ -43,7 +45,12 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
 
     KeyValueCollectionBuilder StartKeyedCollectionType<T>(T toStyle, string? overrideName = null);
 
+    ExplicitKeyedCollectionBuilder<TKey, TValue> StartExplicitKeyedCollectionType<TKey, TValue>(object keyValueContainerInstance
+      , string? overrideName = null);
+
     SimpleOrderedCollectionBuilder StartSimpleCollectionType<T>(T toStyle, string? overrideName = null);
+
+    ExplicitOrderedCollectionBuilder<TElement> StartExplicitCollectionType<T, TElement>(T toStyle, string? overrideName = null);
 
     ComplexOrderedCollectionBuilder StartComplexCollectionType<T>(T toStyle, string? overrideName = null);
 
@@ -71,6 +78,11 @@ public interface IStyleTypeAppenderBuilderAccess : IStyledTypeStringAppender
     new IRecycler Recycler { get; }
 
     StyledTypeStringAppender ToTypeStringAppender { get; }
+    
+    StyledTypeBuildResult RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null);
+    
+    bool RegisterVisitedCheckCanContinue(object obj);
+    int EnsureRegisteredVisited(object obj);
 
     void TypeComplete(IStyleTypeBuilderComponentAccess completeType);
 
@@ -186,7 +198,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public bool UseReferenceEqualsForVisited { get; set; }
 
-    public int IndentLevel => AppendSettings.IndentLvl;
+    public int IndentLevel { get; set; }
 
     public IgnoreWriteFlags IgnoreWriteFlags => AppendSettings.IgnoreWriteFlags;
 
@@ -208,8 +220,10 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         Settings.Style = stringStyle;
 
+        IndentLevel                = indentLevel;
+        
         defaultStyledTypeFormatter = SourceDefaultStyledTypeFormatter(stringStyle);
-        initialAppendSettings      = new TypeAppendSettings((ushort)indentLevel, ignoreWrite);
+        initialAppendSettings      = new TypeAppendSettings(ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
 
@@ -222,86 +236,198 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         ((IRecyclableObject)completeType).DecrementRefCount();
     }
 
+    public StyledTypeBuildResult RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null)
+    {
+        var    type            = obj.GetType();
+        var    existingRefId   = SourceGraphVisitRefId(obj, type);
+        var    remainingDepth  = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+
+        return existingRefId > 0 || remainingDepth <= 0 
+            ? StartComplexValueType(obj).ValueMatch(obj, formatString).Complete() 
+            : StartSimpleValueType(obj).ValueMatch(obj, formatString).Complete();
+    }
+
+    public bool RegisterVisitedCheckCanContinue(object obj)
+    {
+        var type = obj.GetType();
+        
+        var existingRefId  = SourceGraphVisitRefId(obj, type);
+        if (existingRefId > 0 || existingRefId >= 0)
+        {
+            StartComplexValueType(obj).String("", "").Complete();
+            return false;
+        }
+        var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false, obj, (CurrentNode?.GraphDepth ?? -1) + 1
+                                        , IndentLevel, Sb!.Length
+                                        , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, null);
+        
+        if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
+        OrderedObjectGraph.Add(newVisit);
+
+        // Not updating as this is an opaque object and just market a circular reference visit CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
+
+        return true;
+    }
+
+    public int EnsureRegisteredVisited(object obj) 
+    {
+        var type = obj.GetType();
+        
+        var firstVisitedIndex  = IndexOfInstanceVisitFromEnd(obj, type);
+        if (firstVisitedIndex >= 0)
+        {
+            return firstVisitedIndex;
+        }
+        var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false, obj, (CurrentNode?.GraphDepth ?? -1) + 1
+                                        , IndentLevel, Sb!.Length
+                                        , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, null);
+        
+        if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
+        OrderedObjectGraph.Add(newVisit);
+
+        // Not updating as this is an opaque object and just market a circular reference visit CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
+
+        return newVisit.ObjVisitIndex;
+    }
+
     KeyValueCollectionBuilder IStyledTypeStringAppender.StartKeyedCollectionType<T>(T toStyle, string? overrideName)
     {
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        if (type == typeof(object))
+        {
+            type = toStyle?.GetType() ?? type;
+        }
         var keyedCollectionBuilder =
             Recycler.Borrow<KeyValueCollectionBuilder>()
                     .InitializeKeyValueCollectionBuilder
-                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, remainingDepth, typeFormatter, existingRefId);
         TypeStart(toStyle, keyedCollectionBuilder, type);
         return keyedCollectionBuilder;
     }
 
-    public SimpleOrderedCollectionBuilder StartSimpleCollectionType<T>(T toStyle, string? overrideName)
+    public ExplicitKeyedCollectionBuilder<TKey, TValue> StartExplicitKeyedCollectionType<TKey, TValue>(object keyValueContainerInstance
+      , string? overrideName = null)
+    {
+        var type           = keyValueContainerInstance.GetType();
+        if (!type.IsKeyedCollection())
+        {
+            throw new ArgumentException("Expected keyValueContainerInstance to be a keyed collection type");
+        }
+        
+        var appendSettings = AppendSettings;
+        var existingRefId  = SourceGraphVisitRefId(keyValueContainerInstance, type);
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        var keyedCollectionBuilder =
+            Recycler.Borrow<ExplicitKeyedCollectionBuilder<TKey, TValue>>()
+                    .InitializeExplicitKeyValueCollectionBuilder
+                        (type, this, appendSettings, overrideName ?? type.Name, remainingDepth, typeFormatter, existingRefId);
+        TypeStart(keyValueContainerInstance, keyedCollectionBuilder, type);
+        return keyedCollectionBuilder;
+    }
+
+    public SimpleOrderedCollectionBuilder StartSimpleCollectionType<T>(T toStyle, string? overrideName = null)
     {
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        if (type == typeof(object))
+        {
+            type = toStyle?.GetType() ?? type;
+        }
         var simpleOrderedCollectionBuilder =
             Recycler.Borrow<SimpleOrderedCollectionBuilder>()
                     .InitializeSimpleOrderedCollectionBuilder
-                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, remainingDepth, typeFormatter, existingRefId);
         TypeStart(toStyle, simpleOrderedCollectionBuilder, type);
         return simpleOrderedCollectionBuilder;
     }
 
-    public ComplexOrderedCollectionBuilder StartComplexCollectionType<T>(T toStyle, string? overrideName)
+    public ComplexOrderedCollectionBuilder StartComplexCollectionType<T>(T toStyle, string? overrideName = null)
     {
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        if (type == typeof(object))
+        {
+            type = toStyle?.GetType() ?? type;
+        }
         var complexOrderedCollectionBuilder =
             Recycler.Borrow<ComplexOrderedCollectionBuilder>()
                     .InitializeComplexOrderedCollectionBuilder
-                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, remainingDepth, typeFormatter, existingRefId);
         TypeStart(toStyle, complexOrderedCollectionBuilder, type);
         return complexOrderedCollectionBuilder;
     }
 
-    public ComplexTypeBuilder StartComplexType<T>(T toStyle, string? overrideName)
+    public ExplicitOrderedCollectionBuilder<TElement> StartExplicitCollectionType<T, TElement>(T toStyle, string? overrideName = null)
     {
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        if (type == typeof(object))
+        {
+            type = toStyle?.GetType() ?? type;
+        }
+        var explicitOrderedCollectionBuilder =
+            Recycler.Borrow<ExplicitOrderedCollectionBuilder<TElement>>()
+                    .InitializeExplicitOrderedCollectionBuilder
+                        (type, this, appendSettings, overrideName ?? type.Name, remainingDepth, typeFormatter, existingRefId);
+        TypeStart(toStyle, explicitOrderedCollectionBuilder, type);
+        return explicitOrderedCollectionBuilder;
+    }
+
+    public ComplexTypeBuilder StartComplexType<T>(T toStyle, string? overrideName = null)
+    {
+        var appendSettings = AppendSettings;
+        var type           = typeof(T);
+        var existingRefId  = SourceGraphVisitRefId(toStyle, type);
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var complexTypeBuilder =
             Recycler.Borrow<ComplexTypeBuilder>()
                     .InitializeComplexTypeBuilder
-                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, remainingDepth, typeFormatter, existingRefId);
         TypeStart(toStyle, complexTypeBuilder, type);
         return complexTypeBuilder;
     }
 
-    public SimpleValueTypeBuilder StartSimpleValueType<T>(T toStyle, string? overrideName)
+    public SimpleValueTypeBuilder StartSimpleValueType<T>(T toStyle, string? overrideName = null)
     {
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var simpleValueBuilder =
             Recycler.Borrow<SimpleValueTypeBuilder>()
                     .InitializeSimpleValueTypeBuilder
-                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, remainingDepth, typeFormatter, existingRefId);
         TypeStart(toStyle, simpleValueBuilder, type);
         return simpleValueBuilder;
     }
 
-    public ComplexValueTypeBuilder StartComplexValueType<T>(T toStyle, string? overrideName)
+    public ComplexValueTypeBuilder StartComplexValueType<T>(T toStyle, string? overrideName = null)
     {
         var appendSettings = AppendSettings;
         var type           = typeof(T);
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, defaultStyledTypeFormatter);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var keyedCollectionBuilder =
             Recycler.Borrow<ComplexValueTypeBuilder>()
                     .InitializeComplexValueTypeBuilder
-                        (type, this, appendSettings, overrideName ?? type.Name, typeFormatter, existingRefId);
+                        (type, this, appendSettings, overrideName ?? type.Name, remainingDepth, typeFormatter, existingRefId);
         TypeStart(toStyle, keyedCollectionBuilder, type);
         return keyedCollectionBuilder;
     }
@@ -318,7 +444,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     IStyledTypeStringAppender IStyleTypeAppenderBuilderAccess.AddBaseFieldsStart()
     {
         var nextAppender = nextTypeAppendSettings ??
-                           new TypeAppendSettings(CurrentTypeAccess?.IndentLevel ?? 0, IgnoreWriteFlags.All);
+                           new TypeAppendSettings(IgnoreWriteFlags.All);
         nextAppender.IgnoreWriteFlags = IgnoreWriteFlags.TypeStart | IgnoreWriteFlags.TypeName | IgnoreWriteFlags.TypeEnd;
         nextTypeAppendSettings        = nextAppender;
 
@@ -327,7 +453,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public IStyledTypeStringAppender Clear(int indentLevel = 0, IgnoreWriteFlags ignoreWrite = IgnoreWriteFlags.None)
     {
-        initialAppendSettings = new TypeAppendSettings((ushort)indentLevel, ignoreWrite);
+        initialAppendSettings = new TypeAppendSettings(ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
 
@@ -336,21 +462,26 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     protected int NextRefId() => NextObjVisitedRefId++;
 
+    
+    
+
     protected void TypeStart<T>(T toStyle, StyledTypeBuilder newType, Type typeOfT)
     {
-        var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeOfT
-                                        , typeOfT.IsValueType ? null : toStyle, AppendSettings.IndentLvl, Sb!.Length)
+        var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeOfT, newType.IsComplexType
+                                        , typeOfT.IsValueType ? null : toStyle, (CurrentNode?.GraphDepth ?? -1) + 1
+                                        , IndentLevel, Sb!.Length
+                                        , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, null)
         {
             TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).ComponentAccess
         };
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
-        
+
         newType.Start();
         newVisit = newVisit.SetBufferFirstFieldStart(Sb.Length);
         OrderedObjectGraph.Add(newVisit);
 
         CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
-        nextTypeAppendSettings = new TypeAppendSettings((ushort)newVisit.IndentLevel, IgnoreWriteFlags.None);
+        nextTypeAppendSettings = new TypeAppendSettings(IgnoreWriteFlags.None);
     }
 
     protected void PopCurrentSettings()
@@ -360,7 +491,10 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         {
             OrderedObjectGraph[CurrentGraphNodeIndex] = currentNode.Value.ClearComponentAccess();
             CurrentGraphNodeIndex                     = currentNode.Value.ParentVisitIndex;
-            if (CurrentGraphNodeIndex < 0) { OrderedObjectGraph.Clear(); }
+            if (CurrentGraphNodeIndex < 0)
+            {
+                OrderedObjectGraph.Clear();
+            }
         }
     }
 
@@ -382,6 +516,22 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
             }
         return 0;
     }
+    
+    
+    private int IndexOfInstanceVisitFromEnd<T>(T toStyle, Type type)
+    {
+        if (toStyle is object objToStyle)
+            for (var i = OrderedObjectGraph.Count -1; i >= 0; i--)
+            {
+                var graphNodeVisit = OrderedObjectGraph[i];
+                if (HasVisited(objToStyle, type, graphNodeVisit))
+                {
+                    return i;
+                }
+            }
+        return -1;
+    }
+                    
 
     protected bool HasVisited(object objToStyle, Type objAsType, GraphNodeVisit checkExisting)
     {
@@ -403,20 +553,22 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
               , _ when refId < 1000 => 3
               , _                   => 4
             }; //
-        
-        var idSpan = stackalloc char[refDigitsCount + 9].ResetMemory();
+
+        var idSpan = stackalloc char[refDigitsCount + 8].ResetMemory();
         idSpan.Append("\"$id\":\"");
         var insert = idSpan[7..];
-        if(refId.TryFormat(insert, out var written,""))
+        if (refId.TryFormat(insert, out var written, ""))
         {
-            idSpan.Append("\",");
+            idSpan.Append("\"");
+            var shiftBy = idSpan.Length;
             Sb!.InsertAt(idSpan, indexToInsertAt);
+            shiftBy += defaultStyledTypeFormatter.InsertFieldSeparatorAt(Sb!, indexToInsertAt + idSpan.Length, Settings, forThisNode.IndentLevel + 1);
             for (int i = graphNodeIndex; i < OrderedObjectGraph.Count; i++)
             {
                 var shiftCharsNode = OrderedObjectGraph[i];
-                OrderedObjectGraph[i] = shiftCharsNode.ShiftTypeBufferIndex(idSpan.Length);
+                OrderedObjectGraph[i] = shiftCharsNode.ShiftTypeBufferIndex(shiftBy);
             }
-        } 
+        }
         else
         {
             Debugger.Break();
@@ -433,7 +585,10 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
             var isSameInstance = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
             if (isSameInstance)
             {
-                if (checkExisting.VistedAsType == objAsType || !checkExisting.VistedAsType.IsAssignableTo(objAsType)) { return false; }
+                if (checkExisting.VistedAsType == objAsType || !checkExisting.VistedAsType.IsAssignableTo(objAsType))
+                {
+                    return false;
+                }
             }
         }
         return true;
@@ -503,9 +658,14 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         int ObjVisitIndex
       , int ParentVisitIndex
       , Type VistedAsType
+      , bool isComplexType
       , object? StylingObjInstance
+      , int GraphDepth
       , int IndentLevel
-      , int OriginalBufferTypeStart)
+      , int OriginalBufferTypeStart
+      , int RemainingGraphDepth
+      , MutableString? BackReferenceNames
+    )
     {
         public int RefId { get; private init; }
 
@@ -521,17 +681,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
               , TypeBuilderComponentAccess = TypeBuilderComponentAccess
               , CurrentBufferTypeStart = CurrentBufferTypeStart
               , CurrentBufferFirstFieldStart = CurrentBufferFirstFieldStart
-            };
-        }
-
-        public GraphNodeVisit ClearComponentAccess()
-        {
-            return this with
-            {
-                RefId = RefId
-              , TypeBuilderComponentAccess = null
-              , CurrentBufferTypeStart = CurrentBufferTypeStart
-              , CurrentBufferFirstFieldStart = CurrentBufferFirstFieldStart
+              , CurrentBufferTypeEnd = CurrentBufferTypeEnd
             };
         }
 
@@ -546,6 +696,30 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
             };
         }
 
+        public GraphNodeVisit SetBufferTypeENd(int bufferIndex)
+        {
+            return this with
+            {
+                RefId = RefId
+              , TypeBuilderComponentAccess = TypeBuilderComponentAccess
+              , CurrentBufferTypeStart = CurrentBufferTypeStart
+              , CurrentBufferFirstFieldStart = CurrentBufferFirstFieldStart
+              , CurrentBufferTypeEnd = bufferIndex
+            };
+        }
+
+        public GraphNodeVisit ClearComponentAccess()
+        {
+            return this with
+            {
+                RefId = RefId
+              , TypeBuilderComponentAccess = null
+              , CurrentBufferTypeStart = CurrentBufferTypeStart
+              , CurrentBufferFirstFieldStart = CurrentBufferFirstFieldStart
+              , CurrentBufferTypeEnd = CurrentBufferTypeEnd
+            };
+        }
+
         public GraphNodeVisit ShiftTypeBufferIndex(int amountToShift)
         {
             return this with
@@ -554,10 +728,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
               , TypeBuilderComponentAccess = TypeBuilderComponentAccess
               , CurrentBufferTypeStart = CurrentBufferTypeStart + amountToShift
               , CurrentBufferFirstFieldStart = CurrentBufferFirstFieldStart + amountToShift
+              , CurrentBufferTypeEnd = CurrentBufferTypeEnd != -1 ? CurrentBufferTypeEnd + amountToShift : -1
             };
         }
 
         public int CurrentBufferTypeStart { get; init; } = OriginalBufferTypeStart;
+
+        public int CurrentBufferTypeEnd { get; init; } = -1;
 
         public int CurrentBufferFirstFieldStart { get; init; }
     }

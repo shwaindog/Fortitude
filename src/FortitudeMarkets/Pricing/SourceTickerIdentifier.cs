@@ -8,12 +8,14 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing;
 
-public interface ISourceTickerId : IReusableObject<ISourceTickerId>
+public interface ISourceTickerId : IReusableObject<ISourceTickerId>, IStyledToStringObject
 {
     [JsonIgnore] uint SourceInstrumentId { get; }
 
@@ -105,6 +107,14 @@ public class SourceTickerId : ReusableObject<ISourceTickerId>, ISourceTickerId, 
 
     protected string SourceInstrumentIdToString => $"{nameof(SourceInstrumentId)}: {SourceInstrumentId}";
 
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+        stsa.StartComplexType(this)
+            .Field.AlwaysAdd(nameof(SourceId), SourceId)
+            .Field.AlwaysAdd(nameof(InstrumentId), InstrumentId)
+            .Field.AlwaysAdd(nameof(SourceName), SourceName)
+            .Field.AlwaysAdd(nameof(InstrumentName), InstrumentName)
+            .Complete();
+
     public override string ToString() => $"{nameof(SourceTickerId)}{{{SourceTickerIdToStringMembers}, {SourceInstrumentIdToString}}}";
 
     public override int GetHashCode() => HashCode.Combine(SourceId, InstrumentId, SourceName, InstrumentName);
@@ -131,6 +141,16 @@ public readonly struct SourceTickerIdentifier // not inheriting from ISourceTick
     public ushort InstrumentId       { get; }
     public string InstrumentName     => SourceTickerIdentifierExtensions.GetRegisteredInstrumentName(SourceInstrumentId);
     public string SourceName         => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
+    
+    public static CustomTypeStyler<SourceTickerIdentifier> Styler { get; } =
+        (stid, stsa) =>
+            stsa.StartComplexType(stid, nameof(stid))
+                .Field.AlwaysAdd(nameof(stid.SourceInstrumentId), stid.SourceInstrumentId)
+                .Field.AlwaysAdd(nameof(stid.SourceId), stid.SourceId)
+                .Field.AlwaysAdd(nameof(stid.InstrumentId), stid.InstrumentId)
+                .Field.AlwaysAdd(nameof(stid.InstrumentName), stid.InstrumentName)
+                .Field.AlwaysAdd(nameof(stid.SourceName), stid.SourceName)
+                .Complete();
 }
 
 public readonly struct SourceTickerIdValue // not inheriting from ISourceTickerId to prevent accidental boxing unboxing

@@ -26,7 +26,9 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     protected const string DefaultFalseString = "false";
 
     protected const string SqBrktOpn = "[";
+    protected const char SqBrktOpnChar = '[';
     protected const string SqBrktCls = "]";
+    protected const char SqBrktClsChar = ']';
 
     protected static readonly ConcurrentDictionary<Type, ICustomFormattableProvider> GlobalCustomSpanFormattableProviders = new();
 
@@ -533,11 +535,20 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         }
         if (source is Enum)
         {
-            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateStructEnumFormatProvider<TFmt>();
+            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateEnumFormatProvider(source.GetType());
             TryAddCustomSpanFormattableProvider(typeof(TFmt), enumFormatProvider);
-            formatter = enumFormatProvider.CustomSpanFormattable;
             var charSpan = stackalloc char[1024].ResetMemory();
-            charsWritten = formatter(source, charSpan, formatString, null);
+            var spanEnumFormatProver = enumFormatProvider.AsSpanFormattableEnumFormatProvider<TFmt>();
+            if (spanEnumFormatProver != null)
+            {
+                charsWritten = spanEnumFormatProver.CustomSpanFormattable(source, charSpan, formatString, null);
+            }
+            else
+            {
+                var sourceEnum      = source as Enum;
+                var asEnumFormatter = enumFormatProvider.AsEnumFormatProvider()!;
+                charsWritten = asEnumFormatter.CustomSpanFormattable(sourceEnum!, charSpan, formatString, null);
+            }
             Transfer(charSpan[..charsWritten], sb);
             return charsWritten;
         }
@@ -580,10 +591,19 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         }
         if (source is Enum)
         {
-            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateStructEnumFormatProvider<TFmt>();
+            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateEnumFormatProvider(source.GetType());
             TryAddCustomSpanFormattableProvider(typeof(TFmt), enumFormatProvider);
-            formatter    = enumFormatProvider.CustomSpanFormattable;
-            charsWritten = formatter(source, charSpan, formatString, null);
+            var spanEnumFormatProver = enumFormatProvider.AsSpanFormattableEnumFormatProvider<TFmt>();
+            if (spanEnumFormatProver != null)
+            {
+                charsWritten = spanEnumFormatProver.CustomSpanFormattable(source, charSpan, formatString, null);
+            }
+            else
+            {
+                var sourceEnum      = source as Enum;
+                var asEnumFormatter = enumFormatProvider.AsEnumFormatProvider()!;
+                charsWritten = asEnumFormatter.CustomSpanFormattable(sourceEnum!, charSpan, formatString, null);
+            }
             return Transfer(charSpan[..charsWritten], destination, destStartIndex);
         }
         formatString.ExtractStringFormatStages(out _, out var layout, out var formatting);
