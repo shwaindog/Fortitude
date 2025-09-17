@@ -7,8 +7,8 @@ using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 using static FortitudeMarkets.Config.Availability.TradingPeriodTypeFlags;
 
@@ -16,7 +16,7 @@ using static FortitudeMarkets.Config.Availability.TradingPeriodTypeFlags;
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface ITimeTableConfig : ICalendarAvailability, IInterfacesComparable<ITimeTableConfig>, IStyledToStringObject
+public interface ITimeTableConfig : ICalendarAvailability, IInterfacesComparable<ITimeTableConfig>, IStringBearer
 {
     TimeZoneInfo OperatingTimeZone { get; set; }
 
@@ -453,7 +453,7 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(OperatingTimeZone), OperatingTimeZone.Id)
             .Field.AlwaysAdd(nameof(WeeklyTimeTableConfig), WeeklyTimeTableConfig)

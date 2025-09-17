@@ -3,14 +3,14 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
 
 public interface IAppenderReferenceConfig : IInterfacesComparable<IAppenderReferenceConfig>
-  , IStyledToStringObject, IConfigCloneTo<IAppenderReferenceConfig>, IFLogConfig
+  , IStringBearer, IConfigCloneTo<IAppenderReferenceConfig>, IFLogConfig
 {
     string AppenderName { get; }
 
@@ -143,7 +143,7 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(AppenderName), AppenderName)
            .Field.WhenNonNullOrDefaultAdd(nameof(AppenderType), AppenderType)

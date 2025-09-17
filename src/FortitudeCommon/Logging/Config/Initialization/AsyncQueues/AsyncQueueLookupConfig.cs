@@ -8,15 +8,15 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 
 public interface IAsyncQueueLookupConfig : IFLogConfig, IStickyKeyValueDictionary<byte, IAsyncQueueConfig>
   , IInterfacesComparable<IAsyncQueueLookupConfig>, ICloneable<IAsyncQueueLookupConfig>
-  , IStyledToStringObject
+  , IStringBearer
 {
     IAsyncQueuesInitConfig? ParentDefaultQueuesInitConfig { get; }
 }
@@ -259,7 +259,7 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartKeyedCollectionType(this)
            .AddAll(queueConfigByQueueNumber)
            .Complete();

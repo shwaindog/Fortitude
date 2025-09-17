@@ -1,15 +1,13 @@
-﻿using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Config;
 
-public interface ITimeSpanConfig:  IInterfacesComparable<ITimeSpanConfig>, ICloneable<ITimeSpanConfig>, IStyledToStringObject
+public interface ITimeSpanConfig:  IInterfacesComparable<ITimeSpanConfig>, ICloneable<ITimeSpanConfig>, IStringBearer
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     int Micros { get; set; }
@@ -183,7 +181,7 @@ public class TimeSpanConfig: ConfigSection, ITimeSpanConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa)
+    public StateExtractStringRange RevealState(ITheOneString stsa)
     {
         return stsa.StartComplexType( this)
            .Field.AlwaysAdd(nameof(Days), Days)

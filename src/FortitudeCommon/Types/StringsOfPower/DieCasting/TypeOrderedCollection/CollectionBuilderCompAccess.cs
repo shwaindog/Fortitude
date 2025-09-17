@@ -1,0 +1,40 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Types.StringsOfPower.Options;
+
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+
+public class CollectionBuilderCompAccess<TExt> : TypeMolderDieCast<TExt> where TExt : TypeMolder
+{
+    public bool CollectionInComplexType { get; private set; }
+
+    public CollectionBuilderCompAccess<TExt> InitializeOrderCollectionComponentAccess
+        (TExt externalTypeBuilder, TypeMolder.StyleTypeBuilderPortableState typeBuilderPortableState, bool isComplex)
+    {
+        Initialize(externalTypeBuilder, typeBuilderPortableState);
+
+        CollectionInComplexType = isComplex && Style.IsNotJson() || WriteAsComplex;
+        
+        return this;
+    }
+    
+    public void ConditionalCollectionPrefix(Type elementType, bool hasAny)
+    {
+        if (CollectionInComplexType)
+        {
+            StyleFormatter.AppendFieldName( this, "$values");
+            StyleFormatter.AppendFieldValueSeparator(this);
+            StyleFormatter.FormatCollectionStart(this, elementType, hasAny, TypeBeingBuilt);
+        }
+    }
+
+    public bool ConditionalCollectionSuffix(Type elementType, int count)
+    {
+        if (CollectionInComplexType)
+        {
+            StyleFormatter.FormatCollectionEnd(this, elementType, count);
+        }
+        return false;
+    }
+}

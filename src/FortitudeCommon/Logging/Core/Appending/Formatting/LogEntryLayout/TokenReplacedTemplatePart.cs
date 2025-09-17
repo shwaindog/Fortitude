@@ -3,12 +3,12 @@
 
 using System.Globalization;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
-public interface ITokenReplacedTemplatePart : IStyledToStringObject
+public interface ITokenReplacedTemplatePart : IStringBearer
 {
     bool IsRightAligned { get; }
     bool IsLeftAligned { get; }
@@ -90,7 +90,7 @@ public class TokenFormatting : ITokenReplacedTemplatePart
     public bool IsLeftAligned { get; }
     public int Padding { get; }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(TokenName), TokenName)
            .Field.AlwaysAdd(nameof(FormatString), FormatString)

@@ -3,8 +3,9 @@
 
 using System.Text;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Options;
 using JetBrains.Annotations;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -18,7 +19,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
 
     string Indent { get; set; }
 
-    StringBuildingStyle Style { get; }
+    StringStyle Style { get; }
 
     IFLogStringAppender IncrementIndent();
 
@@ -41,10 +42,10 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender Append<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
+    IFLogStringAppender Append<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    IFLogStringAppender Append<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append(ReadOnlySpan<char> value);
@@ -101,7 +102,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender Append(StringBuilder? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append(IStyledToStringObject? value);
+    IFLogStringAppender Append(IStringBearer? value);
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     [CallsObjectToString]
@@ -128,11 +129,11 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender AppendLine<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
+    IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine(ReadOnlySpan<char> value);
@@ -189,7 +190,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender AppendLine(StringBuilder? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine(IStyledToStringObject? value);
+    IFLogStringAppender AppendLine(IStringBearer? value);
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     [CallsObjectToString]
@@ -202,8 +203,8 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     void FinalAppend(bool? value);
     void FinalAppend<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable;
     void FinalAppend<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
-    void FinalAppend<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
-    void FinalAppend<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    void FinalAppend<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType;
+    void FinalAppend<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType;
     void FinalAppend(ReadOnlySpan<char> value);
     void FinalAppend(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
     void FinalAppend(string? value);
@@ -222,7 +223,7 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     void FinalAppend((StringBuilder?, int) valueTuple);
     void FinalAppend((StringBuilder?, int, int) valueTuple);
     void FinalAppend(StringBuilder? value, int startIndex, int count = int.MaxValue);
-    void FinalAppend(IStyledToStringObject? value);
+    void FinalAppend(IStringBearer? value);
 
     [CallsObjectToString] void FinalAppendObject(object? value);
 

@@ -3,12 +3,12 @@
 
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
-public interface ILogEntriesBatch : IReusableList<IFLogEntry>, IStyledToStringObject { }
+public interface ILogEntriesBatch : IReusableList<IFLogEntry>, IStringBearer { }
 
 public class LogEntriesBatch : ReusableList<IFLogEntry>, ILogEntriesBatch
 {
@@ -22,7 +22,7 @@ public class LogEntriesBatch : ReusableList<IFLogEntry>, ILogEntriesBatch
     public IReadOnlyList<IFLogEntry> AsReadOnly => this;
     public IEnumerable<IFLogEntry> AsEnumerable => this;
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexCollectionType(this)
             .LogOnlyField.AlwaysAdd(nameof(RefCount), RefCount)
             .LogOnlyField.AlwaysAdd(nameof(Count), Count)

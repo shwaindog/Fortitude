@@ -8,8 +8,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Protocols;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Transports.Network.Config;
@@ -885,7 +885,7 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
         $"{nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags}, " +
         $"{nameof(QuoteBehaviorFlags)}: {QuoteBehaviorFlags}";
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public override StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(RoundingPrecision), RoundingPrecision)

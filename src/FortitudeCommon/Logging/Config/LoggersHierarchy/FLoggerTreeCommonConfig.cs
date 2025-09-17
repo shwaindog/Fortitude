@@ -8,14 +8,14 @@ using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
 
 public interface IFLoggerTreeCommonConfig : IFLoggerMatchedAppenders, IInterfacesComparable<IFLoggerTreeCommonConfig>
-  , IConfigCloneTo<IFLoggerTreeCommonConfig>, IFLogConfig, IStyledToStringObject
+  , IConfigCloneTo<IFLoggerTreeCommonConfig>, IFLogConfig, IStringBearer
 {
     string Name { get; }
 
@@ -254,7 +254,7 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(Name), Name)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())

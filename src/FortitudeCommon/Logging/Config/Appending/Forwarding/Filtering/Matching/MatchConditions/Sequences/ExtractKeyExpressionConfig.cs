@@ -3,14 +3,14 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
 
 public interface IExtractKeyExpressionConfig : IFLogConfig, IInterfacesComparable<IExtractKeyExpressionConfig>
-  , IConfigCloneTo<IExtractKeyExpressionConfig>, IStyledToStringObject
+  , IConfigCloneTo<IExtractKeyExpressionConfig>, IStringBearer
 {
     string KeyName { get; }
     string ExtractRegEx { get; }
@@ -109,7 +109,7 @@ public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressi
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(KeyName), KeyName)
            .Field.AlwaysAdd(nameof(ExtractRegEx), ExtractRegEx)

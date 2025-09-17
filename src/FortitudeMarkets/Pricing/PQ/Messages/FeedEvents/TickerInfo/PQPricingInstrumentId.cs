@@ -9,8 +9,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Storage.TimeSeries.FileSystem;
 using FortitudeIO.Storage.TimeSeries.FileSystem.DirectoryStructure;
@@ -600,7 +600,7 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
         $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category}, {nameof(SourcePublishLocation)}: {SourcePublishLocation}, " +
         $"{nameof(AdapterReceiveLocation)}: {AdapterReceiveLocation}, {nameof(ClientReceiveLocation)}: {ClientReceiveLocation}";
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public override StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(CoveringPeriod), CoveringPeriod, DiscreetTimePeriod.Styler)

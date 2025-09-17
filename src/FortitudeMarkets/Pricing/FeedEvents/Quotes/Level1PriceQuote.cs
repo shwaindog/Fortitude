@@ -8,8 +8,8 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
@@ -271,7 +271,7 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
         }
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public override StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(SourceBidTime), SourceBidTime, "O")
@@ -619,7 +619,7 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
 
     public override string QuoteToStringMembers => $"{base.QuoteToStringMembers}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public override StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(QuoteContainer), QuoteContainer)

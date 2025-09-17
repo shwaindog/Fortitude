@@ -9,8 +9,8 @@ using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Config.Availability;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
@@ -46,7 +46,7 @@ public static class TickerAvailabilityExtensions
     public static bool IsPricingEnabled(this TickerAvailability tickerAvailability) => (tickerAvailability & TickerAvailability.PricingEnabled) > 0;
 }
 
-public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConfig>, ITradingAvailability, IStyledToStringObject
+public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConfig>, ITradingAvailability, IStringBearer
 {
     const decimal DefaultPipValue           = SourceTickerInfo.DefaultPip;
     const decimal DefaultMinSubmitSizeValue = SourceTickerInfo.DefaultMinSubmitSize;
@@ -530,7 +530,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         return hashCode.ToHashCode();
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(DefaultTickerAvailability), DefaultTickerAvailability)
             .Field.AlwaysAdd(nameof(DefaultPublishTickerQuoteDetailLevel), DefaultPublishTickerQuoteDetailLevel)

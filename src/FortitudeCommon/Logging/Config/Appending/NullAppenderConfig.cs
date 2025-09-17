@@ -2,8 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 using static FortitudeCommon.Logging.Config.Appending.FLoggerBuiltinAppenderType;
 
@@ -57,7 +57,7 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .AddBaseStyledToStringFields(this).Complete();
 }

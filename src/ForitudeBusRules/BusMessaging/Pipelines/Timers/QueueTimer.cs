@@ -9,14 +9,14 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 #endregion
 
 namespace FortitudeBusRules.BusMessaging.Pipelines.Timers;
 
-public interface IQueueTimer : IActionTimer, IAsyncValueTaskDisposable, IStyledToStringObject
+public interface IQueueTimer : IActionTimer, IAsyncValueTaskDisposable, IStringBearer
 {
     IRuleTimer CreateRuleTimer(IRule owningRule);
 }
@@ -229,7 +229,7 @@ public class QueueTimer : Rule, IQueueTimer
         }
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public override StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(isClosing), isClosing)

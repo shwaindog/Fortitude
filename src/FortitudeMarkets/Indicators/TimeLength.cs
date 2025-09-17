@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower;
 
 #endregion
 
@@ -22,7 +22,7 @@ public struct TimeSeriesSpan
     public int                NumberOfPeriods { get; set; }
     public TimeBoundaryPeriod Period          { get; set; }
     
-    public static CustomTypeStyler<TimeSeriesSpan?> Styler { get; } =
+    public static StringBearerRevealState<TimeSeriesSpan?> Styler { get; } =
         (tss, stsa) =>
             stsa.StartComplexType(tss, nameof(tss))
                 .Field.AlwaysAdd(nameof(tss.Value.Period), tss?.Period)
@@ -56,7 +56,7 @@ public struct TimeLength
     public TimeSeriesSpan? TimeSeriesLength { get; set; }
     
     
-    public static CustomTypeStyler<TimeLength> Styler { get; } =
+    public static StringBearerRevealState<TimeLength> Styler { get; } =
         (tl, stsa) =>
             stsa.StartComplexType(tl, nameof(tl))
                 .Field.AlwaysAdd(nameof(tl.Type), tl.Type)

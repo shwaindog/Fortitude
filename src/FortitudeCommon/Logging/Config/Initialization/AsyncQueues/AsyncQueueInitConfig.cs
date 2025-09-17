@@ -5,14 +5,14 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 
 public interface IAsyncQueuesInitConfig : IFLogConfig, IInterfacesComparable<IAsyncQueuesInitConfig>
-  , IConfigCloneTo<IAsyncQueuesInitConfig>, IStyledToStringObject
+  , IConfigCloneTo<IAsyncQueuesInitConfig>, IStringBearer
 {
     const int MinimumQueueCapacity     = 256;
     const int DefaultQueueCapacitySize = 1024;
@@ -246,7 +246,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(AsyncProcessingType), AsyncProcessingType)
            .Field.AlwaysAdd(nameof(DefaultQueueCapacity), DefaultQueueCapacity)

@@ -3,12 +3,12 @@
 
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
-public class StringConstantTemplatePart(string toAppend) : ITemplatePart, IStyledToStringObject
+public class StringConstantTemplatePart(string toAppend) : ITemplatePart, IStringBearer
 {
     public FormattingAppenderSinkType TargetingAppenderTypes => FormattingAppenderSinkType.Any;
 
@@ -18,7 +18,7 @@ public class StringConstantTemplatePart(string toAppend) : ITemplatePart, IStyle
         return toAppend.Length;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(toAppend), toAppend)
            .Complete();

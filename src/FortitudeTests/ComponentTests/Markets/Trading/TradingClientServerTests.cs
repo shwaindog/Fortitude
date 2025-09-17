@@ -6,7 +6,7 @@
 using FortitudeCommon.Monitoring.Alerting;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Transports.Network.Config;

@@ -2,8 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Configuration;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
@@ -143,7 +143,7 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
         }
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.WhenNonDefaultAdd(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)

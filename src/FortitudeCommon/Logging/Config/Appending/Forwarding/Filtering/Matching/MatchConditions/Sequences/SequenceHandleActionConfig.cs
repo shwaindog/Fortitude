@@ -5,14 +5,14 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
 
 public interface ISequenceHandleActionConfig : IFLogConfig, IConfigCloneTo<ISequenceHandleActionConfig>
-  , IInterfacesComparable<ISequenceHandleActionConfig>, IStyledToStringObject
+  , IInterfacesComparable<ISequenceHandleActionConfig>, IStringBearer
 {
     ILogMessageTemplateConfig? SendMessage { get; }
 
@@ -143,7 +143,7 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.WhenNonNullAddStyled(nameof(SendMessage), SendMessage)
            .Field.WhenNonNullAddStyled(nameof(SendToAppender), SendToAppender)

@@ -1,14 +1,14 @@
 ﻿using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 using static FortitudeMarkets.Config.Availability.TradingPeriodTypeFlags;
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface IDailyTradingScheduleConfig : IInterfacesComparable<IDailyTradingScheduleConfig>, IAlterWeeklyAvailability, IStyledToStringObject
+public interface IDailyTradingScheduleConfig : IInterfacesComparable<IDailyTradingScheduleConfig>, IAlterWeeklyAvailability, IStringBearer
 {
     //  if negative then accepting orders before open.
     //  if positive until reached is non-preffered, low liquidity, then normal
@@ -326,7 +326,7 @@ public class DailyTradingScheduleConfig : ConfigSection, IDailyTradingScheduleCo
         return allAreSame;
     }
     
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc) =>
+    public virtual StateExtractStringRange RevealState(ITheOneString sbc) =>
         sbc.StartComplexType(this, nameof(DailyTradingScheduleConfig))
            .Field.AlwaysAdd(nameof(TradingStartsFromOpenTimeSpan), TradingStartsFromOpenTimeSpan)
            .Field.AlwaysAdd(nameof(OverridePreferredTradingTimes), OverridePreferredTradingTimes)

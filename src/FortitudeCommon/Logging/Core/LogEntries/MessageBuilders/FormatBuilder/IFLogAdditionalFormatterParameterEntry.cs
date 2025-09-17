@@ -4,8 +4,8 @@
 using System.Text;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
 using JetBrains.Annotations;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -29,11 +29,11 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogAdditionalFormatterParameterEntry? And<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
+    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
+    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
@@ -91,7 +91,7 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogAdditionalFormatterParameterEntry? And(StringBuilder? value, int fromIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And(IStyledToStringObject? value);
+    IFLogAdditionalFormatterParameterEntry? And(IStringBearer? value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     [CallsObjectToString]
@@ -107,8 +107,8 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     void AndFinalParam(bool value);
     void AndFinalParam(bool? value);
     void AndFinalParam<TFmt>(TFmt value) where TFmt : ISpanFormattable;
-    void AndFinalParam<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
-    void AndFinalParam<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    void AndFinalParam<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType;
+    void AndFinalParam<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType;
     void AndFinalParam(ReadOnlySpan<char> value);
     void AndFinalParam(ReadOnlySpan<char> value, int fromIndex, int count = int.MaxValue);
     void AndFinalParam(string? value);
@@ -127,7 +127,7 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     void AndFinalParam((StringBuilder?, int) valueTuple);
     void AndFinalParam((StringBuilder?, int, int) valueTuple);
     void AndFinalParam(StringBuilder? value, int fromIndex, int count = int.MaxValue);
-    void AndFinalParam(IStyledToStringObject? value);
+    void AndFinalParam(IStringBearer? value);
 
     [CallsObjectToString] void AndFinalObjectParam(object? value);
 
@@ -150,11 +150,11 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogStringAppender AndFinalParamThenToAppender<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
+    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
+    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
@@ -212,7 +212,7 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogStringAppender AndFinalParamThenToAppender(StringBuilder? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AndFinalParamThenToAppender(IStyledToStringObject? value);
+    IFLogStringAppender AndFinalParamThenToAppender(IStringBearer? value);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
     [CallsObjectToString]

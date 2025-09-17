@@ -4,8 +4,8 @@
 #region
 
 using FortitudeCommon.Config;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Storage.TimeSeries.FileSystem.Config;
 using FortitudeMarkets.Config;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Indicators.Config;
 
-public interface IIndicatorServicesConfig : IStyledToStringObject
+public interface IIndicatorServicesConfig : IStringBearer
 {
     IMarketsConfig?        MarketsConfig                  { get; set; }
     IFileRepositoryConfig? TimeSeriesFileRepositoryConfig { get; set; }
@@ -91,7 +91,7 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
         set => ignoreSuppressWarnings = new PersistenceConfig(value, ConfigRoot, $"{Path}{Split}{nameof(PersistenceConfig)}");
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(MarketsConfig), MarketsConfig)
             .Field.AlwaysAdd(nameof(TimeSeriesFileRepositoryConfig), TimeSeriesFileRepositoryConfig)

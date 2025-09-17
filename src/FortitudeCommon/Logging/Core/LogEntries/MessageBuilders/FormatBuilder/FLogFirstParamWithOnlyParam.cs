@@ -2,8 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -17,10 +17,10 @@ public partial class FLogFirstFormatterParameterEntry
     public void WithOnlyParam<TFmt>(TFmt value) where TFmt : ISpanFormattable =>
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
-        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler).CallEnsureNoMoreTokensAndComplete(value);
+    public void WithOnlyParam<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType =>
+        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, stringBearerRevealState).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
+    public void WithOnlyParam<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendStyled(valueTuple, FormatStsa!);
@@ -111,7 +111,7 @@ public partial class FLogFirstFormatterParameterEntry
     public void WithOnlyParam(StringBuilder? value, int startIndex, int count = int.MaxValue) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam(IStyledToStringObject? value) =>
+    public void WithOnlyParam(IStringBearer? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     [CallsObjectToString]

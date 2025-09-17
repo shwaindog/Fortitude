@@ -3,15 +3,15 @@ using System.Text;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.DataStructures.Memory.Buffers;
 
 public record struct CharArrayRange(char[] CharBuffer, int FromIndex, int Length);
 
-public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityList<char>, IStyledToStringObject, ICharSequence
+public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityList<char>, IStringBearer, ICharSequence
 {
     private char[]? backingArray;
 
@@ -868,7 +868,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         return CompareTo(toCompare) == 0;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa)
+    public StateExtractStringRange RevealState(ITheOneString stsa)
     {
         return
             stsa.StartSimpleValueType(this)

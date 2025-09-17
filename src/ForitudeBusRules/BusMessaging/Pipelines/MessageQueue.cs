@@ -15,14 +15,14 @@ using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 #endregion
 
 namespace FortitudeBusRules.BusMessaging.Pipelines;
 
-public interface IMessageQueue : IComparable<IMessageQueue>, IStyledToStringObject
+public interface IMessageQueue : IComparable<IMessageQueue>, IStringBearer
 {
     // ReSharper disable UnusedMember.Global
     // ReSharper disable UnusedMemberInSuper.Global
@@ -554,7 +554,7 @@ public class MessageQueue : IMessageQueue
         LatestMessageFinishedProcessing = queueEventTime;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(Name), Name)
             .Field.AlwaysAdd(nameof(Id), Id)

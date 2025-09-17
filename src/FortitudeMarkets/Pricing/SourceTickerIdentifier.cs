@@ -8,14 +8,14 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing;
 
-public interface ISourceTickerId : IReusableObject<ISourceTickerId>, IStyledToStringObject
+public interface ISourceTickerId : IReusableObject<ISourceTickerId>, IStringBearer
 {
     [JsonIgnore] uint SourceInstrumentId { get; }
 
@@ -107,7 +107,7 @@ public class SourceTickerId : ReusableObject<ISourceTickerId>, ISourceTickerId, 
 
     protected string SourceInstrumentIdToString => $"{nameof(SourceInstrumentId)}: {SourceInstrumentId}";
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(SourceId), SourceId)
             .Field.AlwaysAdd(nameof(InstrumentId), InstrumentId)
@@ -142,7 +142,7 @@ public readonly struct SourceTickerIdentifier // not inheriting from ISourceTick
     public string InstrumentName     => SourceTickerIdentifierExtensions.GetRegisteredInstrumentName(SourceInstrumentId);
     public string SourceName         => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
     
-    public static CustomTypeStyler<SourceTickerIdentifier> Styler { get; } =
+    public static StringBearerRevealState<SourceTickerIdentifier> Styler { get; } =
         (stid, stsa) =>
             stsa.StartComplexType(stid, nameof(stid))
                 .Field.AlwaysAdd(nameof(stid.SourceInstrumentId), stid.SourceInstrumentId)

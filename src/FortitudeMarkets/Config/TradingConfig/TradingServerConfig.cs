@@ -6,15 +6,15 @@ using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Trading.Orders;
 using Microsoft.Extensions.Configuration;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeMarkets.Trading.Orders.SpotOrders;
 
 #endregion
 
 namespace FortitudeMarkets.Config.TradingConfig;
 
-public interface ITradingServerConfig : IInterfacesComparable<ITradingServerConfig>, IConnection, IStyledToStringObject
+public interface ITradingServerConfig : IInterfacesComparable<ITradingServerConfig>, IConnection, IStringBearer
 {
     INetworkTopicConnectionConfig TradingServerConnectionConfig { get; set; }
     OrderType SupportedOrderTypes { get; set; }
@@ -194,7 +194,7 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
         return hashCode.ToHashCode();
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(ParentConnectionName), ParentConnectionName)

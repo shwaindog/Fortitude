@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.AsyncProcessing;
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Core.Hub;
@@ -20,6 +21,13 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
     private readonly ISyncLock queueProtectLock = new SpinLockLight();
 
     protected IFormatWriter? DirectFormatWriter;
+    protected IFormatWriter? RecoverLostThreadWriter;
+    
+    protected Thread? currentFormatWriterOwnerThread;
+    protected DateTime? timeFormatWriterOwnerWasTaken;
+
+    private ITimerUpdate? checkLostThreadTimer;
+    private object        lostThreadSyncLock = new();
 
     protected FormatWriterReceivedHandler<IFormatWriter> OnReturningFormatWriter;
 
@@ -39,6 +47,9 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
         OwningAppender = owningAppender;
 
         if (GetType() == typeof(SingleDestDirectFormatWriterRequestCache)) CreateFormatWriters(targetName, context);
+        
+        checkLostThreadTimer
+            = FLogContext.NullOnUnstartedContext?.AsyncRegistry.LoggerTimers.RunEvery(TimeSpan.FromSeconds(2), CheckLostFormatWriterThreadHandler);
 
         return this;
     }
@@ -64,13 +75,17 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
         var requestHandle =
             RequesterRecycler
                 .Borrow<BlockingFormatWriterResolverHandle>()
-                .Initialize(logEntry, OwningAppender, RequestHandleDisposed, requesterSync, useFormatWriter);
+                .Initialize(logEntry, Thread.CurrentThread,  OwningAppender, RequestHandleDisposed, requesterSync, useFormatWriter);
+        
+        
         if (useFormatWriter == null)
         {
             requesterSync.Acquire(0);
 
             return AddToQueue(requestHandle);
         }
+        currentFormatWriterOwnerThread = requestHandle.RequesterTHread;
+        timeFormatWriterOwnerWasTaken = DateTime.UtcNow;
         return requestHandle;
     }
 
@@ -91,7 +106,7 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
     }
 
     protected virtual void CreateFormatWriters(string targetName, IFLogContext context) =>
-        DirectFormatWriter = OwningAppender.CreatedDirectFormatWriter(context, targetName, OnReturningFormatWriter);
+        DirectFormatWriter = RecoverLostThreadWriter = OwningAppender.CreatedDirectFormatWriter(context, targetName, OnReturningFormatWriter);
 
     protected virtual IFormatWriter? TrgGetFormatWriter(IFLogEntry fLogEntry) =>
         Interlocked.CompareExchange(ref DirectFormatWriter, null, DirectFormatWriter);
@@ -100,6 +115,8 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
 
     protected virtual void WriterFinishedWithBuffer(IFormatWriter setReadyOrFlush)
     {
+        timeFormatWriterOwnerWasTaken  = DateTime.UtcNow.AddYears(10);
+        currentFormatWriterOwnerThread = null;
         TrySendFormatWriteToNextIfAny(setReadyOrFlush);
     }
 
@@ -128,15 +145,21 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
         {
             queueProtectLock.Acquire();
 
-            if (queuedRequests.Head != null) removedFirst = queuedRequests.Remove(queuedRequests.Head);
+            while (queuedRequests.Head != null && removedFirst?.IsDisposed == false)
+            {
+                removedFirst = queuedRequests.Remove(queuedRequests.Head);
+            }
         }
-        if (removedFirst == null)
+        if (removedFirst == null || removedFirst.IsDisposed)
         {
             TryToReturnUsedFormatWriter(toSend);
             return null;
         }
-        removedFirst.ReceiveFormatWriterHandler(toSend);
-        return removedFirst;
+        currentFormatWriterOwnerThread = removedFirst.RequesterTHread;
+        timeFormatWriterOwnerWasTaken  = DateTime.UtcNow;
+        if(removedFirst.ReceiveFormatWriterHandler(toSend))
+            return removedFirst;
+        return TrySendFormatWriteToNextIfAny(toSend);
     }
 
     protected BlockingFormatWriterResolverHandle? CheckFormatWriteAvailableForNextQueued()
@@ -153,13 +176,17 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
                 if (toSend != null) removedFirst = queuedRequests.Remove(queuedRequests.Head);
             }
         }
-        if (removedFirst == null)
+        if (toSend == null) return null;
+        if (removedFirst == null || removedFirst.IsDisposed)
         {
-            if (toSend != null) TryToReturnUsedFormatWriter(toSend);
+            TryToReturnUsedFormatWriter(toSend);
             return null;
         }
-        removedFirst.ReceiveFormatWriterHandler(toSend!);
-        return removedFirst;
+        currentFormatWriterOwnerThread = removedFirst.RequesterTHread;
+        timeFormatWriterOwnerWasTaken  = DateTime.UtcNow;
+        if(removedFirst.ReceiveFormatWriterHandler(toSend))
+            return removedFirst;
+        return TrySendFormatWriteToNextIfAny(toSend);
     }
 
     public override void StateReset()
@@ -167,5 +194,35 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
         Close();
         OwningAppender = null!;
         base.StateReset();
+    }
+
+    private void CheckLostFormatWriterThreadHandler(IScheduleActualTime? scheduleActualTime)
+    {
+        lock (lostThreadSyncLock)
+        {
+            var checkCurrentOwner = currentFormatWriterOwnerThread;
+            if (checkCurrentOwner != null)
+            {
+                var wasTerminated = checkCurrentOwner.Join(500);
+                if (wasTerminated && checkCurrentOwner == currentFormatWriterOwnerThread)
+                {
+                    Console.Out.WriteLine("Recovering lost format writer from thread {0} Id: {1}"
+                                        , checkCurrentOwner.Name
+                                        , checkCurrentOwner.ManagedThreadId);
+                    if (RecoverLostThreadWriter != null)
+                    {
+                        TrySendFormatWriteToNextIfAny(RecoverLostThreadWriter);
+                    }
+                    timeFormatWriterOwnerWasTaken = DateTime.UtcNow.AddYears(10);
+                    currentFormatWriterOwnerThread = null;
+                }
+                var timeElapsed = DateTime.Now - timeFormatWriterOwnerWasTaken!.Value;
+                if(timeElapsed > TimeSpan.FromSeconds(2))
+                {
+                    Console.Out.WriteLine("Thread {{Name: {0} Id: {1} has had the format writer for {2} ms"
+                                        , currentFormatWriterOwnerThread!.Name, currentFormatWriterOwnerThread.ManagedThreadId, timeElapsed.TotalMilliseconds);
+                }
+            }
+        }
     }
 }

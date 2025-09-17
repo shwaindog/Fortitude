@@ -55,7 +55,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
         }
         catch (Exception ex)
         {
-            Logger.WarnFormat("Deployment of rule {0} failed.  Got {1}").WithParams(rule.FriendlyName).AndFinalObjectParam(ex);
+            Logger.WarnFormat("Deployment of rule {0} failed.  Got {1}")?.WithParams(rule.FriendlyName)?.AndFinalObjectParam(ex);
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStartFailed);
             GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
         }
@@ -81,7 +81,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
         }
         catch (Exception ex)
         {
-            Logger.WarnFormat("Deployment of rule {0} failed.  Got {1}").WithParams(rule.FriendlyName).AndFinalObjectParam(ex);
+            Logger.WarnFormat("Deployment of rule {0} failed.  Got {1}")?.WithParams(rule.FriendlyName)?.AndFinalObjectParam(ex);
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStartFailed);
             GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
         }

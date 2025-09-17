@@ -10,14 +10,15 @@ using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
-public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen, IStyledToStringObject
+public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen, IStringBearer
 {
     uint IssueSequenceNumber { get; }
     uint ReceivedSequenceNumber { get; }
@@ -28,7 +29,7 @@ public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen, IStyled
 
     Exception? Exception { get; }
 
-    StringBuildingStyle Style { get; }
+    StringStyle Style { get; }
 
     DateTime LogDateTime { get; }
     DateTime? DispatchedAt { get; }
@@ -53,11 +54,11 @@ public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
 
     [MustUseReturnValue("Use WithOnlyParam or AndFinalParam to complete LogEntry")]
     IFLogFirstFormatterParameterEntry FormatBuilder([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formattedString
-      , StringBuildingStyle style = StringBuildingStyle.Default);
+      , StringStyle style = StringStyle.Default);
 
 
     [MustUseReturnValue("Use FinalAppend to complete LogEntry")]
-    IFLogStringAppender StringAppender(StringBuildingStyle style = StringBuildingStyle.Default);
+    IFLogStringAppender StringAppender(StringStyle style = StringStyle.Default);
 
     IMutableFLogEntry AddCallerContextObjFromKey(string asyncCallOrThreadKey);
     IMutableFLogEntry WithCallerContextObj(object callerContextObj);
@@ -136,13 +137,13 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         }
     }
 
-    public IFLogStringAppender StringAppender(StringBuildingStyle style = StringBuildingStyle.Default)
+    public IFLogStringAppender StringAppender(StringStyle style = StringStyle.Default)
     {
         Thread      = Thread.CurrentThread;
         LogDateTime = TimeContext.UtcNow;
         Style       = style;
 
-        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(style))
+        var styleTypeStringAppender = (Recycler?.Borrow<TheOneString>() ?? new TheOneString(style))
             .Initialize(messageBuilder!, style);
         var stringAppender = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
             .Initialize(this, styleTypeStringAppender, OnMessageComplete);
@@ -151,7 +152,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
     }
 
     public IFLogFirstFormatterParameterEntry FormatBuilder([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formattedString
-      , StringBuildingStyle style = StringBuildingStyle.Default)
+      , StringStyle style = StringStyle.Default)
     {
         Thread      = Thread.CurrentThread;
         LogDateTime = TimeContext.UtcNow;
@@ -211,7 +212,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     public Thread Thread { get; private set; } = null!;
 
-    public StringBuildingStyle Style { get; private set; }
+    public StringStyle Style { get; private set; }
 
 
     public IMutableFLogEntry WithCallerContextObj(object callerContextObj)
@@ -264,7 +265,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         messageBuilder!.StateReset();
         LogDateTime  = DateTime.MinValue;
         DispatchedAt = null;
-        Style        = StringBuildingStyle.Default;
+        Style        = StringStyle.Default;
         LogLocation  = NotSetLocation;
         Logger       = null!;
         Thread       = null!;
@@ -292,7 +293,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         return this;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa)
+    public StateExtractStringRange RevealState(ITheOneString stsa)
     {
         using var tb =
             stsa.StartComplexType(this)

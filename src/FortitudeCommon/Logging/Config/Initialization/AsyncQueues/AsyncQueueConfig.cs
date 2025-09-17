@@ -5,13 +5,13 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 
-public interface IAsyncQueueConfig : IFLogConfig, IStyledToStringObject
+public interface IAsyncQueueConfig : IFLogConfig, IStringBearer
   , IInterfacesComparable<IAsyncQueueConfig>, IConfigCloneTo<IAsyncQueueConfig>
 {
     byte QueueNumber { get; }
@@ -194,7 +194,7 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(QueueNumber), QueueNumber)
            .Field.AlwaysAdd(nameof(QueueType), QueueType)

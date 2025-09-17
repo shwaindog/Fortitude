@@ -3,13 +3,13 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Logging.AsyncProcessing;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains.PipelineSpies;
 
 public class SnapLogEntryEventStateSpy(IList<string> snappedLogEntryEvents, string spyName) : FLogEntryForkingInterceptor
 {
-    private static readonly CustomTypeStyler<IFLogEntry> SummarizedFLogEntry = (flogEntry, sbc) =>
+    private static readonly StringBearerRevealState<IFLogEntry> SummarizedFLogEntry = (flogEntry, sbc) =>
     {
         using var tb =
             sbc.StartComplexType(nameof(FLogEntry))
@@ -38,7 +38,7 @@ public class SnapLogEntryEventStateSpy(IList<string> snappedLogEntryEvents, stri
 
     protected override void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
-        var snapStateAppender = Recycler!.Borrow<StyledTypeStringAppender>().Initialize();
+        var snapStateAppender = Recycler!.Borrow<TheOneString>().Initialize();
         snapStateAppender
             .StartComplexType(nameof(SnapLogEntryEventStateSpy))
             .Field.AlwaysAdd("Spy", spyName)

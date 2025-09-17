@@ -4,8 +4,8 @@
 #region
 
 using FortitudeCommon.Config;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Storage.TimeSeries.FileSystem.DirectoryStructure;
 using Microsoft.Extensions.Configuration;
 
@@ -19,7 +19,7 @@ public interface IRepositoryBuilder
     ITimeSeriesRepository BuildRepository(string? repositoryName = null);
 }
 
-public interface IRepositoryBuilderConfig : IRepositoryBuilder, IStyledToStringObject
+public interface IRepositoryBuilderConfig : IRepositoryBuilder, IStringBearer
 {
     string?        RepoPathBuilderClassName              { get; set; }
     Type?          RepoPathBuilderType                   { get; set; }
@@ -143,7 +143,7 @@ public abstract class RepositoryBuilderConfig : ConfigSection, IRepositoryBuilde
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(RepoPathBuilderClassName), RepoPathBuilderClassName)
             .Field.AlwaysAdd(nameof(RepositoryType), RepositoryType)

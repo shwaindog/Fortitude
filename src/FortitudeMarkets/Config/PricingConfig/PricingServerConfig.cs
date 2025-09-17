@@ -3,8 +3,8 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.PricingConfig;
 
-public interface IPricingServerConfig : IInterfacesComparable<IPricingServerConfig>, IConnection, IStyledToStringObject
+public interface IPricingServerConfig : IInterfacesComparable<IPricingServerConfig>, IConnection, IStringBearer
 {
     public const int DefaultHeartBeatPublishIntervalMs      = 1_000;
     public const int DefaultHeartBeatServerToleranceRangeMs = 250;
@@ -305,7 +305,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(SnapshotConnectionConfig), SnapshotConnectionConfig)

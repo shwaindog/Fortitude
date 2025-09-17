@@ -10,15 +10,15 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.ConfigSources;
 
 public interface IOrderedConfigSourcesLookupConfig : IFLogConfig, IStickyKeyValueDictionary<ushort, IFlogConfigSource>
   , IInterfacesComparable<IOrderedConfigSourcesLookupConfig>, ICloneable<IOrderedConfigSourcesLookupConfig>
-  , IStyledToStringObject
+  , IStringBearer
 {
     TimeSpanConfig ExpireConfigCacheIntervalTimeSpan { get; }
 }
@@ -281,7 +281,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartKeyedCollectionType(this)
            .AddAll(priorityConfigSources)
            .Complete();

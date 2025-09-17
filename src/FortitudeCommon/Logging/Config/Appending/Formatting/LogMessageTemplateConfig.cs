@@ -2,16 +2,15 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Config;
-using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 
 public interface ILogMessageTemplateConfig : IFLogConfig, IInterfacesComparable<ILogMessageTemplateConfig>
-  , IConfigCloneTo<ILogMessageTemplateConfig>, IStyledToStringObject
+  , IConfigCloneTo<ILogMessageTemplateConfig>, IStringBearer
 {
     FLogLevel LogLevel { get; }
 
@@ -115,7 +114,7 @@ public class LogMessageTemplateConfig : FLogConfig, IMutableLogMessageTemplateCo
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel)
            .Field.AlwaysAdd(nameof(MessageTemplate), MessageTemplate)

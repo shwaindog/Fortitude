@@ -2,14 +2,14 @@
 using System.Text;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.DataStructures.Memory.Buffers;
 
 public class AsyncReadWriterRecyclingCharArray : ReusableObject<AsyncReadWriterRecyclingCharArray>, IDisposable
-  , ICapacityList<char>, IStyledToStringObject
+  , ICapacityList<char>, IStringBearer
 {
     public const int DefaultAcquireLockTimeoutMs = 2_000;
 
@@ -480,7 +480,7 @@ public class AsyncReadWriterRecyclingCharArray : ReusableObject<AsyncReadWriterR
         return this;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa)
+    public StateExtractStringRange RevealState(ITheOneString stsa)
     {
         return
          stsa.StartSimpleValueType(this)

@@ -10,14 +10,14 @@ using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config;
 
 public interface IFLogAppConfig : IFLoggerMatchedAppenders, IInterfacesComparable<IFLogAppConfig>, ICloneable<IFLogAppConfig>
-  , IStyledToStringObject, IFLogConfig
+  , IStringBearer, IFLogConfig
 {
     const string DefaultFLogAppConfigPath = "FLog";
 
@@ -187,7 +187,7 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(ConfigSourcesLookup), ConfigSourcesLookup)
            .Field.AlwaysAdd(nameof(Appenders), Appenders)

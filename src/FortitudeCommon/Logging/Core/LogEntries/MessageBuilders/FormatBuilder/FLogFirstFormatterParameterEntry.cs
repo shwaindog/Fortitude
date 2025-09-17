@@ -45,7 +45,7 @@ public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<IFL
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     public IFLogAdditionalFormatterParameterEntry? WithMatchParams<T>(T value)
     {
-        var tempStsa = TempStyledTypeAppender;
+        var tempStsa = Temp;
         AppendMatchSelect(value, tempStsa);
         ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         var toReturn = ToAdditionalFormatBuilder(value);
@@ -55,7 +55,7 @@ public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<IFL
 
     public void WithOnlyMatchParam<T>(T? value)
     {
-        var tempStsa = TempStyledTypeAppender;
+        var tempStsa = Temp;
         AppendMatchSelect(value, tempStsa);
         ReplaceStagingTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
@@ -63,7 +63,7 @@ public partial class FLogFirstFormatterParameterEntry : FormatParameterEntry<IFL
 
     public IFLogStringAppender WithOnlyParamMatchThenToAppender<T>(T value)
     {
-        var tempStsa = TempStyledTypeAppender;
+        var tempStsa = Temp;
         AppendMatchSelect(value, tempStsa);
         var toReturn = ReplaceStagingTokenNumber(tempStsa.WriteBuffer).ToStringAppender(value, this);
         tempStsa.DecrementRefCount();

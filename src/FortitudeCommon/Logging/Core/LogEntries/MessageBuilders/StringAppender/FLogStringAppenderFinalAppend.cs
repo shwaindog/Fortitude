@@ -2,9 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -30,13 +29,13 @@ public partial class FLogStringAppender
         CallOnComplete();
     }
 
-    public void FinalAppend<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType
+    public void FinalAppend<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType
     {
-        customTypeStyler(value, MessageStsa);
+        stringBearerRevealState(value, MessageStsa);
         CallOnComplete();
     }
 
-    public void FinalAppend<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
+    public void FinalAppend<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         AppendStyled(valueTuple, MessageStsa);
@@ -116,7 +115,7 @@ public partial class FLogStringAppender
     public void FinalAppend(StringBuilder? value, int startIndex, int count = int.MaxValue) =>
         MessageSb.Append(value, startIndex, count).ToAppender(this).CallOnComplete();
 
-    public void FinalAppend(IStyledToStringObject? value)
+    public void FinalAppend(IStringBearer? value)
     {
         AppendStyledObject(value, MessageStsa);
         CallOnComplete();

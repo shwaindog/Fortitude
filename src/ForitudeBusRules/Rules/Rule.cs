@@ -6,8 +6,8 @@ using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 #endregion
 
@@ -25,7 +25,7 @@ public enum RuleLifeCycle
 
 public delegate void LifeCycleChangeHandler(IRule sender, RuleLifeCycle oldState, RuleLifeCycle newState);
 
-public interface IRule : IStyledToStringObject
+public interface IRule : IStringBearer
 {
     IRule ParentRule { get; }
     IQueueContext Context { get; set; }
@@ -304,7 +304,7 @@ public class Rule : IListeningRule
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
             .Field.AlwaysAdd(nameof(Context), Context)
             .Field.AlwaysAdd(nameof(FriendlyName), FriendlyName)

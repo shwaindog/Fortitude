@@ -9,9 +9,10 @@ using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using JetBrains.Annotations;
 
 #endregion
@@ -23,7 +24,7 @@ public interface IFLogFormatterParameterEntry : IFLogMessageBuilder
     // ReSharper disable UnusedMember.Global
     int RemainingArguments { get; }
 
-    IStyledTypeStringAppender FormatStyledTypeAppender { get; }
+    ITheOneString Format { get; }
 
     IStringBuilder FormatWriteBuffer { get; }
 }
@@ -39,7 +40,7 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
 
     protected IStringBuilder FormatSb = null!;
 
-    protected IStyledTypeStringAppender? FormatStsa;
+    protected ITheOneString? FormatStsa;
 
     protected List<StringFormatTokenParams> FormatTokens = null!;
 
@@ -49,7 +50,7 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
 
     protected FormatParameterEntry(FormatParameterEntry<TIFormatEntry, TFormatEntryImpl> toClone)
     {
-        FormatStsa ??= Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender();
+        FormatStsa ??= Recycler?.Borrow<TheOneString>() ?? new TheOneString();
         FormatStsa.CopyFrom(toClone.FormatStsa!);
         FormatSb = FormatStsa.WriteBuffer;
         Warnings.Clear();
@@ -102,11 +103,11 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
 
     public IStringBuilder FormatWriteBuffer => FormatSb;
 
-    public IStyledTypeStringAppender FormatStyledTypeAppender
+    public ITheOneString Format
     {
         get
         {
-            FormatStsa ??= Recycler?.Borrow<StyledTypeStringAppender>().Initialize() ?? new StyledTypeStringAppender();
+            FormatStsa ??= Recycler?.Borrow<TheOneString>().Initialize() ?? new TheOneString();
             FormatSb   =   FormatStsa.WriteBuffer;
             return FormatStsa;
         }
@@ -124,7 +125,7 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
         base.StateReset();
     }
 
-    protected override IStyledTypeStringAppender? PreappendCheckGetStringAppender<T>(T param, string memberName = "")
+    protected override ITheOneString? PreappendCheckGetStringAppender<T>(T param, string memberName = "")
     {
         if (!FormatTokens.Any())
         {
@@ -135,12 +136,12 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
             CallOnComplete();
             return null;
         }
-        var tempStsa = TempStyledTypeAppender;
-        tempStsa.ClearAndReinitialize(StringBuildingStyle.Default);
+        var tempStsa = Temp;
+        tempStsa.ClearAndReinitialize(StringStyle.Default);
         return tempStsa;
     }
 
-    protected override TIFormatEntry? PostAppendContinueOnMessageEntry<T>(IStyledTypeStringAppender? justAppended, T param
+    protected override TIFormatEntry? PostAppendContinueOnMessageEntry<T>(ITheOneString? justAppended, T param
       , string callMemberName = "")
     {
         if (justAppended == null) return null;
@@ -176,10 +177,10 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
 
     public TFormatEntryImpl Initialize
     (FLogEntry fLogEntry, FormatBuilder stringFormatBuilder, int paramNum, Action<IStringBuilder?> onCompleteHandler
-      , IStyledTypeStringAppender? styledTypeStringAppender = null, List<StringFormatTokenParams>? remainingTokens = null)
+      , ITheOneString? styledTypeStringAppender = null, List<StringFormatTokenParams>? remainingTokens = null)
     {
         Initialize(fLogEntry, onCompleteHandler);
-        FormatStsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender()).Initialize(fLogEntry.Style);
+        FormatStsa ??= (Recycler?.Borrow<TheOneString>() ?? new TheOneString()).Initialize(fLogEntry.Style);
         FormatSb   =   FormatStsa.WriteBuffer;
 
         CurrentParamNum = paramNum;
@@ -430,12 +431,12 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
         return Me;
     }
 
-    internal TFormatEntryImpl ReplaceTokenNumber<TToStyle, TStylerType>(TToStyle? param, CustomTypeStyler<TStylerType> customTypeStyler)
+    internal TFormatEntryImpl ReplaceTokenNumber<TToStyle, TStylerType>(TToStyle? param, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TToStyle : TStylerType
     {
         if (param == null) return ReplaceTokenNumber("");
         FormatSb.Clear();
-        customTypeStyler(param, FormatStsa!);
+        stringBearerRevealState(param, FormatStsa!);
         for (var i = 0; i < FormatTokens.Count; i++)
         {
             var token = FormatTokens[i];
@@ -444,10 +445,10 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
         return Me;
     }
 
-    internal TFormatEntryImpl ReplaceStyledTokenNumber(IStyledToStringObject? param)
+    internal TFormatEntryImpl ReplaceStyledTokenNumber(IStringBearer? param)
     {
         FormatSb.Clear();
-        param?.ToString(FormatStsa!);
+        param?.RevealState(FormatStsa!);
         for (var i = 0; i < FormatTokens.Count; i++)
         {
             var token = FormatTokens[i];
@@ -525,7 +526,7 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
 
         if (Warnings.Length > 0) formattedStringSoFar.InsertAt(Warnings);
 
-        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(FormatStsa!.Style))
+        var styleTypeStringAppender = (Recycler?.Borrow<TheOneString>() ?? new TheOneString(FormatStsa!.Style))
             .Initialize(formattedStringSoFar, FormatStsa!.Style);
 
         var addParamsBuilder = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
@@ -550,7 +551,7 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
 
         if (Warnings.Length > 0) formattedStringSoFar.InsertAt(Warnings);
 
-        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(FormatStsa!.Style))
+        var styleTypeStringAppender = (Recycler?.Borrow<TheOneString>() ?? new TheOneString(FormatStsa!.Style))
             .Initialize(formattedStringSoFar, FormatStsa!.Style);
 
         var addParamsBuilder = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
@@ -671,11 +672,11 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
 
     public static TFormatEntryImpl? ReplaceCustStyleTokens<TFormatEntryImpl, TIFormatEntry, TToStyle, TStylerType>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
-      , TToStyle? paramValue, CustomTypeStyler<TStylerType> customTypeStyler)
+      , TToStyle? paramValue, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder
         where TToStyle : TStylerType =>
-        maybeParam?.ReplaceTokenNumber(paramValue, customTypeStyler);
+        maybeParam?.ReplaceTokenNumber(paramValue, stringBearerRevealState);
 
     public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
@@ -741,7 +742,7 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
 
     public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
-      , IStyledToStringObject? paramValue)
+      , IStringBearer? paramValue)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder =>
         maybeParam?.ReplaceStyledTokenNumber(paramValue);
@@ -795,7 +796,7 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
         where TIFormatEntry : class, IFLogMessageBuilder =>
         ensureRef.ToStringAppender(paramValue, callMemberName);
 
-    public static FLogStringAppender ToStringAppender<TFormatEntryImpl, TIFormatEntry>(this StyledTypeBuildResult? stb, FLogStringAppender fsa)
+    public static FLogStringAppender ToStringAppender<TFormatEntryImpl, TIFormatEntry>(this StateExtractStringRange? stb, FLogStringAppender fsa)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder =>
         fsa;

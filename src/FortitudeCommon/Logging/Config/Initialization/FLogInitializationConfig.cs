@@ -4,14 +4,14 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization;
 
 public interface IFLogInitializationConfig : IFLogConfig, IInterfacesComparable<IFLogInitializationConfig>
-  , IConfigCloneTo<IFLogInitializationConfig>, IStyledToStringObject
+  , IConfigCloneTo<IFLogInitializationConfig>, IStringBearer
 {
     IAsyncQueuesInitConfig AsyncBufferingInit { get; }
 
@@ -127,7 +127,7 @@ public class FLogInitializationConfig : FLogConfig, IMutableFLogInitializationCo
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
+    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
         stsa.StartComplexType(this)
            .Field.AlwaysAdd(nameof(AsyncBufferingInit), AsyncBufferingInit)
            .Field.AlwaysAdd(nameof(LogEntryPoolsInit), LogEntryPoolsInit)

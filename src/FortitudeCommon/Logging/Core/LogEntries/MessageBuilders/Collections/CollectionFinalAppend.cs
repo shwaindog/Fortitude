@@ -1,18 +1,18 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 
 public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<TToReturn, TCallerType>, ICollectionFinalAppend
     where TCallerType : FLogEntryMessageBuilderBase<TToReturn, TCallerType>, TToReturn where TToReturn : class, IFLogMessageBuilder
 {
-    public void Add<TStyleObj>(TStyleObj[]? value) where TStyleObj : class, IStyledToStringObject =>
+    public void Add<TStyleObj>(TStyleObj[]? value) where TStyleObj : class, IStringBearer =>
         AppendObjectCollection(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
 
-    public void Add<TStyleObj>(IReadOnlyList<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject =>
+    public void Add<TStyleObj>(IReadOnlyList<TStyleObj>? value) where TStyleObj : class, IStringBearer =>
         AppendObjectCollection(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
 
     public void AddFormat<TFmt>(TFmt[]? value, string? formatString = null) where TFmt : ISpanFormattable =>
@@ -27,24 +27,24 @@ public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<T
     public void AddFormat<TFmt>((IReadOnlyList<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void Add<TToStyle, TStylerType>(TToStyle[]? value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
-        AppendValueCollection(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
+    public void Add<TToStyle, TStylerType>(TToStyle[]? value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType =>
+        AppendValueCollection(PreappendCheckGetStringAppender(value), value, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
-    public void Add<TToStyle, TStylerType>((TToStyle[]?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType =>
+    public void Add<TToStyle, TStylerType>((TToStyle[]?, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void Add<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, CustomTypeStyler<TStylerType> customTypeStyler)
+    public void Add<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TToStyle : TStylerType =>
-        AppendValueCollection(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
+        AppendValueCollection(PreappendCheckGetStringAppender(value), value, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
-    public void Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType =>
+    public void Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) where TStyleObj : class, IStyledToStringObject =>
+    public void Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) where TStyleObj : class, IStringBearer =>
         AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter).PostAppendCheckAndReturn(value, this);
 
     public void Add<TStyleObj>(IReadOnlyList<TStyleObj>? value, OrderedCollectionPredicate<TStyleObj> filter)
-        where TStyleObj : class, IStyledToStringObject =>
+        where TStyleObj : class, IStringBearer =>
         AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter).PostAppendCheckAndReturn(value, this);
 
     public void AddFormat<TFmt, TBase>(TFmt[]? value, OrderedCollectionPredicate<TBase> filter
@@ -73,27 +73,27 @@ public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<T
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void Add<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter
-      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
-        AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, customTypeStyler).PostAppendCheckAndReturn(value, this);
+      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TToStyleBase, TStylerType =>
+        AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
     public void Add<TToStyle, TToStyleBase, TStylerType>(
-        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple)
+        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void Add<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
-      , OrderedCollectionPredicate<TToStyleBase> filter, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TToStyleBase, TStylerType =>
-        AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, customTypeStyler).PostAppendCheckAndReturn(value, this);
+      , OrderedCollectionPredicate<TToStyleBase> filter, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TToStyleBase, TStylerType =>
+        AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
     public void Add<TToStyle, TToStyleBase, TStylerType>(
-        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, CustomTypeStyler<TStylerType>) valueTuple)
+        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TToStyleBase, TStylerType =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddEnumerate<TStyleObj>(IEnumerable<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject =>
+    public void AddEnumerate<TStyleObj>(IEnumerable<TStyleObj>? value) where TStyleObj : class, IStringBearer =>
         AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
 
-    public void AddEnumerate<TStyleObj>(IEnumerator<TStyleObj>? value) where TStyleObj : class, IStyledToStringObject =>
+    public void AddEnumerate<TStyleObj>(IEnumerator<TStyleObj>? value) where TStyleObj : class, IStringBearer =>
         AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value).PostAppendCheckAndReturn(value, this);
 
     public void AddFormatEnumerate<TFmt>(IEnumerable<TFmt>? value
@@ -113,18 +113,18 @@ public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<T
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
-      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
-        AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
+      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType =>
+        AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
-    public void AddEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+    public void AddEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
-      , CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
-        AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
+      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType =>
+        AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
-    public void AddEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, CustomTypeStyler<TStylerType>) valueTuple)
+    public void AddEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TStylerType =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
@@ -176,53 +176,53 @@ public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<T
     public void AddMatchEnumerate<T>((IEnumerator<T>?, string?) valueTuple) where T : class =>
         AppendObjectCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddMatch<T, TBase>(T[]? value, CustomTypeStyler<TBase> customTypeStyler)
+    public void AddMatch<T, TBase>(T[]? value, StringBearerRevealState<TBase> stringBearerRevealState)
         where T : class, TBase where TBase : class =>
-        AppendObjectCollection(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
+        AppendObjectCollection(PreappendCheckGetStringAppender(value), value, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
-    public void AddMatch<T, TBase>((T[]?, CustomTypeStyler<TBase>) valueTuple) where T : class, TBase where TBase : class =>
+    public void AddMatch<T, TBase>((T[]?, StringBearerRevealState<TBase>) valueTuple) where T : class, TBase where TBase : class =>
         AppendObjectCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddMatch<T, TBase>(IReadOnlyList<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+    public void AddMatch<T, TBase>(IReadOnlyList<T>? value, StringBearerRevealState<TBase> stringBearerRevealState)
         where T : class, TBase where TBase : class =>
-        AppendObjectCollection(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
+        AppendObjectCollection(PreappendCheckGetStringAppender(value), value, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
-    public void AddMatch<T, TBase>((IReadOnlyList<T>?, CustomTypeStyler<TBase>) valueTuple)
+    public void AddMatch<T, TBase>((IReadOnlyList<T>?, StringBearerRevealState<TBase>) valueTuple)
         where T : class, TBase where TBase : class =>
         AppendObjectCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddMatch<T, TBase1, TBase2>(T[]? value
-      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler)
+      , OrderedCollectionPredicate<TBase1> filter, StringBearerRevealState<TBase2> stringBearerRevealState)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class =>
-        AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter, customTypeStyler).PostAppendCheckAndReturn(value, this);
+        AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
-    public void AddMatch<T, TBase1, TBase2>((T[]?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple)
+    public void AddMatch<T, TBase1, TBase2>((T[]?, OrderedCollectionPredicate<TBase1>, StringBearerRevealState<TBase2>) valueTuple)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class =>
         AppendFilteredObjectCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddMatch<T, TBase1, TBase2>(IReadOnlyList<T>? value
-      , OrderedCollectionPredicate<TBase1> filter, CustomTypeStyler<TBase2> customTypeStyler)
+      , OrderedCollectionPredicate<TBase1> filter, StringBearerRevealState<TBase2> stringBearerRevealState)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class =>
-        AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter, customTypeStyler).PostAppendCheckAndReturn(value, this);
+        AppendFilteredObjectCollection(PreappendCheckGetStringAppender(value), value, filter, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
     public void AddMatch<T, TBase1, TBase2>(
-        (IReadOnlyList<T>?, OrderedCollectionPredicate<TBase1>, CustomTypeStyler<TBase2>) valueTuple)
+        (IReadOnlyList<T>?, OrderedCollectionPredicate<TBase1>, StringBearerRevealState<TBase2>) valueTuple)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class =>
         AppendFilteredObjectCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddMatchEnumerate<T, TBase>(IEnumerable<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+    public void AddMatchEnumerate<T, TBase>(IEnumerable<T>? value, StringBearerRevealState<TBase> stringBearerRevealState)
         where T : class, TBase where TBase : class =>
-        AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
+        AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
-    public void AddMatchEnumerate<T, TBase>((IEnumerable<T>?, CustomTypeStyler<TBase>) valueTuple)
+    public void AddMatchEnumerate<T, TBase>((IEnumerable<T>?, StringBearerRevealState<TBase>) valueTuple)
         where T : class, TBase where TBase : class =>
         AppendObjectCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddMatchEnumerate<T, TBase>(IEnumerator<T>? value, CustomTypeStyler<TBase> customTypeStyler)
+    public void AddMatchEnumerate<T, TBase>(IEnumerator<T>? value, StringBearerRevealState<TBase> stringBearerRevealState)
         where T : class, TBase where TBase : class =>
-        AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value, customTypeStyler).PostAppendCheckAndReturn(value, this);
+        AppendObjectCollectionEnumerate(PreappendCheckGetStringAppender(value), value, stringBearerRevealState).PostAppendCheckAndReturn(value, this);
 
-    public void AddMatchEnumerate<T, TBase>((IEnumerator<T>?, CustomTypeStyler<TBase>) valueTuple)
+    public void AddMatchEnumerate<T, TBase>((IEnumerator<T>?, StringBearerRevealState<TBase>) valueTuple)
         where T : class, TBase where TBase : class =>
         AppendObjectCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 }
