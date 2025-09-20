@@ -868,10 +868,10 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         return CompareTo(toCompare) == 0;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString stsa)
+    public StateExtractStringRange RevealState(ITheOneString tos)
     {
         return
-            stsa.StartSimpleValueType(this)
+            tos.StartSimpleValueType(this)
                 .String(nameof(backingArray), backingArray, 0, length).Complete();
     }
 

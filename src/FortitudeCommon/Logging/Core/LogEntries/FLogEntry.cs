@@ -293,10 +293,10 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         return this;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString stsa)
+    public StateExtractStringRange RevealState(ITheOneString tos)
     {
         using var tb =
-            stsa.StartComplexType(this)
+            tos.StartComplexType(this)
                .Field.AlwaysAdd(nameof(IssueSequenceNumber), IssueSequenceNumber)
                .Field.AlwaysAdd(nameof(InstanceNumber), InstanceNumber)
                .Field.AlwaysAdd(nameof(RefCount), RefCount)

@@ -209,8 +209,8 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(CharBufferSize), CharBufferSize)
            .Field.AlwaysAdd(nameof(FlushConfig), FlushConfig)

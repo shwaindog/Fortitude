@@ -127,8 +127,8 @@ public class FLogInitializationConfig : FLogConfig, IMutableFLogInitializationCo
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(AsyncBufferingInit), AsyncBufferingInit)
            .Field.AlwaysAdd(nameof(LogEntryPoolsInit), LogEntryPoolsInit)
            .Complete();

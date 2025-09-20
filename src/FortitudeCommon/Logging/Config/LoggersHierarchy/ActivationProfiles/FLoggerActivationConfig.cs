@@ -70,8 +70,8 @@ public class FLoggerActivationConfig : FLogBuildTypeAndDeployEnvConfig, IMutable
         new (this, configRoot, path);
     
     
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(LoggerActivationFlags), LoggerActivationFlags)
            .AddBaseStyledToStringFields(this)
            .Complete();

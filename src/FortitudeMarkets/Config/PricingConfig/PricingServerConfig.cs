@@ -305,8 +305,8 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(SnapshotConnectionConfig), SnapshotConnectionConfig)
             .Field.AlwaysAdd(nameof(UpdateConnectionConfig), UpdateConnectionConfig)

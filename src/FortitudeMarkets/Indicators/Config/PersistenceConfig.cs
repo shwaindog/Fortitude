@@ -94,8 +94,8 @@ public class PersistenceConfig : ConfigSection, IPersistenceConfig
         set => this[nameof(DefaultAutoCloseAfter)] = value.ToString();
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(PersistPrices), PersistPrices)
             .Field.AlwaysAdd(nameof(PersistPriceSummaries), PersistPriceSummaries)
             .Field.AlwaysAdd(nameof(PersistIndicatorState), PersistIndicatorState)

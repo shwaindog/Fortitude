@@ -91,8 +91,8 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(SourceTime), SourceTime, "{0:O}")
             .Field.AlwaysAdd(nameof(SingleTickValue), SingleTickValue, "{0:N5}")
             .Complete();
@@ -364,8 +364,8 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
         .Field.AlwaysAdd(nameof(SourceTickerInfo), SourceTickerInfo)
         .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)
         .Field.AlwaysAdd(nameof(ClientReceivedTime), ClientReceivedTime, "{0:O}")

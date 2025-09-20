@@ -318,8 +318,8 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartKeyedCollectionType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
            .AddAll(AppendersByName)
            .Complete();
 

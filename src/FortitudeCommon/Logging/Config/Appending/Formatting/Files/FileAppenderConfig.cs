@@ -234,8 +234,8 @@ public class FileAppenderConfig : BufferingFormatAppenderConfig, IMutableFileApp
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(FileAppenderType), FileAppenderType)
            .Field.AlwaysAdd(nameof(CompressionType), CompressionType)
            .Field.AlwaysAdd(nameof(FileEncoding), FileEncoding)

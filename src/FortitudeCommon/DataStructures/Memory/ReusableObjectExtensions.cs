@@ -12,7 +12,7 @@ namespace FortitudeCommon.DataStructures.Memory;
 
 public static class ReusableObjectExtensions
 {
-    public static T? RecycleNonNull<T>(this T? nullable, IRecycler? recycler) where T : class
+    public static T? RecycleNonNull<T>(this T? nullable, IRecycler? recycler) where T : class, IRecyclableObject
     {
         if (nullable != null) recycler?.Recycle(nullable);
 

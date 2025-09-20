@@ -304,8 +304,8 @@ public class Rule : IListeningRule
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(Context), Context)
             .Field.AlwaysAdd(nameof(FriendlyName), FriendlyName)
             .Field.AlwaysAdd(nameof(Id), Id)

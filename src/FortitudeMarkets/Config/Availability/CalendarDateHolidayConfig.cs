@@ -192,8 +192,8 @@ public class CalendarDateHolidayConfig : CalendarDateMatchConfig, ICalendarDateH
         }
     }
     
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(HolidayName), HolidayName)
             .Field.AlwaysAdd(nameof(Year), Year)
             .Field.AlwaysAdd(nameof(Month), Month)

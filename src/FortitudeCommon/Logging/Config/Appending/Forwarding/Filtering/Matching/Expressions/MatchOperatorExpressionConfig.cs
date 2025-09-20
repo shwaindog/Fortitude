@@ -281,8 +281,8 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(EvaluateOrder), EvaluateOrder)
            .Field.WhenNonNullAddStyled(nameof(All), All)
            .Field.WhenNonNullAddStyled(nameof(Any), Any)

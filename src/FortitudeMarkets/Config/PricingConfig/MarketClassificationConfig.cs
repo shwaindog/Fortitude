@@ -116,8 +116,8 @@ public class MarketClassificationConfig : ConfigSection, IMarketClassificationCo
 
     public override int GetHashCode() => MarketClassification.GetHashCode();
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this, nameof(MarketClassificationConfig))
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this, nameof(MarketClassificationConfig))
             .Field.AlwaysAdd(nameof(AssetType), AssetType)
             .Field.AlwaysAdd(nameof(AssetCategory), AssetCategory)
             .Field.AlwaysAdd(nameof(MarketRegion), MarketRegion)

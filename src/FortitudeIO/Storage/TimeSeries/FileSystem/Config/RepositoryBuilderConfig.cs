@@ -143,8 +143,8 @@ public abstract class RepositoryBuilderConfig : ConfigSection, IRepositoryBuilde
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(RepoPathBuilderClassName), RepoPathBuilderClassName)
             .Field.AlwaysAdd(nameof(RepositoryType), RepositoryType)
             .Field.AlwaysAdd(nameof(CreateIfNotExists), CreateIfNotExists)

@@ -395,8 +395,8 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
         $"{nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags}, " +
         $"{nameof(QuoteBehaviorFlags)}: {QuoteBehaviorFlags}";
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(RoundingPrecision), RoundingPrecision)
             .Field.AlwaysAdd(nameof(Pip), Pip)

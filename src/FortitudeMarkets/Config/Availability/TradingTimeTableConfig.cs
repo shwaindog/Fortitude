@@ -114,8 +114,8 @@ public class TradingTimeTableConfig : ConfigSection, ITradingTimeTableConfig
         return allAreSame;
     }
     
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(TradingScheduleConfig), TradingScheduleConfig)
             .Field.AlwaysAdd(nameof(HighLiquidityTimeTable), HighLiquidityTimeTable)
             .Field.AlwaysAdd(nameof(ParentTradingTimeTableConfig), ParentTradingTimeTableConfig)

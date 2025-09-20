@@ -1,8 +1,16 @@
-﻿namespace FortitudeTests.FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
 
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+
+[TestClass]
+[NoMatchingProductionClass]
 public class JsonScenarios
 {
-    
+
     /// <summary>
     /// List of scenarios to test Json formatting of styled types
     /// </summary>
@@ -90,8 +98,36 @@ public class JsonScenarios
     ///     3.2 Root object with children with circular references serialized with $id and $ref included
     ///     3.3 Root object with children with circular references serialized with no circular reference handling serialized to max depth of 64 nodes
     
-    
-    
+    [TestMethod]
+    public void StandardSinglePropertyFieldClassSerializesAllFields()
+    {
+        
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
+        
+        
+        var shakeJsonSer = JsonSerializer.Serialize(singlePropertyFieldClass, new JsonSerializerOptions()
+        {
+            ReferenceHandler = ReferenceHandler.Preserve,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals 
+        });
+
+        Console.Out.WriteLine("Json Serializer");
+        Console.Out.WriteLine(shakeJsonSer);
+        
+        
+        var styledStringBuilder = new TheOneString();
+        styledStringBuilder.ClearAndReinitialize(StringStyle.Json | StringStyle.Compact);
+        styledStringBuilder.Settings = new StyleOptions
+        {
+            WriteKeyValuePairsAsCollection = true
+        };
+        singlePropertyFieldClass.RevealState(styledStringBuilder);
+        var shakeStyled = styledStringBuilder.WriteBuffer.ToString();
+        
+        Console.Out.WriteLine("TheOneString");
+        Console.Out.WriteLine(shakeStyled);
+
+    }
     
     
 }

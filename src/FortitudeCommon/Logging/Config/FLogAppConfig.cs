@@ -187,8 +187,8 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
         }
     }
 
-    public StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(ConfigSourcesLookup), ConfigSourcesLookup)
            .Field.AlwaysAdd(nameof(Appenders), Appenders)
            .Field.AlwaysAdd(nameof(RootLogger), RootLogger)

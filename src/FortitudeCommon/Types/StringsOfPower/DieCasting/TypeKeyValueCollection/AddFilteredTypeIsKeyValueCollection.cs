@@ -3,6 +3,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 
@@ -22,14 +24,24 @@ public partial class KeyValueCollectionMold
         where TKey : TKBase where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
+
         if (value != null)
         {
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             ItemCount = 0;
             for (var i = 0; i < value.Length; i++)
             {
-                var kvp = value[i];
-                if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
                     : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
@@ -37,6 +49,8 @@ public partial class KeyValueCollectionMold
                     ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendMatchOrNull(kvp.Value);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -55,8 +69,17 @@ public partial class KeyValueCollectionMold
             ItemCount = 0;
             for (var i = 0; i < value.Count; i++)
             {
-                var kvp = value[i];
-                if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
                     : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
@@ -64,6 +87,8 @@ public partial class KeyValueCollectionMold
                     ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendMatchOrNull(kvp.Value);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -78,12 +103,23 @@ public partial class KeyValueCollectionMold
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
-            int count     = 0;
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
+            var count     = 0;
+            var skipCount = 0;
             foreach (var kvp in value)
             {
-                if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
+                count++;
+                if (skipCount-- > 0) continue;
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
                     : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
@@ -91,6 +127,8 @@ public partial class KeyValueCollectionMold
                     ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendMatchOrNull(kvp.Value);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -106,16 +144,28 @@ public partial class KeyValueCollectionMold
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            var count     = 0;
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            while(hasValue)
+            var count     = 0;
+            var skipCount = 0;
+            while (hasValue)
             {
-                var kvp = value!.Current;
-                if (!filterPredicate(count++, kvp.Key, kvp.Value))
+                count++;
+                if (skipCount-- > 0)
                 {
-                    hasValue = value.MoveNext();
+                    hasValue  = value!.MoveNext();
                     continue;
+                }
+                var kvp          = value!.Current;
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        hasValue  = value.MoveNext();
+                        continue;
+                    }
+                    break;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
@@ -123,8 +173,9 @@ public partial class KeyValueCollectionMold
                 _ = valueFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
                     : stb.AppendMatchOrNull(kvp.Value);
-                hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                skipCount = filterResult.SkipNextCount;
+                hasValue  = value.MoveNext();
             }
         }
         return stb.AddGoToNext();
@@ -149,13 +200,24 @@ public partial class KeyValueCollectionMold
             ItemCount = 0;
             for (var i = 0; i < value.Length; i++)
             {
-                var kvp = value[i];
-                if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
                     : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -174,13 +236,24 @@ public partial class KeyValueCollectionMold
             ItemCount = 0;
             for (var i = 0; i < value.Count; i++)
             {
-                var kvp = value[i];
-                if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
                     : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -194,17 +267,31 @@ public partial class KeyValueCollectionMold
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
-            int count     = 0;
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var skipCount = 0;
+            int count     = 0;
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
+                count++;
+                if (skipCount-- > 0) continue;
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
                     : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -219,16 +306,28 @@ public partial class KeyValueCollectionMold
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            var count     = 0;
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            while(hasValue)
+            var count     = 0;
+            var skipCount = 0;
+            while (hasValue)
             {
-                var kvp = value!.Current;
-                if (!filterPredicate(count++, kvp.Key, kvp.Value))
+                count++;
+                if (skipCount-- > 0)
                 {
-                    hasValue = value.MoveNext();
+                    hasValue  = value!.MoveNext();
                     continue;
+                }
+                var kvp          = value!.Current;
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        hasValue  = value.MoveNext();
+                        continue;
+                    }
+                    break;
                 }
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
@@ -236,6 +335,8 @@ public partial class KeyValueCollectionMold
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -259,11 +360,22 @@ public partial class KeyValueCollectionMold
             ItemCount = 0;
             for (var i = 0; i < value.Length; i++)
             {
-                var kvp = value[i];
-                if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -281,11 +393,22 @@ public partial class KeyValueCollectionMold
             ItemCount = 0;
             for (var i = 0; i < value.Count; i++)
             {
-                var kvp = value[i];
-                if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -298,15 +421,29 @@ public partial class KeyValueCollectionMold
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
-            int count     = 0;
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var skipCount = 0;
+            int count     = 0;
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
+                count++;
+                if (skipCount-- > 0) continue;
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();
@@ -320,21 +457,35 @@ public partial class KeyValueCollectionMold
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            var count     = 0;
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            while(hasValue)
+            var count     = 0;
+            var skipCount = 0;
+            while (hasValue)
             {
-                var kvp = value!.Current;
-                if (!filterPredicate(count++, kvp.Key, kvp.Value))
+                count++;
+                if (skipCount-- > 0)
                 {
-                    hasValue = value.MoveNext();
+                    hasValue  = value!.MoveNext();
                     continue;
+                }
+                var kvp          = value!.Current;
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        hasValue  = value.MoveNext();
+                        continue;
+                    }
+                    break;
                 }
                 stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
             }
         }
         return stb.AddGoToNext();

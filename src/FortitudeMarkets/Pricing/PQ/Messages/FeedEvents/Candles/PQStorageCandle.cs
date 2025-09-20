@@ -761,8 +761,8 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
         }
     }
     
-    public StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(TimeBoundaryPeriod), TimeBoundaryPeriod)
             .Field.AlwaysAdd(nameof(PeriodStartTime), PeriodStartTime)
             .Field.AlwaysAdd(nameof(PeriodEndTime), PeriodEndTime)

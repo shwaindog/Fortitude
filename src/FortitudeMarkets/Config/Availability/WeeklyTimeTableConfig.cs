@@ -245,9 +245,9 @@ public class WeeklyTimeTableConfig : ConfigSection, IWeeklyTimeTableConfig
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString sbc)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos)
     {
-        return sbc.StartComplexType(this)
+        return tos.StartComplexType(this)
            .Field.AlwaysAddObject(nameof(StartTimes), StartTimes)
            .Field.AlwaysAddObject(nameof(StopTimes), StopTimes)
            .Field.AlwaysAddObject(nameof(OverrideTimeZone), OverrideTimeZone)

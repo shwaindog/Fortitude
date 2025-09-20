@@ -181,9 +181,9 @@ public class TimeSpanConfig: ConfigSection, ITimeSpanConfig
         }
     }
 
-    public StateExtractStringRange RevealState(ITheOneString stsa)
+    public StateExtractStringRange RevealState(ITheOneString tos)
     {
-        return stsa.StartComplexType( this)
+        return tos.StartComplexType( this)
            .Field.AlwaysAdd(nameof(Days), Days)
            .Field.AlwaysAdd(nameof(Hours), Hours)
            .Field.AlwaysAdd(nameof(Minutes), Minutes)

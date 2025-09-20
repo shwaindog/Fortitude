@@ -6,7 +6,7 @@ using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
-namespace FortitudeTests.FortitudeCommon.Types.StyledToString;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower;
 
 [TestClass]
 public class TargetStringBearerRevealStateTests

@@ -96,8 +96,8 @@ public class MatchLogLevelConfigConfig : MatchConditionConfig, IMutableMatchLogL
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
            .Field.AlwaysAdd(nameof(CheckLogLevel), CheckLogLevel)
            .Field.AlwaysAdd(nameof(Is), Is)

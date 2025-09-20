@@ -107,8 +107,8 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(When), When)
            .Complete();

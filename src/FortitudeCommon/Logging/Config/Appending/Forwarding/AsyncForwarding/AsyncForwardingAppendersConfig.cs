@@ -184,8 +184,8 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(AsyncType), AsyncType)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling)

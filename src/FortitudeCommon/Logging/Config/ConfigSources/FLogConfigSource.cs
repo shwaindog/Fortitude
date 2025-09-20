@@ -150,8 +150,8 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(ConfigPriorityOrder), ConfigPriorityOrder)
            .Field.AlwaysAdd(nameof(ConfigSourceName), ConfigSourceName)
            .Field.AlwaysAdd(nameof(Optional), Optional)

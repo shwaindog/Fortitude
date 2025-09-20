@@ -103,13 +103,13 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     private readonly TEnumValue[] enumValues;
 
-    private ConcurrentDictionary<long, string>? longRangeEnumMaterializedNames;
+    private ConcurrentDictionary<Int128, string>? verylongRangeEnumMaterializedNames;
 
     private readonly string enumName;
 
     private IEnumFormatProvider<Enum>? enumAdapterCompanion;
 
-    private StringBearerRevealState<Enum>      asEnumTypeStyler;
+    private StringBearerRevealState<Enum>     asEnumTypeStyler;
     private StringBearerSpanFormattable<Enum> asEnumSpanFormattable;
 
     public EnumFormatProvider()
@@ -121,13 +121,23 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         TEnumValue lowest  = enumValues.Min();
         TEnumValue highest = enumValues.Max();
 
-        var range = (highest.ToInt64(null) - lowest.ToInt64(null));
-        if (range < 1024L)
+        var enumValuesUnderlying = Enum.GetValuesAsUnderlyingType(enumType);
+        var firstValue           = enumValuesUnderlying.GetValue(0);
+
+        decimal range = highest.ToDecimal(null) - lowest.ToDecimal(null);;
+        // switch (firstValue)
+        // {
+        //     case ulong: range = highest.ToDecimal(null) - lowest.ToDecimal(null); break;
+        //     case long: range = highest.ToDecimal(null) - lowest.ToDecimal(null); break;
+        //     default:    range = highest.ToInt64(null) - lowest.ToInt64(null); break;
+        // }
+
+        if (range < 1024m)
         {
             isShortRangeEnum = true;
             lowestOffset     = lowest.ToInt64(null);
 
-            shortRangeEnumMaterializedNames = new string[range + 1];
+            shortRangeEnumMaterializedNames = new string[(int)range + 1];
 
             foreach (TEnumValue item in enumValues)
             {
@@ -146,7 +156,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         {
             isShortRangeEnum = false;
 
-            longRangeEnumMaterializedNames = new ConcurrentDictionary<long, string>();
+            verylongRangeEnumMaterializedNames = new ConcurrentDictionary<Int128, string>();
             foreach (TEnumValue item in enumValues)
             {
                 var name       = Enum.GetName(enumType, item)!;
@@ -156,10 +166,10 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
                     longestNameCharCount = nameLength;
                 }
                 allValuesCharCount += nameLength + 2;
-                longRangeEnumMaterializedNames.TryAdd(item.ToInt64(null), name);
+                verylongRangeEnumMaterializedNames.TryAdd((Int128)item.ToDecimal(null), name);
             }
         }
-        StringBearerRevealState      = EnumStyler;
+        StringBearerRevealState     = EnumStyler;
         StringBearerSpanFormattable = EnumExtendedSpanFormattable;
 
         asEnumTypeStyler      = EnumStyler;
@@ -187,8 +197,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
     public IEnumFormatProvider<TEnum>? AsTypedEnumFormatProvider<TEnum>() where TEnum : Enum =>
         typeof(TEnum).IsAssignableFrom(ForType) ? (IEnumFormatProvider<TEnum>)this : null;
 
-    public IEnumFormatProvider<Enum>? AsEnumFormatProvider() =>
-        typeof(Enum).IsAssignableFrom(ForType) ? EnumAdapterCompanion : null;
+    public IEnumFormatProvider<Enum>? AsEnumFormatProvider() => typeof(Enum).IsAssignableFrom(ForType) ? EnumAdapterCompanion : null;
 
     public StringBearerRevealState<TEnumValue> StringBearerRevealState { get; }
 
@@ -249,11 +258,11 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
                 var enumValue = singleEnumValue.ToInt64(null);
                 if (enumValue < lowestOffset || enumValue > (lowestOffset + shortRangeEnumMaterializedNames!.Length))
                 {
-                    longRangeEnumMaterializedNames ??= new ConcurrentDictionary<long, string>();
-                    if (!longRangeEnumMaterializedNames!.TryGetValue(enumValue, out var outOfRangeValue))
+                    verylongRangeEnumMaterializedNames ??= new ConcurrentDictionary<Int128, string>();
+                    if (!verylongRangeEnumMaterializedNames!.TryGetValue(enumValue, out var outOfRangeValue))
                     {
                         outOfRangeValue = enumValue.ToString();
-                        longRangeEnumMaterializedNames.TryAdd(enumValue, enumValue.ToString());
+                        verylongRangeEnumMaterializedNames.TryAdd(enumValue, enumValue.ToString());
                     }
                     buildNames.Append(outOfRangeValue);
                     return outOfRangeValue.Length;
@@ -264,7 +273,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
                 return enumValueName.Length;
             }
             var underlying = singleEnumValue.ToInt64(null);
-            if (longRangeEnumMaterializedNames!.TryGetValue(underlying, out var value))
+            if (verylongRangeEnumMaterializedNames!.TryGetValue(underlying, out var value))
             {
                 buildNames.Append(value);
                 return value.Length;
@@ -309,11 +318,11 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
         return destination.PadAndAlign(vanillaEnumNames, layout);
     }
-    
+
     private class CompanionEnumAdapter : IEnumFormatProvider<Enum>
     {
         private readonly EnumFormatProvider<TEnumValue> parent;
-        
+
         public CompanionEnumAdapter(EnumFormatProvider<TEnumValue> parent)
         {
             this.parent = parent;
@@ -340,7 +349,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
             }
             return null;
         }
-        
+
         public IEnumFormatProvider<Enum>? AsEnumFormatProvider() => this;
 
         public StringBearerRevealState<Enum> StringBearerRevealState => parent.asEnumTypeStyler;

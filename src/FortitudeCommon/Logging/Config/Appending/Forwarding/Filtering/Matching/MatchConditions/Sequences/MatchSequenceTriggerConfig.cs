@@ -300,8 +300,8 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.WhenNonNullAddStyled(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
            .Field.WhenNonNullAddStyled(nameof(NextTriggerStep), NextTriggerStep)
            .Field.WhenNonNullAddStyled(nameof(OnTriggerExtract), OnTriggerExtract)

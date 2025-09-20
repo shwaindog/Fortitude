@@ -168,8 +168,8 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(Name), Name)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
            .Field.AlwaysAdd(nameof(Inherits), Inherits)

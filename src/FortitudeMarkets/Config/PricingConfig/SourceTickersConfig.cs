@@ -530,8 +530,8 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         return hashCode.ToHashCode();
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(DefaultTickerAvailability), DefaultTickerAvailability)
             .Field.AlwaysAdd(nameof(DefaultPublishTickerQuoteDetailLevel), DefaultPublishTickerQuoteDetailLevel)
             .Field.AlwaysAdd(nameof(DefaultMarketClassificationConfig), DefaultMarketClassificationConfig)

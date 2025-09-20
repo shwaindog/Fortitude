@@ -90,8 +90,8 @@ public class TokenFormatting : ITokenReplacedTemplatePart
     public bool IsLeftAligned { get; }
     public int Padding { get; }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(TokenName), TokenName)
            .Field.AlwaysAdd(nameof(FormatString), FormatString)
            .Field.WhenNonDefaultAdd(nameof(Layout), Layout)

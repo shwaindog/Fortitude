@@ -143,8 +143,8 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.WhenNonNullAddStyled(nameof(SendMessage), SendMessage)
            .Field.WhenNonNullAddStyled(nameof(SendToAppender), SendToAppender)
            .Field.AlwaysAdd(nameof(SendTriggeringLogEntries), SendTriggeringLogEntries)
