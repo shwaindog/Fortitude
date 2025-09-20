@@ -326,8 +326,8 @@ public class DailyTradingScheduleConfig : ConfigSection, IDailyTradingScheduleCo
         return allAreSame;
     }
     
-    public virtual StateExtractStringRange RevealState(ITheOneString sbc) =>
-        sbc.StartComplexType(this, nameof(DailyTradingScheduleConfig))
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this, nameof(DailyTradingScheduleConfig))
            .Field.AlwaysAdd(nameof(TradingStartsFromOpenTimeSpan), TradingStartsFromOpenTimeSpan)
            .Field.AlwaysAdd(nameof(OverridePreferredTradingTimes), OverridePreferredTradingTimes)
            .Field.AlwaysAdd(nameof(HighActivityTimes), HighActivityTimes)

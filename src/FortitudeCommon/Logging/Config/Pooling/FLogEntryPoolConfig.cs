@@ -169,8 +169,8 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
         }
     }
 
-    public StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(PoolName), PoolName)
            .Field.AlwaysAdd(nameof(PoolScope), PoolScope.ToString())
            .Field.AlwaysAdd(nameof(LogEntryCharCapacity), LogEntryCharCapacity)

@@ -480,10 +480,10 @@ public class AsyncReadWriterRecyclingCharArray : ReusableObject<AsyncReadWriterR
         return this;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString stsa)
+    public StateExtractStringRange RevealState(ITheOneString tos)
     {
         return
-         stsa.StartSimpleValueType(this)
+         tos.StartSimpleValueType(this)
            .StringWithFallback(nameof(protectedCharArray), (ICharSequence?)protectedCharArray)
            .Complete();
     }

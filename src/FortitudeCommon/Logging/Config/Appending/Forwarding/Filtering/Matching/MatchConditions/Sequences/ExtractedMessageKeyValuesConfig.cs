@@ -204,8 +204,8 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
         return hashCode;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartKeyedCollectionType(this)
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
            .AddAll(extractConfigByKeyName)
            .Complete();
 

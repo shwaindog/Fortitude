@@ -163,8 +163,8 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
         return HashCode.Combine(FeedMarketConnectivityStatus, (int)FeedSyncStatus);
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FeedMarketConnectivityStatus), FeedMarketConnectivityStatus)
             .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)
             .Complete();

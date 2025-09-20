@@ -10,7 +10,7 @@ using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
-namespace FortitudeTests.FortitudeCommon.Types.StyledToString.StyledTypes;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 [NoMatchingProductionClass]
 public class TestStringAppendCollections

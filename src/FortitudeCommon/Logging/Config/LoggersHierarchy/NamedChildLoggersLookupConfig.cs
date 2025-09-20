@@ -213,8 +213,8 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
         return hashCode;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartKeyedCollectionType(this)
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
            .AddAll(loggersByName)
            .Complete();
 

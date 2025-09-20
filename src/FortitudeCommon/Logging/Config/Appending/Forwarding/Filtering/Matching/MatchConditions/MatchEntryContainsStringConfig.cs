@@ -115,8 +115,8 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
            .Field.AlwaysAdd(nameof(MatchOn), MatchOn)
            .Field.AlwaysAdd(nameof(EntryContains), EntryContains)

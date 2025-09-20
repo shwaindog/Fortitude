@@ -224,8 +224,8 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStringBearer
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this).Complete();
 
     public override string ToString() => this.DefaultToString();

@@ -230,8 +230,8 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
         return true;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.WhenNonNullAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(MyLocation), MyLocation)
             .KeyedCollectionField.AlwaysAddAll(nameof(Markets), Markets)

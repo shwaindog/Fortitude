@@ -49,8 +49,8 @@ public class QueueContext : IQueueContext
     public IMessageQueueList<IMessageQueue> GetEventQueues(MessageQueueType selector) =>
         configureMessageBus.AllMessageQueues.SelectEventQueues(selector);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(RegisteredOn), RegisteredOn)
             .Field.AlwaysAdd(nameof(QueueTimer), QueueTimer)
             .Complete();

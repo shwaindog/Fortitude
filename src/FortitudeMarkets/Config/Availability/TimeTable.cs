@@ -453,8 +453,8 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(OperatingTimeZone), OperatingTimeZone.Id)
             .Field.AlwaysAdd(nameof(WeeklyTimeTableConfig), WeeklyTimeTableConfig)
             .CollectionField.AlwaysAddAll(nameof(CalendarHolidays), CalendarHolidays)

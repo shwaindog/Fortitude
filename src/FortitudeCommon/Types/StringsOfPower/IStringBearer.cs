@@ -15,7 +15,7 @@ public class CreatesParamsObjectArray : System.Attribute { }
 
 public interface IStringBearer
 {
-    StateExtractStringRange RevealState(ITheOneString stsa);
+    StateExtractStringRange RevealState(ITheOneString tos);
 }
 
 public interface IReceivesNotificationOfStringBearer : IStringBearer

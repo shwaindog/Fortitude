@@ -5,9 +5,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using FortitudeTests.FortitudeCommon.Types.StyledToString.StyledTypes.TestData;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData;
 
-namespace FortitudeTests.FortitudeCommon.Types.StyledToString.StyledTypes.StyleFormatting;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 [TestClass]
 [NoMatchingProductionClass]

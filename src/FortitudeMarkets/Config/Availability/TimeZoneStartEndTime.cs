@@ -95,8 +95,8 @@ public class TimeZoneStartStopTimeConfig : ConfigSection, ITimeZoneStartStopTime
 
     public override int GetHashCode() => HashCode.Combine(StartTime, StopTime, OverrideTimeZone);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString sbc) => 
-        sbc.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(OverrideTimeZone), this[nameof(OverrideTimeZone)])
            .Field.AlwaysAdd(nameof(ParentTimeZone), ParentTimeZone?.Id)
            .Field.AlwaysAdd(nameof(StartTime), StartTime)

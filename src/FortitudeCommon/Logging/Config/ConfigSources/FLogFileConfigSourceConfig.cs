@@ -116,8 +116,8 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(FilePath), FilePath)
            .Field.AlwaysAdd(nameof(FileSystemMonitored), FileSystemMonitored)

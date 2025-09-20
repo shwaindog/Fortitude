@@ -1050,8 +1050,8 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(TimeBoundaryPeriod), TimeBoundaryPeriod)
             .Field.AlwaysAdd(nameof(PeriodStartTime), PeriodStartTime)
             .Field.AlwaysAdd(nameof(PeriodEndTime), PeriodEndTime)

@@ -22,6 +22,10 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullOrDefaultAdd<TFmt>(string fieldName, TFmt? value, TFmt? defaultValue = default
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TFmt : ISpanFormattable => 
         !stb.SkipFields && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    
+    public TExt WhenNonNullOrDefaultAdd<TStructFmt>(string fieldName, TStructFmt? value, TStructFmt? defaultValue = default
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TStructFmt : struct, ISpanFormattable => 
+        !stb.SkipFields && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd<TToStyle, TStylerType>(string fieldName, TToStyle? value
       , StringBearerRevealState<TStylerType> stringBearerRevealState, TToStyle? defaultValue = default) where TToStyle : TStylerType =>

@@ -143,8 +143,8 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.WhenNonDefaultAdd(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
            .Field.WhenNonNullOrDefaultAdd(nameof(InheritFromAppenderName), InheritFromAppenderName)

@@ -126,8 +126,8 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
            .Field.AlwaysAdd(nameof(FlushLogLevel), FlushLogLevel)

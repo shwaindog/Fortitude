@@ -199,8 +199,8 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
            .Field.AlwaysAdd(nameof(OnSequenceAbort), OnSequenceAbort)
            .Field.AlwaysAdd(nameof(OnSequenceTimeout), OnSequenceTimeout)

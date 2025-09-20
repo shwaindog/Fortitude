@@ -271,8 +271,8 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(SourceBidTime), SourceBidTime, "O")
             .Field.AlwaysAdd(nameof(ValidFrom), ValidFrom, "O")
@@ -619,8 +619,8 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
 
     public override string QuoteToStringMembers => $"{base.QuoteToStringMembers}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
 
-    public override StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(QuoteContainer), QuoteContainer)
             .Field.AlwaysAdd(nameof(ConflatedTicksCandle), ConflatedTicksCandle)

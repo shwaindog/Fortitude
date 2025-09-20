@@ -125,8 +125,8 @@ public class EndpointConfig : ConfigSection, IEndpointConfig
         return hashCode.ToHashCode();
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(Hostname), Hostname)
             .Field.AlwaysAdd(nameof(Port), Port)
             .Field.AlwaysAdd(nameof(InstanceName), InstanceName)

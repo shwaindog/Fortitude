@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
@@ -19,14 +20,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<bool[], bool>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -45,14 +57,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<bool?[], bool?>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -74,14 +97,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<TFmt[], TFmt>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -103,14 +137,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<TFmtStruct?[], TFmtStruct?>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -131,14 +176,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<TToStyle[], TToStyle>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, stringBearerRevealState);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -159,14 +215,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<string?[], string?>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -188,14 +255,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<TCharSeq?[], TCharSeq?>(value);
                 }
                 eoctb.AddCharSequenceElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -215,14 +293,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<StringBuilder?[], StringBuilder?>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -243,14 +332,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Length; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<T[], T>(value);
                 }
                 eoctb.AddMatchElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -270,14 +370,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<IReadOnlyList<bool>, bool?>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -296,14 +407,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<IReadOnlyList<bool?>, bool?>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -324,14 +446,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<IReadOnlyList<TFmt>, TFmt>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -352,14 +485,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<IReadOnlyList<TFmtStruct?>, TFmtStruct?>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -380,14 +524,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<IReadOnlyList<TToStyle>, TToStyle>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, stringBearerRevealState);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -407,14 +562,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<IReadOnlyList<string?>, string?>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -435,14 +601,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<IReadOnlyList<TCharSeq?>, TCharSeq?>(value);
                 }
                 eoctb.AddCharSequenceElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -463,14 +640,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<IReadOnlyList<StringBuilder?>, StringBuilder?>(value);
                 }
                 eoctb.AddElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
@@ -491,14 +679,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             for (var i = 0; i < value.Count; i++)
             {
-                var item = value[i];
-                if (!filterPredicate(i, item)) continue;
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
                 if (eoctb == null)
                 {
                     stb.FieldNameJoin(fieldName);
                     eoctb = stb.Master.StartExplicitCollectionType<IReadOnlyList<T?>, T?>(value);
                 }
                 eoctb.AddMatchElementAndGoToNextElement(item, formatString);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
             }
         }
         if (eoctb != null)
