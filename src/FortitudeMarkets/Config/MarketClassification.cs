@@ -5,7 +5,7 @@
 
 using System.Text;
 using System.Text.Json.Serialization;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower;
 using FortitudeMarkets.Pricing;
 
 #endregion
@@ -258,7 +258,7 @@ public struct MarketClassification : IEquatable<MarketClassification>
 
     public override int GetHashCode() => (int)CompoundedClassification;
 
-    public static CustomTypeStyler<MarketClassification> Styler { get; } =
+    public static StringBearerRevealState<MarketClassification> Styler { get; } =
         (mc, stsa) =>
             stsa.StartComplexType(mc, nameof(mc))
                 .Field.AlwaysAddObject(nameof(mc.AssetType), mc.AssetType)

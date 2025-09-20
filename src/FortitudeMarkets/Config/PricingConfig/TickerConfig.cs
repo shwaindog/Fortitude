@@ -6,8 +6,8 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeMarkets.Config.Availability;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -18,7 +18,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.PricingConfig;
 
-public interface ITickerConfig : IInterfacesComparable<ITickerConfig>, IWeeklyAvailability, IStyledToStringObject
+public interface ITickerConfig : IInterfacesComparable<ITickerConfig>, IWeeklyAvailability, IStringBearer
 {
     ushort  InstrumentId          { get; set; }
     string  InstrumentName        { get; set; }
@@ -425,8 +425,8 @@ public class TickerConfig : ConfigSection, ITickerConfig
         return hashCode.ToHashCode();
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this, nameof(TickerConfig))
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this, nameof(TickerConfig))
             .Field.AlwaysAdd(nameof(InstrumentId), InstrumentId)
             .Field.AlwaysAdd(nameof(InstrumentName), InstrumentName)
             .Field.AlwaysAdd(nameof(TickerAvailability), TickerAvailability)

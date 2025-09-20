@@ -3,8 +3,9 @@
 
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Options;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
@@ -13,33 +14,33 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
 {
     protected IStringBuilder MessageSb = null!;
 
-    protected IStyledTypeStringAppender MessageStsa = null!;
+    protected ITheOneString MessageStsa = null!;
 
     protected bool NextPostAppendIsNewLine;
 
     public FLogStringAppender() { }
 
-    public FLogStringAppender(FLogEntry flogEntry, IStyledTypeStringAppender useStyleTypeStringBuilder
+    public FLogStringAppender(FLogEntry flogEntry, ITheOneString useStyleTypeTheOneStringBuilder
       , Action<IStringBuilder?> callWhenComplete)
     {
-        Initialize(flogEntry, useStyleTypeStringBuilder, callWhenComplete);
+        Initialize(flogEntry, useStyleTypeTheOneStringBuilder, callWhenComplete);
     }
 
     public FLogStringAppender(IFLogStringAppender toClone)
     {
         // ReSharper disable once VirtualMemberCallInConstructor
-        IStyledTypeStringAppender? mesgStsa = Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(toClone.Style);
+        ITheOneString? mesgStsa = Recycler?.Borrow<TheOneString>() ?? new TheOneString(toClone.Style);
         mesgStsa.ClearAndReinitialize(toClone.Style);
         MessageSb   = mesgStsa.WriteBuffer;
         MessageStsa = mesgStsa;
     }
 
-    public FLogStringAppender Initialize(FLogEntry flogEntry, IStyledTypeStringAppender useStyleTypeStringBuilder
+    public FLogStringAppender Initialize(FLogEntry flogEntry, ITheOneString useStyleTypeTheOneStringBuilder
       , Action<IStringBuilder?> callWhenComplete)
     {
         base.Initialize(flogEntry, callWhenComplete);
 
-        MessageStsa = useStyleTypeStringBuilder;
+        MessageStsa = useStyleTypeTheOneStringBuilder;
         MessageSb   = MessageStsa.WriteBuffer;
 
         return this;
@@ -55,7 +56,7 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
 
     public int Count => MessageSb.Length;
 
-    public StringBuildingStyle Style => MessageStsa.Style;
+    public StringStyle Style => MessageStsa.Style;
 
     public IFLogStringAppender DecrementIndent()
     {
@@ -122,10 +123,10 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
         CallOnComplete();
     }
 
-    protected override IStyledTypeStringAppender? PreappendCheckGetStringAppender<T>(T param, [CallerMemberName] string memberName = "") =>
+    protected override ITheOneString? PreappendCheckGetStringAppender<T>(T param, [CallerMemberName] string memberName = "") =>
         MessageStsa;
 
-    protected override IFLogStringAppender? PostAppendContinueOnMessageEntry<T>(IStyledTypeStringAppender? justAppended, T param,
+    protected override IFLogStringAppender? PostAppendContinueOnMessageEntry<T>(ITheOneString? justAppended, T param,
         [CallerMemberName] string memberName = "")
     {
         if (NextPostAppendIsLast) return CallOnComplete();
@@ -161,9 +162,9 @@ public static class FLogStringAppenderExtensions
         return toReturn;
     }
 
-    public static FLogStringAppender AppendLine(this IStyledTypeStringAppender? stsa, FLogStringAppender toReturn) =>
+    public static FLogStringAppender AppendLine(this ITheOneString? stsa, FLogStringAppender toReturn) =>
         stsa?.WriteBuffer.AppendLine(toReturn) ?? toReturn;
 
     public static FLogStringAppender ToAppender(this IStringBuilder _, FLogStringAppender toReturn)             => toReturn;
-    public static FLogStringAppender ToAppender(this IStyledTypeStringAppender? _, FLogStringAppender toReturn) => toReturn;
+    public static FLogStringAppender ToAppender(this ITheOneString? _, FLogStringAppender toReturn) => toReturn;
 }

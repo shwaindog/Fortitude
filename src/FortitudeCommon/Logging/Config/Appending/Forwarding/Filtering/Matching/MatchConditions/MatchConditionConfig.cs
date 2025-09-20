@@ -3,14 +3,14 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
 
 public interface IMatchConditionConfig : IFLogConfig, IConfigCloneTo<IMatchConditionConfig>
-  , IInterfacesComparable<IMatchConditionConfig>, IStyledToStringObject
+  , IInterfacesComparable<IMatchConditionConfig>, IStringBearer
 {
     FLoggerEntryMatchType CheckConditionType { get; set; }
 }
@@ -75,8 +75,8 @@ public abstract class MatchConditionConfig : FLogConfig, IMutableMatchConditionC
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
            .Complete();
 }

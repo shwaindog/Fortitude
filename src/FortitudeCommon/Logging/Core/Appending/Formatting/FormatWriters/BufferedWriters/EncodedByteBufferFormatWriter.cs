@@ -6,7 +6,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 

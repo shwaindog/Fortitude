@@ -8,8 +8,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 
@@ -134,8 +134,8 @@ public class QuoteWrappingCandle : ReusableObject<ICandle>, ICandle, ICloneable<
     public static ICandle Wrap(IPublishableLevel1Quote level1Quote, IRecycler? recycler = null) =>
         recycler?.Borrow<QuoteWrappingCandle>().CopyFrom(level1Quote) ?? new QuoteWrappingCandle(level1Quote);
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(level1Quote), level1Quote)
             .Field.AlwaysAdd(nameof(TimeBoundaryPeriod), TimeBoundaryPeriod)
             .Field.AlwaysAdd(nameof(PeriodStartTime), PeriodStartTime)

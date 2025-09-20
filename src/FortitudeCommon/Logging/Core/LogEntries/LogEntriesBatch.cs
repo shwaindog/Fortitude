@@ -3,17 +3,18 @@
 
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
-public interface ILogEntriesBatch : IReusableList<IFLogEntry>, IStyledToStringObject { }
+public interface ILogEntriesBatch : IReusableList<IFLogEntry>, IStringBearer { }
 
 public class LogEntriesBatch : ReusableList<IFLogEntry>, ILogEntriesBatch
 {
-    private static readonly OrderedCollectionPredicate<IFLogEntry> FirstThree =
-        (count, _) => count < 3;
+    private static readonly OrderedCollectionPredicate<IFLogEntry> FirstThree
+        = CollectionFilterExtensions.ResolveAcceptFirstOrderedCollectionItemsPredicate<IFLogEntry>(3);
     public LogEntriesBatch() { }
     public LogEntriesBatch(IRecycler recycler, int size = 16) : base(recycler, size) { }
     public LogEntriesBatch(int size = 16) : base(size) { }
@@ -22,9 +23,9 @@ public class LogEntriesBatch : ReusableList<IFLogEntry>, ILogEntriesBatch
     public IReadOnlyList<IFLogEntry> AsReadOnly => this;
     public IEnumerable<IFLogEntry> AsEnumerable => this;
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexCollectionType(this)
-            .LogOnlyField.AlwaysAdd(nameof(RefCount), RefCount)
-            .LogOnlyField.AlwaysAdd(nameof(Count), Count)
-            .AddFilteredStyled(AsReadOnly, FirstThree).Complete();
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexCollectionType(this)
+           .LogOnlyField.AlwaysAdd(nameof(RefCount), RefCount)
+           .LogOnlyField.AlwaysAdd(nameof(Count), Count)
+           .AddFilteredStyled(AsReadOnly, FirstThree).Complete();
 }

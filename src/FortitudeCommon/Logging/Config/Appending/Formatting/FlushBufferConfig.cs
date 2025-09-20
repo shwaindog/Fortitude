@@ -5,13 +5,13 @@ using System.Globalization;
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 
-public interface IFlushBufferConfig : IFLogConfig, IStyledToStringObject, IConfigCloneTo<IFlushBufferConfig>
+public interface IFlushBufferConfig : IFLogConfig, IStringBearer, IConfigCloneTo<IFlushBufferConfig>
   , IInterfacesComparable<IFlushBufferConfig>
 {
     const decimal DefaultBufferSizeTriggerPercentage = 0.90m;
@@ -145,8 +145,8 @@ public class FlushBufferConfig : FLogConfig, IMutableFlushBufferConfig
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(WriteTriggeredAtBufferPercentage), WriteTriggeredAtBufferPercentage)
            .Field.AlwaysAdd(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)
            .Field.AlwaysAdd(nameof(AutoTriggeredAfterTimeSpan), AutoTriggeredAfterTimeSpan)

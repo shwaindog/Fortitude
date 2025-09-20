@@ -2,8 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
@@ -16,10 +16,10 @@ public partial class FLogAdditionalFormatterParameterEntry
     public void AndFinalParam<TFmt>(TFmt value) where TFmt : ISpanFormattable =>
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType =>
-        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler).CallEnsureNoMoreTokensAndComplete(value);
+    public void AndFinalParam<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType =>
+        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, stringBearerRevealState).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType
+    public void AndFinalParam<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType
     {
         FormatSb.Clear();
         AppendStyled(valueTuple, FormatStsa!);
@@ -110,7 +110,7 @@ public partial class FLogAdditionalFormatterParameterEntry
     public void AndFinalParam(StringBuilder? value, int startIndex, int count = int.MaxValue) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void AndFinalParam(IStyledToStringObject? value) =>
+    public void AndFinalParam(IStringBearer? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
     public void AndFinalObjectParam(object? value) =>

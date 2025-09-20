@@ -2,7 +2,7 @@
 
 using System.Text;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 #endregion
 

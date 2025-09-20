@@ -14,7 +14,7 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;

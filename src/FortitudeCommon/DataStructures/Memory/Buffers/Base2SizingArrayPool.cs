@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.DataStructures.Memory.Buffers;
 

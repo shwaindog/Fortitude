@@ -6,7 +6,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 

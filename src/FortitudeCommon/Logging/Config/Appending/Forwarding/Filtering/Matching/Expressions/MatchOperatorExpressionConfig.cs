@@ -5,14 +5,14 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 
 public interface IMatchOperatorExpressionConfig : IFLogConfig, IConfigCloneTo<IMatchOperatorExpressionConfig>
-  , IInterfacesComparable<IMatchOperatorExpressionConfig>, IStyledToStringObject
+  , IInterfacesComparable<IMatchOperatorExpressionConfig>, IStringBearer
 {
     ushort EvaluateOrder { get; }
 
@@ -281,8 +281,8 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(EvaluateOrder), EvaluateOrder)
            .Field.WhenNonNullAddStyled(nameof(All), All)
            .Field.WhenNonNullAddStyled(nameof(Any), Any)

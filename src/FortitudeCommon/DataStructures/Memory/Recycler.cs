@@ -61,6 +61,25 @@ public class Recycler : IRecycler
         return this;
     }
 
+    public bool HasFactory(Type type) => newItemFactory.ContainsKey(type);
+    public bool HasFactory<T>() => newItemFactory.ContainsKey(typeof(T));
+
+    public int ReleasePooledItemsWithNewFactory<T>(Func<T> constructionFactory)
+    {
+        var type             = typeof(T);
+        newItemFactory.AddOrUpdate(type, _ => constructionFactory, (_, _) => constructionFactory);
+        var hasExisting = poolFactoryMap.TryGetValue(type, out var poolFactoryContainer);
+        if (hasExisting)
+        {
+            var newInstanceFunc = constructionFactory;
+            poolFactoryContainer = (IPooledFactory)ReflectionHelper.InstantiateGenericType
+                (typeof(GarbageAndLockFreePooledFactory<>), [type], newInstanceFunc, 4);
+            poolFactoryMap.TryAdd(type, poolFactoryContainer);
+            return poolFactoryContainer.Count;
+        }
+        return 0;
+    }
+
     public static IRecycler ThreadStaticRecycler
     {
         get => threadStaticRecycler ??= new Recycler();

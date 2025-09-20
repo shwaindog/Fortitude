@@ -4,7 +4,7 @@
 using System.Globalization;
 using System.Text;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeTests.FortitudeCommon.Logging.Core.LogEntries.MessageBuilders;
 

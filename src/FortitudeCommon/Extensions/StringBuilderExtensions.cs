@@ -2,7 +2,7 @@
 using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Extensions;
 

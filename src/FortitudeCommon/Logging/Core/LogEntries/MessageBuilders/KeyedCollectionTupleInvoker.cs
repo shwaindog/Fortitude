@@ -4,14 +4,15 @@
 using System.Reflection;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders;
 
 public abstract partial class FLogEntryMessageBuilder
 {
-    private Action<T, IStyledTypeStringAppender>? CheckKeyedCollectionForInvoker<T>(T maybeCollection, Type collectionType)
+    private Action<T, ITheOneString>? CheckKeyedCollectionForInvoker<T>(T maybeCollection, Type collectionType)
     {
         try
         {
@@ -41,7 +42,7 @@ public abstract partial class FLogEntryMessageBuilder
         return null;
     }
 
-    private Action<T, IStyledTypeStringAppender>? CheckKeyedCollectionFor2ItemTupleInvoker<T>(T tuple, Type tupleType, Type item1Type, Type item2Type)
+    private Action<T, ITheOneString>? CheckKeyedCollectionFor2ItemTupleInvoker<T>(T tuple, Type tupleType, Type item1Type, Type item2Type)
     {
         try
         {
@@ -99,7 +100,7 @@ public abstract partial class FLogEntryMessageBuilder
         return null;
     }
 
-    private Action<T, IStyledTypeStringAppender>? CheckKeyedCollectionFor3ItemTupleInvoker<T>(T tuple, Type tupleType, Type item1Type, Type item2Type
+    private Action<T, ITheOneString>? CheckKeyedCollectionFor3ItemTupleInvoker<T>(T tuple, Type tupleType, Type item1Type, Type item2Type
       , Type item3Type)
     {
         try
@@ -158,7 +159,7 @@ public abstract partial class FLogEntryMessageBuilder
         return null;
     }
 
-    private Action<T, IStyledTypeStringAppender>? CheckKeyedCollectionFor4ItemTupleInvoker<T>(T tuple, Type tupleType, Type item1Type, Type item2Type
+    private Action<T, ITheOneString>? CheckKeyedCollectionFor4ItemTupleInvoker<T>(T tuple, Type tupleType, Type item1Type, Type item2Type
       , Type item3Type, Type item4Type)
     {
         try
@@ -188,7 +189,7 @@ public abstract partial class FLogEntryMessageBuilder
         return null;
     }
 
-    private Action<T, IStyledTypeStringAppender> TryBuildKeyValueIterableInvoker<T>(T iterableToAppend, Type iterableType
+    private Action<T, ITheOneString> TryBuildKeyValueIterableInvoker<T>(T iterableToAppend, Type iterableType
       , KeyValuePair<Type, Type> keyedCollectionTypes)
     {
         var iterableIsNotEnumerable = iterableType.IsNotEnumerable();
@@ -204,7 +205,7 @@ public abstract partial class FLogEntryMessageBuilder
             var methodParams = mi.GetParameters();
             if (methodParams.Length != 2) continue;
             var methParam2 = methodParams[1].ParameterType;
-            if (methParam2 != typeof(IStyledTypeStringAppender)) continue;
+            if (methParam2 != typeof(ITheOneString)) continue;
             var methParam1 = methodParams[0].ParameterType;
             if (!methParam1.IsGenericType) continue;
             var p1Item1NotEnumerable = iterableType.IsNotEnumerable();
@@ -225,7 +226,7 @@ public abstract partial class FLogEntryMessageBuilder
         return invokeAppend;
     }
 
-    private Action<T, IStyledTypeStringAppender> TryBuildKeyedCollectionInvoker<T>(T collectionToAppend, Type collectionType,
+    private Action<T, ITheOneString> TryBuildKeyedCollectionInvoker<T>(T collectionToAppend, Type collectionType,
         KeyValuePair<Type, Type> keyedCollectionTypes)
     {
         var collectionIsNotReadOnlyDictionaryType = collectionType.IsNotReadOnlyDictionaryType();
@@ -242,7 +243,7 @@ public abstract partial class FLogEntryMessageBuilder
             var methodParams = mi.GetParameters();
             if (methodParams.Length != 2) continue;
             var methParam2Type = methodParams[1].ParameterType;
-            if (methParam2Type != typeof(IStyledTypeStringAppender)) continue;
+            if (methParam2Type != typeof(ITheOneString)) continue;
             var methParam1Type               = methodParams[0].ParameterType;
             var p1Item1NotReadOnlyDict       = methParam1Type.IsNotReadOnlyDictionaryType();
             var p1Item1NotArray              = methParam1Type.IsNotArray();
@@ -265,7 +266,7 @@ public abstract partial class FLogEntryMessageBuilder
         return invokeAppend;
     }
 
-    private Action<T, IStyledTypeStringAppender> TryBuildKeyValueIterableFormatInvoker<T>(T toAppend, Type tupleType, Type item1IterableType
+    private Action<T, ITheOneString> TryBuildKeyValueIterableFormatInvoker<T>(T toAppend, Type tupleType, Type item1IterableType
       , KeyValuePair<Type, Type> keyedCollectionTypes, Type item2Formatter, Type? item3Formatter = null)
     {
         var iterableIsNotEnumerable = item1IterableType.IsNotEnumerable();
@@ -281,7 +282,7 @@ public abstract partial class FLogEntryMessageBuilder
             var methodParams = mi.GetParameters();
             if (methodParams.Length != 2) continue;
             var methParam2 = methodParams[1].ParameterType;
-            if (methParam2 != typeof(IStyledTypeStringAppender)) continue;
+            if (methParam2 != typeof(ITheOneString)) continue;
             var methParam1 = methodParams[0].ParameterType;
             if (!methParam1.IsGenericType) continue;
             var genericValueTuple = methParam1.GetGenericTypeDefinition();
@@ -313,7 +314,7 @@ public abstract partial class FLogEntryMessageBuilder
         return invokeAppend;
     }
 
-    private Action<T, IStyledTypeStringAppender> TryBuildKeyedCollectionFormatInvoker<T>(T toAppend, Type typeOfT, Type item1KeyedCollection
+    private Action<T, ITheOneString> TryBuildKeyedCollectionFormatInvoker<T>(T toAppend, Type typeOfT, Type item1KeyedCollection
       , KeyValuePair<Type, Type> keyedCollectionTypes, Type item2Formatter, Type? item3Formatter = null)
     {
         var collectionIsNotReadOnlyDictionaryType = item1KeyedCollection.IsNotReadOnlyDictionaryType();
@@ -330,7 +331,7 @@ public abstract partial class FLogEntryMessageBuilder
             var methodParams = mi.GetParameters();
             if (methodParams.Length != 2) continue;
             var methParam2 = methodParams[1].ParameterType;
-            if (methParam2 != typeof(IStyledTypeStringAppender)) continue;
+            if (methParam2 != typeof(ITheOneString)) continue;
             var methParam1 = methodParams[0].ParameterType;
             if (!methParam1.IsGenericType) continue;
             var genericValueTuple = methParam1.GetGenericTypeDefinition();
@@ -364,7 +365,7 @@ public abstract partial class FLogEntryMessageBuilder
         return invokeAppend;
     }
 
-    private Action<T, IStyledTypeStringAppender> TryBuildFilteredKeyedCollectionFormatInvoker<T>
+    private Action<T, ITheOneString> TryBuildFilteredKeyedCollectionFormatInvoker<T>
     (T toAppend, Type tupleType, Type item1IndexableColl, KeyValuePair<Type, Type> keyedCollectionTypes
       , Type item2FilterPredicate, Type? item3Formatter = null, Type? item4Formatter = null)
     {
@@ -386,7 +387,7 @@ public abstract partial class FLogEntryMessageBuilder
             var methodParams = mi.GetParameters();
             if (methodParams.Length != 2) continue;
             var methParam2 = methodParams[1].ParameterType;
-            if (methParam2 != typeof(IStyledTypeStringAppender)) continue;
+            if (methParam2 != typeof(ITheOneString)) continue;
             var methParam1 = methodParams[0].ParameterType;
             if (!methParam1.IsGenericType) continue;
             var genericValueTuple = methParam1.GetGenericTypeDefinition();

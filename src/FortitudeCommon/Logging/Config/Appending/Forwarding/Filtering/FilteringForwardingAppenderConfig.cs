@@ -4,8 +4,8 @@
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering;
@@ -107,8 +107,8 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(When), When)
            .Complete();

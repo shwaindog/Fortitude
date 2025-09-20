@@ -7,7 +7,7 @@ using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.RequestsCache;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
@@ -67,7 +67,7 @@ public class CharSpanReturningLogEntryFormatter : RecyclableObject, IFormatWrite
 
     public IFormatWriter GetOrWaitForFormatWriter(int timeout = 2000) => this;
 
-    public void ReceiveFormatWriterHandler(IFormatWriter writer) { }
+    public bool ReceiveFormatWriterHandler(IFormatWriter writer) => true;
 
     public void IssueRequestAborted() { }
 

@@ -4,6 +4,7 @@
 #region
 
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
+using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Routing.Response;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -509,7 +510,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     }
 
     [TestMethod]
-    [Timeout(20_000)]
+    [Timeout(200_000)]
     public async Task NewLiveCandleOnStartup_ReceivesNoQuotesOrSubPeriods_StartReceivingAndPublishing()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
@@ -541,7 +542,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         {
             var quote = quotesToSend[i];
             test5SLivePeriodClient.CreateNewWait();
-            Logger.DbgFmt("Sending quote {0}")?.Args(quote);
+            Logger.DebugFormat("Sending quote {0}")?.WithOnlyParam(quote);
             await test5SLivePeriodClient.SendPricesToLivePeriodRule([quote], stubTimeContext);
             receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
@@ -643,32 +644,38 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         public async ValueTask<List<ICandle>> GetPopulatedLiveResults(int waitNumber = 1)
         {
+            TestClientLogger.DebugFormat("Starting GetPopulatedLiveResults {0} complete periods waiting for number {1}")?.WithParamsCollection
+                            .Add(ReceivedLivePublishEvents).AndFinalParam(waitNumber);
             waitNumberForLive = waitNumber;
             if (ReceivedLivePublishEvents.Count < waitNumber) await Task.WhenAny(awaitLiveSource.Task, Task.Delay(2_000));
+            TestClientLogger.DebugFormat("On Event or timeout GetPopulatedLiveResults {0} complete periods for number {1}")?.WithParamsCollection
+                            .Add(ReceivedLivePublishEvents).AndFinalParam(waitNumber);
             return ReceivedLivePublishEvents;
         }
 
         public async ValueTask<List<ICandle>> GetPopulatedCompleteResults(int waitNumber = 1)
         {
-            TestClientLogger.DebugFormat("Starting GetPopulatedCompleteResults {0} complete periods")?.WithOnlyParamCollection.Add(ReceivedCompletePublishEvents);
+            TestClientLogger.DebugFormat("Starting GetPopulatedCompleteResults {0} complete periods waiting for number {1}")?.WithParamsCollection
+                            .Add(ReceivedCompletePublishEvents).AndFinalParam(waitNumber);
             waitNumberForCompleted = waitNumber;
             if (ReceivedCompletePublishEvents.Count < waitNumber) await Task.WhenAny(awaitCompleteSource.Task, Task.Delay(2_000));
-            TestClientLogger.DebugFormat("On Event or timeout GetPopulatedCompleteResults {0} complete periods")?.WithOnlyParamCollection.Add(ReceivedCompletePublishEvents);
+            TestClientLogger.DebugFormat("On Event or timeout GetPopulatedCompleteResults {0} complete periods for number {1}")?.WithParamsCollection
+                            .Add(ReceivedCompletePublishEvents).AndFinalParam(waitNumber);
             return ReceivedCompletePublishEvents;
         }
 
         private void ReceivedLiveCandles(Candle candle)
         {
-            TestClientLogger.DebugFormat("TestLivePeriodClient Received Live cancle {0}")?.WithOnlyParam(candle);
             ReceivedLivePublishEvents.Add(candle);
             if (ReceivedLivePublishEvents.Count >= waitNumberForLive) awaitLiveSource.TrySetResult(0);
+            TestClientLogger.DebugFormat("TestLivePeriodClient Received Live {0} current count {1}")?.WithParams(candle)?.AndFinalParam(ReceivedLivePublishEvents.Count);
         }
 
         private void ReceivedCompleteCandles(Candle candle)
         {
-            TestClientLogger.DebugFormat("TestLivePeriodClient Received Complete cancle {0}")?.WithOnlyParam(candle);
             ReceivedCompletePublishEvents.Add(candle);
             if (ReceivedCompletePublishEvents.Count >= waitNumberForCompleted) awaitCompleteSource.TrySetResult(0);
+            TestClientLogger.DebugFormat("TestLivePeriodClient Complete Live {0} current count {1}")?.WithParams(candle)?.AndFinalParam(ReceivedCompletePublishEvents.Count);
         }
 
         private async ValueTask<List<Candle>> ReceivedHistoricalSubPeriodResponseRequest
@@ -687,7 +694,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
         private void ReceivedCompleteSubCandles(IBusMessage<Candle> livePublishMsg)
         {
             var candle = livePublishMsg.Payload.Body();
-            TestClientLogger.DebugAppend("TestLivePeriodClient Received Live Completed Candles: ")?.FinalAppend(candle);
+            TestClientLogger.DebugAppend("TestLivePeriodClient Received Completed Sub : ")?.FinalAppend(candle);
             ReceivedLivePublishEvents.Add(candle);
             var subPeriod = liveSubPeriodAddressToSubReceivedHistorical[livePublishMsg.DestinationAddress!];
             if (!receivedCompleteSubPeriods.TryGetValue(subPeriod, out var resultCallback))

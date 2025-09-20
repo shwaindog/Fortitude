@@ -7,8 +7,8 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Protocols;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -983,8 +983,8 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     protected string JustFeedStatusToStringMembers =>
         $"{nameof(FeedMarketConnectivityStatus)}: {FeedMarketConnectivityStatus}, {nameof(FeedSyncStatus)}: {FeedSyncStatus}, {nameof(PQSequenceId)}: {PQSequenceId}";
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FeedMarketConnectivityStatus), FeedMarketConnectivityStatus)
             .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)
             .Field.WhenNonDefaultAdd(nameof(ClientReceivedTime), ClientReceivedTime, DateTime.MinValue, "{0:O}")

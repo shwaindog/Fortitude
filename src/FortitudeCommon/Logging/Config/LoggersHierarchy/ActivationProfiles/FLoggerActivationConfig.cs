@@ -4,8 +4,8 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
@@ -70,8 +70,8 @@ public class FLoggerActivationConfig : FLogBuildTypeAndDeployEnvConfig, IMutable
         new (this, configRoot, path);
     
     
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(LoggerActivationFlags), LoggerActivationFlags)
            .AddBaseStyledToStringFields(this)
            .Complete();

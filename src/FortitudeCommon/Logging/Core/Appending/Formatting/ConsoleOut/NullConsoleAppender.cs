@@ -7,7 +7,7 @@ using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 

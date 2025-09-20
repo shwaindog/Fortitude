@@ -8,7 +8,7 @@ using System.Text.Json.Nodes;
 using FortitudeCommon.Config;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.ExampleConfig;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types;
 
 namespace FortitudeTests.FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;

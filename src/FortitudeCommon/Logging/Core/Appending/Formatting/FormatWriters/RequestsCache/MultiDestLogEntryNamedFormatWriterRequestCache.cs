@@ -86,7 +86,7 @@ public class MultiDestLogEntryNamedFormatWriterRequestCache : IBufferedFormatWri
                     var requestHandle =
                         Recycler.ThreadStaticRecycler
                                 .Borrow<BlockingFormatWriterResolverHandle>()
-                                .Initialize(logEntry, owningAppender, CloseRequestHandleDisposed, closedDestDummySyncLock);
+                                .Initialize(logEntry, Thread.CurrentThread, owningAppender, CloseRequestHandleDisposed, closedDestDummySyncLock);
                     requestHandle.IssueRequestAborted();
                     pathResolver.DecrementRefCount();
 

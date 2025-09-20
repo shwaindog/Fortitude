@@ -5,8 +5,8 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
 
 namespace FortitudeCommon.Logging.Core.Hub;
 
@@ -26,14 +26,14 @@ public record RegisteredStringSerializer
         else if (Serializer is Action<T, IStringBuilder> actionSerializer) actionSerializer.Invoke(toSerialize, toAppendTo);
     }
 
-    public void Invoke<T>(T toSerialize, IStyledTypeStringAppender toAppendTo)
+    public void Invoke<T>(T toSerialize, ITheOneString toAppendTo)
     {
         if (!UsesStyleAppender)
         {
             Invoke(toSerialize, toAppendTo.WriteBuffer);
             return;
         }
-        if (Serializer is Action<T, IStyledTypeStringAppender> actionSerializer) actionSerializer.Invoke(toSerialize, toAppendTo);
+        if (Serializer is Action<T, ITheOneString> actionSerializer) actionSerializer.Invoke(toSerialize, toAppendTo);
     }
 }
 
@@ -52,7 +52,7 @@ public static class FLogStringSerializerRegistry
         ExternalRegisteredSerializer.TryAdd(typeOfT, new RegisteredStringSerializer(typeOfT, toRegister, registeredFrom));
     }
 
-    public static void RegisterTypeSerializer<T>(Action<T, IStyledTypeStringAppender> toRegister,
+    public static void RegisterTypeSerializer<T>(Action<T, ITheOneString> toRegister,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
         var registeredFrom = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
@@ -61,7 +61,7 @@ public static class FLogStringSerializerRegistry
         ExternalRegisteredSerializer.TryAdd(typeOfT, new RegisteredStringSerializer(typeOfT, toRegister, registeredFrom));
     }
 
-    public static void AutoRegisterSerializerFor<T>(Action<T, IStyledTypeStringAppender> autoCreatedSerializer, FLogCallLocation callLocation)
+    public static void AutoRegisterSerializerFor<T>(Action<T, ITheOneString> autoCreatedSerializer, FLogCallLocation callLocation)
     {
         var typeOfT = typeof(T);
 

@@ -3,7 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serdes;
 

@@ -6,6 +6,8 @@
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
@@ -14,6 +16,7 @@ using FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Publication;
+using IFLogger = FortitudeCommon.Monitoring.Logging.IFLogger;
 
 #endregion
 
@@ -22,7 +25,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 [TestClass]
 public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
-    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientFeedRuleTests));
+    private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
     private ManualResetEvent haveReceivedPriceManualResetEvent = null!;
 
@@ -54,7 +57,7 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
     [TestCleanup]
     public void TearDown()
     {
-        logger.Info("Test complete starting services shutdown");
+        Logger.Info("Test complete starting services shutdown");
         pqServerL3QuoteServerSetup.TearDown();
         TearDownMessageBus();
         // FLoggerFactory.GracefullyTerminateProcessLogging();
@@ -67,19 +70,19 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         await using var clientDeploy
             = await EventQueue1.LaunchRuleAsync(pqPricingClientFeedRule, pqPricingClientFeedRule, EventQueue1SelectionResult);
-        logger.Info("Deployed pricing client");
+        Logger.Info("Deployed pricing client");
         await using var testSubscribeDeploy
             = await CustomQueue1.LaunchRuleAsync(pqPricingClientFeedRule, testSubscribeToTickerRule, CustomQueue1SelectionResult);
-        logger.Info("Deployed client listening rule");
+        Logger.Info("Deployed client listening rule");
         await Task.Delay(20); // NEED this to allow tasks above to dispatch any callbacks
         var receivedSnapshotTick = haveReceivedPriceManualResetEvent.WaitOne(8_000);
         Assert.IsTrue(receivedSnapshotTick, "Did not receive snapshot response tick from the client before timeout was reached");
         haveReceivedPriceManualResetEvent.Reset();
-        logger.Info("Received snapshot await update");
+        Logger.Info("Received snapshot await update");
         var sourcePriceQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(pqServerL3QuoteServerSetup.FirstTickerInfo, 3);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
         var receivedUpdateTick = haveReceivedPriceManualResetEvent.WaitOne(8_000);
-        logger.Info("Received update ");
+        Logger.Info("Received update ");
         Assert.IsTrue(receivedUpdateTick, "Did not receive update tick from the client before timeout was reached");
     }
 }

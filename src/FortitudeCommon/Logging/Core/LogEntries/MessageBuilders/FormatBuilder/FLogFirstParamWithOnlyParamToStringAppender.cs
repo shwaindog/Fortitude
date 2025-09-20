@@ -3,8 +3,8 @@
 
 using System.Text;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
 using JetBrains.Annotations;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -26,12 +26,12 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
+    public IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TToStyle : TStylerType =>
-        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, customTypeStyler).ToStringAppender(value, this);
+        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, stringBearerRevealState).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
+    public IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         FormatSb.Clear();
@@ -140,7 +140,7 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value, startIndex, count).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender WithOnlyParamThenToAppender(IStyledToStringObject? value) =>
+    public IFLogStringAppender WithOnlyParamThenToAppender(IStringBearer? value) =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]

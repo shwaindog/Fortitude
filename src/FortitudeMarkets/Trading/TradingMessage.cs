@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeMarkets.Trading;
 

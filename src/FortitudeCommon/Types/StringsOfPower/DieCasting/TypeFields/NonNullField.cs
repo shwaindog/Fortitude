@@ -1,0 +1,67 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+
+#pragma warning disable CS0618 // Type or member is obsolete
+
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
+
+public partial class SelectTypeField<TExt> where TExt : TypeMolder
+{
+    public TExt WhenNonNullAdd (string fieldName, bool? value) =>
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd<TFmt> (string fieldName, TFmt? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd<TFmtStruct> (string fieldName, TFmtStruct? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd<TToStyle, TStylerType>(string fieldName, TToStyle? value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+        where TToStyle : TStylerType =>
+        !stb.SkipFields && !Equals(value, null) ? AlwaysAdd(fieldName, value, stringBearerRevealState) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, string? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, string? value, int startIndex, int count = int.MaxValue, string? formatString = null) =>
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, char[]? value) =>
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, char[]? value, int startIndex, int count = int.MaxValue, string? formatString = null) =>
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddStyled<TStyled>(string fieldName, TStyled? value) where TStyled : IStringBearer => 
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, ICharSequence? value) =>
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, ICharSequence? value, int startIndex, int count = int.MaxValue, string? formatString = null) =>
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, StringBuilder? value) => 
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue, string? formatString = null) => 
+        !stb.SkipFields && value != null ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
+    
+    public TExt WhenNonNullAddMatch<T>
+    (string fieldName, T? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value != null ? AlwaysAddMatch(fieldName, value) : stb.StyleTypeBuilder;
+
+
+    [CallsObjectToString]
+    public TExt WhenNonNullAddObject
+    (string fieldName, object? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value != null ? AlwaysAddObject(fieldName, value) : stb.StyleTypeBuilder;
+}

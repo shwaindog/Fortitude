@@ -55,29 +55,37 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
     {
         if (TemplateParts.Count == 0) FormattingTemplate = IFormattingAppenderConfig.DefaultStringFormattingTemplate;
 
-        var usedFormatWriter            = false;
-        var formatWriterRequestTimeouts = 0;
-        do
+        var       usedFormatWriter            = false;
+        var       formatWriterRequestTimeouts = 0;
+
+        while (!usedFormatWriter && formatWriterRequestTimeouts < 15)
         {
-            if (!formatWriterResolver.IsOpen) break;
-            using var formatWriterWaitHandle = formatWriterResolver.FormatWriterResolver(logEntry);
-
-            using var formatWriter = formatWriterWaitHandle.GetOrWaitForFormatWriter();
-
-            if (formatWriter != null)
+            using var formatWriterWaitHandle      = formatWriterResolver.FormatWriterResolver(logEntry);
+            do
             {
-                if (formatWriter.NotifyStartEntryAppend(logEntry))
+                if (!formatWriterResolver.IsOpen) break;
+
+                using var formatWriter = formatWriterWaitHandle.GetOrWaitForFormatWriter();
+
+                if (formatWriter != null)
                 {
-                    foreach (var part in TemplateParts) part.Apply(formatWriter, logEntry);
-                    usedFormatWriter = true;
-                    formatWriter.NotifyEntryAppendComplete();
+                    if (formatWriter.NotifyStartEntryAppend(logEntry))
+                    {
+                        foreach (var part in TemplateParts) part.Apply(formatWriter, logEntry);
+                        usedFormatWriter = true;
+                        formatWriter.NotifyEntryAppendComplete();
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-            }
-            else
-            {
-                formatWriterRequestTimeouts++;
-            }
-        } while (!usedFormatWriter);
+                else
+                {
+                    formatWriterRequestTimeouts++;
+                }
+            } while (!usedFormatWriter && formatWriterRequestTimeouts % 3 == 0);
+        }
         return formatWriterRequestTimeouts;
     }
 

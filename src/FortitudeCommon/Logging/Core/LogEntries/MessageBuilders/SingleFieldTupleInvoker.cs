@@ -4,8 +4,8 @@
 using System.Reflection;
 using System.Text;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders;
 
@@ -31,14 +31,14 @@ public abstract partial class FLogEntryMessageBuilder
         return false;
     }
 
-    private Action<T, IStyledTypeStringAppender>? CheckSingleFieldFor2ItemTupleInvoker<T>(T tuple, Type tupleType, Type item1Type, Type item2Type)
+    private Action<T, ITheOneString>? CheckSingleFieldFor2ItemTupleInvoker<T>(T tuple, Type tupleType, Type item1Type, Type item2Type)
     {
         if (TypeOfArray.IsAssignableFrom(item1Type) && item1Type.GetElementType() != TypeOfChar) return null;
 
         if (item2Type.IsGenericType)
         {
             var item2GenericType = item2Type.GetGenericTypeDefinition();
-            if (item1Type.IsValueType && item2GenericType == typeof(CustomTypeStyler<>))
+            if (item1Type.IsValueType && item2GenericType == typeof(StringBearerRevealState<>))
             {
                 var structStylerInvoker = TryBuildSingleFieldStructStylerInvoker(tuple, tupleType, item1Type, item2Type);
                 return structStylerInvoker;
@@ -57,7 +57,7 @@ public abstract partial class FLogEntryMessageBuilder
         return null;
     }
 
-    private Action<T, IStyledTypeStringAppender>? CheckSingleFieldFor3ItemTupleInvoker<T>(T toAppend, Type typeOfT
+    private Action<T, ITheOneString>? CheckSingleFieldFor3ItemTupleInvoker<T>(T toAppend, Type typeOfT
       , Type item1Type, Type item2Type, Type item3Type)
     {
         if (TypeOfArray.IsAssignableFrom(item1Type) && item1Type.GetElementType() != TypeOfChar) return null;
@@ -70,7 +70,7 @@ public abstract partial class FLogEntryMessageBuilder
         return null;
     }
 
-    protected Action<T, IStyledTypeStringAppender> TryBuildSingleFieldSpanFormattableInvoker<T>(T toAppend, Type tupleType, Type item1Type
+    protected Action<T, ITheOneString> TryBuildSingleFieldSpanFormattableInvoker<T>(T toAppend, Type tupleType, Type item1Type
       , Type item2Type)
     {
         var item1IsNullable = item1Type.IsGenericType && item1Type.GetGenericTypeDefinition() == typeof(Nullable<>);
@@ -85,7 +85,7 @@ public abstract partial class FLogEntryMessageBuilder
             if (genericParams.Length != 1) continue;
             var methodParams = mi.GetParameters();
             if (methodParams.Length != 2) continue;
-            if (methodParams[1].ParameterType != typeof(IStyledTypeStringAppender)) continue;
+            if (methodParams[1].ParameterType != typeof(ITheOneString)) continue;
             var firstParamType = methodParams[0].ParameterType;
             var fpItem1Type    = firstParamType.GenericTypeArguments[0];
             var fpItem2Type    = firstParamType.GenericTypeArguments[1];
@@ -106,7 +106,7 @@ public abstract partial class FLogEntryMessageBuilder
         return invokeAppend;
     }
 
-    protected Action<T, IStyledTypeStringAppender> TryBuildSingleFieldAppendRangeFromToInvoker<T>(T toAppend, Type tupleType, Type item1Type
+    protected Action<T, ITheOneString> TryBuildSingleFieldAppendRangeFromToInvoker<T>(T toAppend, Type tupleType, Type item1Type
       , Type item2Type
       , Type item3Type)
     {
@@ -133,7 +133,7 @@ public abstract partial class FLogEntryMessageBuilder
         return invokeAppend;
     }
 
-    protected Action<T, IStyledTypeStringAppender> TryBuildSingleFieldAppendRangeInvoker<T>(T toAppend, Type tupleType, Type item1Type
+    protected Action<T, ITheOneString> TryBuildSingleFieldAppendRangeInvoker<T>(T toAppend, Type tupleType, Type item1Type
       , Type item2Type)
     {
         MethodInfo? foundMatch = null;
@@ -159,7 +159,7 @@ public abstract partial class FLogEntryMessageBuilder
         return invokeAppend;
     }
 
-    protected Action<T, IStyledTypeStringAppender> TryBuildSingleFieldStructStylerInvoker<T>(T toAppend, Type tupleType, Type item1Type
+    protected Action<T, ITheOneString> TryBuildSingleFieldStructStylerInvoker<T>(T toAppend, Type tupleType, Type item1Type
       , Type item2Type)
     {
         var item1IsNullable = item1Type.IsGenericType && item1Type.GetGenericTypeDefinition() == typeof(Nullable<>);

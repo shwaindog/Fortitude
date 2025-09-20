@@ -1,19 +1,18 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout.FLogEntryLayoutTokens;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
-public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
+public class LogEntryDataTemplatePart : ITemplatePart, IStringBearer
 {
     protected static IStringBuilder? SmallScratchBuffer;
 
@@ -225,8 +224,8 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this).Complete();
 
     public override string ToString() => this.DefaultToString();

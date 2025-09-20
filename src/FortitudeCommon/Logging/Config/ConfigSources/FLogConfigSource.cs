@@ -3,16 +3,15 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.ConfigSources;
 
 public interface IFlogConfigSource : IConfigCloneTo<IFlogConfigSource>, IInterfacesComparable<IFlogConfigSource>
-  , IStyledToStringObject, IFLogConfig
+  , IStringBearer, IFLogConfig
 {
     static readonly TimeSpanConfig DefaultRecheckConfigTimeSpan = new(days: 1);
 
@@ -151,8 +150,8 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(ConfigPriorityOrder), ConfigPriorityOrder)
            .Field.AlwaysAdd(nameof(ConfigSourceName), ConfigSourceName)
            .Field.AlwaysAdd(nameof(Optional), Optional)

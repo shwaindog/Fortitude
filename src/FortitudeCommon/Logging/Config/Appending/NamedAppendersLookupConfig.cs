@@ -8,14 +8,14 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
 
 public interface INamedAppendersLookupConfig : IInterfacesComparable<INamedAppendersLookupConfig>
-  , ICloneable<INamedAppendersLookupConfig>, IStyledToStringObject, IFLogConfig
+  , ICloneable<INamedAppendersLookupConfig>, IStringBearer, IFLogConfig
 {
     int Count { get; }
 
@@ -318,8 +318,8 @@ public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersL
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartKeyedCollectionType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
            .AddAll(AppendersByName)
            .Complete();
 

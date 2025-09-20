@@ -8,7 +8,7 @@ using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains.PipelineSpies;
 using FortitudeCommon.Logging.Core.LoggerViews;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower;
 
 namespace FortitudeTests.FortitudeCommon.Logging.Core.Hub;
 
@@ -48,7 +48,7 @@ public class FLogContextTests
     public void TestValueStructReflection()
     {
         var fileAppenderType = FileAppenderType.RollingLogFile;
-        var styler           = EnumFormatterRegistry.GetOrCreateEnumFormatProvider<FileAppenderType>().CustomTypeStyler;
+        var styler           = EnumFormatterRegistry.GetOrCreateEnumFormatProvider<FileAppenderType>().StringBearerRevealState;
 
         var checkRuntimeType = (fileAppenderType, styler);
 
@@ -64,9 +64,9 @@ public class FLogContextTests
         var runResult = invokeMethod(this, value);
     }
 
-    public string InvokeStructStyler<TStruct>(TStruct value, CustomTypeStyler<TStruct> styler) where TStruct : struct
+    public string InvokeStructStyler<TStruct>(TStruct value, StringBearerRevealState<TStruct> styler) where TStruct : struct
     {
-        var stsa = new StyledTypeStringAppender();
+        var stsa = new TheOneString();
         stsa.Initialize();
 
         styler(value, stsa);
@@ -93,7 +93,7 @@ public class FLogContextTests
                 if (item2Type.IsGenericType)
                 {
                     var item2GenericType = item2Type.GetGenericTypeDefinition();
-                    if (item2GenericType == typeof(CustomTypeStyler<>))
+                    if (item2GenericType == typeof(StringBearerRevealState<>))
                     {
                         var myType = GetType();
 
@@ -121,7 +121,7 @@ public class FLogContextTests
                                        && methodParams.Length == 2
                                        && genericParams[0] == methodParams[0].ParameterType &&
                                           methodParams[1].ParameterType.GetGenericTypeDefinition() ==
-                                          typeof(CustomTypeStyler<>);
+                                          typeof(StringBearerRevealState<>);
                                   }) ??
                             throw new InvalidOperationException("Method does not exist");
 

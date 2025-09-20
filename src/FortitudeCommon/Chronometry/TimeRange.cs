@@ -4,8 +4,8 @@
 #region
 
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 #endregion
 
@@ -22,7 +22,7 @@ public struct UnboundedTimeRange
     public DateTime? FromTime { get; }
     public DateTime? ToTime { get; }
 
-    public static CustomTypeStyler<UnboundedTimeRange> Styler { get; } =
+    public static StringBearerRevealState<UnboundedTimeRange> Styler { get; } =
         (utr, stsa) =>
             stsa.StartComplexType(utr, nameof(utr))
                 .Field.WhenNonDefaultAdd(nameof(utr.FromTime), utr.FromTime, DateTime.MinValue, "{0:O}")
@@ -43,7 +43,7 @@ public struct UnboundedTimeSpanRange
     public TimeSpan? LowerLimit { get; }
     public TimeSpan? UpperLimit { get; }
     
-    public static CustomTypeStyler<UnboundedTimeSpanRange> Styler { get; } =
+    public static StringBearerRevealState<UnboundedTimeSpanRange> Styler { get; } =
         (utsr, stsa) =>
             stsa.StartComplexType(utsr, nameof(utsr))
                 .Field.WhenNonDefaultAdd(nameof(utsr.LowerLimit), utsr.LowerLimit, TimeSpan.Zero)
@@ -69,7 +69,7 @@ public struct BoundedTimeRange
     public DateTime FromTime { get; }
     public DateTime ToTime { get; }
     
-    public static CustomTypeStyler<BoundedTimeRange> Styler { get; } =
+    public static StringBearerRevealState<BoundedTimeRange> Styler { get; } =
         (btr, stsa) =>
             stsa.StartComplexType(btr, nameof(btr))
                 .Field.WhenNonDefaultAdd(nameof(btr.FromTime), btr.FromTime, DateTime.MinValue, "{0:O}")
@@ -94,7 +94,7 @@ public struct BoundedTimeSpanRange
     public TimeSpan UpperLimit { get; }
 
     
-    public static CustomTypeStyler<BoundedTimeSpanRange> Styler { get; } =
+    public static StringBearerRevealState<BoundedTimeSpanRange> Styler { get; } =
         (btsr, stsa) =>
             stsa.StartComplexType(btsr, nameof(btsr))
                 .Field.WhenNonDefaultAdd(nameof(btsr.LowerLimit), btsr.LowerLimit, TimeSpan.Zero)
@@ -118,30 +118,30 @@ public struct SubPeriodOffset
 
 public static class TimeRangeExtensions
 {
-    public static CustomTypeStyler<UnboundedTimeRange> UnboundedTimeRangeFormatter
+    public static StringBearerRevealState<UnboundedTimeRange> UnboundedTimeRangeFormatter
         = FormatUnboundedTimeRangeAppender;
 
-    public static StyledTypeBuildResult FormatUnboundedTimeRangeAppender(this UnboundedTimeRange timeRange, IStyledTypeStringAppender sbc)
+    public static StateExtractStringRange FormatUnboundedTimeRangeAppender(this UnboundedTimeRange timeRange, ITheOneString sbc)
     {
         return sbc.StartComplexType( timeRange)
            .Field.AlwaysAdd(nameof(timeRange.FromTime), timeRange.FromTime, "{0:yyyy-MM-dd HH:mm:ss}")
            .Field.AlwaysAdd(nameof(timeRange.ToTime), timeRange.ToTime, "{0:yyyy-MM-dd HH:mm:ss}").Complete();
     }
     
-    public static CustomTypeStyler<UnboundedTimeSpanRange> UnboundedTimeSpanRangeFormatter
+    public static StringBearerRevealState<UnboundedTimeSpanRange> UnboundedTimeSpanRangeFormatter
         = FormatUnboundedTimeSpanRangeAppender;
 
-    public static StyledTypeBuildResult FormatUnboundedTimeSpanRangeAppender(this UnboundedTimeSpanRange timeRange, IStyledTypeStringAppender sbc)
+    public static StateExtractStringRange FormatUnboundedTimeSpanRangeAppender(this UnboundedTimeSpanRange timeRange, ITheOneString sbc)
     {
         return sbc.StartComplexType(timeRange)
            .Field.AlwaysAdd(nameof(timeRange.LowerLimit), timeRange.LowerLimit, "{0:dd HH:mm:ss}")
            .Field.AlwaysAdd(nameof(timeRange.UpperLimit), timeRange.UpperLimit, "{0:dd HH:mm:ss}").Complete();
     }
     
-    public static CustomTypeStyler<BoundedTimeRange> BoundedTimeRangeFormatter
+    public static StringBearerRevealState<BoundedTimeRange> BoundedTimeRangeFormatter
         = FormatBoundedTimeRangeAppender;
 
-    public static StyledTypeBuildResult FormatBoundedTimeRangeAppender(this BoundedTimeRange timeRange, IStyledTypeStringAppender sbc)
+    public static StateExtractStringRange FormatBoundedTimeRangeAppender(this BoundedTimeRange timeRange, ITheOneString sbc)
     {
         return sbc.StartComplexType(timeRange)
            .Field.AlwaysAdd(nameof(timeRange.FromTime), timeRange.FromTime, "{0:yyyy-MM-dd HH:mm:ss}")
@@ -149,10 +149,10 @@ public static class TimeRangeExtensions
     }
 
     
-    public static CustomTypeStyler<BoundedTimeSpanRange> BoundedTimeSpanRangeFormatter
+    public static StringBearerRevealState<BoundedTimeSpanRange> BoundedTimeSpanRangeFormatter
         = FormatBoundedTimeSpanRangeAppender;
 
-    public static StyledTypeBuildResult FormatBoundedTimeSpanRangeAppender(this BoundedTimeSpanRange timeRange, IStyledTypeStringAppender sbc)
+    public static StateExtractStringRange FormatBoundedTimeSpanRangeAppender(this BoundedTimeSpanRange timeRange, ITheOneString sbc)
     {
         return sbc.StartComplexType(timeRange)
            .Field.AlwaysAdd(nameof(timeRange.LowerLimit), timeRange.LowerLimit, "{0:dd HH:mm:ss}")

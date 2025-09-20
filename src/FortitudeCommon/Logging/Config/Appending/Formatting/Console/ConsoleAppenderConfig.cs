@@ -4,8 +4,8 @@
 using System.Globalization;
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.Console.IConsoleAppenderConfig;
 
@@ -120,8 +120,8 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
         return hashCode;
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(DisableColoredConsole), DisableColoredConsole)
            .Complete();
