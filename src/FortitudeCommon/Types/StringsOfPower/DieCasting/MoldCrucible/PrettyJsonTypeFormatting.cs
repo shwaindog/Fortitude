@@ -34,7 +34,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     {
         return
             typeBuilder.Sb
-                       .Append(CmaSpc)
+                       .Append(Cma)
                        .Append(typeBuilder.Master.Settings.NewLineStyle)
                        .Append(typeBuilder.Master.Settings.IndentChar
                              , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel))
@@ -148,7 +148,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         base.AddCollectionElementSeparator(elementType, typeBuilder.Sb, nextItemNumber);
         if(elementType == typeof(byte) && ByteArrayWritesBase64String) return typeBuilder;
         if (elementType == typeof(char) && CharArrayWritesString) return typeBuilder;
-        if (typeBuilder.Settings.EnableColumnContentWidthWrap)
+        if (typeBuilder.Settings.PrettyCollectionStyle.IsCollectionContentWidthWrap())
         {
             if (typeBuilder.Settings.PrettyCollectionsColumnContentWidthWrap < typeBuilder.Sb.LineContentWidth)
             {

@@ -103,7 +103,9 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCru
 [NoMatchingProductionClass]
 public class JsonScenarios
 {
-    private static IVersatileFLogger logger = null!;
+    private    JsonSerializerOptions jsonMatchOneStringSerializerOptions = null!;
+    
+    private static IVersatileFLogger     logger = null!;
 
     [ClassInitialize]
     public static void AllTestsInClassStaticSetup(TestContext testContext)
@@ -112,39 +114,75 @@ public class JsonScenarios
 
         logger  = FLog.FLoggerForType.As<IVersatileFLogger>();
     }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        jsonMatchOneStringSerializerOptions = new JsonSerializerOptions()
+        {
+            NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals 
+          , IncludeFields  = true
+         ,  Converters = { 
+                new BigIntegerConverter()
+              , new ComplexConverter()
+              , new RuneConverter()
+              , new StringBuilderConverter()
+              , new TestCustomSpanFormattableConverter()
+              , new JsonStringEnumConverter<NoDefaultLongNoFlagsEnum>()
+              , new JsonStringEnumConverter<NoDefaultULongNoFlagsEnum>()
+              , new JsonStringEnumConverter<WithDefaultLongNoFlagsEnum>()
+              , new JsonStringEnumConverter<WithDefaultULongNoFlagsEnum>()
+              , new JsonStringEnumConverter<NoDefaultLongWithFlagsEnum>()
+              , new JsonStringEnumConverter<NoDefaultULongWithFlagsEnum>()
+              , new JsonStringEnumConverter<WithDefaultLongWithFlagsEnum>()
+              , new JsonStringEnumConverter<WithDefaultULongWithFlagsEnum>()
+            }
+        };
+    }
     
     [TestMethod]
-    public void StandardSinglePropertyFieldClassSerializesAllFields()
+    public void StandardSinglePropertyFieldClassJsonCompactSerializeMatchesAllFields()
     {
         var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
         
-        var textJsonStringify = JsonSerializer.Serialize(singlePropertyFieldClass, new JsonSerializerOptions()
-        {
-          NumberHandling   = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals 
-          , IncludeFields = true
-          ,  Converters = { 
-                 new BigIntegerConverter()
-               , new ComplexConverter()
-               , new RuneConverter()
-               , new StringBuilderConverter()
-               , new TestCustomSpanFormattableConverter()
-               , new JsonStringEnumConverter<NoDefaultLongNoFlagsEnum>()
-               , new JsonStringEnumConverter<NoDefaultULongNoFlagsEnum>()
-               , new JsonStringEnumConverter<WithDefaultLongNoFlagsEnum>()
-               , new JsonStringEnumConverter<WithDefaultULongNoFlagsEnum>()
-               , new JsonStringEnumConverter<NoDefaultLongWithFlagsEnum>()
-               , new JsonStringEnumConverter<NoDefaultULongWithFlagsEnum>()
-               , new JsonStringEnumConverter<WithDefaultLongWithFlagsEnum>()
-               , new JsonStringEnumConverter<WithDefaultULongWithFlagsEnum>()
-                
-            }
-        });
+        var textJsonStringify = JsonSerializer.Serialize(singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
 
         logger.WrnApnd("Json Serializer")?.Args("\n");
         logger.InfApnd(textJsonStringify)?.Args("\n");
         
         var styledStringBuilder = new TheOneString();
         styledStringBuilder.ClearAndReinitialize(StringStyle.Json | StringStyle.Compact);
+        styledStringBuilder.Settings = new StyleOptions
+        {
+            WriteKeyValuePairsAsCollection = true
+        };
+        singlePropertyFieldClass.RevealState(styledStringBuilder);
+        var oneStringify = styledStringBuilder.WriteBuffer.ToString();
+
+        logger.ErrApnd("TheOneString")?.Args("\n" );
+        logger.WrnApnd(oneStringify)?.Args("\n" );
+
+        oneStringify.Should().BeEquivalentTo(textJsonStringify);
+
+
+    }
+    
+    [TestMethod]
+    public void StandardSinglePropertyFieldClassJsonPrettySerializeMatchesAllFields()
+    {
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
+
+        jsonMatchOneStringSerializerOptions.WriteIndented = true;
+        
+        var textJsonStringify = 
+            JsonSerializer.Serialize
+                (singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
+
+        logger.WrnApnd("Json Serializer")?.Args("\n");
+        logger.InfApnd(textJsonStringify)?.Args("\n");
+        
+        var styledStringBuilder = new TheOneString();
+        styledStringBuilder.ClearAndReinitialize(StringStyle.Json | StringStyle.Pretty);
         styledStringBuilder.Settings = new StyleOptions
         {
             WriteKeyValuePairsAsCollection = true

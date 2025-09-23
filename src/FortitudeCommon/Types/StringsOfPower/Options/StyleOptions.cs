@@ -16,7 +16,7 @@ public struct StyleOptionsValue
     public const string DefaultTimeToUsFormat    = "{0:HH:mm:ss.ffffff}";
     public const string DefaultTimeToTicksFormat = "{0:HH:mm:ss.fffffff}";
 
-    public const string DefaultYyyyMMddOnly = "{0:yyyy-MM-dd}";
+    public const string DefaultYyyyMMddOnly        = "{0:yyyy-MM-dd}";
     public const string DefaultYyyyMMddToSecFormat = "{0:yyyy-MM-ddTHH:mm:ssZ}";
     public const string DefaultYyyyMMddToMsFormat  = "{0:yyyy-MMd-dTHH:mm:ss.fff}";
     public const string DefaultYyyyMMddToUsFormat  = "{0:yyyy-MM-ddTHH:mm:ss.ffffff}";
@@ -46,8 +46,9 @@ public struct StyleOptionsValue
     private string? newLineStyle;
     private string? nullStyle;
     private int?    prettyCollectionsColumnCountWrap;
-    private bool?   enableColumnWrap;
     private int?    defaultGraphMaxDepth;
+
+    private CollectionPrettyStyleFormat? prettyCollectionStyle;
 
     private DateTimeStyleFormat? dateTimeFormat;
     private TimeStyleFormat?     timeFormat;
@@ -197,10 +198,10 @@ public struct StyleOptionsValue
         set => charSArraysAsString = value;
     }
 
-    public bool EnableColumnContentWidthWrap
+    public CollectionPrettyStyleFormat PrettyCollectionStyle
     {
-        readonly get => enableColumnWrap ?? fallbackOptions?.Values.EnableColumnContentWidthWrap ?? true;
-        set => enableColumnWrap = value;
+        readonly get => prettyCollectionStyle ?? fallbackOptions?.Values.PrettyCollectionStyle ?? CollectionPrettyStyleFormat.OneElementOnEveryLine;
+        set => prettyCollectionStyle = value;
     }
 
     public int PrettyCollectionsColumnContentWidthWrap
@@ -333,7 +334,7 @@ public class StyleOptions(StyleOptionsValue initialValues)
         get => values.TimeStringHHmmssToTicksFormatString;
         set => values.TimeStringHHmmssToTicksFormatString = value;
     }
-    
+
     public DateTimeStyleFormat DateDateTimeFormat
     {
         get => values.DateTimeFormat;
@@ -408,10 +409,10 @@ public class StyleOptions(StyleOptionsValue initialValues)
         set => values.DefaultOptions = value;
     }
 
-    public bool EnableColumnContentWidthWrap
+    public CollectionPrettyStyleFormat PrettyCollectionStyle
     {
-        get => values.EnableColumnContentWidthWrap;
-        set => values.EnableColumnContentWidthWrap = value;
+        get => values.PrettyCollectionStyle;
+        set => values.PrettyCollectionStyle = value;
     }
 
     public int PrettyCollectionsColumnContentWidthWrap

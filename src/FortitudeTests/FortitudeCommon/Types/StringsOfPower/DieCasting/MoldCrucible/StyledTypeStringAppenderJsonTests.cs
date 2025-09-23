@@ -67,7 +67,7 @@ public class StyledTypeStringAppenderJsonTests
         styledStringBuilder.Settings = new StyleOptions
         {
             WriteKeyValuePairsAsCollection = true
-           ,  EnableColumnContentWidthWrap = false
+           ,  PrettyCollectionStyle = CollectionPrettyStyleFormat.OneElementOnEveryLine
         };
         shakespeare.RevealState(styledStringBuilder);
         var shakeStyled = styledStringBuilder.WriteBuffer.ToString();
