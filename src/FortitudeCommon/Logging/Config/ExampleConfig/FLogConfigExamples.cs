@@ -29,6 +29,9 @@ public static class FLogConfigExamples
     public static readonly FLogExampleConfig SyncColoredConsoleExample
         = (FLogExampleConfig)$"{ExamplesNameSpace}.SyncColoredConsole.json";
 
+    public static readonly FLogExampleConfig SyncColoredTestConsoleExample
+        = (FLogExampleConfig)$"{ExamplesNameSpace}.SyncColoredTestConsole.json";
+
     public static readonly FLogExampleConfig AsyncDblBufferedColoredConsoleExample
         = (FLogExampleConfig)$"{ExamplesNameSpace}.AsyncDblBufferedColoredConsole.json";
 

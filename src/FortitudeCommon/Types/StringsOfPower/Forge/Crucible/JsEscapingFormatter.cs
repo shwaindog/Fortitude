@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 
-namespace FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 {
@@ -22,6 +22,9 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     protected const char   BrcOpnChar = '{';
     protected const string BrcCls     = "}";
     protected const char   BrcClsChar = '}';
+
+    public const char TwoCharUnicodeLow = '\xD800';
+    public const char TwoCharUnicodeHigh  = '\xDBFF';
 
     public const string DefaultJsonDateTImeFormat = "yyyy-MM-ddTHH:mm:ss";
 
@@ -227,44 +230,28 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
       , int destInsertIndex = -1)
     {
         var preTransferLen = sb.Length;
-        var sbStartIndex   = destInsertIndex < 0 ? sb.Length : destInsertIndex;
-        var i              = sourceFrom;
+        var i              = Math.Clamp(sourceFrom, 0, source.Length);
         var end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        var hexBuffer      = stackalloc char[6].ResetMemory();
-        var sbIndex        = sbStartIndex;
         for (; i < end; i++)
         {
-            var iChar = (int)source[i];
+            var iChar = source[i];
             if (iChar < 128)
             {
-                var mappedChar = jsEscapeChars[iChar];
-                if (destInsertIndex == sb.Length)
-                {
-                    sb.Append(mappedChar);
-                }
-                else
-                {
-                    if (sb.Length <= sbIndex + mappedChar.Length) sb.Length   = sbIndex + mappedChar.Length;
-                    for (var j = 0; j < mappedChar.Length; j++) sb[sbIndex++] = mappedChar[j];
-                }
+                sb.Append(jsEscapeChars[iChar]);
             }
-            else
+            else if(iChar is < TwoCharUnicodeLow or > TwoCharUnicodeHigh)
             {
-                hexBuffer[0] = '\\';
-                hexBuffer[1] = 'u';
-                hexBuffer.AppendAsLowerHex(i, 2);
-                if (destInsertIndex == sb.Length)
-                {
-                    sb.Append(hexBuffer);
-                }
-                else
-                {
-                    if (sb.Length <= sbIndex + hexBuffer.Length) sb.Length   = sbIndex + hexBuffer.Length;
-                    for (var j = 0; j < hexBuffer.Length; j++) sb[sbIndex++] = hexBuffer[j];
-                }
+                sb.Append(iChar);
+            }
+            else if(i + 1 < end)
+            {
+                var index = sb.Length;
+                sb.Length   += 2;
+                sb[index++] =  iChar;
+                sb[index]   =  source[++i];
             }
         }
-        return preTransferLen - sb.Length;
+        return sb.Length - preTransferLen;
     }
 
     protected int JsEscapingTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destination
@@ -273,9 +260,9 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var i     = sourceFrom;
         var desti = destStartIndex;
         var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end; i++)
+        for (; i < end && desti < destination.Length; i++)
         {
-            var iChar = (int)source[i];
+            var iChar = source[i];
             if (iChar < 128)
             {
                 var jsEscapeChar = jsEscapeChars[iChar];
@@ -283,10 +270,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     case 1: destination[desti++] = jsEscapeChar[0]; break;
                     case 2:
+                        if (desti + 2 >= destination.Length) return desti - destStartIndex;
                         destination[desti++] = jsEscapeChar[0];
                         destination[desti++] = jsEscapeChar[1];
                         break;
                     case 6:
+                        if (desti + 6 >= destination.Length) return desti - destStartIndex;
                         destination[desti++] = jsEscapeChar[0];
                         destination[desti++] = jsEscapeChar[1];
                         destination[desti++] = jsEscapeChar[2];
@@ -295,6 +284,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                         destination[desti++] = jsEscapeChar[5];
                         break;
                     default:
+                        if (desti + jsEscapeChar.Length >= destination.Length) return desti - destStartIndex;
                         for (int j = 0; j < jsEscapeChar.Length; j++)
                         {
                             destination[desti++] = jsEscapeChar[j];
@@ -304,12 +294,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             }
             else
             {
-                destination[desti++] =  '\\';
-                destination[desti++] =  'u';
-                desti                += destination.AppendAsLowerHex(i, desti);
+                destination[desti++] = iChar;
             }
         }
-        return i - sourceFrom;
+        return desti - destStartIndex;
     }
 
     public override int Transfer(char[] source, IStringBuilder sb)
@@ -334,25 +322,29 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 
     protected int JsEscapingTransfer(char[] source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue)
     {
-        var i         = sourceFrom;
-        var hexBuffer = stackalloc char[6].ResetMemory();
-        var end       = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var preTransferLen = sb.Length;
+        var i              = Math.Clamp(sourceFrom, 0, source.Length);
+        var end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
         for (; i < end; i++)
         {
-            var iChar = (int)source[i];
+            var iChar = source[i];
             if (iChar < 128)
             {
                 sb.Append(jsEscapeChars[iChar]);
             }
-            else
+            else if(iChar is < TwoCharUnicodeLow or > TwoCharUnicodeHigh)
             {
-                hexBuffer[0] = '\\';
-                hexBuffer[1] = 'u';
-                hexBuffer.AppendAsLowerHex(i, 2);
-                sb.Append(hexBuffer);
+                sb.Append(iChar);
+            }
+            else if(i + 1 < end)
+            {
+                var index = sb.Length;
+                sb.Length   += 2;
+                sb[index++] =  iChar;
+                sb[index]   =  source[++i];
             }
         }
-        return i - sourceFrom;
+        return sb.Length - preTransferLen;
     }
 
     protected int JsEscapingTransfer(char[] source, int sourceFrom, Span<char> destination
@@ -361,9 +353,9 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var i     = sourceFrom;
         var desti = destStartIndex;
         var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end; i++)
+        for (; i < end && desti < destination.Length; i++)
         {
-            var iChar = (int)source[i];
+            var iChar = source[i];
             if (iChar < 128)
             {
                 var jsEscapeChar = jsEscapeChars[iChar];
@@ -371,10 +363,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     case 1: destination[desti++] = jsEscapeChar[0]; break;
                     case 2:
+                        if (desti + 2 >= destination.Length) return desti - destStartIndex;
                         destination[desti++] = jsEscapeChar[0];
                         destination[desti++] = jsEscapeChar[1];
                         break;
                     case 6:
+                        if (desti + 6 >= destination.Length) return desti - destStartIndex;
                         destination[desti++] = jsEscapeChar[0];
                         destination[desti++] = jsEscapeChar[1];
                         destination[desti++] = jsEscapeChar[2];
@@ -383,6 +377,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                         destination[desti++] = jsEscapeChar[5];
                         break;
                     default:
+                        if (desti + jsEscapeChar.Length >= destination.Length) return desti - destStartIndex;
                         for (int j = 0; j < jsEscapeChar.Length; j++)
                         {
                             destination[desti++] = jsEscapeChar[j];
@@ -392,13 +387,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             }
             else
             {
-                destination[desti++] = '\\';
-                destination[desti++] = 'u';
-
-                desti += destination.AppendAsLowerHex(i, desti);
+                destination[desti++] = iChar;
             }
         }
-        return i - sourceFrom;
+        return desti - destStartIndex;
     }
 
     public override int Transfer(StringBuilder source, IStringBuilder sb)
@@ -425,25 +417,29 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 
     protected int JsEscapingTransfer(StringBuilder source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue)
     {
-        var i         = sourceFrom;
-        var hexBuffer = stackalloc char[6].ResetMemory();
-        var end       = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var preTransferLen = sb.Length;
+        var i              = sourceFrom;
+        var end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
         for (; i < end; i++)
         {
-            var iChar = (int)source[i];
+            var iChar = source[i];
             if (iChar < 128)
             {
                 sb.Append(jsEscapeChars[iChar]);
             }
-            else
+            else if(iChar is < TwoCharUnicodeLow or > TwoCharUnicodeHigh)
             {
-                hexBuffer[0] = '\\';
-                hexBuffer[1] = 'u';
-                hexBuffer.AppendAsLowerHex(i, 2);
-                sb.Append(hexBuffer);
+                sb.Append(iChar);
+            }
+            else if(i + 1 < end)
+            {
+                var index = sb.Length;
+                sb.Length   += 2;
+                sb[index++] =  iChar;
+                sb[index]   =  source[++i];
             }
         }
-        return i - sourceFrom;
+        return sb.Length - preTransferLen;
     }
 
     protected int JsEscapingTransfer(StringBuilder source, int sourceFrom, Span<char> destination
@@ -452,9 +448,9 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var i     = sourceFrom;
         var desti = destStartIndex;
         var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end; i++)
+        for (; i < end && desti < destination.Length; i++)
         {
-            var iChar = (int)source[i];
+            var iChar = source[i];
             if (iChar < 128)
             {
                 var jsEscapeChar = jsEscapeChars[iChar];
@@ -462,10 +458,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     case 1: destination[desti++] = jsEscapeChar[0]; break;
                     case 2:
+                        if (desti + 2 >= destination.Length) return desti - destStartIndex;
                         destination[desti++] = jsEscapeChar[0];
                         destination[desti++] = jsEscapeChar[1];
                         break;
                     case 6:
+                        if (desti + 6 >= destination.Length) return desti - destStartIndex;
                         destination[desti++] = jsEscapeChar[0];
                         destination[desti++] = jsEscapeChar[1];
                         destination[desti++] = jsEscapeChar[2];
@@ -474,6 +472,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                         destination[desti++] = jsEscapeChar[5];
                         break;
                     default:
+                        if (desti + jsEscapeChar.Length >= destination.Length) return desti - destStartIndex;
                         for (int j = 0; j < jsEscapeChar.Length; j++)
                         {
                             destination[desti++] = jsEscapeChar[j];
@@ -481,15 +480,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                         break;
                 }
             }
-            else
+            else 
             {
-                destination[desti++] = '\\';
-                destination[desti++] = 'u';
-
-                desti += destination.AppendAsLowerHex(i, desti);
+                destination[desti++] = iChar;
             }
         }
-        return i - sourceFrom;
+        return desti - destStartIndex;
     }
 
     public override int Transfer(ICharSequence source, IStringBuilder sb)
@@ -530,6 +526,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 
     protected int JsEscapingTransfer(ICharSequence source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue)
     {
+        var preTransferLen = sb.Length;
         if (!CharArrayWritesString)
         {
             var cappedEnd = Math.Clamp(maxTransferCount, 0, source.Length);
@@ -540,27 +537,30 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 if (j > 0) AddCollectionElementSeparator(typeof(char), sb, j);
                 CollectionNextItem(item, j, sb);
             }
-            return j;
+            return sb.Length - preTransferLen;
         }
-        var i         = sourceFrom;
-        var hexBuffer = stackalloc char[6].ResetMemory();
-        var end       = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var i   = Math.Clamp(sourceFrom, 0, source.Length);
+        var end = Math.Min(source.Length, maxTransferCount + sourceFrom);
         for (; i < end; i++)
         {
-            var iChar = (int)source[i];
+            var iChar = source[i];
             if (iChar < 128)
             {
                 sb.Append(jsEscapeChars[iChar]);
             }
-            else
+            else if(iChar is < TwoCharUnicodeLow or > TwoCharUnicodeHigh)
             {
-                hexBuffer[0] = '\\';
-                hexBuffer[1] = 'u';
-                hexBuffer.AppendAsLowerHex(i, 2);
-                sb.Append(hexBuffer);
+                sb.Append(iChar);
+            }
+            else if(i + 1 < end)
+            {
+                var index = sb.Length;
+                sb.Length   += 2;
+                sb[index++] =  iChar;
+                sb[index]   =  source[++i];
             }
         }
-        return i - sourceFrom;
+        return sb.Length - preTransferLen;
     }
 
     protected int JsEscapingTransfer(ICharSequence source, int sourceFrom, Span<char> destination
@@ -569,9 +569,9 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var i     = sourceFrom;
         var desti = destStartIndex;
         var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end; i++)
+        for (; i < end && desti < destination.Length; i++)
         {
-            var iChar = (int)source[i];
+            var iChar = source[i];
             if (iChar < 128)
             {
                 var jsEscapeChar = jsEscapeChars[iChar];
@@ -579,10 +579,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     case 1: destination[desti++] = jsEscapeChar[0]; break;
                     case 2:
+                        if (desti + 2 >= destination.Length) return desti - destStartIndex;
                         destination[desti++] = jsEscapeChar[0];
                         destination[desti++] = jsEscapeChar[1];
                         break;
                     case 6:
+                        if (desti + 6 >= destination.Length) return desti - destStartIndex;
                         destination[desti++] = jsEscapeChar[0];
                         destination[desti++] = jsEscapeChar[1];
                         destination[desti++] = jsEscapeChar[2];
@@ -591,6 +593,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                         destination[desti++] = jsEscapeChar[5];
                         break;
                     default:
+                        if (desti + jsEscapeChar.Length >= destination.Length) return desti - destStartIndex;
                         for (int j = 0; j < jsEscapeChar.Length; j++)
                         {
                             destination[desti++] = jsEscapeChar[j];
@@ -600,13 +603,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             }
             else
             {
-                destination[desti++] = '\\';
-                destination[desti++] = 'u';
-
-                desti += destination.AppendAsLowerHex(i, desti);
+                destination[desti++] = iChar;
             }
         }
-        return i - sourceFrom;
+        return desti - destStartIndex;
     }
 
     private bool IsDoubleQuoteEnclosed(Span<char> toCheck) => toCheck[0] == DblQtChar && toCheck[^1] == DblQtChar;
@@ -1763,7 +1763,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                     ? NextBase64Chars(byteItem, sb)
                     : sb.Append(byteItem).ReturnCharCount(3);
             case DateTime dateTimeItem: return Format(dateTimeItem, sb, JsonDateTImeFormat);
-            case KeyValuePair<string,JsonNode> jsonNodeKvp :
+            case KeyValuePair<string, JsonNode> jsonNodeKvp:
                 var jsonString = jsonNodeKvp.Value.ToJsonString();
                 return sb.Append(DblQt).Append(jsonNodeKvp.Key).Append(DblQt).Append(":").Append(jsonString).ReturnCharCount(jsonString.Length);
         }
@@ -1788,14 +1788,14 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
                 break;
             case DateTime dateTimeItem: return Format(dateTimeItem, destCharSpan, destStartIndex, JsonDateTImeFormat);
-            case KeyValuePair<string,JsonNode> jsonNodeKvp :
+            case KeyValuePair<string, JsonNode> jsonNodeKvp:
                 var jsonString = jsonNodeKvp.Value.ToJsonString();
-                var charsAdded =  destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                var charsAdded = destCharSpan.OverWriteAt(destStartIndex, DblQt);
                 charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, jsonNodeKvp.Key);
-                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded,DblQt);
-                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded,":");
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, ":");
                 charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, jsonString);
-                return charsAdded;                                          
+                return charsAdded;
         }
         CharSpanCollectionScratchBuffer ??= MutableString.MediumScratchBuffer;
         CharSpanCollectionScratchBuffer.Clear();

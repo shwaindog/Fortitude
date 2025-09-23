@@ -49,4 +49,65 @@ public static class RangeExtensions
         int digits     = int.TryParse(indexOffsetSpan, out var attempt) ? attempt : 0;
         return isFromEnd ? Index.FromEnd(digits) : Index.FromStart(digits);
     }
+
+    public static int WriteRangeAsSlice(this Span<char> destination, int fromDestIndex, Range toConvert)
+    {
+        var startIndex = fromDestIndex;
+        destination[fromDestIndex++] = '[';
+        var start = toConvert.Start;
+        if (start.IsFromEnd)
+        {
+            destination[fromDestIndex++] = '^';
+            destination.WriteIntToSpan(start.Value, ref fromDestIndex);
+        }
+        else if (start.Value > 0)
+        {
+            destination.WriteIntToSpan(start.Value, ref fromDestIndex);
+        }
+        destination[fromDestIndex++] = '.';
+        destination[fromDestIndex++] = '.';
+        var end = toConvert.End;
+        if (end is { IsFromEnd: true, Value: > 0 })
+        {
+            destination[fromDestIndex++] = '^';
+            destination.WriteIntToSpan(end.Value, ref fromDestIndex);
+        }
+        else if (end is { IsFromEnd : false })
+        {
+            destination.WriteIntToSpan(end.Value, ref fromDestIndex);
+        }
+        destination[fromDestIndex++] = ']';
+        return fromDestIndex - startIndex;
+    }
+
+    public static int CalculateRangeAsSliceStringSize(this Range toConvert)
+    {
+        var size = 0;
+        if (toConvert.IsAllRange()) return 0;
+        size++; // '['
+        var start = toConvert.Start;
+        if (start.IsFromEnd)
+        {
+            size++; // '^'
+            size +=  start.Value.CalculateIntToSpanLength();
+        }
+        else if (start.Value > 0)
+        {
+            size +=  start.Value.CalculateIntToSpanLength();
+        }
+        size++; // '.'
+        size++; // '.'
+        var end = toConvert.End;
+        if (end is { IsFromEnd: true, Value: > 0 })
+        {
+            size++; // '^'
+            size +=  start.Value.CalculateIntToSpanLength();
+        }
+        else if (end is { IsFromEnd : false })
+        {
+            size +=  start.Value.CalculateIntToSpanLength();
+        }
+        size++; // ']'
+        return size;
+    }
 }

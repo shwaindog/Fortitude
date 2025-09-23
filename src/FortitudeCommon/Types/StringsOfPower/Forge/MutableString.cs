@@ -11,7 +11,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -61,7 +61,10 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         get
         {
-            if (!IsFrozen) { IsFrozen = true; }
+            if (!IsFrozen)
+            {
+                // IsFrozen = true;
+            }
             return this;
         }
     }
@@ -953,14 +956,14 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
                 customStringFormatter.Format(value, startIndex, this, formatString, length);
             return this;
         }
-        var cappedLength = Math.Clamp(length, 256, 256 + value.Length - startIndex);
-        var endIndex     = startIndex + cappedLength;
-        if (formatString != null)
+        if (formatString == null)
         {
+            var endIndex = Math.Min(length, value.Length - startIndex);
             for (var i = startIndex; i < endIndex; i++) { sb.Append(value[i]); }
         }
         else
         {
+            var cappedLength    = Math.Clamp(length, 256, 256 + value.Length - startIndex);
             var maxTransferSize = Math.Min(cappedLength, 512 * 1024);
             var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
 
@@ -1050,6 +1053,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         ReadOnlySpan<char> format, TFmt arg0)
         where TFmt : ISpanFormattable
     {
+        if (IsFrozen) return ShouldThrow();
         customStringFormatter.Format(arg0, this, format);
         return this;
     }
@@ -1062,22 +1066,13 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         where TFmt : ISpanFormattable =>
         AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, format, arg0);
 
-    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0)
-    {
-        if (IsFrozen) return ShouldThrow();
-        sb.AppendFormat(format, arg0);
-        return this;
-    }
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0)=>
+        AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, format, arg0);
 
-    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, ReadOnlySpan<char> arg0)
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, ReadOnlySpan<char> arg0) 
     {
         if (IsFrozen) return ShouldThrow();
-        format.ExtractStringFormatStages(out var _, out var layout, out _);
-        if (layout.Length == 0) return Append(arg0);
-        var cappedSize   = Math.Min(4096, arg0.Length + 256);
-        var charSpan     = stackalloc char[cappedSize].ResetMemory();
-        var charsWritten = charSpan.PadAndAlign(arg0, layout);
-        sb.Append(charSpan[..charsWritten]);
+        ICustomStringFormatter.DefaultBufferFormatter.Format(arg0, 0,  this, format);
         return this;
     }
 

@@ -95,7 +95,7 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStringBearer
         return partStringBuilder.Length;
     }
 
-    // example toke "%TS:yyyy-MM-dd HH:mm:SS.fff% %LVL,5% %THREADID,4% %THREADNAME,10[..10]% %LGR% %MSG%";
+    // example toke "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' '%THREADID,4%' '%THREADNAME[..10],10%' '%LGR,/././[^2..]%';:'%LLN,3:00%' '%MSG%'";
     protected virtual void ApplyTokenToStringBuilder(IStringBuilder sb, IFLogEntry logEntry)
     {
         switch (tokenFormatting.TokenName)
@@ -141,32 +141,7 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStringBearer
             case $"{nameof(LOGGER)}":
             case $"{nameof(LGRNAME)}":
             case $"{nameof(LGR)}":
-                if (!tokenFormatting.IsAllSplitRange)
-                {
-                    var splitStartIdx  = tokenFormatting.SplitRange.Start;
-                    var splitEndIdx    = tokenFormatting.SplitRange.End;
-                    var loggerNameSpan = logEntry.Logger.FullName.AsSpan();
-                    var countNameParts = loggerNameSpan.SplitCount('.');
-                    var hasAppended    = false;
-                    for (var i = 0; i < countNameParts; i++)
-                    {
-                        var fromEndIndex = countNameParts - i;
-                        var includeInLoggerName =
-                            (splitStartIdx.IsFromEnd ? splitStartIdx.Value >= fromEndIndex : splitStartIdx.Value <= i)
-                         && (splitEndIdx.IsFromEnd ? splitEndIdx.Value < fromEndIndex : splitEndIdx.Value > i);
-                        if (includeInLoggerName)
-                        {
-                            if (hasAppended) sb.Append('.');
-                            var loggerNamePart = loggerNameSpan.SplitAt('.', i);
-                            sb.Append(loggerNamePart);
-                            hasAppended = true;
-                        }
-                    }
-                }
-                else
-                {
-                    sb.AppendFormat(tokenFormatting.FormatString, logEntry.Logger.FullName);
-                }
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.Logger.FullName);
                 break;
             case $"{nameof(LOGLINENUMBER)}":
             case $"{nameof(LOGLINENUM)}":

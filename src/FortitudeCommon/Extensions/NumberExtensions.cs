@@ -3,6 +3,7 @@
 
 #region
 
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -97,6 +98,12 @@ public static class NumberExtensions
       , typeof(ulong)
       , typeof(double)
       , typeof(decimal)
+      , typeof(nint)
+      , typeof(nuint)
+      , typeof(Half)
+      , typeof(Int128)  
+      , typeof(UInt128)  
+      , typeof(BigInteger)  
     ];
 
     public static Type[] NullableNumberTypes =
@@ -114,6 +121,12 @@ public static class NumberExtensions
       , typeof(ulong?)
       , typeof(double?)
       , typeof(decimal?)
+      , typeof(nint?)
+      , typeof(nuint?)
+      , typeof(Half?)
+      , typeof(Int128?)  
+      , typeof(UInt128?)  
+      , typeof(BigInteger?) 
     ];
 
     public static bool IsNumericType(this Type toCheck)

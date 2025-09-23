@@ -297,14 +297,14 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     protected virtual string? CachedResult(TEnumValue toFormat, ReadOnlySpan<char> format, IFormatProvider? provider) => null;
 
-    private int EnumExtendedSpanFormattable(Enum toFormat, Span<char> destination, ReadOnlySpan<char> format, IFormatProvider? provider)
+    private int EnumExtendedSpanFormattable(Enum toFormat, Span<char> destination, ReadOnlySpan<char> formatString, IFormatProvider? provider)
     {
-        return EnumExtendedSpanFormattable((TEnumValue)toFormat, destination, format, provider);
+        return EnumExtendedSpanFormattable((TEnumValue)toFormat, destination, formatString, provider);
     }
 
-    private int EnumExtendedSpanFormattable(TEnumValue toFormat, Span<char> destination, ReadOnlySpan<char> format, IFormatProvider? provider)
+    private int EnumExtendedSpanFormattable(TEnumValue toFormat, Span<char> destination, ReadOnlySpan<char> formatString, IFormatProvider? provider)
     {
-        var cachedResult = CachedResult(toFormat, format, provider);
+        var cachedResult = CachedResult(toFormat, formatString, provider);
         if (cachedResult != null)
         {
             destination.Append(cachedResult);
@@ -314,8 +314,10 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         var buildVanillaName = stackalloc char[allValuesCharCount].ResetMemory();
         var vanillaSize      = SourceEnumNamesFromEnum(toFormat, buildVanillaName, null, provider);
         var vanillaEnumNames = buildVanillaName[..vanillaSize];
-        format.ExtractStringFormatStages(out _, out var layout, out _);
-
+        formatString.ExtractExtendedStringFormatStages
+            (out _, out _, out _ , out var layout, out _, out _, out _);
+    
+        
         return destination.PadAndAlign(vanillaEnumNames, layout);
     }
 

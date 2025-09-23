@@ -18,6 +18,7 @@ public class AsyncDblBufferedColoredConsoleTests
     private const string DblBufferedColoredConsoleName = "ColoredConsole";
 
     [TestMethod]
+    [Timeout(20_000)]
     public void AsyncDailyDblBufferedFileLoadsAndLogsToFile()
     {
         using var wd = GetType().GetTemporaryWorkingDirectoryFor();

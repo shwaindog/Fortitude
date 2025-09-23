@@ -2,6 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using static FortitudeCommon.Types.StringsOfPower.Options.DateTimeStyleFormat;
+using static FortitudeCommon.Types.StringsOfPower.Options.TimeStyleFormat;
 
 namespace FortitudeCommon.Types.StringsOfPower.Options;
 
@@ -9,9 +11,15 @@ public struct StyleOptionsValue
 {
     private StyleOptions? fallbackOptions;
 
-    public const string DefaultYyyyMMddTossFormat = "{0:yyyy-MM-ddTHH:mm:ss}";
-    public const string DefaultYyyyMMddTomsFormat = "{0:yyyy-MMd-dTHH:mm:ss.fff}";
-    public const string DefaultYyyyMMddTousFormat = "{0:yyyy-MM-ddTHH:mm:ss.ffffff}";
+    public const string DefaultTimeToSecFormat   = "{0:HH:mm:ss}";
+    public const string DefaultTimeToMsFormat    = "{0:HH:mm:ss.fff}";
+    public const string DefaultTimeToUsFormat    = "{0:HH:mm:ss.ffffff}";
+    public const string DefaultTimeToTicksFormat = "{0:HH:mm:ss.fffffff}";
+
+    public const string DefaultYyyyMMddOnly = "{0:yyyy-MM-dd}";
+    public const string DefaultYyyyMMddToSecFormat = "{0:yyyy-MM-ddTHH:mm:ssZ}";
+    public const string DefaultYyyyMMddToMsFormat  = "{0:yyyy-MMd-dTHH:mm:ss.fff}";
+    public const string DefaultYyyyMMddToUsFormat  = "{0:yyyy-MM-ddTHH:mm:ss.ffffff}";
 
     public StyleOptionsValue(StringStyle style) => this.style = style;
     public StyleOptionsValue(StyleOptions defaultOptions) => fallbackOptions = defaultOptions;
@@ -41,12 +49,18 @@ public struct StyleOptionsValue
     private bool?   enableColumnWrap;
     private int?    defaultGraphMaxDepth;
 
-    private TimeStyleFormat? dateTimeFormat;
+    private DateTimeStyleFormat? dateTimeFormat;
+    private TimeStyleFormat?     timeFormat;
 
     private string? dateTimeYyyyMMddTossFormat;
     private string? dateTimeYyyyMMddTomsFormat;
     private string? dateTimeYyyyMMddTousFormat;
-    private bool?    writeKeyValuePairsAsCollection;
+
+    private string? timeHHmmssFormat;
+    private string? timeHHmmssToMsFormat;
+    private string? timeHHmmssToUsFormat;
+    private string? timeHHmmssToTicksFormat;
+    private bool?   writeKeyValuePairsAsCollection;
 
     public StringStyle Style
     {
@@ -80,27 +94,94 @@ public struct StyleOptionsValue
         set => nullStyle = value;
     }
 
-    public TimeStyleFormat DateTimeFormat
+    public TimeStyleFormat TimeFormat
     {
-        readonly get => dateTimeFormat ?? fallbackOptions?.Values.DateTimeFormat ?? TimeStyleFormat.StringYyyyMMddToss;
+        readonly get => timeFormat ?? fallbackOptions?.Values.TimeFormat ?? StringHHmmssToTicks;
+        set => timeFormat = value;
+    }
+
+    public string TimeAsStringFormatString =>
+        TimeFormat switch
+        {
+            StringHHmmss     => TimeStringHHmmssFormatString
+          , StringHHmmssToMs => TimeStringHHmmssToMsFormatString
+          , StringHHmmssToUs => TimeStringHHmmssToUsFormatString
+          , _                => TimeStringHHmmssToTicksFormatString
+        };
+
+    public string TimeStringHHmmssFormatString
+    {
+        readonly get => timeHHmmssFormat ?? fallbackOptions?.Values.TimeStringHHmmssFormatString ?? DefaultTimeToSecFormat;
+        set => timeHHmmssFormat = value;
+    }
+
+    public string TimeStringHHmmssToMsFormatString
+    {
+        readonly get => timeHHmmssToMsFormat ?? fallbackOptions?.Values.TimeStringHHmmssToMsFormatString ?? DefaultTimeToMsFormat;
+        set => timeHHmmssToMsFormat = value;
+    }
+
+    public string TimeStringHHmmssToUsFormatString
+    {
+        readonly get => timeHHmmssToUsFormat ?? fallbackOptions?.Values.TimeStringHHmmssToUsFormatString ?? DefaultTimeToUsFormat;
+        set => timeHHmmssToUsFormat = value;
+    }
+
+    public string TimeStringHHmmssToTicksFormatString
+    {
+        readonly get => timeHHmmssToTicksFormat ?? fallbackOptions?.Values.TimeStringHHmmssToTicksFormatString ?? DefaultTimeToTicksFormat;
+        set => timeHHmmssToTicksFormat = value;
+    }
+
+    public DateTimeStyleFormat DateTimeFormat
+    {
+        readonly get => dateTimeFormat ?? fallbackOptions?.Values.DateTimeFormat ?? StringYyyyMMddToss;
         set => dateTimeFormat = value;
     }
 
-    public string DateTimeStringYyyyMMddTossFormatString
+    public bool DateTimeIsNumber => DateTimeFormat is SecondsFromUnixEpoch or MillsFromUnixEpoch or MicrosFromUnixEpoch or NanosFromUnixEpoch;
+
+    public bool DateTimeIsString => DateTimeFormat is StringYyyyMMddToss or StringYyyyMMddToms or StringYyyyMMddTous;
+
+    public long DateTimeTicksToNumberPrecision(long timeStampTicks) =>
+        DateTimeFormat switch
+        {
+            SecondsFromUnixEpoch => (timeStampTicks - DateTime.UnixEpoch.Ticks) / TimeSpan.TicksPerSecond
+          , MillsFromUnixEpoch   => (timeStampTicks - DateTime.UnixEpoch.Ticks) / TimeSpan.TicksPerMillisecond
+          , MicrosFromUnixEpoch  => (timeStampTicks - DateTime.UnixEpoch.Ticks) / TimeSpan.TicksPerMicrosecond
+          , _                    => (timeStampTicks - DateTime.UnixEpoch.Ticks) * 100
+        };
+
+    public string DateTimeAsStringFormatString =>
+        DateTimeFormat switch
+        {
+            StringYyyyMMddOnly => DateTimeStringYyyyMMddOnly
+          , StringYyyyMMddToss => DateTimeStringYyyyMMddToSecFormatString
+          , StringYyyyMMddToms => DateTimeStringYyyyMMddToMsFormatString
+          , _                  => DateTimeStringYyyyMMddToUsFormatString
+        };
+
+    public string DateTimeStringYyyyMMddOnly
     {
-        readonly get => dateTimeYyyyMMddTossFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddTossFormatString ?? DefaultYyyyMMddTossFormat;
+        readonly get => dateTimeYyyyMMddTossFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddOnly ?? DefaultYyyyMMddOnly;
         set => dateTimeYyyyMMddTossFormat = value;
     }
 
-    public string DateTimeStringYyyyMMddTomsFormatString
+    public string DateTimeStringYyyyMMddToSecFormatString
     {
-        readonly get => dateTimeYyyyMMddTomsFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddTossFormatString ?? DefaultYyyyMMddTomsFormat;
+        readonly get => dateTimeYyyyMMddTossFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddToSecFormatString ?? DefaultYyyyMMddToSecFormat;
+        set => dateTimeYyyyMMddTossFormat = value;
+    }
+
+    public string DateTimeStringYyyyMMddToMsFormatString
+    {
+        readonly get => dateTimeYyyyMMddTomsFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddToSecFormatString ?? DefaultYyyyMMddToMsFormat;
         set => dateTimeYyyyMMddTomsFormat = value;
     }
 
-    public string DateTimeStringYyyyMMddTousFormatString
+    public string DateTimeStringYyyyMMddToUsFormatString
     {
-        readonly get => dateTimeYyyyMMddTousFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddTossFormatString ?? DefaultYyyyMMddTousFormat;
+        readonly get => dateTimeYyyyMMddTousFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddToSecFormatString ?? DefaultYyyyMMddToUsFormat;
         set => dateTimeYyyyMMddTousFormat = value;
     }
 
@@ -163,10 +244,8 @@ public class StyleOptions(StyleOptionsValue initialValues)
 {
     private StyleOptionsValue values = initialValues;
 
-    public StyleOptions() : this(new StyleOptionsValue())
-    {
-    }
-    
+    public StyleOptions() : this(new StyleOptionsValue()) { }
+
     public StyleOptionsValue Values
     {
         get => values;
@@ -223,28 +302,74 @@ public class StyleOptions(StyleOptionsValue initialValues)
         set => values.NullStyle = value;
     }
 
-    public TimeStyleFormat DateTimeFormat
+    public TimeStyleFormat TimeFormat
+    {
+        get => values.TimeFormat;
+        set => values.TimeFormat = value;
+    }
+
+    public string TimeAsStringFormatString => values.TimeAsStringFormatString;
+
+    public string TimeStringHHmmssFormatString
+    {
+        get => values.TimeStringHHmmssFormatString;
+        set => values.TimeStringHHmmssFormatString = value;
+    }
+
+    public string TimeStringHHmmssToMsFormatString
+    {
+        get => values.TimeStringHHmmssToMsFormatString;
+        set => values.TimeStringHHmmssToMsFormatString = value;
+    }
+
+    public string TimeStringHHmmssToUsFormatString
+    {
+        get => values.TimeStringHHmmssToUsFormatString;
+        set => values.TimeStringHHmmssToUsFormatString = value;
+    }
+
+    public string TimeStringHHmmssToTicksFormatString
+    {
+        get => values.TimeStringHHmmssToTicksFormatString;
+        set => values.TimeStringHHmmssToTicksFormatString = value;
+    }
+    
+    public DateTimeStyleFormat DateDateTimeFormat
     {
         get => values.DateTimeFormat;
         set => values.DateTimeFormat = value;
     }
 
+    public bool DateTimeIsNumber => values.DateTimeIsNumber;
+
+    public bool DateTimeIsString => values.DateTimeIsString;
+
+    public long DateTimeTicksToNumberPrecision(long timeStampTicks) => values.DateTimeTicksToNumberPrecision(timeStampTicks);
+
+    public string DateTimeAsStringFormatString => values.DateTimeAsStringFormatString;
+
+    public string DateTimeStringYyyyMMddOnly
+    {
+        get => values.DateTimeStringYyyyMMddOnly;
+        set => values.DateTimeStringYyyyMMddOnly = value;
+    }
+
     public string DateTimeStringYyyyMMddTossFormatString
     {
-        get => values.DateTimeStringYyyyMMddTossFormatString;
-        set => values.DateTimeStringYyyyMMddTossFormatString = value;
+        get => values.DateTimeStringYyyyMMddToSecFormatString;
+        set => values.DateTimeStringYyyyMMddToSecFormatString = value;
     }
 
     public string DateTimeStringYyyyMMddTomsFormatString
     {
-        get => values.DateTimeStringYyyyMMddTomsFormatString;
-        set => values.DateTimeStringYyyyMMddTomsFormatString = value;
+        get => values.DateTimeStringYyyyMMddToMsFormatString;
+        set => values.DateTimeStringYyyyMMddToMsFormatString = value;
     }
 
     public string DateTimeStringYyyyMMddTousFormatString
     {
-        get => values.DateTimeStringYyyyMMddTousFormatString;
-        set => values.DateTimeStringYyyyMMddTousFormatString = value;
+        get => values.DateTimeStringYyyyMMddToUsFormatString;
+        set => values.DateTimeStringYyyyMMddToUsFormatString = value;
     }
 
     public bool DisableCircularRefCheck

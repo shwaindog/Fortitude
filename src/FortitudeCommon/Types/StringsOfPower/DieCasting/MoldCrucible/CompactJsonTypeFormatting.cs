@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
@@ -43,7 +43,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         where TB : TypeMolder =>
         typeBuilder.Sb.Append(Cma).ToInternalTypeBuilder(typeBuilder);
 
-    public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) 
+    public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel)
     {
         return sb.InsertAt(Cma, atIndex).ReturnCharCount(1);
     }
@@ -81,78 +81,45 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     {
         var sb      = typeBuilder.Sb;
         var fmtType = typeof(TFmt);
-        if (fmtType == typeof(DateTime))
+        if (source is DateTime sourceDateTime)
         {
-            switch (typeBuilder.Settings.DateTimeFormat)
+            if (typeBuilder.Settings.DateTimeIsNumber)
             {
-                case TimeStyleFormat.StringYyyyMMddToss:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTossFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.StringYyyyMMddToms:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTomsFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.StringYyyyMMddTous:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTousFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.SecondsFromUnixEpoch:
-                    if (source is DateTime sourceDateTime)
-                    {
-                        var ticksFromEpoch = sourceDateTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var secsFromEpoch  = ticksFromEpoch / 10_000_000;
-                        sb.Append(DblQt);
-                        base.Format(secsFromEpoch, typeBuilder.Sb, formatString);
-                        sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.MillsFromUnixEpoch:
-                    if (source is DateTime dateTime)
-                    {
-                        var ticksFromEpoch = dateTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var millsFromEpoch = ticksFromEpoch / 10_000;
-                        sb.Append(DblQt);
-                        base.Format(millsFromEpoch, typeBuilder.Sb, formatString);
-                        sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.MicrosFromUnixEpoch:
-                    if (source is DateTime sourceDate)
-                    {
-                        var ticksFromEpoch = sourceDate.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var mirosFromEpoch = ticksFromEpoch / 10;
-                        sb.Append(DblQt);
-                        base.Format(mirosFromEpoch, typeBuilder.Sb, formatString);
-                        sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.NanosFromUnixEpoch:
-                    if (source is DateTime sourceTime)
-                    {
-                        var ticksFromEpoch = sourceTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var nanosFromEpoch = ticksFromEpoch * 100;
-                        sb.Append(DblQt);
-                        base.Format(nanosFromEpoch, typeBuilder.Sb, formatString);
-                        sb.Append(DblQt);
-                    }
-                    break;
+                var converted = typeBuilder.Settings.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
+                sb.Append(DblQt);
+                base.Format(converted, typeBuilder.Sb, formatString);
+                sb.Append(DblQt);
             }
+            else
+            {
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    formatString = typeBuilder.Settings.DateTimeAsStringFormatString;
+                }
+                sb.Append(DblQt);
+                base.Format(source, typeBuilder.Sb, formatString);
+                sb.Append(DblQt);
+            }
+        }
+        else if (source is DateOnly sourceDateOnly)
+        {
+            if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+            {
+                formatString = typeBuilder.Settings.DateTimeStringYyyyMMddOnly;
+            }
+            sb.Append(DblQt);
+            base.Format(source, typeBuilder.Sb, formatString);
+            sb.Append(DblQt);
+        }
+        else if (source is TimeOnly sourceTimeOnly)
+        {
+            if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+            {
+                formatString = typeBuilder.Settings.TimeAsStringFormatString;
+            }
+            sb.Append(DblQt);
+            base.Format(source, typeBuilder.Sb, formatString);
+            sb.Append(DblQt);
         }
         else
         {
@@ -167,15 +134,13 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , string? formatString = null)
         where TB : TypeMolder where TFmt : struct, ISpanFormattable
     {
-        if (source != null)
+        var sb      = typeBuilder.Sb;
+        if (!source.HasValue)
         {
-            return FormatFieldName(typeBuilder, source.Value, formatString);
+            sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
         }
-        var sb = typeBuilder.Sb;
-        if (WrapValuesInQuotes) sb.Append(DblQt);
-        base.Format(source, typeBuilder.Sb, formatString);
-        if (WrapValuesInQuotes) sb.Append(DblQt);
-        return typeBuilder;
+        return FormatFieldName(typeBuilder, source.Value, formatString);
     }
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder
@@ -305,84 +270,62 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     {
         var sb      = typeBuilder.Sb;
         var fmtType = typeof(TFmt);
-        if (fmtType.IsValueType && fmtType.IsNumericType() && !(fmtType == typeof(DateTime) || fmtType == typeof(TimeSpan)))
+        if (fmtType.IsValueType && fmtType.IsNumericType())
         {
-            if (WrapValuesInQuotes) sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            if (WrapValuesInQuotes) sb.Append(DblQt);
-        }
-        else if (fmtType == typeof(DateTime))
-        {
-            switch (typeBuilder.Settings.DateTimeFormat)
+            var wrapInQuotes = WrapValuesInQuotes;
+            if (!wrapInQuotes)
             {
-                case TimeStyleFormat.StringYyyyMMddToss:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTossFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.StringYyyyMMddToms:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTomsFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.StringYyyyMMddTous:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTousFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.SecondsFromUnixEpoch:
-                    if (source is DateTime sourceDateTime)
-                    {
-                        var ticksFromEpoch = sourceDateTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var secsFromEpoch  = ticksFromEpoch / 10_000_000;
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                        base.Format(secsFromEpoch, typeBuilder.Sb, formatString);
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.MillsFromUnixEpoch:
-                    if (source is DateTime dateTime)
-                    {
-                        var ticksFromEpoch = dateTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var millsFromEpoch = ticksFromEpoch / 10_000;
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                        base.Format(millsFromEpoch, typeBuilder.Sb, formatString);
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.MicrosFromUnixEpoch:
-                    if (source is DateTime sourceDate)
-                    {
-                        var ticksFromEpoch = sourceDate.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var mirosFromEpoch = ticksFromEpoch / 10;
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                        base.Format(mirosFromEpoch, typeBuilder.Sb, formatString);
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.NanosFromUnixEpoch:
-                    if (source is DateTime sourceTime)
-                    {
-                        var ticksFromEpoch = sourceTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var nanosFromEpoch = ticksFromEpoch * 100;
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                        base.Format(nanosFromEpoch, typeBuilder.Sb, formatString);
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                    }
-                    break;
+                switch (source)
+                {
+                    case char:                wrapInQuotes = true; break;
+                    case Half halfSource:     wrapInQuotes = Half.IsNaN(halfSource); break;
+                    case float floatSource:   wrapInQuotes = float.IsNaN(floatSource); break;
+                    case double doubleSource: wrapInQuotes = double.IsNaN(doubleSource); break;
+                }
             }
+            if (wrapInQuotes) sb.Append(DblQt);
+            base.Format(source, typeBuilder.Sb, formatString);
+            if (wrapInQuotes) sb.Append(DblQt);
+        }
+        else if (source is DateTime sourceDateTime)
+        {
+            if (typeBuilder.Settings.DateTimeIsNumber)
+            {
+                var converted = typeBuilder.Settings.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
+                if (WrapValuesInQuotes) sb.Append(DblQt);
+                base.Format(converted, typeBuilder.Sb, formatString);
+                if (WrapValuesInQuotes) sb.Append(DblQt);
+            }
+            else
+            {
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+                {
+                    formatString = typeBuilder.Settings.DateTimeAsStringFormatString;
+                }
+                sb.Append(DblQt);
+                base.Format(source, typeBuilder.Sb, formatString);
+                sb.Append(DblQt);
+            }
+        }
+        else if (source is DateOnly dateTimeOnly)
+        {
+            if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+            {
+                formatString = typeBuilder.Settings.DateTimeStringYyyyMMddOnly;
+            }
+            sb.Append(DblQt);
+            base.Format(source, typeBuilder.Sb, formatString);
+            sb.Append(DblQt);
+        }
+        else if (source is TimeOnly sourceTimeOnly)
+        {
+            if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+            {
+                formatString = typeBuilder.Settings.TimeAsStringFormatString;
+            }
+            sb.Append(DblQt);
+            base.Format(source, typeBuilder.Sb, formatString);
+            sb.Append(DblQt);
         }
         else
         {
@@ -405,21 +348,12 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         where TB : TypeMolder where TFmt : struct, ISpanFormattable
     {
         var sb      = typeBuilder.Sb;
-        var fmtType = typeof(TFmt);
-        if (fmtType.IsValueType && fmtType.IsNumericType()
-         || ((fmtType == typeof(DateTime) || fmtType == typeof(TimeSpan)) && typeBuilder.Settings.DateTimeFormat.TimeFormatIsNumber()))
+        if (!source.HasValue)
         {
-            if (WrapValuesInQuotes) sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            if (WrapValuesInQuotes) sb.Append(DblQt);
+            sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
         }
-        else
-        {
-            sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            sb.Append(DblQt);
-        }
-        return typeBuilder;
+        return FormatFieldContents(typeBuilder, source.Value, formatString);
     }
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder
@@ -568,7 +502,8 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null) where TB : TypeMolder
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null)
+        where TB : TypeMolder
     {
         if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
@@ -599,7 +534,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TVBase>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) 
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null)
         where TB : TypeMolder where TValue : TVBase
     {
         if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
@@ -627,7 +562,8 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler)
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler
+      , StringBearerRevealState<TKBase> keyStyler)
         where TB : TypeMolder where TKey : TKBase where TValue : TVBase
     {
         if (typeBuilder.Settings.WriteKeyValuePairsAsCollection

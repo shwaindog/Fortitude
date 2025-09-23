@@ -4,7 +4,7 @@
 using System.Text;
 using FortitudeCommon.Extensions;
 
-namespace FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormatter
 {

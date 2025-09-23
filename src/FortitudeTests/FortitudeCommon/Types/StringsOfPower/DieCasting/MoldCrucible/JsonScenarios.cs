@@ -1,15 +1,16 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using FluentAssertions;
+using FortitudeCommon.Logging.Config.ExampleConfig;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LogEntries.PublishChains.PipelineSpies;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TextJsonConverters;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-
-[TestClass]
-[NoMatchingProductionClass]
-public class JsonScenarios
-{
 
     /// <summary>
     /// List of scenarios to test Json formatting of styled types
@@ -98,22 +99,49 @@ public class JsonScenarios
     ///     3.2 Root object with children with circular references serialized with $id and $ref included
     ///     3.3 Root object with children with circular references serialized with no circular reference handling serialized to max depth of 64 nodes
     
+[TestClass]
+[NoMatchingProductionClass]
+public class JsonScenarios
+{
+    private static IVersatileFLogger logger = null!;
+
+    [ClassInitialize]
+    public static void AllTestsInClassStaticSetup(TestContext testContext)
+    {
+        FLogConfigExamples.SyncColoredTestConsoleExample.LoadExampleAsCurrentContext();
+
+        logger  = FLog.FLoggerForType.As<IVersatileFLogger>();
+    }
+    
     [TestMethod]
     public void StandardSinglePropertyFieldClassSerializesAllFields()
     {
-        
         var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
         
-        
-        var shakeJsonSer = JsonSerializer.Serialize(singlePropertyFieldClass, new JsonSerializerOptions()
+        var textJsonStringify = JsonSerializer.Serialize(singlePropertyFieldClass, new JsonSerializerOptions()
         {
-            ReferenceHandler = ReferenceHandler.Preserve,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals 
+          NumberHandling   = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals 
+          , IncludeFields = true
+          ,  Converters = { 
+                 new BigIntegerConverter()
+               , new ComplexConverter()
+               , new RuneConverter()
+               , new StringBuilderConverter()
+               , new TestCustomSpanFormattableConverter()
+               , new JsonStringEnumConverter<NoDefaultLongNoFlagsEnum>()
+               , new JsonStringEnumConverter<NoDefaultULongNoFlagsEnum>()
+               , new JsonStringEnumConverter<WithDefaultLongNoFlagsEnum>()
+               , new JsonStringEnumConverter<WithDefaultULongNoFlagsEnum>()
+               , new JsonStringEnumConverter<NoDefaultLongWithFlagsEnum>()
+               , new JsonStringEnumConverter<NoDefaultULongWithFlagsEnum>()
+               , new JsonStringEnumConverter<WithDefaultLongWithFlagsEnum>()
+               , new JsonStringEnumConverter<WithDefaultULongWithFlagsEnum>()
+                
+            }
         });
 
-        Console.Out.WriteLine("Json Serializer");
-        Console.Out.WriteLine(shakeJsonSer);
-        
+        logger.WrnApnd("Json Serializer")?.Args("\n");
+        logger.InfApnd(textJsonStringify)?.Args("\n");
         
         var styledStringBuilder = new TheOneString();
         styledStringBuilder.ClearAndReinitialize(StringStyle.Json | StringStyle.Compact);
@@ -122,12 +150,13 @@ public class JsonScenarios
             WriteKeyValuePairsAsCollection = true
         };
         singlePropertyFieldClass.RevealState(styledStringBuilder);
-        var shakeStyled = styledStringBuilder.WriteBuffer.ToString();
-        
-        Console.Out.WriteLine("TheOneString");
-        Console.Out.WriteLine(shakeStyled);
+        var oneStringify = styledStringBuilder.WriteBuffer.ToString();
+
+        logger.ErrApnd("TheOneString")?.Args("\n" );
+        logger.WrnApnd(oneStringify)?.Args("\n" );
+
+        oneStringify.Should().BeEquivalentTo(textJsonStringify);
+
 
     }
-    
-    
 }

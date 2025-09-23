@@ -3,7 +3,7 @@
 
 using System.Text;
 
-namespace FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 public interface ICustomStringFormatter
 {
@@ -65,11 +65,11 @@ public interface ICustomStringFormatter
       , int maxTransferCount = int.MaxValue);
 
     int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
-    int Format<TFmt>(TFmt? source, Span<char> destination, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
+    int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
 
     int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : struct, ISpanFormattable;
 
-    int Format<TFmt>(TFmt? source, Span<char> destination, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : struct, ISpanFormattable;
+    int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : struct, ISpanFormattable;
 
     int TryFormat<TAny>(TAny source, IStringBuilder sb, string formatString);
 

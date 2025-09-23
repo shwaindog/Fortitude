@@ -16,7 +16,7 @@ public interface ITokenReplacedTemplatePart : IStringBearer
     string Layout { get; }
     string TokenName { get; }
     string FormatString { get; }
-    Range SplitRange { get; }
+    SplitJoinRange SplitRange { get; }
     Range CharsRange { get; }
 }
 
@@ -40,42 +40,29 @@ public class TokenFormatting : ITokenReplacedTemplatePart
     public TokenFormatting(string tokenFormatting, ITokenFormattingValidator? tokenFormattingValidator)
     {
         var tokenSpan = tokenFormatting.AsSpan();
-        tokenSpan.ExtractStringFormatStages(out var identifier, out var layout, out var formatting);
+        tokenSpan.ExtractExtendedStringFormatStages(out _, out var identifier, out var extendedLimitSizeRange,  out var layout
+                                          , out var splitOutputRange, out var formatting, out _);
         Span<char> upperParam = stackalloc char[identifier.Length];
         identifier.ToUpper(upperParam, CultureInfo.InvariantCulture);
         TokenName = new string(upperParam);
-
-        if (layout.Length > 0)
-        {
-            IsLeftAligned = layout[0].IsMinus();
-            if (layout[0].IsDigit() || IsLeftAligned)
-            {
-                layout.LayoutStringRangeIndexers(out var range);
-                CharsRange     = range;
-                IsAllCharRange = range.IsAllRange();
-            }
-            else if (layout[0].IsOpenSquareBracket())
-            {
-                var foundAt = layout.ExtractRangeFromSliceExpression(out var nullableCharRange);
-                if (foundAt >= 0)
-                {
-                    SplitRange      = nullableCharRange!.Value;
-                    IsAllSplitRange = SplitRange.IsAllRange();
-                }
-                layout = "".AsSpan();
-            }
-        }
+        
+        CharsRange      = extendedLimitSizeRange;
+        IsAllCharRange  = extendedLimitSizeRange.IsAllRange();
+        
+        SplitRange      = splitOutputRange;
+        HasSplitJoinFormatting = !SplitRange.IsNoSplitJoin;
+        
         if (tokenFormattingValidator != null) formatting = tokenFormattingValidator.ValidateFormattingToken(TokenName, formatting);
         Layout  = new string(layout);
         Padding = int.TryParse(Layout, out var result) ? result : 0;
         Format  = new string(formatting);
         var zeroPosParam = "0".AsSpan();
-        FormatString = zeroPosParam.BuildStringBuilderFormatting(layout, formatting);
+        FormatString = zeroPosParam.BuildStringBuilderFormatting(CharsRange, layout, SplitRange, formatting);
     }
 
     public string Format { get; }
     public bool IsAllCharRange { get; private set; } = true;
-    public bool IsAllSplitRange { get; private set; } = true;
+    public bool HasSplitJoinFormatting { get; private set; } = true;
 
     public string TokenName { get; }
 
@@ -84,7 +71,7 @@ public class TokenFormatting : ITokenReplacedTemplatePart
     public string FormatString { get; }
 
     public Range CharsRange { get; }
-    public Range SplitRange { get; }
+    public SplitJoinRange SplitRange { get; }
 
     public bool IsRightAligned => !IsLeftAligned;
     public bool IsLeftAligned { get; }
@@ -100,7 +87,7 @@ public class TokenFormatting : ITokenReplacedTemplatePart
            .Field.WhenNonDefaultAdd(nameof(IsLeftAligned), IsLeftAligned)
            .Field.WhenNonDefaultAdd(nameof(IsRightAligned), IsRightAligned, true)
            .Field.WhenNonDefaultAddMatch(nameof(CharsRange), CharsRange, Range.All)
-           .Field.WhenNonDefaultAddMatch(nameof(SplitRange), SplitRange, Range.All)
+           .Field.WhenNonDefaultAddMatch(nameof(SplitRange), SplitRange, SplitJoinRange.NoSplitJoin)
            .Complete();
 
     public override string ToString() => this.DefaultToString();

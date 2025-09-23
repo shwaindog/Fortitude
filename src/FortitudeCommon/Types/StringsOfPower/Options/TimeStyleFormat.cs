@@ -3,9 +3,10 @@
 
 namespace FortitudeCommon.Types.StringsOfPower.Options;
 
-public enum TimeStyleFormat
+public enum DateTimeStyleFormat
 {
     Default
+  , StringYyyyMMddOnly
   , StringYyyyMMddToss
   , StringYyyyMMddToms
   , StringYyyyMMddTous
@@ -15,13 +16,21 @@ public enum TimeStyleFormat
   , SecondsFromUnixEpoch
   , TicksFrom001Ad
 }
+public enum TimeStyleFormat
+{
+    Default
+  , StringHHmmss
+  , StringHHmmssToMs
+  , StringHHmmssToUs
+  , StringHHmmssToTicks
+}
 
 public static class TimeStyleFormatExtensions
 {
-    public static bool TimeFormatIsNumber(this TimeStyleFormat timeStyle) =>
-        timeStyle is TimeStyleFormat.SecondsFromUnixEpoch
-                  or TimeStyleFormat.MillsFromUnixEpoch
-                  or TimeStyleFormat.MicrosFromUnixEpoch
-                  or TimeStyleFormat.NanosFromUnixEpoch
-                  or TimeStyleFormat.TicksFrom001Ad;
+    public static bool TimeFormatIsNumber(this DateTimeStyleFormat dateTimeStyle) =>
+        dateTimeStyle is DateTimeStyleFormat.SecondsFromUnixEpoch
+                  or DateTimeStyleFormat.MillsFromUnixEpoch
+                  or DateTimeStyleFormat.MicrosFromUnixEpoch
+                  or DateTimeStyleFormat.NanosFromUnixEpoch
+                  or DateTimeStyleFormat.TicksFrom001Ad;
 }
