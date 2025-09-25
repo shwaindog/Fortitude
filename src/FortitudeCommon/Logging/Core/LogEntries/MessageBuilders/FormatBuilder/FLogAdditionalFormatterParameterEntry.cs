@@ -43,7 +43,7 @@ public partial class FLogAdditionalFormatterParameterEntry :
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndMatch<T>(T value)
     {
-        var tempStsa = TempStyledTypeAppender;
+        var tempStsa = Temp;
         AppendMatchSelect(value, tempStsa);
         var toReturn = ReplaceStagingTokenNumber(tempStsa.WriteBuffer).CallExpectContinue(value);
         tempStsa.DecrementRefCount();
@@ -52,7 +52,7 @@ public partial class FLogAdditionalFormatterParameterEntry :
 
     public void AndFinalMatchParam<T>(T value)
     {
-        var tempStsa = TempStyledTypeAppender;
+        var tempStsa = Temp;
         AppendMatchSelect(value, tempStsa);
         ReplaceStagingTokenNumber(tempStsa.WriteBuffer).CallEnsureNoMoreTokensAndComplete(value);
         tempStsa.DecrementRefCount();
@@ -60,7 +60,7 @@ public partial class FLogAdditionalFormatterParameterEntry :
 
     public IFLogStringAppender AndFinalMatchParamThenToAppender<T>(T? value)
     {
-        var tempStsa = TempStyledTypeAppender;
+        var tempStsa = Temp;
         AppendMatchSelect(value, tempStsa);
         var toReturn = ReplaceStagingTokenNumber(tempStsa.WriteBuffer).ToStringAppender(value, this);
         tempStsa.DecrementRefCount();

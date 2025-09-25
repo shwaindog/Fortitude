@@ -4,18 +4,17 @@
 using System.Collections;
 using System.Reflection;
 using FortitudeCommon.DataStructures.Maps;
-using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout.FLogEntryLayoutTokens;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
-public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
+public class EnvironmentDataTemplatePart : ITemplatePart, IStringBearer
 {
     [ThreadStatic] protected static IStringBuilder? ScratchBuffer;
 
@@ -102,8 +101,8 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
         return allEnvVariablesExpanded;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(tokenFormatting), tokenFormatting).Complete();
 
     public override string ToString() => this.DefaultToString();

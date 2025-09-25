@@ -252,17 +252,31 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
         if (currentCandleState is { IsEmpty: false } && currentCandleState.PeriodStartTime <= currentPeriodStart)
         {
             var candle = currentCandleState.BuildCandle(Context.PooledRecycler, now);
-            PublishSummaryTo(candle, liveResponsePublishParams);
+            try
+            {
+                Logger.TraceFormat("Publishing Live candle: {0} from rule {1} on Default Listener Broadcast Address")?.WithParams(candle)?.AndFinalParam(this);
+                PublishSummaryTo(candle, liveResponsePublishParams);
+            }
+            catch (Exception ex)
+            {
+                Logger.ErrorFormat("Problem publishing live candle {0}")?.WithOnlyObjectParam(ex);
+            }
+        }
+        else
+        {
+            Logger.TraceFormat("Did not publish Live candle: rule {0} on Default Listener Broadcast Address")?.WithOnlyParam(this);
         }
     }
 
     private void PublishCompleteCandle()
     {
         var now = TimeContext.UtcNow;
-        if (lastCandleState is { HasPublishedComplete: false, IsEmpty: false })
+        if (lastCandleState != null && lastCandleState.PeriodEnd() > now) return;
+        if ( lastCandleState is { HasPublishedComplete: false, IsEmpty: false })
         {
             var candle = lastCandleState.BuildCandle(Context.PooledRecycler, now);
             if (candle.TickCount == 0) continuousEmptyPeriod++;
+            Logger.TraceFormat("Publishing Complete candle: {0} from rule {1} on Default Listener Broadcast Address")?.WithParams(candle)?.AndFinalParam(this);
             PublishSummaryTo(candle, completeResponsePublishParams);
             lastCandleState.HasPublishedComplete = true;
         }
@@ -274,6 +288,7 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
             {
                 var candle = currentCandleState.BuildCandle(Context.PooledRecycler, now);
                 if (candle.TickCount == 0) continuousEmptyPeriod++;
+                Logger.TraceFormat("Publishing Complete candle: {0} from rule {1} on Default Listener Broadcast Address")?.WithParams(candle)?.AndFinalParam(this);
                 PublishSummaryTo(candle, completeResponsePublishParams);
                 currentCandleState.HasPublishedComplete = true;
 
@@ -296,12 +311,12 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
         if (responsePublishParams.ResponsePublishMethod is ResponsePublishMethod.AlternativeBroadcastAddress
                                                         or ResponsePublishMethod.ListenerDefaultBroadcastAddress)
         {
-            Logger.TraceFormat("Publishing candle: {0} from rule {1} on Default Listener Broadcast Address")?.WithParams(candle)?.AndFinalParam(this);
+            Logger.TraceFormat("Publishing any candle: {0} from rule {1} on Default Listener Broadcast Address")?.WithParams(candle)?.AndFinalParam(this);
             this.Publish(responsePublishParams.AlternativePublishAddress!, candle, responsePublishParams.PublishDispatchOptions);
         }
         else
         {
-            Logger.TraceFormat("Publishing candle: {0} from rule {1} on Channel Request")?.WithParams(candle)?.AndFinalParam(this);
+            Logger.TraceFormat("Publishing any candle: {0} from rule {1} on Channel Request")?.WithParams(candle)?.AndFinalParam(this);
             var publishChannel = (IChannel<ICandle>)responsePublishParams.ChannelRequest!.Channel;
             publishChannel.Publish(this, candle);
         }
@@ -381,10 +396,9 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
                     PreviousPeriodBidAskEnd = lastCandleState.SubCandlesPeriods.Tail?.EndBidAsk
                 };
             }
-            else if(subCandle.PeriodEndTime > currentCandleState.PeriodEnd())
+            else 
             {
                 var lastPeriodEnd = lastCandleState!.SubCandlesPeriods.Tail?.EndBidAsk;
-
                 if (!lastCandleState.IsEmpty && !lastCandleState.HasPublishedComplete) PublishCompleteCandle();
 
                 var newCurrentCandleState = ClearExisting(lastCandleState);

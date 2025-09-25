@@ -11,8 +11,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Storage.TimeSeries.FileSystem;
 using FortitudeIO.Storage.TimeSeries.FileSystem.DirectoryStructure;
@@ -463,8 +463,8 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category}, {nameof(SourcePublishLocation)}: {SourcePublishLocation}, " +
         $"{nameof(AdapterReceiveLocation)}: {AdapterReceiveLocation}, {nameof(ClientReceiveLocation)}: {ClientReceiveLocation}";
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(CoveringPeriod), CoveringPeriod, DiscreetTimePeriod.Styler)
             .Field.AlwaysAdd(nameof(InstrumentType), InstrumentType)
@@ -624,7 +624,7 @@ public readonly struct PricingInstrumentIdValue // not inheriting from IPricingI
     public string SourceName     => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
 
     
-    public static CustomTypeStyler<PricingInstrumentIdValue> Styler { get; } =
+    public static StringBearerRevealState<PricingInstrumentIdValue> Styler { get; } =
         (piiv, stsa) =>
             stsa.StartComplexType(piiv, nameof(piiv))
                 .Field.AlwaysAdd(nameof(piiv.SourceTickerId), piiv.SourceTickerId)

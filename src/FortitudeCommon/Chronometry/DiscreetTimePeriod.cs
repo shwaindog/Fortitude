@@ -5,7 +5,7 @@
 
 using System.Text;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower;
 using MathNet.Numerics;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
@@ -412,7 +412,7 @@ public readonly struct DiscreetTimePeriod
         return toConvert.Period;
     }
     
-    public static CustomTypeStyler<DiscreetTimePeriod> Styler { get; } =
+    public static StringBearerRevealState<DiscreetTimePeriod> Styler { get; } =
         (dtp, stsa) =>
             stsa.StartComplexType(dtp, nameof(dtp))
                 .Field.AlwaysAddObject(nameof(dtp.NumberOfPeriods), dtp.NumberOfPeriods)

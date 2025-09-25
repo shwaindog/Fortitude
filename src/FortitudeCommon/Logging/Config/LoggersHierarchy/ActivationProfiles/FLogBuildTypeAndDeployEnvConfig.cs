@@ -2,18 +2,17 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Config;
-using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 
 public interface IFLogBuildTypeAndDeployEnvConfig : IInterfacesComparable<IFLogBuildTypeAndDeployEnvConfig>
   , IConfigCloneTo<IFLogBuildTypeAndDeployEnvConfig>
-  , IFLogConfig, IStyledToStringObject
+  , IFLogConfig, IStringBearer
 {
     FLogBuildTypeProfile BuildType { get; }
 
@@ -114,8 +113,8 @@ public class FLogBuildTypeAndDeployEnvConfig : FLogConfig, IMutableFLogBuildType
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(BuildType), BuildType)
            .Field.AlwaysAdd(nameof(DeploymentEnvironment), DeploymentEnvironment)
            .Complete();

@@ -7,17 +7,16 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Maps;
-using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
 
 public interface IExtractedMessageKeyValuesConfig : IStickyKeyValueDictionary<string, IExtractKeyExpressionConfig>
-  , IConfigCloneTo<IExtractedMessageKeyValuesConfig>, IStyledToStringObject, IFLogConfig, IInterfacesComparable<IExtractedMessageKeyValuesConfig>
+  , IConfigCloneTo<IExtractedMessageKeyValuesConfig>, IStringBearer, IFLogConfig, IInterfacesComparable<IExtractedMessageKeyValuesConfig>
 {
     new IExtractedMessageKeyValuesConfig Clone();
 }
@@ -205,8 +204,8 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartKeyedCollectionType(this)
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
            .AddAll(extractConfigByKeyName)
            .Complete();
 

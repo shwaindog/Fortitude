@@ -5,13 +5,13 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface ITradingTimeTableConfig : IInterfacesComparable<ITradingTimeTableConfig>, IWeeklyAvailability, IStyledToStringObject
+public interface ITradingTimeTableConfig : IInterfacesComparable<ITradingTimeTableConfig>, IWeeklyAvailability, IStringBearer
 {
     IDailyTradingScheduleConfig? TradingScheduleConfig { get; set; }
 
@@ -114,8 +114,8 @@ public class TradingTimeTableConfig : ConfigSection, ITradingTimeTableConfig
         return allAreSame;
     }
     
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(TradingScheduleConfig), TradingScheduleConfig)
             .Field.AlwaysAdd(nameof(HighLiquidityTimeTable), HighLiquidityTimeTable)
             .Field.AlwaysAdd(nameof(ParentTradingTimeTableConfig), ParentTradingTimeTableConfig)

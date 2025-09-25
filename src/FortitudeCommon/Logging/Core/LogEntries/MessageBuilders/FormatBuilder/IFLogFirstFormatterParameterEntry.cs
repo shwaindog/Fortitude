@@ -4,8 +4,8 @@
 using System.Text;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
 using JetBrains.Annotations;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -30,11 +30,11 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     IFLogAdditionalFormatterParameterEntry? WithParams<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
+    IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
+    IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
@@ -92,7 +92,7 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     IFLogAdditionalFormatterParameterEntry? WithParams(StringBuilder? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithParams(IStyledToStringObject? value);
+    IFLogAdditionalFormatterParameterEntry? WithParams(IStringBearer? value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     [CallsObjectToString]
@@ -108,8 +108,8 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     void WithOnlyParam(bool? value);
     void WithOnlyParam(bool value);
     void WithOnlyParam<TFmt>(TFmt value) where TFmt : ISpanFormattable;
-    void WithOnlyParam<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler) where TToStyle : TStylerType;
-    void WithOnlyParam<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    void WithOnlyParam<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType;
+    void WithOnlyParam<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType;
     void WithOnlyParam(ReadOnlySpan<char> value);
     void WithOnlyParam(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
     void WithOnlyParam(string? value);
@@ -128,7 +128,7 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     void WithOnlyParam((StringBuilder?, int) valueTuple);
     void WithOnlyParam((StringBuilder?, int, int) valueTuple);
     void WithOnlyParam(StringBuilder? value, int startIndex, int count = int.MaxValue);
-    void WithOnlyParam(IStyledToStringObject? value);
+    void WithOnlyParam(IStringBearer? value);
 
     [CallsObjectToString] void WithOnlyObjectParam(object? value);
 
@@ -151,11 +151,11 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     IFLogStringAppender WithOnlyParamThenToAppender<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
+    IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
+    IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
@@ -213,7 +213,7 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     IFLogStringAppender WithOnlyParamThenToAppender(StringBuilder? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender WithOnlyParamThenToAppender(IStyledToStringObject? value);
+    IFLogStringAppender WithOnlyParamThenToAppender(IStringBearer? value);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
     [CallsObjectToString]

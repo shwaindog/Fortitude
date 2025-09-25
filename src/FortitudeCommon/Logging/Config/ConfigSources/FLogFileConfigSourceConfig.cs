@@ -3,8 +3,8 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.ConfigSources;
@@ -116,8 +116,8 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
         }
     }
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(FilePath), FilePath)
            .Field.AlwaysAdd(nameof(FileSystemMonitored), FileSystemMonitored)

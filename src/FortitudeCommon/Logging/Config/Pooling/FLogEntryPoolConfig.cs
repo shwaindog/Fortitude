@@ -4,8 +4,8 @@
 using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Pooling;
@@ -24,7 +24,7 @@ public enum PoolScope
 }
 
 public interface IFLogEntryPoolConfig : IInterfacesComparable<IFLogEntryPoolConfig>, ICloneable<IFLogEntryPoolConfig>
-  , IStyledToStringObject, IFLogConfig
+  , IStringBearer, IFLogConfig
 {
     const string Default          = "Default";
     const string Global           = "Global";
@@ -169,8 +169,8 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(PoolName), PoolName)
            .Field.AlwaysAdd(nameof(PoolScope), PoolScope.ToString())
            .Field.AlwaysAdd(nameof(LogEntryCharCapacity), LogEntryCharCapacity)

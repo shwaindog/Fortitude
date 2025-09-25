@@ -8,9 +8,8 @@ using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
-using FortitudeIO.Config;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using Microsoft.Extensions.Configuration;
 
@@ -30,7 +29,7 @@ public enum ConnectionSelectionOrder
 }
 
 public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IConnection, IEnumerable<IEndpointConfig>
-  , ICloneable<INetworkTopicConnectionConfig>, IInterfacesComparable<INetworkTopicConnectionConfig>, IStyledToStringObject
+  , ICloneable<INetworkTopicConnectionConfig>, IInterfacesComparable<INetworkTopicConnectionConfig>, IStringBearer
 {
     static readonly uint DefaultRetryAttempts = 3u;
     static readonly TimeSpanConfig DefaultFirstRetryInterval = new (seconds: 1);
@@ -437,8 +436,8 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         return hashCode.ToHashCode();
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(TopicName), TopicName)
             .Field.AlwaysAdd(nameof(ConversationProtocol), ConversationProtocol)

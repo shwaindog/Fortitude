@@ -4,6 +4,8 @@ public interface IPooledFactory
 {
     void ReturnBorrowed(object item);
     object Borrow();
+    
+    int Count { get; }
 }
 
 public interface IPooledFactory<T> : IPooledFactory

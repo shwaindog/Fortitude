@@ -8,14 +8,14 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 
 public interface IMatchOperatorCollectionConfig : IFLogConfig, IStickyKeyValueDictionary<ushort, IMatchOperatorExpressionConfig>
-  , ICloneable<IMatchOperatorCollectionConfig>, IStyledToStringObject, IInterfacesComparable<IMatchOperatorCollectionConfig> { }
+  , ICloneable<IMatchOperatorCollectionConfig>, IStringBearer, IInterfacesComparable<IMatchOperatorCollectionConfig> { }
 
 public interface IAppendableMatchOperatorLookupConfig : IMutableFLogConfig, IMatchOperatorCollectionConfig
   , IAppendableDictionary<ushort, IMutableMatchOperatorExpressionConfig>
@@ -252,8 +252,8 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
         return hashCode;
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartKeyedCollectionType(this)
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
            .AddAll(evalOrderKeyedExpressions)
            .Complete();
 

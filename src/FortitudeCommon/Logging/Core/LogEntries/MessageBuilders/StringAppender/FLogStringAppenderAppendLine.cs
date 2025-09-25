@@ -2,9 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
 using JetBrains.Annotations;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -36,15 +35,15 @@ public partial class FLogStringAppender
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, CustomTypeStyler<TStylerType> customTypeStyler)
+    public IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
         where TToStyle : TStylerType
     {
-        customTypeStyler(value, MessageStsa);
+        stringBearerRevealState(value, MessageStsa);
         return MessageSb.AppendLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, CustomTypeStyler<TStylerType>) valueTuple)
+    public IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         AppendStyled(valueTuple, MessageStsa);
@@ -143,9 +142,9 @@ public partial class FLogStringAppender
         MessageSb.Append(value, startIndex, count).AppendLine().ToAppender(this);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(IStyledToStringObject? value)
+    public IFLogStringAppender AppendLine(IStringBearer? value)
     {
-        value?.ToString(MessageStsa);
+        value?.RevealState(MessageStsa);
         return this;
     }
 

@@ -22,7 +22,7 @@ public interface IBlockingFormatWriterResolverHandle : IDisposable, IRecyclableO
 
     IFormatWriter? GetOrWaitForFormatWriter(int timeout = 2_000);
 
-    void ReceiveFormatWriterHandler(IFormatWriter writer);
+    bool ReceiveFormatWriterHandler(IFormatWriter writer);
     void IssueRequestAborted();
 }
 
@@ -37,8 +37,9 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
 
     public BlockingFormatWriterResolverHandle Initialize
     (
-        IFLogEntry requester,
-        IFLogFormattingAppender owner
+        IFLogEntry requester
+      , Thread requesterThread
+      , IFLogFormattingAppender owner
       , Action<IBlockingFormatWriterResolverHandle> onCompleteHandBackAction
       , ISyncLock syncStrategy
       , IFormatWriter? requestedFormatWriter = null
@@ -47,6 +48,7 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
         IsDisposed            = false;
         WasTaken              = false;
         RequestingLogEntry    = requester;
+        RequesterTHread = requesterThread;
         onDisposeCallback     = onCompleteHandBackAction;
         requesterLockStrategy = syncStrategy;
         if (requestedFormatWriter != null)
@@ -66,11 +68,19 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
 
     public IFLogEntry? RequestingLogEntry { get; private set; }
 
+    public Thread RequesterTHread { get; private set; } = null!;
+
     public void Dispose()
     {
-        IsDisposed = true;
-        onDisposeCallback?.Invoke(this);
-
+        if (!IsDisposed)
+        {
+            lock (this)
+            {
+                if (IsDisposed) return;
+                IsDisposed = true;
+                onDisposeCallback?.Invoke(this);
+            }
+        }
         // do not decrement ref count onDisposeCallback should do that
     }
 
@@ -102,13 +112,19 @@ public class BlockingFormatWriterResolverHandle : RecyclableObject, IBlockingFor
         requesterLockStrategy?.Release();
     }
 
-    public void ReceiveFormatWriterHandler(IFormatWriter writer)
+    public bool ReceiveFormatWriterHandler(IFormatWriter writer)
     {
-        currentFormatWriter = writer;
-        writer.InUse        = true;
-        IsAvailable         = true;
+        if (IsDisposed) return false;
+        lock (this)
+        {
+            if (IsDisposed) return false;
+            currentFormatWriter = writer;
+            writer.InUse        = true;
+            IsAvailable         = true;
 
-        requesterLockStrategy!.Release(true);
+            requesterLockStrategy!.Release(true);
+            return true;
+        }
     }
 
     public bool TryGetFormatWriter(out IFormatWriter? formatWriter)

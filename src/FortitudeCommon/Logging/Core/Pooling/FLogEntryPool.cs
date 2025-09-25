@@ -4,7 +4,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Logging.Core.Pooling;
 

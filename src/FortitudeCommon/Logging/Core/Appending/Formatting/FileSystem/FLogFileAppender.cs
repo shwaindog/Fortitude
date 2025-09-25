@@ -13,7 +13,7 @@ using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.RequestsCa
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.OSWrapper.Streams;
-using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 
 #pragma warning disable SYSLIB0001
 

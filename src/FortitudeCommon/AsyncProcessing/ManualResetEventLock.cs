@@ -2,19 +2,28 @@
 
 namespace FortitudeCommon.AsyncProcessing;
 
-public class ManualResetEventLock(bool defaultAcquired = false) : RecyclableObject, ISyncLock
+public class ManualResetEventLock : RecyclableObject, ISyncLock
 {
-    private readonly ManualResetEvent resetEvent = new(!defaultAcquired);
+    private readonly ManualResetEvent resetEvent;
 
-    [ThreadStatic] private static bool wasAcquired;
+    private bool wasAcquired;
+    private int  instanceCount;
+    private int  instanceNumber;
 
     public ManualResetEventLock() : this(false) { }
+    
+    public ManualResetEventLock(bool defaultAcquired = false)
+    {
+        resetEvent = new ManualResetEvent(!defaultAcquired);
+        instanceNumber = Interlocked.Increment(ref instanceCount);
+    }
 
     public int ReleaseCount { get; private set; }
 
     public bool Acquire(int timeoutMs = int.MaxValue)
     {
-        return wasAcquired = resetEvent.WaitOne(timeoutMs);
+        wasAcquired = resetEvent.WaitOne(timeoutMs);
+        return wasAcquired;
     }
 
     public void Release(bool? forceRelease = null)
@@ -28,17 +37,17 @@ public class ManualResetEventLock(bool defaultAcquired = false) : RecyclableObje
     public void Reset()
     {
         ReleaseCount = 0;
-        resetEvent.Set();
+        resetEvent.Reset();
     }
 
     public void Dispose()
     {
-        Release();
+        Release(true);
     }
 
     public override void StateReset()
     {
-        Reset();
+        resetEvent.Set();
         base.StateReset();
     }
 }

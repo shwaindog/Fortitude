@@ -9,8 +9,8 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Protocols;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents;
@@ -452,8 +452,8 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
 
     protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) => 
-    stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+    tos.StartComplexType(this)
         .Field.AlwaysAdd(nameof(SingleTickValue), SingleTickValue)
         .Field.WhenNonDefaultAdd(nameof(UpdatedFlags), UpdatedFlags)
         .Complete();
@@ -1023,8 +1023,8 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
 
     protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(PQSourceTickerInfo), PQSourceTickerInfo)
             .Field.AlwaysAdd(nameof(PQSequenceId), PQSequenceId)
             .AddBaseStyledToStringFields(this)

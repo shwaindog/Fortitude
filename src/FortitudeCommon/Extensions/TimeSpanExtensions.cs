@@ -1,18 +1,18 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.Extensions;
 
 public static class TimeSpanExtensions
 {
-    public static CustomTypeStyler<TimeSpan> TimeSpanStyler = FormatTimeSpanAsStructAppender;
+    public static StringBearerRevealState<TimeSpan> TimeSpanStyler = FormatTimeSpanAsStructAppender;
 
-    public static CustomTypeStyler<TimeSpan> StylerComplexType(this TimeSpan _) => TimeSpanStyler;
+    public static StringBearerRevealState<TimeSpan> StylerComplexType(this TimeSpan _) => TimeSpanStyler;
 
-    public static StyledTypeBuildResult FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
+    public static StateExtractStringRange FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, ITheOneString sbc)
     {
         return
         sbc.StartComplexType(timeSpan)

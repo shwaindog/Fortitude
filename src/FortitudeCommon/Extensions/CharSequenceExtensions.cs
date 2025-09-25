@@ -1,4 +1,4 @@
-﻿using FortitudeCommon.Types.Mutable.Strings;
+﻿using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Extensions;
 

@@ -6,7 +6,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower;
 
 #endregion
 
@@ -35,7 +35,7 @@ public readonly struct BidAskPair // not inheriting from IBidAskPair to prevent 
     public decimal BidPrice { get; }
     public decimal AskPrice { get; }
     
-    public static CustomTypeStyler<BidAskPair> Styler { get; } =
+    public static StringBearerRevealState<BidAskPair> Styler { get; } =
         (bap, stsa) =>
             stsa.StartComplexType(bap, nameof(bap))
                 .Field.WhenNonDefaultAdd(nameof(bap.BidPrice), bap.BidPrice)

@@ -6,8 +6,8 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Config.Availability;
 using FortitudeMarkets.Config.PricingConfig;
@@ -20,7 +20,7 @@ using Microsoft.Extensions.Configuration;
 namespace FortitudeMarkets.Config;
 
 public interface IMarketConnectionConfig : IConnection, ICloneable<IMarketConnectionConfig>, IInterfacesComparable<IMarketConnectionConfig>
-  , IStyledToStringObject
+  , IStringBearer
 {
     public const ushort DefaultEmptySourceIdValue   = 0;
     public const string DefaultEmptySourceNameValue = "";
@@ -353,8 +353,8 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(SourceId), SourceId)
             .Field.AlwaysAdd(nameof(SourceName), SourceName)

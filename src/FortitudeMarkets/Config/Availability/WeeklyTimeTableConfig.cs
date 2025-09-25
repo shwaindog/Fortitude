@@ -6,15 +6,15 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 #endregion
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface IWeeklyTimeTableConfig : IWeeklyAvailability, IInterfacesComparable<IWeeklyTimeTableConfig>, IStyledToStringObject
+public interface IWeeklyTimeTableConfig : IWeeklyAvailability, IInterfacesComparable<IWeeklyTimeTableConfig>, IStringBearer
 {
     TimeZoneInfo? OverrideTimeZone { get; set; }
 
@@ -245,9 +245,9 @@ public class WeeklyTimeTableConfig : ConfigSection, IWeeklyTimeTableConfig
         }
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos)
     {
-        return sbc.StartComplexType(this)
+        return tos.StartComplexType(this)
            .Field.AlwaysAddObject(nameof(StartTimes), StartTimes)
            .Field.AlwaysAddObject(nameof(StopTimes), StopTimes)
            .Field.AlwaysAddObject(nameof(OverrideTimeZone), OverrideTimeZone)

@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.Availability;
@@ -57,7 +57,7 @@ public enum NamedHoliday
 }
 // ReSharper restore UnusedMember.Global
 
-public interface ICalendarDateHolidayConfig : ICalendarDateMatchConfig, ICloneable<ICalendarDateHolidayConfig>, IStyledToStringObject
+public interface ICalendarDateHolidayConfig : ICalendarDateMatchConfig, ICloneable<ICalendarDateHolidayConfig>, IStringBearer
 {
     public const short DefaultFirstNonWeekdayCarry  = 2;
     public const short DefaultSecondNonWeekdayCarry = 1;
@@ -192,8 +192,8 @@ public class CalendarDateHolidayConfig : CalendarDateMatchConfig, ICalendarDateH
         }
     }
     
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(HolidayName), HolidayName)
             .Field.AlwaysAdd(nameof(Year), Year)
             .Field.AlwaysAdd(nameof(Month), Month)

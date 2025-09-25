@@ -10,7 +10,7 @@ using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Indicators.Config;
 using FortitudeMarkets.Indicators.Persistence;
@@ -252,7 +252,7 @@ public struct IndicatorServiceRegistryParams
 
     public IIndicatorServicesConfig IndicatorServiceConfig { get; }
     
-    public static CustomTypeStyler<IndicatorServiceRegistryParams> Styler { get; } =
+    public static StringBearerRevealState<IndicatorServiceRegistryParams> Styler { get; } =
         (isrp, stsa) =>
             stsa.StartComplexType(isrp)
                 .Field.AlwaysAdd(nameof(isrp.IndicatorServiceConfig), isrp.IndicatorServiceConfig)

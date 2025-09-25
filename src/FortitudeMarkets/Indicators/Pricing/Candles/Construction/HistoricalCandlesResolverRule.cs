@@ -12,7 +12,7 @@ using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Storage.TimeSeries.FileSystem;
 using FortitudeMarkets.Indicators.Persistence;
@@ -41,7 +41,7 @@ public struct HistoricalCandleParams(SourceTickerIdentifier sourceTickerIdentifi
 
     public TimeLength CacheLength { get; set; } = cacheLength;
     
-    public static CustomTypeStyler<HistoricalCandleParams> Styler { get; } =
+    public static StringBearerRevealState<HistoricalCandleParams> Styler { get; } =
         (bap, stsa) =>
             stsa.StartComplexType(bap, nameof(bap))
                 .Field.AlwaysAdd(nameof(bap.SourceTickerIdentifier), bap.SourceTickerIdentifier, SourceTickerIdentifier.Styler)
@@ -61,7 +61,7 @@ public struct HistoricalCandleResponseRequest(BoundedTimeRange requestTimeRange)
 {
     public BoundedTimeRange RequestTimeRange { get; set; } = requestTimeRange;
     
-    public static CustomTypeStyler<HistoricalCandleResponseRequest> Styler { get; } =
+    public static StringBearerRevealState<HistoricalCandleResponseRequest> Styler { get; } =
         (bap, stsa) =>
             stsa.StartComplexType(bap, nameof(bap))
                 .Field.AlwaysAdd(nameof(bap.RequestTimeRange), bap.RequestTimeRange, BoundedTimeRange.Styler)

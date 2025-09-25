@@ -1,8 +1,9 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 
@@ -63,105 +64,105 @@ public class KeyedCollectionFinalAppend<TToReturn, TCallerType> : CollectionFina
         AppendKeyedCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase =>
+      , StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase =>
         AppendKeyedCollection(PreappendCheckGetStringAppender(value), value, valueStyler, keyFormatString).PostAppendCheckAndReturn(value, this);
 
-    public void AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>, string?) valueTuple)
+    public void AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, StringBearerRevealState<TVBase>, string?) valueTuple)
         where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>) valueTuple)
+    public void AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, StringBearerRevealState<TVBase>) valueTuple)
         where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TVBase>(KeyValuePair<TKey, TValue>[]? value
-      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase =>
+      , StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase =>
         AppendKeyedCollection(PreappendCheckGetStringAppender(value), value, valueStyler, keyFormatString).PostAppendCheckAndReturn(value, this);
 
-    public void AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>, string?) valueTuple)
+    public void AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, StringBearerRevealState<TVBase>, string?) valueTuple)
         where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase =>
+    public void AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, StringBearerRevealState<TVBase>) valueTuple) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase =>
+      , StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase =>
         AppendKeyedCollection(PreappendCheckGetStringAppender(value), value, valueStyler, keyFormatString).PostAppendCheckAndReturn(value, this);
 
-    public void AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple)
+    public void AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, string?) valueTuple)
         where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple)
+    public void AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>) valueTuple)
         where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddKeyedEnumerate<TKey, TValue, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TVBase> valueStyler
+    public void AddKeyedEnumerate<TKey, TValue, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value, StringBearerRevealState<TVBase> valueStyler
       , string? keyFormatString = null) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(PreappendCheckGetStringAppender(value), value, valueStyler, keyFormatString)
             .PostAppendCheckAndReturn(value, this);
 
     public void AddKeyedEnumerate<TKey, TValue, TVBase>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple) where TValue : TVBase =>
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, string?) valueTuple) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyedEnumerate<TKey, TValue, TVBase>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase =>
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>) valueTuple) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyedEnumerate<TKey, TValue, TVBase>
-    (IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TVBase> valueStyler
+    (IEnumerator<KeyValuePair<TKey, TValue>>? value, StringBearerRevealState<TVBase> valueStyler
       , string? keyFormatString = null) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(PreappendCheckGetStringAppender(value), value, valueStyler, keyFormatString)
             .PostAppendCheckAndReturn(value, this);
 
     public void AddKeyedEnumerate<TKey, TValue, TVBase>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, string?) valueTuple) where TValue : TVBase =>
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, string?) valueTuple) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyedEnumerate<TKey, TValue, TVBase>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>) valueTuple) where TValue : TVBase =>
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>) valueTuple) where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase>(
-        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
+      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(PreappendCheckGetStringAppender(value), value, valueStyler, keyStyler).PostAppendCheckAndReturn(value, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase>(
-        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
+      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(PreappendCheckGetStringAppender(value), value, valueStyler, keyStyler).PostAppendCheckAndReturn(value, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyedEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
+      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(PreappendCheckGetStringAppender(value), value, valueStyler, keyStyler).PostAppendCheckAndReturn(value, this);
 
     public void AddKeyedEnumerate<TKey, TValue, TKBase, TVBase>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyedEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , CustomTypeStyler<TVBase> valueStyler, CustomTypeStyler<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
+      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(PreappendCheckGetStringAppender(value), value, valueStyler, keyStyler).PostAppendCheckAndReturn(value, this);
 
     public void AddKeyedEnumerate<TKey, TValue, TKBase, TVBase>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TVBase>, CustomTypeStyler<TKBase>) valueTuple)
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase =>
         AppendKeyedCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
@@ -230,87 +231,87 @@ public class KeyedCollectionFinalAppend<TToReturn, TCallerType> : CollectionFina
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+      , StringBearerRevealState<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(PreappendCheckGetStringAppender(value), value, filterPredicate, valueStyler, keyFormatString)
             .PostAppendCheckAndReturn(value, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+      , StringBearerRevealState<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(PreappendCheckGetStringAppender(value), value, filterPredicate, valueStyler, keyFormatString)
             .PostAppendCheckAndReturn(value, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , CustomTypeStyler<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 =>
+      , StringBearerRevealState<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(PreappendCheckGetStringAppender(value), value, filterPredicate, valueStyler, keyFormatString)
             .PostAppendCheckAndReturn(value, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, CustomTypeStyler<TVBase2>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
+      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(PreappendCheckGetStringAppender(value), value, filterPredicate, valueStyler, keyStyler)
             .PostAppendCheckAndReturn(value, this);
 
     public void AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase1, TVBase1>, StringBearerRevealState<TVBase2>, StringBearerRevealState<TKBase2>) valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
+      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(PreappendCheckGetStringAppender(value), value, filterPredicate, valueStyler, keyStyler)
             .PostAppendCheckAndReturn(value, this);
 
     public void AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase1, TVBase1>, StringBearerRevealState<TVBase2>, StringBearerRevealState<TKBase2>) valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
+      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(PreappendCheckGetStringAppender(value), value, filterPredicate, valueStyler, keyStyler)
             .PostAppendCheckAndReturn(value, this);
 
     public void AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
-      , KeyValuePredicate<TKBase1, TVBase1>, CustomTypeStyler<TVBase2>, CustomTypeStyler<TKBase2>) valueTuple)
+      , KeyValuePredicate<TKBase1, TVBase1>, StringBearerRevealState<TVBase2>, StringBearerRevealState<TKBase2>) valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AppendFilteredKeyedCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
-      , CustomTypeStyler<TVBase2> valueStyler, CustomTypeStyler<TKBase2> keyStyler)
+      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AppendKeyedCollection(PreappendCheckGetStringAppender(value), value, valueStyler, keyStyler).PostAppendCheckAndReturn(value, this);
 }

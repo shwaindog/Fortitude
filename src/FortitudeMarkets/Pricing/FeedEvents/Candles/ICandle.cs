@@ -9,7 +9,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StringsOfPower;
 using FortitudeIO.Storage.TimeSeries;
 
 #endregion
@@ -17,7 +17,7 @@ using FortitudeIO.Storage.TimeSeries;
 namespace FortitudeMarkets.Pricing.FeedEvents.Candles;
 
 public interface ICandle : IReusableObject<ICandle>, IInterfacesComparable<ICandle>, ITimeBoundaryPeriodRange
-  , ITimeSeriesEntry, IDoublyLinkedListNode<ICandle>, IStyledToStringObject
+  , ITimeSeriesEntry, IDoublyLinkedListNode<ICandle>, IStringBearer
 {
     CandleFlags CandleFlags { get; }
 

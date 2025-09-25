@@ -5,15 +5,15 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
 
 public interface IMatchSequenceTriggerConfig : IFLogConfig, IConfigCloneTo<IMatchSequenceTriggerConfig>
   , IInterfacesComparable<IMatchSequenceTriggerConfig>
-  , IStyledToStringObject
+  , IStringBearer
 {
     IMatchOperatorExpressionConfig? TriggeredWhenEntry { get; } // If triggered
 
@@ -300,8 +300,8 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         return hashCode;
     }
 
-    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender stsa) =>
-        stsa.StartComplexType(this)
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
            .Field.WhenNonNullAddStyled(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
            .Field.WhenNonNullAddStyled(nameof(NextTriggerStep), NextTriggerStep)
            .Field.WhenNonNullAddStyled(nameof(OnTriggerExtract), OnTriggerExtract)

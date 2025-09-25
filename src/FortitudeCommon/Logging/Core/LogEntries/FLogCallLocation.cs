@@ -2,9 +2,9 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.Mutable.Strings;
-using FortitudeCommon.Types.StyledToString;
-using FortitudeCommon.Types.StyledToString.StyledTypes;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
@@ -20,12 +20,12 @@ public record struct FLogCallLocation(string MemberName, string SourceFilePath, 
 
 public static class FLogCallLocationExtensions
 {
-    public static CustomTypeStyler<FLogCallLocation> FLogCallLocationStyler = FormatFlogLevelAppender;
+    public static StringBearerRevealState<FLogCallLocation> FLogCallLocationStyler = FormatFlogLevelAppender;
 
-    public static CustomTypeStyler<FLogCallLocation> Styler(this FLogCallLocation callLoc) => FLogCallLocationStyler;
+    public static StringBearerRevealState<FLogCallLocation> Styler(this FLogCallLocation callLoc) => FLogCallLocationStyler;
 
 
-    public static StyledTypeBuildResult FormatFlogLevelAppender(this FLogCallLocation callLoc, IStyledTypeStringAppender sbc) =>
+    public static StateExtractStringRange FormatFlogLevelAppender(this FLogCallLocation callLoc, ITheOneString sbc) =>
         sbc.StartComplexType(callLoc)
            .Field.AlwaysAdd(nameof(callLoc.MemberName), callLoc.MemberName)
            .Field.AlwaysAdd(nameof(callLoc.SourceLineNumber), callLoc.SourceLineNumber)
