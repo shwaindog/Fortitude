@@ -1,15 +1,24 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Text;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using static FortitudeCommon.Types.StringsOfPower.Options.DateTimeStyleFormat;
 using static FortitudeCommon.Types.StringsOfPower.Options.TimeStyleFormat;
 
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace FortitudeCommon.Types.StringsOfPower.Options;
 
-public struct StyleOptionsValue
+public struct StyleOptionsValue : IJsonFormattingOptions
 {
     private StyleOptions? fallbackOptions;
+
+    private StyleOptions? myOptionsObj;
 
     public const string DefaultTimeToSecFormat   = "{0:HH:mm:ss}";
     public const string DefaultTimeToMsFormat    = "{0:HH:mm:ss.fff}";
@@ -35,38 +44,75 @@ public struct StyleOptionsValue
         this.charSArraysAsString     = charSArraysAsString;
     }
 
-    private StringStyle? style;
+    private bool?   wrapValuesInQuotes;
+    private bool?   byteArrayWritesBase64String;
+    private bool?   charArrayWritesString;
+    private string? falseString;
+    private string? trueString;
+    private string? nullString;
+    private bool?   ignoreEmptyCollection;
+    private bool?   emptyCollectionWritesNull;
+    private bool?   skipNullableNullWritesNull;
+    private string? itemSeparator;
 
-    private char?   indentChar;
-    private int?    indentSize;
-    private bool?   byteSequenceToBase64;
-    private bool?   disableCircularRefCheck;
-    private bool?   charSArraysAsString;
-    private bool?   circularRefUsesRefEquals;
-    private string? newLineStyle;
-    private string? nullStyle;
-    private int?    prettyCollectionsColumnCountWrap;
-    private int?    defaultGraphMaxDepth;
+    private IEncodingTransfer? encodingTransfer;
 
-    private CollectionPrettyStyleFormat? prettyCollectionStyle;
+    private bool explicitlySetEncodingTransfer;
 
+    private Func<IJsonFormattingOptions, IEncodingTransfer>? sourceEncodingTransferResolver;
+    private Func<StyleOptionsValue, ICustomStringFormatter>? sourceFormatterResolver;
+
+    private char?    indentChar;
+    private int?     indentSize;
+    private bool?    byteSequenceToBase64;
+    private bool?    disableCircularRefCheck;
+    private bool?    charSArraysAsString;
+    private bool?    circularRefUsesRefEquals;
+    private string?  newLineStyle;
+    private string?  nullStyle;
+    private int?     prettyCollectionsColumnCountWrap;
+    private int?     defaultGraphMaxDepth;
+    private string?  customDateTimeFormatString;
+    private string?  dateTimeYyyyMMddTossFormat;
+    private string?  dateTimeYyyyMMddTomsFormat;
+    private string?  dateTimeYyyyMMddTousFormat;
+    private string?  timeHHmmssFormat;
+    private string?  timeHHmmssToMsFormat;
+    private string?  timeHHmmssToUsFormat;
+    private string?  timeHHmmssToTicksFormat;
+    private bool?    writeKeyValuePairsAsCollection;
+    private Range[]? unicodeEscapingRanges;
+    private Range[]? exemptEscapingRanges;
+
+    private StringStyle?         style;
     private DateTimeStyleFormat? dateTimeFormat;
     private TimeStyleFormat?     timeFormat;
 
-    private string? dateTimeYyyyMMddTossFormat;
-    private string? dateTimeYyyyMMddTomsFormat;
-    private string? dateTimeYyyyMMddTousFormat;
+    private JsonEncodingTransferType?    jsonEncodingTransferType;
+    private CollectionPrettyStyleFormat? prettyCollectionStyle;
 
-    private string? timeHHmmssFormat;
-    private string? timeHHmmssToMsFormat;
-    private string? timeHHmmssToUsFormat;
-    private string? timeHHmmssToTicksFormat;
-    private bool?   writeKeyValuePairsAsCollection;
+    private (Range, JsonEscapeType, Func<Rune, string>)[]? cachedMappingFactoryRanges;
+
+    private ICustomStringFormatter? formatter;
+
+    public StyleOptions? MyObjInstance
+    {
+        get => myOptionsObj;
+        set => myOptionsObj = value;
+    }
+
+    public StyleOptions MyObjInstanceOrCreate => myOptionsObj ??= new StyleOptions(this);
 
     public StringStyle Style
     {
         readonly get => style ?? fallbackOptions?.Values.Style ?? StringStyle.Default;
-        set => style = value;
+        set
+        {
+            if (value == style) return;
+            style = value;
+            formatter?.DecrementRefCount();
+            formatter = null!;
+        }
     }
 
     public char IndentChar
@@ -82,6 +128,234 @@ public struct StyleOptionsValue
     }
 
     public int IndentRepeat(int indentLevel) => indentLevel * IndentSize;
+
+    public string ItemSeparator
+    {
+        readonly get => itemSeparator ?? fallbackOptions?.Values.ItemSeparator ?? IFormattingOptions.DefaultItemSeparator;
+        set => itemSeparator = value;
+    }
+
+    public bool SkipNullableNullWritesNull
+    {
+        readonly get => skipNullableNullWritesNull ?? fallbackOptions?.Values.SkipNullableNullWritesNull ?? true;
+        set => skipNullableNullWritesNull = value;
+    }
+
+    public bool EmptyCollectionWritesNull
+    {
+        readonly get => emptyCollectionWritesNull ?? fallbackOptions?.Values.EmptyCollectionWritesNull ?? true;
+        set => emptyCollectionWritesNull = value;
+    }
+
+    public bool IgnoreEmptyCollection
+    {
+        readonly get => ignoreEmptyCollection ?? fallbackOptions?.Values.ignoreEmptyCollection ?? false;
+        set => ignoreEmptyCollection = value;
+    }
+
+    public string NullString
+    {
+        readonly get => nullString ?? fallbackOptions?.Values.False ?? IFormattingOptions.DefaultNullString;
+        set => nullString = value;
+    }
+
+    public string True
+    {
+        readonly get => trueString ?? fallbackOptions?.Values.False ?? IFormattingOptions.DefaultTrueString;
+        set => trueString = value;
+    }
+
+    public string False
+    {
+        readonly get => falseString ?? fallbackOptions?.Values.False ?? IFormattingOptions.DefaultFalseString;
+        set => falseString = value;
+    }
+
+    public bool CharArrayWritesString
+    {
+        readonly get => charArrayWritesString ?? fallbackOptions?.Values.CharArrayWritesString ?? Style.IsNotJson();
+        set => charArrayWritesString = value;
+    }
+
+    public bool ByteArrayWritesBase64String
+    {
+        readonly get => byteArrayWritesBase64String ?? fallbackOptions?.Values.ByteArrayWritesBase64String ?? true;
+        set => byteArrayWritesBase64String = value;
+    }
+
+    public bool WrapValuesInQuotes
+    {
+        readonly get => wrapValuesInQuotes ?? fallbackOptions?.Values.WrapValuesInQuotes ?? false;
+        set => wrapValuesInQuotes = value;
+    }
+
+    public IEncodingTransfer EncodingTransfer
+    {
+        get => encodingTransfer ??= fallbackOptions?.Values.EncodingTransfer ?? SourceEncodingTransfer(this);
+        set
+        {
+            encodingTransfer              = value;
+            explicitlySetEncodingTransfer = true;
+        }
+    }
+
+    public Func<IJsonFormattingOptions, IEncodingTransfer> SourceEncodingTransfer
+    {
+        get =>
+            sourceEncodingTransferResolver
+                ??= fallbackOptions?.Values.SourceEncodingTransfer ?? DefaultEncodingTransferSelectorFactory;
+        set
+        {
+            sourceEncodingTransferResolver = value;
+            if (explicitlySetEncodingTransfer) return;
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
+            {
+                jsonEscapingEncodingTransfer.DecrementRefCount();
+            }
+            encodingTransfer = SourceEncodingTransfer(this);
+        }
+    }
+
+    public static Func<IJsonFormattingOptions, IEncodingTransfer> DefaultEncodingTransferSelectorFactory
+    {
+        get
+        {
+            return jsFmtOpts =>
+            {
+                if (jsFmtOpts is StyleOptionsValue styleOptionsValue)
+                {
+                    if (styleOptionsValue.Style.IsNotJson() || styleOptionsValue.Style.IsLog())
+                    {
+                        return Recycler.ThreadStaticRecycler.Borrow<PassThroughEncodingTransfer>();
+                    }
+                }
+                if (jsFmtOpts is StyleOptions styleOptions)
+                {
+                    if (styleOptions.Style.IsNotJson() || styleOptions.Style.IsLog())
+                    {
+                        return Recycler.ThreadStaticRecycler.Borrow<PassThroughEncodingTransfer>();
+                    }
+                }
+                return JsonFormattingOptions.DefaultEncodingTransferSelectorFactory(jsFmtOpts);
+            };
+        }
+    }
+
+    public JsonEncodingTransferType JsonEncodingTransferType
+    {
+        readonly get => jsonEncodingTransferType ?? fallbackOptions?.Values.JsonEncodingTransferType ?? JsonEncodingTransferType.Default;
+        set
+        {
+            if (value == jsonEncodingTransferType) return;
+            jsonEncodingTransferType = value;
+            if (jsonEncodingTransferType != JsonEncodingTransferType.CustomEncodingTransfer)
+            {
+                var encodingTypeLookup = (int)jsonEncodingTransferType;
+                if (encodingTypeLookup < JsonFormattingOptions.DefaultJsUnicodeEscapeRange.Length)
+                {
+                    UnicodeEscapingRanges = JsonFormattingOptions.DefaultJsUnicodeEscapeRange[encodingTypeLookup];
+                }
+            }
+            else
+            {
+                UnicodeEscapingRanges = [];
+            }
+            if (explicitlySetEncodingTransfer) return;
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
+            {
+                jsonEscapingEncodingTransfer.DecrementRefCount();
+            }
+            encodingTransfer = SourceEncodingTransfer(this);
+        }
+    }
+
+    public (Range, JsonEscapeType, Func<Rune, string>)[] CachedMappingFactoryRanges
+    {
+        readonly get
+        {
+            var checkMappingFactoryRanges = cachedMappingFactoryRanges ?? fallbackOptions?.Values.CachedMappingFactoryRanges;
+            if (checkMappingFactoryRanges != null)
+            {
+                return checkMappingFactoryRanges;
+            }
+            switch (jsonEncodingTransferType)
+            {
+                case JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly:
+                    return [(new Range(Index.Start, new Index(128)), JsonEscapeType.BackSlashEscape, JsonFormattingOptions.DefaultAsciiBackSlashEscapeMapping)];
+                default:
+                    return [(new Range(Index.Start, new Index(128)), JsonEscapeType.UnicodeEscape, JsonFormattingOptions.DefaultAsciiBackSlashEscapeMapping)];
+            }
+        }
+        set
+        {
+            cachedMappingFactoryRanges = value;
+            if (explicitlySetEncodingTransfer) return;
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
+            {
+                jsonEscapingEncodingTransfer.DecrementRefCount();
+            }
+            encodingTransfer = SourceEncodingTransfer(this);
+        }
+    }
+
+    public Range[] ExemptEscapingRanges
+    {
+        readonly get => exemptEscapingRanges ?? fallbackOptions?.Values.ExemptEscapingRanges ?? [];
+        set
+        {
+            if (exemptEscapingRanges != null && value.SequenceEqual(exemptEscapingRanges)) return;
+            exemptEscapingRanges = value;
+            if (explicitlySetEncodingTransfer) return;
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
+            {
+                jsonEscapingEncodingTransfer.DecrementRefCount();
+            }
+            encodingTransfer = SourceEncodingTransfer(this);
+        }
+    }
+
+    public Range[] UnicodeEscapingRanges
+    {
+        readonly get =>
+            unicodeEscapingRanges ?? fallbackOptions?.Values.UnicodeEscapingRanges ??
+            JsonFormattingOptions.DefaultJsUnicodeEscapeRange[(int)JsonEncodingTransferType];
+        set
+        {
+            if (unicodeEscapingRanges != null && value.SequenceEqual(unicodeEscapingRanges)) return;
+            unicodeEscapingRanges = value;
+            if (explicitlySetEncodingTransfer) return;
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
+            {
+                jsonEscapingEncodingTransfer.DecrementRefCount();
+            }
+            encodingTransfer = SourceEncodingTransfer(this);
+        }
+    }
+
+    public ICustomStringFormatter Formatter
+    {
+        get => formatter ??= SourceFormatter(this);
+        set => formatter = value;
+    }
+
+    public IStyledTypeFormatting StyledTypeFormatter => (IStyledTypeFormatting)Formatter;
+
+    public Func<StyleOptionsValue, ICustomStringFormatter> SourceFormatter
+    {
+        get => sourceFormatterResolver ??= DefaultSourceFormatter;
+        set => sourceFormatterResolver = value;
+    }
+
+    public IStyledTypeFormatting DefaultSourceFormatter(StyleOptionsValue styleOptionsValue)
+    {
+        return styleOptionsValue.Style switch
+               {
+                   StringStyle.Json | StringStyle.Compact => Recycler.ThreadStaticRecycler.Borrow<CompactJsonTypeFormatting>().Initialize(MyObjInstanceOrCreate)
+                 , StringStyle.Json | StringStyle.Pretty  => Recycler.ThreadStaticRecycler.Borrow<PrettyJsonTypeFormatting>().Initialize(MyObjInstanceOrCreate)
+                 , StringStyle.Log | StringStyle.Pretty  => Recycler.ThreadStaticRecycler.Borrow<PrettyLogTypeFormatting>().Initialize(MyObjInstanceOrCreate)
+                 , _                                      => Recycler.ThreadStaticRecycler.Borrow<CompactLogTypeFormatting>().Initialize(MyObjInstanceOrCreate)
+               };
+    }
 
     public string NewLineStyle
     {
@@ -153,14 +427,28 @@ public struct StyleOptionsValue
           , _                    => (timeStampTicks - DateTime.UnixEpoch.Ticks) * 100
         };
 
-    public string DateTimeAsStringFormatString =>
-        DateTimeFormat switch
+    public string DateTimeAsStringFormatString
+    {
+        get
         {
-            StringYyyyMMddOnly => DateTimeStringYyyyMMddOnly
-          , StringYyyyMMddToss => DateTimeStringYyyyMMddToSecFormatString
-          , StringYyyyMMddToms => DateTimeStringYyyyMMddToMsFormatString
-          , _                  => DateTimeStringYyyyMMddToUsFormatString
-        };
+            if (customDateTimeFormatString != null)
+            {
+                return customDateTimeFormatString;
+            }
+            if (fallbackOptions?.Values.DateTimeAsStringFormatString != null && fallbackOptions?.Values.DateTimeFormat == DateTimeFormat)
+            {
+                return fallbackOptions!.Values.DateTimeAsStringFormatString;
+            }
+            return DateTimeFormat switch
+                   {
+                       StringYyyyMMddOnly => DateTimeStringYyyyMMddOnly
+                     , StringYyyyMMddToss => DateTimeStringYyyyMMddToSecFormatString
+                     , StringYyyyMMddToms => DateTimeStringYyyyMMddToMsFormatString
+                     , _                  => DateTimeStringYyyyMMddToUsFormatString
+                   };
+        }
+        set => customDateTimeFormatString = value;
+    }
 
     public string DateTimeStringYyyyMMddOnly
     {
@@ -241,16 +529,35 @@ public struct StyleOptionsValue
     }
 }
 
-public class StyleOptions(StyleOptionsValue initialValues)
+public class StyleOptions : IJsonFormattingOptions
 {
-    private StyleOptionsValue values = initialValues;
+    private StyleOptionsValue values;
 
     public StyleOptions() : this(new StyleOptionsValue()) { }
+
+    public StyleOptions(StringStyle style)
+    {
+        values = new StyleOptionsValue
+        {
+            Style = style, MyObjInstance = this
+        };
+    }
+
+    public StyleOptions(StyleOptionsValue initialValues)
+    {
+        values               = initialValues;
+        values.MyObjInstance = this;
+    }
 
     public StyleOptionsValue Values
     {
         get => values;
-        set => values = value;
+        set
+        {
+            values = value;
+
+            value.MyObjInstance = this;
+        }
     }
 
     public StringStyle Style
@@ -290,6 +597,116 @@ public class StyleOptions(StyleOptionsValue initialValues)
     }
 
     public int IndentRepeat(int indentLevel) => values.IndentRepeat(indentLevel);
+
+    public string ItemSeparator
+    {
+        get => values.ItemSeparator;
+        set => values.ItemSeparator = value;
+    }
+
+    public bool SkipNullableNullWritesNull
+    {
+        get => values.SkipNullableNullWritesNull;
+        set => values.SkipNullableNullWritesNull = value;
+    }
+
+    public bool EmptyCollectionWritesNull
+    {
+        get => values.EmptyCollectionWritesNull;
+        set => values.EmptyCollectionWritesNull = value;
+    }
+
+    public bool IgnoreEmptyCollection
+    {
+        get => values.EmptyCollectionWritesNull;
+        set => values.EmptyCollectionWritesNull = value;
+    }
+
+    public string NullString
+    {
+        get => values.NullString;
+        set => values.NullString = value;
+    }
+
+    public string True
+    {
+        get => values.True;
+        set => values.True = value;
+    }
+
+    public string False
+    {
+        get => values.False;
+        set => values.False = value;
+    }
+
+    public bool CharArrayWritesString
+    {
+        get => values.CharArrayWritesString;
+        set => values.CharArrayWritesString = value;
+    }
+
+    public bool ByteArrayWritesBase64String
+    {
+        get => values.ByteArrayWritesBase64String;
+        set => values.ByteArrayWritesBase64String = value;
+    }
+
+    public bool WrapValuesInQuotes
+    {
+        get => values.WrapValuesInQuotes;
+        set => values.WrapValuesInQuotes = value;
+    }
+
+    public IEncodingTransfer EncodingTransfer
+    {
+        get => values.EncodingTransfer;
+        set => values.EncodingTransfer = value;
+    }
+
+    public Func<IJsonFormattingOptions, IEncodingTransfer> SourceEncodingTransfer
+    {
+        get => values.SourceEncodingTransfer;
+        set => values.SourceEncodingTransfer = value;
+    }
+
+    public JsonEncodingTransferType JsonEncodingTransferType
+    {
+        get => values.JsonEncodingTransferType;
+        set => values.JsonEncodingTransferType = value;
+    }
+
+    public (Range, JsonEscapeType, Func<Rune, string>)[] CachedMappingFactoryRanges
+    {
+        get => values.CachedMappingFactoryRanges;
+        set => values.CachedMappingFactoryRanges = value;
+    }
+
+    public Range[] ExemptEscapingRanges
+    {
+        get => values.ExemptEscapingRanges;
+        set => values.ExemptEscapingRanges = value;
+    }
+
+    public Range[] UnicodeEscapingRanges
+    {
+        get => values.UnicodeEscapingRanges;
+        set => values.UnicodeEscapingRanges = value;
+    }
+
+    public ICustomStringFormatter Formatter
+    {
+        get => values.Formatter;
+        set => values.Formatter = value;
+    }
+
+    public IStyledTypeFormatting StyledTypeFormatter => values.StyledTypeFormatter;
+
+    public Func<StyleOptionsValue, ICustomStringFormatter> SourceFormatter
+    {
+        get => values.SourceFormatter;
+        set => values.SourceFormatter = value;
+    }
 
     public string NewLineStyle
     {
@@ -347,7 +764,11 @@ public class StyleOptions(StyleOptionsValue initialValues)
 
     public long DateTimeTicksToNumberPrecision(long timeStampTicks) => values.DateTimeTicksToNumberPrecision(timeStampTicks);
 
-    public string DateTimeAsStringFormatString => values.DateTimeAsStringFormatString;
+    public string DateTimeAsStringFormatString
+    {
+        get => values.DateTimeAsStringFormatString;
+        set => values.DateTimeAsStringFormatString = value;
+    }
 
     public string DateTimeStringYyyyMMddOnly
     {

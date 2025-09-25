@@ -30,7 +30,7 @@ public static class StringBearerRevelStateExtensions
     public static string DefaultToString<T>(this StringBearerRevealState<T> styler, T toStyle, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(StringStyle.Default);
+        styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue( StringStyle.Default));
         styler(toStyle, styledStringBuilder);
         return styledStringBuilder.ToString();
     }

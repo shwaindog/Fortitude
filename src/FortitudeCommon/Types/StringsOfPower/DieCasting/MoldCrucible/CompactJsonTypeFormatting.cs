@@ -10,11 +10,18 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
-public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatting
+public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 {
     protected const string Cma = ",";
     protected const string Cln = ":";
     public virtual string Name => nameof(CompactJsonTypeFormatting);
+
+    public CompactJsonTypeFormatting Initialize(StyleOptions styleOptions)
+    {
+        Options = styleOptions;
+
+        return this;
+    }
 
     public virtual ITypeMolderDieCast<TB> AppendValueTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder
       , Type valueType, string? alternativeName = null) where TB : TypeMolder =>
@@ -67,12 +74,12 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
       , string? formatString = null) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(DblQt).Append(source ? True : False).Append(DblQt).ToInternalTypeBuilder(typeBuilder);
+        typeBuilder.Sb.Append(DblQt).Append(source ? Options.True : Options.False).Append(DblQt).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
       , string? formatString = null) where TB : TypeMolder =>
         (source != null
-            ? typeBuilder.Sb.Append(DblQt).Append(source.Value ? True : False).Append(DblQt)
+            ? typeBuilder.Sb.Append(DblQt).Append(source.Value ? Options.True : Options.False).Append(DblQt)
             : typeBuilder.Sb.Append(DblQt).Append(typeBuilder.Settings.NullStyle).Append(DblQt)).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
@@ -123,9 +130,9 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         }
         else
         {
-            if (WrapValuesInQuotes) sb.Append(DblQt);
+            if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
             base.Format(source, typeBuilder.Sb, formatString);
-            if (WrapValuesInQuotes) sb.Append(DblQt);
+            if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         }
         return typeBuilder;
     }
@@ -244,9 +251,9 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         where TB : TypeMolder
     {
         var sb = typeBuilder.Sb;
-        if (WrapValuesInQuotes) sb.Append(DblQt);
-        typeBuilder.Sb.Append(source ? True : False);
-        if (WrapValuesInQuotes) sb.Append(DblQt);
+        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
+        typeBuilder.Sb.Append(source ? Options.True : Options.False);
+        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         return typeBuilder;
     }
 
@@ -255,12 +262,12 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         where TB : TypeMolder
     {
         var sb = typeBuilder.Sb;
-        if (WrapValuesInQuotes) sb.Append(DblQt);
+        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         if (source != null)
-            typeBuilder.Sb.Append(source.Value ? True : False);
+            typeBuilder.Sb.Append(source.Value ? Options.True : Options.False);
         else
             typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
-        if (WrapValuesInQuotes) sb.Append(DblQt);
+        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         return typeBuilder;
     }
 
@@ -272,7 +279,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         var fmtType = typeof(TFmt);
         if (fmtType.IsValueType && fmtType.IsNumericType())
         {
-            var wrapInQuotes = WrapValuesInQuotes;
+            var wrapInQuotes = JsonOptions.WrapValuesInQuotes;
             if (!wrapInQuotes)
             {
                 switch (source)
@@ -292,9 +299,9 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
             if (typeBuilder.Settings.DateTimeIsNumber)
             {
                 var converted = typeBuilder.Settings.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
-                if (WrapValuesInQuotes) sb.Append(DblQt);
+                if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
                 base.Format(converted, typeBuilder.Sb, formatString);
-                if (WrapValuesInQuotes) sb.Append(DblQt);
+                if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
             }
             else
             {
@@ -375,7 +382,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , int maxTransferCount = int.MaxValue) where TB : TypeMolder
     {
         var sb = typeBuilder.Sb;
-        if (CharArrayWritesString)
+        if (JsonOptions.CharArrayWritesString)
         {
             sb.Append(DblQt);
             base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
@@ -388,13 +395,18 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
             var charType     = typeof(char);
             FormatCollectionStart(typeBuilder, charType, cappedLength > 0, source.GetType());
 
+            var lastAdded    = 0;
+            var previousChar = '\0';
             for (int i = cappedFrom; i < cappedLength; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(typeBuilder, charType, i);
 
-                CollectionNextItem(source[cappedFrom + i], i, sb);
+                var nextChar = source[cappedFrom + i];
+                lastAdded = lastAdded == 0 && i > 0
+                    ? CollectionNextItem(new Rune(previousChar, nextChar), i, sb)
+                    : CollectionNextItem(nextChar, i, sb);
+                previousChar = lastAdded == 0 ? nextChar : '\0'; 
             }
-            ;
             FormatCollectionEnd(typeBuilder, charType, cappedLength);
         }
         return typeBuilder;
@@ -406,7 +418,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , int maxTransferCount = int.MaxValue) where TB : TypeMolder
     {
         var sb = typeBuilder.Sb;
-        if (CharArrayWritesString)
+        if (JsonOptions.CharArrayWritesString)
         {
             sb.Append(DblQt);
             base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
@@ -420,13 +432,18 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
             var charType = typeof(char);
             FormatCollectionStart(typeBuilder, charType, cappedLength > 0, source.GetType());
 
+            var lastAdded    = 0;
+            var previousChar = '\0';
             for (int i = cappedFrom; i < cappedLength; i++)
             {
-                if (i > 0) AddCollectionElementSeparator(typeBuilder, charType, i);
+                if (i > 0  && lastAdded > 0) AddCollectionElementSeparator(typeBuilder, charType, i);
 
-                CollectionNextItem(source[cappedFrom + i], i, sb);
+                var nextChar = source[cappedFrom + i];
+                lastAdded = lastAdded == 0 && i > 0
+                    ? CollectionNextItem(new Rune(previousChar, nextChar), i, sb)
+                    : CollectionNextItem(nextChar, i, sb);
+                previousChar = lastAdded == 0 ? nextChar : '\0'; 
             }
-            ;
             FormatCollectionEnd(typeBuilder, charType, cappedLength);
         }
         return typeBuilder;
@@ -596,15 +613,15 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
 
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems)
     {
-        if (elementType == typeof(char) && CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
         return sb.Append(SqBrktOpn).ReturnCharCount(1);
     }
 
     public override int CollectionStart(Type elementType, Span<char> destination, int destStartIndex, bool hasItems)
     {
-        if (elementType == typeof(char) && CharArrayWritesString) return destination.OverWriteAt(destStartIndex, DblQt);
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destination.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, DblQt);
         return destination.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 

@@ -9,25 +9,18 @@ using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFormatter
 {
-    public const string DefaultNullString = "null";
-
-    protected const string NoFormatFormatString = "{0}";
-
-    protected const char TokenClose = '}';
-    protected const char TokenOpen  = '{';
-
-    protected const string DefaultTrueString  = "true";
-    protected const string DefaultFalseString = "false";
-
     protected const string SqBrktOpn     = "[";
     protected const char   SqBrktOpnChar = '[';
     protected const string SqBrktCls     = "]";
     protected const char   SqBrktClsChar = ']';
+
+    protected const string NoFormatFormatString = "{0}";
 
     protected static readonly ConcurrentDictionary<Type, IStringBearerFormattableProvider> GlobalCustomSpanFormattableProviders = new();
 
@@ -41,6 +34,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3'
       , '4', '5', '6', '7', '8', '9', '+', '/'
     ];
+    protected IFormattingOptions FormatOptions;
 
     static CustomStringFormatter()
     {
@@ -53,24 +47,18 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
     protected MutableString? CharSpanCollectionScratchBuffer { get; set; }
 
-    public string ItemSeparator { get; set; } = ", ";
+    public virtual IFormattingOptions Options
+    {
+        get => FormatOptions;
+        set => FormatOptions = value;
+    }
 
-    public bool IgnoreNullableValues { get; set; } = false;
-
-    public bool EmptyCollectionWritesNull { get; set; } = false;
-
-    public bool IgnoreEmptyCollection { get; set; } = false;
-
-    public string NullString { get; set; } = DefaultNullString;
-
-    public string True { get; set; } = DefaultTrueString;
-    public string False { get; set; } = DefaultFalseString;
 
     public virtual int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber) =>
-        sb.Append(ItemSeparator).ReturnCharCount(ItemSeparator.Length);
+        sb.Append(Options.ItemSeparator).ReturnCharCount(Options.ItemSeparator.Length);
 
     public virtual int AddCollectionElementSeparator(Type collectionElementType, Span<char> charSpan, int atIndex, int nextItemNumber) =>
-        charSpan.OverWriteAt(atIndex, ItemSeparator);
+        charSpan.OverWriteAt(atIndex, Options.ItemSeparator);
 
     protected virtual bool TryGetCachedCustomSpanFormatter<T>([NotNullWhen(true)] out StringBearerSpanFormattable<T>? maybeFormatter)
     {
@@ -106,34 +94,6 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     protected virtual bool TryAddCustomStyledToStringProvider(Type registeredType, IStringBearerFormattableProvider toRegister) =>
         GlobalCustomStyledToStringFormattableProviders.TryAdd(registeredType, toRegister);
 
-    public abstract int Transfer(char[] source, IStringBuilder sb);
-    public abstract int Transfer(char[] source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = Int32.MaxValue);
-    public abstract int Transfer(char[] source, int sourceFrom, IStringBuilder sb, int maxTransferCount = Int32.MaxValue);
-
-    public abstract int Transfer(char[] source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = Int32.MaxValue);
-
-    public abstract int Transfer(ReadOnlySpan<char> source, IStringBuilder sb);
-    public abstract int Transfer(ReadOnlySpan<char> source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = Int32.MaxValue);
-    public abstract int Transfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, int maxTransferCount = Int32.MaxValue);
-
-    public abstract int Transfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = Int32.MaxValue);
-
-    public abstract int Transfer(StringBuilder source, IStringBuilder sb);
-    public abstract int Transfer(StringBuilder source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = Int32.MaxValue);
-    public abstract int Transfer(StringBuilder source, int sourceFrom, IStringBuilder sb, int maxTransferCount = Int32.MaxValue);
-
-    public abstract int Transfer(StringBuilder source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = Int32.MaxValue);
-
-    public abstract int Transfer(ICharSequence source, IStringBuilder sb);
-    public abstract int Transfer(ICharSequence source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = Int32.MaxValue);
-    public abstract int Transfer(ICharSequence source, int sourceFrom, IStringBuilder sb, int maxTransferCount = Int32.MaxValue);
-
-    public abstract int Transfer(ICharSequence source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = Int32.MaxValue);
-
     public abstract int ProcessAppendedRange(IStringBuilder sb, int fromIndex);
     public abstract int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length);
 
@@ -142,22 +102,22 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         if (source.Length == 0) return 0;
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
-        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Transfer(source, sourceFrom, sb, cappedLength);
+        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
 
         var charsAdded = 0;
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
-        if (prefix.Length > 0) charsAdded += Transfer(prefix, 0, sb, Math.Min(cappedLength, prefix.Length));
+        if (prefix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, sb, Math.Min(cappedLength, prefix.Length));
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         source       =  source[sourceFrom..];
 
-        extendLengthRange =  extendLengthRange.BoundRangeToCharLength(cappedLength);
+        extendLengthRange =  extendLengthRange.BoundRangeToLength(cappedLength);
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
         {
-            charsAdded        += Transfer(source[extendLengthRange], 0, sb, cappedLength);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, sb, suffix.Length);
+            charsAdded        += Options.EncodingTransfer.Transfer(this, source[extendLengthRange], 0, sb, maxTransferCount: cappedLength);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, sb);
             return charsAdded;
         }
         var alignedLength = source.CalculatePaddedAlignedLength(layout) + 256;
@@ -188,8 +148,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, alignedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], sb);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, sb, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], sb);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, sb);
             return charsAdded;
         }
         else
@@ -223,9 +183,9 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, cappedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], sb);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], sb);
             padAlignBuffer.DecrementRefCount();
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, sb, suffix.Length);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, sb);
             return charsAdded;
         }
     }
@@ -234,7 +194,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
-        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Transfer(source, sourceFrom, sb, cappedLength);
+        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
         
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         return Format(source[sourceFrom..], 0, sb, formatString, cappedLength);
@@ -245,12 +205,12 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         var cappedLength  = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
-        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Transfer(source, sb);
+        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Options.EncodingTransfer.Transfer(this, source, sb);
         
         var charsAdded = 0;
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
-        if (prefix.Length > 0) charsAdded += Transfer(prefix, 0, sb, Math.Min(cappedLength, prefix.Length));
+        if (prefix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, sb,  maxTransferCount: Math.Min(cappedLength, prefix.Length));
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
@@ -259,7 +219,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         var rawCappedLength =  Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
         if (!extendLengthRange.IsAllRange())
         {
-            extendLengthRange =  extendLengthRange.BoundRangeToCharLength(source.Length - rawSourceFrom);
+            extendLengthRange =  extendLengthRange.BoundRangeToLength(source.Length - rawSourceFrom);
             var start = extendLengthRange.Start;
             if (start.IsFromEnd || start.Value > 0)
             {
@@ -275,8 +235,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
         {
-            charsAdded += Transfer(source, rawSourceFrom, sb, rawCappedLength);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, sb, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, source, rawSourceFrom, sb, maxTransferCount: rawCappedLength);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, sb, maxTransferCount: suffix.Length);
             return charsAdded;
         }
         var alignedLength = cappedLength.CalculatePaddedAlignedLength(layout) + 256;
@@ -309,8 +269,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, alignedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], sb);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, sb, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], sb);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, sb);
             return charsAdded;
         }
         else
@@ -347,10 +307,10 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, cappedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], sb);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], sb);
             padAlignBuffer.DecrementRefCount();
             sourceBuffer.DecrementRefCount();
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, sb, suffix.Length);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, sb);
             return charsAdded;
         }
     }
@@ -360,12 +320,13 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
-        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Transfer(source, sb);
+        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) 
+            return Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
         
         var charsAdded = 0;
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
-        if (prefix.Length > 0) charsAdded += Transfer(prefix, 0, sb, Math.Min(cappedLength, prefix.Length));
+        if (prefix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, sb, maxTransferCount: Math.Min(cappedLength, prefix.Length));
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
@@ -374,7 +335,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         var rawCappedLength =  Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
         if (!extendLengthRange.IsAllRange())
         {
-            extendLengthRange =  extendLengthRange.BoundRangeToCharLength(source.Length - rawSourceFrom);
+            extendLengthRange =  extendLengthRange.BoundRangeToLength(source.Length - rawSourceFrom);
             var start = extendLengthRange.Start;
             if (start.IsFromEnd || start.Value > 0)
             {
@@ -390,8 +351,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
         {
-            charsAdded += Transfer(source, rawSourceFrom, sb, rawCappedLength);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, sb, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, source, rawSourceFrom, sb, maxTransferCount:  rawCappedLength);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, sb);
             return charsAdded;
         }
         var alignedLength = cappedLength.CalculatePaddedAlignedLength(layout) + 256;
@@ -424,8 +385,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, alignedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], sb);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, sb, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], sb);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, sb);
             return charsAdded;
         }
         else
@@ -462,10 +423,10 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, cappedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], sb);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], sb);
             padAlignBuffer.DecrementRefCount();
             sourceBuffer.DecrementRefCount();
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, sb, suffix.Length);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, sb);
             return charsAdded;
         }
     }
@@ -476,22 +437,23 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         if (source.Length == 0) return 0;
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
-        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Transfer(source, sourceFrom, destCharSpan, destStartIndex, cappedLength);
+        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) 
+            return Options.EncodingTransfer.Transfer(this, source, sourceFrom, destCharSpan, destStartIndex, cappedLength);
 
         var charsAdded = 0;
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
-        if (prefix.Length > 0) charsAdded += Transfer(prefix, 0, destCharSpan, destStartIndex, Math.Min(cappedLength, prefix.Length));
+        if (prefix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, destCharSpan, destStartIndex, Math.Min(cappedLength, prefix.Length));
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         source       =  source[sourceFrom..];
 
-        extendLengthRange =  extendLengthRange.BoundRangeToCharLength(cappedLength);
+        extendLengthRange =  extendLengthRange.BoundRangeToLength(cappedLength);
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
         {
-            charsAdded        += Transfer(source[extendLengthRange], 0, destCharSpan, destStartIndex + charsAdded, cappedLength);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
+            charsAdded        += Options.EncodingTransfer.Transfer(this, source[extendLengthRange], 0, destCharSpan, destStartIndex + charsAdded, cappedLength);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
             return charsAdded;
         }
         var alignedLength = cappedLength.CalculatePaddedAlignedLength(layout) + 256;
@@ -522,8 +484,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, alignedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
             return charsAdded;
         }
         else
@@ -557,9 +519,9 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, cappedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
             padAlignBuffer.DecrementRefCount();
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this,  suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
             return charsAdded;
         }
     }
@@ -569,7 +531,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
-        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Transfer(source, sourceFrom, destCharSpan, destStartIndex, cappedLength);
+        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Options.EncodingTransfer.Transfer(this, source, sourceFrom, destCharSpan, destStartIndex, cappedLength);
         
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         return Format(source[sourceFrom..], 0, destCharSpan, formatString, destStartIndex, cappedLength);
@@ -580,12 +542,12 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         var cappedLength  = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
-        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Transfer(source, destCharSpan, destStartIndex);
+        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Options.EncodingTransfer.Transfer(this, source, destCharSpan, destStartIndex);
         
         var charsAdded = 0;
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
-        if (prefix.Length > 0) charsAdded += Transfer(prefix, 0, destCharSpan, destStartIndex, Math.Min(cappedLength, prefix.Length));
+        if (prefix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, destCharSpan, destStartIndex, Math.Min(cappedLength, prefix.Length));
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
@@ -594,7 +556,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         var rawCappedLength =  Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
         if (!extendLengthRange.IsAllRange())
         {
-            extendLengthRange =  extendLengthRange.BoundRangeToCharLength(source.Length - rawSourceFrom);
+            extendLengthRange =  extendLengthRange.BoundRangeToLength(source.Length - rawSourceFrom);
             var start = extendLengthRange.Start;
             if (start.IsFromEnd || start.Value > 0)
             {
@@ -610,8 +572,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
         {
-            charsAdded += Transfer(source, rawSourceFrom, destCharSpan, destStartIndex + charsAdded, rawCappedLength);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, source, rawSourceFrom, destCharSpan, destStartIndex + charsAdded, rawCappedLength);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
             return charsAdded;
         }
         var alignedLength = cappedLength.CalculatePaddedAlignedLength(layout) + 256;
@@ -644,8 +606,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, alignedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this,  suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
             return charsAdded;
         }
         else
@@ -682,10 +644,10 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, cappedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
             padAlignBuffer.DecrementRefCount();
             sourceBuffer.DecrementRefCount();
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
             return charsAdded;
         }
     }
@@ -695,12 +657,12 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
-        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Transfer(source, destCharSpan, destStartIndex);
+        if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return Options.EncodingTransfer.Transfer(this, source, destCharSpan, destStartIndex);
         
         var charsAdded = 0;
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
-        if (prefix.Length > 0) charsAdded += Transfer(prefix, 0, destCharSpan, destStartIndex, Math.Min(cappedLength, prefix.Length));
+        if (prefix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, destCharSpan, destStartIndex, Math.Min(cappedLength, prefix.Length));
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
@@ -709,7 +671,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         var rawCappedLength =  Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
         if (!extendLengthRange.IsAllRange())
         {
-            extendLengthRange =  extendLengthRange.BoundRangeToCharLength(source.Length - rawSourceFrom);
+            extendLengthRange =  extendLengthRange.BoundRangeToLength(source.Length - rawSourceFrom);
             var start = extendLengthRange.Start;
             if (start.IsFromEnd || start.Value > 0)
             {
@@ -725,8 +687,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
         {
-            charsAdded += Transfer(source, rawSourceFrom, destCharSpan, destStartIndex + charsAdded, rawCappedLength);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, source, rawSourceFrom, destCharSpan, destStartIndex + charsAdded, rawCappedLength);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
             return charsAdded;
         }
         var alignedLength = cappedLength.CalculatePaddedAlignedLength(layout) + 256;
@@ -759,8 +721,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, alignedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
             return charsAdded;
         }
         else
@@ -797,23 +759,23 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize = Math.Min(padSize, cappedLength);
             }
 
-            charsAdded += Transfer(padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
+            charsAdded += Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
             padAlignBuffer.DecrementRefCount();
             sourceBuffer.DecrementRefCount();
-            if (suffix.Length > 0) charsAdded += Transfer(suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
+            if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, suffix, 0, destCharSpan, destStartIndex + charsAdded, suffix.Length);
             return charsAdded;
         }
     }
 
     public virtual int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable
     {
-        if (source == null) return IgnoreNullableValues ? 0 : sb.Append(NullString).ReturnCharCount(NullString.Length);
+        if (source == null) return Options.SkipNullableNullWritesNull ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         int charsWritten;
         if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
         {
             var charSpan = stackalloc char[256].ResetMemory();
             charsWritten = formatter(source, charSpan, formatString, null);
-            Transfer(charSpan[..charsWritten], sb);
+            Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], sb);
             return charsWritten;
         }
         if (source is Enum)
@@ -832,7 +794,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 var asEnumFormatter = enumFormatProvider.AsEnumFormatProvider()!;
                 charsWritten = asEnumFormatter.StringBearerSpanFormattable(sourceEnum!, charSpan, formatString, null);
             }
-            Transfer(charSpan[..charsWritten], sb);
+            Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], sb);
             return charsWritten;
         }
         try
@@ -841,19 +803,19 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
             var charsAdded = 0;
             formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out _
                                                          , out var layout, out _, out var format, out var suffix);
-            if (prefix.Length > 0) charsAdded += Transfer(prefix, 0, sb, prefix.Length);
+            if (prefix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, sb, maxTransferCount: prefix.Length);
             if (source.TryFormat(charSpan, out charsWritten, format, null))
             {
                 if (layout.Length == 0)
                 {
-                    Transfer(charSpan[..charsWritten], sb);
-                    if (suffix.Length > 0) charsAdded += Transfer(prefix, 0, sb, prefix.Length);
+                    Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], sb);
+                    if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, sb, maxTransferCount: prefix.Length);
                     return charsWritten + charsAdded;
                 }
                 var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
                 var padSize = padSpan.PadAndAlign(charSpan[..charsWritten], layout);
-                Transfer(padSpan[..padSize], sb);
-                if (suffix.Length > 0) charsAdded += Transfer(prefix, 0, sb, prefix.Length);
+                Options.EncodingTransfer.Transfer(this, padSpan[..padSize], sb);
+                if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, sb);
                 return padSize + charsAdded;
             }
         }
@@ -869,13 +831,13 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString)
         where TFmt : ISpanFormattable
     {
-        if (source == null) return IgnoreNullableValues ? 0 : destCharSpan.AppendReturnAddCount(NullString);
+        if (source == null) return Options.SkipNullableNullWritesNull ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString);
         int charsWritten;
         var charSpan = stackalloc char[1024].ResetMemory();
         if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
         {
             charsWritten = formatter(source, charSpan, formatString, null);
-            return Transfer(charSpan[..charsWritten], destCharSpan, destStartIndex);
+            return Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
         }
         if (source is Enum)
         {
@@ -892,28 +854,28 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 var asEnumFormatter = enumFormatProvider.AsEnumFormatProvider()!;
                 charsWritten = asEnumFormatter.StringBearerSpanFormattable(sourceEnum!, charSpan, formatString, null);
             }
-            return Transfer(charSpan[..charsWritten], destCharSpan, destStartIndex);
+            return Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
         }
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out _
                                                      , out var layout, out _, out var format, out var suffix);
         try
         {
             var charsAdded                    = 0;
-            if (prefix.Length > 0) charsAdded += Transfer(prefix, 0, destCharSpan, destStartIndex, prefix.Length);
+            if (prefix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, destCharSpan, destStartIndex, prefix.Length);
             if (source.TryFormat(charSpan, out charsWritten, format, null))
             {
                 if (layout.Length == 0)
                 {
-                    Transfer(charSpan[..charsWritten], destCharSpan, destStartIndex);
+                    Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
                     charsAdded += charsWritten;
-                    if (suffix.Length > 0) charsAdded += Transfer(prefix, 0, destCharSpan, destStartIndex + charsAdded, prefix.Length);
+                    if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this, prefix, 0, destCharSpan, destStartIndex + charsAdded, prefix.Length);
                     return charsAdded;
                 }
                 var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
                 var padSize = padSpan.PadAndAlign(charSpan[..charsWritten], layout);
-                Transfer(padSpan[..padSize], destCharSpan, destStartIndex);
+                Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex);
                 charsAdded += padSize;
-                if (suffix.Length > 0) charsAdded += Transfer(prefix, 0, destCharSpan, destStartIndex + charsAdded, prefix.Length);
+                if (suffix.Length > 0) charsAdded += Options.EncodingTransfer.Transfer(this,  prefix, 0, destCharSpan, destStartIndex + charsAdded, prefix.Length);
                 return charsAdded;
             }
         }
@@ -922,25 +884,25 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         {
             if (layout.Length == 0)
             {
-                return Transfer(charSpan[..charsWritten], destCharSpan, destStartIndex);
+                return Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
             }
             var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
             var padSize = padSpan.PadAndAlign(charSpan[..charsWritten], layout);
-            return Transfer(padSpan[..padSize], destCharSpan, destStartIndex);
+            return Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex);
         }
         return charsWritten;
     }
 
     public virtual int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : struct, ISpanFormattable
     {
-        if (source == null) return IgnoreNullableValues ? 0 : sb.Append(NullString).ReturnCharCount(NullString.Length);
+        if (source == null) return Options.SkipNullableNullWritesNull ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         return Format(source.Value, sb, formatString);
     }
 
     public virtual int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString)
         where TFmt : struct, ISpanFormattable
     {
-        if (source == null) return IgnoreNullableValues ? 0 : destCharSpan.OverWriteAt(destStartIndex, NullString);
+        if (source == null) return Options.SkipNullableNullWritesNull ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         return Format(source.Value, destCharSpan, destStartIndex, formatString);
     }
 

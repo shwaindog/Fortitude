@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TextJsonConverters;
 
-public class ComplexConverter : JsonConverter<Complex>
+public class ComplexConverter(bool escaped = true) : JsonConverter<Complex>
 {
     public override Complex Read(ref Utf8JsonReader reader,
         Type typeToConvert, JsonSerializerOptions options)
@@ -15,6 +15,13 @@ public class ComplexConverter : JsonConverter<Complex>
     public override void Write(Utf8JsonWriter writer, Complex value,
         JsonSerializerOptions options)
     {
-        writer.WriteRawValue("\"" + value + "\"");
+        if (escaped)
+        {
+            writer.WriteStringValue(value.ToString());
+        }
+        else
+        {
+            writer.WriteRawValue("\""+ value + "\"");
+        }
     }
 }

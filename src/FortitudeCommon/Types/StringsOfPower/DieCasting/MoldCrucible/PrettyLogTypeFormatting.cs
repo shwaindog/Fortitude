@@ -10,18 +10,32 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
-public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
+public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 {
-    protected const string CmaSpc = ", ";
-    protected const string ClnSpc = ": ";
+    protected const string CmaSpc     = ", ";
+    protected const string ClnSpc     = ": ";
+    protected const string DblQt      = "\"";
+    protected const char   DblQtChar  = '"';
+    protected const string BrcOpn     = "{";
+    protected const char   BrcOpnChar = '{';
+    protected const string BrcCls     = "}";
+    protected const char   BrcClsChar = '}';
+    protected const string Cma        = ",";
+    protected const string Cln        = ":";
     
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public PrettyJsonTypeFormatting Initialize(StyleOptions styleOptions)
+    public PrettyLogTypeFormatting Initialize(StyleOptions styleOptions)
     {
         Options = styleOptions;
 
         return this;
+    }
+
+    public virtual StyleOptions StyleOptions
+    {
+        get => (StyleOptions)FormatOptions;
+        set => FormatOptions = value;
     }
 
     public override ITypeMolderDieCast<TB> AppendComplexTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder, Type complextType, string? alternativeName = null)
@@ -108,8 +122,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     public override ITypeMolderDieCast<TB> FormatCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType
       , bool hasItems, Type collectionType)
     {
-        if (itemElementType == typeof(char) && JsonOptions.CharArrayWritesString) return typeBuilder.Sb.Append(DblQt).ToInternalTypeBuilder(typeBuilder);
-        if (itemElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return typeBuilder.Sb.Append(DblQt).ToInternalTypeBuilder(typeBuilder);
+        if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString) return typeBuilder.Sb.Append(DblQt).ToInternalTypeBuilder(typeBuilder);
+        if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return typeBuilder.Sb.Append(DblQt).ToInternalTypeBuilder(typeBuilder);
 
         if (!hasItems) return typeBuilder;
         typeBuilder.IncrementIndent();
@@ -123,23 +137,23 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     
     public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber)
     {
-        if (collectionElementType == typeof(char) && JsonOptions.CharArrayWritesString) return 0;
-        if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
+        if (collectionElementType == typeof(char) && StyleOptions.CharArrayWritesString) return 0;
+        if (collectionElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return 0;
         return sb.Append(CmaSpc).ReturnCharCount(1);
     }
 
     public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> charSpan, int atIndex, int nextItemNumber) 
     {
-        if (collectionElementType == typeof(char) && JsonOptions.CharArrayWritesString) return 0;
-        if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
+        if (collectionElementType == typeof(char) && StyleOptions.CharArrayWritesString) return 0;
+        if (collectionElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return 0;
         return charSpan.OverWriteAt(atIndex, CmaSpc);
     }
 
     public override ITypeMolderDieCast<TB> AddCollectionElementSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder, Type elementType, int nextItemNumber)
     {
         base.AddCollectionElementSeparator(elementType, typeBuilder.Sb, nextItemNumber);
-        if(elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return typeBuilder;
-        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return typeBuilder;
+        if(elementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return typeBuilder;
+        if (elementType == typeof(char) && StyleOptions.CharArrayWritesString) return typeBuilder;
         if (typeBuilder.Settings.PrettyCollectionStyle.IsCollectionContentWidthWrap())
         {
             if (typeBuilder.Settings.PrettyCollectionsColumnContentWidthWrap < typeBuilder.Sb.LineContentWidth)
@@ -161,12 +175,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
     public override ITypeMolderDieCast<TB> FormatCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType, int totalItemCount)
     {
-        if (itemElementType == typeof(char) && JsonOptions.CharArrayWritesString)
+        if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString)
         {
             CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
             return typeBuilder;
         }
-        if (itemElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String)
+        if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String)
         {
             CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
             return typeBuilder;

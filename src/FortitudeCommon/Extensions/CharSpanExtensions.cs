@@ -19,7 +19,7 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestByteAsLowerHexUnchecked(this Span<char> buffer, int value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = value.BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 4).BottomNibbleToLowerChar();
         return 2;
     }
@@ -34,7 +34,7 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestByteAsUpperHexUnchecked(this Span<char> buffer, int value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToUpperChar();
+        buffer[bufferOffset + 1] = value.BottomNibbleToUpperChar();
         buffer[bufferOffset]   = (value >> 4).BottomNibbleToUpperChar();
         return 2;
     }
@@ -49,9 +49,9 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestShortAsLowerHexUnchecked(this Span<char> buffer, int value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 3] = value.BottomNibbleToLowerChar();
+        buffer[bufferOffset + 2] = (value >> 4).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = (value >> 8).BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 12).BottomNibbleToLowerChar();
         return 4;
     }
@@ -66,9 +66,9 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestShortAsUpperHexUnchecked(this Span<char> buffer, int value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 3] = value.BottomNibbleToUpperChar();
+        buffer[bufferOffset + 2] = (value >> 4).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 1] = (value >> 8).BottomNibbleToUpperChar();
         buffer[bufferOffset]   = (value >> 12).BottomNibbleToUpperChar();
         return 4;
     }
@@ -83,13 +83,13 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendAsLowerHexUnchecked(this Span<char> buffer, int value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 12).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 16).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 20).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 24).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 7] = value.BottomNibbleToLowerChar();
+        buffer[bufferOffset + 6] = (value >> 4).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 5] = (value >> 8).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 4] = (value >> 12).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 3] = (value >> 16).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 2] = (value >> 20).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = (value >> 24).BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 28).BottomNibbleToLowerChar();
         return 8;
     }
@@ -104,13 +104,13 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendAsUpperHexUnchecked(this Span<char> buffer, int value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 12).BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 16).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 20).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 24).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 7] = value.BottomNibbleToUpperChar();
+        buffer[bufferOffset + 6] = (value >> 4).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 5] = (value >> 8).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 4] = (value >> 12).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 3] = (value >> 16).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 2] = (value >> 20).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = (value >> 24).BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 28).BottomNibbleToLowerChar();
         return 8;
     }
@@ -155,9 +155,9 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestShortAsLowerHexUnchecked(this Span<char> buffer, uint value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 3] = value.BottomNibbleToLowerChar();
+        buffer[bufferOffset + 2] = (value >> 4).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = (value >> 8).BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 12).BottomNibbleToLowerChar();
         return 4;
     }
@@ -172,9 +172,9 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestShortAsUpperHexUnchecked(this Span<char> buffer, uint value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 3] = value.BottomNibbleToUpperChar();
+        buffer[bufferOffset + 2] = (value >> 4).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 1] = (value >> 8).BottomNibbleToUpperChar();
         buffer[bufferOffset]   = (value >> 12).BottomNibbleToUpperChar();
         return 4;
     }
@@ -189,13 +189,13 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendAsLowerHexUnchecked(this Span<char> buffer, uint value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 12).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 16).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 20).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 24).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 7] = value.BottomNibbleToLowerChar();
+        buffer[bufferOffset + 6] = (value >> 4).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 5] = (value >> 8).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 4] = (value >> 12).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 3] = (value >> 16).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 2] = (value >> 20).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = (value >> 24).BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 28).BottomNibbleToLowerChar();
         return 8;
     }
@@ -210,13 +210,13 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendAsUpperHexUnchecked(this Span<char> buffer, uint value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 12).BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 16).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 20).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 24).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 7] = value.BottomNibbleToUpperChar();
+        buffer[bufferOffset + 6] = (value >> 4).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 5] = (value >> 8).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 4] = (value >> 12).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 3] = (value >> 16).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 2] = (value >> 20).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = (value >> 24).BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 28).BottomNibbleToLowerChar();
         return 8;
     }
@@ -231,7 +231,7 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestByteAsLowerHexUnchecked(this Span<char> buffer, long value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = value.BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 4).BottomNibbleToLowerChar();
         return 2;
     }
@@ -246,7 +246,7 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestByteAsUpperHexUnchecked(this Span<char> buffer, long value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToUpperChar();
+        buffer[bufferOffset + 1] = value.BottomNibbleToUpperChar();
         buffer[bufferOffset]   = (value >> 4).BottomNibbleToUpperChar();
         return 2;
     }
@@ -261,9 +261,9 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestShortAsLowerHexUnchecked(this Span<char> buffer, long value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 3] = value.BottomNibbleToLowerChar();
+        buffer[bufferOffset + 2] = (value >> 4).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = (value >> 8).BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 12).BottomNibbleToLowerChar();
         return 4;
     }
@@ -278,9 +278,9 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestShortAsUpperHexUnchecked(this Span<char> buffer, long value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToUpperChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 3] = value.BottomNibbleToUpperChar();
+        buffer[bufferOffset + 2] = (value >> 4).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 1] = (value >> 8).BottomNibbleToUpperChar();
         buffer[bufferOffset]   = (value >> 12).BottomNibbleToUpperChar();
         return 4;
     }
@@ -295,7 +295,7 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestByteAsLowerHexUnchecked(this Span<char> buffer, ulong value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = value.BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 4).BottomNibbleToLowerChar();
         return 2;
     }
@@ -310,7 +310,7 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestByteAsUpperHexUnchecked(this Span<char> buffer, ulong value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToUpperChar();
+        buffer[bufferOffset + 1] = value.BottomNibbleToUpperChar();
         buffer[bufferOffset]   = (value >> 4).BottomNibbleToUpperChar();
         return 2;
     }
@@ -325,9 +325,9 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestShortAsLowerHexUnchecked(this Span<char> buffer, ulong value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 4).BottomNibbleToLowerChar();
-        buffer[bufferOffset++] = (value >> 8).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 3] = value.BottomNibbleToLowerChar();
+        buffer[bufferOffset + 2] = (value >> 4).BottomNibbleToLowerChar();
+        buffer[bufferOffset + 1] = (value >> 8).BottomNibbleToLowerChar();
         buffer[bufferOffset]   = (value >> 12).BottomNibbleToLowerChar();
         return 4;
     }
@@ -342,9 +342,9 @@ public static class CharSpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AppendLowestShortAsUpperHexUnchecked(this Span<char> buffer, ulong value, int bufferOffset = 0)
     {
-        buffer[bufferOffset++] = value.BottomNibbleToUpperChar();
-        buffer[bufferOffset]   = (value >> 4).BottomNibbleToUpperChar();
-        buffer[bufferOffset]   = (value >> 8).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 3] = value.BottomNibbleToUpperChar();
+        buffer[bufferOffset + 2]   = (value >> 4).BottomNibbleToUpperChar();
+        buffer[bufferOffset + 1]   = (value >> 8).BottomNibbleToUpperChar();
         buffer[bufferOffset]   = (value >> 12).BottomNibbleToUpperChar();
         return 4;
     }
@@ -817,6 +817,40 @@ public static class CharSpanExtensions
         return toUpdate;
     }
 
+    public static int AppendInt(this Span<char> toUpdate, int toFormatAppend)
+    {
+        var startAt      = toUpdate.PopulatedLength();
+        if (startAt != 0)
+        {
+            toUpdate = toUpdate[startAt..];
+        }
+        if (toFormatAppend.TryFormat(toUpdate, out var written))
+        {
+            return written;
+        }
+        return 0;
+    }
+
+    public static int AppendEnum<T>(this Span<char> toUpdate, T toFormatAppend) where T : Enum, ISpanFormattable
+    {
+        var startAt      = toUpdate.PopulatedLength();
+        if (startAt != 0)
+        {
+            toUpdate = toUpdate[startAt..];
+        }
+        if (toFormatAppend.TryFormat(toUpdate, out var written, "F", null))
+        {
+            return written;
+        }
+        return 0;
+    }
+
+    public static int AppendRange(this Span<char> toUpdate, Range toConvert) 
+    {
+        var startAt      = toUpdate.PopulatedLength();
+        return toUpdate.WriteRangeAsSlice(startAt, toConvert);
+    }
+
     public static bool IsEndOf(this Span<char> subject, string checkSameChars, int subjectPopulatedLength = -1)
     {
         if (subjectPopulatedLength < 0)
@@ -837,6 +871,17 @@ public static class CharSpanExtensions
     }
 
     public static bool SequenceMatches(this ReadOnlySpan<char> toCheck, string matchWith, int fromIndex = 0)
+    {
+        var matchLength = matchWith.Length;
+        var matchIndex  = 0;
+        for (var i = fromIndex; i < toCheck.Length && matchIndex < matchLength; i++)
+        {
+            if (toCheck[i] != matchWith[matchIndex++]) return false;
+        }
+        return matchIndex == matchLength;
+    }
+
+    public static bool SequenceMatches(this Span<char> toCheck, string matchWith, int fromIndex = 0)
     {
         var matchLength = matchWith.Length;
         var matchIndex  = 0;
@@ -1243,23 +1288,17 @@ public static class CharSpanExtensions
     }
 
 
-    public static int WriteIntToSpan(this Span<char> writeTo, int toWrite, ref int spanOffset)
+    public static int WriteIntToSpan(this Span<char> writeTo, int toWrite, int startIndex)
     {
-        if (toWrite < 0)
+        if (startIndex != 0)
         {
-            writeTo[spanOffset++] = '-';
-            toWrite               = Math.Abs(toWrite);
+            writeTo = writeTo[startIndex..];
         }
-        var power = 0;
-        if (toWrite >= 10)
+        if (toWrite.TryFormat(writeTo, out var written))
         {
-            var divide10 = toWrite / 10;
-            power = writeTo.WriteIntToSpan(divide10, ref spanOffset);
-            var divedPower = 10 * power;
-            toWrite = (toWrite / divedPower) % 10;
+            return written;
         }
-        writeTo[spanOffset++] = (char)('0' + toWrite);
-        return power + 1;
+        return 0;
     }
 
 

@@ -129,7 +129,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
         Span<Range> splitRanges    = stackalloc Range[16];
         var         numberOfRanges = original.Split(splitRanges, splitSpan, StringSplitOptions.TrimEntries);
         splitRanges = splitRanges[..numberOfRanges];
-        var boundRange = splitElementsRange.BoundRangeToCharLength(splitRanges.Length);
+        var boundRange = splitElementsRange.BoundRangeToLength(splitRanges.Length);
         splitRanges = splitRanges[boundRange];
 
         var joinSpan = joinChars[..joinLength];
@@ -458,9 +458,10 @@ public static class ExtendedSpanFormattableExtensions
             {
                 start = remainingSpan.ExtractIndexSlice(squareOpenIndex + 1);
             }
-            remainingSpan = remainingSpan[(dotdotIndex + 2)..];
-            var end = Index.End;
-            if (rangeFirstChar.IsCarat() || rangeFirstChar.IsDigit())
+            remainingSpan  = remainingSpan[(dotdotIndex + 2)..];
+            var rangeEndChar = remainingSpan[0];
+            var end          = Index.End;
+            if (rangeEndChar.IsCarat() || rangeEndChar.IsDigit())
             {
                 end = remainingSpan.ExtractIndexSlice(0, true);
             }
@@ -540,9 +541,10 @@ public static class ExtendedSpanFormattableExtensions
                 {
                     start = remainingSpan.ExtractIndexSlice(squareLayoutOpenIndex + 1);
                 }
-                remainingSpan = remainingSpan[(dotdotIndex + 2)..];
+                remainingSpan  = remainingSpan[(dotdotIndex + 2)..];
+                var rangeEndChar = remainingSpan[0];
                 var end = Index.End;
-                if (rangeFirstChar.IsCarat() || rangeFirstChar.IsDigit())
+                if (rangeEndChar.IsCarat() || rangeEndChar.IsDigit())
                 {
                     end = remainingSpan.ExtractIndexSlice(0, true);
                 }
@@ -637,19 +639,6 @@ public static class ExtendedSpanFormattableExtensions
         return foundFromStringLength;
     }
 
-    public static Range BoundRangeToCharLength(this Range formatRange, int length)
-    {
-        return formatRange.IsAllRange()
-            ? formatRange
-            : new Range(
-                        formatRange.Start.IsFromEnd
-                            ? Index.FromEnd(Math.Clamp(formatRange.Start.Value, 0, length))
-                            : Index.FromStart(Math.Clamp(formatRange.Start.Value, 0, length))
-                      , formatRange.Start.IsFromEnd
-                            ? Index.FromEnd(Math.Clamp(formatRange.End.Value, 0, length))
-                            : Index.FromStart(Math.Clamp(formatRange.End.Value, 0, length)));
-    }
-
     public static int PadAndAlign(this Span<char> destination, ReadOnlySpan<char> toInsert, ReadOnlySpan<char> layout)
     {
         if (layout.Length == 0)
@@ -664,7 +653,7 @@ public static class ExtendedSpanFormattableExtensions
         if (isStringLength)
         {
             layout.LayoutStringRangeIndexers(out var range);
-            charsRange = range.BoundRangeToCharLength(toInsert.Length);
+            charsRange = range.BoundRangeToLength(toInsert.Length);
 
             int.TryParse(layout, out padding);
             padding = Math.Abs(padding);

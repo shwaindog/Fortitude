@@ -5,6 +5,8 @@
 
 using System.Reactive.Disposables;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Config;
@@ -21,7 +23,7 @@ namespace FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
 
 public class PQClient : IDisposable
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQClient));
+    private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
     private readonly IPQClientQuoteDeserializerRepository deserializationRepository
         = new PQClientQuoteDeserializerRepository("PQClient", new Recycler());
@@ -193,13 +195,16 @@ public class PQClient : IDisposable
 
             pqClientSyncMonitoring.CheckStartMonitoring();
 
-            Logger.Info("Subscribed to {0}", pricingServerConfig);
+            Logger.InfoFormat("Subscribed to {0}")?.WithOnlyParam(pricingServerConfig);
         }
         else
         {
-            Logger.Warn($"Cannot subscribe to Ticker {sourceTickerInfo.InstrumentName} for source " +
-                        $"{marketConnectionConfig?.SourceName ?? "serverConfig is null"} not found in MarketConnectionConfig " +
-                        $"{marketConnectionConfig?.ToString() ?? "serverConfig is null"}");
+            Logger.WarnFormat($"Cannot subscribe to Ticker {0} for source " +
+                        $"{1} not found in MarketConnectionConfig " +
+                        $"{2}")?
+                .WithParams(sourceTickerInfo.InstrumentName)?
+                .And(marketConnectionConfig?.SourceName ?? "serverConfig is null")?
+                .AndFinalParam(marketConnectionConfig?.ToString() ?? "serverConfig is null");
         }
 
         return pqTickerFeedSubscriptionQuoteStream;
@@ -228,12 +233,12 @@ public class PQClient : IDisposable
 
             if (!deserializationRepository.RegisteredMessageIds.Any()) pqClientSyncMonitoring.CheckStopMonitoring();
 
-            Logger.Info($"Unsubscribed from {sourceTickerPublicationConfig}");
+            Logger.InfoFormat($"Unsubscribed from {0}")?.WithOnlyParam(sourceTickerPublicationConfig);
         }
         else
         {
-            Logger.Warn($"Cannot unsubscribe to Ticker {ticker} for source {feedRef.SourceName} not found in " +
-                        $"config repo {feedRef}");
+            Logger.WarnFormat($"Cannot unsubscribe to Ticker {0} for source {1} not found in " +
+                        $"config repo {2}")?.WithParams(ticker)?.And(feedRef.SourceName)?.AndFinalParam(feedRef);
         }
     }
 

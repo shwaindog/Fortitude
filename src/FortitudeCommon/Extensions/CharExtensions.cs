@@ -5,22 +5,35 @@ namespace FortitudeCommon.Extensions;
 
 public static class CharExtensions
 {
+    public const int UnicodeCodePoints = 1_114_112;
+
+    public const char TwoCharUnicodeHighSurrogateFrom = '\xD800';
+    public const char TwoCharUnicodeHighSurrogateTo   = '\xDBFF';
+    public const char TwoCharUnicodeLowSurrogateFrom  = '\xDC00';
+    public const char TwoCharUnicodeLowSurrogateTo    = '\xDFFF';
+
+    public static bool IsSingleCharRune(this char checkChar) => checkChar is < TwoCharUnicodeHighSurrogateFrom or > TwoCharUnicodeLowSurrogateTo;
+    
+    public static bool IsTwoCharHighSurrogate(this char checkChar) => checkChar is >= TwoCharUnicodeHighSurrogateFrom and <= TwoCharUnicodeHighSurrogateTo;
+    
+    public static bool IsTwoCharLowSurrogate(this char checkChar) => checkChar is >= TwoCharUnicodeLowSurrogateFrom and <= TwoCharUnicodeLowSurrogateTo;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static char BottomNibbleToUpperChar(this int bottomNibble)
     {
         bottomNibble = ((0x0F) & bottomNibble);
         switch (bottomNibble)
         {
-            case 0: return '0';
-            case 1: return '1';
-            case 2: return '2';
-            case 3: return '3';
-            case 4: return '4';
-            case 5: return '5';
-            case 6: return '6';
-            case 7: return '7';
-            case 8: return '8';
-            case 9: return '9';
+            case 0:  return '0';
+            case 1:  return '1';
+            case 2:  return '2';
+            case 3:  return '3';
+            case 4:  return '4';
+            case 5:  return '5';
+            case 6:  return '6';
+            case 7:  return '7';
+            case 8:  return '8';
+            case 9:  return '9';
             case 10: return 'A';
             case 11: return 'B';
             case 12: return 'C';
@@ -28,24 +41,24 @@ public static class CharExtensions
             case 14: return 'E';
             default: return 'F';
         }
-    } 
-    
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static char BottomNibbleToLowerChar(this int bottomNibble)
     {
         bottomNibble = ((0x0F) & bottomNibble);
         switch (bottomNibble)
         {
-            case 0: return '0';
-            case 1: return '1';
-            case 2: return '2';
-            case 3: return '3';
-            case 4: return '4';
-            case 5: return '5';
-            case 6: return '6';
-            case 7: return '7';
-            case 8: return '8';
-            case 9: return '9';
+            case 0:  return '0';
+            case 1:  return '1';
+            case 2:  return '2';
+            case 3:  return '3';
+            case 4:  return '4';
+            case 5:  return '5';
+            case 6:  return '6';
+            case 7:  return '7';
+            case 8:  return '8';
+            case 9:  return '9';
             case 10: return 'a';
             case 11: return 'b';
             case 12: return 'c';
@@ -53,24 +66,24 @@ public static class CharExtensions
             case 14: return 'e';
             default: return 'f';
         }
-    } 
-    
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static char BottomNibbleToUpperChar(this uint bottomNibble)
     {
         bottomNibble = ((0x0F) & bottomNibble);
         switch (bottomNibble)
         {
-            case 0: return '0';
-            case 1: return '1';
-            case 2: return '2';
-            case 3: return '3';
-            case 4: return '4';
-            case 5: return '5';
-            case 6: return '6';
-            case 7: return '7';
-            case 8: return '8';
-            case 9: return '9';
+            case 0:  return '0';
+            case 1:  return '1';
+            case 2:  return '2';
+            case 3:  return '3';
+            case 4:  return '4';
+            case 5:  return '5';
+            case 6:  return '6';
+            case 7:  return '7';
+            case 8:  return '8';
+            case 9:  return '9';
             case 10: return 'A';
             case 11: return 'B';
             case 12: return 'C';
@@ -78,24 +91,24 @@ public static class CharExtensions
             case 14: return 'E';
             default: return 'F';
         }
-    } 
-    
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static char BottomNibbleToLowerChar(this uint bottomNibble)
     {
         bottomNibble = ((0x0F) & bottomNibble);
         switch (bottomNibble)
         {
-            case 0: return '0';
-            case 1: return '1';
-            case 2: return '2';
-            case 3: return '3';
-            case 4: return '4';
-            case 5: return '5';
-            case 6: return '6';
-            case 7: return '7';
-            case 8: return '8';
-            case 9: return '9';
+            case 0:  return '0';
+            case 1:  return '1';
+            case 2:  return '2';
+            case 3:  return '3';
+            case 4:  return '4';
+            case 5:  return '5';
+            case 6:  return '6';
+            case 7:  return '7';
+            case 8:  return '8';
+            case 9:  return '9';
             case 10: return 'a';
             case 11: return 'b';
             case 12: return 'c';
@@ -103,24 +116,24 @@ public static class CharExtensions
             case 14: return 'e';
             default: return 'f';
         }
-    } 
-    
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static char BottomNibbleToUpperChar(this long bottomNibble)
     {
         bottomNibble = ((0x0F) & bottomNibble);
         switch (bottomNibble)
         {
-            case 0: return '0';
-            case 1: return '1';
-            case 2: return '2';
-            case 3: return '3';
-            case 4: return '4';
-            case 5: return '5';
-            case 6: return '6';
-            case 7: return '7';
-            case 8: return '8';
-            case 9: return '9';
+            case 0:  return '0';
+            case 1:  return '1';
+            case 2:  return '2';
+            case 3:  return '3';
+            case 4:  return '4';
+            case 5:  return '5';
+            case 6:  return '6';
+            case 7:  return '7';
+            case 8:  return '8';
+            case 9:  return '9';
             case 10: return 'A';
             case 11: return 'B';
             case 12: return 'C';
@@ -128,24 +141,24 @@ public static class CharExtensions
             case 14: return 'E';
             default: return 'F';
         }
-    } 
-    
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static char BottomNibbleToLowerChar(this long bottomNibble)
     {
         bottomNibble = ((0x0F) & bottomNibble);
         switch (bottomNibble)
         {
-            case 0: return '0';
-            case 1: return '1';
-            case 2: return '2';
-            case 3: return '3';
-            case 4: return '4';
-            case 5: return '5';
-            case 6: return '6';
-            case 7: return '7';
-            case 8: return '8';
-            case 9: return '9';
+            case 0:  return '0';
+            case 1:  return '1';
+            case 2:  return '2';
+            case 3:  return '3';
+            case 4:  return '4';
+            case 5:  return '5';
+            case 6:  return '6';
+            case 7:  return '7';
+            case 8:  return '8';
+            case 9:  return '9';
             case 10: return 'a';
             case 11: return 'b';
             case 12: return 'c';
@@ -153,24 +166,24 @@ public static class CharExtensions
             case 14: return 'e';
             default: return 'f';
         }
-    } 
-    
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static char BottomNibbleToUpperChar(this ulong bottomNibble)
     {
         bottomNibble = ((0x0F) & bottomNibble);
         switch (bottomNibble)
         {
-            case 0: return '0';
-            case 1: return '1';
-            case 2: return '2';
-            case 3: return '3';
-            case 4: return '4';
-            case 5: return '5';
-            case 6: return '6';
-            case 7: return '7';
-            case 8: return '8';
-            case 9: return '9';
+            case 0:  return '0';
+            case 1:  return '1';
+            case 2:  return '2';
+            case 3:  return '3';
+            case 4:  return '4';
+            case 5:  return '5';
+            case 6:  return '6';
+            case 7:  return '7';
+            case 8:  return '8';
+            case 9:  return '9';
             case 10: return 'A';
             case 11: return 'B';
             case 12: return 'C';
@@ -178,24 +191,24 @@ public static class CharExtensions
             case 14: return 'E';
             default: return 'F';
         }
-    } 
-    
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static char BottomNibbleToLowerChar(this ulong bottomNibble)
     {
         bottomNibble = ((0x0F) & bottomNibble);
         switch (bottomNibble)
         {
-            case 0: return '0';
-            case 1: return '1';
-            case 2: return '2';
-            case 3: return '3';
-            case 4: return '4';
-            case 5: return '5';
-            case 6: return '6';
-            case 7: return '7';
-            case 8: return '8';
-            case 9: return '9';
+            case 0:  return '0';
+            case 1:  return '1';
+            case 2:  return '2';
+            case 3:  return '3';
+            case 4:  return '4';
+            case 5:  return '5';
+            case 6:  return '6';
+            case 7:  return '7';
+            case 8:  return '8';
+            case 9:  return '9';
             case 10: return 'a';
             case 11: return 'b';
             case 12: return 'c';
@@ -203,9 +216,9 @@ public static class CharExtensions
             case 14: return 'e';
             default: return 'f';
         }
-    } 
-    
-    
+    }
+
+
     public static readonly char ThousandsSeparatorChar = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator[0];
 
     public static readonly char[] WhiteSpace = [' ', '\t', '\n', '\r'];
@@ -238,5 +251,4 @@ public static class CharExtensions
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsThousandsSeparator(this char check) => check == ThousandsSeparatorChar;
-
 }

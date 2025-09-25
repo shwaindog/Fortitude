@@ -30,7 +30,7 @@ public partial class FLogStringAppender : FLogEntryMessageBuilderBase<IFLogStrin
     {
         // ReSharper disable once VirtualMemberCallInConstructor
         ITheOneString? mesgStsa = Recycler?.Borrow<TheOneString>() ?? new TheOneString(toClone.Style);
-        mesgStsa.ClearAndReinitialize(toClone.Style);
+        mesgStsa.ClearAndReinitialize(new StyleOptionsValue(toClone.Style));
         MessageSb   = mesgStsa.WriteBuffer;
         MessageStsa = mesgStsa;
     }

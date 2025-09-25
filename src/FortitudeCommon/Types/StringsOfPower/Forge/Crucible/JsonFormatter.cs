@@ -5,16 +5,14 @@ using System.Text;
 using System.Text.Json.Nodes;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
-public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
+public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
 {
-    private static string[] jsEscapeChars = null!;
-
-    private byte    previousByteUnusedBits;
-    private byte    previousByteBitCount;
-    private string? jsonDateTImeFormat;
+    private byte previousByteUnusedBits;
+    private byte previousByteBitCount;
 
     protected const string DblQt      = "\"";
     protected const char   DblQtChar  = '"';
@@ -23,101 +21,11 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     protected const string BrcCls     = "}";
     protected const char   BrcClsChar = '}';
 
-    public const char TwoCharUnicodeLow = '\xD800';
-    public const char TwoCharUnicodeHigh  = '\xDBFF';
 
-    public const string DefaultJsonDateTImeFormat = "yyyy-MM-ddTHH:mm:ss";
-
-    private static string[] booleanStrings = ["true", "false", "True", "False"];
-
-    public JsEscapingFormatter()
+    public virtual IJsonFormattingOptions JsonOptions
     {
-        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-        jsEscapeChars ??= BuildEscapedChars(new string[128]);
-    }
-
-    protected virtual string[] BuildEscapedChars(string[] toBuild)
-    {
-        var hexBuffer = stackalloc char[6].ResetMemory();
-        for (int i = 0; i < 128; i++)
-        {
-            var iChar = (char)i;
-            if (i < 32)
-            {
-                switch (i)
-                {
-                    case '\b': toBuild[i] = @"\b"; break;
-                    case '\t': toBuild[i] = @"\t"; break;
-                    case '\n': toBuild[i] = @"\n"; break;
-                    case '\v': toBuild[i] = @"\v"; break;
-                    case '\f': toBuild[i] = @"\f"; break;
-                    case '\r': toBuild[i] = @"\r"; break;
-                    default:
-                        hexBuffer[0] = '\\';
-                        hexBuffer[1] = 'u';
-                        hexBuffer.AppendAsLowerHex(i, 2);
-                        toBuild[i] = new string(hexBuffer);
-                        break;
-                }
-            }
-            else
-            {
-                switch (i)
-                {
-                    case '\"': toBuild[i] = "\""; break;
-                    case '\\': toBuild[i] = @"\"; break;
-                    default:   toBuild[i] = iChar.ToString(); break;
-                }
-            }
-        }
-        return toBuild;
-    }
-
-    public bool CharArrayWritesString { get; set; }
-
-    public bool ByteArrayWritesBase64String { get; set; } = true;
-
-    public string JsonDateTImeFormat
-    {
-        get => jsonDateTImeFormat ??= DefaultJsonDateTImeFormat;
-        set => jsonDateTImeFormat = value;
-    }
-
-    public bool WrapValuesInQuotes { get; set; }
-
-    public override int Transfer(ReadOnlySpan<char> source, IStringBuilder sb)
-    {
-        return JsEscapingTransfer(source, 0, sb);
-    }
-
-    public override int Transfer(ReadOnlySpan<char> source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, 0, destination, destStartIndex, maxTransferCount);
-    }
-
-    public override int Transfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb
-      , int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, sourceFrom, sb, maxTransferCount);
-    }
-
-    public override int Transfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, sourceFrom, destination, destStartIndex, maxTransferCount);
-    }
-
-    protected virtual int Transfer(char? source, IStringBuilder sb)
-    {
-        if (source == null) return 0;
-        sb.Append(jsEscapeChars[source.Value]);
-        return 1;
-    }
-
-    protected virtual int Transfer(char? source, Span<char> dest, int destIndex)
-    {
-        if (source == null) return 0;
-        return dest.OverWriteAt(destIndex, jsEscapeChars[source.Value]);
+        get => (IJsonFormattingOptions)FormatOptions;
+        set => FormatOptions = value;
     }
 
     protected virtual int NextBase64Chars(byte source, IStringBuilder sb)
@@ -226,389 +134,6 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         }
     }
 
-    protected int JsEscapingTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue
-      , int destInsertIndex = -1)
-    {
-        var preTransferLen = sb.Length;
-        var i              = Math.Clamp(sourceFrom, 0, source.Length);
-        var end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end; i++)
-        {
-            var iChar = source[i];
-            if (iChar < 128)
-            {
-                sb.Append(jsEscapeChars[iChar]);
-            }
-            else if(iChar is < TwoCharUnicodeLow or > TwoCharUnicodeHigh)
-            {
-                sb.Append(iChar);
-            }
-            else if(i + 1 < end)
-            {
-                var index = sb.Length;
-                sb.Length   += 2;
-                sb[index++] =  iChar;
-                sb[index]   =  source[++i];
-            }
-        }
-        return sb.Length - preTransferLen;
-    }
-
-    protected int JsEscapingTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destination
-      , int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        var i     = sourceFrom;
-        var desti = destStartIndex;
-        var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end && desti < destination.Length; i++)
-        {
-            var iChar = source[i];
-            if (iChar < 128)
-            {
-                var jsEscapeChar = jsEscapeChars[iChar];
-                switch (jsEscapeChar.Length)
-                {
-                    case 1: destination[desti++] = jsEscapeChar[0]; break;
-                    case 2:
-                        if (desti + 2 >= destination.Length) return desti - destStartIndex;
-                        destination[desti++] = jsEscapeChar[0];
-                        destination[desti++] = jsEscapeChar[1];
-                        break;
-                    case 6:
-                        if (desti + 6 >= destination.Length) return desti - destStartIndex;
-                        destination[desti++] = jsEscapeChar[0];
-                        destination[desti++] = jsEscapeChar[1];
-                        destination[desti++] = jsEscapeChar[2];
-                        destination[desti++] = jsEscapeChar[3];
-                        destination[desti++] = jsEscapeChar[4];
-                        destination[desti++] = jsEscapeChar[5];
-                        break;
-                    default:
-                        if (desti + jsEscapeChar.Length >= destination.Length) return desti - destStartIndex;
-                        for (int j = 0; j < jsEscapeChar.Length; j++)
-                        {
-                            destination[desti++] = jsEscapeChar[j];
-                        }
-                        break;
-                }
-            }
-            else
-            {
-                destination[desti++] = iChar;
-            }
-        }
-        return desti - destStartIndex;
-    }
-
-    public override int Transfer(char[] source, IStringBuilder sb)
-    {
-        return JsEscapingTransfer(source, 0, sb);
-    }
-
-    public override int Transfer(char[] source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, 0, destination, destStartIndex, maxTransferCount);
-    }
-
-    public override int Transfer(char[] source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, sourceFrom, sb, maxTransferCount);
-    }
-
-    public override int Transfer(char[] source, int sourceFrom, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, sourceFrom, destination, destStartIndex, maxTransferCount);
-    }
-
-    protected int JsEscapingTransfer(char[] source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue)
-    {
-        var preTransferLen = sb.Length;
-        var i              = Math.Clamp(sourceFrom, 0, source.Length);
-        var end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end; i++)
-        {
-            var iChar = source[i];
-            if (iChar < 128)
-            {
-                sb.Append(jsEscapeChars[iChar]);
-            }
-            else if(iChar is < TwoCharUnicodeLow or > TwoCharUnicodeHigh)
-            {
-                sb.Append(iChar);
-            }
-            else if(i + 1 < end)
-            {
-                var index = sb.Length;
-                sb.Length   += 2;
-                sb[index++] =  iChar;
-                sb[index]   =  source[++i];
-            }
-        }
-        return sb.Length - preTransferLen;
-    }
-
-    protected int JsEscapingTransfer(char[] source, int sourceFrom, Span<char> destination
-      , int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        var i     = sourceFrom;
-        var desti = destStartIndex;
-        var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end && desti < destination.Length; i++)
-        {
-            var iChar = source[i];
-            if (iChar < 128)
-            {
-                var jsEscapeChar = jsEscapeChars[iChar];
-                switch (jsEscapeChar.Length)
-                {
-                    case 1: destination[desti++] = jsEscapeChar[0]; break;
-                    case 2:
-                        if (desti + 2 >= destination.Length) return desti - destStartIndex;
-                        destination[desti++] = jsEscapeChar[0];
-                        destination[desti++] = jsEscapeChar[1];
-                        break;
-                    case 6:
-                        if (desti + 6 >= destination.Length) return desti - destStartIndex;
-                        destination[desti++] = jsEscapeChar[0];
-                        destination[desti++] = jsEscapeChar[1];
-                        destination[desti++] = jsEscapeChar[2];
-                        destination[desti++] = jsEscapeChar[3];
-                        destination[desti++] = jsEscapeChar[4];
-                        destination[desti++] = jsEscapeChar[5];
-                        break;
-                    default:
-                        if (desti + jsEscapeChar.Length >= destination.Length) return desti - destStartIndex;
-                        for (int j = 0; j < jsEscapeChar.Length; j++)
-                        {
-                            destination[desti++] = jsEscapeChar[j];
-                        }
-                        break;
-                }
-            }
-            else
-            {
-                destination[desti++] = iChar;
-            }
-        }
-        return desti - destStartIndex;
-    }
-
-    public override int Transfer(StringBuilder source, IStringBuilder sb)
-    {
-        return JsEscapingTransfer(source, 0, sb);
-    }
-
-    public override int Transfer(StringBuilder source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, 0, destination, destStartIndex, maxTransferCount);
-    }
-
-    public override int Transfer(StringBuilder source, int sourceFrom, IStringBuilder sb
-      , int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, sourceFrom, sb, maxTransferCount);
-    }
-
-    public override int Transfer(StringBuilder source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, sourceFrom, destination, destStartIndex, maxTransferCount);
-    }
-
-    protected int JsEscapingTransfer(StringBuilder source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue)
-    {
-        var preTransferLen = sb.Length;
-        var i              = sourceFrom;
-        var end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end; i++)
-        {
-            var iChar = source[i];
-            if (iChar < 128)
-            {
-                sb.Append(jsEscapeChars[iChar]);
-            }
-            else if(iChar is < TwoCharUnicodeLow or > TwoCharUnicodeHigh)
-            {
-                sb.Append(iChar);
-            }
-            else if(i + 1 < end)
-            {
-                var index = sb.Length;
-                sb.Length   += 2;
-                sb[index++] =  iChar;
-                sb[index]   =  source[++i];
-            }
-        }
-        return sb.Length - preTransferLen;
-    }
-
-    protected int JsEscapingTransfer(StringBuilder source, int sourceFrom, Span<char> destination
-      , int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        var i     = sourceFrom;
-        var desti = destStartIndex;
-        var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end && desti < destination.Length; i++)
-        {
-            var iChar = source[i];
-            if (iChar < 128)
-            {
-                var jsEscapeChar = jsEscapeChars[iChar];
-                switch (jsEscapeChar.Length)
-                {
-                    case 1: destination[desti++] = jsEscapeChar[0]; break;
-                    case 2:
-                        if (desti + 2 >= destination.Length) return desti - destStartIndex;
-                        destination[desti++] = jsEscapeChar[0];
-                        destination[desti++] = jsEscapeChar[1];
-                        break;
-                    case 6:
-                        if (desti + 6 >= destination.Length) return desti - destStartIndex;
-                        destination[desti++] = jsEscapeChar[0];
-                        destination[desti++] = jsEscapeChar[1];
-                        destination[desti++] = jsEscapeChar[2];
-                        destination[desti++] = jsEscapeChar[3];
-                        destination[desti++] = jsEscapeChar[4];
-                        destination[desti++] = jsEscapeChar[5];
-                        break;
-                    default:
-                        if (desti + jsEscapeChar.Length >= destination.Length) return desti - destStartIndex;
-                        for (int j = 0; j < jsEscapeChar.Length; j++)
-                        {
-                            destination[desti++] = jsEscapeChar[j];
-                        }
-                        break;
-                }
-            }
-            else 
-            {
-                destination[desti++] = iChar;
-            }
-        }
-        return desti - destStartIndex;
-    }
-
-    public override int Transfer(ICharSequence source, IStringBuilder sb)
-    {
-        return JsEscapingTransfer(source, 0, sb);
-    }
-
-    public override int Transfer(ICharSequence source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, 0, destination, destStartIndex, maxTransferCount);
-    }
-
-    public override int Transfer(ICharSequence source, int sourceFrom, IStringBuilder sb
-      , int maxTransferCount = int.MaxValue)
-    {
-        return JsEscapingTransfer(source, sourceFrom, sb, maxTransferCount);
-    }
-
-    public override int Transfer(ICharSequence source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = int.MaxValue)
-    {
-        if (!CharArrayWritesString)
-        {
-            var charsAdded = 0;
-            var cappedEnd  = Math.Clamp(maxTransferCount, 0, source.Length);
-            int j          = 0;
-            for (; j < cappedEnd; j++)
-            {
-                var item = source[j];
-
-                if (j > 0) charsAdded += AddCollectionElementSeparator(typeof(char), destination, destStartIndex + charsAdded, j);
-                charsAdded += CollectionNextItem(item, j, destination, destStartIndex + charsAdded);
-            }
-            return j;
-        }
-        return JsEscapingTransfer(source, sourceFrom, destination, destStartIndex, maxTransferCount);
-    }
-
-    protected int JsEscapingTransfer(ICharSequence source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue)
-    {
-        var preTransferLen = sb.Length;
-        if (!CharArrayWritesString)
-        {
-            var cappedEnd = Math.Clamp(maxTransferCount, 0, source.Length);
-            int j         = 0;
-            for (; j < cappedEnd; j++)
-            {
-                var item = source[j];
-                if (j > 0) AddCollectionElementSeparator(typeof(char), sb, j);
-                CollectionNextItem(item, j, sb);
-            }
-            return sb.Length - preTransferLen;
-        }
-        var i   = Math.Clamp(sourceFrom, 0, source.Length);
-        var end = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end; i++)
-        {
-            var iChar = source[i];
-            if (iChar < 128)
-            {
-                sb.Append(jsEscapeChars[iChar]);
-            }
-            else if(iChar is < TwoCharUnicodeLow or > TwoCharUnicodeHigh)
-            {
-                sb.Append(iChar);
-            }
-            else if(i + 1 < end)
-            {
-                var index = sb.Length;
-                sb.Length   += 2;
-                sb[index++] =  iChar;
-                sb[index]   =  source[++i];
-            }
-        }
-        return sb.Length - preTransferLen;
-    }
-
-    protected int JsEscapingTransfer(ICharSequence source, int sourceFrom, Span<char> destination
-      , int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        var i     = sourceFrom;
-        var desti = destStartIndex;
-        var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
-        for (; i < end && desti < destination.Length; i++)
-        {
-            var iChar = source[i];
-            if (iChar < 128)
-            {
-                var jsEscapeChar = jsEscapeChars[iChar];
-                switch (jsEscapeChar.Length)
-                {
-                    case 1: destination[desti++] = jsEscapeChar[0]; break;
-                    case 2:
-                        if (desti + 2 >= destination.Length) return desti - destStartIndex;
-                        destination[desti++] = jsEscapeChar[0];
-                        destination[desti++] = jsEscapeChar[1];
-                        break;
-                    case 6:
-                        if (desti + 6 >= destination.Length) return desti - destStartIndex;
-                        destination[desti++] = jsEscapeChar[0];
-                        destination[desti++] = jsEscapeChar[1];
-                        destination[desti++] = jsEscapeChar[2];
-                        destination[desti++] = jsEscapeChar[3];
-                        destination[desti++] = jsEscapeChar[4];
-                        destination[desti++] = jsEscapeChar[5];
-                        break;
-                    default:
-                        if (desti + jsEscapeChar.Length >= destination.Length) return desti - destStartIndex;
-                        for (int j = 0; j < jsEscapeChar.Length; j++)
-                        {
-                            destination[desti++] = jsEscapeChar[j];
-                        }
-                        break;
-                }
-            }
-            else
-            {
-                destination[desti++] = iChar;
-            }
-        }
-        return desti - destStartIndex;
-    }
-
     private bool IsDoubleQuoteEnclosed(Span<char> toCheck) => toCheck[0] == DblQtChar && toCheck[^1] == DblQtChar;
     private bool IsBracesEnclosed(Span<char> toCheck) => toCheck[0] == BrcOpnChar && toCheck[^1] == BrcClsChar;
     private bool IsSquareBracketsEnclosed(Span<char> toCheck) => toCheck[0] == SqBrktOpnChar && toCheck[^1] == SqBrktClsChar;
@@ -647,14 +172,14 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         if (IsDoubleQuoteEnclosed(justAppended))
         {
-            JsEscapingTransfer(justAppended, 0, sb, justAppended.Length, fromIndex);
+            JsonOptions.EncodingTransfer.Transfer(this, justAppended, 0, sb, fromIndex, justAppended.Length);
             return sb.Length - originalSbLen;
         }
-        if (WrapValuesInQuotes)
+        if (JsonOptions.WrapValuesInQuotes)
         {
             scratchFull[0]  = '\"';
             scratchFull[^1] = '\"';
-            JsEscapingTransfer(scratchFull, 0, sb, scratchFull.Length, fromIndex);
+            JsonOptions.EncodingTransfer.Transfer(this, scratchFull, 0, sb, fromIndex, scratchFull.Length);
         }
         return sb.Length - originalSbLen;
     }
@@ -690,14 +215,14 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         if (IsDoubleQuoteEnclosed(justAppended))
         {
-            var charsAdded = JsEscapingTransfer(justAppended, 0, destSpan, fromIndex, justAppended.Length);
+            var charsAdded = JsonOptions.EncodingTransfer.Transfer(this, justAppended, 0, destSpan, fromIndex, justAppended.Length);
             return charsAdded - appendLen;
         }
-        if (WrapValuesInQuotes)
+        if (JsonOptions.WrapValuesInQuotes)
         {
             scratchFull[0]  = '\"';
             scratchFull[^1] = '\"';
-            var charsAdded = JsEscapingTransfer(scratchFull, 0, destSpan, fromIndex, scratchFull.Length);
+            var charsAdded = JsonOptions.EncodingTransfer.Transfer(this, scratchFull, 0, destSpan, fromIndex, scratchFull.Length);
             return charsAdded - appendLen;
         }
         return 0;
@@ -708,12 +233,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         var preAppendLen = sb.Length;
 
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && !Options.IgnoreEmptyCollection && Options.EmptyCollectionWritesNull)
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Length > 0);
         }
@@ -721,11 +246,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -741,7 +274,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Length);
         }
@@ -756,11 +289,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -776,7 +317,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
@@ -787,12 +328,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         var preAppendLen = sb.Length;
 
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && !Options.IgnoreEmptyCollection && Options.EmptyCollectionWritesNull)
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Length > 0);
         }
@@ -800,11 +341,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -820,7 +369,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Length);
         }
@@ -835,11 +384,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -855,7 +412,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
@@ -865,12 +422,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int FormatArray<TFmt>(TFmt[] arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && !Options.IgnoreEmptyCollection && Options.EmptyCollectionWritesNull)
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Length > 0);
         }
@@ -878,11 +435,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -898,7 +463,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Length);
         }
@@ -908,12 +473,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int FormatArray<TFmt>(TFmt[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && !Options.IgnoreEmptyCollection && Options.EmptyCollectionWritesNull)
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
@@ -921,11 +486,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -941,7 +514,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
@@ -951,12 +524,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int FormatArray<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Length > 0);
         }
@@ -964,11 +537,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -984,7 +565,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Length);
         }
@@ -994,12 +575,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int FormatArray<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
@@ -1007,11 +588,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -1027,7 +616,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
@@ -1039,12 +628,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         var preAppendLen = sb.Length;
 
-        if (arg0.Count == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Count == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Count > 0);
         }
@@ -1052,11 +641,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -1072,7 +669,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Count);
         }
@@ -1087,11 +684,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -1107,7 +712,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
         }
@@ -1118,12 +723,12 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         var preAppendLen = sb.Length;
 
-        if (arg0.Count == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Count == 0 && !Options.IgnoreEmptyCollection && Options.EmptyCollectionWritesNull)
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Count > 0);
         }
@@ -1131,11 +736,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -1151,7 +764,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Count);
         }
@@ -1166,11 +779,19 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
+                {
+                    i++;
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -1186,7 +807,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 }
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
         }
@@ -1195,10 +816,11 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 
     public override int FormatEnumerable<TFmt>(IEnumerable<TFmt> arg0, IStringBuilder sb, string? formatString = null)
     {
-        var preAppendLen         = sb.Length;
-        var hasStartedCollection = false;
-        var itemCount            = 0;
-        var elementType          = typeof(TFmt);
+        var  preAppendLen         = sb.Length;
+        var  hasStartedCollection = false;
+        var  itemCount            = 0;
+        var  elementType          = typeof(TFmt);
+        char lastChar             = '\0';
         foreach (var item in arg0)
         {
             if (!hasStartedCollection)
@@ -1207,11 +829,22 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection = true;
             }
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (iChar.IsTwoCharHighSurrogate())
+                {
+                    lastChar = iChar;
+                }
+                else if (iChar.IsTwoCharLowSurrogate())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(lastChar, iChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -1234,11 +867,11 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         else
         {
-            if (!IgnoreEmptyCollection)
+            if (!Options.IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull)
+                if (Options.EmptyCollectionWritesNull)
                 {
-                    sb.Append(NullString);
+                    sb.Append(Options.NullString);
                 }
                 else
                 {
@@ -1254,8 +887,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         var addedChars           = 0;
         var hasStartedCollection = false;
-        var itemCount            = 0;
-        var elementType          = typeof(TFmt);
+
+        var  itemCount   = 0;
+        var  elementType = typeof(TFmt);
+        char lastChar    = '\0';
         foreach (var item in arg0)
         {
             if (!hasStartedCollection)
@@ -1264,11 +899,22 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection =  true;
             }
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (iChar.IsTwoCharHighSurrogate())
+                {
+                    lastChar = iChar;
+                }
+                else if (iChar.IsTwoCharLowSurrogate())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -1291,11 +937,11 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         else
         {
-            if (!IgnoreEmptyCollection)
+            if (!Options.IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull)
+                if (Options.EmptyCollectionWritesNull)
                 {
-                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, NullString);
+                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, Options.NullString);
                 }
                 else
                 {
@@ -1311,8 +957,10 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         var preAppendLen         = sb.Length;
         var hasStartedCollection = false;
-        var itemCount            = 0;
-        var elementType          = typeof(TFmt);
+
+        var  itemCount   = 0;
+        var  elementType = typeof(TFmt);
+        char lastChar    = '\0';
         foreach (var item in arg0)
         {
             if (!hasStartedCollection)
@@ -1321,11 +969,22 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection = true;
             }
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (iChar.IsTwoCharHighSurrogate())
+                {
+                    lastChar = iChar;
+                }
+                else if (iChar.IsTwoCharLowSurrogate())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(lastChar, iChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -1348,11 +1007,11 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         else
         {
-            if (!IgnoreEmptyCollection)
+            if (!Options.IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull)
+                if (Options.EmptyCollectionWritesNull)
                 {
-                    sb.Append(NullString);
+                    sb.Append(Options.NullString);
                 }
                 else
                 {
@@ -1366,10 +1025,11 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 
     public override int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
-        var addedChars           = 0;
-        var hasStartedCollection = false;
-        var itemCount            = 0;
-        var elementType          = typeof(TFmt);
+        var  addedChars           = 0;
+        var  hasStartedCollection = false;
+        var  itemCount            = 0;
+        var  elementType          = typeof(TFmt);
+        char lastChar             = '\0';
         foreach (var item in arg0)
         {
             if (!hasStartedCollection)
@@ -1378,11 +1038,22 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection =  true;
             }
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (iChar.IsTwoCharHighSurrogate())
+                {
+                    lastChar = iChar;
+                }
+                else if (iChar.IsTwoCharLowSurrogate())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -1405,11 +1076,11 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         else
         {
-            if (!IgnoreEmptyCollection)
+            if (!Options.IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull)
+                if (Options.EmptyCollectionWritesNull)
                 {
-                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, NullString);
+                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, Options.NullString);
                 }
                 else
                 {
@@ -1426,25 +1097,37 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var preAppendLen = sb.Length;
         var hasNext      = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection)
+        if (!hasNext || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, hasNext);
         }
-        var itemCount = 0;
+        var  itemCount = 0;
+        char lastChar  = '\0';
         while (hasNext)
         {
             var item = arg0.Current;
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (iChar.IsTwoCharHighSurrogate())
+                {
+                    lastChar = iChar;
+                }
+                else if (iChar.IsTwoCharLowSurrogate())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(lastChar, iChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -1462,7 +1145,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             itemCount++;
             hasNext = arg0.MoveNext();
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection)
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, itemCount);
         }
@@ -1474,25 +1157,37 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var addedChars = 0;
         var hasNext    = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection)
+        if (!hasNext || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
         }
-        var itemCount = 0;
+        var  itemCount = 0;
+        char lastChar  = '\0';
         while (hasNext)
         {
             var item                      = arg0.Current;
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (iChar.IsTwoCharHighSurrogate())
+                {
+                    lastChar = iChar;
+                }
+                else if (iChar.IsTwoCharLowSurrogate())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -1510,7 +1205,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             itemCount++;
             hasNext = arg0.MoveNext();
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection)
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
         }
@@ -1522,25 +1217,37 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var preAppendLen = sb.Length;
         var hasNext      = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection)
+        if (!hasNext || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, hasNext);
         }
-        var itemCount = 0;
+        var  itemCount = 0;
+        char lastChar  = '\0';
         while (hasNext)
         {
             var item = arg0.Current;
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                Transfer(iChar, sb);
+                if (iChar.IsSingleCharRune())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), sb);
+                }
+                else if (iChar.IsTwoCharHighSurrogate())
+                {
+                    lastChar = iChar;
+                }
+                else if (iChar.IsTwoCharLowSurrogate())
+                {
+                    JsonOptions.EncodingTransfer.Transfer(new Rune(lastChar, iChar), sb);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 NextBase64Chars(iByte, sb);
             }
@@ -1558,7 +1265,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             itemCount++;
             hasNext = arg0.MoveNext();
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection)
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, itemCount);
         }
@@ -1570,25 +1277,37 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var addedChars = 0;
         var hasNext    = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection)
+        if (!hasNext || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
         }
-        var itemCount = 0;
+        var  itemCount = 0;
+        char lastChar  = '\0';
         while (hasNext)
         {
             var item                      = arg0.Current;
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-            if (item is char iChar && CharArrayWritesString)
+            if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                addedChars += Transfer(iChar, destCharSpan, destStartIndex + addedChars);
+                if (iChar.IsSingleCharRune())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars);
+                }
+                else if (iChar.IsTwoCharHighSurrogate())
+                {
+                    lastChar = iChar;
+                }
+                else if (iChar.IsTwoCharLowSurrogate())
+                {
+                    addedChars += JsonOptions.EncodingTransfer.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
+                }
             }
-            else if (item is byte iByte && ByteArrayWritesBase64String)
+            else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
             {
                 addedChars += NextBase64Chars(iByte, destCharSpan, destStartIndex + addedChars);
             }
@@ -1606,7 +1325,7 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
             itemCount++;
             hasNext = arg0.MoveNext();
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection)
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
         }
@@ -1615,31 +1334,31 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems)
     {
-        if (elementType == typeof(char) && CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
         if (elementType == typeof(KeyValuePair<string, JsonNode>)) return sb.Append(BrcOpn).ReturnCharCount(1);
         return sb.Append(SqBrktOpn).ReturnCharCount(1);
     }
 
     public override int CollectionStart(Type elementType, Span<char> destination, int destStartIndex, bool hasItems)
     {
-        if (elementType == typeof(char) && CharArrayWritesString) return destination.OverWriteAt(destStartIndex, DblQt);
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destination.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, DblQt);
         if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destination.OverWriteAt(destStartIndex, BrcOpn);
         return destination.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
     public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber)
     {
-        if (collectionElementType == typeof(char) && CharArrayWritesString) return 0;
-        if (collectionElementType == typeof(byte) && ByteArrayWritesBase64String) return 0;
+        if (collectionElementType == typeof(char) && JsonOptions.CharArrayWritesString) return 0;
+        if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
         return sb.Append(",").ReturnCharCount(1);
     }
 
     public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> charSpan, int atIndex, int nextItemNumber)
     {
-        if (collectionElementType == typeof(char) && CharArrayWritesString) return 0;
-        if (collectionElementType == typeof(byte) && ByteArrayWritesBase64String) return 0;
+        if (collectionElementType == typeof(char) && JsonOptions.CharArrayWritesString) return 0;
+        if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
         return charSpan.OverWriteAt(atIndex, ",");
     }
 
@@ -1647,18 +1366,32 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         switch (nextItem)
         {
-            case char charItem:
-                if (CharArrayWritesString)
+            case Rune runeItem:
+                if (JsonOptions.CharArrayWritesString)
                 {
-                    return sb.Append(charItem).ReturnCharCount(1);
+                    return Options.EncodingTransfer.Transfer(runeItem, sb);
+                }
+                sb.Append(DblQt);
+                var runeElementAdded = Options.EncodingTransfer.Transfer(runeItem, sb);
+                sb.Append(DblQt);
+                return runeElementAdded + 2;
+            case char charItem:
+                if (JsonOptions.CharArrayWritesString)
+                {
+                    if(charItem.IsSingleCharRune())
+                        return Options.EncodingTransfer.Transfer(new Rune(charItem), sb);
+                    return 0;
                 }
                 if (formatString.IsNullOrEmpty())
                 {
-                    return sb.Append(DblQt).Append(charItem).Append(DblQt).ReturnCharCount(3);
+                    sb.Append(DblQt);
+                    var charsAdded = Options.EncodingTransfer.Transfer(new Rune(charItem), sb);
+                    sb.Append(DblQt);
+                    return charsAdded + 2;
                 }
                 break;
             case byte byteItem:
-                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
+                if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
                 break;
             case DateTime dateTimeItem:
                 if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, sb, "yyyy-MM-ddTHH:mm:ss");
@@ -1672,25 +1405,39 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         switch (nextItem)
         {
-            case char charItem:
-                if (CharArrayWritesString)
+            case Rune runeItem:
+                if (JsonOptions.CharArrayWritesString)
                 {
-                    destCharSpan[destStartIndex] = charItem;
-                    return 1;
+                    return Options.EncodingTransfer.Transfer(runeItem, destCharSpan, destStartIndex);
+                }
+                destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                var runeElementAdded = Options.EncodingTransfer.Transfer(runeItem, destCharSpan, destStartIndex + 1);
+                destCharSpan.OverWriteAt(destStartIndex + runeElementAdded + 2, DblQt);
+                return runeElementAdded + 2;
+            case char charItem:
+                if (JsonOptions.CharArrayWritesString)
+                {
+                    if(charItem.IsSingleCharRune())
+                        return Options.EncodingTransfer.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
+                    return 0;
                 }
                 if (formatString.IsNullOrEmpty())
                 {
-                    destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                    destCharSpan.OverWriteAt(destStartIndex + 1, charItem);
-                    destCharSpan.OverWriteAt(destStartIndex + 2, DblQt);
-                    return 3;
+                    if (charItem.IsSingleCharRune())
+                    {
+                        destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                        var charElementAdded = Options.EncodingTransfer.Transfer( new Rune(charItem), destCharSpan, destStartIndex + 1);
+                        destCharSpan.OverWriteAt(destStartIndex + charElementAdded + 1, DblQt);
+                        return charElementAdded + 2;
+                    }
+                    return 0;
                 }
                 break;
             case byte byteItem:
-                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
+                if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
                 break;
             case DateTime dateTimeItem:
-                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, destCharSpan, destStartIndex, JsonDateTImeFormat);
+                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, destCharSpan, destStartIndex, JsonOptions.DateTimeAsStringFormatString);
                 break;
         }
         return Format(nextItem, destCharSpan, destStartIndex, formatString);
@@ -1700,21 +1447,35 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         switch (nextItem)
         {
+            case Rune runeItem:
+                if (JsonOptions.CharArrayWritesString)
+                {
+                    return Options.EncodingTransfer.Transfer(runeItem, sb);
+                }
+                sb.Append(DblQt);
+                var runeElementAdded = Options.EncodingTransfer.Transfer(runeItem, sb);
+                sb.Append(DblQt);
+                return runeElementAdded + 2;
             case char charItem:
-                if (CharArrayWritesString)
+                if (JsonOptions.CharArrayWritesString)
                 {
-                    return sb.Append(charItem).ReturnCharCount(1);
+                    if(charItem.IsSingleCharRune())
+                        return Options.EncodingTransfer.Transfer(new Rune(charItem), sb);
+                    return 0;
                 }
-                if (formatString.IsNullOrEmpty())
+                if (charItem.IsSingleCharRune())
                 {
-                    return sb.Append(DblQt).Append(charItem).Append(DblQt).ReturnCharCount(3);
+                    sb.Append(DblQt);
+                    var charsAdded = Options.EncodingTransfer.Transfer(new Rune(charItem), sb);
+                    sb.Append(DblQt);
+                    return charsAdded + 2;
                 }
-                break;
+                return 0;
             case byte byteItem:
-                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
+                if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
                 break;
             case DateTime dateTimeItem:
-                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, sb, JsonDateTImeFormat);
+                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, sb, JsonOptions.DateTimeAsStringFormatString);
                 break;
         }
         return Format(nextItem, sb, formatString);
@@ -1725,25 +1486,35 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         switch (nextItem)
         {
-            case char charItem:
-                if (CharArrayWritesString)
+            case Rune runeItem:
+                if (JsonOptions.CharArrayWritesString)
                 {
-                    destCharSpan[destStartIndex] = charItem;
-                    return 1;
+                    return Options.EncodingTransfer.Transfer(runeItem, destCharSpan, destStartIndex);
                 }
-                if (formatString.IsNullOrEmpty())
+                destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                var runeElementAdded = Options.EncodingTransfer.Transfer(runeItem, destCharSpan, destStartIndex + 1);
+                destCharSpan.OverWriteAt(destStartIndex + runeElementAdded + 1, DblQt);
+                return runeElementAdded + 2;
+            case char charItem:
+                if (JsonOptions.CharArrayWritesString)
+                {
+                    if(charItem.IsSingleCharRune())
+                        return Options.EncodingTransfer.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
+                    return 0;
+                }
+                if (charItem.IsSingleCharRune())
                 {
                     destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                    destCharSpan.OverWriteAt(destStartIndex + 1, charItem);
-                    destCharSpan.OverWriteAt(destStartIndex + 2, DblQt);
-                    return 3;
+                    var charsAdded = Options.EncodingTransfer.Transfer(new Rune(charItem), destCharSpan, destStartIndex + 1);
+                    destCharSpan.OverWriteAt(destStartIndex + charsAdded + 1, DblQt);
+                    return charsAdded + 2;
                 }
-                break;
+                return 0;
             case byte byteItem:
-                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
+                if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
                 break;
             case DateTime dateTimeItem:
-                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, destCharSpan, destStartIndex, JsonDateTImeFormat);
+                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, destCharSpan, destStartIndex, JsonOptions.DateTimeAsStringFormatString);
                 break;
         }
         return Format(nextItem, destCharSpan, destStartIndex, formatString);
@@ -1754,15 +1525,35 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
         var preAppendLen = sb.Length;
         switch (nextItem)
         {
+            case Rune runeItem:
+                if (JsonOptions.CharArrayWritesString)
+                {
+                    return Options.EncodingTransfer.Transfer(runeItem, sb);
+                }
+                sb.Append(DblQt);
+                var runeElementAdded = Options.EncodingTransfer.Transfer(runeItem, sb);
+                sb.Append(DblQt);
+                return runeElementAdded + 2;
             case char charItem:
-                return CharArrayWritesString
-                    ? sb.Append(charItem).ReturnCharCount(1)
-                    : sb.Append(DblQt).Append(charItem).Append(DblQt).ReturnCharCount(3);
+                if (JsonOptions.CharArrayWritesString)
+                {
+                    if(charItem.IsSingleCharRune())
+                         return Options.EncodingTransfer.Transfer(new Rune(charItem), sb);
+                    return 0;
+                }
+                if (charItem.IsSingleCharRune())
+                {
+                    sb.Append(DblQt);
+                    var charsAdded = Options.EncodingTransfer.Transfer(new Rune(charItem), sb);
+                    sb.Append(DblQt);
+                    return charsAdded + 2;
+                }
+                return 0;
             case byte byteItem:
-                return ByteArrayWritesBase64String
+                return JsonOptions.ByteArrayWritesBase64String
                     ? NextBase64Chars(byteItem, sb)
                     : sb.Append(byteItem).ReturnCharCount(3);
-            case DateTime dateTimeItem: return Format(dateTimeItem, sb, JsonDateTImeFormat);
+            case DateTime dateTimeItem: return Format(dateTimeItem, sb, JsonOptions.DateTimeAsStringFormatString);
             case KeyValuePair<string, JsonNode> jsonNodeKvp:
                 var jsonString = jsonNodeKvp.Value.ToJsonString();
                 return sb.Append(DblQt).Append(jsonNodeKvp.Key).Append(DblQt).Append(":").Append(jsonString).ReturnCharCount(jsonString.Length);
@@ -1774,20 +1565,44 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         switch (nextItem)
         {
-            case char charItem:
-                if (CharArrayWritesString)
+            case Rune runeItem:
+                if (JsonOptions.CharArrayWritesString)
                 {
-                    destCharSpan[destStartIndex] = charItem;
-                    return 1;
+                        return Options.EncodingTransfer.Transfer(runeItem, destCharSpan, destStartIndex);
                 }
                 destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                destCharSpan.OverWriteAt(destStartIndex + 1, charItem);
-                destCharSpan.OverWriteAt(destStartIndex + 2, DblQt);
-                return 3;
+                var runeElementAdded = Options.EncodingTransfer.Transfer(runeItem, destCharSpan, destStartIndex + 1);
+                destCharSpan.OverWriteAt(destStartIndex + runeElementAdded + 1, DblQt);
+                return runeElementAdded + 2;
+            case char charItem:
+                if (JsonOptions.CharArrayWritesString)
+                {
+                    if(charItem.IsSingleCharRune())
+                        return Options.EncodingTransfer.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
+                    return 0;
+                }
+                if (charItem.IsSingleCharRune())
+                {
+                    destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                    var charsElementAdded = Options.EncodingTransfer.Transfer(new Rune(charItem), destCharSpan, destStartIndex + 1);
+                    destCharSpan.OverWriteAt(destStartIndex + charsElementAdded + 1, DblQt);
+                    return charsElementAdded;
+                }
+                return 0;
+            case ValueTuple<char, char> twoCharPair:
+                var (high, low) = twoCharPair;
+                if (JsonOptions.CharArrayWritesString)
+                {
+                    return Options.EncodingTransfer.Transfer(new Rune(high, low), destCharSpan, destStartIndex);
+                }
+                destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                var twoCharsAdded = Options.EncodingTransfer.Transfer(new Rune(high, low), destCharSpan, destStartIndex + 1);
+                destCharSpan.OverWriteAt(destStartIndex + destStartIndex + 1, DblQt);
+                return twoCharsAdded;
             case byte byteItem:
-                if (ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
+                if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
                 break;
-            case DateTime dateTimeItem: return Format(dateTimeItem, destCharSpan, destStartIndex, JsonDateTImeFormat);
+            case DateTime dateTimeItem: return Format(dateTimeItem, destCharSpan, destStartIndex, JsonOptions.DateTimeAsStringFormatString);
             case KeyValuePair<string, JsonNode> jsonNodeKvp:
                 var jsonString = jsonNodeKvp.Value.ToJsonString();
                 var charsAdded = destCharSpan.OverWriteAt(destStartIndex, DblQt);
@@ -1806,8 +1621,8 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
 
     public override int CollectionEnd(Type elementType, IStringBuilder sb, int itemsCount)
     {
-        if (elementType == typeof(char) && CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String)
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String)
         {
             var addedChars = CompleteBase64Sequence(sb);
             return sb.Append(DblQt).ReturnCharCount(1 + addedChars);
@@ -1820,8 +1635,8 @@ public class JsEscapingFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        if (elementType == typeof(char) && CharArrayWritesString) return destination.OverWriteAt(index, DblQt);
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String)
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destination.OverWriteAt(index, DblQt);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String)
         {
             var addedChars = CompleteBase64Sequence(destination, index);
             return destination.OverWriteAt(index + addedChars, DblQt) + addedChars;

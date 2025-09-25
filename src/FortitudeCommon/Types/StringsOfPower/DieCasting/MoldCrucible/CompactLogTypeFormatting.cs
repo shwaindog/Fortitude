@@ -21,6 +21,13 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     protected const string SpcBrcCls = " }";
     public virtual string Name => nameof(CompactLogTypeFormatting);
 
+    public CompactLogTypeFormatting Initialize(StyleOptions styleOptions)
+    {
+        Options = styleOptions;
+
+        return this;
+    }
+
     public virtual ITypeMolderDieCast<TB> AppendValueTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder
       , Type valueType, string? alternativeName) where TB : TypeMolder
     {
@@ -205,12 +212,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
       , string? formatString = null) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(source ? True : False).ToInternalTypeBuilder(typeBuilder);
+        typeBuilder.Sb.Append(source ? Options.True : Options.False).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
       , string? formatString = null) where TB : TypeMolder =>
         (source != null
-            ? typeBuilder.Sb.Append(source.Value ? True : False)
+            ? typeBuilder.Sb.Append(source.Value ? Options.True : Options.False)
             : typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle)).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
@@ -256,12 +263,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
       , string? formatString = null) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(source ? True : False).ToInternalTypeBuilder(typeBuilder);
+        typeBuilder.Sb.Append(source ? Options.True : Options.False).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
       , string? formatString = null) where TB : TypeMolder =>
         (source != null
-            ? typeBuilder.Sb.Append(source.Value ? True : False)
+            ? typeBuilder.Sb.Append(source.Value ? Options.True : Options.False)
             : typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle)).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source

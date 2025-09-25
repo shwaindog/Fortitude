@@ -13,15 +13,13 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCru
 [NoMatchingProductionClass]
 public class StyledTypeStringAppenderJsonTests
 {
-
-
     [TestMethod]
     public void SerializingCompactAccreditedInstructorDeliversMatchesJsonSerializer()
     {
         var objectGraph = new SchoolForUnrelatedStudiesTestData();
-        
+
         var shakespeare = objectGraph.Shakespeare;
-        
+
         var shakeJsonSer = JsonSerializer.Serialize(shakespeare, new JsonSerializerOptions()
         {
             ReferenceHandler = ReferenceHandler.Preserve
@@ -29,51 +27,50 @@ public class StyledTypeStringAppenderJsonTests
 
         Console.Out.WriteLine("Json Serializer");
         Console.Out.WriteLine(shakeJsonSer);
-        
-        
+
+
         var styledStringBuilder = new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(StringStyle.Json | StringStyle.Compact);
-        styledStringBuilder.Settings = new StyleOptions
-        {
-            WriteKeyValuePairsAsCollection = true
-        };
+        styledStringBuilder.ClearAndReinitialize
+            (
+             new StyleOptionsValue(StringStyle.Json | StringStyle.Compact)
+             {
+                 WriteKeyValuePairsAsCollection = true
+             }
+            );
         shakespeare.RevealState(styledStringBuilder);
         var shakeStyled = styledStringBuilder.WriteBuffer.ToString();
-        
+
         Console.Out.WriteLine("StyledTypeStringAppender");
         Console.Out.WriteLine(shakeStyled);
-        
     }
-    
+
     [TestMethod]
     public void SerializingPrettyAccreditedInstructorDeliversMatchesJsonSerializer()
     {
         var objectGraph = new SchoolForUnrelatedStudiesTestData();
-        
+
         var shakespeare = objectGraph.Shakespeare;
-        
+
         var shakeJsonSer = JsonSerializer.Serialize(shakespeare, new JsonSerializerOptions()
         {
             ReferenceHandler = ReferenceHandler.Preserve
-            , WriteIndented = true
+          , WriteIndented    = true
         });
 
         Console.Out.WriteLine("Json Serializer");
         Console.Out.WriteLine(shakeJsonSer);
-        
-        
+
+
         var styledStringBuilder = new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(StringStyle.Json | StringStyle.Pretty);
-        styledStringBuilder.Settings = new StyleOptions
+        styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue(StringStyle.Json | StringStyle.Pretty)
         {
             WriteKeyValuePairsAsCollection = true
-           ,  PrettyCollectionStyle = CollectionPrettyStyleFormat.OneElementOnEveryLine
-        };
+          , PrettyCollectionStyle          = CollectionPrettyStyleFormat.OneElementOnEveryLine
+        });
         shakespeare.RevealState(styledStringBuilder);
         var shakeStyled = styledStringBuilder.WriteBuffer.ToString();
-        
+
         Console.Out.WriteLine("StyledTypeStringAppender");
         Console.Out.WriteLine(shakeStyled);
-        
     }
 }

@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TextJsonConverters;
 
-public class RuneConverter: JsonConverter<Rune>
+public class RuneConverter(bool escaped = true): JsonConverter<Rune>
 {
     public override Rune Read(ref Utf8JsonReader reader,
         Type typeToConvert, JsonSerializerOptions options)
@@ -21,7 +21,14 @@ public class RuneConverter: JsonConverter<Rune>
     public override void Write(Utf8JsonWriter writer, Rune value,
         JsonSerializerOptions options)
     {
-        writer.WriteRawValue("\"" + value + "\"");
+        if (escaped)
+        {
+            writer.WriteStringValue(value.ToString());
+        }
+        else
+        {
+            writer.WriteRawValue("\""+ value + "\"");
+        }
     }
 }
 

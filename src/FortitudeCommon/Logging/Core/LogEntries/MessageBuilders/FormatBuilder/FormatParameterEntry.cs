@@ -137,7 +137,7 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
             return null;
         }
         var tempStsa = Temp;
-        tempStsa.ClearAndReinitialize(StringStyle.Default);
+        tempStsa.ClearAndReinitialize(new StyleOptionsValue(StringStyle.Default));
         return tempStsa;
     }
 

@@ -8,123 +8,6 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormatter
 {
-    public override int Transfer(ReadOnlySpan<char> source, IStringBuilder sb)
-    {
-        var preAppendLength = sb.Length;
-        sb.Append(source);
-        return sb.Length - preAppendLength;
-    }
-
-    public override int Transfer(ReadOnlySpan<char> source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength = Math.Min(maxTransferCount, Math.Min(source.Length, destination.Length - destStartIndex));
-        for (var i = 0; i < cappedLength; i++) destination[i + destStartIndex] = source[i];
-        return cappedLength;
-    }
-
-    public override int Transfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength = Math.Min(Math.Min(source.Length - sourceFrom, maxTransferCount), destination.Length - destStartIndex);
-        for (var i = 0; i < cappedLength; i++) destination[i + destStartIndex] = source[i];
-        return cappedLength;
-    }
-
-    public override int Transfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb
-      , int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
-        sb.Append(source, sourceFrom, cappedLength);
-        return cappedLength;
-    }
-
-    public override int Transfer(char[] source, IStringBuilder sb)
-    {
-        var preAppendLength = sb.Length;
-        sb.Append(source);
-        return sb.Length - preAppendLength;
-    }
-
-    public override int Transfer(char[] source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength                                                       = Math.Min(source.Length, destination.Length - destStartIndex);
-        for (var i = 0; i < cappedLength; i++) destination[i + destStartIndex] = source[i];
-        return cappedLength;
-    }
-
-    public override int Transfer(char[] source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
-        sb.Append(source, sourceFrom, cappedLength);
-        return cappedLength;
-    }
-
-    public override int Transfer(char[] source, int sourceFrom, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength = Math.Min(Math.Min(source.Length - sourceFrom, maxTransferCount), destination.Length - destStartIndex);
-        for (var i = 0; i < cappedLength; i++) destination[i + destStartIndex] = source[i];
-        return cappedLength;
-    }
-
-    public override int Transfer(StringBuilder source, IStringBuilder sb)
-    {
-        var preAppendLength = sb.Length;
-        sb.Append(source);
-        return sb.Length - preAppendLength;
-    }
-
-    public override int Transfer(StringBuilder source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength                                                       = Math.Min(source.Length, destination.Length - destStartIndex);
-        for (var i = 0; i < cappedLength; i++) destination[i + destStartIndex] = source[i];
-        return cappedLength;
-    }
-
-    public override int Transfer(StringBuilder source, int sourceFrom, IStringBuilder sb
-      , int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
-        sb.Append(source, sourceFrom, cappedLength);
-        return cappedLength;
-    }
-
-    public override int Transfer(StringBuilder source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength = Math.Min(Math.Min(source.Length - sourceFrom, maxTransferCount), destination.Length - destStartIndex);
-        for (var i = 0; i < cappedLength; i++) destination[i + destStartIndex] = source[i];
-        return cappedLength;
-    }
-
-    public override int Transfer(ICharSequence source, IStringBuilder sb)
-    {
-        var preAppendLength = sb.Length;
-        sb.Append(source);
-        return sb.Length - preAppendLength;
-    }
-
-    public override int Transfer(ICharSequence source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength                                                       = Math.Min(source.Length, destination.Length - destStartIndex);
-        for (var i = 0; i < cappedLength; i++) destination[i + destStartIndex] = source[i];
-        return cappedLength;
-    }
-
-    public override int Transfer(ICharSequence source, int sourceFrom, IStringBuilder sb
-      , int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
-        sb.Append(source, sourceFrom, cappedLength);
-        return cappedLength;
-    }
-
-    public override int Transfer(ICharSequence source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = int.MaxValue)
-    {
-        var cappedLength = Math.Min(Math.Min(source.Length - sourceFrom, maxTransferCount), destination.Length - destStartIndex);
-        for (var i = 0; i < cappedLength; i++) destination[i + destStartIndex] = source[i];
-        return cappedLength;
-    }
 
     public override int ProcessAppendedRange(IStringBuilder sb, int fromIndex) => 0;
 
@@ -133,12 +16,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Length > 0);
         }
@@ -158,7 +41,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Length);
         }
@@ -168,12 +51,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
@@ -193,7 +76,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
@@ -203,12 +86,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Length > 0);
         }
@@ -228,7 +111,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Length);
         }
@@ -238,12 +121,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
@@ -263,7 +146,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
@@ -273,12 +156,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatArray<TFmt>(TFmt[] arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Length > 0);
         }
@@ -298,7 +181,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Length);
         }
@@ -308,12 +191,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatArray<TFmt>(TFmt[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
@@ -333,7 +216,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
@@ -343,12 +226,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatArray<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Length > 0);
         }
@@ -368,7 +251,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Length);
         }
@@ -378,12 +261,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatArray<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Length == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
         }
@@ -403,7 +286,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
-        if (arg0.Length > 0 || !IgnoreEmptyCollection)
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
         }
@@ -413,12 +296,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatList<TFmt>(IReadOnlyList<TFmt> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
-        if (arg0.Count == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Count == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Count > 0);
         }
@@ -438,7 +321,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Count);
         }
@@ -448,12 +331,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatList<TFmt>(IReadOnlyList<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Count == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Count == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Count > 0);
         }
@@ -473,7 +356,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
         }
@@ -483,12 +366,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
     {
         var preAppendLen = sb.Length;
-        if (arg0.Count == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Count == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, arg0.Count > 0);
         }
@@ -508,7 +391,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 CollectionNextItemFormat(arg0[i], i, sb, formatString);
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, arg0.Count);
         }
@@ -518,12 +401,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
     {
         var addedChars = 0;
-        if (arg0.Count == 0 && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (arg0.Count == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Count > 0);
         }
@@ -543,7 +426,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 addedChars += CollectionNextItemFormat(arg0[i], i, destCharSpan, destStartIndex + addedChars, formatString);
             }
         }
-        if (arg0.Count > 0 || !IgnoreEmptyCollection)
+        if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
         }
@@ -590,11 +473,11 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         }
         else
         {
-            if (!IgnoreEmptyCollection)
+            if (!Options.IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull)
+                if (Options.EmptyCollectionWritesNull)
                 {
-                    sb.Append(NullString);
+                    sb.Append(Options.NullString);
                 }
                 else
                 {
@@ -646,11 +529,11 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         }
         else
         {
-            if (!IgnoreEmptyCollection)
+            if (!Options.IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull)
+                if (Options.EmptyCollectionWritesNull)
                 {
-                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, NullString);
+                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, Options.NullString);
                 }
                 else
                 {
@@ -702,11 +585,11 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         }
         else
         {
-            if (!IgnoreEmptyCollection)
+            if (!Options.IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull)
+                if (Options.EmptyCollectionWritesNull)
                 {
-                    sb.Append(NullString);
+                    sb.Append(Options.NullString);
                 }
                 else
                 {
@@ -758,11 +641,11 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         }
         else
         {
-            if (!IgnoreEmptyCollection)
+            if (!Options.IgnoreEmptyCollection)
             {
-                if (EmptyCollectionWritesNull)
+                if (Options.EmptyCollectionWritesNull)
                 {
-                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, NullString);
+                    addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, Options.NullString);
                 }
                 else
                 {
@@ -779,12 +662,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var preAppendLen = sb.Length;
         var hasNext      = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection)
+        if (!hasNext || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, hasNext);
         }
@@ -811,7 +694,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 hasNext = arg0.MoveNext();
             }
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection)
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, itemCount);
         }
@@ -823,12 +706,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var addedChars = 0;
         var hasNext    = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection)
+        if (!hasNext || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
         }
@@ -855,7 +738,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 hasNext = arg0.MoveNext();
             }
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection)
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
         }
@@ -867,12 +750,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var preAppendLen = sb.Length;
         var hasNext      = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(NullString).ReturnCharCount(NullString.Length);
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection)
+        if (!hasNext || !Options.IgnoreEmptyCollection)
         {
             CollectionStart(elementType, sb, hasNext);
         }
@@ -899,7 +782,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 hasNext = arg0.MoveNext();
             }
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection)
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
         {
             CollectionEnd(elementType, sb, itemCount);
         }
@@ -911,12 +794,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         var addedChars = 0;
         var hasNext    = arg0.MoveNext();
 
-        if (!hasNext && !IgnoreEmptyCollection && EmptyCollectionWritesNull)
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return destCharSpan.OverWriteAt(destStartIndex, NullString);
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !IgnoreEmptyCollection)
+        if (!hasNext || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
         }
@@ -943,7 +826,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                 hasNext = arg0.MoveNext();
             }
         }
-        if (itemCount > 0 || !IgnoreEmptyCollection)
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
         {
             addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
         }
