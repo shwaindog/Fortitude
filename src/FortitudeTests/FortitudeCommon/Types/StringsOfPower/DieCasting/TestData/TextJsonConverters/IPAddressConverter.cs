@@ -16,6 +16,6 @@ public class IPAddressConverter: JsonConverter<IPAddress>
     public override void Write(Utf8JsonWriter writer, IPAddress value,
         JsonSerializerOptions options)
     {
-        writer.WriteRawValue("\"" + value + "\"");
+        writer.WriteStringValue(value.ToString());
     }
 }

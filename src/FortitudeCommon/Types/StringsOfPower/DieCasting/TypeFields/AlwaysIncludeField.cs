@@ -54,7 +54,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             ? stb.StyleTypeBuilder
             : formatString.IsNotNullOrEmpty()
                 ? AlwaysAddWithFormatting(fieldName, value, formatString)
-                : stb.FieldNameJoin(fieldName).AppendOrNull(value ?? "null").AddGoToNext();
+                : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
     public TExt AlwaysAdd(string fieldName, string? value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
@@ -78,7 +78,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields 
             ? stb.StyleTypeBuilder 
-            : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
 
     public TExt AlwaysAdd(string fieldName, ICharSequence? value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
@@ -118,7 +118,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TFmt : ISpanFormattable =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
-            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
+            : stb.FieldNameJoin(fieldName).AppendFormatted(value, formatString).AddGoToNext();
 
     public TExt AlwaysAddWithFormatting<TFmt>(string fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TFmt : struct, ISpanFormattable =>

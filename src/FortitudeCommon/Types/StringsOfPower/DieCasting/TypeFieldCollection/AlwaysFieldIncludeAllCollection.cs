@@ -48,7 +48,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAll(value, formatString).Complete();
+            var collectionType = stb.Master.StartSimpleCollectionType(value);
+            collectionType.AddAll(value, formatString);
+            collectionType.Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -63,7 +65,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAll(value).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAll(value, formatString).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);

@@ -836,9 +836,9 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     public override int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems) => 
         sb.Append(SqBrktOpn).ReturnCharCount(1);
 
-    public override int CollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems)
+    public override int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems)
     {
-        return destination.OverWriteAt(destStartIndex, SqBrktOpn);
+        return destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
     public override int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) =>
@@ -872,10 +872,10 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
 
     public override int CollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount) => sb.Append(SqBrktCls).ReturnCharCount(1);
 
-    public override int CollectionEnd(Type collectionType, Span<char> destination, int index, int itemsCount)
+    public override int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int itemsCount)
     {
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        return destination.OverWriteAt(index, SqBrktCls);
+        return destSpan.OverWriteAt(index, SqBrktCls);
     }
 }

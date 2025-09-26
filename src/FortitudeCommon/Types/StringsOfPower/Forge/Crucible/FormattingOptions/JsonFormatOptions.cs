@@ -31,8 +31,6 @@ public interface IJsonFormattingOptions : IFormattingOptions
 
     public bool ByteArrayWritesBase64String { get; set; }
 
-    public string DateTimeAsStringFormatString { get; set; }
-
     public bool WrapValuesInQuotes { get; set; }
 
     public JsonEncodingTransferType JsonEncodingTransferType { get; set; }
@@ -45,6 +43,19 @@ public interface IJsonFormattingOptions : IFormattingOptions
 
     Range[] UnicodeEscapingRanges { get; set; }
 
+    bool DateTimeIsNumber { get; }
+    
+    bool DateTimeIsString { get; }
+
+    public string DateTimeAsStringFormatString { get; set; }
+
+    public string DateOnlyAsStringFormatString { get; set; }
+    
+    string TimeAsStringFormatString { get; set; }
+    
+    string NullStyle { get; }
+
+    long DateTimeTicksToNumberPrecision(long timeStampTicks);
 
     private static List<string> existingKeys = new();
 
@@ -133,8 +144,10 @@ public interface IJsonFormattingOptions : IFormattingOptions
 public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
 {
     public const string DefaultJsonDateTImeFormat = "yyyy-MM-ddTHH:mm:ss";
+    public const string DefaultJsonDateOnlyFormat = "yyyy-MM-dd";
 
     private string? jsonDateTImeFormat;
+    private string? dateOnlyAsStringFormatString;
     private Range[] unicodeEscapingRanges;
     private bool    explicitlySetEncodingTransfer;
 
@@ -148,23 +161,24 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
     // , UniCdEscCtrlCharsDblQtBkSlToEndBmpChar
     // , CustomEncodingTransfer
 
-
     public static Range[][] DefaultJsUnicodeEscapeRange =
     [
         [new Range(0, 34), new Range(128, CharExtensions.UnicodeCodePoints)] // Default
-      , [new Range(0, 34), new Range(128, 162)] // BkSlEscCtrlCharsDblQtAndBkSlOnly - always unicode escape Console/ formatting Control Chars
-      , [new Range(0, 34), new Range(128, 162)] // BkSlEscCtrlCharsDblQtBkSlToEndOfLatin1 -  always unicode escape Console/ formatting Control Chars
-      , [new Range(0, 34), new Range(128, 162), new Range(0x10000, CharExtensions.UnicodeCodePoints)] // BkSlEscCtrlCharsDblQtBkSlToEndBmpChar
-      , [new Range(0, 34), new Range(128, 162)] // UniCdEscCtrlCharsDblQtOnly - always unicode escape Console/ formatting Control Chars
+      , [new Range(0, 34), new Range(128, 161)] // BkSlEscCtrlCharsDblQtAndBkSlOnly - always unicode escape Console/ formatting Control Chars
+      , [new Range(0, 34), new Range(128, 161)] // BkSlEscCtrlCharsDblQtBkSlToEndOfLatin1 -  always unicode escape Console/ formatting Control Chars
+      , [new Range(0, 34), new Range(128, 161), new Range(0x10000, CharExtensions.UnicodeCodePoints)] // BkSlEscCtrlCharsDblQtBkSlToEndBmpChar
+      , [new Range(0, 34), new Range(128, 161)] // UniCdEscCtrlCharsDblQtOnly - always unicode escape Console/ formatting Control Chars
       , [new Range(0, 34), new Range(128, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtAndNonAscii
-      , [new Range(0, 34), new Range(128, 162), new Range(256, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndOfLatin1
-      , [new Range(0, 34), new Range(128, 162), new Range(0x10000, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndBmpChar
+      , [new Range(0, 34), new Range(128, 161), new Range(256, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndOfLatin1
+      , [new Range(0, 34), new Range(128, 161), new Range(0x10000, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndBmpChar
     ];
 
-    private JsonEncodingTransferType                         jsonEncodingTransferType = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtBkSlToEndOfLatin1;
+    private JsonEncodingTransferType jsonEncodingTransferType = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtBkSlToEndOfLatin1;
+
     private (Range, JsonEscapeType, Func<Rune, string>)[]?   cachedMappingFactoryRanges;
     private Func<IJsonFormattingOptions, IEncodingTransfer>? buildEncodingTransfer;
-    private Range[]                                          exemptEscapingRanges = [];
+
+    private Range[] exemptEscapingRanges = [];
 
     public bool CharArrayWritesString { get; set; }
 
@@ -187,13 +201,29 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
         set => Stringformatter = value;
     }
 
+    public bool DateTimeIsNumber { get; set; }
+    
+    public bool DateTimeIsString { get; set; }
+
+    public string NullStyle => "null";
+
     public string DateTimeAsStringFormatString
     {
         get => jsonDateTImeFormat ??= DefaultJsonDateTImeFormat;
         set => jsonDateTImeFormat = value;
     }
 
+    public string DateOnlyAsStringFormatString
+    {
+        get => dateOnlyAsStringFormatString ??= DefaultJsonDateOnlyFormat;
+        set => dateOnlyAsStringFormatString = value;
+    }
+
+    public string TimeAsStringFormatString { get; set; }
+
     public bool WrapValuesInQuotes { get; set; }
+
+    public long DateTimeTicksToNumberPrecision(long timeStampTicks) => (timeStampTicks - DateTime.UnixEpoch.Ticks) / TimeSpan.TicksPerSecond;
 
     public JsonEncodingTransferType JsonEncodingTransferType
     {

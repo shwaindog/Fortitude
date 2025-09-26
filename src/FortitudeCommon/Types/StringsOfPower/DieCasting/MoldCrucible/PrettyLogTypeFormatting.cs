@@ -80,7 +80,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
     public override ITypeMolderDieCast<TB> AppendTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder)
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         typeBuilder.DecrementIndent();
         return (typeBuilder.Sb.Append(typeBuilder.Master.Settings.NewLineStyle)
                    .Append(typeBuilder.Master.Settings.IndentChar
@@ -107,7 +107,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     public override ITypeMolderDieCast<TB> AppendKeyedCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType
       , Type keyType, Type valueType, int totalItemCount)
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         typeBuilder.DecrementIndent();
         if (totalItemCount > 0)
         {
@@ -142,11 +142,11 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return sb.Append(CmaSpc).ReturnCharCount(1);
     }
 
-    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> charSpan, int atIndex, int nextItemNumber) 
+    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber) 
     {
         if (collectionElementType == typeof(char) && StyleOptions.CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return 0;
-        return charSpan.OverWriteAt(atIndex, CmaSpc);
+        return destSpan.OverWriteAt(atIndex, CmaSpc);
     }
 
     public override ITypeMolderDieCast<TB> AddCollectionElementSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder, Type elementType, int nextItemNumber)
@@ -186,7 +186,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             return typeBuilder;
         }
 
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         if (totalItemCount > 0)
         {
             typeBuilder.DecrementIndent();

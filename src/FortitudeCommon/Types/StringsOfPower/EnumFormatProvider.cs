@@ -175,8 +175,9 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         asEnumTypeStyler      = EnumStyler;
         asEnumSpanFormattable = EnumExtendedSpanFormattable;
 
-        isFlagsEnum = enumType.GetCustomAttributes<FlagsAttribute>().Any();
-        ForType     = enumType;
+        isFlagsEnum    = enumType.GetCustomAttributes<FlagsAttribute>().Any();
+        ForType        = enumType;
+        UnderlyingType = enumType.UnderlyingSystemType;
     }
 
     public bool SupportSpanFormattable => true;
@@ -190,6 +191,8 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
     }
 
     public Type ForType { get; }
+    
+    public Type UnderlyingType { get; }
 
     public IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable =>
         typeof(TEnum) == ForType ? (IStructEnumFormatProvider<TEnum>)this : null;
@@ -234,17 +237,24 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         }
         // else check each flag combination
         var hasWrittenValues = false;
-        foreach (var eachEnumValue in enumValues)
-            if (enumValue.HasFlag(eachEnumValue) && (eachEnumValue.CompareTo((TEnumValue)default) != 0 || enumValue.CompareTo((TEnumValue)default) == 0))
-            {
-                if (hasWrittenValues)
+        if (enumValue.CompareTo((TEnumValue)default) != 0)
+        {
+            foreach (var eachEnumValue in enumValues)
+                if (enumValue.HasFlag(eachEnumValue) && (eachEnumValue.CompareTo((TEnumValue)default) != 0 || enumValue.CompareTo((TEnumValue)default) == 0))
                 {
-                    countChars += 2;
-                    buildNames.Append(", ");
+                    if (hasWrittenValues)
+                    {
+                        countChars += 2;
+                        buildNames.Append(", ");
+                    }
+                    countChars       += SourceSingleNameFromEnum(eachEnumValue, buildNames, format, provider);
+                    hasWrittenValues =  true;
                 }
-                countChars       += SourceSingleNameFromEnum(eachEnumValue, buildNames, format, provider);
-                hasWrittenValues =  true;
-            }
+        }
+        else
+        {
+            countChars       += SourceSingleNameFromEnum(enumValue, buildNames, format, provider);
+        }
         return countChars;
     }
 
@@ -278,6 +288,12 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
                 buildNames.Append(value);
                 return value.Length;
             }
+            if (UnderlyingType == typeof(ulong))
+            {
+                var underlyingUlong = singleEnumValue.ToUInt64(null);
+                return buildNames.AppendULong(underlyingUlong);    
+            }
+            return buildNames.AppendLong(underlying);
         }
         else
         {

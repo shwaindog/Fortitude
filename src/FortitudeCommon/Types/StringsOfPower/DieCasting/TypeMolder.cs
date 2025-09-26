@@ -348,7 +348,7 @@ public static class StyledTypeBuilderExtensions
         if (isKeyName)
             stb.StyleFormatter.FormatFieldName(stb, value, cappedFrom, formatString, len);
         else
-            stb.StyleFormatter.FormatFieldContents(stb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldContents(stb, value, cappedFrom, formatString , len);
         return stb;
     }
 
@@ -864,7 +864,8 @@ public static class StyledTypeBuilderExtensions
     public static ITypeMolderDieCast<TExt> AppendCollectionItem<TExt, T>
         (this ITypeMolderDieCast<TExt> stb, T value, int retrieveCount) where TExt : TypeMolder
     {
-        if (typeof(T).IsValueType || value == null || stb.Master.RegisterVisitedCheckCanContinue(value))
+        var type = typeof(T);
+        if (type.IsValueType || value != null && (!type.IsAnyTypeHoldingChars() || stb.Master.RegisterVisitedCheckCanContinue(value)))
         {
             return stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb).AnyToCompAccess(stb);
         }
@@ -872,14 +873,11 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static ITypeMolderDieCast<TExt> AppendCollectionItemOrNull<TExt, T>
-        (this ITypeMolderDieCast<TExt> stb, T? value, int retrieveCount) where TExt : TypeMolder
-    {
-        if (typeof(T).IsValueType || value == null || stb.Master.RegisterVisitedCheckCanContinue(value))
-        {
-            return stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb).AnyToCompAccess(stb);
-        }
-        return stb.Sb.Append(stb.Settings.NullStyle).AnyToCompAccess(stb);
-    }
+        (this ITypeMolderDieCast<TExt> stb, T? value, int retrieveCount) where TExt : TypeMolder =>
+        value == null 
+            ? stb.Sb.Append(stb.Settings.NullStyle).AnyToCompAccess(stb) 
+            : stb.AppendCollectionItem(value, retrieveCount);
+    
 
     public static void StartDictionary<TExt, TDict>(this ITypeMolderDieCast<TExt> stb, TDict keyValueInstances)
         where TExt : TypeMolder where TDict : notnull
@@ -890,7 +888,7 @@ public static class StyledTypeBuilderExtensions
     public static void EndDictionary<TExt>(this ITypeMolderDieCast<TExt> stb)
         where TExt : TypeMolder
     {
-        stb.RemoveLastWhiteSpacedCommaIfFound();
+        stb.Sb.RemoveLastWhiteSpacedCommaIfFound();
         stb.StyleFormatter.AppendTypeClosing(stb);
     }
 }

@@ -43,7 +43,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ITypeMolderDieCast<TB> AppendValueTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder, Type valueType) where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         if (valueType.IsEnum)
         {
             return typeBuilder;
@@ -79,7 +79,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TB> AppendTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder)
         where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         return typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
     }
 
@@ -317,7 +317,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TB> FormatCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType
       , int totalItemCount) where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         return base.CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount).ToInternalTypeBuilder(typeBuilder);
     }
 }

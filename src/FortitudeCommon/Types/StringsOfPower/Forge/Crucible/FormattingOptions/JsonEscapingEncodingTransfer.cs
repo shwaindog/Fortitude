@@ -414,8 +414,8 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                 var item = source[j];
                 if (j > 0) stringFormatter.AddCollectionElementSeparator(typeof(char), destSb, j);
                 lastAdded    = lastAdded > 0 || j == sourceFrom
-                    ?  stringFormatter.CollectionNextItem(item, j, destSb)
-                    : stringFormatter.CollectionNextItem(new Rune(previousChar, item), j - 1, destSb);
+                    ?  stringFormatter.CollectionNextItemFormat(item, j, destSb, "")
+                    : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSb, "");
                 previousChar =  lastAdded == 0 ? item : '\0';
             }
             return destSb.Length - preTransferLen;
@@ -440,8 +440,8 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                 if (j > 0 && lastAdded > 0) charsAdded += stringFormatter.AddCollectionElementSeparator(typeof(char), destSpan, destStartIndex + charsAdded, j);
                 
                 lastAdded    = lastAdded > 0 || j == sourceFrom
-                    ?  stringFormatter.CollectionNextItem(item, j, destSpan, destStartIndex + charsAdded)
-                    : stringFormatter.CollectionNextItem(new Rune(previousChar, item), j - 1, destSpan, destStartIndex + charsAdded);
+                    ?  stringFormatter.CollectionNextItemFormat(item, j, destSpan, destStartIndex + charsAdded, "")
+                    : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSpan, destStartIndex + charsAdded, "");
                 previousChar =  lastAdded == 0 ? item : '\0';
                 charsAdded   += lastAdded;
             }
@@ -599,8 +599,8 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                 var item = source[j];
                 if (j > 0) stringFormatter.AddCollectionElementSeparator(typeof(char), destSb, j);
                 lastAdded    = lastAdded > 0 || j == sourceFrom
-                    ?  stringFormatter.CollectionNextItem(item, j, destSb)
-                    : stringFormatter.CollectionNextItem(new Rune(previousChar, item), j - 1, destSb);
+                    ?  stringFormatter.CollectionNextItemFormat(item, j, destSb, "")
+                    : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSb, "");
                 previousChar =  lastAdded == 0 ? item : '\0';
             }
             return destSb.Length - preTransferLen;
@@ -625,8 +625,8 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                 if (j > 0 && lastAdded > 0) charsAdded += stringFormatter.AddCollectionElementSeparator(typeof(char), destSpan, destStartIndex + charsAdded, j);
                 
                 lastAdded    = lastAdded > 0 || j == sourceFrom
-                    ?  stringFormatter.CollectionNextItem(item, j, destSpan, destStartIndex + charsAdded)
-                    : stringFormatter.CollectionNextItem(new Rune(previousChar, item), j - 1, destSpan, destStartIndex + charsAdded);
+                    ?  stringFormatter.CollectionNextItemFormat(item, j, destSpan, destStartIndex + charsAdded, "")
+                    : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSpan, destStartIndex + charsAdded, "");
                 previousChar =  lastAdded == 0 ? item : '\0';
                 charsAdded   += lastAdded;
             }

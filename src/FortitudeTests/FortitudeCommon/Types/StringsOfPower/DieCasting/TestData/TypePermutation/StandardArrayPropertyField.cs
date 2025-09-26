@@ -46,8 +46,8 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         TimeOnlyArrayPropield  = [TimeOnly.MinValue, default, TimeOnly.MaxValue];
         RuneArrayPropield      = [Rune.GetRuneAt("\U00010000", 0), default, Rune.GetRuneAt("\U0010FFFF", 0)];
         GuidArrayPropield =
-            [Guid.ParseExact("00000000-0000-0000-0000-000000000000", "X"), Guid.Empty, Guid.ParseExact("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "X")];
-        IpNetworkArrayPropield = [new IPNetwork(new IPAddress("\0\0\0\0"u8.ToArray()), 0), default, IPNetwork.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
+            [Guid.ParseExact("00000000-0000-0000-0000-000000000000", "D"), Guid.Empty, Guid.ParseExact("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "D")];
+        IpNetworkArrayPropield = [new IPNetwork(new IPAddress([128,0,0,0]), 1), default, IPNetwork.Parse("255.255.255.254/31")];
 
         NullByteArrayPropield      = [byte.MinValue, 0, null, byte.MaxValue];
         NullSByteArrayPropield     = [sbyte.MinValue, 0, null, sbyte.MaxValue];
@@ -73,9 +73,9 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         NullTimeOnlyArrayPropield = [TimeOnly.MinValue, null, TimeOnly.MaxValue];
         NullRuneArrayPropield     = [Rune.GetRuneAt("\U00010000", 0), Rune.GetRuneAt("\u0000", 0), null, Rune.GetRuneAt("\U0010FFFF", 0)];
         NullGuidArrayPropield =
-            [Guid.ParseExact("00000000-0000-0000-0000-000000000000", "X"), Guid.Empty, null, Guid.ParseExact("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "X")];
+            [Guid.ParseExact("00000000-0000-0000-0000-000000000000", "D"), Guid.Empty, null, Guid.ParseExact("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "D")];
         NullIpNetworkArrayPropield =
-            [new IPNetwork(new IPAddress("\0\0\0\0"u8.ToArray()), 0), new IPNetwork(), null, IPNetwork.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
+            [new IPNetwork(new IPAddress([128,0,0,0]), 1), new IPNetwork(), null, IPNetwork.Parse("255.255.255.254/31")];
 
         StringArrayPropield        = ["stringArrayPropield_1", "", null!, "stringArrayPropield_4"];
         StringBuilderArrayPropield = [new("stringBuilderArrayPropield_1"), new StringBuilder(), null!, new StringBuilder("stringBuilderArrayPropield_4")];
@@ -83,8 +83,8 @@ public class StandardArrayPropertyFieldClass : IStringBearer
             [new MutableString("charSequenceArrayPropield_1"), new MutableString(), null!, new MutableString("charSequenceArrayPropield_4")];
 
         VersionArrayPropield = [new Version(0, 0), null!, new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue)];
-        IntPtrArrayPropield  = [new IPAddress("\0\0\0\0"u8.ToArray()), null!, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
-        UriArrayPropield     = [new Uri(""), null!, new Uri("https://github.com/shwaindog/Fortitude")];
+        IPAddressArrayPropield  = [new IPAddress("\0\0\0\0"u8.ToArray()), null!, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
+        UriArrayPropield     = [new Uri("https://learn.microsoft.com/en-us/dotnet/api"), null!, new Uri("https://github.com/shwaindog/Fortitude")];
 
         SpanFormattableArrayPropield = [new TestCustomSpanFormattable(""), null!, new TestCustomSpanFormattable("SpanFormattableSingPropield")];
         NdLNfEnumArrayPropield       = [NoDefaultLongNoFlagsEnum.NDLNFE_1, default, NoDefaultLongNoFlagsEnum.NDLNFE_34];
@@ -274,7 +274,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
                     return new Version(Math.Abs(num.Value), otherThree[0], otherThree[1], otherThree[2]);
                 }) .ToArray();
         
-        IntPtrArrayPropield  = 
+        IPAddressArrayPropield  = 
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<byte>(numberToGenerate)
                 .Select(b =>
@@ -383,7 +383,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         CharSequenceArrayPropield  = null!;
 
         VersionArrayPropield = null!;
-        IntPtrArrayPropield  = null!;
+        IPAddressArrayPropield  = null!;
         UriArrayPropield     = null!;
 
         SpanFormattableArrayPropield = null!;
@@ -467,7 +467,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
     public ICharSequence[] CharSequenceArrayPropield { get; set; } = null!;
 
     public Version[] VersionArrayPropield = null!;
-    public IPAddress[] IntPtrArrayPropield { get; set; } = null!;
+    public IPAddress[] IPAddressArrayPropield { get; set; } = null!;
     public Uri[] UriArrayPropield = null!;
 
     public TestCustomSpanFormattable[] SpanFormattableArrayPropield { get; set; } = null!;
@@ -514,75 +514,75 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         using var ctb =
             tos.StartComplexType(this);
         ctb.CollectionField.AlwaysAddAll(nameof(ByteArrayPropield), ByteArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(SByteArrayPropield), SByteArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(CharArrayPropield), CharArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(ShortArrayPropield), ShortArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(UShortArrayPropield), UShortArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(HalfArrayPropield), HalfArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(IntArrayPropield), IntArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(UIntArrayPropield), UIntArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(FloatArrayPropield), FloatArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(LongArrayPropield), LongArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(ULongArrayPropield), ULongArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(DoubleArrayPropield), DoubleArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(DecimalArrayPropield), DecimalArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(VeryLongArrayPropield), VeryLongArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(VeryUlongArrayPropield), VeryUlongArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(BigIntArrayPropield), BigIntArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(VeryUlongArrayPropield), VeryUlongArrayPropield, "\"{0}\"");
         ctb.CollectionField.AlwaysAddAll(nameof(ComplexArrayPropield), ComplexArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(DateTimeArrayPropield), DateTimeArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(DateOnlyArrayPropield), DateOnlyArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(TimeSpanArrayPropield), TimeSpanArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(TimeOnlyArrayPropield), TimeOnlyArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(RuneArrayPropield), RuneArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(GuidArrayPropield), GuidArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(IpNetworkArrayPropield), IpNetworkArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullByteArrayPropield), NullByteArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullSByteArrayPropield), NullSByteArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullCharArrayPropield), NullCharArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullShortArrayPropield), NullShortArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullUShortArrayPropield), NullUShortArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullHalfArrayPropield), NullHalfArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullIntArrayPropield), NullIntArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullHalfArrayPropield), NullHalfArrayPropield, "\"{0}\"");
         ctb.CollectionField.AlwaysAddAll(nameof(NullUIntArrayPropield), NullUIntArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullFloatArrayPropield), NullFloatArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullLongArrayPropield), NullLongArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullULongArrayPropield), NullULongArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullDoubleArrayPropield), NullDoubleArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullDecimalArrayPropield), NullDecimalArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullVeryLongArrayPropield), NullVeryLongArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullVeryUlongArrayPropield), NullVeryUlongArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullBigIntArrayPropield), NullBigIntArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullVeryLongArrayPropield), NullVeryLongArrayPropield, "\"{0}\"");
+        ctb.CollectionField.AlwaysAddAll(nameof(NullBigIntArrayPropield), NullBigIntArrayPropield, "\"{0}\"");
         ctb.CollectionField.AlwaysAddAll(nameof(NullComplexArrayPropield), NullComplexArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullDateTimeArrayPropield), NullDateTimeArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullDateOnlyArrayPropield), NullDateOnlyArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullTimeSpanArrayPropield), NullTimeSpanArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullTimeOnlyArrayPropield), NullTimeOnlyArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullRuneArrayPropield), NullRuneArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullGuidArrayPropield), NullGuidArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullIpNetworkArrayPropield), NullIpNetworkArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(StringArrayPropield), StringArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(StringBuilderArrayPropield), StringBuilderArrayPropield);
         ctb.CollectionField.AlwaysAddAllCharSequence(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(VersionArrayPropield), VersionArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(IntPtrArrayPropield), IntPtrArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(UriArrayPropield), UriArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(IPAddressArrayPropield), IPAddressArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(SpanFormattableArrayPropield), SpanFormattableArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NdLNfEnumArrayPropield), NdLNfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NdUNfEnumArrayPropield), NdUNfEnumArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NdLWfEnumArrayPropield), NdLWfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NdUWfEnumArrayPropield), NdUWfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(WdLNfEnumArrayPropield), WdLNfEnumArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(WdUNfEnumArrayPropield), WdUNfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(WdLWfEnumArrayPropield), WdLWfEnumArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(WdUWfEnumArrayPropield), WdUWfEnumArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullNdLNfEnumArrayPropield), NullNdLNfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullNdUNfEnumArrayPropield), NullNdUNfEnumArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullNdLWfEnumArrayPropield), NullNdLWfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullNdUWfEnumArrayPropield), NullNdUWfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullWdLNfEnumArrayPropield), NullWdLNfEnumArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(NullWdUNfEnumArrayPropield), NullWdUNfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullWdLWfEnumArrayPropield), NullWdLWfEnumArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(SByteArrayPropield), SByteArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(ShortArrayPropield), ShortArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(HalfArrayPropield), HalfArrayPropield, "\"{0}\"");
+        ctb.CollectionField.AlwaysAddAll(nameof(UIntArrayPropield), UIntArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(LongArrayPropield), LongArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(DoubleArrayPropield), DoubleArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(VeryLongArrayPropield), VeryLongArrayPropield, "\"{0}\"");
+        ctb.CollectionField.AlwaysAddAll(nameof(BigIntArrayPropield), BigIntArrayPropield, "\"{0}\"");
+        ctb.CollectionField.AlwaysAddAll(nameof(DateTimeArrayPropield), DateTimeArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(TimeSpanArrayPropield), TimeSpanArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(RuneArrayPropield), RuneArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(IpNetworkArrayPropield), IpNetworkArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullByteArrayPropield), NullByteArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullCharArrayPropield), NullCharArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullUShortArrayPropield), NullUShortArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullIntArrayPropield), NullIntArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullFloatArrayPropield), NullFloatArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullULongArrayPropield), NullULongArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullDecimalArrayPropield), NullDecimalArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullVeryUlongArrayPropield), NullVeryUlongArrayPropield, "\"{0}\"");
+        ctb.CollectionField.AlwaysAddAll(nameof(NullDateTimeArrayPropield), NullDateTimeArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullTimeSpanArrayPropield), NullTimeSpanArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullRuneArrayPropield), NullRuneArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullIpNetworkArrayPropield), NullIpNetworkArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(StringBuilderArrayPropield), StringBuilderArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(VersionArrayPropield), VersionArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(UriArrayPropield), UriArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NdLNfEnumArrayPropield), NdLNfEnumArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NdLWfEnumArrayPropield), NdLWfEnumArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(WdUNfEnumArrayPropield), WdUNfEnumArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(WdUWfEnumArrayPropield), WdUWfEnumArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullNdLNfEnumArrayPropield), NullNdLNfEnumArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullNdLWfEnumArrayPropield), NullNdLWfEnumArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(NullWdUNfEnumArrayPropield), NullWdUNfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullWdUWfEnumArrayPropield), NullWdUWfEnumArrayPropield);
         return ctb.Complete();
     }
@@ -592,75 +592,75 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         using var ctb =
             tos.StartComplexType(this);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(ByteArrayPropield), ByteArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(SByteArrayPropield), SByteArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(CharArrayPropield), CharArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(ShortArrayPropield), ShortArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(UShortArrayPropield), UShortArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(HalfArrayPropield), HalfArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(IntArrayPropield), IntArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(UIntArrayPropield), UIntArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(FloatArrayPropield), FloatArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(LongArrayPropield), LongArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(ULongArrayPropield), ULongArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(DoubleArrayPropield), DoubleArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(DecimalArrayPropield), DecimalArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(VeryLongArrayPropield), VeryLongArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(VeryUlongArrayPropield), VeryUlongArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(BigIntArrayPropield), BigIntArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(VeryUlongArrayPropield), VeryUlongArrayPropield, "\"{0}\"");
         ctb.CollectionField.WhenPopulatedAddAll(nameof(ComplexArrayPropield), ComplexArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(DateTimeArrayPropield), DateTimeArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(DateOnlyArrayPropield), DateOnlyArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(TimeSpanArrayPropield), TimeSpanArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(TimeOnlyArrayPropield), TimeOnlyArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(RuneArrayPropield), RuneArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(GuidArrayPropield), GuidArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(IpNetworkArrayPropield), IpNetworkArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullByteArrayPropield), NullByteArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullSByteArrayPropield), NullSByteArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullCharArrayPropield), NullCharArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullShortArrayPropield), NullShortArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullUShortArrayPropield), NullUShortArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullHalfArrayPropield), NullHalfArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullIntArrayPropield), NullIntArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullHalfArrayPropield), NullHalfArrayPropield, "\"{0}\"");
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullUIntArrayPropield), NullUIntArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullFloatArrayPropield), NullFloatArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullLongArrayPropield), NullLongArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullULongArrayPropield), NullULongArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullDoubleArrayPropield), NullDoubleArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullDecimalArrayPropield), NullDecimalArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullVeryLongArrayPropield), NullVeryLongArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullVeryUlongArrayPropield), NullVeryUlongArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullBigIntArrayPropield), NullBigIntArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullVeryLongArrayPropield), NullVeryLongArrayPropield, "\"{0}\"");
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullBigIntArrayPropield), NullBigIntArrayPropield, "\"{0}\"");
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullComplexArrayPropield), NullComplexArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullDateTimeArrayPropield), NullDateTimeArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullDateOnlyArrayPropield), NullDateOnlyArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullTimeSpanArrayPropield), NullTimeSpanArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullTimeOnlyArrayPropield), NullTimeOnlyArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullRuneArrayPropield), NullRuneArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullGuidArrayPropield), NullGuidArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullIpNetworkArrayPropield), NullIpNetworkArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(StringArrayPropield), StringArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(StringBuilderArrayPropield), StringBuilderArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAllCharSequence(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(VersionArrayPropield), VersionArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(IntPtrArrayPropield), IntPtrArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(UriArrayPropield), UriArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(IPAddressArrayPropield), IPAddressArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(SpanFormattableArrayPropield), SpanFormattableArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NdLNfEnumArrayPropield), NdLNfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NdUNfEnumArrayPropield), NdUNfEnumArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NdLWfEnumArrayPropield), NdLWfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NdUWfEnumArrayPropield), NdUWfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(WdLNfEnumArrayPropield), WdLNfEnumArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(WdUNfEnumArrayPropield), WdUNfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(WdLWfEnumArrayPropield), WdLWfEnumArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(WdUWfEnumArrayPropield), WdUWfEnumArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullNdLNfEnumArrayPropield), NullNdLNfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullNdUNfEnumArrayPropield), NullNdUNfEnumArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullNdLWfEnumArrayPropield), NullNdLWfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullNdUWfEnumArrayPropield), NullNdUWfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullWdLNfEnumArrayPropield), NullWdLNfEnumArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullWdUNfEnumArrayPropield), NullWdUNfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullWdLWfEnumArrayPropield), NullWdLWfEnumArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(SByteArrayPropield), SByteArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(ShortArrayPropield), ShortArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(HalfArrayPropield), HalfArrayPropield, "\"{0}\"");
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(UIntArrayPropield), UIntArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(LongArrayPropield), LongArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(DoubleArrayPropield), DoubleArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(VeryLongArrayPropield), VeryLongArrayPropield, "\"{0}\"");
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(BigIntArrayPropield), BigIntArrayPropield, "\"{0}\"");
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(DateTimeArrayPropield), DateTimeArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(TimeSpanArrayPropield), TimeSpanArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(RuneArrayPropield), RuneArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(IpNetworkArrayPropield), IpNetworkArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullByteArrayPropield), NullByteArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullCharArrayPropield), NullCharArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullUShortArrayPropield), NullUShortArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullIntArrayPropield), NullIntArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullFloatArrayPropield), NullFloatArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullULongArrayPropield), NullULongArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullDecimalArrayPropield), NullDecimalArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullVeryUlongArrayPropield), NullVeryUlongArrayPropield, "\"{0}\"");
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullDateTimeArrayPropield), NullDateTimeArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullTimeSpanArrayPropield), NullTimeSpanArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullRuneArrayPropield), NullRuneArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullIpNetworkArrayPropield), NullIpNetworkArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(StringBuilderArrayPropield), StringBuilderArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(VersionArrayPropield), VersionArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(UriArrayPropield), UriArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NdLNfEnumArrayPropield), NdLNfEnumArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NdLWfEnumArrayPropield), NdLWfEnumArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(WdUNfEnumArrayPropield), WdUNfEnumArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(WdUWfEnumArrayPropield), WdUWfEnumArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullNdLNfEnumArrayPropield), NullNdLNfEnumArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullNdLWfEnumArrayPropield), NullNdLWfEnumArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(NullWdUNfEnumArrayPropield), NullWdUNfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullWdUWfEnumArrayPropield), NullWdUWfEnumArrayPropield);
         return ctb.Complete();
     }
@@ -773,8 +773,8 @@ public class StandardArrayPropertyFieldClass : IStringBearer
                                                         , FilterRegistry.OrderedCollectionFilterDefault(CharSequenceArrayPropield).CheckPredicate);
         ctb.CollectionField.AlwaysAddFiltered(nameof(VersionArrayPropield), VersionArrayPropield
                                             , FilterRegistry.OrderedCollectionFilterDefault(VersionArrayPropield).CheckPredicate);
-        ctb.CollectionField.AlwaysAddFiltered(nameof(IntPtrArrayPropield), IntPtrArrayPropield
-                                            , FilterRegistry.OrderedCollectionFilterDefault(IntPtrArrayPropield).CheckPredicate);
+        ctb.CollectionField.AlwaysAddFiltered(nameof(IPAddressArrayPropield), IPAddressArrayPropield
+                                            , FilterRegistry.OrderedCollectionFilterDefault(IPAddressArrayPropield).CheckPredicate);
         ctb.CollectionField.AlwaysAddFiltered(nameof(UriArrayPropield), UriArrayPropield
                                             , FilterRegistry.OrderedCollectionFilterDefault(UriArrayPropield).CheckPredicate);
         ctb.CollectionField.AlwaysAddFiltered(nameof(SpanFormattableArrayPropield), SpanFormattableArrayPropield
@@ -921,8 +921,8 @@ public class StandardArrayPropertyFieldClass : IStringBearer
                                                               , FilterRegistry.OrderedCollectionFilterDefault(CharSequenceArrayPropield).CheckPredicate);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(VersionArrayPropield), VersionArrayPropield
                                                   , FilterRegistry.OrderedCollectionFilterDefault(VersionArrayPropield).CheckPredicate);
-        ctb.CollectionField.WhenPopulatedWithFilter(nameof(IntPtrArrayPropield), IntPtrArrayPropield
-                                                  , FilterRegistry.OrderedCollectionFilterDefault(IntPtrArrayPropield).CheckPredicate);
+        ctb.CollectionField.WhenPopulatedWithFilter(nameof(IPAddressArrayPropield), IPAddressArrayPropield
+                                                  , FilterRegistry.OrderedCollectionFilterDefault(IPAddressArrayPropield).CheckPredicate);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(UriArrayPropield), UriArrayPropield
                                                   , FilterRegistry.OrderedCollectionFilterDefault(UriArrayPropield).CheckPredicate);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(SpanFormattableArrayPropield), SpanFormattableArrayPropield

@@ -351,10 +351,15 @@ public static class CharSpanExtensions
 
     public static Span<char> ResetMemory(this Span<char> toClear, int from = 0, int cappedResetLength = int.MaxValue)
     {
+        return toClear.ResetMemory(Terminator, from, cappedResetLength);
+    }
+
+    public static Span<char> ResetMemory(this Span<char> toClear, char toChar, int from = 0, int cappedResetLength = int.MaxValue)
+    {
         var length = Math.Min(toClear.Length, cappedResetLength);
         for (int i = from; i < length; i++)
         {
-            toClear[i] = Terminator;
+            toClear[i] = toChar;
         }
         return toClear;
     }
@@ -426,6 +431,24 @@ public static class CharSpanExtensions
             }
         }
         return -1;
+    }
+    
+    
+    public static int FindLineLengthFrom(this Span<char> searchSpace, int fromIndex)
+    {
+        var contentStartColumn = fromIndex;
+        if (contentStartColumn <= 0) return 0;
+        var lineContentFromEnd = 0;
+        for (var i = fromIndex - 1; i >= 0; i--)
+        {
+            var checkChar = searchSpace[i];
+            if (checkChar is '\n' or '\r')
+            {
+                lineContentFromEnd = fromIndex - i;
+                break;
+            }
+        }
+        return Math.Max(0, contentStartColumn - lineContentFromEnd);
     }
 
     public static int CountWhiteSpaceBackwardsFrom(this Span<char> searchSpace, int fromIndex)
@@ -676,6 +699,31 @@ public static class CharSpanExtensions
         return charsWritten;
     }
 
+    public static int OverWriteRepatAt(this Span<char> toUpdate, int spanIndex, char toReplicate, int repeatTimes)
+    {
+        var charsWritten = 0;
+        for (int i = 0; i < repeatTimes && spanIndex < toUpdate.Length; i++)
+        {
+            toUpdate[spanIndex++] = toReplicate;
+            charsWritten++;
+        }
+        return charsWritten;
+    }
+
+    public static int OverWriteRepatAt(this Span<char> toUpdate, int spanIndex, ReadOnlySpan<char> toAppend, int repeatTimes)
+    {
+        var charsWritten = 0;
+        for (var j = 0; j < repeatTimes && spanIndex < toUpdate.Length; j++)
+        {
+            for (int i = 0; i < toAppend.Length && spanIndex < toUpdate.Length; i++)
+            {
+                toUpdate[spanIndex++] = toAppend[i];
+                charsWritten++;
+            }
+        }
+        return charsWritten;
+    }
+
     public static int OverWriteAt
         (this Span<char> toUpdate, int spanIndex, ICharSequence toAppend, int buildIndex = 0, int builderMaxLength = int.MaxValue)
     {
@@ -702,6 +750,28 @@ public static class CharSpanExtensions
             charsWritten++;
         }
         return charsWritten;
+    }
+    
+    public static int ShiftByAmount(this Span<char> slidingCharBuffer, int from, int to, int byAmount)
+    {
+        if (byAmount == 0) return 0;
+        byAmount = Math.Min(byAmount, Math.Max(byAmount,  slidingCharBuffer.Length - to + byAmount));
+        byAmount = Math.Max(byAmount, -from);
+
+        if (byAmount > 0)
+        {
+            for (var i = to - 1 + byAmount; i >= from + byAmount; i--)
+            {
+                slidingCharBuffer[i] = slidingCharBuffer[i - byAmount];
+            }
+            return byAmount;
+        }
+        
+        for (var i = from + byAmount; i < to + byAmount; i--)
+        {
+            slidingCharBuffer[i] = slidingCharBuffer[i - byAmount];
+        }
+        return byAmount;
     }
 
     public static Span<char> Append(this Span<char> toUpdate, char toAppend, ref int populatedLength)
@@ -818,6 +888,34 @@ public static class CharSpanExtensions
     }
 
     public static int AppendInt(this Span<char> toUpdate, int toFormatAppend)
+    {
+        var startAt      = toUpdate.PopulatedLength();
+        if (startAt != 0)
+        {
+            toUpdate = toUpdate[startAt..];
+        }
+        if (toFormatAppend.TryFormat(toUpdate, out var written))
+        {
+            return written;
+        }
+        return 0;
+    }
+
+    public static int AppendLong(this Span<char> toUpdate, long toFormatAppend)
+    {
+        var startAt      = toUpdate.PopulatedLength();
+        if (startAt != 0)
+        {
+            toUpdate = toUpdate[startAt..];
+        }
+        if (toFormatAppend.TryFormat(toUpdate, out var written))
+        {
+            return written;
+        }
+        return 0;
+    }
+
+    public static int AppendULong(this Span<char> toUpdate, ulong toFormatAppend)
     {
         var startAt      = toUpdate.PopulatedLength();
         if (startAt != 0)

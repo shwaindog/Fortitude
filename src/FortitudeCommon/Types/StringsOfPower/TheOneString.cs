@@ -175,7 +175,11 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public bool UseReferenceEqualsForVisited { get; set; }
 
-    public int IndentLevel { get; set; }
+    public int IndentLevel
+    {
+        get => Settings.IndentLevel;
+        set => Settings.IndentLevel = value;
+    }
 
     public SkipTypeParts SkipTypeParts => AppendSettings.SkipTypeParts;
 
@@ -242,7 +246,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var type = obj.GetType();
 
         var existingRefId = SourceGraphVisitRefId(obj, type);
-        if (existingRefId > 0 || existingRefId >= 0)
+        if (existingRefId > 0)
         {
             StartComplexValueType(obj).String("", "").Complete();
             return false;
@@ -327,7 +331,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var existingRefId  = SourceGraphVisitRefId(toStyle, type);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, Settings.StyledTypeFormatter);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
-        if (type == typeof(object))
+        if (!type.IsValueType && !type.IsAnyTypeHoldingChars())
         {
             type = toStyle?.GetType() ?? type;
         }

@@ -12,11 +12,12 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 {
-    protected const string Cma = ",";
     protected const string Cln = ":";
     public virtual string Name => nameof(CompactJsonTypeFormatting);
+    
+    public StyleOptions StyleOptions => (StyleOptions)Options;
 
-    public CompactJsonTypeFormatting Initialize(StyleOptions styleOptions)
+    public virtual CompactJsonTypeFormatting Initialize(StyleOptions styleOptions)
     {
         Options = styleOptions;
 
@@ -29,7 +30,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
     public virtual ITypeMolderDieCast<TB> AppendValueTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder, Type valueType) where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         return typeBuilder;
     }
 
@@ -58,7 +59,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual ITypeMolderDieCast<TB> AppendTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder)
         where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         return typeBuilder.Sb.Append(BrcCls).ToInternalTypeBuilder(typeBuilder);
     }
 
@@ -86,54 +87,11 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , string? formatString = null)
         where TB : TypeMolder where TFmt : ISpanFormattable
     {
-        var sb      = typeBuilder.Sb;
-        var fmtType = typeof(TFmt);
-        if (source is DateTime sourceDateTime)
-        {
-            if (typeBuilder.Settings.DateTimeIsNumber)
-            {
-                var converted = typeBuilder.Settings.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
-                sb.Append(DblQt);
-                base.Format(converted, typeBuilder.Sb, formatString);
-                sb.Append(DblQt);
-            }
-            else
-            {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                {
-                    formatString = typeBuilder.Settings.DateTimeAsStringFormatString;
-                }
-                sb.Append(DblQt);
-                base.Format(source, typeBuilder.Sb, formatString);
-                sb.Append(DblQt);
-            }
-        }
-        else if (source is DateOnly sourceDateOnly)
-        {
-            if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-            {
-                formatString = typeBuilder.Settings.DateTimeStringYyyyMMddOnly;
-            }
-            sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            sb.Append(DblQt);
-        }
-        else if (source is TimeOnly sourceTimeOnly)
-        {
-            if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-            {
-                formatString = typeBuilder.Settings.TimeAsStringFormatString;
-            }
-            sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            sb.Append(DblQt);
-        }
-        else
-        {
-            if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
-        }
+        var sb                 = typeBuilder.Sb;
+        var origValuesInQuotes = StyleOptions.WrapValuesInQuotes;
+        StyleOptions.WrapValuesInQuotes = true;
+        base.Format(source, sb, formatString);
+        StyleOptions.WrapValuesInQuotes = origValuesInQuotes;
         return typeBuilder;
     }
 
@@ -275,78 +233,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , string? formatString = null)
         where TB : TypeMolder where TFmt : ISpanFormattable
     {
-        var sb      = typeBuilder.Sb;
-        var fmtType = typeof(TFmt);
-        if (fmtType.IsValueType && fmtType.IsNumericType())
-        {
-            var wrapInQuotes = JsonOptions.WrapValuesInQuotes;
-            if (!wrapInQuotes)
-            {
-                switch (source)
-                {
-                    case char:                wrapInQuotes = true; break;
-                    case Half halfSource:     wrapInQuotes = Half.IsNaN(halfSource); break;
-                    case float floatSource:   wrapInQuotes = float.IsNaN(floatSource); break;
-                    case double doubleSource: wrapInQuotes = double.IsNaN(doubleSource); break;
-                }
-            }
-            if (wrapInQuotes) sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            if (wrapInQuotes) sb.Append(DblQt);
-        }
-        else if (source is DateTime sourceDateTime)
-        {
-            if (typeBuilder.Settings.DateTimeIsNumber)
-            {
-                var converted = typeBuilder.Settings.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
-                if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
-                base.Format(converted, typeBuilder.Sb, formatString);
-                if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
-            }
-            else
-            {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                {
-                    formatString = typeBuilder.Settings.DateTimeAsStringFormatString;
-                }
-                sb.Append(DblQt);
-                base.Format(source, typeBuilder.Sb, formatString);
-                sb.Append(DblQt);
-            }
-        }
-        else if (source is DateOnly dateTimeOnly)
-        {
-            if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-            {
-                formatString = typeBuilder.Settings.DateTimeStringYyyyMMddOnly;
-            }
-            sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            sb.Append(DblQt);
-        }
-        else if (source is TimeOnly sourceTimeOnly)
-        {
-            if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-            {
-                formatString = typeBuilder.Settings.TimeAsStringFormatString;
-            }
-            sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            sb.Append(DblQt);
-        }
-        else
-        {
-            if (source is not null)
-            {
-                sb.Append(DblQt);
-                base.Format(source, typeBuilder.Sb, formatString);
-                sb.Append(DblQt);
-            }
-            else
-            {
-                sb.Append(typeBuilder.Settings.NullStyle);
-            }
-        }
+        var sb            = typeBuilder.Sb;
+
+        base.Format(source, sb, formatString ?? "");
+        
         return typeBuilder;
     }
 
@@ -440,8 +330,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
                 var nextChar = source[cappedFrom + i];
                 lastAdded = lastAdded == 0 && i > 0
-                    ? CollectionNextItem(new Rune(previousChar, nextChar), i, sb)
-                    : CollectionNextItem(nextChar, i, sb);
+                    ? CollectionNextItemFormat(new Rune(previousChar, nextChar), i, sb, formatString ?? "")
+                    : CollectionNextItemFormat(nextChar, i, sb, formatString ?? "");
                 previousChar = lastAdded == 0 ? nextChar : '\0'; 
             }
             FormatCollectionEnd(typeBuilder, charType, cappedLength);
@@ -618,11 +508,11 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb.Append(SqBrktOpn).ReturnCharCount(1);
     }
 
-    public override int CollectionStart(Type elementType, Span<char> destination, int destStartIndex, bool hasItems)
+    public override int CollectionStart(Type elementType, Span<char> destSpan, int destStartIndex, bool hasItems)
     {
-        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destination.OverWriteAt(destStartIndex, DblQt);
-        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, DblQt);
-        return destination.OverWriteAt(destStartIndex, SqBrktOpn);
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destSpan.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return destSpan.OverWriteAt(destStartIndex, DblQt);
+        return destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
     public virtual ITypeMolderDieCast<TB> FormatCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder
@@ -710,7 +600,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual ITypeMolderDieCast<TB> FormatCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType
       , int totalItemCount) where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         base.CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
         return typeBuilder;
     }

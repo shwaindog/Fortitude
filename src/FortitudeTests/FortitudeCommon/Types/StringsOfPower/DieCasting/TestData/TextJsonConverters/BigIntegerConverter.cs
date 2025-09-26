@@ -16,6 +16,6 @@ public class BigIntegerConverter : JsonConverter<BigInteger>
     public override void Write(Utf8JsonWriter writer, BigInteger value,
         JsonSerializerOptions options)
     {
-        writer.WriteRawValue(value.ToString("D", CultureInfo.InvariantCulture));
+        writer.WriteStringValue(value.ToString("D", CultureInfo.InvariantCulture));
     }
 }

@@ -20,6 +20,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     protected const char   BrcOpnChar = '{';
     protected const string BrcCls     = "}";
     protected const char   BrcClsChar = '}';
+    protected const string   Cma = ",";
 
 
     public virtual IJsonFormattingOptions JsonOptions
@@ -226,6 +227,226 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             return charsAdded - appendLen;
         }
         return 0;
+    }
+
+    public override int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : default
+    {
+        var originalLength = sb.Length;
+        var fmtType        = typeof(TFmt);
+        if (fmtType.IsValueType && fmtType.IsNumericType())
+        {
+            var hasFormatQuotes = formatString.Length > 0 && formatString[0] == '\"' && formatString[^1] == '\"';
+            var wrapInQuotes = JsonOptions.WrapValuesInQuotes;
+            if (!wrapInQuotes)
+            {
+                switch (source)
+                {
+                    case char:                wrapInQuotes = true; break;
+                    case Half halfSource: wrapInQuotes = Half.IsNaN(halfSource); break;
+                    case float floatSource:   wrapInQuotes = float.IsNaN(floatSource); break;
+                    case double doubleSource: wrapInQuotes = double.IsNaN(doubleSource); break;
+                }
+            }
+            if (wrapInQuotes && !hasFormatQuotes) sb.Append(DblQt);
+            base.Format(source, sb, formatString);
+            if (wrapInQuotes && !hasFormatQuotes) sb.Append(DblQt);
+        } 
+        else if (source is DateTime sourceDateTime)
+        {
+            if (JsonOptions.DateTimeIsNumber)
+            {
+                var converted = JsonOptions.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
+                if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
+                base.Format(converted, sb, formatString);
+                if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
+            }
+            else
+            {
+                if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
+                {
+                    formatString = JsonOptions.DateTimeAsStringFormatString;
+                }
+                sb.Append(DblQt);
+                base.Format(source, sb, formatString);
+                sb.Append(DblQt);
+            }
+        }
+        else if (source is DateOnly dateTimeOnly)
+        {
+            if (formatString.Length == 0 ||  formatString.SequenceMatches(NoFormatFormatString))
+            {
+                formatString = JsonOptions.DateOnlyAsStringFormatString;
+            }
+            sb.Append(DblQt);
+            base.Format(source, sb, formatString);
+            sb.Append(DblQt);
+        }
+        else if (source is TimeOnly sourceTimeOnly)
+        {
+            if (formatString.Length == 0 ||  formatString.SequenceMatches(NoFormatFormatString))
+            {
+                formatString = JsonOptions.TimeAsStringFormatString;
+                if (sourceTimeOnly == default) // System.Text.Json changes formatting for default values to just ss precision
+                {
+                    formatString = "HH:mm:ss";
+                }
+            }
+            sb.Append(DblQt);
+            base.Format(source, sb, formatString);
+            sb.Append(DblQt);
+        }
+        else if (source is Enum)
+        {
+            var markInsertIndex = sb.Length;
+            var enumLen         = base.Format(source, sb, formatString);
+            var isInt           = enumLen > 0;
+            for (int i = 0; i < enumLen && isInt; i++)
+            {
+                var checkChar = sb[markInsertIndex + i];
+                isInt = checkChar.IsDigit() || (checkChar.IsMinus() && i == 0);
+            }
+            if (!isInt)
+            {
+                sb.InsertAt(DblQt, markInsertIndex);
+                sb.Append(DblQt);
+            }
+        }
+        else
+        {
+            if (source is not null)
+            {
+                sb.Append(DblQt);
+                base.Format(source, sb, formatString);
+                sb.Append(DblQt);
+            }
+            else
+            {
+                sb.Append(JsonOptions.NullStyle);
+            }
+        }
+        return sb.Length - originalLength;
+    }
+
+    public override int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : default
+    {
+        var charsAdded = 0;
+        var fmtType    = typeof(TFmt);
+        if (fmtType.IsValueType && fmtType.IsNumericType())
+        {
+            var wrapInQuotes = JsonOptions.WrapValuesInQuotes;
+            if (!wrapInQuotes)
+            {
+                switch (source)
+                {
+                    case char:                wrapInQuotes = true; break;
+                    case Half halfSource:     wrapInQuotes = Half.IsNaN(halfSource); break;
+                    case float floatSource:   wrapInQuotes = float.IsNaN(floatSource); break;
+                    case double doubleSource: wrapInQuotes = double.IsNaN(doubleSource); break;
+                }
+            }
+            if (wrapInQuotes) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+            charsAdded += base.Format(source, destCharSpan, destStartIndex + charsAdded, formatString);
+            if (wrapInQuotes) charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+        }
+        else if (source is DateTime sourceDateTime)
+        {
+            if (JsonOptions.DateTimeIsNumber)
+            {
+                var converted                                  = JsonOptions.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
+                if (JsonOptions.WrapValuesInQuotes) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                charsAdded += base.Format(converted, destCharSpan, destStartIndex + charsAdded, formatString);
+                if (JsonOptions.WrapValuesInQuotes) charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+            }
+            else
+            {
+                if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
+                {
+                    formatString = JsonOptions.DateTimeAsStringFormatString;
+                }
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                charsAdded += base.Format(source, destCharSpan, destStartIndex + charsAdded, formatString);
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+            }
+        }
+        else if (source is DateOnly dateTimeOnly)
+        {
+            if (formatString.Length == 0 ||  formatString.SequenceMatches(NoFormatFormatString))
+            {
+                formatString = JsonOptions.DateOnlyAsStringFormatString;
+            }
+            charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+            charsAdded += base.Format(dateTimeOnly, destCharSpan, destStartIndex + charsAdded, formatString);
+            charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+        }
+        else if (source is TimeOnly sourceTimeOnly)
+        {
+            if (formatString.Length == 0 ||  formatString.SequenceMatches(NoFormatFormatString))
+            {
+                formatString = JsonOptions.TimeAsStringFormatString;
+                if (sourceTimeOnly == default) // System.Text.Json changes formatting for default values to just ss precision
+                {
+                    formatString = "HH:mm:ss";
+                }
+            }
+            charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+            charsAdded += base.Format(sourceTimeOnly, destCharSpan, destStartIndex + charsAdded, formatString);
+            charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+        }
+        else if (source is Enum)
+        {
+            var enumLen = base.Format(source, destCharSpan, destStartIndex, formatString);
+            var isInt   = enumLen > 0;
+            for (int i = 0; i < enumLen && isInt; i++)
+            {
+                var checkChar = destCharSpan[destStartIndex + i];
+                isInt = checkChar.IsDigit() || (checkChar.IsMinus() && i == 0);
+            }
+            if (!isInt)
+            {
+                destCharSpan.ShiftByAmount(destStartIndex, destStartIndex + enumLen, 1);
+                destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                destCharSpan.OverWriteAt(destStartIndex + enumLen + 1, DblQt);
+                charsAdded = enumLen + 2;
+            }
+            else
+            {
+                charsAdded = enumLen;
+            }
+        }
+        else
+        {
+            if (source is not null)
+            {
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                charsAdded += base.Format(source, destCharSpan, destStartIndex + charsAdded, formatString);
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+            }
+            else
+            {
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex, JsonOptions.NullStyle);
+            }
+        }
+        return charsAdded;
+    }
+
+    public override int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) 
+    {
+        if (!source.HasValue)
+        {
+            var originalLength = sb.Length;
+            sb.Append(JsonOptions.NullStyle);
+            return sb.Length - originalLength;
+        }
+        return Format(source.Value, sb, formatString);
+    }
+
+    public override int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) 
+    {
+        if (!source.HasValue)
+        {
+            return destCharSpan.OverWriteAt(destStartIndex, JsonOptions.NullStyle);;
+        }
+        return Format(source.Value, destCharSpan, destStartIndex, formatString);
     }
 
 
@@ -1340,26 +1561,26 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Append(SqBrktOpn).ReturnCharCount(1);
     }
 
-    public override int CollectionStart(Type elementType, Span<char> destination, int destStartIndex, bool hasItems)
+    public override int CollectionStart(Type elementType, Span<char> destSpan, int destStartIndex, bool hasItems)
     {
-        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destination.OverWriteAt(destStartIndex, DblQt);
-        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, DblQt);
-        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destination.OverWriteAt(destStartIndex, BrcOpn);
-        return destination.OverWriteAt(destStartIndex, SqBrktOpn);
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destSpan.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return destSpan.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destSpan.OverWriteAt(destStartIndex, BrcOpn);
+        return destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
     public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber)
     {
         if (collectionElementType == typeof(char) && JsonOptions.CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
-        return sb.Append(",").ReturnCharCount(1);
+        return sb.Append(Cma).ReturnCharCount(1);
     }
 
-    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> charSpan, int atIndex, int nextItemNumber)
+    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber)
     {
         if (collectionElementType == typeof(char) && JsonOptions.CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
-        return charSpan.OverWriteAt(atIndex, ",");
+        return destSpan.OverWriteAt(atIndex, Cma);
     }
 
     public override int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString)
@@ -1392,9 +1613,6 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 break;
             case byte byteItem:
                 if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
-                break;
-            case DateTime dateTimeItem:
-                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, sb, "yyyy-MM-ddTHH:mm:ss");
                 break;
         }
         return Format(nextItem, sb, formatString);
@@ -1436,9 +1654,6 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             case byte byteItem:
                 if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
                 break;
-            case DateTime dateTimeItem:
-                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, destCharSpan, destStartIndex, JsonOptions.DateTimeAsStringFormatString);
-                break;
         }
         return Format(nextItem, destCharSpan, destStartIndex, formatString);
     }
@@ -1471,12 +1686,6 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                     return charsAdded + 2;
                 }
                 return 0;
-            case byte byteItem:
-                if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, sb);
-                break;
-            case DateTime dateTimeItem:
-                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, sb, JsonOptions.DateTimeAsStringFormatString);
-                break;
         }
         return Format(nextItem, sb, formatString);
     }
@@ -1510,12 +1719,6 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                     return charsAdded + 2;
                 }
                 return 0;
-            case byte byteItem:
-                if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
-                break;
-            case DateTime dateTimeItem:
-                if (formatString.IsNullOrEmpty()) return Format(dateTimeItem, destCharSpan, destStartIndex, JsonOptions.DateTimeAsStringFormatString);
-                break;
         }
         return Format(nextItem, destCharSpan, destStartIndex, formatString);
     }
@@ -1523,40 +1726,38 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb)
     {
         var preAppendLen = sb.Length;
+        if (nextItem == null)
+        {
+            return sb.Append(JsonOptions.NullStyle).ReturnCharCount(JsonOptions.NullStyle.Length);
+        }
         switch (nextItem)
         {
-            case Rune runeItem:
-                if (JsonOptions.CharArrayWritesString)
+            case string stringItem:
+                return sb.Append(DblQt).Append(stringItem).Append(DblQt).ReturnCharCount(stringItem.Length + 2);
+            case char[] charArrayItem:
+                if (!JsonOptions.CharArrayWritesString)
                 {
-                    return Options.EncodingTransfer.Transfer(runeItem, sb);
+                    CollectionStart(typeof(char[]), sb, charArrayItem.Length > 0);
+                    JsonOptions.EncodingTransfer.Transfer(this, charArrayItem, sb);
+                    CollectionEnd(typeof(char[]), sb, charArrayItem.Length);
+                    return sb.Length - preAppendLen;
                 }
-                sb.Append(DblQt);
-                var runeElementAdded = Options.EncodingTransfer.Transfer(runeItem, sb);
-                sb.Append(DblQt);
-                return runeElementAdded + 2;
-            case char charItem:
-                if (JsonOptions.CharArrayWritesString)
+                return sb.Append(DblQt).Append(charArrayItem).Append(DblQt).ReturnCharCount(charArrayItem.Length + 2);
+            case ICharSequence charSequenceItem:
+                if (!JsonOptions.CharArrayWritesString)
                 {
-                    if(charItem.IsSingleCharRune())
-                         return Options.EncodingTransfer.Transfer(new Rune(charItem), sb);
-                    return 0;
+                    CollectionStart(charSequenceItem.GetType(), sb, charSequenceItem.Length > 0);
+                    JsonOptions.EncodingTransfer.Transfer(this, charSequenceItem, sb);
+                    CollectionEnd(charSequenceItem.GetType(), sb, charSequenceItem.Length);
+                    return sb.Length - preAppendLen;
                 }
-                if (charItem.IsSingleCharRune())
-                {
-                    sb.Append(DblQt);
-                    var charsAdded = Options.EncodingTransfer.Transfer(new Rune(charItem), sb);
-                    sb.Append(DblQt);
-                    return charsAdded + 2;
-                }
-                return 0;
-            case byte byteItem:
-                return JsonOptions.ByteArrayWritesBase64String
-                    ? NextBase64Chars(byteItem, sb)
-                    : sb.Append(byteItem).ReturnCharCount(3);
-            case DateTime dateTimeItem: return Format(dateTimeItem, sb, JsonOptions.DateTimeAsStringFormatString);
+                return sb.Append(DblQt).Append(charSequenceItem).Append(DblQt).ReturnCharCount(charSequenceItem.Length + 2);
+            case StringBuilder sbItem:
+                return sb.Append(DblQt).Append(sbItem).Append(DblQt).ReturnCharCount(sbItem.Length + 2);
             case KeyValuePair<string, JsonNode> jsonNodeKvp:
-                var jsonString = jsonNodeKvp.Value.ToJsonString();
-                return sb.Append(DblQt).Append(jsonNodeKvp.Key).Append(DblQt).Append(":").Append(jsonString).ReturnCharCount(jsonString.Length);
+                var jsonString   = jsonNodeKvp.Value.ToJsonString();
+                var keyValueLeng = jsonString.Length + jsonNodeKvp.Key.Length; 
+                return sb.Append(DblQt).Append(jsonNodeKvp.Key).Append(DblQt).Append(":").Append(jsonString).ReturnCharCount(keyValueLeng + 3);
         }
         return sb.Append(nextItem).ReturnCharCount(sb.Length - preAppendLen);
     }
@@ -1565,44 +1766,6 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         switch (nextItem)
         {
-            case Rune runeItem:
-                if (JsonOptions.CharArrayWritesString)
-                {
-                        return Options.EncodingTransfer.Transfer(runeItem, destCharSpan, destStartIndex);
-                }
-                destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                var runeElementAdded = Options.EncodingTransfer.Transfer(runeItem, destCharSpan, destStartIndex + 1);
-                destCharSpan.OverWriteAt(destStartIndex + runeElementAdded + 1, DblQt);
-                return runeElementAdded + 2;
-            case char charItem:
-                if (JsonOptions.CharArrayWritesString)
-                {
-                    if(charItem.IsSingleCharRune())
-                        return Options.EncodingTransfer.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
-                    return 0;
-                }
-                if (charItem.IsSingleCharRune())
-                {
-                    destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                    var charsElementAdded = Options.EncodingTransfer.Transfer(new Rune(charItem), destCharSpan, destStartIndex + 1);
-                    destCharSpan.OverWriteAt(destStartIndex + charsElementAdded + 1, DblQt);
-                    return charsElementAdded;
-                }
-                return 0;
-            case ValueTuple<char, char> twoCharPair:
-                var (high, low) = twoCharPair;
-                if (JsonOptions.CharArrayWritesString)
-                {
-                    return Options.EncodingTransfer.Transfer(new Rune(high, low), destCharSpan, destStartIndex);
-                }
-                destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                var twoCharsAdded = Options.EncodingTransfer.Transfer(new Rune(high, low), destCharSpan, destStartIndex + 1);
-                destCharSpan.OverWriteAt(destStartIndex + destStartIndex + 1, DblQt);
-                return twoCharsAdded;
-            case byte byteItem:
-                if (JsonOptions.ByteArrayWritesBase64String) return NextBase64Chars(byteItem, destCharSpan, destStartIndex);
-                break;
-            case DateTime dateTimeItem: return Format(dateTimeItem, destCharSpan, destStartIndex, JsonOptions.DateTimeAsStringFormatString);
             case KeyValuePair<string, JsonNode> jsonNodeKvp:
                 var jsonString = jsonNodeKvp.Value.ToJsonString();
                 var charsAdded = destCharSpan.OverWriteAt(destStartIndex, DblQt);
@@ -1631,17 +1794,17 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Append(SqBrktCls).ReturnCharCount(1);
     }
 
-    public override int CollectionEnd(Type elementType, Span<char> destination, int index, int itemsCount)
+    public override int CollectionEnd(Type elementType, Span<char> destSpan, int index, int itemsCount)
     {
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destination.OverWriteAt(index, DblQt);
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destSpan.OverWriteAt(index, DblQt);
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String)
         {
-            var addedChars = CompleteBase64Sequence(destination, index);
-            return destination.OverWriteAt(index + addedChars, DblQt) + addedChars;
+            var addedChars = CompleteBase64Sequence(destSpan, index);
+            return destSpan.OverWriteAt(index + addedChars, DblQt) + addedChars;
         }
-        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destination.OverWriteAt(index, BrcCls);
-        return destination.OverWriteAt(index, SqBrktCls);
+        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destSpan.OverWriteAt(index, BrcCls);
+        return destSpan.OverWriteAt(index, SqBrktCls);
     }
 }

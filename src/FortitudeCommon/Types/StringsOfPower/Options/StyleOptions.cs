@@ -3,6 +3,7 @@
 
 using System.Text;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
@@ -20,13 +21,14 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
     private StyleOptions? myOptionsObj;
 
+    public const string DefaultTimeFormat        = "{0:O}";
     public const string DefaultTimeToSecFormat   = "{0:HH:mm:ss}";
     public const string DefaultTimeToMsFormat    = "{0:HH:mm:ss.fff}";
     public const string DefaultTimeToUsFormat    = "{0:HH:mm:ss.ffffff}";
     public const string DefaultTimeToTicksFormat = "{0:HH:mm:ss.fffffff}";
 
     public const string DefaultYyyyMMddOnly        = "{0:yyyy-MM-dd}";
-    public const string DefaultYyyyMMddToSecFormat = "{0:yyyy-MM-ddTHH:mm:ssZ}";
+    public const string DefaultYyyyMMddToSecFormat = "{0:yyyy-MM-ddTHH:mm:ss.FFFFFFFK}";
     public const string DefaultYyyyMMddToMsFormat  = "{0:yyyy-MMd-dTHH:mm:ss.fff}";
     public const string DefaultYyyyMMddToUsFormat  = "{0:yyyy-MM-ddTHH:mm:ss.ffffff}";
 
@@ -64,6 +66,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
     private char?    indentChar;
     private int?     indentSize;
+    private int      indentLevel;
     private bool?    byteSequenceToBase64;
     private bool?    disableCircularRefCheck;
     private bool?    charSArraysAsString;
@@ -73,6 +76,8 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private int?     prettyCollectionsColumnCountWrap;
     private int?     defaultGraphMaxDepth;
     private string?  customDateTimeFormatString;
+    private string?  customTimeFormatString;
+    private string?  dateOnlyAsStringFormatString;
     private string?  dateTimeYyyyMMddTossFormat;
     private string?  dateTimeYyyyMMddTomsFormat;
     private string?  dateTimeYyyyMMddTousFormat;
@@ -125,6 +130,12 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     {
         get => indentSize ?? fallbackOptions?.Values.IndentSize ?? 2;
         set => indentSize = value;
+    }
+
+    public int IndentLevel
+    {
+        get => indentLevel;
+        set => indentLevel = value;
     }
 
     public int IndentRepeat(int indentLevel) => indentLevel * IndentSize;
@@ -352,7 +363,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
                {
                    StringStyle.Json | StringStyle.Compact => Recycler.ThreadStaticRecycler.Borrow<CompactJsonTypeFormatting>().Initialize(MyObjInstanceOrCreate)
                  , StringStyle.Json | StringStyle.Pretty  => Recycler.ThreadStaticRecycler.Borrow<PrettyJsonTypeFormatting>().Initialize(MyObjInstanceOrCreate)
-                 , StringStyle.Log | StringStyle.Pretty  => Recycler.ThreadStaticRecycler.Borrow<PrettyLogTypeFormatting>().Initialize(MyObjInstanceOrCreate)
+                 , StringStyle.Log | StringStyle.Pretty   => Recycler.ThreadStaticRecycler.Borrow<PrettyLogTypeFormatting>().Initialize(MyObjInstanceOrCreate)
                  , _                                      => Recycler.ThreadStaticRecycler.Borrow<CompactLogTypeFormatting>().Initialize(MyObjInstanceOrCreate)
                };
     }
@@ -371,18 +382,30 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
     public TimeStyleFormat TimeFormat
     {
-        readonly get => timeFormat ?? fallbackOptions?.Values.TimeFormat ?? StringHHmmssToTicks;
+        readonly get => timeFormat ?? fallbackOptions?.Values.TimeFormat ?? TimeStyleFormat.Default;
         set => timeFormat = value;
     }
 
-    public string TimeAsStringFormatString =>
-        TimeFormat switch
+    public string TimeAsStringFormatString
+    {
+        get
         {
-            StringHHmmss     => TimeStringHHmmssFormatString
-          , StringHHmmssToMs => TimeStringHHmmssToMsFormatString
-          , StringHHmmssToUs => TimeStringHHmmssToUsFormatString
-          , _                => TimeStringHHmmssToTicksFormatString
-        };
+            if (customTimeFormatString.IsNotNullOrEmpty())
+            {
+                return customTimeFormatString;
+            }
+            return TimeFormat switch
+                   {
+                       TimeStyleFormat.Default => DefaultTimeFormat
+
+                     , StringHHmmss     => TimeStringHHmmssFormatString
+                     , StringHHmmssToMs => TimeStringHHmmssToMsFormatString
+                     , StringHHmmssToUs => TimeStringHHmmssToUsFormatString
+                     , _                => TimeStringHHmmssToTicksFormatString
+                   };
+        }
+        set => customTimeFormatString = value;
+    }
 
     public string TimeStringHHmmssFormatString
     {
@@ -441,7 +464,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
             }
             return DateTimeFormat switch
                    {
-                       StringYyyyMMddOnly => DateTimeStringYyyyMMddOnly
+                       StringYyyyMMddOnly => DateOnlyAsStringFormatString
                      , StringYyyyMMddToss => DateTimeStringYyyyMMddToSecFormatString
                      , StringYyyyMMddToms => DateTimeStringYyyyMMddToMsFormatString
                      , _                  => DateTimeStringYyyyMMddToUsFormatString
@@ -449,11 +472,11 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         }
         set => customDateTimeFormatString = value;
     }
-
-    public string DateTimeStringYyyyMMddOnly
+    
+    public string DateOnlyAsStringFormatString
     {
-        readonly get => dateTimeYyyyMMddTossFormat ?? fallbackOptions?.Values.DateTimeStringYyyyMMddOnly ?? DefaultYyyyMMddOnly;
-        set => dateTimeYyyyMMddTossFormat = value;
+        readonly get => dateOnlyAsStringFormatString ?? fallbackOptions?.Values.DateOnlyAsStringFormatString ?? DefaultYyyyMMddOnly;
+        set => dateOnlyAsStringFormatString = value;
     }
 
     public string DateTimeStringYyyyMMddToSecFormatString
@@ -595,6 +618,12 @@ public class StyleOptions : IJsonFormattingOptions
             IndentSize = value.Length;
         }
     }
+    
+    public int IndentLevel
+    {
+        get => values.IndentLevel;
+        set => values.IndentLevel = value;
+    }
 
     public int IndentRepeat(int indentLevel) => values.IndentRepeat(indentLevel);
 
@@ -726,7 +755,11 @@ public class StyleOptions : IJsonFormattingOptions
         set => values.TimeFormat = value;
     }
 
-    public string TimeAsStringFormatString => values.TimeAsStringFormatString;
+    public string TimeAsStringFormatString 
+    {
+        get => values.TimeAsStringFormatString;
+        set => values.TimeAsStringFormatString = value;
+    }
 
     public string TimeStringHHmmssFormatString
     {
@@ -770,10 +803,10 @@ public class StyleOptions : IJsonFormattingOptions
         set => values.DateTimeAsStringFormatString = value;
     }
 
-    public string DateTimeStringYyyyMMddOnly
+    public string DateOnlyAsStringFormatString
     {
-        get => values.DateTimeStringYyyyMMddOnly;
-        set => values.DateTimeStringYyyyMMddOnly = value;
+        get => values.DateOnlyAsStringFormatString;
+        set => values.DateOnlyAsStringFormatString = value;
     }
 
     public string DateTimeStringYyyyMMddTossFormatString

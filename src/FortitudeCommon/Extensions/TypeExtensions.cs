@@ -34,6 +34,9 @@ public static class TypeExtensions
     public static bool IsArray(this Type type) => ArrayType.IsAssignableFrom(type);
 
     public static bool IsNotArray(this Type type) => !type.IsArray();
+    
+    public static bool IsOrImplements(this Type toCheck, Type checkImplements) =>
+    toCheck == checkImplements || toCheck.GetInterfaces().Any(i => i == checkImplements);
 
     public static bool IsKeyValuePair(this Type type) => type.GetGenericTypeDefinition() == KeyValuePairTypeDef;
     public static bool IsNotKeyValuePair(this Type type) => !type.IsKeyValuePair();
@@ -79,6 +82,11 @@ public static class TypeExtensions
     public static bool IsNotReadOnlyList(this Type type) => !type.IsReadOnlyList();
 
     public static bool IsIndexableOrderedCollection(this Type type) => type.IsArray() || type.IsReadOnlyList();
+    
+    public static bool IsIndexableOrderedCollectionOfValueType(this Type type) =>
+        type.IsArray() || type.IsReadOnlyList() && (type.GetIndexedCollectionElementType()!.IsValueType);
+    
+    public static bool IsNotIndexableOrderedCollectionOfValueType(this Type type) => !type.IsIndexableOrderedCollectionOfValueType();
 
     public static Type? IfArrayGetElementType(this Type type) => type.IsArray() ? type.GetElementType() : null;
 
@@ -249,6 +257,15 @@ public static class TypeExtensions
      || check == typeof(IList<byte?>)
      || check == typeof(IReadOnlyList<byte?>);
 
+    public static bool IsChar(this Type check) => check == typeof(char);
+    public static bool IsNotChar(this Type check) => !check.IsChar();
+    public static bool IsNullableChar(this Type check) => check == typeof(char?);
+    public static bool IsNotNullableChar(this Type check) => !check.IsNullableChar();
+    public static bool IsCharArray(this Type check) => check == typeof(char[]);
+    public static bool IsNotCharArray(this Type check) => !check.IsCharArray();
+    public static bool IsNullableCharArray(this Type check) => check == typeof(char?[]);
+    public static bool IsNotNullableCharArray(this Type check) => !check.IsNullableCharArray();
+
     public static bool IsShort(this Type check) => check == typeof(short) || check.IsShortEnum();
     public static bool IsNullableShort(this Type check) => check == typeof(short?);
     public static bool IsShortArray(this Type check) => check == typeof(short[]);
@@ -373,21 +390,40 @@ public static class TypeExtensions
     public static bool IsString(this Type check) => check == typeof(string);
     public static bool IsNotString(this Type check) => !check.IsString();
     public static bool IsStringArray(this Type check) => check == typeof(string[]);
+    public static bool IsNotStringArray(this Type check) => !check.IsStringArray();
 
-    public static bool IsStringList(this Type check) =>
-        check == typeof(List<string>)
-     || check == typeof(IList<string>)
-     || check == typeof(IReadOnlyList<string>);
+    public static bool IsCharSequence(this Type check) => check.IsOrImplements(typeof(ICharSequence));
+    public static bool IsNotCharSequence(this Type check) => !check.IsCharSequence();
+    public static bool IsCharSequenceSupportArray(this Type check) => check.IsArraySupporting(typeof(ICharSequence));
+    public static bool IsNotCharSequenceSupportArray(this Type check) => !check.IsCharSequenceSupportArray();
+
+    public static bool IsCharSequenceSupportingList(this Type check) => check.IsReadOnlyListSupporting(typeof(ICharSequence));
+    public static bool IsNotCharSequenceSupportingList(this Type check) => !check.IsCharSequenceSupportingList();
+
+    public static bool IsStringList(this Type check) => check.IsReadOnlyListSupporting(typeof(string));
+    public static bool IsNotStringList(this Type check) => !check.IsStringList();
 
     public static bool IsMutableString(this Type check) => check == typeof(MutableString);
     public static bool IsMutableStringArray(this Type check) => check == typeof(MutableString[]);
+    public static bool IsNotMutableStringArray(this Type check) => !check.IsMutableStringArray();
 
-    public static bool IsMutableStringList(this Type check) =>
-        check == typeof(List<MutableString>)
-     || check == typeof(IList<MutableString>)
-     || check == typeof(IReadOnlyList<MutableString>);
+    public static bool IsMutableStringList(this Type check) => check.IsReadOnlyListSupporting(typeof(MutableString));
+    public static bool IsNotMutableStringList(this Type check) => !check.IsMutableStringList();
 
+    public static bool IsStringBuilder(this Type check) => check == typeof(StringBuilder);
+    public static bool IsNotStringBuilder(this Type check) => !check.IsStringBuilder();
+    public static bool IsStringBuilderArray(this Type check) => check == typeof(StringBuilder[]);
+    public static bool IsNotStringBuilderArray(this Type check) => !check.IsStringBuilderArray();
 
+    public static bool IsStringBuilderList(this Type check) => check.IsReadOnlyListSupporting(typeof(StringBuilder));
+    public static bool IsNotStringBuilderList(this Type check) => !check.IsStringBuilderList();
+
+    public static bool IsAnyTypeHoldingChars(this Type check) =>
+        check.IsString() || check.IsStringArray() || check.IsStringList()
+     || check.IsCharSequence() || check.IsCharSequenceSupportArray() || check.IsCharSequenceSupportingList()
+     || check.IsStringBuilder() || check.IsStringBuilderArray() || check.IsStringBuilderList(); 
+    
+    
     public static bool IsStringToStringMap(this Type check) =>
         check == typeof(Dictionary<string, string>)
      || check == typeof(IDictionary<string, string>)

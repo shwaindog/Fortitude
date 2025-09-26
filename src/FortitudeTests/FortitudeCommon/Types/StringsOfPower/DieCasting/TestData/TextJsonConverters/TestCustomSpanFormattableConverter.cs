@@ -16,6 +16,6 @@ public class TestCustomSpanFormattableConverter: JsonConverter<TestCustomSpanFor
     public override void Write(Utf8JsonWriter writer, TestCustomSpanFormattable value,
         JsonSerializerOptions options)
     {
-        writer.WriteRawValue("\"" + value + "\"");
+        writer.WriteStringValue(value.ToString());
     }
 }

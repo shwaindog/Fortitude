@@ -196,8 +196,8 @@ public static class ExtendedSpanFormattableExtensions
             if (indexOfBrcOpn > 0)
             {
                 foundFormatStages |= FormatStringType.Prefix;
-                formatPrefix      =  remainingSpan[..fromIndex];
-                remainingSpan     =  remainingSpan[fromIndex..];
+                formatPrefix      =  remainingSpan[..indexOfBrcOpn];
+                remainingSpan     =  remainingSpan[indexOfBrcOpn..];
             }
             var indexOfBrcCls = remainingSpan.IndexOf('}');
             if (indexOfBrcCls == -1)
@@ -215,6 +215,7 @@ public static class ExtendedSpanFormattableExtensions
         { // just format string
             identifier = "0";
             layout     = "0";
+            format     = remainingSpan;
             stage      = 3;
         }
         while (remainingSpan.Length > 0)

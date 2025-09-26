@@ -11,7 +11,7 @@ public interface ICustomStringFormatter : IRecyclableObject
 {
     int AddCollectionElementSeparator(Type collectionType, IStringBuilder sb, int nextItemNumber);
 
-    int AddCollectionElementSeparator(Type collectionType, Span<char> charSpan, int atSpanOffset, int nextItemNumber);
+    int AddCollectionElementSeparator(Type collectionType, Span<char> destSpan, int atSpanOffset, int nextItemNumber);
 
     IFormattingOptions Options { get; set; }
 
@@ -97,7 +97,7 @@ public interface ICustomStringFormatter : IRecyclableObject
 
 
     int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems);
-    int CollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems);
+    int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems);
 
     int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : ISpanFormattable;
 
@@ -116,7 +116,7 @@ public interface ICustomStringFormatter : IRecyclableObject
 
     int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount);
 
-    int CollectionEnd(Type collectionType, Span<char> destination, int index, int totalItemCount);
+    int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount);
 
 
     public static ICustomStringFormatter DefaultBufferFormatter { get; set; } =

@@ -15,6 +15,6 @@ public class StringBuilderConverter: JsonConverter<StringBuilder>
     public override void Write(Utf8JsonWriter writer, StringBuilder value,
         JsonSerializerOptions options)
     {
-        writer.WriteRawValue("\"" + value + "\"");
+        writer.WriteStringValue(value.ToString());
     }
 }
