@@ -4,7 +4,7 @@
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -21,6 +21,13 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     protected const string SpcBrcCls = " }";
     public virtual string Name => nameof(CompactLogTypeFormatting);
 
+    public CompactLogTypeFormatting Initialize(StyleOptions styleOptions)
+    {
+        Options = styleOptions;
+
+        return this;
+    }
+
     public virtual ITypeMolderDieCast<TB> AppendValueTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder
       , Type valueType, string? alternativeName) where TB : TypeMolder
     {
@@ -36,7 +43,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ITypeMolderDieCast<TB> AppendValueTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder, Type valueType) where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         if (valueType.IsEnum)
         {
             return typeBuilder;
@@ -72,7 +79,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TB> AppendTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder)
         where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         return typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
     }
 
@@ -205,12 +212,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
       , string? formatString = null) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(source ? True : False).ToInternalTypeBuilder(typeBuilder);
+        typeBuilder.Sb.Append(source ? Options.True : Options.False).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
       , string? formatString = null) where TB : TypeMolder =>
         (source != null
-            ? typeBuilder.Sb.Append(source.Value ? True : False)
+            ? typeBuilder.Sb.Append(source.Value ? Options.True : Options.False)
             : typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle)).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
@@ -256,12 +263,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
       , string? formatString = null) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(source ? True : False).ToInternalTypeBuilder(typeBuilder);
+        typeBuilder.Sb.Append(source ? Options.True : Options.False).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
       , string? formatString = null) where TB : TypeMolder =>
         (source != null
-            ? typeBuilder.Sb.Append(source.Value ? True : False)
+            ? typeBuilder.Sb.Append(source.Value ? Options.True : Options.False)
             : typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle)).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
@@ -310,7 +317,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TB> FormatCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType
       , int totalItemCount) where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         return base.CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount).ToInternalTypeBuilder(typeBuilder);
     }
 }

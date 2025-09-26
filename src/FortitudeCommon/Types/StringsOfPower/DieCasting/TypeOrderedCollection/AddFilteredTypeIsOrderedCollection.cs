@@ -402,10 +402,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, i, formatString);
-                else
-                    stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -440,10 +437,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, i, formatString);
-                else
-                    stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -479,10 +473,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, i, formatString);
-                else
-                    stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -517,10 +508,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, i, formatString);
-                else
-                    stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -555,10 +543,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, i, formatString);
-                else
-                    stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -593,10 +578,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, i, formatString);
-                else
-                    stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -635,10 +617,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -677,10 +656,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -727,10 +703,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -778,10 +751,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItem(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;

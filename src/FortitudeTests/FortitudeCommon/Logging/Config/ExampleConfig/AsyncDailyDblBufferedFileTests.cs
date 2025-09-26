@@ -18,6 +18,7 @@ public class AsyncDailyDblBufferedFileTests
     private const string DblBufferedFileAppenderName = "AppLogFileAppender";
 
     [TestMethod]
+    [Timeout(20_000)]
     public void AsyncDailyDblBufferedFileLoadsAndLogsToFile()
     {
         using var wd = GetType().GetTemporaryWorkingDirectoryFor();

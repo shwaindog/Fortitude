@@ -3,7 +3,7 @@
 
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
@@ -143,10 +143,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
 public static class StyleTypeFormattingExtensions
 {
-    public static IStringBuilder RemoveLastWhiteSpacedCommaIfFound<TExt>(this ITypeMolderDieCast<TExt> stb)
-        where TExt : TypeMolder
+    public static IStringBuilder RemoveLastWhiteSpacedCommaIfFound(this IStringBuilder sb)
     {
-        var sb = stb.Sb;
         if(sb.Length < 2) return sb;
         if (sb[^1] == ',')
         {
@@ -166,5 +164,32 @@ public static class StyleTypeFormattingExtensions
             }
         sb.Length = i+1;
         return sb;
+    }
+    
+    public static int RemoveLastWhiteSpacedCommaIfFound(this Span<char> destSpan, int destStartIndex)
+    {
+        if(destStartIndex < 2) return 0;
+        if (destSpan[destStartIndex - 1] == ',')
+        {
+            destSpan[destStartIndex - 1] = '\0';
+            return -1;
+        }
+        if (destSpan[destStartIndex - 2] == ',' && destSpan[destStartIndex - 1] == ' ')
+        {
+            destSpan[destStartIndex - 2] = '\0';
+            destSpan[destStartIndex - 1] = '\0';
+            return -2;
+        }
+        var i = destStartIndex - 1;
+        for (; i > 0 && destSpan[i] is ' ' or '\r' or '\n' or ','; i--)
+        {
+            if (destSpan[i] == ',')
+            {
+                destSpan[i] = '\0';
+                return i - destStartIndex;
+            }
+            destSpan[i] = '\0';
+        }
+        return -destStartIndex;
     }
 }

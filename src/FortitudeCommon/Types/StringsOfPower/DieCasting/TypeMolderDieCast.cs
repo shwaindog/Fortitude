@@ -52,7 +52,7 @@ public interface ITypeMolderDieCast
 
 public interface ITypeMolderDieCast<out T> : ITypeMolderDieCast where T : TypeMolder
 {
-    new T StyleTypeBuilder { get; }
+    T StyleTypeBuilder { get; }
 }
 
 public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt>

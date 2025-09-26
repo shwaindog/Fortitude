@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge;
 

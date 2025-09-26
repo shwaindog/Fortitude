@@ -1,0 +1,16 @@
+﻿{
+  "FLog": {
+    "Appenders": {
+        "ColoredConsole" : {
+          "AppenderType": "ConsoleOut",
+          "LogEntryFormatLayout": "'%FC,DarkCyan:'%TS:yyyy-MM-dd%'%' '%FC,DarkGreen:'%TS:HH:mm:ss%'%''%FC,DarkCyan:'%TS:.fff%'%''%FC,Cyan:'%TS_US%'%' '%FC,DarkGray:['%THREADNAME[..15],10%' '%THREADID%']%' '%FC,Blue:'%LGR,/././[^2..]%':%''%FC,Cyan:'%LLN,3:00%'%' '%FCM,Red,DarkYellow,White,Gray,DarkGray:'%MSG%'%''%NL%'",
+          "DisableBuffering": true
+        }
+    },
+    "RootLogger": {
+      "Appenders" : {
+        "ColoredConsole" : {}
+      }
+    }
+  }
+}

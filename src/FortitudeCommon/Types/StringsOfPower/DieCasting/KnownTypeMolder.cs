@@ -46,7 +46,7 @@ public abstract class KnownTypeMolder<T> : TypeMolder, ITypeBuilderComponentSour
     {
         if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeEndFlag())
         {
-            CompAccess.RemoveLastWhiteSpacedCommaIfFound();
+            CompAccess.Sb.RemoveLastWhiteSpacedCommaIfFound();
             AppendClosing();
         }
         var currentAppenderIndex = CompAccess.Master.WriteBuffer.Length;

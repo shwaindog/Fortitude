@@ -30,7 +30,7 @@ public static class StringBearerExtensions
     public static string SelectStyleToString(this IStringBearer makeString, StringStyle style, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(style);
+        styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue(style));
         makeString.RevealState(styledStringBuilder);
         return styledStringBuilder.ToString();
     }
@@ -38,7 +38,7 @@ public static class StringBearerExtensions
     public static string DefaultToString(this IStringBearer makeString, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(StringStyle.Default);
+        styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue( StringStyle.Default));
         makeString.RevealState(styledStringBuilder);
         return styledStringBuilder.ToString();
     }
@@ -46,7 +46,7 @@ public static class StringBearerExtensions
     public static string JsonCompactString(this IStringBearer makeString, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(StringStyle.Compact | StringStyle.Json);
+        styledStringBuilder.ClearAndReinitialize( new StyleOptionsValue( StringStyle.Compact | StringStyle.Json));
         makeString.RevealState(styledStringBuilder);
         return styledStringBuilder.ToString();
     }
@@ -54,7 +54,7 @@ public static class StringBearerExtensions
     public static string JsonPrettyString(this IStringBearer makeString, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(StringStyle.Pretty | StringStyle.Json);
+        styledStringBuilder.ClearAndReinitialize(  new StyleOptionsValue(StringStyle.Pretty | StringStyle.Json));
         makeString.RevealState(styledStringBuilder);
         return styledStringBuilder.ToString();
     }

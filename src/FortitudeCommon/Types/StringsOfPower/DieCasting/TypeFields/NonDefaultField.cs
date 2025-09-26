@@ -19,12 +19,12 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
     public TExt WhenNonDefaultAdd<TFmt>
     (string fieldName, TFmt value, TFmt? defaultValue = default
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
-        !stb.SkipFields && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        !stb.SkipFields && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd<TFmtStruct>
     (string fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
-        !stb.SkipFields && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        !stb.SkipFields && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd<TToStyle, TStylerType>
     (string fieldName, TToStyle value
@@ -39,35 +39,35 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
     public TExt WhenNonDefaultAdd
     (string fieldName, string value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipFields && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && value != null! && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd(string fieldName, string value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
         !stb.SkipFields && length > 0 ? AlwaysAdd(fieldName, value, startIndex, length, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd(string fieldName, char[] value) =>
-        !stb.SkipFields && value.Length > 0 ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        !stb.SkipFields && value != null! && value.Length > 0 ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd(string fieldName, char[] value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
-        !stb.SkipFields && length > 0 ? AlwaysAdd(fieldName, value, startIndex, length, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && value != null! && length > 0 ? AlwaysAdd(fieldName, value, startIndex, length, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAddStyled<TStyled>(string fieldName, TStyled? value, TStyled? defaultValue = default) 
         where TStyled : IStringBearer =>
         !stb.SkipFields && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd(string fieldName, ICharSequence value, string defaultValue = "") =>
-        !stb.SkipFields && !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        !stb.SkipFields && !(value?.Equals(defaultValue) ?? true) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd(string fieldName, ICharSequence value, int startIndex, int count = int.MaxValue, string? formatString = null
       , string defaultValue = "") =>
-        !stb.SkipFields && !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && !(value?.Equals(defaultValue) ?? true) ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd
     (string fieldName, StringBuilder value, string defaultValue = "") =>
-        !stb.SkipFields && !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        !stb.SkipFields && !(value?.Equals(defaultValue) ?? true) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd
     (string fieldName, StringBuilder value, int startIndex, int count = int.MaxValue, string? formatString = null, string defaultValue = "") =>
-        !stb.SkipFields && !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && !(value?.Equals(defaultValue) ?? true) ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAddMatch<T>(string fieldName, T? value, T? defaultValue = default, string? formatString = null)  =>
         !stb.SkipFields && !(value?.Equals(defaultValue) ?? defaultValue?.Equals(value) ?? true) ? AlwaysAddMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;

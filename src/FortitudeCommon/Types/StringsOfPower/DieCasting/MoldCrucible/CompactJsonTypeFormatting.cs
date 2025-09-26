@@ -5,16 +5,24 @@ using System.Text;
 using System.Text.Json.Nodes;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
-public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatting
+public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 {
-    protected const string Cma = ",";
     protected const string Cln = ":";
     public virtual string Name => nameof(CompactJsonTypeFormatting);
+    
+    public StyleOptions StyleOptions => (StyleOptions)Options;
+
+    public virtual CompactJsonTypeFormatting Initialize(StyleOptions styleOptions)
+    {
+        Options = styleOptions;
+
+        return this;
+    }
 
     public virtual ITypeMolderDieCast<TB> AppendValueTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder
       , Type valueType, string? alternativeName = null) where TB : TypeMolder =>
@@ -22,7 +30,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
 
     public virtual ITypeMolderDieCast<TB> AppendValueTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder, Type valueType) where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         return typeBuilder;
     }
 
@@ -43,7 +51,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         where TB : TypeMolder =>
         typeBuilder.Sb.Append(Cma).ToInternalTypeBuilder(typeBuilder);
 
-    public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) 
+    public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel)
     {
         return sb.InsertAt(Cma, atIndex).ReturnCharCount(1);
     }
@@ -51,7 +59,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     public virtual ITypeMolderDieCast<TB> AppendTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder)
         where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         return typeBuilder.Sb.Append(BrcCls).ToInternalTypeBuilder(typeBuilder);
     }
 
@@ -67,99 +75,23 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
       , string? formatString = null) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(DblQt).Append(source ? True : False).Append(DblQt).ToInternalTypeBuilder(typeBuilder);
+        typeBuilder.Sb.Append(DblQt).Append(source ? Options.True : Options.False).Append(DblQt).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
       , string? formatString = null) where TB : TypeMolder =>
         (source != null
-            ? typeBuilder.Sb.Append(DblQt).Append(source.Value ? True : False).Append(DblQt)
+            ? typeBuilder.Sb.Append(DblQt).Append(source.Value ? Options.True : Options.False).Append(DblQt)
             : typeBuilder.Sb.Append(DblQt).Append(typeBuilder.Settings.NullStyle).Append(DblQt)).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
       , string? formatString = null)
         where TB : TypeMolder where TFmt : ISpanFormattable
     {
-        var sb      = typeBuilder.Sb;
-        var fmtType = typeof(TFmt);
-        if (fmtType == typeof(DateTime))
-        {
-            switch (typeBuilder.Settings.DateTimeFormat)
-            {
-                case TimeStyleFormat.StringYyyyMMddToss:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTossFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.StringYyyyMMddToms:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTomsFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.StringYyyyMMddTous:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTousFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.SecondsFromUnixEpoch:
-                    if (source is DateTime sourceDateTime)
-                    {
-                        var ticksFromEpoch = sourceDateTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var secsFromEpoch  = ticksFromEpoch / 10_000_000;
-                        sb.Append(DblQt);
-                        base.Format(secsFromEpoch, typeBuilder.Sb, formatString);
-                        sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.MillsFromUnixEpoch:
-                    if (source is DateTime dateTime)
-                    {
-                        var ticksFromEpoch = dateTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var millsFromEpoch = ticksFromEpoch / 10_000;
-                        sb.Append(DblQt);
-                        base.Format(millsFromEpoch, typeBuilder.Sb, formatString);
-                        sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.MicrosFromUnixEpoch:
-                    if (source is DateTime sourceDate)
-                    {
-                        var ticksFromEpoch = sourceDate.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var mirosFromEpoch = ticksFromEpoch / 10;
-                        sb.Append(DblQt);
-                        base.Format(mirosFromEpoch, typeBuilder.Sb, formatString);
-                        sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.NanosFromUnixEpoch:
-                    if (source is DateTime sourceTime)
-                    {
-                        var ticksFromEpoch = sourceTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var nanosFromEpoch = ticksFromEpoch * 100;
-                        sb.Append(DblQt);
-                        base.Format(nanosFromEpoch, typeBuilder.Sb, formatString);
-                        sb.Append(DblQt);
-                    }
-                    break;
-            }
-        }
-        else
-        {
-            if (WrapValuesInQuotes) sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            if (WrapValuesInQuotes) sb.Append(DblQt);
-        }
+        var sb                 = typeBuilder.Sb;
+        var origValuesInQuotes = StyleOptions.WrapValuesInQuotes;
+        StyleOptions.WrapValuesInQuotes = true;
+        base.Format(source, sb, formatString);
+        StyleOptions.WrapValuesInQuotes = origValuesInQuotes;
         return typeBuilder;
     }
 
@@ -167,15 +99,13 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , string? formatString = null)
         where TB : TypeMolder where TFmt : struct, ISpanFormattable
     {
-        if (source != null)
+        var sb      = typeBuilder.Sb;
+        if (!source.HasValue)
         {
-            return FormatFieldName(typeBuilder, source.Value, formatString);
+            sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
         }
-        var sb = typeBuilder.Sb;
-        if (WrapValuesInQuotes) sb.Append(DblQt);
-        base.Format(source, typeBuilder.Sb, formatString);
-        if (WrapValuesInQuotes) sb.Append(DblQt);
-        return typeBuilder;
+        return FormatFieldName(typeBuilder, source.Value, formatString);
     }
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder
@@ -279,9 +209,9 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         where TB : TypeMolder
     {
         var sb = typeBuilder.Sb;
-        if (WrapValuesInQuotes) sb.Append(DblQt);
-        typeBuilder.Sb.Append(source ? True : False);
-        if (WrapValuesInQuotes) sb.Append(DblQt);
+        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
+        typeBuilder.Sb.Append(source ? Options.True : Options.False);
+        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         return typeBuilder;
     }
 
@@ -290,12 +220,12 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         where TB : TypeMolder
     {
         var sb = typeBuilder.Sb;
-        if (WrapValuesInQuotes) sb.Append(DblQt);
+        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         if (source != null)
-            typeBuilder.Sb.Append(source.Value ? True : False);
+            typeBuilder.Sb.Append(source.Value ? Options.True : Options.False);
         else
             typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
-        if (WrapValuesInQuotes) sb.Append(DblQt);
+        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         return typeBuilder;
     }
 
@@ -303,100 +233,10 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , string? formatString = null)
         where TB : TypeMolder where TFmt : ISpanFormattable
     {
-        var sb      = typeBuilder.Sb;
-        var fmtType = typeof(TFmt);
-        if (fmtType.IsValueType && fmtType.IsNumericType() && !(fmtType == typeof(DateTime) || fmtType == typeof(TimeSpan)))
-        {
-            if (WrapValuesInQuotes) sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            if (WrapValuesInQuotes) sb.Append(DblQt);
-        }
-        else if (fmtType == typeof(DateTime))
-        {
-            switch (typeBuilder.Settings.DateTimeFormat)
-            {
-                case TimeStyleFormat.StringYyyyMMddToss:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTossFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.StringYyyyMMddToms:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTomsFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.StringYyyyMMddTous:
-                    if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
-                    {
-                        formatString = typeBuilder.Settings.DateTimeStringYyyyMMddTousFormatString;
-                    }
-                    sb.Append(DblQt);
-                    base.Format(source, typeBuilder.Sb, formatString);
-                    sb.Append(DblQt);
-                    break;
-                case TimeStyleFormat.SecondsFromUnixEpoch:
-                    if (source is DateTime sourceDateTime)
-                    {
-                        var ticksFromEpoch = sourceDateTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var secsFromEpoch  = ticksFromEpoch / 10_000_000;
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                        base.Format(secsFromEpoch, typeBuilder.Sb, formatString);
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.MillsFromUnixEpoch:
-                    if (source is DateTime dateTime)
-                    {
-                        var ticksFromEpoch = dateTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var millsFromEpoch = ticksFromEpoch / 10_000;
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                        base.Format(millsFromEpoch, typeBuilder.Sb, formatString);
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.MicrosFromUnixEpoch:
-                    if (source is DateTime sourceDate)
-                    {
-                        var ticksFromEpoch = sourceDate.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var mirosFromEpoch = ticksFromEpoch / 10;
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                        base.Format(mirosFromEpoch, typeBuilder.Sb, formatString);
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                    }
-                    break;
-                case TimeStyleFormat.NanosFromUnixEpoch:
-                    if (source is DateTime sourceTime)
-                    {
-                        var ticksFromEpoch = sourceTime.ToUniversalTime().Ticks - DateTime.UnixEpoch.Ticks;
-                        var nanosFromEpoch = ticksFromEpoch * 100;
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                        base.Format(nanosFromEpoch, typeBuilder.Sb, formatString);
-                        if (WrapValuesInQuotes) sb.Append(DblQt);
-                    }
-                    break;
-            }
-        }
-        else
-        {
-            if (source is not null)
-            {
-                sb.Append(DblQt);
-                base.Format(source, typeBuilder.Sb, formatString);
-                sb.Append(DblQt);
-            }
-            else
-            {
-                sb.Append(typeBuilder.Settings.NullStyle);
-            }
-        }
+        var sb            = typeBuilder.Sb;
+
+        base.Format(source, sb, formatString ?? "");
+        
         return typeBuilder;
     }
 
@@ -405,21 +245,12 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
         where TB : TypeMolder where TFmt : struct, ISpanFormattable
     {
         var sb      = typeBuilder.Sb;
-        var fmtType = typeof(TFmt);
-        if (fmtType.IsValueType && fmtType.IsNumericType()
-         || ((fmtType == typeof(DateTime) || fmtType == typeof(TimeSpan)) && typeBuilder.Settings.DateTimeFormat.TimeFormatIsNumber()))
+        if (!source.HasValue)
         {
-            if (WrapValuesInQuotes) sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            if (WrapValuesInQuotes) sb.Append(DblQt);
+            sb.Append(typeBuilder.Settings.NullStyle);
+            return typeBuilder;
         }
-        else
-        {
-            sb.Append(DblQt);
-            base.Format(source, typeBuilder.Sb, formatString);
-            sb.Append(DblQt);
-        }
-        return typeBuilder;
+        return FormatFieldContents(typeBuilder, source.Value, formatString);
     }
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder
@@ -441,7 +272,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , int maxTransferCount = int.MaxValue) where TB : TypeMolder
     {
         var sb = typeBuilder.Sb;
-        if (CharArrayWritesString)
+        if (JsonOptions.CharArrayWritesString)
         {
             sb.Append(DblQt);
             base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
@@ -454,13 +285,18 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
             var charType     = typeof(char);
             FormatCollectionStart(typeBuilder, charType, cappedLength > 0, source.GetType());
 
+            var lastAdded    = 0;
+            var previousChar = '\0';
             for (int i = cappedFrom; i < cappedLength; i++)
             {
                 if (i > 0) AddCollectionElementSeparator(typeBuilder, charType, i);
 
-                CollectionNextItem(source[cappedFrom + i], i, sb);
+                var nextChar = source[cappedFrom + i];
+                lastAdded = lastAdded == 0 && i > 0
+                    ? CollectionNextItem(new Rune(previousChar, nextChar), i, sb)
+                    : CollectionNextItem(nextChar, i, sb);
+                previousChar = lastAdded == 0 ? nextChar : '\0'; 
             }
-            ;
             FormatCollectionEnd(typeBuilder, charType, cappedLength);
         }
         return typeBuilder;
@@ -472,7 +308,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
       , int maxTransferCount = int.MaxValue) where TB : TypeMolder
     {
         var sb = typeBuilder.Sb;
-        if (CharArrayWritesString)
+        if (JsonOptions.CharArrayWritesString)
         {
             sb.Append(DblQt);
             base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
@@ -486,13 +322,18 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
             var charType = typeof(char);
             FormatCollectionStart(typeBuilder, charType, cappedLength > 0, source.GetType());
 
+            var lastAdded    = 0;
+            var previousChar = '\0';
             for (int i = cappedFrom; i < cappedLength; i++)
             {
-                if (i > 0) AddCollectionElementSeparator(typeBuilder, charType, i);
+                if (i > 0  && lastAdded > 0) AddCollectionElementSeparator(typeBuilder, charType, i);
 
-                CollectionNextItem(source[cappedFrom + i], i, sb);
+                var nextChar = source[cappedFrom + i];
+                lastAdded = lastAdded == 0 && i > 0
+                    ? CollectionNextItemFormat(new Rune(previousChar, nextChar), i, sb, formatString ?? "")
+                    : CollectionNextItemFormat(nextChar, i, sb, formatString ?? "");
+                previousChar = lastAdded == 0 ? nextChar : '\0'; 
             }
-            ;
             FormatCollectionEnd(typeBuilder, charType, cappedLength);
         }
         return typeBuilder;
@@ -568,7 +409,8 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null) where TB : TypeMolder
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null)
+        where TB : TypeMolder
     {
         if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
@@ -599,7 +441,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TVBase>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) 
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null)
         where TB : TypeMolder where TValue : TVBase
     {
         if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
@@ -627,7 +469,8 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler)
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler
+      , StringBearerRevealState<TKBase> keyStyler)
         where TB : TypeMolder where TKey : TKBase where TValue : TVBase
     {
         if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
@@ -660,16 +503,16 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
 
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems)
     {
-        if (elementType == typeof(char) && CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
         return sb.Append(SqBrktOpn).ReturnCharCount(1);
     }
 
-    public override int CollectionStart(Type elementType, Span<char> destination, int destStartIndex, bool hasItems)
+    public override int CollectionStart(Type elementType, Span<char> destSpan, int destStartIndex, bool hasItems)
     {
-        if (elementType == typeof(char) && CharArrayWritesString) return destination.OverWriteAt(destStartIndex, DblQt);
-        if (elementType == typeof(byte) && ByteArrayWritesBase64String) return destination.OverWriteAt(destStartIndex, DblQt);
-        return destination.OverWriteAt(destStartIndex, SqBrktOpn);
+        if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destSpan.OverWriteAt(destStartIndex, DblQt);
+        if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return destSpan.OverWriteAt(destStartIndex, DblQt);
+        return destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
     public virtual ITypeMolderDieCast<TB> FormatCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder
@@ -757,7 +600,7 @@ public class CompactJsonTypeFormatting : JsEscapingFormatter, IStyledTypeFormatt
     public virtual ITypeMolderDieCast<TB> FormatCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType
       , int totalItemCount) where TB : TypeMolder
     {
-        typeBuilder.RemoveLastWhiteSpacedCommaIfFound();
+        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
         base.CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
         return typeBuilder;
     }

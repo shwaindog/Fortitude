@@ -31,7 +31,6 @@ public class KeyedCollectionFilter<TKey, TValue> : RecyclableObject, IKeyedColle
 
     private KeyValuePredicate<TKey, TValue> kvpPredicate;
     
-    
     public KeyedCollectionFilter<TKey, TValue> Initialize(KeyValuePredicate<TKey, TValue> predicate)
     {
         kvpPredicate = predicate;

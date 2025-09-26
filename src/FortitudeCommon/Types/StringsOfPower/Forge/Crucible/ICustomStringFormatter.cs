@@ -2,48 +2,19 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
-namespace FortitudeCommon.Types.StringsOfPower.Forge.CustomFormatting;
+namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
-public interface ICustomStringFormatter
+public interface ICustomStringFormatter : IRecyclableObject
 {
-    public string ItemSeparator { get; set; }
-
     int AddCollectionElementSeparator(Type collectionType, IStringBuilder sb, int nextItemNumber);
 
-    int AddCollectionElementSeparator(Type collectionType, Span<char> charSpan, int atSpanOffset, int nextItemNumber);
+    int AddCollectionElementSeparator(Type collectionType, Span<char> destSpan, int atSpanOffset, int nextItemNumber);
 
-    bool IgnoreNullableValues { get; set; }
-    bool EmptyCollectionWritesNull { get; set; }
-    bool IgnoreEmptyCollection { get; set; }
-    string True { get; set; }
-    string False { get; set; }
+    IFormattingOptions Options { get; set; }
 
-    int Transfer(char[] source, IStringBuilder sb);
-    int Transfer(char[] source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
-    int Transfer(char[] source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue);
-    int Transfer(char[] source, int sourceFrom, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
-
-    int Transfer(ReadOnlySpan<char> source, IStringBuilder sb);
-    int Transfer(ReadOnlySpan<char> source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
-
-    int Transfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue);
-
-    int Transfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destination, int destStartIndex = 0
-      , int maxTransferCount = int.MaxValue);
-
-
-    int Transfer(StringBuilder source, IStringBuilder sb);
-    int Transfer(StringBuilder source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
-    int Transfer(StringBuilder source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue);
-    int Transfer(StringBuilder source, int sourceFrom, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
-
-
-    int Transfer(ICharSequence source, IStringBuilder sb);
-    int Transfer(ICharSequence source, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
-    int Transfer(ICharSequence source, int sourceFrom, IStringBuilder sb, int maxTransferCount = int.MaxValue);
-    int Transfer(ICharSequence source, int sourceFrom, Span<char> destination, int destStartIndex = 0, int maxTransferCount = int.MaxValue);
-    
     int ProcessAppendedRange(IStringBuilder sb, int fromIndex);
     int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length);
 
@@ -56,7 +27,8 @@ public interface ICustomStringFormatter
     int Format(ReadOnlySpan<char> source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex
       , int maxTransferCount = int.MaxValue);
 
-    int Format(char[] source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex, int maxTransferCount = int.MaxValue);
+    int Format(char[] source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex
+      , int maxTransferCount = int.MaxValue);
 
     int Format(StringBuilder source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex
       , int maxTransferCount = int.MaxValue);
@@ -65,11 +37,11 @@ public interface ICustomStringFormatter
       , int maxTransferCount = int.MaxValue);
 
     int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
-    int Format<TFmt>(TFmt? source, Span<char> destination, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
+    int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
 
     int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : struct, ISpanFormattable;
 
-    int Format<TFmt>(TFmt? source, Span<char> destination, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : struct, ISpanFormattable;
+    int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : struct, ISpanFormattable;
 
     int TryFormat<TAny>(TAny source, IStringBuilder sb, string formatString);
 
@@ -122,10 +94,10 @@ public interface ICustomStringFormatter
 
     int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
         where TFmt : struct, ISpanFormattable;
-    
 
-    int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems);
-    int CollectionStart(Type collectionType, Span<char> destination, int destStartIndex, bool hasItems);
+
+    int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems);
+    int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems);
 
     int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : ISpanFormattable;
 
@@ -143,11 +115,15 @@ public interface ICustomStringFormatter
 
 
     int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount);
-    
-    int CollectionEnd(Type collectionType, Span<char> destination, int index, int totalItemCount);
+
+    int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount);
 
 
-    public static ICustomStringFormatter DefaultBufferFormatter { get; set; } = new DefaultStringFormatter();
+    public static ICustomStringFormatter DefaultBufferFormatter { get; set; } =
+        new DefaultStringFormatter
+        {
+            Options = new FormattingOptions.FormattingOptions()
+        };
 }
 
 public static class CustomStringFormatterExtensions

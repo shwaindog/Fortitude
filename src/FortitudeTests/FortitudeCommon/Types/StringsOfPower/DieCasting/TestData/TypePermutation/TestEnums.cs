@@ -1,5 +1,8 @@
-﻿namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
+﻿// ReSharper disable InconsistentNaming
 
+using System.Text.Json.Serialization;
+
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
 
 public enum NoDefaultLongNoFlagsEnum : long
 {
@@ -283,6 +286,7 @@ public enum WithDefaultLongWithFlagsEnum : long
 }
 
 [Flags]
+
 public enum WithDefaultULongWithFlagsEnum : ulong
 {
     Default = 0,

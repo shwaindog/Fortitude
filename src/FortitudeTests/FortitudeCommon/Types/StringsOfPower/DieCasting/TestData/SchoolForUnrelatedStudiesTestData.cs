@@ -18,6 +18,7 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData;
 
+[NoMatchingProductionClass]
 public class SchoolForUnrelatedStudiesTestData
 {
     public static StringStyle DefaultStyle = StringStyle.Json;
