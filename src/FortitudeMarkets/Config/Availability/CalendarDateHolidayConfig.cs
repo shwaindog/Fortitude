@@ -198,7 +198,7 @@ public class CalendarDateHolidayConfig : CalendarDateMatchConfig, ICalendarDateH
             .Field.AlwaysAdd(nameof(Year), Year)
             .Field.AlwaysAdd(nameof(Month), Month)
             .Field.AlwaysAdd(nameof(Day), Day)
-            .Field.AlwaysAdd(nameof(FloatingWeekday), FloatingWeekday, MonthFloatingWeekday.Styler)
+            .Field.AlwaysReveal(nameof(FloatingWeekday), FloatingWeekday, MonthFloatingWeekday.Styler)
             .Complete();
     
 

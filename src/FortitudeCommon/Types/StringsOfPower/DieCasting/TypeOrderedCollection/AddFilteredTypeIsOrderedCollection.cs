@@ -764,7 +764,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
     }
     
     public TExt AddFiltered<T, TBase1, TBase2>(T[]? value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , StringBearerRevealState<TBase2> stringBearerRevealState) where T : TBase1, TBase2
+      , PalantírReveal<TBase2> palantírReveal) where T : TBase1, TBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -786,7 +786,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item, stringBearerRevealState);
+                stb.AppendOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -798,7 +798,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
     }
     
     public TExt AddFiltered<T, TBase1, TBase2>(ReadOnlySpan<T> value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , StringBearerRevealState<TBase2> stringBearerRevealState) where T : TBase1, TBase2
+      , PalantírReveal<TBase2> palantírReveal) where T : TBase1, TBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -820,7 +820,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item, stringBearerRevealState);
+                stb.AppendOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -832,7 +832,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
     }
     
     public TExt AddFiltered<T, TBase1, TBase2>(IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , StringBearerRevealState<TBase2> stringBearerRevealState) where T : TBase1, TBase2
+      , PalantírReveal<TBase2> palantírReveal) where T : TBase1, TBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -854,7 +854,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item, stringBearerRevealState);
+                stb.AppendOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -866,7 +866,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
     }
     
     public TExt AddFilteredEnumerate<T, TBase1, TBase2>(IEnumerable<T>? value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , StringBearerRevealState<TBase2> stringBearerRevealState) where T : TBase1, TBase2
+      , PalantírReveal<TBase2> palantírReveal) where T : TBase1, TBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -892,7 +892,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item, stringBearerRevealState);
+                stb.AppendOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -904,7 +904,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
     }
 
     public TExt AddFilteredEnumerate<T, TBase1, TBase2>(IEnumerator<T>? value, OrderedCollectionPredicate<TBase1> filterPredicate
-      , StringBearerRevealState<TBase2> stringBearerRevealState) where T : TBase1, TBase2
+      , PalantírReveal<TBase2> palantírReveal) where T : TBase1, TBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
@@ -938,7 +938,7 @@ public partial class OrderedCollectionMold<TExt> where TExt : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendOrNull(item, stringBearerRevealState);
+                stb.AppendOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;

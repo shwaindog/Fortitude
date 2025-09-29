@@ -28,10 +28,10 @@ public readonly struct PeriodInstrumentTypePair(InstrumentType instrumentType, D
 
     public InstrumentType InstrumentType { get; } = instrumentType;
     
-    public static StringBearerRevealState<PeriodInstrumentTypePair> Styler { get; } =
+    public static PalantírReveal<PeriodInstrumentTypePair> Styler { get; } =
         (pitp, stsa) =>
             stsa.StartComplexType(pitp, nameof(pitp))
                 .Field.AlwaysAdd(nameof(pitp.InstrumentType), pitp.InstrumentType)
-                .Field.AlwaysAdd(nameof(pitp.CoveringPeriod), pitp.CoveringPeriod, DiscreetTimePeriod.Styler)
+                .Field.AlwaysReveal(nameof(pitp.CoveringPeriod), pitp.CoveringPeriod, DiscreetTimePeriod.Styler)
                 .Complete();
 }

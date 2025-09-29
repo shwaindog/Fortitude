@@ -95,6 +95,6 @@ public class FLogEntryAsyncReceiveConfig : FLogEntryQueueConfig, IMutableFLogEnt
            .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
            .Field.AlwaysAdd(nameof(ConfirmSequenceNumberInterval), ConfirmSequenceNumberInterval)
            .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
-           .Field.WhenNonNullAddStyled(nameof(LogEntryPool), LogEntryPool)
+           .Field.WhenNonNullReveal(nameof(LogEntryPool), LogEntryPool)
            .Complete();
 }

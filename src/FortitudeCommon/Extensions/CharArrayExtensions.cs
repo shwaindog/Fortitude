@@ -31,10 +31,10 @@ public static class CharArrayExtensions
         return true;
     }
     
-    public static bool IsEquivalentTo(this char[] search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
+    public static bool SequenceMatches(this char[] search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
     {
         var cappedLength = Math.Min(count, checkIsSame.Length - fromIndex);
-        if(checkIsSame.Length == cappedLength) return false;
+        if(checkIsSame.Length != cappedLength) return false;
         for (int i = 0; i < search.Length; i++)
         {
             var checkChar   = search[fromIndex + i];

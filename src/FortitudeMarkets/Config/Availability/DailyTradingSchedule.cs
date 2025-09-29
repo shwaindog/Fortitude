@@ -329,8 +329,8 @@ public class DailyTradingScheduleConfig : ConfigSection, IDailyTradingScheduleCo
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this, nameof(DailyTradingScheduleConfig))
            .Field.AlwaysAdd(nameof(TradingStartsFromOpenTimeSpan), TradingStartsFromOpenTimeSpan)
-           .Field.AlwaysAdd(nameof(OverridePreferredTradingTimes), OverridePreferredTradingTimes)
-           .Field.AlwaysAdd(nameof(HighActivityTimes), HighActivityTimes)
+           .Field.AlwaysReveal(nameof(OverridePreferredTradingTimes), OverridePreferredTradingTimes)
+           .Field.AlwaysReveal(nameof(HighActivityTimes), HighActivityTimes)
            .Field.WhenNonDefaultAdd(nameof(AnnounceClosingSoonFromCloseTimeSpan), AnnounceClosingSoonFromCloseTimeSpan)
            .Complete();
 

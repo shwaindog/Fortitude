@@ -156,7 +156,7 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
            .Field.AlwaysAdd(nameof(ConfigSourceName), ConfigSourceName)
            .Field.AlwaysAdd(nameof(Optional), Optional)
            .Field.AlwaysAdd(nameof(SourceType), SourceType.ToString())
-           .Field.AlwaysAdd(nameof(RecheckConfigIntervalTimeSpan), RecheckConfigIntervalTimeSpan)
+           .Field.AlwaysReveal(nameof(RecheckConfigIntervalTimeSpan), RecheckConfigIntervalTimeSpan)
            .Complete();
 
     public override string ToString() => this.DefaultToString();

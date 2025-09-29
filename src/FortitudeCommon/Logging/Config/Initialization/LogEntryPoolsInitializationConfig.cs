@@ -298,10 +298,10 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(DefaultLogEntryCharCapacity), DefaultLogEntryCharCapacity)
            .Field.AlwaysAdd(nameof(DefaultLogEntryBatchSize), DefaultLogEntryBatchSize)
-           .Field.AlwaysAdd(nameof(GlobalLogEntryPool), GlobalLogEntryPool)
-           .Field.AlwaysAdd(nameof(LargeMessageLogEntryPool), LargeMessageLogEntryPool)
-           .Field.AlwaysAdd(nameof(VeryLargeMessageLogEntryPool), VeryLargeMessageLogEntryPool)
-           .Field.AlwaysAdd(nameof(LoggersGlobalLogEntryPool), LoggersGlobalLogEntryPool)
-           .Field.AlwaysAdd(nameof(AppendersGlobalLogEntryPool), AppendersGlobalLogEntryPool)
+           .Field.AlwaysReveal(nameof(GlobalLogEntryPool), GlobalLogEntryPool)
+           .Field.AlwaysReveal(nameof(LargeMessageLogEntryPool), LargeMessageLogEntryPool)
+           .Field.AlwaysReveal(nameof(VeryLargeMessageLogEntryPool), VeryLargeMessageLogEntryPool)
+           .Field.AlwaysReveal(nameof(LoggersGlobalLogEntryPool), LoggersGlobalLogEntryPool)
+           .Field.AlwaysReveal(nameof(AppendersGlobalLogEntryPool), AppendersGlobalLogEntryPool)
            .Complete();
 }

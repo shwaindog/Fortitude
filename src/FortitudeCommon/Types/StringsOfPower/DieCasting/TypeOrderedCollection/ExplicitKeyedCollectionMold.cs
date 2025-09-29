@@ -24,151 +24,199 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
 
         return this;
     }
-
-    public ExplicitOrderedCollectionMold<TElement> AddElement(TElement element)
-    {
-        if (CompAsOrderedCollection.SkipBody) return this;
-         CompAsOrderedCollection.StyleFormatter.CollectionNextItem(element, ++elementCount, CompAsOrderedCollection.Sb);
-        return this;
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddElement<TFmtElement>(TFmtElement element, string? formatString = null)
-        where TFmtElement : TElement, ISpanFormattable
-    {
-        if (CompAsOrderedCollection.SkipBody) return this;
-        if (formatString is not null)
-            CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(element, ++elementCount, CompAsOrderedCollection.Sb, formatString);
-        else
-            CompAsOrderedCollection.StyleFormatter.CollectionNextItem(element, ++elementCount, CompAsOrderedCollection.Sb);
-        return this;
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddElement<TStructFmtElement>(TStructFmtElement? element, string? formatString = null)
-        where TStructFmtElement : struct, ISpanFormattable
+    
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(TElement element)
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)
         {
-            CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
-            return this;
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                ++elementCount;
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        if (formatString is not null)
-            CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(element, ++elementCount, CompAsOrderedCollection.Sb, formatString);
-        else
-            CompAsOrderedCollection.StyleFormatter.CollectionNextItem(element, ++elementCount, CompAsOrderedCollection.Sb);
-        return this;
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddElement<TCust, TCustBase>(TCust element, StringBearerRevealState<TCustBase> stringBearerRevealState)
-        where TCust : TCustBase
-    {
-        if (CompAsOrderedCollection.SkipBody) return this;
-        stringBearerRevealState(element, CompAsOrderedCollection.Master);
-        return this;
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddElement(string? element, string? formatString = null)
-    {
-        if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount, formatString);
-        return this;
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddCharSequenceElement<TCharSeq>(TCharSeq? element, string? formatString = null)
-        where TCharSeq : ICharSequence
-    {
-        if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount, formatString);
-        ++elementCount;
-        return this;
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddElement(StringBuilder? element, string? formatString)
-    {
-        if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount, formatString);
-        ++elementCount;
-        return this;
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddStyledElement<TStyled>(TStyled element) where TStyled : TElement, IStringBearer
-    {
-        if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount);
-        ++elementCount;
-        return this;
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddMatchElement(TElement element, string? formatString = null)
-    {
-        if (CompAsOrderedCollection.SkipBody) return this;
-        if (formatString is not null)
-            CompAsOrderedCollection.AppendFormattedCollectionItemMatchOrNull(element, ++elementCount, formatString);
-        else
-            CompAsOrderedCollection.AppendCollectionItemMatchOrNull(element, ++elementCount);
-        return this;
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(TElement element)
-    {
-        AddElement(element);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItem(element, ++elementCount, CompAsOrderedCollection.Sb);
         return AppendNextCollectionItemSeparator();
     }
 
-    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TFmtElement>(TFmtElement element, string? formatString = null)
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TFmtElement>(TFmtElement? element, string? formatString = null)
         where TFmtElement : TElement, ISpanFormattable
     {
-        AddElement(element, formatString);
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                ++elementCount;
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(element, ++elementCount, CompAsOrderedCollection.Sb, formatString ?? "");
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TStructFmtElement>(TStructFmtElement? element, string? formatString = null)
         where TStructFmtElement : struct, ISpanFormattable
     {
-        if (formatString is not null)
-            CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(element, ++elementCount, CompAsOrderedCollection.Sb, formatString);
-        else
-            CompAsOrderedCollection.StyleFormatter.CollectionNextItem(element, ++elementCount, CompAsOrderedCollection.Sb);
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(element, ++elementCount, CompAsOrderedCollection.Sb, formatString ?? "");
         return AppendNextCollectionItemSeparator();
     }
 
-    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCust, TCustBase>(TCust element
-      , StringBearerRevealState<TCustBase> stringBearerRevealState)
-        where TCust : TCustBase
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCloaked, TCloakedBase>(TCloaked? element
+      , PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : TCloakedBase
     {
-        AddElement(element, stringBearerRevealState);
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        palantírReveal(element, CompAsOrderedCollection.Master);
+        return AppendNextCollectionItemSeparator();
+    }
+
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCloakedStruct>(TCloakedStruct? element
+      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+    {
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element is null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                ++elementCount;
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        palantírReveal(element.Value, CompAsOrderedCollection.Master);
+        return AppendNextCollectionItemSeparator();
+    }
+
+    public ExplicitOrderedCollectionMold<TElement> AddBearerElementAndGoToNextElement<TBearer>(TBearer? element)
+        where TBearer : IStringBearer, TElement
+    {
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                ++elementCount;
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount);
+        return AppendNextCollectionItemSeparator();
+    }
+
+    public ExplicitOrderedCollectionMold<TElement> AddBearerElementAndGoToNextElement<TBearerStruct>(TBearerStruct? element)
+        where TBearerStruct : struct, TElement, IStringBearer
+    {
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                ++elementCount;
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(string? element, string? formatString)
     {
-        AddElement(element, formatString);
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                ++elementCount;
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount, formatString);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddCharSequenceElementAndGoToNextElement<TCharSeq>(TCharSeq? element, string? formatString = null)
         where TCharSeq : ICharSequence
     {
-        AddCharSequenceElement(element, formatString);
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                ++elementCount;
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount, formatString);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(StringBuilder? element, string? formatString)
     {
-        AddElement(element, formatString);
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                ++elementCount;
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount, formatString);
         return AppendNextCollectionItemSeparator();
     }
 
-    public ExplicitOrderedCollectionMold<TElement> AddStyledElementAndGoToNextElement<TStyled>(TStyled element)
-        where TStyled : TElement, IStringBearer
+    public ExplicitOrderedCollectionMold<TElement> AddMatchElementAndGoToNextElement(TElement? element, string? formatString = null)
     {
-        AddStyledElement(element);
-        return AppendNextCollectionItemSeparator();
-    }
-
-    public ExplicitOrderedCollectionMold<TElement> AddMatchElementAndGoToNextElement(TElement element, string? formatString = null)
-    {
-        AddMatchElement(element, formatString);
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                ++elementCount;
+                return AppendNextCollectionItemSeparator();
+            }
+        }
+        if (formatString is not null)
+            CompAsOrderedCollection.AppendFormattedCollectionItemMatchOrNull(element, ++elementCount, formatString);
+        else
+            CompAsOrderedCollection.AppendCollectionItemMatchOrNull(element, ++elementCount);
         return AppendNextCollectionItemSeparator();
     }
 

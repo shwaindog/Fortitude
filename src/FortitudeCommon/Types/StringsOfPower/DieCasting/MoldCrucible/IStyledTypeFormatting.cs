@@ -39,11 +39,11 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null) where TB : TypeMolder;
     
     ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TVBase>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType
-      , TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) 
+      , TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null) 
         where TB : TypeMolder where TValue : TVBase;
     
     ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType
-      , TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) 
+      , TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) 
         where TB : TypeMolder where TValue : TVBase where TKey : TKBase;
     
     ITypeMolderDieCast<TB> AppendKeyedCollectionNextItem<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType
@@ -53,7 +53,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TB : TypeMolder;
     
     ITypeMolderDieCast<TB> CollectionNextItemFormat<TB, TCustStyle, TCustBase>(ITypeMolderDieCast<TB> typeBuilder, TCustStyle item, int retrieveCount
-      , StringBearerRevealState<TCustBase> styler) where TB : TypeMolder where TCustStyle : TCustBase;
+      , PalantírReveal<TCustBase> styler) where TB : TypeMolder where TCustStyle : TCustBase;
     
     ITypeMolderDieCast<TB> CollectionNextItemFormat<TB>(ITypeMolderDieCast<TB> typeBuilder, string? item, int retrieveCount
       , string? formatString = null) where TB : TypeMolder;
@@ -99,7 +99,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = Int32.MaxValue) where TB : TypeMolder;
 
-    ITypeMolderDieCast<TB> FormatFieldName<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle, StringBearerRevealState<TBase> styler)
+    ITypeMolderDieCast<TB> FormatFieldName<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle, PalantírReveal<TBase> styler)
         where TB : TypeMolder where T : TBase;
 
     ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, IStringBearer styledObj)
@@ -133,7 +133,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = Int32.MaxValue) where TB : TypeMolder;
 
-    ITypeMolderDieCast<TB> FormatFieldContents<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle, StringBearerRevealState<TBase> styler)
+    ITypeMolderDieCast<TB> FormatFieldContents<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle, PalantírReveal<TBase> styler)
         where TB : TypeMolder where T : TBase;
 
     ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, IStringBearer styledObj)

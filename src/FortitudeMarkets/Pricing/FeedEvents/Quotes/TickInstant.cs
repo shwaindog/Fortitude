@@ -366,7 +366,7 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
 
     public override StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-        .Field.AlwaysAdd(nameof(SourceTickerInfo), SourceTickerInfo)
+        .Field.AlwaysReveal(nameof(SourceTickerInfo), SourceTickerInfo)
         .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)
         .Field.AlwaysAdd(nameof(ClientReceivedTime), ClientReceivedTime, "{0:O}")
         .AddBaseStyledToStringFields(this)

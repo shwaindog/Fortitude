@@ -142,7 +142,7 @@ public readonly struct SourceTickerIdentifier // not inheriting from ISourceTick
     public string InstrumentName     => SourceTickerIdentifierExtensions.GetRegisteredInstrumentName(SourceInstrumentId);
     public string SourceName         => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
     
-    public static StringBearerRevealState<SourceTickerIdentifier> Styler { get; } =
+    public static PalantírReveal<SourceTickerIdentifier> Styler { get; } =
         (stid, stsa) =>
             stsa.StartComplexType(stid, nameof(stid))
                 .Field.AlwaysAdd(nameof(stid.SourceInstrumentId), stid.SourceInstrumentId)

@@ -57,7 +57,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         return this;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVBase>(TK key, TV value, StringBearerRevealState<TVBase> valueStyler
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVBase>(TK key, TV value, PalantírReveal<TVBase> valueStyler
       , string? keyFormatString = null) where TK : TKey where TV : TValue, TVBase
     {
         if (stb.SkipBody) return this;
@@ -65,8 +65,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         return this;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKBase, TVBase>(TK key, TV value, StringBearerRevealState<TVBase> valueStyler
-      , StringBearerRevealState<TKBase> keyStyler) where TK : TKey, TKBase where TV : TValue, TVBase
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKBase, TVBase>(TK key, TV value, PalantírReveal<TVBase> valueStyler
+      , PalantírReveal<TKBase> keyStyler) where TK : TKey, TKBase where TV : TValue, TVBase
     {
         if (stb.SkipBody) return this;
         stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler);
@@ -81,7 +81,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVBase>(TK key, TV value, StringBearerRevealState<TVBase> valueStyler
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVBase>(TK key, TV value, PalantírReveal<TVBase> valueStyler
       , string? keyFormatString = null) where TK : TKey where TV : TValue, TVBase
     {
         if (stb.SkipBody) return this;
@@ -89,8 +89,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKBase, TVBase>(TK key, TV value, StringBearerRevealState<TVBase> valueStyler
-      , StringBearerRevealState<TKBase> keyStyler) where TK : TKey, TKBase where TV : TValue, TVBase
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKBase, TVBase>(TK key, TV value, PalantírReveal<TVBase> valueStyler
+      , PalantírReveal<TKBase> keyStyler) where TK : TKey, TKBase where TV : TValue, TVBase
     {
         AddKeyValueMatchEntry(key, value, valueStyler, keyStyler);
         return AppendNextKeyedCollectionEntrySeparator();

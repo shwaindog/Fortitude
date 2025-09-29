@@ -148,7 +148,7 @@ public class FlushBufferConfig : FLogConfig, IMutableFlushBufferConfig
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(WriteTriggeredAtBufferPercentage), WriteTriggeredAtBufferPercentage)
-           .Field.AlwaysAdd(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)
-           .Field.AlwaysAdd(nameof(AutoTriggeredAfterTimeSpan), AutoTriggeredAfterTimeSpan)
+           .Field.AlwaysReveal(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)
+           .Field.AlwaysReveal(nameof(AutoTriggeredAfterTimeSpan), AutoTriggeredAfterTimeSpan)
            .Complete();
 }

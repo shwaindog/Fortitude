@@ -9,6 +9,8 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
+// ReSharper disable MemberCanBeProtected.Global
+
 #endregion
 
 namespace FortitudeBusRules.Rules;
@@ -79,7 +81,7 @@ public class Rule : IListeningRule
 
     private static int instanceCount;
 
-    private int instanceNumber;
+    private readonly int instanceNumber;
 
     private int aliveRefCount;
 
@@ -87,8 +89,9 @@ public class Rule : IListeningRule
     private IQueueContext context = null!;
     private RuleFilter?   notAppliesToThisRuleFilter;
 
-    private ReusableList<IAsyncValueTaskDisposable> onStopResourceCleanup = new();
-    private IRule?                                  parentRule;
+    private readonly ReusableList<IAsyncValueTaskDisposable> onStopResourceCleanup = new();
+
+    private IRule? parentRule;
 
     private RuleLifeCycle ruleLifeCycle;
     private IRuleTimer?   ruleTimer;
@@ -177,12 +180,13 @@ public class Rule : IListeningRule
         {
             context = value;
 
-            onStopResourceCleanup.Recycler = context?.PooledRecycler;
-            children.Recycler              = context?.PooledRecycler;
+            onStopResourceCleanup.Recycler = context.PooledRecycler;
+            children.Recycler              = context.PooledRecycler;
         }
     }
 
-    public string FriendlyName { get; set; } = "Friendly Name Not Set";
+    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
+    public string FriendlyName { get; set; }
     public string? Id { get; set; }
 
     public RuleLifeCycle LifeCycleState
@@ -290,28 +294,28 @@ public class Rule : IListeningRule
     private void ParentRule_LifeCycleChanged(IRule sender, RuleLifeCycle oldState, RuleLifeCycle newState)
     {
         if (newState is RuleLifeCycle.ShuttingDown or RuleLifeCycle.ShutDownRequested)
-            Logger.DebugFormat("Parent rule: '{0}' shuttingDown on sending Stop to rule: '{1}'").WithParams(sender.FriendlyName)
-                  .AndFinalParam(FriendlyName);
+            Logger.DebugFormat("Parent rule: '{0}' shuttingDown on sending Stop to rule: '{1}'")?.WithParams(sender.FriendlyName)
+                  ?.AndFinalParam(FriendlyName);
     }
 
     private void Child_LifeCycleChanged(IRule sender, RuleLifeCycle oldState, RuleLifeCycle newState)
     {
         if (newState == RuleLifeCycle.Stopped)
         {
-            Logger.DebugFormat("Child rule: '{0}' stopped on rule: '{1}'").WithParams(sender.FriendlyName)
-                  .AndFinalParam(FriendlyName);
+            Logger.DebugFormat("Child rule: '{0}' stopped on rule: '{1}'")?.WithParams(sender.FriendlyName)
+                  ?.AndFinalParam(FriendlyName);
             RemoveChild(sender);
         }
     }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(Context), Context)
-            .Field.AlwaysAdd(nameof(FriendlyName), FriendlyName)
-            .Field.AlwaysAdd(nameof(Id), Id)
-            .Field.AlwaysAdd(nameof(LifeCycleState), LifeCycleState)
-            .Field.AlwaysAdd(nameof(instanceNumber), instanceNumber)
-            .Complete();
+           .Field.AlwaysReveal(nameof(Context), Context)
+           .Field.AlwaysAdd(nameof(FriendlyName), FriendlyName)
+           .Field.AlwaysAdd(nameof(Id), Id)
+           .Field.AlwaysAdd(nameof(LifeCycleState), LifeCycleState)
+           .Field.AlwaysAdd(nameof(instanceNumber), instanceNumber)
+           .Complete();
 
     public override string ToString() =>
         $"{nameof(Context)}: {Context}, {nameof(FriendlyName)}: " +

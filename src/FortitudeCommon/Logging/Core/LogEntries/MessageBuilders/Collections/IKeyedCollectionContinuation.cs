@@ -121,186 +121,186 @@ public interface IKeyedCollectionContinuation<out TToReturn> : ICollectionAppend
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null)
+      , PalantírReveal<TVBase> valueStyler, string? keyFormatString = null)
         where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
-    TToReturn AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, StringBearerRevealState<TVBase>, string?) valueTuple)
+    TToReturn AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, PalantírReveal<TVBase>, string?) valueTuple)
         where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
-    TToReturn AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, StringBearerRevealState<TVBase>) valueTuple)
+    TToReturn AddKeyed<TKey, TValue, TVBase>((IReadOnlyDictionary<TKey, TValue>?, PalantírReveal<TVBase>) valueTuple)
         where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
-    TToReturn AddKeyed<TKey, TValue, TVBase>(KeyValuePair<TKey, TValue>[]? value, StringBearerRevealState<TVBase> valueStyler
+    TToReturn AddKeyed<TKey, TValue, TVBase>(KeyValuePair<TKey, TValue>[]? value, PalantírReveal<TVBase> valueStyler
       , string? keyFormatString = null) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
-    TToReturn AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, StringBearerRevealState<TVBase>, string?) valueTuple) where TValue : TVBase;
+    TToReturn AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, PalantírReveal<TVBase>, string?) valueTuple) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
-    TToReturn AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, StringBearerRevealState<TVBase>) valueTuple) where TValue : TVBase;
+    TToReturn AddKeyed<TKey, TValue, TVBase>((KeyValuePair<TKey, TValue>[]?, PalantírReveal<TVBase>) valueTuple) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase;
+      , PalantírReveal<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
-    TToReturn AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, string?) valueTuple)
+    TToReturn AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, string?) valueTuple)
         where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
-    TToReturn AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>) valueTuple) where TValue : TVBase;
+    TToReturn AddKeyed<TKey, TValue, TVBase>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>) valueTuple) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase;
+      , PalantírReveal<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, string?) valueTuple) where TValue : TVBase;
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, string?) valueTuple) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>) valueTuple) where TValue : TVBase;
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>) valueTuple) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase;
+      , PalantírReveal<TVBase> valueStyler, string? keyFormatString = null) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, string?) valueTuple) where TValue : TVBase;
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, string?) valueTuple) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TVBase>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>) valueTuple) where TValue : TVBase;
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>) valueTuple) where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, string? keyFormatString = null)
+      , PalantírReveal<TVBase2> valueStyler, string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>, string?) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, string? keyFormatString = null)
+      , PalantírReveal<TVBase2> valueStyler, string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, string? keyFormatString = null)
+      , PalantírReveal<TVBase2> valueStyler, string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>, string?) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase1, TVBase2>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, StringBearerRevealState<TVBase2>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>) valueTuple)
         where TKey : TKBase where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase>(
-        (IReadOnlyDictionary<TKey, TValue>?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
-      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler)
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase>(
-        (KeyValuePair<TKey, TValue>[]?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler)
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase, TVBase>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler)
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TKBase, TVBase>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler)
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollectionEnumerate to finish and send LogEntry")]
     TToReturn AddKeyedEnumerate<TKey, TValue, TKBase, TVBase>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StringBearerRevealState<TVBase>, StringBearerRevealState<TKBase>) valueTuple)
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple)
         where TKey : TKBase where TValue : TVBase;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
+      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase1, TVBase1>, StringBearerRevealState<TVBase2>, StringBearerRevealState<TKBase2>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase1, TVBase1>, PalantírReveal<TVBase2>, PalantírReveal<TKBase2>) valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
+      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase1, TVBase1>, StringBearerRevealState<TVBase2>, StringBearerRevealState<TKBase2>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase1, TVBase1>, PalantírReveal<TVBase2>, PalantírReveal<TKBase2>) valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
+      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2;
 
     [MustUseReturnValue("Use FinalAppendKeyedCollection to finish and send LogEntry")]
     TToReturn AddKeyed<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase1, TVBase1>, StringBearerRevealState<TVBase2>, StringBearerRevealState<TKBase2>)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase1, TVBase1>, PalantírReveal<TVBase2>, PalantírReveal<TKBase2>)
             valueTuple)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2;
 }

@@ -302,11 +302,11 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonNullAddStyled(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
-           .Field.WhenNonNullAddStyled(nameof(NextTriggerStep), NextTriggerStep)
-           .Field.WhenNonNullAddStyled(nameof(OnTriggerExtract), OnTriggerExtract)
-           .Field.WhenNonNullAddStyled(nameof(CompletedWhenEntry), CompletedWhenEntry)
-           .Field.WhenNonNullAddStyled(nameof(AbortWhenEntry), AbortWhenEntry)
-           .Field.WhenNonNullAddStyled(nameof(TimeOut), TimeOut)
+           .Field.WhenNonNullReveal(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
+           .Field.WhenNonNullReveal(nameof(NextTriggerStep), NextTriggerStep)
+           .Field.WhenNonNullReveal(nameof(OnTriggerExtract), OnTriggerExtract)
+           .Field.WhenNonNullReveal(nameof(CompletedWhenEntry), CompletedWhenEntry)
+           .Field.WhenNonNullReveal(nameof(AbortWhenEntry), AbortWhenEntry)
+           .Field.WhenNonNullReveal(nameof(TimeOut), TimeOut)
            .Complete();
 }

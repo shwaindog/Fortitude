@@ -213,6 +213,6 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
         tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(CharBufferSize), CharBufferSize)
-           .Field.AlwaysAdd(nameof(FlushConfig), FlushConfig)
+           .Field.AlwaysReveal(nameof(FlushConfig), FlushConfig)
            .Complete();
 }

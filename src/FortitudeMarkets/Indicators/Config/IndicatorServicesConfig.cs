@@ -93,10 +93,10 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(MarketsConfig), MarketsConfig)
-            .Field.AlwaysAdd(nameof(TimeSeriesFileRepositoryConfig), TimeSeriesFileRepositoryConfig)
+            .Field.AlwaysReveal(nameof(MarketsConfig), MarketsConfig)
+            .Field.AlwaysReveal(nameof(TimeSeriesFileRepositoryConfig), TimeSeriesFileRepositoryConfig)
             .Field.AlwaysAdd(nameof(DefaultCachePricesTimeSpan), DefaultCachePricesTimeSpan)
             .Field.AlwaysAdd(nameof(DefaultCacheCandlesTimeSpan), DefaultCacheCandlesTimeSpan)
-            .Field.AlwaysAdd(nameof(PersistenceConfig), PersistenceConfig)
+            .Field.AlwaysReveal(nameof(PersistenceConfig), PersistenceConfig)
             .Complete();
 }

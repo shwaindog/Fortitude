@@ -13,7 +13,6 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCru
 [TestClass]
 public class CompactLogTypeFormattingTests
 {
-
     private static IVersatileFLogger logger = null!;
 
     [ClassInitialize]
@@ -24,7 +23,6 @@ public class CompactLogTypeFormattingTests
         logger = FLog.FLoggerForType.As<IVersatileFLogger>();
     }
     
-
     [TestMethod]
     public void StandardSinglePropertyFieldClassLogCompactSerializeMatchesAllFields()
     {
@@ -43,7 +41,6 @@ public class CompactLogTypeFormattingTests
         logger.WrnApnd(oneStringify)?.Args("\n");
     }
     
-
     [TestMethod]
     public void StandardSinglePropertyFieldClassLogPrettySerializeMatchesAllFields()
     {

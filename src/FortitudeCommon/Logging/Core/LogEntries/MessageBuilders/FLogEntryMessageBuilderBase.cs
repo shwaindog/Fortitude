@@ -57,7 +57,7 @@ public abstract partial class FLogEntryMessageBuilder : RecyclableObject, IFLogM
         return this;
     }
 
-    protected static void AppendStyled<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple
+    protected static void AppendStyled<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple
       , ITheOneString ofPower) where TToStyle : TStylerType
     {
         var (value, structStyler) = valueTuple;
@@ -427,7 +427,7 @@ public static class MessageBuilderExtensions
 {
     public static bool IsFormatterType(this Type checkIsFormatterType) =>
         checkIsFormatterType == typeof(string) || (checkIsFormatterType.IsGenericType
-                                                && checkIsFormatterType.GetGenericTypeDefinition() == typeof(StringBearerRevealState<>));
+                                                && checkIsFormatterType.GetGenericTypeDefinition() == typeof(PalantírReveal<>));
 
     public static bool IsOrderedCollectionFilterPredicate(this Type checkIsFormatterType) =>
         checkIsFormatterType.IsGenericType && checkIsFormatterType.GetGenericTypeDefinition() == typeof(OrderedCollectionPredicate<>);
@@ -439,6 +439,6 @@ public static class MessageBuilderExtensions
         (formatterType == typeof(string) && (!baseType.IsValueType
                                           || baseType.GetInterfaces().Any(i => i == typeof(ISpanFormattable))))
      || (baseType.IsValueType && formatterType.IsGenericType
-                              && formatterType.GetGenericTypeDefinition() == typeof(StringBearerRevealState<>)
+                              && formatterType.GetGenericTypeDefinition() == typeof(PalantírReveal<>)
                               && formatterType.GenericTypeArguments[0].IsAssignableFrom(baseType));
 }

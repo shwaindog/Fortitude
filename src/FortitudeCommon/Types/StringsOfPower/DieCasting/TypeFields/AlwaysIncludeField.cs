@@ -12,33 +12,73 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 public partial class SelectTypeField<TExt> where TExt : TypeMolder
 {
-    public IStringBuilder Sb => stb.Sb;
-
     public TExt AlwaysAdd(string fieldName, bool value) =>
         stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
     public TExt AlwaysAdd(string fieldName, bool? value) =>
         stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
-    public TExt AlwaysAdd<TFmt>(string fieldName, TFmt value
+    public TExt AlwaysAdd<TFmt>(string fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
-            : formatString.IsNotNullOrEmpty()
-                ? AlwaysAddWithFormatting(fieldName, value, formatString)
-                : stb.FieldNameJoin(fieldName).AppendValue(value).AddGoToNext();
+            : stb.FieldNameJoin(fieldName).AppendFormatted(value, formatString ?? "").AddGoToNext();
 
-    public TExt AlwaysAdd<TFmt>(string fieldName, TFmt? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : struct, ISpanFormattable =>
+    public TExt AlwaysAddAs<TFmt>(string fieldName, TFmt? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendFormatted(value, formatString ?? "").AddGoToNext();
+
+    public TExt AlwaysAdd<TFmtStruct>(string fieldName, TFmtStruct? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendNullableFormattedOrNull(value, formatString ?? "").AddGoToNext();
+
+    public TExt AlwaysAddAs<TFmtStruct>(string fieldName, TFmtStruct? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendNullableFormattedOrNull(value, formatString ?? "").AddGoToNext();
+
+    public TExt AlwaysReveal<TCloaked, TCloakedBase>(string fieldName, TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value, palantírReveal).AddGoToNext();
+
+    public TExt AlwaysRevealAs<TCloaked, TCloakedBase>(string fieldName, TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling flags = FieldContentHandling.DefaultForValueType) where TCloaked : TCloakedBase =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value, palantírReveal).AddGoToNext();
+
+    public TExt AlwaysReveal<TCloakedStruct>(string fieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value, palantírReveal).AddGoToNext();
+
+    public TExt AlwaysRevealAs<TCloakedStruct>(string fieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling flags = FieldContentHandling.DefaultForValueType) where TCloakedStruct : struct =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value, palantírReveal).AddGoToNext();
+
+    public TExt AlwaysReveal<TBearer>(string fieldName, TBearer? value) where TBearer : IStringBearer =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
+    public TExt AlwaysRevealAs<TBearer>(string fieldName, TBearer? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType)
+        where TBearer : IStringBearer =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
+    public TExt AlwaysReveal<TBearerStruct>(string fieldName, TBearerStruct? value) where TBearerStruct : struct, IStringBearer =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
+    public TExt AlwaysRevealAs<TBearerStruct>(string fieldName, TBearerStruct? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType)
+        where TBearerStruct : struct, IStringBearer =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
+    public TExt AlwaysAddAs(string fieldName, ReadOnlySpan<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : formatString.IsNotNullOrEmpty()
-                ? AlwaysAddWithFormatting(fieldName, value, formatString)
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
-
-    public TExt AlwaysAdd<TToStyle, TStylerType>(string fieldName, TToStyle? value
-      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value, stringBearerRevealState).AddGoToNext();
 
     public TExt AlwaysAdd(string fieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
@@ -48,61 +88,110 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                 ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
+    public TExt AlwaysAddAs(string fieldName, string? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : formatString.IsNotNullOrEmpty()
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext()
+                : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
     public TExt AlwaysAdd(string fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : formatString.IsNotNullOrEmpty()
-                ? AlwaysAddWithFormatting(fieldName, value, formatString)
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
+    public TExt AlwaysAddAs(string fieldName, string? value, int startIndex, int length = int.MaxValue
+      , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
 
     public TExt AlwaysAdd(string fieldName, string? value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        stb.SkipFields 
-            ? stb.StyleTypeBuilder 
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
             : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
+
+    public TExt AlwaysAddAs(string fieldName, char[]? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
     public TExt AlwaysAdd(string fieldName, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
-    public TExt AlwaysAdd(string fieldName, char[]? value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
-        stb.SkipFields 
-            ? stb.StyleTypeBuilder 
-            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
-
-    public TExt AlwaysAdd(string fieldName, IStringBearer? value) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
-
-    public TExt AlwaysAdd(string fieldName, ICharSequence? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        stb.SkipFields 
-            ? stb.StyleTypeBuilder 
-            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
-
-    public TExt AlwaysAdd(string fieldName, ICharSequence? value, int startIndex, int length = int.MaxValue
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+    public TExt AlwaysAddAs(string fieldName, char[]? value, int startIndex, int length = int.MaxValue
+      , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
 
+    public TExt AlwaysAdd(string fieldName, char[]? value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
+
+    public TExt AlwaysAddCharSeqAs<TCharSeq>(string fieldName, TCharSeq? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
+
+    public TExt AlwaysAddCharSeq<TCharSeq>(string fieldName, TCharSeq? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
+
+    public TExt AlwaysAddCharSeqAs<TCharSeq>(string fieldName, TCharSeq? value, int startIndex, int length = int.MaxValue
+      , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
+
+    public TExt AlwaysAddCharSeq<TCharSeq>(string fieldName, TCharSeq? value, int startIndex, int length = int.MaxValue
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
+
+    public TExt AlwaysAddAs(string fieldName, StringBuilder? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
+
     public TExt AlwaysAdd(string fieldName, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
+
+    public TExt AlwaysAddAs(string fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue
+      , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , string? formatString = null) =>
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : formatString.IsNotNullOrEmpty()
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext()
+                : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
     public TExt AlwaysAdd(string fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
-            : formatString.IsNotNullOrEmpty() 
+            : formatString.IsNotNullOrEmpty()
                 ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
-    
+
     public TExt AlwaysAddMatch<T>(string fieldName, T? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : formatString.IsNotNullOrEmpty()
-                ? AlwaysAddMatchWithFormatting(fieldName, value, formatString)
+                ? stb.FieldNameJoin(fieldName).AppendMatchFormattedOrNull(value, formatString).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendMatchOrNull(value).AddGoToNext();
 
     [CallsObjectToString]
@@ -111,50 +200,6 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : formatString.IsNotNullOrEmpty()
-                ? AlwaysAddObjectWithFormatting(fieldName, value, formatString)
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendMatchOrNull(value).AddGoToNext();
-
-    public TExt AlwaysAddWithFormatting<TFmt>(string fieldName, TFmt value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TFmt : ISpanFormattable =>
-        stb.SkipFields
-            ? stb.StyleTypeBuilder
-            : stb.FieldNameJoin(fieldName).AppendFormatted(value, formatString).AddGoToNext();
-
-    public TExt AlwaysAddWithFormatting<TFmt>(string fieldName, TFmt? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) where TFmt : struct, ISpanFormattable =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendNullableFormattedOrNull(value, formatString).AddGoToNext();
-
-    public TExt AlwaysAddWithFormatting(string fieldName, ReadOnlySpan<char> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
-        stb.SkipFields 
-            ? stb.StyleTypeBuilder 
-            : stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext();
-
-    public TExt AlwaysAddWithFormatting(string fieldName, string? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
-        stb.SkipFields 
-            ? stb.StyleTypeBuilder 
-            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, 0).AddGoToNext();
-
-    public TExt AlwaysAddWithFormatting(string fieldName, char[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, 0).AddGoToNext();
-
-    public TExt AlwaysAddWithFormatting(string fieldName, ICharSequence? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, 0).AddGoToNext();
-
-    public TExt AlwaysAddWithFormatting(string fieldName, StringBuilder? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, 0).AddGoToNext();
-
-    public TExt AlwaysAddObjectWithFormatting(string fieldName, object? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
-        stb.SkipFields 
-            ? stb.StyleTypeBuilder 
-            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
-
-    public TExt AlwaysAddMatchWithFormatting<T>(string fieldName, T? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendMatchFormattedOrNull(value, formatString).AddGoToNext();
 }

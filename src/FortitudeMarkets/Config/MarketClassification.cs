@@ -258,7 +258,7 @@ public struct MarketClassification : IEquatable<MarketClassification>
 
     public override int GetHashCode() => (int)CompoundedClassification;
 
-    public static StringBearerRevealState<MarketClassification> Styler { get; } =
+    public static PalantírReveal<MarketClassification> Styler { get; } =
         (mc, stsa) =>
             stsa.StartComplexType(mc, nameof(mc))
                 .Field.AlwaysAddObject(nameof(mc.AssetType), mc.AssetType)

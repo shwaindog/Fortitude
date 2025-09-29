@@ -136,18 +136,18 @@ public class QuoteWrappingCandle : ReusableObject<ICandle>, ICandle, ICloneable<
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(level1Quote), level1Quote)
+            .Field.AlwaysReveal(nameof(level1Quote), level1Quote)
             .Field.AlwaysAdd(nameof(TimeBoundaryPeriod), TimeBoundaryPeriod)
             .Field.AlwaysAdd(nameof(PeriodStartTime), PeriodStartTime)
             .Field.AlwaysAdd(nameof(PeriodEndTime), PeriodEndTime)
-            .Field.AlwaysAdd(nameof(StartBidAsk), StartBidAsk, BidAskPair.Styler)
-            .Field.AlwaysAdd(nameof(HighestBidAsk), HighestBidAsk, BidAskPair.Styler)
-            .Field.AlwaysAdd(nameof(LowestBidAsk), LowestBidAsk, BidAskPair.Styler)
-            .Field.AlwaysAdd(nameof(EndBidAsk), EndBidAsk, BidAskPair.Styler)
+            .Field.AlwaysReveal(nameof(StartBidAsk), StartBidAsk, BidAskPair.Styler)
+            .Field.AlwaysReveal(nameof(HighestBidAsk), HighestBidAsk, BidAskPair.Styler)
+            .Field.AlwaysReveal(nameof(LowestBidAsk), LowestBidAsk, BidAskPair.Styler)
+            .Field.AlwaysReveal(nameof(EndBidAsk), EndBidAsk, BidAskPair.Styler)
             .Field.AlwaysAdd(nameof(TickCount), TickCount)
             .Field.AlwaysAdd(nameof(PeriodVolume), PeriodVolume)
             .Field.AlwaysAdd(nameof(CandleFlags), CandleFlags)
-            .Field.AlwaysAdd(nameof(AverageBidAsk), AverageBidAsk, BidAskPair.Styler)
+            .Field.AlwaysReveal(nameof(AverageBidAsk), AverageBidAsk, BidAskPair.Styler)
             .Complete();
 
     public override string ToString() => $"{nameof(QuoteWrappingCandle)}({nameof(level1Quote)}: {level1Quote})";

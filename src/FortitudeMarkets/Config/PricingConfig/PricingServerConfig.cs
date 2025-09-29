@@ -308,8 +308,8 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
     public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
-            .Field.AlwaysAdd(nameof(SnapshotConnectionConfig), SnapshotConnectionConfig)
-            .Field.AlwaysAdd(nameof(UpdateConnectionConfig), UpdateConnectionConfig)
+            .Field.AlwaysReveal(nameof(SnapshotConnectionConfig), SnapshotConnectionConfig)
+            .Field.AlwaysReveal(nameof(UpdateConnectionConfig), UpdateConnectionConfig)
             .Field.AlwaysAdd(nameof(HeartBeatPublishIntervalMs), HeartBeatPublishIntervalMs)
             .Field.AlwaysAdd(nameof(HeartBeatServerToleranceRangeMs), HeartBeatServerToleranceRangeMs)
             .Field.AlwaysAdd(nameof(MaxMissedHeartBeats), MaxMissedHeartBeats)

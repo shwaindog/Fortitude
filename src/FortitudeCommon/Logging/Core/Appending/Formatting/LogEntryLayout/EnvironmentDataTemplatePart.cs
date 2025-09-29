@@ -103,7 +103,7 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStringBearer
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(tokenFormatting), tokenFormatting).Complete();
+           .Field.AlwaysReveal(nameof(tokenFormatting), tokenFormatting).Complete();
 
     public override string ToString() => this.DefaultToString();
 }

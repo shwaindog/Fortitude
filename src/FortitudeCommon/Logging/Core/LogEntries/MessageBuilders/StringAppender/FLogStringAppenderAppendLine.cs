@@ -35,15 +35,15 @@ public partial class FLogStringAppender
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+    public IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType
     {
-        stringBearerRevealState(value, MessageStsa);
+        palantírReveal(value, MessageStsa);
         return MessageSb.AppendLine(this);
     }
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
+    public IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         AppendStyled(valueTuple, MessageStsa);

@@ -48,7 +48,7 @@ public class FLogContextTests
     public void TestValueStructReflection()
     {
         var fileAppenderType = FileAppenderType.RollingLogFile;
-        var styler           = EnumFormatterRegistry.GetOrCreateEnumFormatProvider<FileAppenderType>().StringBearerRevealState;
+        var styler           = EnumFormatterRegistry.GetOrCreateEnumFormatProvider<FileAppenderType>().EnumPalantír;
 
         var checkRuntimeType = (fileAppenderType, styler);
 
@@ -64,7 +64,7 @@ public class FLogContextTests
         var runResult = invokeMethod(this, value);
     }
 
-    public string InvokeStructStyler<TStruct>(TStruct value, StringBearerRevealState<TStruct> styler) where TStruct : struct
+    public string InvokeStructStyler<TStruct>(TStruct value, PalantírReveal<TStruct> styler) where TStruct : struct
     {
         var stsa = new TheOneString();
         stsa.Initialize();
@@ -93,7 +93,7 @@ public class FLogContextTests
                 if (item2Type.IsGenericType)
                 {
                     var item2GenericType = item2Type.GetGenericTypeDefinition();
-                    if (item2GenericType == typeof(StringBearerRevealState<>))
+                    if (item2GenericType == typeof(PalantírReveal<>))
                     {
                         var myType = GetType();
 
@@ -121,7 +121,7 @@ public class FLogContextTests
                                        && methodParams.Length == 2
                                        && genericParams[0] == methodParams[0].ParameterType &&
                                           methodParams[1].ParameterType.GetGenericTypeDefinition() ==
-                                          typeof(StringBearerRevealState<>);
+                                          typeof(PalantírReveal<>);
                                   }) ??
                             throw new InvalidOperationException("Method does not exist");
 

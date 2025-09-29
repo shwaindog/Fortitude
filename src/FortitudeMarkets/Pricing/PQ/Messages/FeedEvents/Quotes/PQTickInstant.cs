@@ -1025,7 +1025,7 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(PQSourceTickerInfo), PQSourceTickerInfo)
+            .Field.AlwaysReveal(nameof(PQSourceTickerInfo), PQSourceTickerInfo)
             .Field.AlwaysAdd(nameof(PQSequenceId), PQSequenceId)
             .AddBaseStyledToStringFields(this)
             .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)

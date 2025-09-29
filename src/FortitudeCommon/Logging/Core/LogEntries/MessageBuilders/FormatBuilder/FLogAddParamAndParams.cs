@@ -23,12 +23,12 @@ public partial class FLogAdditionalFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallExpectContinue(value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType =>
-        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, stringBearerRevealState).CallExpectContinue(value);
+        PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, palantírReveal).CallExpectContinue(value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
+    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         FormatSb.Clear();

@@ -7,7 +7,6 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Extensions;
-using FortitudeTests.FortitudeCommon.Types;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -47,7 +46,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         RuneArrayPropield      = [Rune.GetRuneAt("\U00010000", 0), default, Rune.GetRuneAt("\U0010FFFF", 0)];
         GuidArrayPropield =
             [Guid.ParseExact("00000000-0000-0000-0000-000000000000", "D"), Guid.Empty, Guid.ParseExact("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "D")];
-        IpNetworkArrayPropield = [new IPNetwork(new IPAddress([128,0,0,0]), 1), default, IPNetwork.Parse("255.255.255.254/31")];
+        IpNetworkArrayPropield = [new IPNetwork(new IPAddress([128, 0, 0, 0]), 1), default, IPNetwork.Parse("255.255.255.254/31")];
 
         NullByteArrayPropield      = [byte.MinValue, 0, null, byte.MaxValue];
         NullSByteArrayPropield     = [sbyte.MinValue, 0, null, sbyte.MaxValue];
@@ -75,16 +74,16 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         NullGuidArrayPropield =
             [Guid.ParseExact("00000000-0000-0000-0000-000000000000", "D"), Guid.Empty, null, Guid.ParseExact("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "D")];
         NullIpNetworkArrayPropield =
-            [new IPNetwork(new IPAddress([128,0,0,0]), 1), new IPNetwork(), null, IPNetwork.Parse("255.255.255.254/31")];
+            [new IPNetwork(new IPAddress([128, 0, 0, 0]), 1), new IPNetwork(), null, IPNetwork.Parse("255.255.255.254/31")];
 
         StringArrayPropield        = ["stringArrayPropield_1", "", null!, "stringArrayPropield_4"];
         StringBuilderArrayPropield = [new("stringBuilderArrayPropield_1"), new StringBuilder(), null!, new StringBuilder("stringBuilderArrayPropield_4")];
         CharSequenceArrayPropield =
             [new MutableString("charSequenceArrayPropield_1"), new MutableString(), null!, new MutableString("charSequenceArrayPropield_4")];
 
-        VersionArrayPropield = [new Version(0, 0), null!, new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue)];
-        IPAddressArrayPropield  = [new IPAddress("\0\0\0\0"u8.ToArray()), null!, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
-        UriArrayPropield     = [new Uri("https://learn.microsoft.com/en-us/dotnet/api"), null!, new Uri("https://github.com/shwaindog/Fortitude")];
+        VersionArrayPropield   = [new Version(0, 0), null!, new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue)];
+        IpAddressArrayPropield = [new IPAddress("\0\0\0\0"u8.ToArray()), null!, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
+        UriArrayPropield       = [new Uri("https://learn.microsoft.com/en-us/dotnet/api"), null!, new Uri("https://github.com/shwaindog/Fortitude")];
 
         SpanFormattableArrayPropield = [new TestCustomSpanFormattable(""), null!, new TestCustomSpanFormattable("SpanFormattableSingPropield")];
         NdLNfEnumArrayPropield       = [NoDefaultLongNoFlagsEnum.NDLNFE_1, default, NoDefaultLongNoFlagsEnum.NDLNFE_34];
@@ -178,7 +177,8 @@ public class StandardArrayPropertyFieldClass : IStringBearer
                 .GenRandomNumberRange<byte>(numberToGenerate)
                 .Select(b =>
                 {
-                    if(b % 2 == 0){
+                    if (b % 2 == 0)
+                    {
                         return new IPNetwork
                             (new IPAddress
                                  (NumberTestDataGenerator.GenRandomNumberRange<byte>(4).ToArray()), (b % 32));
@@ -186,7 +186,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
                     return new IPNetwork
                         (new IPAddress
                              (NumberTestDataGenerator.GenRandomNumberRange<byte>(16).ToArray()), (b % 128));
-                }) .ToArray();
+                }).ToArray();
 
         NullByteArrayPropield      = NumberTestDataGenerator.GenRandomNullableNumberRange<byte>(numberToGenerate).ToArray();
         NullSByteArrayPropield     = NumberTestDataGenerator.GenRandomNullableNumberRange<sbyte>(numberToGenerate).ToArray();
@@ -210,99 +210,109 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         NullTimeSpanArrayPropield  = DateTimeTestDataGenerator.GenRandomNullableTimeSpanRange(numberToGenerate).ToArray();
         NullTimeOnlyArrayPropield  = DateTimeTestDataGenerator.GenRandomNullableTimeOnlyRange(numberToGenerate).ToArray();
         NullRuneArrayPropield      = NumberTestDataGenerator.GenRandomNullableNumberRange<Rune>(numberToGenerate).ToArray();
-        
-        NullGuidArrayPropield      = 
+
+        NullGuidArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<byte>(numberToGenerate)
                 .Select(b =>
                         {
-                            if(b == null) return null;
-                            return  new Guid?(new Guid(NumberTestDataGenerator
-                                                       .GenRandomNumberRange<
-                                                           byte>(16).ToArray()));
+                            if (b == null) return null;
+                            return new Guid?
+                                (new Guid
+                                     (NumberTestDataGenerator
+                                      .GenRandomNumberRange<byte>(16)
+                                      .ToArray()));
                         }
                        )
                 .ToArray();
-        NullIpNetworkArrayPropield = 
+        NullIpNetworkArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<byte>(numberToGenerate)
                 .Select(b =>
                 {
-                    if(b == null) return null;
-                    if(b % 2 == 0){
-                        return new IPNetwork?( new IPNetwork
-                            (new IPAddress
-                                 (NumberTestDataGenerator.GenRandomNumberRange<byte>(4).ToArray()), (b.Value % 32)));
+                    if (b == null) return null;
+                    if (b % 2 == 0)
+                    {
+                        return new IPNetwork?
+                            (new IPNetwork
+                                 (new IPAddress
+                                      (NumberTestDataGenerator
+                                       .GenRandomNumberRange<byte>(4).ToArray())
+                                , (b.Value % 32)));
                     }
-                    return new IPNetwork( new IPAddress
-                                             (NumberTestDataGenerator.GenRandomNumberRange<byte>(16).ToArray()), (b.Value % 128));
-                }) .ToArray();
+                    return new IPNetwork
+                        (new IPAddress
+                             (NumberTestDataGenerator
+                              .GenRandomNumberRange<byte>(16)
+                              .ToArray()), (b.Value % 128));
+                }).ToArray();
 
-        StringArrayPropield        = 
+        StringArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return "stringArrayPropield_" + num;
-                }) .ToArray();
-        StringBuilderArrayPropield = 
+                }).ToArray();
+        StringBuilderArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return new StringBuilder("stringBuilderArrayPropield_1" + num);
-                }) .ToArray();
+                }).ToArray();
         CharSequenceArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return (ICharSequence)new MutableString("charSequenceArrayPropield_1" + num);
-                }) .ToArray();
+                }).ToArray();
 
-        VersionArrayPropield = 
+        VersionArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     var otherThree = NumberTestDataGenerator
-                        .GenRandomNumberRange<int>(numberToGenerate).Select(Math.Abs).ToArray();
+                                     .GenRandomNumberRange<int>(numberToGenerate).Select(Math.Abs).ToArray();
                     return new Version(Math.Abs(num.Value), otherThree[0], otherThree[1], otherThree[2]);
-                }) .ToArray();
-        
-        IPAddressArrayPropield  = 
+                }).ToArray();
+
+        IpAddressArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<byte>(numberToGenerate)
                 .Select(b =>
                 {
-                    if(b == null) return null!;
-                    if(b % 2 == 0){
+                    if (b == null) return null!;
+                    if (b % 2 == 0)
+                    {
                         return new IPAddress(NumberTestDataGenerator.GenRandomNumberRange<byte>(4).ToArray());
                     }
-                    return  new IPAddress(NumberTestDataGenerator.GenRandomNumberRange<byte>(16).ToArray());
-                }) .ToArray();
-        UriArrayPropield     = 
+                    return new IPAddress(NumberTestDataGenerator.GenRandomNumberRange<byte>(16).ToArray());
+                }).ToArray();
+        UriArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return new Uri("https://www.someWebAddress_" + num + ".net");
-                }) .ToArray(); 
+                }).ToArray();
 
-        SpanFormattableArrayPropield = 
+        SpanFormattableArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return new TestCustomSpanFormattable(" SpanFormattableArrayPropield_" + num);
-                }) .ToArray();
-        
+                }).ToArray();
+
         NdLNfEnumArrayPropield = EnumTestDataGenerator.GenRandomEnumValues<NoDefaultLongNoFlagsEnum>(numberToGenerate).ToArray();
         NdUNfEnumArrayPropield = EnumTestDataGenerator.GenRandomEnumValues<NoDefaultULongNoFlagsEnum>(numberToGenerate).ToArray();
         NdLWfEnumArrayPropield = EnumTestDataGenerator.GenRandomEnumMultiFlagValues<NoDefaultLongWithFlagsEnum>(numberToGenerate).ToArray();
@@ -382,9 +392,9 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         StringBuilderArrayPropield = null!;
         CharSequenceArrayPropield  = null!;
 
-        VersionArrayPropield = null!;
-        IPAddressArrayPropield  = null!;
-        UriArrayPropield     = null!;
+        VersionArrayPropield   = null!;
+        IpAddressArrayPropield = null!;
+        UriArrayPropield       = null!;
 
         SpanFormattableArrayPropield = null!;
 
@@ -467,7 +477,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
     public ICharSequence[] CharSequenceArrayPropield { get; set; } = null!;
 
     public Version[] VersionArrayPropield = null!;
-    public IPAddress[] IPAddressArrayPropield { get; set; } = null!;
+    public IPAddress[] IpAddressArrayPropield { get; set; } = null!;
     public Uri[] UriArrayPropield = null!;
 
     public TestCustomSpanFormattable[] SpanFormattableArrayPropield { get; set; } = null!;
@@ -538,8 +548,8 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         ctb.CollectionField.AlwaysAddAll(nameof(NullTimeOnlyArrayPropield), NullTimeOnlyArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NullGuidArrayPropield), NullGuidArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(StringArrayPropield), StringArrayPropield);
-        ctb.CollectionField.AlwaysAddAllCharSequence(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield);
-        ctb.CollectionField.AlwaysAddAll(nameof(IPAddressArrayPropield), IPAddressArrayPropield);
+        ctb.CollectionField.AlwaysAddAllCharSeq(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield);
+        ctb.CollectionField.AlwaysAddAll(nameof(IpAddressArrayPropield), IpAddressArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(SpanFormattableArrayPropield), SpanFormattableArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NdUNfEnumArrayPropield), NdUNfEnumArrayPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(NdUWfEnumArrayPropield), NdUWfEnumArrayPropield);
@@ -616,8 +626,8 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullTimeOnlyArrayPropield), NullTimeOnlyArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullGuidArrayPropield), NullGuidArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(StringArrayPropield), StringArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAllCharSequence(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield);
-        ctb.CollectionField.WhenPopulatedAddAll(nameof(IPAddressArrayPropield), IPAddressArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAllCharSeq(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield);
+        ctb.CollectionField.WhenPopulatedAddAll(nameof(IpAddressArrayPropield), IpAddressArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(SpanFormattableArrayPropield), SpanFormattableArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NdUNfEnumArrayPropield), NdUNfEnumArrayPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NdUWfEnumArrayPropield), NdUWfEnumArrayPropield);
@@ -769,12 +779,12 @@ public class StandardArrayPropertyFieldClass : IStringBearer
                                             , FilterRegistry.OrderedCollectionFilterDefault(StringArrayPropield).CheckPredicate);
         ctb.CollectionField.AlwaysAddFiltered(nameof(StringBuilderArrayPropield), StringBuilderArrayPropield
                                             , FilterRegistry.OrderedCollectionFilterDefault(StringBuilderArrayPropield).CheckPredicate);
-        ctb.CollectionField.AlwaysAddFilteredCharSequence(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield
+        ctb.CollectionField.AlwaysAddFilteredCharSeq(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield
                                                         , FilterRegistry.OrderedCollectionFilterDefault(CharSequenceArrayPropield).CheckPredicate);
         ctb.CollectionField.AlwaysAddFiltered(nameof(VersionArrayPropield), VersionArrayPropield
                                             , FilterRegistry.OrderedCollectionFilterDefault(VersionArrayPropield).CheckPredicate);
-        ctb.CollectionField.AlwaysAddFiltered(nameof(IPAddressArrayPropield), IPAddressArrayPropield
-                                            , FilterRegistry.OrderedCollectionFilterDefault(IPAddressArrayPropield).CheckPredicate);
+        ctb.CollectionField.AlwaysAddFiltered(nameof(IpAddressArrayPropield), IpAddressArrayPropield
+                                            , FilterRegistry.OrderedCollectionFilterDefault(IpAddressArrayPropield).CheckPredicate);
         ctb.CollectionField.AlwaysAddFiltered(nameof(UriArrayPropield), UriArrayPropield
                                             , FilterRegistry.OrderedCollectionFilterDefault(UriArrayPropield).CheckPredicate);
         ctb.CollectionField.AlwaysAddFiltered(nameof(SpanFormattableArrayPropield), SpanFormattableArrayPropield
@@ -917,12 +927,12 @@ public class StandardArrayPropertyFieldClass : IStringBearer
                                                   , FilterRegistry.OrderedCollectionFilterDefault(StringArrayPropield).CheckPredicate);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(StringBuilderArrayPropield), StringBuilderArrayPropield
                                                   , FilterRegistry.OrderedCollectionFilterDefault(StringBuilderArrayPropield).CheckPredicate);
-        ctb.CollectionField.WhenPopulatedWithFilterCharSequence(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield
+        ctb.CollectionField.WhenPopulatedWithFilterCharSeq(nameof(CharSequenceArrayPropield), CharSequenceArrayPropield
                                                               , FilterRegistry.OrderedCollectionFilterDefault(CharSequenceArrayPropield).CheckPredicate);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(VersionArrayPropield), VersionArrayPropield
                                                   , FilterRegistry.OrderedCollectionFilterDefault(VersionArrayPropield).CheckPredicate);
-        ctb.CollectionField.WhenPopulatedWithFilter(nameof(IPAddressArrayPropield), IPAddressArrayPropield
-                                                  , FilterRegistry.OrderedCollectionFilterDefault(IPAddressArrayPropield).CheckPredicate);
+        ctb.CollectionField.WhenPopulatedWithFilter(nameof(IpAddressArrayPropield), IpAddressArrayPropield
+                                                  , FilterRegistry.OrderedCollectionFilterDefault(IpAddressArrayPropield).CheckPredicate);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(UriArrayPropield), UriArrayPropield
                                                   , FilterRegistry.OrderedCollectionFilterDefault(UriArrayPropield).CheckPredicate);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(SpanFormattableArrayPropield), SpanFormattableArrayPropield
@@ -1127,7 +1137,8 @@ public struct StandardArrayPropertyFieldStruct
                 .GenRandomNumberRange<byte>(numberToGenerate)
                 .Select(b =>
                 {
-                    if(b % 2 == 0){
+                    if (b % 2 == 0)
+                    {
                         return new IPNetwork
                             (new IPAddress
                                  (NumberTestDataGenerator.GenRandomNumberRange<byte>(4).ToArray()), (b % 32));
@@ -1135,7 +1146,7 @@ public struct StandardArrayPropertyFieldStruct
                     return new IPNetwork
                         (new IPAddress
                              (NumberTestDataGenerator.GenRandomNumberRange<byte>(16).ToArray()), (b % 128));
-                }) .ToArray();
+                }).ToArray();
 
         NullByteArrayPropield      = NumberTestDataGenerator.GenRandomNullableNumberRange<byte>(numberToGenerate).ToArray();
         NullSByteArrayPropield     = NumberTestDataGenerator.GenRandomNullableNumberRange<sbyte>(numberToGenerate).ToArray();
@@ -1159,99 +1170,101 @@ public struct StandardArrayPropertyFieldStruct
         NullTimeSpanArrayPropield  = DateTimeTestDataGenerator.GenRandomNullableTimeSpanRange(numberToGenerate).ToArray();
         NullTimeOnlyArrayPropield  = DateTimeTestDataGenerator.GenRandomNullableTimeOnlyRange(numberToGenerate).ToArray();
         NullRuneArrayPropield      = NumberTestDataGenerator.GenRandomNullableNumberRange<Rune>(numberToGenerate).ToArray();
-        
-        NullGuidArrayPropield      = 
+
+        NullGuidArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<byte>(numberToGenerate)
                 .Select(b =>
                         {
-                            if(b == null) return null;
-                            return  new Guid?(new Guid(NumberTestDataGenerator
-                                                       .GenRandomNumberRange<
-                                                           byte>(16).ToArray()));
+                            if (b == null) return null;
+                            return new Guid?(new Guid(NumberTestDataGenerator
+                                                      .GenRandomNumberRange<
+                                                          byte>(16).ToArray()));
                         }
                        )
                 .ToArray();
-        NullIpNetworkArrayPropield = 
+        NullIpNetworkArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<byte>(numberToGenerate)
                 .Select(b =>
                 {
-                    if(b == null) return null;
-                    if(b % 2 == 0){
-                        return new IPNetwork?( new IPNetwork
-                            (new IPAddress
-                                 (NumberTestDataGenerator.GenRandomNumberRange<byte>(4).ToArray()), (b.Value % 32)));
+                    if (b == null) return null;
+                    if (b % 2 == 0)
+                    {
+                        return new IPNetwork?(new IPNetwork
+                                                  (new IPAddress
+                                                       (NumberTestDataGenerator.GenRandomNumberRange<byte>(4).ToArray()), (b.Value % 32)));
                     }
-                    return new IPNetwork( new IPAddress
+                    return new IPNetwork(new IPAddress
                                              (NumberTestDataGenerator.GenRandomNumberRange<byte>(16).ToArray()), (b.Value % 128));
-                }) .ToArray();
+                }).ToArray();
 
-        StringArrayPropield        = 
+        StringArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return "stringArrayPropield_" + num;
-                }) .ToArray();
-        StringBuilderArrayPropield = 
+                }).ToArray();
+        StringBuilderArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return new StringBuilder("stringBuilderArrayPropield_1" + num);
-                }) .ToArray();
+                }).ToArray();
         CharSequenceArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return (ICharSequence)new MutableString("charSequenceArrayPropield_1" + num);
-                }) .ToArray();
+                }).ToArray();
 
-        VersionArrayPropield = 
+        VersionArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     var otherThree = NumberTestDataGenerator
-                        .GenRandomNumberRange<int>(numberToGenerate).Select(Math.Abs).ToArray();
+                                     .GenRandomNumberRange<int>(numberToGenerate).Select(Math.Abs).ToArray();
                     return new Version(Math.Abs(num.Value), otherThree[0], otherThree[1], otherThree[2]);
-                }) .ToArray();
-        
-        IntPtrArrayPropield  = 
+                }).ToArray();
+
+        IntPtrArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<byte>(numberToGenerate)
                 .Select(b =>
                 {
-                    if(b == null) return null!;
-                    if(b % 2 == 0){
+                    if (b == null) return null!;
+                    if (b % 2 == 0)
+                    {
                         return new IPAddress(NumberTestDataGenerator.GenRandomNumberRange<byte>(4).ToArray());
                     }
-                    return  new IPAddress(NumberTestDataGenerator.GenRandomNumberRange<byte>(16).ToArray());
-                }) .ToArray();
-        UriArrayPropield     = 
+                    return new IPAddress(NumberTestDataGenerator.GenRandomNumberRange<byte>(16).ToArray());
+                }).ToArray();
+        UriArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return new Uri("https://www.someWebAddress_" + num + ".net");
-                }) .ToArray(); 
+                }).ToArray();
 
-        SpanFormattableArrayPropield = 
+        SpanFormattableArrayPropield =
             NumberTestDataGenerator
                 .GenRandomNullableNumberRange<int>(numberToGenerate)
                 .Select(num =>
                 {
-                    if(num == null) return null!;
+                    if (num == null) return null!;
                     return new TestCustomSpanFormattable(" SpanFormattableArrayPropield_" + num);
-                }) .ToArray();
-        
+                }).ToArray();
+
         NdLNfEnumArrayPropield = EnumTestDataGenerator.GenRandomEnumValues<NoDefaultLongNoFlagsEnum>(numberToGenerate).ToArray();
         NdUNfEnumArrayPropield = EnumTestDataGenerator.GenRandomEnumValues<NoDefaultULongNoFlagsEnum>(numberToGenerate).ToArray();
         NdLWfEnumArrayPropield = EnumTestDataGenerator.GenRandomEnumMultiFlagValues<NoDefaultLongWithFlagsEnum>(numberToGenerate).ToArray();
@@ -1441,7 +1454,7 @@ public struct StandardArrayPropertyFieldStruct
 
     public static IFilterRegistry FilterRegistry { get; set; } = new FilterRegistry(new AddOddRetrieveCountFactory());
 
-    public static StringBearerRevealState<StandardArrayPropertyFieldStruct> SelectStateRevealer(TestCollectionFieldRevealMode testCollectionFieldRevealMode)
+    public static PalantírReveal<StandardArrayPropertyFieldStruct> SelectStateRevealer(TestCollectionFieldRevealMode testCollectionFieldRevealMode)
     {
         switch (testCollectionFieldRevealMode)
         {
@@ -1454,7 +1467,7 @@ public struct StandardArrayPropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardArrayPropertyFieldStruct> AlwaysRevealAllState
+    public static PalantírReveal<StandardArrayPropertyFieldStruct> AlwaysRevealAllState
     {
         get
         {
@@ -1513,7 +1526,7 @@ public struct StandardArrayPropertyFieldStruct
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.NullIpNetworkArrayPropield), sapfs.NullIpNetworkArrayPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.StringArrayPropield), sapfs.StringArrayPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.StringBuilderArrayPropield), sapfs.StringBuilderArrayPropield);
-                    ctb.CollectionField.AlwaysAddAllCharSequence(nameof(sapfs.CharSequenceArrayPropield), sapfs.CharSequenceArrayPropield);
+                    ctb.CollectionField.AlwaysAddAllCharSeq(nameof(sapfs.CharSequenceArrayPropield), sapfs.CharSequenceArrayPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.VersionArrayPropield), sapfs.VersionArrayPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.IntPtrArrayPropield), sapfs.IntPtrArrayPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.UriArrayPropield), sapfs.UriArrayPropield);
@@ -1539,7 +1552,7 @@ public struct StandardArrayPropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardArrayPropertyFieldStruct> WhenPopulatedReveal
+    public static PalantírReveal<StandardArrayPropertyFieldStruct> WhenPopulatedReveal
     {
         get
         {
@@ -1598,7 +1611,7 @@ public struct StandardArrayPropertyFieldStruct
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.NullIpNetworkArrayPropield), sapfs.NullIpNetworkArrayPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.StringArrayPropield), sapfs.StringArrayPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.StringBuilderArrayPropield), sapfs.StringBuilderArrayPropield);
-                    ctb.CollectionField.WhenPopulatedAddAllCharSequence(nameof(sapfs.CharSequenceArrayPropield), sapfs.CharSequenceArrayPropield);
+                    ctb.CollectionField.WhenPopulatedAddAllCharSeq(nameof(sapfs.CharSequenceArrayPropield), sapfs.CharSequenceArrayPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.VersionArrayPropield), sapfs.VersionArrayPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.IntPtrArrayPropield), sapfs.IntPtrArrayPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.UriArrayPropield), sapfs.UriArrayPropield);
@@ -1624,7 +1637,7 @@ public struct StandardArrayPropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardArrayPropertyFieldStruct> AlwaysAddFiltered
+    public static PalantírReveal<StandardArrayPropertyFieldStruct> AlwaysAddFiltered
     {
         get
         {
@@ -1768,7 +1781,7 @@ public struct StandardArrayPropertyFieldStruct
                                                                   (sapfs.StringArrayPropield).CheckPredicate);
                     ctb.CollectionField.AlwaysAddFiltered(nameof(sapfs.StringBuilderArrayPropield), sapfs.StringBuilderArrayPropield, FilterRegistry
                                                               .OrderedCollectionFilterDefault(sapfs.StringBuilderArrayPropield).CheckPredicate);
-                    ctb.CollectionField.AlwaysAddFilteredCharSequence(nameof(sapfs.CharSequenceArrayPropield), sapfs.CharSequenceArrayPropield, FilterRegistry
+                    ctb.CollectionField.AlwaysAddFilteredCharSeq(nameof(sapfs.CharSequenceArrayPropield), sapfs.CharSequenceArrayPropield, FilterRegistry
                                                                           .OrderedCollectionFilterDefault(sapfs.CharSequenceArrayPropield).CheckPredicate);
                     ctb.CollectionField.AlwaysAddFiltered(nameof(sapfs.VersionArrayPropield), sapfs.VersionArrayPropield, FilterRegistry
                                                               .OrderedCollectionFilterDefault
@@ -1825,7 +1838,7 @@ public struct StandardArrayPropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardArrayPropertyFieldStruct> WhenPopulatedWithFilterReveal
+    public static PalantírReveal<StandardArrayPropertyFieldStruct> WhenPopulatedWithFilterReveal
     {
         get
         {
@@ -1960,7 +1973,7 @@ public struct StandardArrayPropertyFieldStruct
                                                                         (sapfs.StringArrayPropield).CheckPredicate);
                     ctb.CollectionField.WhenPopulatedWithFilter(nameof(sapfs.StringBuilderArrayPropield), sapfs.StringBuilderArrayPropield, FilterRegistry
                                                                     .OrderedCollectionFilterDefault(sapfs.StringBuilderArrayPropield).CheckPredicate);
-                    ctb.CollectionField.WhenPopulatedWithFilterCharSequence(nameof(sapfs.CharSequenceArrayPropield), sapfs.CharSequenceArrayPropield
+                    ctb.CollectionField.WhenPopulatedWithFilterCharSeq(nameof(sapfs.CharSequenceArrayPropield), sapfs.CharSequenceArrayPropield
                                                                           , FilterRegistry
                                                                             .OrderedCollectionFilterDefault(sapfs.CharSequenceArrayPropield).CheckPredicate);
                     ctb.CollectionField.WhenPopulatedWithFilter(nameof(sapfs.VersionArrayPropield), sapfs.VersionArrayPropield, FilterRegistry

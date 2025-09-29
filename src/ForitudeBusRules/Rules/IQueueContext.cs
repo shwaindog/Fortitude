@@ -51,8 +51,8 @@ public class QueueContext : IQueueContext
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(RegisteredOn), RegisteredOn)
-            .Field.AlwaysAdd(nameof(QueueTimer), QueueTimer)
+            .Field.AlwaysReveal(nameof(RegisteredOn), RegisteredOn)
+            .Field.AlwaysReveal(nameof(QueueTimer), QueueTimer)
             .Complete();
 
     public override string ToString() => $"{nameof(QueueContext)}({nameof(RegisteredOn)}: {RegisteredOn})";

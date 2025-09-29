@@ -9,7 +9,7 @@ namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains.PipelineSpies;
 
 public class SnapLogEntryEventStateSpy(IList<string> snappedLogEntryEvents, string spyName) : FLogEntryForkingInterceptor
 {
-    private static readonly StringBearerRevealState<IFLogEntry> SummarizedFLogEntry = (flogEntry, sbc) =>
+    private static readonly PalantírReveal<IFLogEntry> SummarizedFLogEntry = (flogEntry, sbc) =>
     {
         using var tb =
             sbc.StartComplexType(nameof(FLogEntry))
@@ -19,12 +19,12 @@ public class SnapLogEntryEventStateSpy(IList<string> snappedLogEntryEvents, stri
                .Field.WhenNonDefaultAdd(nameof(flogEntry.CorrelationId), flogEntry.CorrelationId)
                .Field.AlwaysAdd(nameof(flogEntry.LogDateTime), flogEntry.LogDateTime, "{0:HH:mm:ss.ffffff}")
                .Field.AlwaysAdd(nameof(flogEntry.LogLevel), flogEntry.LogLevel)
-               .Field.AlwaysAdd(nameof(flogEntry.LogLocation), flogEntry.LogLocation, flogEntry.LogLocation.Styler())
+               .Field.AlwaysReveal(nameof(flogEntry.LogLocation), flogEntry.LogLocation, flogEntry.LogLocation.Styler())
                .Field.WhenNonNullAdd(nameof(flogEntry.Style), flogEntry.Style)
                .Field.WhenNonNullAdd("Thread.Id", flogEntry.Thread.ManagedThreadId)
                .Field.WhenNonNullAdd("Thread.Name", flogEntry.Thread.Name)
                .Field.WhenNonDefaultAdd(nameof(flogEntry.Logger), flogEntry.Logger?.FullName[^25..] ?? "".AsSpan())
-               .Field.AlwaysAdd(nameof(flogEntry.Message), flogEntry.Message, 0, 40, "\"{0}...\"");
+               .Field.AlwaysAddCharSeq(nameof(flogEntry.Message), flogEntry.Message, 0, 40, "\"{0}...\"");
 
         return tb.Complete();
     };
@@ -44,8 +44,8 @@ public class SnapLogEntryEventStateSpy(IList<string> snappedLogEntryEvents, stri
             .Field.AlwaysAdd("Spy", spyName)
             .Field.AlwaysAdd("CapturedAt", TimeContext.UtcNow, "{0:HH:mm:ss.ffffff}")
             .Field.AlwaysAdd("OnQueueNumber", FLogAsyncQueue.MyCallingQueueNumber)
-            .Field.WhenNonNullAdd("LogEntry", logEntryEvent.LogEntry, SummarizedFLogEntry)
-            .Field.WhenNonDefaultAddStyled("LogEntryBatch", logEntryEvent.LogEntriesBatch).Complete();
+            .Field.WhenNonNullReveal("LogEntry", logEntryEvent.LogEntry, SummarizedFLogEntry)
+            .Field.WhenNonDefaultReveal("LogEntryBatch", logEntryEvent.LogEntriesBatch).Complete();
 
         var logEntryEventSnap = snapStateAppender.WriteBuffer.ToString();
         LogEntries.Add(logEntryEventSnap);

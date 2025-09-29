@@ -7,20 +7,20 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueColle
 
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
 {
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKBase, TVBase> filterPredicate
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase =>
+        where TKey : TKFilterBase where TValue : TVFilterBase =>
         AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueFormatString, keyFormatString);
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKeyFilterBase, TValueFilterBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKBase, TVBase> filterPredicate
+      , KeyValuePredicate<TKeyFilterBase, TValueFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKeyFilterBase where TValue : TValueFilterBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -54,12 +54,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TVBase> filterPredicate
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKFilterBase where TValue : TVFilterBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -93,10 +93,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase, TVBase>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TVBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKFilterBase where TValue : TVFilterBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -132,12 +132,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase, TVBase>
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TVBase> filterPredicate
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKFilterBase where TValue : TVFilterBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -181,20 +181,20 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase1, TVBase2 =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueStyler, keyFormatString);
+        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase =>
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString);
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase1, TVBase2
+        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -215,7 +215,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueStyler, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -228,12 +228,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase1, TVBase2
+        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -254,7 +254,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueStyler, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -267,12 +267,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2>
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase1, TVBase2
+        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -295,7 +295,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueStyler, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
@@ -308,11 +308,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2>
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, StringBearerRevealState<TVBase2> valueStyler
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase1, TVBase2
+        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -343,7 +343,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueStyler, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -357,16 +357,16 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
-        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueStyler, keyStyler);
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase =>
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer);
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    (string fieldName, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
-        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+    (string fieldName, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -387,7 +387,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueStyler, keyStyler);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -400,10 +400,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
-        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -424,7 +424,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueStyler, keyStyler);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -437,10 +437,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
     
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
-        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -463,7 +463,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueStyler, keyStyler);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
@@ -476,10 +476,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
-        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -509,7 +509,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueStyler, keyStyler);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();

@@ -20,9 +20,9 @@ public record struct FLogCallLocation(string MemberName, string SourceFilePath, 
 
 public static class FLogCallLocationExtensions
 {
-    public static StringBearerRevealState<FLogCallLocation> FLogCallLocationStyler = FormatFlogLevelAppender;
+    public static PalantírReveal<FLogCallLocation> FLogCallLocationStyler = FormatFlogLevelAppender;
 
-    public static StringBearerRevealState<FLogCallLocation> Styler(this FLogCallLocation callLoc) => FLogCallLocationStyler;
+    public static PalantírReveal<FLogCallLocation> Styler(this FLogCallLocation callLoc) => FLogCallLocationStyler;
 
 
     public static StateExtractStringRange FormatFlogLevelAppender(this FLogCallLocation callLoc, ITheOneString sbc) =>

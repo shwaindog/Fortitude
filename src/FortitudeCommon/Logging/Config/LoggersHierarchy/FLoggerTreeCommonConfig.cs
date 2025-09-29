@@ -258,9 +258,9 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(Name), Name)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
-           .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
-           .Field.WhenNonNullAddStyled(nameof(Appenders), Appenders)
-           .Field.WhenNonNullAddStyled(nameof(LogEntryPool), LogEntryPool)
+           .Field.AlwaysReveal(nameof(DescendantLoggers), DescendantLoggers)
+           .Field.WhenNonNullReveal(nameof(Appenders), Appenders)
+           .Field.WhenNonNullReveal(nameof(LogEntryPool), LogEntryPool)
            .Complete();
 
     public override string ToString() => this.DefaultToString();

@@ -116,10 +116,10 @@ public class TradingTimeTableConfig : ConfigSection, ITradingTimeTableConfig
     
     public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(TradingScheduleConfig), TradingScheduleConfig)
-            .Field.AlwaysAdd(nameof(HighLiquidityTimeTable), HighLiquidityTimeTable)
-            .Field.AlwaysAdd(nameof(ParentTradingTimeTableConfig), ParentTradingTimeTableConfig)
-            .Field.AlwaysAdd(nameof(VenueOperatingTimeTable), VenueOperatingTimeTable)
+            .Field.AlwaysReveal(nameof(TradingScheduleConfig), TradingScheduleConfig)
+            .Field.AlwaysReveal(nameof(HighLiquidityTimeTable), HighLiquidityTimeTable)
+            .Field.AlwaysReveal(nameof(ParentTradingTimeTableConfig), ParentTradingTimeTableConfig)
+            .Field.AlwaysReveal(nameof(VenueOperatingTimeTable), VenueOperatingTimeTable)
             .Complete();
 
     public override string ToString() => 

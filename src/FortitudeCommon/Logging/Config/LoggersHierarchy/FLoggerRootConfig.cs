@@ -113,8 +113,8 @@ public class FLoggerRootConfig : FLoggerTreeCommonConfig, IMutableFLoggerRootCon
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(Name), Name)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
-           .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
-           .Field.WhenNonNullAddStyled(nameof(Appenders), Appenders)
-           .Field.WhenNonNullAddStyled(nameof(LogEntryPool), LogEntryPool)
+           .Field.AlwaysReveal(nameof(DescendantLoggers), DescendantLoggers)
+           .Field.WhenNonNullReveal(nameof(Appenders), Appenders)
+           .Field.WhenNonNullReveal(nameof(LogEntryPool), LogEntryPool)
            .Complete();
 }

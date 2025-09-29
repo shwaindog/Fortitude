@@ -1,5 +1,4 @@
-﻿using System.Text.Encodings.Web;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentAssertions;
 using FortitudeCommon.Logging.Config.ExampleConfig;
@@ -15,7 +14,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCru
 
 [TestClass]
 [NoMatchingProductionClass]
-public class JsonSingleFieldSerialization
+public class JsonSingleFieldSerializationTests
 {
     private JsonSerializerOptions jsonMatchOneStringSerializerOptions = null!;
 

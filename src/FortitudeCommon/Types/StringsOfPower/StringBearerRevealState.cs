@@ -4,11 +4,11 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.Types.StringsOfPower;
 
-public delegate StateExtractStringRange StringBearerRevealState<in TToStyle>(TToStyle toStyle, ITheOneString toAppendTo);
+public delegate StateExtractStringRange PalantírReveal<in TToStyle>(TToStyle toStyle, ITheOneString toAppendTo);
 
 public interface IStringBearerRevelStateProvider<in TToStyle> : IStringBearerFormattableProvider
 {
-    StringBearerRevealState<TToStyle>  StringBearerRevealState { get; }
+    PalantírReveal<TToStyle>  EnumPalantír { get; }
 }
 
 public delegate int StringBearerSpanFormattable<in TToFormat>(TToFormat toFormat, Span<char> destination, ReadOnlySpan<char> format, IFormatProvider? provider);
@@ -27,7 +27,7 @@ public interface IStringBearerSpanFormattableProvider<in TToStyle> : IStringBear
 
 public static class StringBearerRevelStateExtensions
 {
-    public static string DefaultToString<T>(this StringBearerRevealState<T> styler, T toStyle, IRecycler? recycler = null)
+    public static string DefaultToString<T>(this PalantírReveal<T> styler, T toStyle, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
         styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue( StringStyle.Default));

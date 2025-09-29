@@ -57,16 +57,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     protected ITheOneString? AppendValueCollection<TToStyle, TStylerType>
-        (ITheOneString? toAppendTo, TToStyle[]? value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+        (ITheOneString? toAppendTo, TToStyle[]? value, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAll(value, stringBearerRevealState).Complete();
+                  .AddAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendValueCollection<TToStyle, TStylerType>
-        ((TToStyle[]?, StringBearerRevealState<TStylerType>) valueTuple, ITheOneString? appender)
+        ((TToStyle[]?, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
         where TToStyle : TStylerType
     {
         var (value, formatString) = valueTuple;
@@ -76,16 +76,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     protected ITheOneString? AppendValueCollection<TToStyle, TStylerType>
-        (ITheOneString? toAppendTo, IReadOnlyList<TToStyle>? value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+        (ITheOneString? toAppendTo, IReadOnlyList<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAll(value, stringBearerRevealState).Complete();
+                  .AddAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendValueCollection<TToStyle, TStylerType>
-        ((IReadOnlyList<TToStyle>?, StringBearerRevealState<TStylerType>) valueTuple, ITheOneString? appender)
+        ((IReadOnlyList<TToStyle>?, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
         where TToStyle : TStylerType
     {
         var (value, formatString) = valueTuple;
@@ -154,15 +154,15 @@ public abstract partial class FLogEntryMessageBuilder
 
     protected ITheOneString? AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
     (ITheOneString? toAppendTo, TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter
-      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TToStyleBase, TStylerType
+      , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddFiltered(value, filter, stringBearerRevealState).Complete();
+                  .AddFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
-        ((TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, StringBearerRevealState<TStylerType>) valueTuple, ITheOneString? appender)
+        ((TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
         where TToStyle : TToStyleBase, TStylerType
     {
         var (value, filter, structStyler) = valueTuple;
@@ -173,15 +173,15 @@ public abstract partial class FLogEntryMessageBuilder
 
     protected ITheOneString? AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
     (ITheOneString? toAppendTo, IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filter
-      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TToStyleBase, TStylerType
+      , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddFiltered(value, filter, stringBearerRevealState).Complete();
+                  .AddFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
-    ((IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, StringBearerRevealState<TStylerType>) valueTuple
+    ((IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple
       , ITheOneString? appender) where TToStyle : TToStyleBase, TStylerType
     {
         var (value, filter, structStyler) = valueTuple;
@@ -245,16 +245,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     protected ITheOneString? AppendValueCollectionEnumerate<TToStyle, TStylerType>
-        (ITheOneString? toAppendTo, IEnumerable<TToStyle>? value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+        (ITheOneString? toAppendTo, IEnumerable<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, stringBearerRevealState).Complete();
+                  .AddAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendValueCollectionEnumerate<TToStyle, TStylerType>
-        ((IEnumerable<TToStyle>?, StringBearerRevealState<TStylerType>) valueTuple, ITheOneString? appender)
+        ((IEnumerable<TToStyle>?, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
         where TToStyle : TStylerType
     {
         var (value, structStyler) = valueTuple;
@@ -264,16 +264,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     protected ITheOneString? AppendValueCollectionEnumerate<TToStyle, TStylerType>
-        (ITheOneString? toAppendTo, IEnumerator<TToStyle>? value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+        (ITheOneString? toAppendTo, IEnumerator<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, stringBearerRevealState).Complete();
+                  .AddAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendValueCollectionEnumerate<TToStyle, TStylerType>
-        ((IEnumerator<TToStyle>?, StringBearerRevealState<TStylerType>) valueTuple, ITheOneString? appender)
+        ((IEnumerator<TToStyle>?, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
         where TToStyle : TStylerType
     {
         var (value, structStyler) = valueTuple;
@@ -439,16 +439,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     protected ITheOneString? AppendObjectCollection<T, TBase>
-        (ITheOneString? toAppendTo, T?[]? value, StringBearerRevealState<TBase> stringBearerRevealState)
+        (ITheOneString? toAppendTo, T?[]? value, PalantírReveal<TBase> palantírReveal)
         where T : class, TBase where TBase : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAll(value, stringBearerRevealState).Complete();
+                  .AddAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendObjectCollection<T, TBase>
-        ((T[]?, StringBearerRevealState<TBase>) valueTuple, ITheOneString? appender)
+        ((T[]?, PalantírReveal<TBase>) valueTuple, ITheOneString? appender)
         where T : class, TBase where TBase : class
     {
         var (value, customTypeStyler) = valueTuple;
@@ -458,16 +458,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     protected ITheOneString? AppendObjectCollection<T, TBase>
-        (ITheOneString? toAppendTo, IReadOnlyList<T>? value, StringBearerRevealState<TBase> stringBearerRevealState)
+        (ITheOneString? toAppendTo, IReadOnlyList<T>? value, PalantírReveal<TBase> palantírReveal)
         where T : class, TBase where TBase : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAll(value, stringBearerRevealState).Complete();
+                  .AddAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendObjectCollection<T, TBase>
-        ((IReadOnlyList<T>?, StringBearerRevealState<TBase>) valueTuple, ITheOneString? appender)
+        ((IReadOnlyList<T>?, PalantírReveal<TBase>) valueTuple, ITheOneString? appender)
         where T : class, TBase where TBase : class
     {
         var (value, customTypeStyler) = valueTuple;
@@ -477,16 +477,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     protected ITheOneString? AppendFilteredObjectCollection<T, TBase1, TBase2>
-        (ITheOneString? toAppendTo, T[]? value, OrderedCollectionPredicate<TBase1> filter, StringBearerRevealState<TBase2> stringBearerRevealState)
+        (ITheOneString? toAppendTo, T[]? value, OrderedCollectionPredicate<TBase1> filter, PalantírReveal<TBase2> palantírReveal)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddFiltered(value, filter, stringBearerRevealState).Complete();
+                  .AddFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendFilteredObjectCollection<T, TBase1, TBase2>
-        ((T[]?, OrderedCollectionPredicate<TBase1>, StringBearerRevealState<TBase2>) valueTuple, ITheOneString? appender)
+        ((T[]?, OrderedCollectionPredicate<TBase1>, PalantírReveal<TBase2>) valueTuple, ITheOneString? appender)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
     {
         var (value, filter, customTypeStyler) = valueTuple;
@@ -497,15 +497,15 @@ public abstract partial class FLogEntryMessageBuilder
 
     protected ITheOneString? AppendFilteredObjectCollection<T, TBase1, TBase2>
     (ITheOneString? toAppendTo, IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase1> filter
-      , StringBearerRevealState<TBase2> stringBearerRevealState) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
+      , PalantírReveal<TBase2> palantírReveal) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddFiltered(value, filter, stringBearerRevealState).Complete();
+                  .AddFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendFilteredObjectCollection<T, TBase1, TBase2>
-        ((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase1>, StringBearerRevealState<TBase2>) valueTuple, ITheOneString? appender)
+        ((IReadOnlyList<T>?, OrderedCollectionPredicate<TBase1>, PalantírReveal<TBase2>) valueTuple, ITheOneString? appender)
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
     {
         var (value, filter, customTypeStyler) = valueTuple;
@@ -515,16 +515,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     protected ITheOneString? AppendObjectCollectionEnumerate<T, TBase>
-        (ITheOneString? toAppendTo, IEnumerable<T>? value, StringBearerRevealState<TBase> stringBearerRevealState)
+        (ITheOneString? toAppendTo, IEnumerable<T>? value, PalantírReveal<TBase> palantírReveal)
         where T : class, TBase where TBase : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, stringBearerRevealState).Complete();
+                  .AddAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendObjectCollectionEnumerate<T, TBase>
-        ((IEnumerable<T>?, StringBearerRevealState<TBase>) valueTuple, ITheOneString? appender)
+        ((IEnumerable<T>?, PalantírReveal<TBase>) valueTuple, ITheOneString? appender)
         where T : class, TBase where TBase : class
     {
         var (value, customTypeStyler) = valueTuple;
@@ -534,16 +534,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     public ITheOneString? AppendObjectCollectionEnumerate<T, TBase>
-        (ITheOneString? toAppendTo, IEnumerator<T>? value, StringBearerRevealState<TBase> stringBearerRevealState)
+        (ITheOneString? toAppendTo, IEnumerator<T>? value, PalantírReveal<TBase> palantírReveal)
         where T : class, TBase where TBase : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, stringBearerRevealState).Complete();
+                  .AddAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendObjectCollectionEnumerate<T, TBase>
-        ((IEnumerator<T>?, StringBearerRevealState<TBase>) valueTuple, ITheOneString? appender)
+        ((IEnumerator<T>?, PalantírReveal<TBase>) valueTuple, ITheOneString? appender)
         where T : class, TBase where TBase : class
     {
         var (value, customTypeStyler) = valueTuple;

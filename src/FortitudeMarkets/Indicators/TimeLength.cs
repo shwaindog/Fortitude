@@ -22,7 +22,7 @@ public struct TimeSeriesSpan
     public int                NumberOfPeriods { get; set; }
     public TimeBoundaryPeriod Period          { get; set; }
     
-    public static StringBearerRevealState<TimeSeriesSpan?> Styler { get; } =
+    public static PalantírReveal<TimeSeriesSpan?> Styler { get; } =
         (tss, stsa) =>
             stsa.StartComplexType(tss, nameof(tss))
                 .Field.AlwaysAdd(nameof(tss.Value.Period), tss?.Period)
@@ -56,12 +56,12 @@ public struct TimeLength
     public TimeSeriesSpan? TimeSeriesLength { get; set; }
     
     
-    public static StringBearerRevealState<TimeLength> Styler { get; } =
+    public static PalantírReveal<TimeLength> Styler { get; } =
         (tl, stsa) =>
             stsa.StartComplexType(tl, nameof(tl))
                 .Field.AlwaysAdd(nameof(tl.Type), tl.Type)
                 .Field.AlwaysAdd(nameof(tl.TimeSpanLength), tl.TimeSpanLength)
-                .Field.AlwaysAdd(nameof(tl.TimeSeriesLength), tl.TimeSeriesLength, TimeSeriesSpan.Styler)
+                .Field.AlwaysReveal(nameof(tl.TimeSeriesLength), tl.TimeSeriesLength, TimeSeriesSpan.Styler)
                 .Complete();
 }
 

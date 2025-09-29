@@ -303,12 +303,12 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
                .Field.WhenNonDefaultAdd(nameof(CorrelationId), CorrelationId)
                .Field.AlwaysAdd(nameof(LogDateTime), LogDateTime, "{0:yyyy-MM-ddTHH:mm:ss.ffffff}")
                .Field.AlwaysAdd(nameof(LogLevel), LogLevel)
-               .Field.AlwaysAdd(nameof(LogLocation), LogLocation, LogLocation.Styler())
+               .Field.AlwaysReveal(nameof(LogLocation), LogLocation, LogLocation.Styler())
                .Field.WhenNonDefaultAdd(nameof(Logger), Logger.FullName)
                .Field.WhenNonNullAdd(nameof(Style), Style)
                .Field.WhenNonNullAdd("Thread.Id", Thread?.ManagedThreadId)
                .Field.WhenNonNullAdd("Thread.Name", Thread?.Name)
-               .Field.AlwaysAdd(nameof(Message), messageBuilder)
+               .Field.AlwaysAddCharSeq(nameof(Message), messageBuilder)
                .Field.WhenNonNullAddObject(nameof(CallerContextObject), CallerContextObject);
 
         return tb.Complete();

@@ -29,13 +29,13 @@ public partial class FLogStringAppender
         CallOnComplete();
     }
 
-    public void FinalAppend<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType
+    public void FinalAppend<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType
     {
-        stringBearerRevealState(value, MessageStsa);
+        palantírReveal(value, MessageStsa);
         CallOnComplete();
     }
 
-    public void FinalAppend<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
+    public void FinalAppend<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
         where TToStyle : TStylerType
     {
         AppendStyled(valueTuple, MessageStsa);

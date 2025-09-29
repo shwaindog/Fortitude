@@ -191,5 +191,5 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
            .Field.AlwaysAdd(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling)
            .Field.AlwaysAdd(nameof(Broadcast), Broadcast)
            .Field.AlwaysAdd(nameof(MaxDispatchUnconfirmed), MaxDispatchUnconfirmed)
-           .Field.AlwaysAdd(nameof(AsyncReceiveQueue), AsyncReceiveQueue).Complete();
+           .Field.AlwaysReveal(nameof(AsyncReceiveQueue), AsyncReceiveQueue).Complete();
 }

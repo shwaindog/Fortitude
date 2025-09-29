@@ -157,7 +157,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle
-      , StringBearerRevealState<TBase> styler)
+      , PalantírReveal<TBase> styler)
         where TB : TypeMolder where T : TBase
     {
         var sb           = typeBuilder.Sb;
@@ -352,7 +352,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle
-      , StringBearerRevealState<TBase> styler)
+      , PalantírReveal<TBase> styler)
         where TB : TypeMolder where T : TBase
     {
         var sb           = typeBuilder.Sb;
@@ -441,7 +441,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TVBase>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null)
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null)
         where TB : TypeMolder where TValue : TVBase
     {
         if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
@@ -469,8 +469,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler
-      , StringBearerRevealState<TKBase> keyStyler)
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler
+      , PalantírReveal<TKBase> keyStyler)
         where TB : TypeMolder where TKey : TKBase where TValue : TVBase
     {
         if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
@@ -524,7 +524,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
     public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB, TCustStyle, TCustBase>(ITypeMolderDieCast<TB> typeBuilder
       , TCustStyle item
-      , int retrieveCount, StringBearerRevealState<TCustBase> styler) where TB : TypeMolder where TCustStyle : TCustBase
+      , int retrieveCount, PalantírReveal<TCustBase> styler) where TB : TypeMolder where TCustStyle : TCustBase
     {
         styler(item, typeBuilder.Master);
         return typeBuilder;
