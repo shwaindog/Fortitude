@@ -17,7 +17,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
 
     private const string AddAllMethodName                      = $"{nameof(SimpleOrderedCollectionMold.AddAll)}";
     private const string AddAllEnumerateMethodName             = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerate)}";
-    private const string AddAllCharSequenceMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSequence)}";
+    private const string AddAllCharSequenceMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeq)}";
     private const string AddAllCharSequenceEnumerateMethodName = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeqEnumerate)}";
     private const string RevealAllMethodName                   = $"{nameof(SimpleOrderedCollectionMold.RevealAll)}";
     private const string RevealAllEnumerateMethodName          = $"{nameof(SimpleOrderedCollectionMold.RevealAllEnumerate)}";

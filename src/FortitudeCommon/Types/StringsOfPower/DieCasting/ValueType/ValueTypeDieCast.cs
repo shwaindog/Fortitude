@@ -27,13 +27,13 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
 
     public bool NotJson => Style.IsNotJson();
 
-    public TExt FieldValueNext(string nonJsonfieldName, bool? value)
+    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, bool? value)
     {
         (NotJson ? this.FieldNameJoin(nonJsonfieldName) : this).AppendOrNull(value);
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext<TFmt>(string nonJsonfieldName, TFmt value, string? formatString = null) where TFmt : ISpanFormattable
+    public TExt FieldValueNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value, string? formatString = null) where TFmt : ISpanFormattable
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (formatString != null) this.AppendMatchFormattedOrNull(value, formatString);
@@ -48,7 +48,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, PalantírReveal<TStylerType> palantírReveal) 
+    public TExt FieldValueNext<TToStyle, TStylerType>(ReadOnlySpan<char> nonJsonfieldName, TToStyle value, PalantírReveal<TStylerType> palantírReveal) 
         where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
@@ -56,7 +56,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueOrNullNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle? value, PalantírReveal<TStylerType> palantírReveal) 
+    public TExt FieldValueOrNullNext<TToStyle, TStylerType>(ReadOnlySpan<char> nonJsonfieldName, TToStyle? value, PalantírReveal<TStylerType> palantírReveal) 
         where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
@@ -71,7 +71,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, PalantírReveal<TStylerType> palantírReveal
+    public TExt FieldStringNext<TToStyle, TStylerType>(ReadOnlySpan<char> nonJsonfieldName, TToStyle value, PalantírReveal<TStylerType> palantírReveal
       , string defaultValue = "") where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
@@ -88,7 +88,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringOrNullNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle? value, PalantírReveal<TStylerType> palantírReveal) 
+    public TExt FieldStringOrNullNext<TToStyle, TStylerType>(ReadOnlySpan<char> nonJsonfieldName, TToStyle? value, PalantírReveal<TStylerType> palantírReveal) 
         where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
@@ -105,7 +105,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext<TFmt>(string nonJsonfieldName, TFmt? value, string? formatString = null) where TFmt : ISpanFormattable
+    public TExt FieldStringNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string? formatString = null) where TFmt : ISpanFormattable
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         formatString ??= StyledTypeBuilderExtensions.NoFormattingFormatString;
@@ -115,7 +115,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldEnumStringOrNullNext<TEnum>(string nonJsonfieldName, TEnum? value) where TEnum : Enum
+    public TExt FieldEnumStringOrNullNext<TEnum>(ReadOnlySpan<char> nonJsonfieldName, TEnum? value) where TEnum : Enum
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value == null)
@@ -125,20 +125,20 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         else
         {
             Sb.Append("\"");
-            this.AppendFormattedOrNull(value, StyledTypeBuilderExtensions.NoFormattingFormatString);
+            this.AppendFormattedOrNull(value, "");
             Sb.Append("\"");
         }
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext(string nonJsonfieldName, ReadOnlySpan<char> value)
+    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"").Append(value).Append("\"");
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext(string nonJsonfieldName, ReadOnlySpan<char> value, decimal fallbackValue = decimal.Zero)
+    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, decimal fallbackValue = decimal.Zero)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if(value.Length != 0) Sb.Append(value);
@@ -146,14 +146,14 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext(string nonJsonfieldName, string value)
+    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, string value)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"").Append(value).Append("\"");
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringOrNullNext(string nonJsonfieldName, string? value)
+    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -182,7 +182,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         if (Style.IsJson()) finishedBuilding.Append("\"");
     }
 
-    public TExt FieldValueNext(string nonJsonfieldName, string? value, int startIndex, int length, decimal fallbackValue = decimal.Zero)
+    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length, decimal fallbackValue = decimal.Zero)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -205,7 +205,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext(string nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue)
+    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -217,7 +217,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext(string nonJsonfieldName, char[]? value, int startIndex, int length, decimal fallbackValue = decimal.Zero)
+    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, decimal fallbackValue = decimal.Zero)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -240,7 +240,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext(string nonJsonfieldName, ICharSequence? value, string defaultValue)
+    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, string defaultValue)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -256,7 +256,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringOrNullNext(string nonJsonfieldName, ICharSequence? value)
+    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -272,7 +272,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext(string nonJsonfieldName, ICharSequence? value, string defaultValue)
+    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, string defaultValue)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -286,7 +286,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext(string nonJsonfieldName, ICharSequence? value, int startIndex, int length, decimal fallbackValue = decimal.Zero)
+    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length, decimal fallbackValue = decimal.Zero)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -309,7 +309,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext(string nonJsonfieldName, StringBuilder? value, string defaultValue = "")
+    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, string defaultValue = "")
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -325,7 +325,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringOrNullNext(string nonJsonfieldName, StringBuilder? value)
+    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -341,7 +341,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext(string nonJsonfieldName, string? value, int startIndex, int length, string defaultValue = "")
+    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length, string defaultValue = "")
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -357,7 +357,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringOrNullNext(string nonJsonfieldName, string? value, int startIndex, int length)
+    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -373,7 +373,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext(string nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = "")
+    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = "")
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -389,7 +389,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringOrNullNext(string nonJsonfieldName, char[]? value, int startIndex, int length)
+    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -405,7 +405,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext(string nonJsonfieldName, StringBuilder? value, int startIndex, int length, decimal fallbackValue = decimal.Zero)
+    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length, decimal fallbackValue = decimal.Zero)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -428,7 +428,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext(string nonJsonfieldName, IStringBearer? value, string defaultValue = "")
+    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, IStringBearer? value, string defaultValue = "")
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -444,7 +444,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringOrNullNext(string nonJsonfieldName, IStringBearer? value)
+    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, IStringBearer? value)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)

@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
@@ -62,7 +61,7 @@ public class ComplexValueTypeMold : ValueTypeMold<ComplexValueTypeMold>
         logOnlyInternalField?.DecrementRefCount();
         logOnlyInternalField = null!;
 
-        CompAccess?.DecrementIndent();
+        CompAccess.DecrementIndent();
         CompAccess = null!;
     }
 

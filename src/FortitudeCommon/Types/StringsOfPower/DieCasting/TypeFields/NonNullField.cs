@@ -11,187 +11,187 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 public partial class SelectTypeField<TExt> where TExt : TypeMolder
 {
-    public TExt WhenNonNullAdd (string fieldName, bool? value) =>
+    public TExt WhenNonNullAdd (ReadOnlySpan<char> fieldName, bool? value) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd<TFmt> (string fieldName, TFmt? value
+    public TExt WhenNonNullAdd<TFmt> (ReadOnlySpan<char> fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAs<TFmt> (string fieldName, TFmt? value
+    public TExt WhenNonNullAddAs<TFmt> (ReadOnlySpan<char> fieldName, TFmt? value
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         !stb.SkipFields && value != null 
             ? AlwaysAddAs(fieldName, value, flags, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd<TFmtStruct> (string fieldName, TFmtStruct? value
+    public TExt WhenNonNullAdd<TFmtStruct> (ReadOnlySpan<char> fieldName, TFmtStruct? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAs<TFmtStruct> (string fieldName, TFmtStruct? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+    public TExt WhenNonNullAddAs<TFmtStruct> (ReadOnlySpan<char> fieldName, TFmtStruct? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         !stb.SkipFields && value != null 
             ? AlwaysAddAs(fieldName, value, flags, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullReveal<TCloaked, TCloakedBase>(string fieldName, TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal)
+    public TExt WhenNonNullReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal)
         where TCloaked : TCloakedBase =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysReveal(fieldName, value, palantírReveal) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullRevealAs<TCloaked, TCloakedBase>(string fieldName, TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
+    public TExt WhenNonNullRevealAs<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType) where TCloaked : TCloakedBase =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysRevealAs(fieldName, value, palantírReveal, flags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullReveal<TCloakedStruct>(string fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
+    public TExt WhenNonNullReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysReveal(fieldName, value, palantírReveal) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullRevealAs<TCloakedStruct>(string fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TExt WhenNonNullRevealAs<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType) where TCloakedStruct : struct =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysRevealAs(fieldName, value, palantírReveal, flags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullReveal<TBearer>(string fieldName, TBearer? value) where TBearer : IStringBearer =>
+    public TExt WhenNonNullReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value) where TBearer : IStringBearer =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysReveal(fieldName, value) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullRevealAs<TBearer>(string fieldName, TBearer? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType) 
+    public TExt WhenNonNullRevealAs<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType) 
         where TBearer : IStringBearer =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysRevealAs(fieldName, value, flags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullReveal<TBearerStruct>(string fieldName, TBearerStruct? value) where TBearerStruct : struct, IStringBearer =>
+    public TExt WhenNonNullReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value) where TBearerStruct : struct, IStringBearer =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysReveal(fieldName, value) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullRevealAs<TBearerStruct>(string fieldName, TBearerStruct? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType) 
+    public TExt WhenNonNullRevealAs<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType) 
         where TBearerStruct : struct, IStringBearer =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysRevealAs(fieldName, value, flags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, string? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, string? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAs(string fieldName, string? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+    public TExt WhenNonNullAddAs(ReadOnlySpan<char> fieldName, string? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAddAs(fieldName, value, flags, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, string? value, int startIndex, int count = int.MaxValue
+    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int count = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, startIndex, count, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAs(string fieldName, string? value, int startIndex, int count = int.MaxValue
+    public TExt WhenNonNullAddAs(ReadOnlySpan<char> fieldName, string? value, int startIndex, int count = int.MaxValue
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAddAs(fieldName, value, startIndex, count, flags, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, char[]? value
+    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAs(string fieldName, char[]? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+    public TExt WhenNonNullAddAs(ReadOnlySpan<char> fieldName, char[]? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAddAs(fieldName, value, flags, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, char[]? value, int startIndex, int count = int.MaxValue
+    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int count = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, startIndex, count, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAs(string fieldName, char[]? value, int startIndex, int count = int.MaxValue
+    public TExt WhenNonNullAddAs(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int count = int.MaxValue
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAddAs(fieldName, value, startIndex, count, flags, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddCharSeq<TCharSeq>(string fieldName, TCharSeq? value
+    public TExt WhenNonNullAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
         !stb.SkipFields && value != null 
             ? AlwaysAddCharSeq(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddCharSeqAs<TCharSeq>(string fieldName, TCharSeq? value
+    public TExt WhenNonNullAddCharSeqAs<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
         !stb.SkipFields && value != null 
             ? AlwaysAddCharSeqAs(fieldName, value, flags, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddCharSeq<TCharSeq>(string fieldName, TCharSeq? value, int startIndex, int count = int.MaxValue
+    public TExt WhenNonNullAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int count = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
         !stb.SkipFields && value != null 
             ? AlwaysAddCharSeq(fieldName, value, startIndex, count, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddCharSeqAs<TCharSeq>(string fieldName, TCharSeq? value, int startIndex, int count = int.MaxValue
+    public TExt WhenNonNullAddCharSeqAs<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int count = int.MaxValue
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
         !stb.SkipFields && value != null 
             ? AlwaysAddCharSeqAs(fieldName, value, startIndex, count, flags, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, StringBuilder? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
+    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAs(string fieldName, StringBuilder? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+    public TExt WhenNonNullAddAs(ReadOnlySpan<char> fieldName, StringBuilder? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
         !stb.SkipFields && value != null 
             ? AlwaysAddAs(fieldName, value, flags, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue
+    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, startIndex, count, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAs(string fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue
+    public TExt WhenNonNullAddAs(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
         !stb.SkipFields && value != null 
             ? AlwaysAddAs(fieldName, value, startIndex, count, flags, formatString) 
             : stb.StyleTypeBuilder;
     
-    public TExt WhenNonNullAddMatch<T>(string fieldName, T? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+    public TExt WhenNonNullAddMatch<T>(ReadOnlySpan<char> fieldName, T? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAddMatch(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;
     
     [CallsObjectToString]
-    public TExt WhenNonNullAddObject(string fieldName, object? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+    public TExt WhenNonNullAddObject(ReadOnlySpan<char> fieldName, object? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAddObject(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;

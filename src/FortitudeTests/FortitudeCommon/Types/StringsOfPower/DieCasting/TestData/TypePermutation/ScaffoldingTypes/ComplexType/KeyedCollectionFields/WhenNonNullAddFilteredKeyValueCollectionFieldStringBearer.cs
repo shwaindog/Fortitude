@@ -6,7 +6,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 #endregion
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexFields.KeyedCollections;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexType.KeyedCollectionFields;
 
 public class KeyValueDictionaryFormatStringsWhenNonNullAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase>
 (

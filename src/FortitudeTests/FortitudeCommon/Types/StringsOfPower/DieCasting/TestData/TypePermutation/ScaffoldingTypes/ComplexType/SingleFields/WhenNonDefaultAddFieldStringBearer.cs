@@ -4,7 +4,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexFields.SingleFields;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexType.SingleFields;
 
 public readonly struct BoolWhenNonDefaultStringBearer(bool value, bool defaultValue = false) : IStringBearer
 {
@@ -152,24 +152,45 @@ public readonly struct NullableStringBearerWithHandlingWhenNonDefaultStringBeare
            .Complete();
 }
 
-public readonly struct CharSpanWhenNonDefaultAddStringBearer(string value, string defaultValue, string? formatString = null) : IStringBearer
+public readonly struct CharSpanWhenNonDefaultAddStringBearer(char[] value, string defaultValue, string? formatString = null) : IStringBearer
 {
-    public string WhenNonDefaultString { get; } = value;
+    public char[] WhenNonDefaultCharSpan { get; } = value;
 
     public StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultString), WhenNonDefaultString.AsSpan(), defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultCharSpan), WhenNonDefaultCharSpan.AsSpan(), defaultValue, formatString)
            .Complete();
 }
 
-public readonly struct CharSpanWithHandlingWhenNonDefaultAddStringBearer(string value, string defaultValue
+public readonly struct CharSpanWithHandlingWhenNonDefaultAddStringBearer(char[] value, string defaultValue
   , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
 {
-    public string WhenNonDefaultString { get; } = value;
+    public char[] WhenNonDefaultCharSpanAs { get; } = value;
 
     public StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultString), WhenNonDefaultString.AsSpan(), defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultCharSpanAs), WhenNonDefaultCharSpanAs.AsSpan(), defaultValue, flags, formatString)
+           .Complete();
+}
+
+public readonly struct CharReadOnlySpanWhenNonDefaultAddStringBearer(string value, string defaultValue, string? formatString = null) : IStringBearer
+{
+    public string WhenNonDefaultCharReadOnlySpan { get; } = value;
+
+    public StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
+           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultCharReadOnlySpan), WhenNonDefaultCharReadOnlySpan.AsSpan(), defaultValue, formatString)
+           .Complete();
+}
+
+public readonly struct CharReadOnlySpanWithHandlingWhenNonDefaultAddStringBearer(string value, string defaultValue
+  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+{
+    public string WhenNonDefaultCharReadOnlyAs { get; } = value;
+
+    public StateExtractStringRange RevealState(ITheOneString tos) => 
+        tos.StartComplexType(this)
+           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultCharReadOnlyAs), WhenNonDefaultCharReadOnlyAs.AsSpan(), defaultValue, flags, formatString)
            .Complete();
 }
 

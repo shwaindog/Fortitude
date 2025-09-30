@@ -4,7 +4,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexFields.SingleFields;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexType.SingleFields;
 
 public class BoolAlwaysAddStringBearer(bool value) : IStringBearer
 {
@@ -72,43 +72,43 @@ public class NullableSpanFormattableWithHandlingAlwaysAddStringBearer<TFmtStruct
 public class CustomBearerAlwaysAddStringBearer<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer
     where TCloaked : TCloakedBase
 {
-    public TCloaked? AlwaysAddCustomBearer { get; } = value;
+    public TCloaked? AlwaysAddCloakedBearer { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysReveal(nameof(AlwaysAddCustomBearer), AlwaysAddCustomBearer, palantírReveal)
+           .Field.AlwaysReveal(nameof(AlwaysAddCloakedBearer), AlwaysAddCloakedBearer, palantírReveal)
            .Complete();
 }
 
 public class CustomBearerWithHandlingAlwaysAddStringBearer<TTCloaked, TCloakedBase>(TTCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
   , FieldContentHandling flags = FieldContentHandling.DefaultForValueType) : IStringBearer where TTCloaked : TCloakedBase
 {
-    public TTCloaked? AlwaysAddCustomBearer { get; } = value;
+    public TTCloaked? AlwaysAddCloakedBearerAs { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysRevealAs(nameof(AlwaysAddCustomBearer), AlwaysAddCustomBearer, palantírReveal, flags)
+           .Field.AlwaysRevealAs(nameof(AlwaysAddCloakedBearerAs), AlwaysAddCloakedBearerAs, palantírReveal, flags)
            .Complete();
 }
 
 public class NullableCustomBearerAlwaysAddStringBearer<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer where TCloakedStruct : struct
 {
-    public TCloakedStruct? AlwaysAddCustomBearer { get; } = value;
+    public TCloakedStruct? AlwaysAddCloakedBearerStruct { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysReveal(nameof(AlwaysAddCustomBearer), AlwaysAddCustomBearer, palantírReveal)
+           .Field.AlwaysReveal(nameof(AlwaysAddCloakedBearerStruct), AlwaysAddCloakedBearerStruct, palantírReveal)
            .Complete();
 }
 
-public class NullableCustomBearerWithHandlingAlwaysAddStringBearer<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
+public class NullableCloakedBearerWithHandlingAlwaysAddStringBearer<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
   , FieldContentHandling flags = FieldContentHandling.DefaultForValueType) : IStringBearer where TCloakedStruct : struct
 {
-    public TCloakedStruct? AlwaysAddCustomBearer { get; } = value;
+    public TCloakedStruct? AlwaysAddCloakedBearerStructAs { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysRevealAs(nameof(AlwaysAddCustomBearer), AlwaysAddCustomBearer, palantírReveal, flags)
+           .Field.AlwaysRevealAs(nameof(AlwaysAddCloakedBearerStructAs), AlwaysAddCloakedBearerStructAs, palantírReveal, flags)
            .Complete();
 }
 
@@ -125,47 +125,78 @@ public class StringBearerAlwaysAddStringBearer<TBearer>(TBearer? value) : IStrin
 public class StringBearerWithHandlingAlwaysAddStringBearer<TBearer>(TBearer? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType) : IStringBearer
     where TBearer : IStringBearer
 {
-    public TBearer? AlwaysAddStringBearer { get; } = value;
+    public TBearer? AlwaysAddStringBearerAs { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysRevealAs(nameof(AlwaysAddStringBearer), AlwaysAddStringBearer, flags)
+           .Field.AlwaysRevealAs(nameof(AlwaysAddStringBearerAs), AlwaysAddStringBearerAs, flags)
            .Complete();
 }
 
 public class NullableStringBearerAlwaysAddStringBearer<TBearerStruct>(TBearerStruct? value) : IStringBearer where TBearerStruct : struct, IStringBearer
 {
-    public TBearerStruct? AlwaysAddStringBearer { get; } = value;
+    public TBearerStruct? AlwaysAddStringBearerStruct { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysReveal(nameof(AlwaysAddStringBearer), AlwaysAddStringBearer)
+           .Field.AlwaysReveal(nameof(AlwaysAddStringBearerStruct), AlwaysAddStringBearerStruct)
            .Complete();
 }
 
 public class NullableStringBearerWithHandlingAlwaysAddStringBearer<TBearerStruct>(TBearerStruct? value
   , FieldContentHandling flags = FieldContentHandling.DefaultForValueType) : IStringBearer where TBearerStruct : struct, IStringBearer
 {
-    public TBearerStruct? AlwaysAddStringBearer { get; } = value;
+    public TBearerStruct? AlwaysAddStringBearerStructAs { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysRevealAs(nameof(AlwaysAddStringBearer), AlwaysAddStringBearer, flags)
+           .Field.AlwaysRevealAs(nameof(AlwaysAddStringBearerStructAs), AlwaysAddStringBearerStructAs, flags)
            .Complete();
 }
 
-public class CharSpanWithHandlingAlwaysAddStringBearer(string value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+public class CharSpanWithHandlingAlwaysAddStringBearer(char[] value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
   , string? formatString = null) : IStringBearer
+{
+    public char[] AlwaysAddReadOnlyCharSpanAs { get; } = value;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAddAs(nameof(AlwaysAddReadOnlyCharSpanAs), AlwaysAddReadOnlyCharSpanAs.AsSpan(), flags, formatString)
+           .Complete();
+}
+
+public class CharSpanAutoAlwaysAddStringBearer(char[] value, string? formatString = null) : IStringBearer
+{
+    public char[] AlwaysAddReadOnlyCharSpan { get; } = value;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd(nameof(AlwaysAddReadOnlyCharSpan), AlwaysAddReadOnlyCharSpan.AsSpan(), formatString)
+           .Complete();
+}
+
+public class CharReadOnlySpanAlwaysAddStringBearer(string value, string? formatString = null) : IStringBearer
 {
     public string AlwaysAddReadOnlyCharSpan { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAddAs(nameof(AlwaysAddReadOnlyCharSpan), AlwaysAddReadOnlyCharSpan.AsSpan(), flags, formatString)
+           .Field.AlwaysAdd(nameof(AlwaysAddReadOnlyCharSpan), AlwaysAddReadOnlyCharSpan.AsSpan(), formatString)
            .Complete();
 }
 
-public class CharSpanAutoAlwaysAddStringBearer(string value, string? formatString = null) : IStringBearer
+public class CharReadOnlySpanWithHandlingAlwaysAddStringBearer(string value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+  , string? formatString = null) : IStringBearer
+{
+    public string AlwaysAddReadOnlyCharSpanAs { get; } = value;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAddAs(nameof(AlwaysAddReadOnlyCharSpanAs), AlwaysAddReadOnlyCharSpanAs.AsSpan(), flags, formatString)
+           .Complete();
+}
+
+public class CharReadOnlySpanAutoAlwaysAddStringBearer(string value, string? formatString = null) : IStringBearer
 {
     public string AlwaysAddReadOnlyCharSpan { get; } = value;
 

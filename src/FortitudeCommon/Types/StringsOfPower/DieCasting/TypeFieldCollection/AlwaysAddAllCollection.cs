@@ -1138,7 +1138,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddAllCharSequence(value, formatString).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllCharSeq(value, formatString).Complete();
         else
             stb.Sb.Append(stb.Settings.NullStyle);
         return stb.AddGoToNext();
@@ -1298,7 +1298,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddAllCharSequence(value, formatString).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllCharSeq(value, formatString).Complete();
         else
             stb.Sb.Append(stb.Settings.NullStyle);
         return stb.AddGoToNext();
