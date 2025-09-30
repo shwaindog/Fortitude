@@ -134,10 +134,9 @@ public class MatchEnumerableWhenPopulatedAddAllStringBearer<T>(IEnumerable<T>? v
            .Complete();
 }
 
-public class ObjectEnumerableWhenPopulatedAddAllStringBearer<T>(IEnumerable<T>? value) : IStringBearer
-where T : class
+public class ObjectEnumerableWhenPopulatedAddAllStringBearer(IEnumerable<object?>? value) : IStringBearer
 {
-    public IEnumerable<T>? WhenPopulatedAddAllObjectEnumerable { get; } = value;
+    public IEnumerable<object?>? WhenPopulatedAddAllObjectEnumerable { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -273,10 +272,9 @@ public class MatchEnumeratorWhenPopulatedAddAllStringBearer<T>(IEnumerator<T>? v
            .Complete();
 }
 
-public class ObjectEnumeratorWhenPopulatedAddAllStringBearer<T>(IEnumerator<T>? value) : IStringBearer
-    where T : class
+public class ObjectEnumeratorWhenPopulatedAddAllStringBearer(IEnumerator<object>? value) : IStringBearer
 {
-    public IEnumerator<T>? WhenPopulatedAddAllObjectEnumerator { get; } = value;
+    public IEnumerator<object?>? WhenPopulatedAddAllObjectEnumerator { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

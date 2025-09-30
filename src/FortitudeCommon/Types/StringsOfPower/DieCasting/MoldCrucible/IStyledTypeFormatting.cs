@@ -18,7 +18,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     
     ITypeMolderDieCast<TB> AppendComplexTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder, Type complexType, string? alternativeName = null) where TB : TypeMolder;
     
-    ITypeMolderDieCast<TB> AppendFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, string fieldName) where TB : TypeMolder;
+    ITypeMolderDieCast<TB> AppendFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, ReadOnlySpan<char> fieldName) where TB : TypeMolder;
 
     ITypeMolderDieCast<TB> AppendFieldValueSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder) where TB : TypeMolder;
 

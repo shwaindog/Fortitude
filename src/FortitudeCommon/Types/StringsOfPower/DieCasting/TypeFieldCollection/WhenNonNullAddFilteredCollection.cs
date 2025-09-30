@@ -65,10 +65,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         !stb.SkipFields && value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
     
     [CallsObjectToString]
-    public TExt WhenNonNullAddFilteredObject<T, TBase>
-    (string fieldName, T?[]? value, OrderedCollectionPredicate<TBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : TBase =>
+    public TExt WhenNonNullAddFilteredObject
+    (string fieldName, object?[]? value, OrderedCollectionPredicate<object> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
         !stb.SkipFields && value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate) =>
@@ -126,9 +125,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         !stb.SkipFields && value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
     [CallsObjectToString]
-    public TExt WhenNonNullAddFilteredObject<T, TBase>
-    (string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : TBase =>
+    public TExt WhenNonNullAddFilteredObject
+    (string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
         !stb.SkipFields && value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 }

@@ -134,6 +134,16 @@ public class MatchArrayWhenNonNullAddAllStringBearer<T>(T[]? value) : IStringBea
            .Complete();
 }
 
+public class ObjectArrayWhenNonNullAddAllStringBearer(object?[]? value) : IStringBearer
+{
+    public object?[]? WhenNonNullAddAllStringBuilderArray { get; } = value;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenNonNullAddAllObject(nameof(WhenNonNullAddAllStringBuilderArray), WhenNonNullAddAllStringBuilderArray)
+           .Complete();
+}
+
 public class BoolListWhenNonNullAddAllStringBearer(List<bool>? value) : IStringBearer
 {
     public IReadOnlyList<bool>? WhenNonNullAddAllBoolList { get; } = value;
@@ -260,5 +270,15 @@ public class MatchListWhenNonNullAddAllStringBearer<T>(List<T>? value) : IString
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatch(nameof(WhenNonNullAddAllMatchList), WhenNonNullAddAllMatchList)
+           .Complete();
+}
+
+public class ObjectListWhenNonNullAddAllStringBearer(List<object?>? value) : IStringBearer
+{
+    public IReadOnlyList<object?>? WhenNonNullAddAllMatchList { get; } = value;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenNonNullAddAllObject(nameof(WhenNonNullAddAllMatchList), WhenNonNullAddAllMatchList)
            .Complete();
 }

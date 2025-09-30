@@ -126,11 +126,21 @@ public class StringBuilderEnumerableWhenNonNullAddAllStringBearer(IEnumerable<St
 
 public class MatchEnumerableWhenNonNullAddAllStringBearer<T>(IEnumerable<T>? value) : IStringBearer
 {
-    public IEnumerable<T>? WhenNonNullAddAllStringBuilderEnumerable { get; } = value;
+    public IEnumerable<T>? WhenNonNullAddAllMatchEnumerable { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllMatchEnumerate(nameof(WhenNonNullAddAllStringBuilderEnumerable), WhenNonNullAddAllStringBuilderEnumerable)
+           .CollectionField.WhenNonNullAddAllMatchEnumerate(nameof(WhenNonNullAddAllMatchEnumerable), WhenNonNullAddAllMatchEnumerable)
+           .Complete();
+}
+
+public class ObjectEnumerableWhenNonNullAddAllStringBearer(IEnumerable<object?>? value) : IStringBearer
+{
+    public IEnumerable<object?>? WhenNonNullAddAllObjectEnumerable { get; } = value;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenNonNullAddAllObjectEnumerate(nameof(WhenNonNullAddAllObjectEnumerable), WhenNonNullAddAllObjectEnumerable)
            .Complete();
 }
 
@@ -260,5 +270,15 @@ public class MatchEnumeratorWhenNonNullAddAllStringBearer<T>(IEnumerator<T>? val
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatchEnumerate(nameof(WhenNonNullAddAllMatchEnumerator), WhenNonNullAddAllMatchEnumerator)
+           .Complete();
+}
+
+public class ObjectEnumeratorWhenNonNullAddAllStringBearer(IEnumerator<object?>? value) : IStringBearer
+{
+    public IEnumerator<object?>? WhenNonNullAddAllObjectEnumerator { get; } = value;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenNonNullAddAllObjectEnumerate(nameof(WhenNonNullAddAllObjectEnumerator), WhenNonNullAddAllObjectEnumerator)
            .Complete();
 }

@@ -134,10 +134,9 @@ public class MatchEnumerableAlwaysAddAllStringBearer<T>(IEnumerable<T>? value) :
            .Complete();
 }
 
-public class ObjectEnumerableAlwaysAddAllStringBearer<T>(IEnumerable<T>? value) : IStringBearer
-where T : class
+public class ObjectEnumerableAlwaysAddAllStringBearer(IEnumerable<object?>? value) : IStringBearer
 {
-    public IEnumerable<T>? AlwaysAddAllObjectEnumerable { get; } = value;
+    public IEnumerable<object?>? AlwaysAddAllObjectEnumerable { get; } = value;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

@@ -162,12 +162,11 @@ public class MatchArrayWhenNonNullAddFilteredStringBearer<T, TFilterBase>(T[]? v
            .Complete();
 }
 
-public class ObjectArrayWhenNonNullAddFilteredStringBearer<T, TFilterBase>(T[]? value, OrderedCollectionPredicate<TFilterBase> filterPredicate) : IStringBearer
-    where T : class, TFilterBase
+public class ObjectArrayWhenNonNullAddFilteredStringBearer(object?[]? value, OrderedCollectionPredicate<object> filterPredicate) : IStringBearer
 {
-    public T[]? WhenNonNullAddFilteredStringBuilderArray { get; } = value;
+    public object?[]? WhenNonNullAddFilteredStringBuilderArray { get; } = value;
 
-    public OrderedCollectionPredicate<TFilterBase> Filter { get; set; } = filterPredicate;
+    public OrderedCollectionPredicate<object> Filter { get; set; } = filterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -305,7 +304,7 @@ public class CharSequenceListWhenNonNullAddFilteredStringBearer<TCharSeq, TCharS
 
 public class StringBuilderListWhenNonNullAddFilteredStringBearer(StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) : IStringBearer
 {
-    public StringBuilder?[]? WhenNonNullAddFilteredStringBuilderList { get; } = value;
+    public IReadOnlyList<StringBuilder?>? WhenNonNullAddFilteredStringBuilderList { get; } = value;
 
     public OrderedCollectionPredicate<StringBuilder?> Filter { get; set; } = filterPredicate;
 
@@ -328,14 +327,13 @@ public class MatchListWhenNonNullAddFilteredStringBearer<T, TFilterBase>(List<T?
            .Complete();
 }
 
-public class ObjectListWhenNonNullAddFilteredStringBearer<T, TFilterBase>(List<T>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate) : IStringBearer
-    where T : class, TFilterBase
+public class ObjectListWhenNonNullAddFilteredStringBearer(List<object?>? value, OrderedCollectionPredicate<object> filterPredicate) : IStringBearer
 {
-    public List<T>? WhenNonNullAddFilteredStringBuilderList { get; } = value;
+    public IReadOnlyList<object?>? WhenNonNullAddFilteredObjectList { get; } = value;
 
-    public OrderedCollectionPredicate<TFilterBase> Filter { get; set; } = filterPredicate;
+    public OrderedCollectionPredicate<object> Filter { get; set; } = filterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredObject(nameof(WhenNonNullAddFilteredStringBuilderList), WhenNonNullAddFilteredStringBuilderList, Filter);
+           .CollectionField.WhenNonNullAddFilteredObject(nameof(WhenNonNullAddFilteredObjectList), WhenNonNullAddFilteredObjectList, Filter);
 }

@@ -818,8 +818,16 @@ public static class StyledTypeBuilderExtensions
     {
         stb.StyleFormatter.FormatCollectionStart(stb, elementType, hasElements, collectionInstance.GetType());
     }
+    
+    // public static ITypeMolderDieCast<TExt> FieldNameJoin<TExt>(this ITypeMolderDieCast<TExt> stb, string fieldName)
+    //     where TExt : TypeMolder
+    // {
+    //     stb.StyleFormatter.AppendFieldName(stb, fieldName);
+    //     stb.StyleFormatter.AppendFieldValueSeparator(stb);
+    //     return stb;
+    // }
 
-    public static ITypeMolderDieCast<TExt> FieldNameJoin<TExt>(this ITypeMolderDieCast<TExt> stb, string fieldName)
+    public static ITypeMolderDieCast<TExt> FieldNameJoin<TExt>(this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName)
         where TExt : TypeMolder
     {
         stb.StyleFormatter.AppendFieldName(stb, fieldName);
