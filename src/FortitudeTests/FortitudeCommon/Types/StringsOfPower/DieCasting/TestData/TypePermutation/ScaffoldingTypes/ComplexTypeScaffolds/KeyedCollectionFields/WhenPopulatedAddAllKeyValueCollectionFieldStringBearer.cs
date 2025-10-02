@@ -5,7 +5,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 #endregion
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexType.KeyedCollectionFields;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.KeyedCollectionFields;
 
 public class KeyValueDictionaryFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue>
 (
