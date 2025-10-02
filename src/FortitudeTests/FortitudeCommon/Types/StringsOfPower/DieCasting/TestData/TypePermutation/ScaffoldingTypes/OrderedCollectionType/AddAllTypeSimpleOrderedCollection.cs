@@ -153,7 +153,8 @@ public class NullableBoolEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEn
     public IEnumerator<bool?> GetEnumerator() => value!;
 }
 
-public class SpanFormattableArrayAddAllSimpleOrderedCollectionStringBearer<TFmt>(TFmt[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+public class SpanFormattableArrayAddAllSimpleOrderedCollectionStringBearer<TFmt>
+    (TFmt[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -180,7 +181,8 @@ public class NullableFormattableArrayAddAllSimpleOrderedCollectionStringBearer<T
     public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)value!.GetEnumerator();
 }
 
-public class SpanFormattableSpanAddAllSimpleOrderedCollectionStringBearer<TFmt>(TFmt[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+public class SpanFormattableSpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
+    (TFmt[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -193,7 +195,8 @@ public class SpanFormattableSpanAddAllSimpleOrderedCollectionStringBearer<TFmt>(
     public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)value!.GetEnumerator();
 }
 
-public class SpanFormattableNullableSpanAddAllSimpleOrderedCollectionStringBearer<TFmt>(TFmt?[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+public class SpanFormattableNullableSpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
+    (TFmt?[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
     where TFmt : class, ISpanFormattable
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -220,7 +223,8 @@ public class NullableSpanFormattableSpanAddAllSimpleOrderedCollectionStringBeare
     public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)value!.GetEnumerator();
 }
 
-public class SpanFormattableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TFmt>(TFmt[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+public class SpanFormattableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
+    (TFmt[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -233,7 +237,8 @@ public class SpanFormattableReadOnlySpanAddAllSimpleOrderedCollectionStringBeare
     public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)value!.GetEnumerator();
 }
 
-public class SpanFormattableNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TFmt>(TFmt?[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+public class SpanFormattableNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
+    (TFmt?[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
     where TFmt : class, ISpanFormattable
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -260,7 +265,8 @@ public class NullableSpanFormattableReadOnlySpanAddAllSimpleOrderedCollectionStr
     public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)value!.GetEnumerator();
 }
 
-public class SpanFormattableListAddAllSimpleOrderedCollectionStringBearer<TFmt>(IReadOnlyList<TFmt?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+public class SpanFormattableListAddAllSimpleOrderedCollectionStringBearer<TFmt>
+    (IReadOnlyList<TFmt?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -287,7 +293,8 @@ public class NullableSpanFormattableListAddAllSimpleOrderedCollectionStringBeare
     public IEnumerator<TFmtStruct?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class SpanFormattableEnumerableAddAllSimpleOrderedCollectionStringBearer<TFmt>(IEnumerable<TFmt?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+public class SpanFormattableEnumerableAddAllSimpleOrderedCollectionStringBearer<TFmt>
+    (IEnumerable<TFmt?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -314,7 +321,8 @@ public class NullableSpanFormattableEnumerableAddAllSimpleOrderedCollectionStrin
     public IEnumerator<TFmtStruct?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class SpanFormattableEnumeratorAddAllSimpleOrderedCollectionStringBearer<TFmt>(IEnumerator<TFmt?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+public class SpanFormattableEnumeratorAddAllSimpleOrderedCollectionStringBearer<TFmt>
+    (IEnumerator<TFmt?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -370,12 +378,12 @@ public class NullableCloakedBearerArrayRevealAllSimpleOrderedCollectionStringBea
 }
 
 public class CloakedBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
-    (TCloaked?[]? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked>
+    (TCloaked[]? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked>
     where TCloaked : TCloakedBase
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value, palantírReveal)
+           .RevealAll(value.AsSpan(), palantírReveal)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -403,7 +411,7 @@ public class NullableCloakedBearerSpanRevealAllSimpleOrderedCollectionStringBear
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value, palantírReveal)
+           .RevealAll(value.AsSpan(), palantírReveal)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -417,7 +425,7 @@ public class CloakedBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBear
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TCloaked>)value, palantírReveal)
+           .RevealAll((ReadOnlySpan<TCloaked>)value.AsSpan(), palantírReveal)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -453,7 +461,9 @@ public class NullableCloakedBearerReadOnlySpanRevealAllSimpleOrderedCollectionSt
     public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)value!.GetEnumerator();
 }
 
-public class CloakedBearerListRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>(IReadOnlyList<TCloaked?>? value
+public class CloakedBearerListRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
+(
+    IReadOnlyList<TCloaked?>? value
   , PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked?>
     where TCloaked : TCloakedBase
 {
@@ -467,8 +477,10 @@ public class CloakedBearerListRevealAllSimpleOrderedCollectionStringBearer<TCloa
     public IEnumerator<TCloaked?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class NullableCloakedBearerListRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>(IReadOnlyList<TCloakedStruct?>? value
-      , PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
+public class NullableCloakedBearerListRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
+(
+    IReadOnlyList<TCloakedStruct?>? value
+  , PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -480,7 +492,9 @@ public class NullableCloakedBearerListRevealAllSimpleOrderedCollectionStringBear
     public IEnumerator<TCloakedStruct?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class CloakedBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>(IEnumerable<TCloaked?>? value
+public class CloakedBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
+(
+    IEnumerable<TCloaked?>? value
   , PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked?>
     where TCloaked : TCloakedBase
 {
@@ -494,7 +508,9 @@ public class CloakedBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer
     public IEnumerator<TCloaked?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class NullableCloakedBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>(IEnumerable<TCloakedStruct?>? value
+public class NullableCloakedBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
+(
+    IEnumerable<TCloakedStruct?>? value
   , PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -507,7 +523,9 @@ public class NullableCloakedBearerEnumerableRevealAllSimpleOrderedCollectionStri
     public IEnumerator<TCloakedStruct?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class CloakedBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>(IEnumerator<TCloaked?>? value
+public class CloakedBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
+(
+    IEnumerator<TCloaked?>? value
   , PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked?>
     where TCloaked : TCloakedBase
 {
@@ -521,7 +539,9 @@ public class CloakedBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer
     public IEnumerator<TCloaked?> GetEnumerator() => value!;
 }
 
-public class NullableCloakedBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value
+public class NullableCloakedBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
+(
+    IEnumerator<TCloakedStruct?>? value
   , PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -614,8 +634,8 @@ public class StringBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBeare
     public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)value!.GetEnumerator();
 }
 
-public class StringBearerNullableReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>(TBearer?[]? value) : IStringBearer, IEnumerable<TBearer>
-    where TBearer : class, IStringBearer
+public class StringBearerNullableReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>(TBearer?[]? value)
+    : IStringBearer, IEnumerable<TBearer> where TBearer : class, IStringBearer
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -641,8 +661,8 @@ public class NullableStringBearerReadOnlySpanRevealAllSimpleOrderedCollectionStr
     public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)value!.GetEnumerator();
 }
 
-public class StringBearerListRevealAllSimpleOrderedCollectionStringBearer<TBearer>(IReadOnlyList<TBearer?>? value) : IStringBearer, IEnumerable<TBearer>
-    where TBearer : IStringBearer
+public class StringBearerListRevealAllSimpleOrderedCollectionStringBearer<TBearer>(IReadOnlyList<TBearer?>? value)
+    : IStringBearer, IEnumerable<TBearer> where TBearer : IStringBearer
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -668,8 +688,8 @@ public class NullableStringBearerListRevealAllSimpleOrderedCollectionStringBeare
     public IEnumerator<TBearerStruct?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class StringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearer>(IEnumerable<TBearer?>? value) : IStringBearer, IEnumerable<TBearer>
-    where TBearer : IStringBearer
+public class StringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearer>(IEnumerable<TBearer?>? value)
+    : IStringBearer, IEnumerable<TBearer> where TBearer : IStringBearer
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -682,8 +702,7 @@ public class StringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<
 }
 
 public class NullableStringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    (IEnumerable<TBearerStruct?>? value) : IStringBearer, IEnumerable<TBearerStruct?>
-    where TBearerStruct : struct, IStringBearer
+    (IEnumerable<TBearerStruct?>? value) : IStringBearer, IEnumerable<TBearerStruct?> where TBearerStruct : struct, IStringBearer
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -695,8 +714,8 @@ public class NullableStringBearerEnumerableRevealAllSimpleOrderedCollectionStrin
     public IEnumerator<TBearerStruct?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class StringBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TBearer>(IEnumerator<TBearer?>? value) : IStringBearer, IEnumerable<TBearer>
-    where TBearer : IStringBearer
+public class StringBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TBearer>(IEnumerator<TBearer?>? value)
+    : IStringBearer, IEnumerable<TBearer> where TBearer : IStringBearer
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -709,8 +728,7 @@ public class StringBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<
 }
 
 public class NullableStringBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    (IEnumerator<TBearerStruct?>? value) : IStringBearer, IEnumerable<TBearerStruct?>
-    where TBearerStruct : struct, IStringBearer
+    (IEnumerator<TBearerStruct?>? value) : IStringBearer, IEnumerable<TBearerStruct?> where TBearerStruct : struct, IStringBearer
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -722,7 +740,8 @@ public class NullableStringBearerEnumeratorRevealAllSimpleOrderedCollectionStrin
     public IEnumerator<TBearerStruct?> GetEnumerator() => value!;
 }
 
-public class StringArrayAddAllSimpleOrderedCollectionStringBearer(string?[]? value, string? formatString = null) : IStringBearer, IEnumerable<string?>
+public class StringArrayAddAllSimpleOrderedCollectionStringBearer(string?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<string?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -734,7 +753,8 @@ public class StringArrayAddAllSimpleOrderedCollectionStringBearer(string?[]? val
     public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)value!.GetEnumerator();
 }
 
-public class StringSpanAddAllSimpleOrderedCollectionStringBearer(string[]? value, string? formatString = null) : IStringBearer, IEnumerable<string>
+public class StringSpanAddAllSimpleOrderedCollectionStringBearer(string[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<string>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -746,7 +766,8 @@ public class StringSpanAddAllSimpleOrderedCollectionStringBearer(string[]? value
     public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)value!.GetEnumerator();
 }
 
-public class StringNullableSpanAddAllSimpleOrderedCollectionStringBearer(string?[]? value, string? formatString = null) : IStringBearer, IEnumerable<string?>
+public class StringNullableSpanAddAllSimpleOrderedCollectionStringBearer(string?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<string?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -758,7 +779,8 @@ public class StringNullableSpanAddAllSimpleOrderedCollectionStringBearer(string?
     public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)value!.GetEnumerator();
 }
 
-public class StringReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(string[]? value, string? formatString = null) : IStringBearer, IEnumerable<string>
+public class StringReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(string[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<string>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -770,7 +792,8 @@ public class StringReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(string[
     public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)value!.GetEnumerator();
 }
 
-public class StringNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(string?[]? value, string? formatString = null) : IStringBearer, IEnumerable<string?>
+public class StringNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(string?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<string?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -782,7 +805,8 @@ public class StringNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer
     public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)value!.GetEnumerator();
 }
 
-public class StringListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<string?>? value, string? formatString = null) : IStringBearer, IEnumerable<string?>
+public class StringListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<string?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<string?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -794,7 +818,8 @@ public class StringListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<s
     public IEnumerator<string?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class StringEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<string?>? value, string? formatString = null) : IStringBearer, IEnumerable<string?>
+public class StringEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<string?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<string?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -806,7 +831,8 @@ public class StringEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerab
     public IEnumerator<string?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class StringEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<string?>? value, string? formatString = null) : IStringBearer, IEnumerable<string?>
+public class StringEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<string?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<string?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -818,8 +844,8 @@ public class StringEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerat
     public IEnumerator<string?> GetEnumerator() => value!;
 }
 
-public class CharSequenceArrayAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq?[]? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq?>
-    where TCharSeq : ICharSequence
+public class CharSequenceArrayAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq?[]? value, string? formatCharSequence = null)
+    : IStringBearer, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -831,8 +857,8 @@ public class CharSequenceArrayAddAllSimpleOrderedCollectionCharSequenceBearer<TC
     public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)value!.GetEnumerator();
 }
 
-public class CharSequenceSpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq[]? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq>
-where TCharSeq : ICharSequence
+public class CharSequenceSpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq[]? value, string? formatCharSequence = null)
+    : IStringBearer, IEnumerable<TCharSeq> where TCharSeq : ICharSequence
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -844,8 +870,8 @@ where TCharSeq : ICharSequence
     public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)value!.GetEnumerator();
 }
 
-public class CharSequenceNullableSpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq?[]? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq?>
-    where TCharSeq : ICharSequence
+public class CharSequenceNullableSpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq?[]? value, string? formatCharSequence = null)
+    : IStringBearer, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -857,8 +883,8 @@ public class CharSequenceNullableSpanAddAllSimpleOrderedCollectionCharSequenceBe
     public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)value!.GetEnumerator();
 }
 
-public class CharSequenceReadOnlySpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq[]? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq>
-    where TCharSeq : ICharSequence
+public class CharSequenceReadOnlySpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq[]? value, string? formatCharSequence = null)
+    : IStringBearer, IEnumerable<TCharSeq> where TCharSeq : ICharSequence
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -870,8 +896,8 @@ public class CharSequenceReadOnlySpanAddAllSimpleOrderedCollectionCharSequenceBe
     public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)value!.GetEnumerator();
 }
 
-public class CharSequenceNullableReadOnlySpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq?[]? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq?>
-    where TCharSeq : ICharSequence
+public class CharSequenceNullableReadOnlySpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>
+    (TCharSeq?[]? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -883,8 +909,9 @@ public class CharSequenceNullableReadOnlySpanAddAllSimpleOrderedCollectionCharSe
     public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)value!.GetEnumerator();
 }
 
-public class CharSequenceListAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(IReadOnlyList<TCharSeq?>? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq?>
-    where TCharSeq : ICharSequence
+public class CharSequenceListAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>
+    (IReadOnlyList<TCharSeq?>? value, string? formatCharSequence = null)
+    : IStringBearer, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -896,7 +923,9 @@ public class CharSequenceListAddAllSimpleOrderedCollectionCharSequenceBearer<TCh
     public IEnumerator<TCharSeq?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class CharSequenceEnumerableAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(IEnumerable<TCharSeq?>? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq?>
+public class CharSequenceEnumerableAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>
+    (IEnumerable<TCharSeq?>? value, string? formatCharSequence = null)
+    : IStringBearer, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -909,7 +938,9 @@ public class CharSequenceEnumerableAddAllSimpleOrderedCollectionCharSequenceBear
     public IEnumerator<TCharSeq?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class CharSequenceEnumeratorAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(IEnumerator<TCharSeq?>? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq?>
+public class CharSequenceEnumeratorAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>
+    (IEnumerator<TCharSeq?>? value, string? formatCharSequence = null)
+    : IStringBearer, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -922,7 +953,8 @@ public class CharSequenceEnumeratorAddAllSimpleOrderedCollectionCharSequenceBear
     public IEnumerator<TCharSeq?> GetEnumerator() => value!;
 }
 
-public class StringBuilderArrayAddAllSimpleOrderedCollectionStringBearer(StringBuilder?[]? value, string? formatString = null) : IStringBearer, IEnumerable<StringBuilder?>
+public class StringBuilderArrayAddAllSimpleOrderedCollectionStringBearer(StringBuilder?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<StringBuilder?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -934,7 +966,8 @@ public class StringBuilderArrayAddAllSimpleOrderedCollectionStringBearer(StringB
     public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)value!.GetEnumerator();
 }
 
-public class StringBuilderSpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder[]? value, string? formatString = null) : IStringBearer, IEnumerable<StringBuilder>
+public class StringBuilderSpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<StringBuilder>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -946,7 +979,8 @@ public class StringBuilderSpanAddAllSimpleOrderedCollectionStringBearer(StringBu
     public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)value!.GetEnumerator();
 }
 
-public class StringBuilderNullableSpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder?[]? value, string? formatString = null) : IStringBearer, IEnumerable<StringBuilder?>
+public class StringBuilderNullableSpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<StringBuilder?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -958,7 +992,8 @@ public class StringBuilderNullableSpanAddAllSimpleOrderedCollectionStringBearer(
     public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)value!.GetEnumerator();
 }
 
-public class StringBuilderReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder[]? value, string? formatString = null) : IStringBearer, IEnumerable<StringBuilder>
+public class StringBuilderReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<StringBuilder>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -970,7 +1005,8 @@ public class StringBuilderReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(
     public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)value!.GetEnumerator();
 }
 
-public class StringBuilderNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder?[]? value, string? formatString = null) : IStringBearer, IEnumerable<StringBuilder?>
+public class StringBuilderNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<StringBuilder?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -982,7 +1018,8 @@ public class StringBuilderNullableReadOnlySpanAddAllSimpleOrderedCollectionStrin
     public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)value!.GetEnumerator();
 }
 
-public class StringBuilderListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<StringBuilder?>? value, string? formatString = null) : IStringBearer, IEnumerable<StringBuilder?>
+public class StringBuilderListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<StringBuilder?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<StringBuilder?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -994,7 +1031,8 @@ public class StringBuilderListAddAllSimpleOrderedCollectionStringBearer(IReadOnl
     public IEnumerator<StringBuilder?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class StringBuilderEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<StringBuilder?>? value, string? formatString = null) : IStringBearer, IEnumerable<StringBuilder?>
+public class StringBuilderEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<StringBuilder?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<StringBuilder?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1006,7 +1044,8 @@ public class StringBuilderEnumerableAddAllSimpleOrderedCollectionStringBearer(IE
     public IEnumerator<StringBuilder?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class StringBuilderEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<StringBuilder?>? value, string? formatString = null) : IStringBearer, IEnumerable<StringBuilder?>
+public class StringBuilderEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<StringBuilder?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<StringBuilder?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1018,7 +1057,8 @@ public class StringBuilderEnumeratorAddAllSimpleOrderedCollectionStringBearer(IE
     public IEnumerator<StringBuilder?> GetEnumerator() => value!;
 }
 
-public class MatchArrayAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value, string? formatString = null) : IStringBearer, IEnumerable<T?>
+public class MatchArrayAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<T?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1030,7 +1070,8 @@ public class MatchArrayAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value,
     public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)value!.GetEnumerator();
 }
 
-public class MatchSpanAddAllSimpleOrderedCollectionStringBearer<T>(T[]? value, string? formatString = null) : IStringBearer, IEnumerable<T>
+public class MatchSpanAddAllSimpleOrderedCollectionStringBearer<T>(T[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<T>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1042,7 +1083,8 @@ public class MatchSpanAddAllSimpleOrderedCollectionStringBearer<T>(T[]? value, s
     public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)value!.GetEnumerator();
 }
 
-public class MatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value, string? formatString = null) : IStringBearer, IEnumerable<T?>
+public class MatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<T?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1054,7 +1096,8 @@ public class MatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<T>(T?[]?
     public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)value!.GetEnumerator();
 }
 
-public class MatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T>(T[]? value, string? formatString = null) : IStringBearer, IEnumerable<T>
+public class MatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T>(T[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<T>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1066,7 +1109,8 @@ public class MatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T>(T[]? 
     public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)value!.GetEnumerator();
 }
 
-public class MatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value, string? formatString = null) : IStringBearer, IEnumerable<T?>
+public class MatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<T?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1078,7 +1122,8 @@ public class MatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<
     public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)value!.GetEnumerator();
 }
 
-public class MatchListAddAllSimpleOrderedCollectionStringBearer<T>(IReadOnlyList<T?>? value, string? formatString = null) : IStringBearer, IEnumerable<T?>
+public class MatchListAddAllSimpleOrderedCollectionStringBearer<T>(IReadOnlyList<T?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<T?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1090,7 +1135,8 @@ public class MatchListAddAllSimpleOrderedCollectionStringBearer<T>(IReadOnlyList
     public IEnumerator<T?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class MatchEnumerableAddAllSimpleOrderedCollectionStringBearer<T>(IEnumerable<T?>? value, string? formatString = null) : IStringBearer, IEnumerable<T?>
+public class MatchEnumerableAddAllSimpleOrderedCollectionStringBearer<T>(IEnumerable<T?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<T?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1102,7 +1148,8 @@ public class MatchEnumerableAddAllSimpleOrderedCollectionStringBearer<T>(IEnumer
     public IEnumerator<T?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class MatchEnumeratorAddAllSimpleOrderedCollectionStringBearer<T>(IEnumerator<T?>? value, string? formatString = null) : IStringBearer, IEnumerable<T?>
+public class MatchEnumeratorAddAllSimpleOrderedCollectionStringBearer<T>(IEnumerator<T?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<T?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1114,7 +1161,8 @@ public class MatchEnumeratorAddAllSimpleOrderedCollectionStringBearer<T>(IEnumer
     public IEnumerator<T?> GetEnumerator() => value!;
 }
 
-public class ObjectArrayAddAllSimpleOrderedCollectionStringBearer(object?[]? value, string? formatString = null) : IStringBearer, IEnumerable<object?>
+public class ObjectArrayAddAllSimpleOrderedCollectionStringBearer(object?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<object?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1126,7 +1174,8 @@ public class ObjectArrayAddAllSimpleOrderedCollectionStringBearer(object?[]? val
     public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)value!.GetEnumerator();
 }
 
-public class ObjectSpanAddAllSimpleOrderedCollectionStringBearer(object[]? value, string? formatString = null) : IStringBearer, IEnumerable<object>
+public class ObjectSpanAddAllSimpleOrderedCollectionStringBearer(object[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<object>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1138,7 +1187,8 @@ public class ObjectSpanAddAllSimpleOrderedCollectionStringBearer(object[]? value
     public IEnumerator<object> GetEnumerator() => (IEnumerator<object>)value!.GetEnumerator();
 }
 
-public class ObjectNullableSpanAddAllSimpleOrderedCollectionStringBearer(object?[]? value, string? formatString = null) : IStringBearer, IEnumerable<object?>
+public class ObjectNullableSpanAddAllSimpleOrderedCollectionStringBearer(object?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<object?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1150,7 +1200,8 @@ public class ObjectNullableSpanAddAllSimpleOrderedCollectionStringBearer(object?
     public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)value!.GetEnumerator();
 }
 
-public class ObjectReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(object[]? value, string? formatString = null) : IStringBearer, IEnumerable<object>
+public class ObjectReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(object[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<object>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1162,7 +1213,8 @@ public class ObjectReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(object[
     public IEnumerator<object> GetEnumerator() => (IEnumerator<object>)value!.GetEnumerator();
 }
 
-public class ObjectNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(object?[]? value, string? formatString = null) : IStringBearer, IEnumerable<object?>
+public class ObjectNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(object?[]? value, string? formatString = null)
+    : IStringBearer, IEnumerable<object?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1174,7 +1226,8 @@ public class ObjectNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer
     public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)value!.GetEnumerator();
 }
 
-public class ObjectListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<object?>? value, string? formatString = null) : IStringBearer, IEnumerable<object?>
+public class ObjectListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<object?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<object?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1186,7 +1239,8 @@ public class ObjectListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<o
     public IEnumerator<object?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class ObjectEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<object?>? value, string? formatString = null) : IStringBearer, IEnumerable<object?>
+public class ObjectEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<object?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<object?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1198,7 +1252,8 @@ public class ObjectEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerab
     public IEnumerator<object?> GetEnumerator() => value!.GetEnumerator();
 }
 
-public class ObjectEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<object?>? value, string? formatString = null) : IStringBearer, IEnumerable<object?>
+public class ObjectEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<object?>? value, string? formatString = null)
+    : IStringBearer, IEnumerable<object?>
 {
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -1209,5 +1264,3 @@ public class ObjectEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerat
 
     public IEnumerator<object?> GetEnumerator() => value!;
 }
-
-

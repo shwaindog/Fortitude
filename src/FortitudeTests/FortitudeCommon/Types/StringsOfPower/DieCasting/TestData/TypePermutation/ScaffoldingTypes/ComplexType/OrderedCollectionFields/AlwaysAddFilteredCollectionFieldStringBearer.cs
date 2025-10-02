@@ -34,7 +34,7 @@ public class NullableBoolSpanAlwaysAddFilteredStringBearer(bool?[]? value, Order
 }
 
 public class SpanFormattableSpanAlwaysAddFilteredStringBearer<TFmt>(TFmt[]? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
-    where TFmt : struct, ISpanFormattable
+    where TFmt : ISpanFormattable
 {
     public TFmt[]? AlwaysAddFilteredSpanFormattableSpan { get; } = value;
 
@@ -635,7 +635,7 @@ public class ObjectReadOnlySpanAlwaysAddFilteredStringBearer(object[]? value, Or
                                                   , (ReadOnlySpan<object>)AlwaysAddFilteredObjectReadOnlySpan.AsSpan(), Filter);
 }
 
-public class NullableObjecReadOnlytSpanAlwaysAddFilteredStringBearer
+public class NullableObjectReadOnlytSpanAlwaysAddFilteredStringBearer
     (object?[]? value, OrderedCollectionPredicate<object?> filterPredicate) : IStringBearer
 {
     public object?[]? AlwaysAddFilteredNullableObjectReadOnlySpan { get; } = value;
@@ -672,30 +672,16 @@ public class NullableBoolArrayAlwaysAddFilteredStringBearer(bool?[]? value, Orde
            .Complete();
 }
 
-public class SpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt>(TFmt[]? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
+public class SpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt>(TFmt?[]? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
     where TFmt : ISpanFormattable
 {
-    public TFmt[]? AlwaysAddFilteredSpanFormattableArray { get; } = value;
+    public TFmt?[]? AlwaysAddFilteredSpanFormattableArray { get; } = value;
 
     public OrderedCollectionPredicate<TFmt> Filter { get; set; } = filterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered(nameof(AlwaysAddFilteredSpanFormattableArray), AlwaysAddFilteredSpanFormattableArray, Filter)
-           .Complete();
-}
-
-public class SpanFormattableNullableArrayAlwaysAddFilteredStringBearer<TFmt>
-    (TFmt?[]? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
-    where TFmt : ISpanFormattable
-{
-    public TFmt?[]? AlwaysAddAllSpanFormattableArray { get; } = value;
-
-    public OrderedCollectionPredicate<TFmt> Filter { get; set; } = filterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFiltered(nameof(AlwaysAddAllSpanFormattableArray), AlwaysAddAllSpanFormattableArray, Filter)
            .Complete();
 }
 
@@ -881,10 +867,10 @@ public class NullableBoolListAlwaysAddFilteredStringBearer(List<bool?>? value, O
 }
 
 public class SpanFormattableListAlwaysAddFilteredStringBearer<TFmt>
-    (List<TFmt>? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
+    (List<TFmt?>? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
     where TFmt : ISpanFormattable
 {
-    public IReadOnlyList<TFmt>? AlwaysAddFilteredSpanFormattableList { get; } = value;
+    public IReadOnlyList<TFmt?>? AlwaysAddFilteredSpanFormattableList { get; } = value;
 
     public OrderedCollectionPredicate<TFmt> Filter { get; set; } = filterPredicate;
 

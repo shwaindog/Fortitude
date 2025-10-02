@@ -27,5 +27,5 @@ public class LogEntriesBatch : ReusableList<IFLogEntry>, ILogEntriesBatch
         tos.StartComplexCollectionType(this)
            .LogOnlyField.AlwaysAdd(nameof(RefCount), RefCount)
            .LogOnlyField.AlwaysAdd(nameof(Count), Count)
-           .AddFilteredStyled(AsReadOnly, FirstThree).Complete();
+           .RevealFiltered(AsReadOnly, FirstThree).Complete();
 }
