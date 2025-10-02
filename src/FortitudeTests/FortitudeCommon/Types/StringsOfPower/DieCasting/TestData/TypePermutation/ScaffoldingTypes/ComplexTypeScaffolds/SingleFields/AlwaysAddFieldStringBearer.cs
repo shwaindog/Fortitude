@@ -29,7 +29,7 @@ public class BoolAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<bool
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites| AcceptsStruct | AcceptsNullableStruct)]
 public class NullableBoolAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<bool?>
 {
     public bool? ComplexTypeFieldAlwaysAddNullableBool
@@ -235,6 +235,7 @@ public class NullableCloakedBearerWithHandlingAlwaysAddStringBearer<TCloakedStru
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
 public class StringBearerAlwaysAddStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?> where TBearer : IStringBearer
+  , IMoldSupportedValue<TBearer?>
 {
     public TBearer? ComplexTypeFieldAlwaysAddStringBearer
     {
@@ -271,7 +272,7 @@ public class StringBearerWithHandlingAlwaysAddStringBearer<TBearer> : IStringBea
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerAlwaysAddStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -289,10 +290,9 @@ public class NullableStringBearerAlwaysAddStringBearer<TBearerStruct> : IStringB
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites |AcceptsStruct | AcceptsNullableStruct | AcceptsStringBearer | SupportsCustomHandling)]
 public class NullableStringBearerWithHandlingAlwaysAddStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?>
-  , ISupportsFieldHandling
-    where TBearerStruct : struct, IStringBearer
+  , ISupportsFieldHandling where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? ComplexTypeFieldAlwaysAddStringBearerStructAs
     {
