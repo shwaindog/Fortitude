@@ -116,8 +116,7 @@ public class NullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : IStringB
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString | SupportsCustomHandling)]
 public class NullableSpanFormattableWithHandlingAlwaysAddStringBearer<TFmtStruct> : IStringBearer, IMoldSupportedValue<TFmtStruct?>
-  , ISupportsFieldHandling
-  , ISupportsSingleFormatString where TFmtStruct : struct, ISpanFormattable
+  , ISupportsFieldHandling, ISupportsSingleFormatString where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct? ComplexTypeFieldAlwaysAddNullableSpanFormattableAs
     {
@@ -143,8 +142,7 @@ public class NullableSpanFormattableWithHandlingAlwaysAddStringBearer<TFmtStruct
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   OnePalantirRevealer)]
 public class CloakedBearerAlwaysAddStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TCloaked?>
-  , ISupportsSingleRevealer<TCloakedBase>
-    where TCloaked : TCloakedBase
+  , ISupportsSingleRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
     public TCloaked? ComplexTypeFieldAlwaysAddCloakedBearer
     {
@@ -166,8 +164,7 @@ public class CloakedBearerAlwaysAddStringBearer<TCloaked, TCloakedBase> : IStrin
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | OnePalantirRevealer | SupportsCustomHandling)]
 public class CloakedBearerWithHandlingAlwaysAddStringBearer<TTCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TTCloaked?>
-  , ISupportsFieldHandling
-  , ISupportsSingleRevealer<TCloakedBase> where TTCloaked : TCloakedBase
+  , ISupportsFieldHandling, ISupportsSingleRevealer<TCloakedBase> where TTCloaked : TCloakedBase
 {
     public TTCloaked? ComplexTypeFieldAlwaysAddCloakedBearerAs
     {
@@ -191,7 +188,7 @@ public class CloakedBearerWithHandlingAlwaysAddStringBearer<TTCloaked, TCloakedB
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   OnePalantirRevealer)]
-public class NullableCustomBearerAlwaysAddStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?>
+public class NullableCloakedBearerAlwaysAddStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?>
   , ISupportsSingleRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
     public TCloakedStruct? ComplexTypeFieldAlwaysAddCloakedBearerStruct
@@ -451,8 +448,8 @@ public class StringAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<st
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
-public class StringWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<string?>, ISupportsSingleFormatString, ISupportsFieldHandling
-  , ISupportsSettingValueFromString
+public class StringWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<string?>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public string? ComplexTypeFieldAlwaysAddStringAs
     {
@@ -627,7 +624,8 @@ public class CharArrayRangeAlwaysAddStringBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
-public class CharArrayRangeWithHandlingAlwaysAddStringBearer : IStringBearer, ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
+public class CharArrayRangeWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<char[]?>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public char[]? ComplexTypeFieldAlwaysAddCharArrayRangeAs
     {
@@ -727,8 +725,8 @@ public class CharSequenceWithHandlingAlwaysAddStringBearer<TCharSeq> : IStringBe
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges)]
-public class CharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
-    where TCharSeq : ICharSequence
+public class CharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldAlwaysAddCharSequenceRange
     {
@@ -765,7 +763,7 @@ public class CharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IStringBearer, I
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
 public class CharSequenceRangeWithHandlingAlwaysAddStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>
-  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
     where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldAlwaysAddCharSequenceRangeAs
@@ -804,7 +802,8 @@ public class CharSequenceRangeWithHandlingAlwaysAddStringBearer<TCharSeq> : IStr
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString)]
-public class StringBuilderAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsSingleFormatString, ISupportsSettingValueFromString
+public class StringBuilderAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString
 {
     public StringBuilder? ComplexTypeFieldAlwaysAddStringBuilder
     {
@@ -829,7 +828,8 @@ public class StringBuilderAlwaysAddStringBearer : IStringBearer, IMoldSupportedV
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
-public class StringBuilderWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsSingleFormatString, ISupportsSettingValueFromString
+public class StringBuilderWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public StringBuilder? ComplexTypeFieldAlwaysAddStringBuilderAs
     {
@@ -857,9 +857,41 @@ public class StringBuilderWithHandlingAlwaysAddStringBearer : IStringBearer, IMo
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges)]
-public class StringBuilderRangeWithHandlingAlwaysAddStringBearer : IStringBearer, ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+public class StringBuilderRangeAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public StringBuilder? ComplexTypeFieldAlwaysAddStringBuilderRange
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public StringBuilder? Value { get; set; }
+
+    public string? StringValue
+    {
+        get => Value?.ToString();
+        set => Value = new StringBuilder(value);
+    }
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd(nameof(ComplexTypeFieldAlwaysAddStringBuilderRange), ComplexTypeFieldAlwaysAddStringBuilderRange, FromIndex, Length
+                          , FormatString)
+           .Complete();
+
+    public string? FormatString { get; set; }
+}
+
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
+public class StringBuilderRangeWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsSingleFormatString, ISupportsSettingValueFromString
+  , ISupportsIndexRangeLimiting, ISupportsFieldHandling
+{
+    public StringBuilder? ComplexTypeFieldAlwaysAddStringBuilderRangeAs
     {
         get => Value;
         set => Value = value;
@@ -877,7 +909,7 @@ public class StringBuilderRangeWithHandlingAlwaysAddStringBearer : IStringBearer
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAddAs(nameof(ComplexTypeFieldAlwaysAddStringBuilderRange), ComplexTypeFieldAlwaysAddStringBuilderRange, FromIndex, Length
+           .Field.AlwaysAddAs(nameof(ComplexTypeFieldAlwaysAddStringBuilderRangeAs), ComplexTypeFieldAlwaysAddStringBuilderRangeAs, FromIndex, Length
                             , FieldContentHandling, FormatString)
            .Complete();
 
@@ -888,46 +920,16 @@ public class StringBuilderRangeWithHandlingAlwaysAddStringBearer : IStringBearer
     public string? FormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
-public class StringBuilderRangeAutoAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
-{
-    public StringBuilder? ComplexTypeFieldAlwaysAddStringBuilderRangeAs
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public int FromIndex { get; set; }
-
-    public int Length { get; set; }
-
-    public StringBuilder? Value { get; set; }
-
-    public string? StringValue
-    {
-        get => Value?.ToString();
-        set => Value = new StringBuilder(value);
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(ComplexTypeFieldAlwaysAddStringBuilderRangeAs), ComplexTypeFieldAlwaysAddStringBuilderRangeAs, FromIndex, Length
-                          , FormatString)
-           .Complete();
-
-    public string? FormatString { get; set; }
-}
-
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | OneFormatString)]
-public class MatchAlwaysAddStringBearer<T> : IStringBearer, IMoldSupportedValue<T>, ISupportsSingleFormatString
+public class MatchAlwaysAddStringBearer<T> : IStringBearer, IMoldSupportedValue<T?>, ISupportsSingleFormatString
 {
-    public T ComplexTypeFieldAlwaysAddMatch
+    public T? ComplexTypeFieldAlwaysAddMatch
     {
         get => Value;
         set => Value = value;
     }
 
-    public T Value { get; set; } = default!;
+    public T? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

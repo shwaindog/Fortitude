@@ -3,391 +3,999 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 
-public readonly struct BoolWhenNonDefaultStringBearer(bool value, bool defaultValue = false) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct)]
+public class BoolWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<bool>,  IMoldSupportedDefaultValue<bool>
 {
-    public bool WhenNonDefaultBool { get; } = value;
+    public bool ComplexTypeFieldWhenNonDefaultBool
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public bool Value { get; set; }
+
+    public bool DefaultValue { get; set; } = false;
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultBool), WhenNonDefaultBool, defaultValue)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultBool), ComplexTypeFieldWhenNonDefaultBool, DefaultValue)
            .Complete();
 }
 
-public readonly struct SpanFormattableWhenNonDefaultStringBearer<TFmt>(TFmt value, TFmt defaultValue, string? formatString = null) : IStringBearer
-where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class SpanFormattableWhenNonDefaultStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt>, IMoldSupportedDefaultValue<TFmt>
+    where TFmt : ISpanFormattable
 {
-    public TFmt WhenNonDefaultSpanFormattable { get; } = value;
+    public TFmt ComplexTypeFieldWhenNonDefaultSpanFormattable
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public TFmt Value { get; set; } = default!;
+
+    public TFmt DefaultValue { get; set; } = default!;
+    public string? FormatString { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultSpanFormattable), WhenNonDefaultSpanFormattable, defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultSpanFormattable), ComplexTypeFieldWhenNonDefaultSpanFormattable, DefaultValue
+                                  , FormatString)
            .Complete();
 }
 
-public readonly struct SpanFormattableWithHandlingWhenNonDefaultStringBearer<TFmt>(TFmt value, TFmt defaultValue
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
-where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString | SupportsCustomHandling)]
+public class SpanFormattableWithHandlingWhenNonDefaultStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt>, IMoldSupportedDefaultValue<TFmt>, ISupportsSingleFormatString
+  , ISupportsFieldHandling where TFmt : ISpanFormattable
 {
-    public TFmt WhenNonDefaultSpanFormattable { get; } = value;
+    public TFmt ComplexTypeFieldWhenNonDefaultSpanFormattable
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public TFmt Value { get; set; } = default!;
+
+    public TFmt DefaultValue { get; set; } = default!;
+    public string? FormatString { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultSpanFormattable), WhenNonDefaultSpanFormattable, defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultSpanFormattable), ComplexTypeFieldWhenNonDefaultSpanFormattable
+                                    , DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public readonly struct NullableSpanFormattableWhenNonDefaultStringBearer<TFmtStruct>(TFmtStruct? value, TFmtStruct defaultValue, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class NullableSpanFormattableWhenNonDefaultStringBearer<TFmtStruct> : IStringBearer, IMoldSupportedValue<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct>
+  , ISupportsSingleFormatString
     where TFmtStruct : struct, ISpanFormattable
 {
-    public TFmtStruct?  WhenNonDefaultNullableSpanFormattable { get; } = value;
+    public TFmtStruct? ComplexTypeFieldWhenNonDefaultNullableSpanFormattable
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public TFmtStruct? Value { get; set; }
+
+    public TFmtStruct DefaultValue { get; set; }
+    public string? FormatString { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultNullableSpanFormattable)
-                                  , WhenNonDefaultNullableSpanFormattable, defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultNullableSpanFormattable)
+                                  , ComplexTypeFieldWhenNonDefaultNullableSpanFormattable, DefaultValue, FormatString)
            .Complete();
 }
 
-public readonly struct NullableSpanFormattableWithHandlingWhenNonDefaultStringBearer<TFmtStruct>(TFmtStruct? value, TFmtStruct defaultValue
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
-    where TFmtStruct : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString | SupportsCustomHandling)]
+public class NullableSpanFormattableWithHandlingWhenNonDefaultStringBearer<TFmtStruct> : IStringBearer, IMoldSupportedValue<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct>
+  , ISupportsSingleFormatString, ISupportsFieldHandling where TFmtStruct : struct, ISpanFormattable
 {
-    public TFmtStruct?  WhenNonDefaultNullableSpanFormattable { get; } = value;
+    public TFmtStruct? ComplexTypeFieldWhenNonDefaultNullableSpanFormattable
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public TFmtStruct? Value { get; set; }
+
+    public TFmtStruct DefaultValue { get; set; }
+    public string? FormatString { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultNullableSpanFormattable)
-                                  , WhenNonDefaultNullableSpanFormattable, defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultNullableSpanFormattable)
+                                    , ComplexTypeFieldWhenNonDefaultNullableSpanFormattable, DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public readonly struct CustomBearerWhenNonDefaultStringBearer<TTCloaked, TCloakedBase>(TTCloaked value, PalantírReveal<TCloakedBase> palantírReveal
-  , TTCloaked defaultValue) : IStringBearer where TTCloaked : TCloakedBase
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class CloakedBearerWhenNonDefaultStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TCloaked>, IMoldSupportedDefaultValue<TCloaked>, ISupportsSingleRevealer<TCloakedBase>
+    where TCloaked : TCloakedBase
 {
-    public TTCloaked WhenNonDefaultCustomBearer { get; } = value;
+    public TCloaked ComplexTypeFieldWhenNonDefaultCloakedBearer
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public TCloaked Value { get; set; } = default!;
+
+    public PalantírReveal<TCloakedBase> PalantirRevealer { get; set; } = null!;
+
+    public TCloaked DefaultValue { get; set; } = default!;
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultReveal(nameof(WhenNonDefaultCustomBearer), WhenNonDefaultCustomBearer, palantírReveal, defaultValue)
+           .Field.WhenNonDefaultReveal(nameof(ComplexTypeFieldWhenNonDefaultCloakedBearer), ComplexTypeFieldWhenNonDefaultCloakedBearer
+                                     , PalantirRevealer
+                                     , DefaultValue)
            .Complete();
 }
 
-public readonly struct CustomBearerWithHandlingWhenNonDefaultStringBearer<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
-  , TCloaked defaultValue, FieldContentHandling flags = FieldContentHandling.DefaultForValueType) : IStringBearer where TCloaked : TCloakedBase
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsChars
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | OnePalantirRevealer | SupportsCustomHandling)]
+public class CloakedBearerWithHandlingWhenNonDefaultStringBearer<TCloaked, TCloakedBase>
+    : IStringBearer, IMoldSupportedValue<TCloaked>, IMoldSupportedDefaultValue<TCloaked>, ISupportsSingleRevealer<TCloakedBase>, ISupportsFieldHandling where TCloaked : TCloakedBase
 {
-    public TCloaked WhenNonDefaultCustomBearer { get; } = value;
+    public TCloaked ComplexTypeFieldWhenNonDefaultCloakedBearer
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => tos.StartComplexType(this)
-           .Field.WhenNonDefaultRevealAs(nameof(WhenNonDefaultCustomBearer), WhenNonDefaultCustomBearer, palantírReveal, defaultValue, flags)
-           .Complete();
-}
+    public FieldContentHandling FieldContentHandling { get; set; }
 
-public readonly struct NullableCustomBearerWhenNonDefaultStringBearer<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-  , TCloakedStruct defaultValue) : IStringBearer where TCloakedStruct : struct
-{
-    public TCloakedStruct? WhenNonDefaultCustomBearer { get; } = value;
+    public PalantírReveal<TCloakedBase> PalantirRevealer { get; set; } = null!;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public TCloaked Value { get; set; } = default!;
+
+    public TCloaked DefaultValue { get; set; } = default!;
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultReveal(nameof(WhenNonDefaultCustomBearer), WhenNonDefaultCustomBearer, palantírReveal, defaultValue)
+           .Field
+           .WhenNonDefaultRevealAs(nameof(ComplexTypeFieldWhenNonDefaultCloakedBearer)
+                                 , ComplexTypeFieldWhenNonDefaultCloakedBearer
+                                 , PalantirRevealer, DefaultValue, FieldContentHandling)
            .Complete();
 }
 
-public readonly struct NullableCustomBearerWithHandlingWhenNonDefaultStringBearer<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-  , TCloakedStruct defaultValue, FieldContentHandling flags = FieldContentHandling.DefaultForValueType) : IStringBearer where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class NullableCloakedBearerWhenNonDefaultStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?>, IMoldSupportedDefaultValue<TCloakedStruct?>
+  , ISupportsSingleRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
-    public TCloakedStruct? WhenNonDefaultCustomBearer { get; } = value;
+    public TCloakedStruct? ComplexTypeFieldWhenNonDefaultCloakedBearer
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public TCloakedStruct? Value { get; set; }
+
+    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+
+    public TCloakedStruct? DefaultValue { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultRevealAs(nameof(WhenNonDefaultCustomBearer), WhenNonDefaultCustomBearer, palantírReveal, defaultValue, flags)
+           .Field.WhenNonDefaultReveal
+               (nameof(ComplexTypeFieldWhenNonDefaultCloakedBearer), ComplexTypeFieldWhenNonDefaultCloakedBearer, PalantirRevealer, DefaultValue)
            .Complete();
 }
 
-public readonly struct StringBearerWhenNonDefaultStringBearer<TBearer>(TBearer? value, TBearer? defaultValue) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | OnePalantirRevealer | SupportsCustomHandling)]
+public class NullableCloakedBearerWithHandlingWhenNonDefaultStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?>, IMoldSupportedDefaultValue<TCloakedStruct?>
+  , ISupportsSingleRevealer<TCloakedStruct>, ISupportsFieldHandling where TCloakedStruct : struct
+{
+    public TCloakedStruct? ComplexTypeFieldWhenNonDefaultCloakedBearerAs
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public TCloakedStruct? Value { get; set; }
+
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public TCloakedStruct? DefaultValue { get; set; }
+
+    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.WhenNonDefaultRevealAs(nameof(ComplexTypeFieldWhenNonDefaultCloakedBearerAs), ComplexTypeFieldWhenNonDefaultCloakedBearerAs
+                                       , PalantirRevealer, DefaultValue, FieldContentHandling)
+           .Complete();
+}
+
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+public class StringBearerWhenNonDefaultStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?>, IMoldSupportedDefaultValue<TBearer?>
     where TBearer : IStringBearer
 {
-    public TBearer? WhenNonDefaultStringBearer { get; } = value;
+    public TBearer? ComplexTypeFieldWhenNonDefaultStringBearer
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public TBearer? Value { get; set; }
+
+    public TBearer? DefaultValue { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultReveal(nameof(WhenNonDefaultStringBearer), WhenNonDefaultStringBearer, defaultValue)
+           .Field.WhenNonDefaultReveal(nameof(ComplexTypeFieldWhenNonDefaultStringBearer), ComplexTypeFieldWhenNonDefaultStringBearer, DefaultValue)
            .Complete();
 }
 
-public readonly struct StringBearerWithHandlingWhenNonDefaultStringBearer<TBearer>(TBearer? value, TBearer? defaultValue
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer |
+                  SupportsCustomHandling)]
+public class StringBearerWithHandlingWhenNonDefaultStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?>, IMoldSupportedDefaultValue<TBearer?>, ISupportsFieldHandling
     where TBearer : IStringBearer
 {
-    public TBearer? WhenNonDefaultStringBearer { get; } = value;
+    public TBearer? ComplexTypeFieldWhenNonDefaultStringBearerAs
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public TBearer? Value { get; set; }
+
+    public TBearer? DefaultValue { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultRevealAs(nameof(WhenNonDefaultStringBearer), WhenNonDefaultStringBearer, defaultValue, flags)
+           .Field.WhenNonDefaultRevealAs(nameof(ComplexTypeFieldWhenNonDefaultStringBearerAs), ComplexTypeFieldWhenNonDefaultStringBearerAs, DefaultValue
+                                       , FieldContentHandling)
            .Complete();
 }
 
-public readonly struct NullableStringBearerWhenNonDefaultStringBearer<TBearerStruct>(TBearerStruct? value, TBearerStruct? defaultValue) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsNullableStruct | AcceptsStringBearer | SupportsCustomHandling)]
+public class NullableStringBearerWhenNonDefaultStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?>, IMoldSupportedDefaultValue<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
-    public TBearerStruct? WhenNonDefaultStringBearer { get; } = value;
+    public TBearerStruct? ComplexTypeFieldWhenNonDefaultStringBearer
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public TBearerStruct? Value { get; set; }
+
+    public TBearerStruct? DefaultValue { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultReveal(nameof(WhenNonDefaultStringBearer), WhenNonDefaultStringBearer, defaultValue)
+           .Field.WhenNonDefaultReveal(nameof(ComplexTypeFieldWhenNonDefaultStringBearer), ComplexTypeFieldWhenNonDefaultStringBearer, DefaultValue)
            .Complete();
 }
 
-public readonly struct NullableStringBearerWithHandlingWhenNonDefaultStringBearer<TBearerStruct>(TBearerStruct? value, TBearerStruct? defaultValue
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType) : IStringBearer where TBearerStruct : struct, IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsNullableStruct | AcceptsStringBearer | SupportsCustomHandling)]
+public class NullableStringBearerWithHandlingWhenNonDefaultStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?>, IMoldSupportedDefaultValue<TBearerStruct?> 
+  , ISupportsFieldHandling where TBearerStruct : struct, IStringBearer
 {
-    public TBearerStruct? WhenNonDefaultStringBearer { get; } = value;
+    public TBearerStruct? ComplexTypeFieldWhenNonDefaultStringBearerAs
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public TBearerStruct? Value { get; set; }
+
+    public TBearerStruct? DefaultValue { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultRevealAs(nameof(WhenNonDefaultStringBearer), WhenNonDefaultStringBearer, defaultValue, flags)
+           .Field.WhenNonDefaultRevealAs(nameof(ComplexTypeFieldWhenNonDefaultStringBearerAs), ComplexTypeFieldWhenNonDefaultStringBearerAs, DefaultValue
+                                       , FieldContentHandling)
            .Complete();
 }
 
-public readonly struct CharSpanWhenNonDefaultAddStringBearer(char[] value, string defaultValue, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString)]
+public class CharSpanWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsSingleFormatString, ISupportsSettingValueFromString
 {
-    public char[] WhenNonDefaultCharSpan { get; } = value;
+    public char[] ComplexTypeFieldWhenNonDefaultCharSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public char[] Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => new(Value.AsSpan());
+        set => Value = value?.ToCharArray()!;
+    }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultCharSpan), WhenNonDefaultCharSpan.AsSpan(), defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultCharSpan), ComplexTypeFieldWhenNonDefaultCharSpan.AsSpan(), DefaultValue
+                                  , FormatString)
            .Complete();
 }
 
-public readonly struct CharSpanWithHandlingWhenNonDefaultAddStringBearer(char[] value, string defaultValue
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+public class CharSpanWithHandlingWhenNonDefaultAddStringBearer  : IStringBearer, IMoldSupportedValue<char[]>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
-    public char[] WhenNonDefaultCharSpanAs { get; } = value;
+    public char[] ComplexTypeFieldWhenNonDefaultCharSpanAs
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public char[] Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => new(Value.AsSpan());
+        set => Value = value?.ToCharArray()!;
+    }
+    
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultCharSpanAs), WhenNonDefaultCharSpanAs.AsSpan(), defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultCharSpanAs), ComplexTypeFieldWhenNonDefaultCharSpanAs.AsSpan()
+                                    , DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public readonly struct CharReadOnlySpanWhenNonDefaultAddStringBearer(string value, string defaultValue, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString)]
+public class CharReadOnlySpanWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString
 {
-    public string WhenNonDefaultCharReadOnlySpan { get; } = value;
+    public string ComplexTypeFieldWhenNonDefaultCharReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public string Value { get; set; } = null!;
+
+    public string DefaultValue { get; set; } = "";
+    
+    public string? FormatString { get; set; }
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultCharReadOnlySpan), WhenNonDefaultCharReadOnlySpan.AsSpan(), defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultCharReadOnlySpan), ComplexTypeFieldWhenNonDefaultCharReadOnlySpan.AsSpan()
+                                  , DefaultValue, FormatString)
            .Complete();
 }
 
-public readonly struct CharReadOnlySpanWithHandlingWhenNonDefaultAddStringBearer(string value, string defaultValue
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+public class CharReadOnlySpanWithHandlingWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
-    public string WhenNonDefaultCharReadOnlyAs { get; } = value;
+    public string ComplexTypeFieldWhenNonDefaultCharReadOnlyAs
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public string Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public string DefaultValue { get; set; } = "";
+    
+    public string? FormatString { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultCharReadOnlyAs), WhenNonDefaultCharReadOnlyAs.AsSpan(), defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultCharReadOnlyAs), ComplexTypeFieldWhenNonDefaultCharReadOnlyAs.AsSpan()
+                                    , DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public readonly struct StringWhenNonDefaultAddStringBearer(string value, string defaultValue, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString)]
+public class StringWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString, ISupportsSettingValueFromString
 {
-    public string WhenNonDefaultString { get; } = value;
+    public string ComplexTypeFieldWhenNonDefaultString
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public string Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public string DefaultValue { get; set; } = "";
+    public string? FormatString { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultString), WhenNonDefaultString, defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultString), ComplexTypeFieldWhenNonDefaultString, DefaultValue, FormatString)
            .Complete();
 }
 
-public readonly struct StringWithHandlingWhenNonDefaultAddStringBearer(string value, string defaultValue
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+public class StringWithHandlingWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString, ISupportsFieldHandling
+  , ISupportsSettingValueFromString
 {
-    public string WhenNonDefaultString { get; } = value;
+    public string ComplexTypeFieldWhenNonDefaultString
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public string Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public string DefaultValue { get; set; } = "";
+    public string? FormatString { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultString), WhenNonDefaultString, defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultString), ComplexTypeFieldWhenNonDefaultString, DefaultValue, FieldContentHandling
+                                    , FormatString)
            .Complete();
 }
 
-public readonly struct StringRangeWhenNonDefaultAddStringBearer(string value, int fromIndex, int length, string defaultValue = "", string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges)]
+public class StringRangeWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public string WhenNonDefaultStringRange { get; } = value;
+    public string ComplexTypeFieldWhenNonDefaultStringRange
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public string Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public string DefaultValue { get; set; } = "";
+    public string? FormatString { get; set; }
+
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultStringRange), WhenNonDefaultStringRange
-                                  , fromIndex, length, defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultStringRange), ComplexTypeFieldWhenNonDefaultStringRange
+                                  , FromIndex, Length, DefaultValue, FormatString)
            .Complete();
 }
 
-public readonly struct StringRangeWithHandlingWhenNonDefaultAddStringBearer(string value, int fromIndex, int length, string defaultValue = ""
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
+public class StringRangeWithHandlingWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
-    public string WhenNonDefaultStringRange { get; } = value;
+    public string ComplexTypeFieldWhenNonDefaultStringRange
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public string Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public string DefaultValue { get; set; } = "";
+    public string? FormatString { get; set; }
+
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultStringRange), WhenNonDefaultStringRange
-                                  , fromIndex, length, defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultStringRange), ComplexTypeFieldWhenNonDefaultStringRange
+                                    , FromIndex, Length, DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public readonly struct CharArrayWhenNonDefaultStringBearer(char[] value, string defaultValue = "", string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString)]
+public class CharArrayWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString
 {
-    public char[] WhenNonDefaultCharArray { get; } = value;
+    public char[] ComplexTypeFieldWhenNonDefaultCharArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public char[] Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value != null! ? new string(Value) : null;
+        set => Value = value?.ToCharArray()!;
+    }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultCharArray), WhenNonDefaultCharArray, defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultCharArray), ComplexTypeFieldWhenNonDefaultCharArray, DefaultValue
+                                  , FormatString)
            .Complete();
 }
 
-public readonly struct CharArrayWithHandlingWhenNonDefaultStringBearer(char[] value, string defaultValue = ""
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString)]
+public class CharArrayWithHandlingWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
-    public char[] WhenNonDefaultCharArray { get; } = value;
+    public char[] ComplexTypeFieldWhenNonDefaultCharArrayAs
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public char[] Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value != null! ? new string(Value) : null;
+        set => Value = value?.ToCharArray()!;
+    }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultCharArray), WhenNonDefaultCharArray, defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultCharArrayAs), ComplexTypeFieldWhenNonDefaultCharArrayAs, DefaultValue, FieldContentHandling
+                                    , FormatString)
            .Complete();
 }
 
-public readonly struct CharArrayRangeWhenNonDefaultStringBearer(char[] value, int fromIndex, int length, string defaultValue = "", string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+public class CharArrayRangeWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public char[] WhenNonDefaultCharArrayRange { get; } = value;
+    public char[] ComplexTypeFieldWhenNonDefaultCharArrayRange
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public char[] Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value != null! ? new string(Value) : null;
+        set => Value = value?.ToCharArray()!;
+    }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultCharArrayRange), WhenNonDefaultCharArrayRange
-                                  , fromIndex, length, defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultCharArrayRange), ComplexTypeFieldWhenNonDefaultCharArrayRange
+                                  , FromIndex, Length, DefaultValue, FormatString)
            .Complete();
 }
 
-public readonly struct CharArrayRangeWithHandlingWhenNonDefaultStringBearer(char[] value, int fromIndex, int length, string defaultValue = ""
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
+public class CharArrayRangeWithHandlingWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
-    public char[] WhenNonDefaultCharArrayRange { get; } = value;
+    public char[] ComplexTypeFieldWhenNonDefaultCharArrayRangeAs
+    {
+        get => Value;
+        set => Value = value;
+    }
+    
+    public FieldContentHandling FieldContentHandling { get; set; }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public char[] Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value != null! ? new string(Value) : null;
+        set => Value = value?.ToCharArray()!;
+    }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultCharArrayRange), WhenNonDefaultCharArrayRange
-                                  , fromIndex, length, defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultCharArrayRangeAs), ComplexTypeFieldWhenNonDefaultCharArrayRangeAs
+                                    , FromIndex, Length, DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public readonly struct CharSequenceWhenNonDefaultStringBearer<TCharSeq>(TCharSeq value, string defaultValue = "", string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString)]
+public class CharSequenceWhenNonDefaultStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>, IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString
     where TCharSeq : ICharSequence
 {
-    public TCharSeq WhenNonDefaultCharSequence { get; } = value;
+    public TCharSeq ComplexTypeFieldWhenNonDefaultCharSequence
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public TCharSeq Value { get; set; } = default!;
+
+    public string? StringValue
+    {
+        get => Value != null! ? Value.ToString() : null;
+        set
+        {
+            var typeOfCharSeq = typeof(TCharSeq);
+
+            if (typeOfCharSeq == typeof(CharArrayStringBuilder)) { Value = (TCharSeq)(object)new CharArrayStringBuilder(value); }
+            else { Value                                                 = (TCharSeq)(object)new MutableString(value); }
+        }
+    }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddCharSeq(nameof(WhenNonDefaultCharSequence), WhenNonDefaultCharSequence, defaultValue, formatString)
+           .Field.WhenNonDefaultAddCharSeq(nameof(ComplexTypeFieldWhenNonDefaultCharSequence), ComplexTypeFieldWhenNonDefaultCharSequence
+                                         , DefaultValue, FormatString)
            .Complete();
 }
 
-public readonly struct CharSequenceWithHandlingWhenNonDefaultStringBearer<TCharSeq>(TCharSeq value, string defaultValue = ""
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+public class CharSequenceWithHandlingWhenNonDefaultStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>, IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString
+  , ISupportsSettingValueFromString, ISupportsFieldHandling
     where TCharSeq : ICharSequence
 {
-    public TCharSeq WhenNonDefaultCharSequence { get; } = value;
+    public TCharSeq ComplexTypeFieldWhenNonDefaultCharSequence
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public TCharSeq Value { get; set; } = default!;
+
+    public string? StringValue
+    {
+        get => Value != null! ? Value.ToString() : null;
+        set
+        {
+            var typeOfCharSeq = typeof(TCharSeq);
+
+            if (typeOfCharSeq == typeof(CharArrayStringBuilder)) { Value = (TCharSeq)(object)new CharArrayStringBuilder(value); }
+            else { Value                                                 = (TCharSeq)(object)new MutableString(value); }
+        }
+    }
+    public string? FormatString { get; set; }
+    
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddCharSeqAs(nameof(WhenNonDefaultCharSequence), WhenNonDefaultCharSequence, defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddCharSeqAs(nameof(ComplexTypeFieldWhenNonDefaultCharSequence), ComplexTypeFieldWhenNonDefaultCharSequence
+                                           , DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public readonly struct CharSequenceRangeWhenNonDefaultStringBearer<TCharSeq>(TCharSeq value, int fromIndex, int length, string defaultValue = "", string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges)]
+public class CharSequenceRangeWhenNonDefaultStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>, IMoldSupportedDefaultValue<string>
+  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
+{
+    public TCharSeq ComplexTypeFieldWhenNonDefaultCharSequenceRange
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public TCharSeq Value { get; set; } = default!;
+
+    public string? StringValue
+    {
+        get => Value != null! ? Value.ToString() : null;
+        set
+        {
+            var typeOfCharSeq = typeof(TCharSeq);
+
+            if (typeOfCharSeq == typeof(CharArrayStringBuilder)) { Value = (TCharSeq)(object)new CharArrayStringBuilder(value); }
+            else { Value                                                 = (TCharSeq)(object)new MutableString(value); }
+        }
+    }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.WhenNonDefaultAddCharSeq(nameof(ComplexTypeFieldWhenNonDefaultCharSequenceRange), ComplexTypeFieldWhenNonDefaultCharSequenceRange
+                                         , FromIndex, Length, DefaultValue, FormatString)
+           .Complete();
+}
+
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
+public class CharSequenceRangeWithHandlingWhenNonDefaultStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>, IMoldSupportedDefaultValue<string>
+  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
     where TCharSeq : ICharSequence
 {
-    public TCharSeq WhenNonDefaultCharSequenceRange { get; } = value;
+    public TCharSeq ComplexTypeFieldWhenNonDefaultCharSequenceRange
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public TCharSeq Value { get; set; } = default!;
+
+    public string? StringValue
+    {
+        get => Value != null! ? Value.ToString() : null;
+        set
+        {
+            var typeOfCharSeq = typeof(TCharSeq);
+
+            if (typeOfCharSeq == typeof(CharArrayStringBuilder)) { Value = (TCharSeq)(object)new CharArrayStringBuilder(value); }
+            else { Value                                                 = (TCharSeq)(object)new MutableString(value); }
+        }
+    }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddCharSeq(nameof(WhenNonDefaultCharSequenceRange), WhenNonDefaultCharSequenceRange
-                                  , fromIndex, length, defaultValue, formatString)
+           .Field.WhenNonDefaultAddCharSeqAs(nameof(ComplexTypeFieldWhenNonDefaultCharSequenceRange), ComplexTypeFieldWhenNonDefaultCharSequenceRange
+                                           , FromIndex, Length, DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public readonly struct CharSequenceRangeWithHandlingWhenNonDefaultStringBearer<TCharSeq>(TCharSeq value, int fromIndex, int length, string defaultValue = ""
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
-    where TCharSeq : ICharSequence
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString)]
+public class StringBuilderWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>, IMoldSupportedDefaultValue<string>
+  , ISupportsSingleFormatString, ISupportsSettingValueFromString
 {
-    public TCharSeq WhenNonDefaultCharSequenceRange { get; } = value;
+    public StringBuilder ComplexTypeFieldWhenNonDefaultAddStringBuilder
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
-        tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddCharSeqAs(nameof(WhenNonDefaultCharSequenceRange), WhenNonDefaultCharSequenceRange
-                                  , fromIndex, length, defaultValue, flags, formatString)
-           .Complete();
-}
+    public StringBuilder Value { get; set; } = null!;
 
-public class StringBuilderWhenNonDefaultStringBearer(StringBuilder value, string defaultValue = "", string? formatString = null) : IStringBearer
-{
-    public StringBuilder WhenNonDefaultAddStringBuilder { get; } = value;
+    public string? StringValue
+    {
+        get => Value.ToString();
+        set => Value = new StringBuilder(value);
+    }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultAddStringBuilder), WhenNonDefaultAddStringBuilder, defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultAddStringBuilder), ComplexTypeFieldWhenNonDefaultAddStringBuilder
+                                  , DefaultValue, FormatString)
            .Complete();
 }
 
-public class StringBuilderWithHandlingWhenNonDefaultStringBearer(StringBuilder value, string defaultValue = ""
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+public class StringBuilderWithHandlingWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>, IMoldSupportedDefaultValue<string>, 
+    ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
-    public StringBuilder WhenNonDefaultAddStringBuilder { get; } = value;
+    public StringBuilder ComplexTypeFieldWhenNonDefaultAddStringBuilder
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public StringBuilder Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value.ToString();
+        set => Value = new StringBuilder(value);
+    }
+    
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultAddStringBuilder), WhenNonDefaultAddStringBuilder, defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultAddStringBuilder), ComplexTypeFieldWhenNonDefaultAddStringBuilder
+                                    , DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public class StringBuilderRangeWhenNonDefaultStringBearer(StringBuilder value, int fromIndex, int length, string defaultValue = "", string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges)]
+public class StringBuilderRangeWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>, IMoldSupportedDefaultValue<string>
+  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public StringBuilder WhenNonDefaultAddStringBuilderRange { get; } = value;
+    public StringBuilder ComplexTypeFieldWhenNonDefaultAddStringBuilderRange
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public StringBuilder Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value.ToString();
+        set => Value = new StringBuilder(value);
+    }
+    
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAdd(nameof(WhenNonDefaultAddStringBuilderRange), WhenNonDefaultAddStringBuilderRange, fromIndex, length, defaultValue, formatString)
+           .Field.WhenNonDefaultAdd(nameof(ComplexTypeFieldWhenNonDefaultAddStringBuilderRange), ComplexTypeFieldWhenNonDefaultAddStringBuilderRange
+                                  , FromIndex, Length, DefaultValue, FormatString)
            .Complete();
 }
 
-public class StringBuilderRangeWithHandlingWhenNonDefaultStringBearer(StringBuilder value, int fromIndex, int length, string defaultValue = ""
-  , FieldContentHandling flags = FieldContentHandling.DefaultForValueType, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
+public class StringBuilderRangeWithHandlingWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>, IMoldSupportedDefaultValue<string>
+  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling, ISupportsIndexRangeLimiting
 {
-    public StringBuilder WhenNonDefaultAddStringBuilderRange { get; } = value;
+    public StringBuilder ComplexTypeFieldWhenNonDefaultAddStringBuilderRange
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public StringBuilder Value { get; set; } = null!;
+
+    public string? StringValue
+    {
+        get => Value.ToString();
+        set => Value = new StringBuilder(value);
+    }
+
+    public FieldContentHandling FieldContentHandling { get; set; }
+    public string? FormatString { get; set; }
+
+    public string DefaultValue { get; set; } = "";
+
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddAs(nameof(WhenNonDefaultAddStringBuilderRange), WhenNonDefaultAddStringBuilderRange, fromIndex, length, defaultValue, flags, formatString)
+           .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultAddStringBuilderRange), ComplexTypeFieldWhenNonDefaultAddStringBuilderRange
+                                    , FromIndex, Length, DefaultValue, FieldContentHandling, FormatString)
            .Complete();
 }
 
-public readonly struct ObjectWhenNonDefaultStringBearer(object? value, object? defaultValue, string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsAny | OneFormatString)]
+public class MatchWhenNonDefaultStringBearer<T> : IStringBearer, IMoldSupportedValue<T?>, IMoldSupportedDefaultValue<T?>, ISupportsSingleFormatString
 {
-    public object? WhenNonDefaultObject { get; } = value;
+    public T? ComplexTypeFieldWhenNonDefaultMatch 
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public T? Value { get; set; }
+    public string? FormatString { get; set; }
+
+    public T? DefaultValue { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddObject(nameof(WhenNonDefaultObject), WhenNonDefaultObject, defaultValue, formatString)
+           .Field.WhenNonDefaultAddMatch(nameof(ComplexTypeFieldWhenNonDefaultMatch), ComplexTypeFieldWhenNonDefaultMatch, DefaultValue, FormatString)
            .Complete();
 }
 
-public readonly struct MatchWhenNonDefaultStringBearer<T>(T? value, T? defaultValue = default(T), string? formatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | OneFormatString)]
+public class ObjectWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<object?>, IMoldSupportedDefaultValue<object?>
 {
-    public T? WhenNonDefaultMatch { get; } = value;
+    public object? ComplexTypeFieldWhenNonDefaultObject
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public object? Value { get; set; }
+    public string? FormatString { get; set; }
+
+    public object? DefaultValue { get; set; }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonDefaultAddMatch(nameof(WhenNonDefaultMatch), WhenNonDefaultMatch, defaultValue, formatString)
+           .Field.WhenNonDefaultAddObject(nameof(ComplexTypeFieldWhenNonDefaultObject), ComplexTypeFieldWhenNonDefaultObject, DefaultValue
+                                        , FormatString)
            .Complete();
 }

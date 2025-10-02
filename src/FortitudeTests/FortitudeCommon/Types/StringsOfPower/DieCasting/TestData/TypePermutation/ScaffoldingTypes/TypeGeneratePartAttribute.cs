@@ -54,6 +54,11 @@ public interface IMoldSupportedValue<TValue>
     [JsonIgnore] TValue Value { get; set; }
 }
 
+public interface IMoldSupportedDefaultValue<TValue>
+{
+    [JsonIgnore] TValue DefaultValue { get; set; }
+}
+
 public interface ISupportsSingleFormatString
 {
     [JsonIgnore] string? FormatString { get; set; }
