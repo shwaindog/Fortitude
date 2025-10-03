@@ -160,7 +160,7 @@ public class CloakedBearerAlwaysAddStringBearer<TCloaked, TCloakedBase> : IStrin
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsChars
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass 
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | OnePalantirRevealer | SupportsCustomHandling)]
 public class CloakedBearerWithHandlingAlwaysAddStringBearer<TTCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TTCloaked?>
@@ -314,7 +314,7 @@ public class NullableStringBearerWithHandlingAlwaysAddStringBearer<TBearerStruct
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | OneFormatString)]
 public class CharSpanAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsSingleFormatString, ISupportsSettingValueFromString
 {
-    public char[] ComplexTypeFieldAlwaysAddReadOnlyCharSpan
+    public char[] ComplexTypeFieldAlwaysAddCharSpan
     {
         get => Value;
         set => Value = value;
@@ -330,7 +330,7 @@ public class CharSpanAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpan), ComplexTypeFieldAlwaysAddReadOnlyCharSpan.AsSpan(), FormatString)
+           .Field.AlwaysAdd(nameof(ComplexTypeFieldAlwaysAddCharSpan), ComplexTypeFieldAlwaysAddCharSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -340,7 +340,7 @@ public class CharSpanAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<
 public class CharSpanWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsSingleFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
-    public char[] ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs
+    public char[] ComplexTypeFieldAlwaysAddCharSpanAs
     {
         get => Value;
         set => Value = value;
@@ -358,7 +358,7 @@ public class CharSpanWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSup
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAddAs(nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs), ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs.AsSpan()
+           .Field.AlwaysAddAs(nameof(ComplexTypeFieldAlwaysAddCharSpanAs), ComplexTypeFieldAlwaysAddCharSpanAs.AsSpan()
                             , FieldContentHandling
                             , FormatString)
            .Complete();

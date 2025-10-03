@@ -34,7 +34,7 @@ public enum TypeGeneratePartFlags : uint
   , AlwaysWrites              = 0x00_02_00_00
   , OnlyPopulatedWrites       = 0x00_04_00_00
   , NonNullWrites             = 0x00_08_00_00
-  , NonNullOrPopulatedWrites  = 0x00_10_00_00
+  , NonNullAndPopulatedWrites  = 0x00_10_00_00
   , OutputConditionMask       = 0x00_1E_00_00
   , CollectionFilterPredicate = 0x00_20_00_00
   , KeyValueFilterPredicate   = 0x00_40_00_00

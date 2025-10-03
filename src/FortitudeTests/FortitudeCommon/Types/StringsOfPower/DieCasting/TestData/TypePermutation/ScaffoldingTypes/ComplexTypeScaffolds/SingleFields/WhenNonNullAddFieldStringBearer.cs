@@ -634,7 +634,7 @@ public class CharSequenceRangeWhenNonNullStringBearer<TCharSeq> : IStringBearer,
     public string? FormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
 public class CharSequenceRangeWithHandlingWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsSingleFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling where TCharSeq : ICharSequence
 {
