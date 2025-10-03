@@ -51,12 +51,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFilteredCharSeq<TCharSeq, TCharSeqBase>
-        (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate) where TCharSeq : ICharSequence, TCharSeqBase =>
-        !stb.SkipFields && value != null ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+        (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence, TCharSeqBase =>
+        !stb.SkipFields && value != null ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
-        (string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate) =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+        (string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
     
     public TExt WhenNonNullAddFilteredMatch<T, TBase>
     (string fieldName, T?[]? value, OrderedCollectionPredicate<TBase> filterPredicate
@@ -110,9 +112,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFilteredCharSeq<TCharSeq, TCharSeqBase>
-        (string fieldName, IReadOnlyList<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate) 
+        (string fieldName, IReadOnlyList<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TCharSeq : ICharSequence, TCharSeqBase =>
-        !stb.SkipFields && value != null ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+        !stb.SkipFields && value != null ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
         (string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate) =>

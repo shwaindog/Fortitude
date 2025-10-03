@@ -1,979 +1,1773 @@
-﻿using System.Net;
-using System.Text;
+﻿using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
 
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.OrderedCollectionFields;
 
-public class BoolSpanWhenPopulatedWithFilterStringBearer(bool[]? value, OrderedCollectionPredicate<bool> filterPredicate) : IStringBearer
-{
-    public bool[]? WhenPopulatedWithFilterBoolSpan { get; } = value;
 
-    public OrderedCollectionPredicate<bool> Filter { get; set; } = filterPredicate;
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct)]
+public class BoolSpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
+{
+    public bool[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public bool[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterBoolSpan), WhenPopulatedWithFilterBoolSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolSpan.AsSpan()
+              , ElementPredicate)
            .Complete();
 }
 
-public class NullableBoolSpanWhenPopulatedWithFilterStringBearer(bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
+public class NullableBoolSpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
 {
-    public bool?[]? WhenPopulatedWithFilterNullableBoolSpan { get; } = value;
+    public bool?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<bool?> Filter { get; set; } = filterPredicate;
+    public bool?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterNullableBoolSpan), WhenPopulatedWithFilterNullableBoolSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolSpan.AsSpan()
+              , ElementPredicate)
            .Complete();
 }
 
-public class SpanFormattableSpanWhenPopulatedWithFilterStringBearer<TFmt>(TFmt[]? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
-    where TFmt : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class SpanFormattableSpanWhenPopulatedWithFilterStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt[]?>
+  , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsSingleFormatString where TFmt : ISpanFormattable
 {
-    public TFmt[]? WhenPopulatedWithFilterSpanFormattableSpan { get; } = value;
+    public TFmt[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFmt> Filter { get; set; } = filterPredicate;
+    public TFmt[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterSpanFormattableSpan), WhenPopulatedWithFilterSpanFormattableSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableSpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class SpanFormattableNullableSpanWhenPopulatedWithFilterStringBearer<TFmt>
-    (TFmt?[]? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
-    where TFmt : class, ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class SpanFormattableNullableSpanWhenPopulatedWithFilterStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?[]?>
+  , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsSingleFormatString where TFmt : class, ISpanFormattable
 {
-    public TFmt?[]? WhenPopulatedWithFilterSpanFormattableNullableSpan { get; } = value;
+    public TFmt?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFmt> Filter { get; set; } = filterPredicate;
+    public TFmt?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterNullable(nameof(WhenPopulatedWithFilterSpanFormattableNullableSpan)
-                                                    , WhenPopulatedWithFilterSpanFormattableNullableSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableSpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
 public class NullableSpanFormattableSpanWhenPopulatedWithFilterStringBearer<TFmtStruct>
-    (TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsSingleFormatString
     where TFmtStruct : struct, ISpanFormattable
 {
-    public TFmtStruct?[]? WhenPopulatedWithFilterNullableSpanFormattableSpan { get; } = value;
+    public TFmtStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFmtStruct?> Filter { get; set; } = filterPredicate;
+    public TFmtStruct?[]? Value { get; set; }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterNullableSpanFormattableSpan)
-                                            , WhenPopulatedWithFilterNullableSpanFormattableSpan.AsSpan(), Filter)
-           .Complete();
-}
-
-public class IpAddressSpanWhenPopulatedWithFilterStringBearer(IPAddress?[]? value, OrderedCollectionPredicate<IPAddress?> filterPredicate) : IStringBearer
-{
-    public IPAddress?[]? WhenPopulatedWithFilterIpAddressSpan { get; } = value;
-
-    public OrderedCollectionPredicate<IPAddress?> Filter { get; set; } = filterPredicate;
+    public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFmtStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterNullable(nameof(WhenPopulatedWithFilterIpAddressSpan), WhenPopulatedWithFilterIpAddressSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableSpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class CustomBearerSpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-(
-    TCloaked[]? value
-  , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-  , PalantírReveal<TCloakedRevealBase> palantírReveal) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class CloakedBearerSpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : IStringBearer,
+    IMoldSupportedValue<TCloaked[]?>, ISupportsSingleRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
-    public TCloaked[]? WhenPopulatedWithFilterCloakedBearerSpan { get; } = value;
+    public TCloaked[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCloakedFilterBase> Filter { get; set; } = filterPredicate;
+    public TCloaked[]? Value { get; set; }
+
+    public PalantírReveal<TCloakedRevealBase> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered(nameof(WhenPopulatedWithFilterCloakedBearerSpan), WhenPopulatedWithFilterCloakedBearerSpan.AsSpan(), Filter
-                                               , palantírReveal)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerSpan.AsSpan()
+              , ElementPredicate, PalantirRevealer)
            .Complete();
 }
 
-public class CustomBearerNullableSpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-(
-    TCloaked?[]? value
-  , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-  , PalantírReveal<TCloakedRevealBase> palantírReveal) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable
+                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OnePalantirRevealer)]
+public class CloakedBearerNullableSpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : IStringBearer
+  , IMoldSupportedValue<TCloaked?[]?>, ISupportsSingleRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
 {
-    public TCloaked?[]? WhenPopulatedWithFilterCloakedBearerNullableSpan { get; } = value;
+    public TCloaked?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCloakedFilterBase> Filter { get; set; } = filterPredicate;
+    public TCloaked?[]? Value { get; set; }
+
+    public PalantírReveal<TCloakedRevealBase> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredNullable(nameof(WhenPopulatedWithFilterCloakedBearerNullableSpan)
-                                                       , WhenPopulatedWithFilterCloakedBearerNullableSpan.AsSpan(), Filter, palantírReveal)
+           .CollectionField.AlwaysRevealFilteredNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableSpan.AsSpan()
+              , ElementPredicate, PalantirRevealer)
            .Complete();
 }
 
-public class NullableCustomBearerSpanWhenPopulatedWithFilterStringBearer<TCloakedStruct>
-(
-    TCloakedStruct?[]? value
-  , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
-  , PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer
-    where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class NullableCloakedBearerSpanWhenPopulatedWithFilterStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>
+  , ISupportsSingleRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
 {
-    public TCloakedStruct?[]? WhenPopulatedWithFilterNullableCloakedBearerSpan { get; } = value;
+    public TCloakedStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCloakedStruct?> Filter { get; set; } = filterPredicate;
+    public TCloakedStruct?[]? Value { get; set; }
+
+    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered(nameof(WhenPopulatedWithFilterNullableCloakedBearerSpan)
-                                               , WhenPopulatedWithFilterNullableCloakedBearerSpan.AsSpan(), Filter, palantírReveal)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerSpan.AsSpan()
+              , ElementPredicate, PalantirRevealer)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
 public class StringBearerSpanWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    (TBearer[]? value, OrderedCollectionPredicate<TBearerBase> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TBearer[]?>, ISupportsOrderedCollectionPredicate<TBearerBase>
     where TBearer : IStringBearer, TBearerBase
 {
-    public TBearer[]? WhenPopulatedWithFilterStringBearerSpan { get; } = value;
+    public TBearer[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerBase> Filter { get; set; } = filterPredicate;
+    public TBearer[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered(nameof(WhenPopulatedWithFilterStringBearerSpan), WhenPopulatedWithFilterStringBearerSpan.AsSpan(), Filter)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerSpan.AsSpan(), ElementPredicate)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableClass | AcceptsStringBearer)]
 public class StringBearerNullableSpanWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    (TBearer?[]? value, OrderedCollectionPredicate<TBearerBase?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : class, IStringBearer, TBearerBase
 {
-    public TBearer?[]? WhenPopulatedWithFilterStringBearerNullableSpan { get; } = value;
+    public TBearer?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerBase?> Filter { get; set; } = filterPredicate;
+    public TBearer?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredNullable(nameof(WhenPopulatedWithFilterStringBearerNullableSpan)
-                                                       , WhenPopulatedWithFilterStringBearerNullableSpan.AsSpan(), Filter)
+           .CollectionField.AlwaysRevealFilteredNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableSpan.AsSpan()
+              , ElementPredicate)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerSpanWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    (TBearerStruct?[]? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
-    public TBearerStruct?[]? WhenPopulatedWithFilterNullableStringBearerSpan { get; } = value;
+    public TBearerStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerStruct?> Filter { get; set; } = filterPredicate;
+    public TBearerStruct?[]? Value { get; set; }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered(nameof(WhenPopulatedWithFilterNullableStringBearerSpan), WhenPopulatedWithFilterNullableStringBearerSpan.AsSpan()
-                                               , Filter)
-           .Complete();
-}
-
-public class StringSpanWhenPopulatedWithFilterStringBearer(string[]? value, OrderedCollectionPredicate<string?> filterPredicate) : IStringBearer
-{
-    public string[]? WhenPopulatedWithFilterStringSpan { get; } = value;
-
-    public OrderedCollectionPredicate<string?> Filter { get; set; } = filterPredicate;
+    public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterStringSpan), WhenPopulatedWithFilterStringSpan.AsSpan(), Filter)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerSpan.AsSpan()
+              , ElementPredicate)
            .Complete();
 }
 
-public class StringNullableSpanWhenPopulatedWithFilterStringBearer(string?[]? value, OrderedCollectionPredicate<string?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class StringSpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<string[]?>, ISupportsOrderedCollectionPredicate<string?>
+  , ISupportsSingleFormatString
 {
-    public string?[]? WhenPopulatedWithFilterNullableStringSpan { get; } = value;
+    public string[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<string?> Filter { get; set; } = filterPredicate;
+    public string[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringSpan.AsSpan()
+              , ElementPredicate, FormatString)
+           .Complete();
+
+    public string? FormatString { get; set; }
+}
+
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class StringNullableSpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<string?[]?>
+  , ISupportsOrderedCollectionPredicate<string?>, ISupportsSingleFormatString
+{
+    public string?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public string?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
-           .WhenPopulatedWithFilterNullable(nameof(WhenPopulatedWithFilterNullableStringSpan), WhenPopulatedWithFilterNullableStringSpan.AsSpan(), Filter)
+           .WhenPopulatedWithFilterNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringSpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class CharSequenceSpanWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>
-    (TCharSeq[]? value, OrderedCollectionPredicate<TCharSeqFilterBase?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsSingleFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public TCharSeq[]? WhenPopulatedWithFilterCharSequenceSpan { get; } = value;
+    public TCharSeq[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> Filter { get; set; } = filterPredicate;
+    public TCharSeq[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeq(nameof(WhenPopulatedWithFilterCharSequenceSpan), WhenPopulatedWithFilterCharSequenceSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterCharSeq
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceSpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class CharSequenceNullableSpanWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>
-    (TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqFilterBase?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsSingleFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public TCharSeq?[]? WhenPopulatedWithFilterNullableCharSequenceSpan { get; } = value;
+    public TCharSeq?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> Filter { get; set; } = filterPredicate;
+    public TCharSeq?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeqNullable(nameof(WhenPopulatedWithFilterNullableCharSequenceSpan)
-                                                           , WhenPopulatedWithFilterNullableCharSequenceSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterCharSeqNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceSpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class StringBuilderSpanWhenPopulatedWithFilterStringBearer
-    (StringBuilder[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class StringBuilderSpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder[]?>
+  , ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsSingleFormatString
 {
-    public StringBuilder[]? WhenPopulatedWithFilterStringBuilderSpan { get; } = value;
+    public StringBuilder[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<StringBuilder?> Filter { get; set; } = filterPredicate;
+    public StringBuilder[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterStringBuilderSpan), WhenPopulatedWithFilterStringBuilderSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderSpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class StringBuilderNullableSpanWhenPopulatedWithFilterStringBearer
-    (StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsSingleFormatString
 {
-    public StringBuilder?[]? WhenPopulatedWithFilterNullableStringBuilderSpan { get; } = value;
+    public StringBuilder?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<StringBuilder?> Filter { get; set; } = filterPredicate;
+    public StringBuilder?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterNullable(nameof(WhenPopulatedWithFilterNullableStringBuilderSpan)
-                                                    , WhenPopulatedWithFilterNullableStringBuilderSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderSpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class MatchSpanWhenPopulatedWithFilterStringBearer<T, TFilterBase>
-    (T[]? value, OrderedCollectionPredicate<TFilterBase> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsSingleFormatString
     where T : TFilterBase
 {
-    public T[]? WhenPopulatedWithFilterMatchSpan { get; } = value;
+    public T[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFilterBase> Filter { get; set; } = filterPredicate;
+    public T[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterMatch(nameof(WhenPopulatedWithFilterMatchSpan), WhenPopulatedWithFilterMatchSpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterMatch
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchSpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsAny | OneFormatString)]
 public class MatchNullableSpanWhenPopulatedWithFilterStringBearer<T, TFilterBase>
-    (T?[]? value, OrderedCollectionPredicate<TFilterBase> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<T?[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsSingleFormatString
     where T : TFilterBase
 {
-    public T?[]? WhenPopulatedWithFilterNullableMatchSpan { get; } = value;
+    public T?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFilterBase> Filter { get; set; } = filterPredicate;
+    public T?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
-           .WhenPopulatedWithFilterMatchNullable(nameof(WhenPopulatedWithFilterNullableMatchSpan), WhenPopulatedWithFilterNullableMatchSpan.AsSpan(), Filter)
+           .WhenPopulatedWithFilterMatchNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchSpan.AsSpan()
+              , ElementPredicate, FormatString)
+           .Complete();
+
+    public string? FormatString { get; set; }
+}
+
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass | OneFormatString)]
+public class ObjectSpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<object[]?>, ISupportsOrderedCollectionPredicate<object>
+  , ISupportsSingleFormatString
+{
+    public object[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public object[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenPopulatedWithFilterObject
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectSpan.AsSpan()
+              , ElementPredicate, FormatString);
+
+    public string? FormatString { get; set; }
+}
+
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableClass | OneFormatString)]
+public class NullableObjectSpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<object?[]?>
+  , ISupportsOrderedCollectionPredicate<object?>, ISupportsSingleFormatString
+{
+    public object?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectSpan
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public object?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<object?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object?>.GetNoFilterPredicate;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenPopulatedWithFilterObjectNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectSpan)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectSpan.AsSpan()
+              , ElementPredicate, FormatString);
+
+    public string? FormatString { get; set; }
+}
+
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct)]
+public class BoolReadOnlySpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
+{
+    public bool[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public bool[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolReadOnlySpan)
+              , (ReadOnlySpan<bool>)ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolReadOnlySpan
+              , ElementPredicate)
            .Complete();
 }
 
-public class ObjectSpanWhenPopulatedWithFilterStringBearer(object[]? value, OrderedCollectionPredicate<object> filterPredicate) : IStringBearer
-{
-    public object[]? WhenPopulatedWithFilterObjectSpan { get; } = value;
-
-    public OrderedCollectionPredicate<object> Filter { get; set; } = filterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterObject(nameof(WhenPopulatedWithFilterObjectSpan), WhenPopulatedWithFilterObjectSpan.AsSpan(), Filter);
-}
-
-public class NullableObjectSpanWhenPopulatedWithFilterStringBearer(object?[]? value, OrderedCollectionPredicate<object?> filterPredicate) : IStringBearer
-{
-    public object?[]? WhenPopulatedWithFilterNullableObjectSpan { get; } = value;
-
-    public OrderedCollectionPredicate<object?> Filter { get; set; } = filterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterObjectNullable(nameof(WhenPopulatedWithFilterNullableObjectSpan), WhenPopulatedWithFilterNullableObjectSpan.AsSpan()
-                                                          , Filter);
-}
-
-public class BoolReadOnlySpanWhenPopulatedWithFilterStringBearer(bool[]? value, OrderedCollectionPredicate<bool> filterPredicate) : IStringBearer
-{
-    public bool[]? WhenPopulatedWithFilterBoolReadOnlySpan { get; } = value;
-
-    public OrderedCollectionPredicate<bool> Filter { get; set; } = filterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterBoolReadOnlySpan)
-                                            , (ReadOnlySpan<bool>)WhenPopulatedWithFilterBoolReadOnlySpan.AsSpan(), Filter)
-           .Complete();
-}
-
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
 public class NullableBoolReadOnlySpanSpanWhenPopulatedWithFilterStringBearer
-    (bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
 {
-    public bool?[]? WhenPopulatedWithFilterNullableBoolReadOnlySpan { get; } = value;
+    public bool?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<bool?> Filter { get; set; } = filterPredicate;
+    public bool?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterNullableBoolReadOnlySpan)
-                                            , (ReadOnlySpan<bool?>)WhenPopulatedWithFilterNullableBoolReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolReadOnlySpan)
+              , (ReadOnlySpan<bool?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolReadOnlySpan
+              , ElementPredicate)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
 public class SpanFormattableReadOnlySpanSpanWhenPopulatedWithFilterStringBearer<TFmt>
-    (TFmt[]? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TFmt[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsSingleFormatString
     where TFmt : struct, ISpanFormattable
 {
-    public TFmt[]? WhenPopulatedWithFilterSpanFormattableReadOnlySpan { get; } = value;
+    public TFmt[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFmt> Filter { get; set; } = filterPredicate;
+    public TFmt[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterSpanFormattableReadOnlySpan)
-                                            , (ReadOnlySpan<TFmt>)WhenPopulatedWithFilterSpanFormattableReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableReadOnlySpan)
+              , (ReadOnlySpan<TFmt>)ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableReadOnlySpan
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
 public class SpanFormattableNullableReadOnlySpanWhenPopulatedWithFilterStringBearer<TFmt>
-    (TFmt?[]? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TFmt?[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsSingleFormatString
     where TFmt : class, ISpanFormattable
 {
-    public TFmt?[]? WhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan { get; } = value;
+    public TFmt?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFmt> Filter { get; set; } = filterPredicate;
+    public TFmt?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterNullable(nameof(WhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan)
-                                                    , (ReadOnlySpan<TFmt?>)WhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan)
+              , (ReadOnlySpan<TFmt?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
 public class NullableSpanFormattableReadOnlySpanWhenPopulatedWithFilterStringBearer<TFmtStruct>
-    (TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsSingleFormatString
     where TFmtStruct : struct, ISpanFormattable
 {
-    public TFmtStruct?[]? WhenPopulatedWithFilterNullableSpanFormattableReadOnlySpan { get; } = value;
+    public TFmtStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFmtStruct?> Filter { get; set; } = filterPredicate;
+    public TFmtStruct?[]? Value { get; set; }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterNullableSpanFormattableReadOnlySpan)
-                                            , (ReadOnlySpan<TFmtStruct?>)WhenPopulatedWithFilterNullableSpanFormattableReadOnlySpan.AsSpan(), Filter)
-           .Complete();
-}
-
-public class IpAddressReadOnlySpanWhenPopulatedWithFilterStringBearer
-    (IPAddress?[]? value, OrderedCollectionPredicate<IPAddress?> filterPredicate) : IStringBearer
-{
-    public IPAddress?[]? WhenPopulatedWithFilterIpAddressReadOnlySpan { get; } = value;
-
-    public OrderedCollectionPredicate<IPAddress?> Filter { get; set; } = filterPredicate;
+    public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFmtStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterNullable(nameof(WhenPopulatedWithFilterIpAddressReadOnlySpan)
-                                                    , (ReadOnlySpan<IPAddress?>)WhenPopulatedWithFilterIpAddressReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableReadOnlySpan)
+              , (ReadOnlySpan<TFmtStruct?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableReadOnlySpan
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class CustomBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-(
-    TCloaked[]? value
-  , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-  , PalantírReveal<TCloakedRevealBase> palantírReveal) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class CloakedBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+    : IStringBearer, IMoldSupportedValue<TCloaked[]?>, ISupportsSingleRevealer<TCloakedRevealBase>
+      , ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
-    public TCloaked[]? WhenPopulatedWithFilterCloakedBearerReadOnlySpan { get; } = value;
+    public TCloaked[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCloakedFilterBase> Filter { get; set; } = filterPredicate;
+    public TCloaked[]? Value { get; set; }
+
+    public PalantírReveal<TCloakedRevealBase> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered(nameof(WhenPopulatedWithFilterCloakedBearerReadOnlySpan)
-                                               , (ReadOnlySpan<TCloaked>)WhenPopulatedWithFilterCloakedBearerReadOnlySpan.AsSpan(), Filter, palantírReveal)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerReadOnlySpan)
+              , (ReadOnlySpan<TCloaked>)ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerReadOnlySpan
+              , ElementPredicate, PalantirRevealer)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
 public class CustomBearerNullableReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-(
-    TCloaked?[]? value
-  , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-  , PalantírReveal<TCloakedRevealBase> palantírReveal) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TCloaked?[]?>, ISupportsSingleRevealer<TCloakedRevealBase>
+      , ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
 {
-    public TCloaked?[]? WhenPopulatedWithFilterCloakedBearerNullableReadOnlySpan { get; } = value;
+    public TCloaked?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCloakedFilterBase> Filter { get; set; } = filterPredicate;
+    public TCloaked?[]? Value { get; set; }
+
+    public PalantírReveal<TCloakedRevealBase> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredNullable(nameof(WhenPopulatedWithFilterCloakedBearerNullableReadOnlySpan)
-                                                       , (ReadOnlySpan<TCloaked?>)WhenPopulatedWithFilterCloakedBearerNullableReadOnlySpan.AsSpan(), Filter
-                                                       , palantírReveal)
+           .CollectionField.AlwaysRevealFilteredNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableReadOnlySpan)
+              , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableReadOnlySpan
+              , ElementPredicate, PalantirRevealer)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
 public class NullableCustomBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloakedStruct>
-(
-    TCloakedStruct?[]? value
-  , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
-  , PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer
-    where TCloakedStruct : struct
+    : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsSingleRevealer<TCloakedStruct>
+      , ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
 {
-    public TCloakedStruct?[]? WhenPopulatedWithFilterNullableCloakedBearerReadOnlySpan { get; } = value;
+    public TCloakedStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCloakedStruct?> Filter { get; set; } = filterPredicate;
+    public TCloakedStruct?[]? Value { get; set; }
+
+    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered(nameof(WhenPopulatedWithFilterNullableCloakedBearerReadOnlySpan)
-                                               , (ReadOnlySpan<TCloakedStruct?>)WhenPopulatedWithFilterNullableCloakedBearerReadOnlySpan.AsSpan(), Filter
-                                               , palantírReveal)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerReadOnlySpan)
+              , (ReadOnlySpan<TCloakedStruct?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerReadOnlySpan
+              , ElementPredicate, PalantirRevealer)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
 public class StringBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    (TBearer[]? value, OrderedCollectionPredicate<TBearerBase> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TBearer[]?>, ISupportsOrderedCollectionPredicate<TBearerBase>
     where TBearer : IStringBearer, TBearerBase
 {
-    public TBearer[]? WhenPopulatedWithFilterStringBearerReadOnlySpan { get; } = value;
+    public TBearer[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerBase> Filter { get; set; } = filterPredicate;
+    public TBearer[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered(nameof(WhenPopulatedWithFilterStringBearerReadOnlySpan)
-                                               , (ReadOnlySpan<TBearer>)WhenPopulatedWithFilterStringBearerReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerReadOnlySpan)
+              , (ReadOnlySpan<TBearer>)ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerReadOnlySpan
+              , ElementPredicate)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableClass | AcceptsStringBearer)]
 public class StringBearerNullableReadOnlySpanWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    (TBearer?[]? value, OrderedCollectionPredicate<TBearerBase?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : class, IStringBearer, TBearerBase
 {
-    public TBearer?[]? WhenPopulatedWithFilterStringBearerNullableReadOnlySpan { get; } = value;
+    public TBearer?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerBase?> Filter { get; set; } = filterPredicate;
+    public TBearer?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredNullable(nameof(WhenPopulatedWithFilterStringBearerNullableReadOnlySpan)
-                                                       , (ReadOnlySpan<TBearer?>)WhenPopulatedWithFilterStringBearerNullableReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.AlwaysRevealFilteredNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableReadOnlySpan)
+              , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableReadOnlySpan
+              , ElementPredicate)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    (TBearerStruct?[]? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
-    public TBearerStruct?[]? WhenPopulatedWithFilterNullableStringBearerReadOnlySpan { get; } = value;
+    public TBearerStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerStruct?> Filter { get; set; } = filterPredicate;
+    public TBearerStruct?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered(nameof(WhenPopulatedWithFilterNullableStringBearerReadOnlySpan),
-                                                 (ReadOnlySpan<TBearerStruct?>)WhenPopulatedWithFilterNullableStringBearerReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerReadOnlySpan),
+                (ReadOnlySpan<TBearerStruct?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerReadOnlySpan
+              , ElementPredicate)
            .Complete();
 }
 
-public class StringReadOnlySpanWhenPopulatedWithFilterStringBearer(string[]? value, OrderedCollectionPredicate<string?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class StringReadOnlySpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<string[]?>
+  , ISupportsOrderedCollectionPredicate<string?>, ISupportsSingleFormatString
 {
-    public string[]? WhenPopulatedWithFilterStringReadOnlySpan { get; } = value;
+    public string[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<string?> Filter { get; set; } = filterPredicate;
+    public string[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterStringReadOnlySpan)
-                                            , (ReadOnlySpan<string>)WhenPopulatedWithFilterStringReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringReadOnlySpan)
+              , (ReadOnlySpan<string>)ComplexTypeCollectionFieldWhenPopulatedWithFilterStringReadOnlySpan.AsSpan()
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class StringNullableReadOnlySpanWhenPopulatedWithFilterStringBearer
-    (string?[]? value, OrderedCollectionPredicate<string?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>, ISupportsSingleFormatString
 {
-    public string?[]? WhenPopulatedWithFilterNullableStringReadOnlySpan { get; } = value;
+    public string?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<string?> Filter { get; set; } = filterPredicate;
+    public string?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterNullable(nameof(WhenPopulatedWithFilterNullableStringReadOnlySpan),
-                                                      (ReadOnlySpan<string?>)WhenPopulatedWithFilterNullableStringReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringReadOnlySpan),
+                (ReadOnlySpan<string?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringReadOnlySpan
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class CharSequenceReadOnlySpanWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>
-    (TCharSeq[]? value, OrderedCollectionPredicate<TCharSeqFilterBase?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsSingleFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public TCharSeq[]? WhenPopulatedWithFilterCharSequenceReadOnlySpan { get; } = value;
+    public TCharSeq[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> Filter { get; set; } = filterPredicate;
+    public TCharSeq[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeq(nameof(WhenPopulatedWithFilterCharSequenceReadOnlySpan)
-                                                   , (ReadOnlySpan<TCharSeq>)WhenPopulatedWithFilterCharSequenceReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterCharSeq
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceReadOnlySpan)
+              , (ReadOnlySpan<TCharSeq>)ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceReadOnlySpan
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class CharSequenceNullableReadOnlySpanWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>
-    (TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqFilterBase?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsSingleFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public TCharSeq?[]? WhenPopulatedWithFilterNullableCharSequenceReadOnlySpan { get; } = value;
+    public TCharSeq?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> Filter { get; set; } = filterPredicate;
+    public TCharSeq?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeqNullable(nameof(WhenPopulatedWithFilterNullableCharSequenceReadOnlySpan),
-                                                             (ReadOnlySpan<TCharSeq?>)WhenPopulatedWithFilterNullableCharSequenceReadOnlySpan.AsSpan()
-                                                           , Filter)
+           .CollectionField.WhenPopulatedWithFilterCharSeqNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceReadOnlySpan),
+                (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceReadOnlySpan
+              , ElementPredicate)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class StringBuilderReadOnlySpanWhenPopulatedWithFilterStringBearer
-    (StringBuilder[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<StringBuilder[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsSingleFormatString
 {
-    public StringBuilder[]? WhenPopulatedWithFilterStringBuilderReadOnlySpan { get; } = value;
+    public StringBuilder[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<StringBuilder?> Filter { get; set; } = filterPredicate;
+    public StringBuilder[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterStringBuilderReadOnlySpan)
-                                            , (ReadOnlySpan<StringBuilder>)WhenPopulatedWithFilterStringBuilderReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderReadOnlySpan)
+              , (ReadOnlySpan<StringBuilder>)ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderReadOnlySpan
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class StringBuilderNullableReadOnlySpanWhenPopulatedWithFilterStringBearer
-    (StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsSingleFormatString
 {
-    public StringBuilder?[]? WhenPopulatedWithFilterNullableStringBuilderReadOnlySpan { get; } = value;
+    public StringBuilder?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<StringBuilder?> Filter { get; set; } = filterPredicate;
+    public StringBuilder?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterNullable(nameof(WhenPopulatedWithFilterNullableStringBuilderReadOnlySpan)
-                                                    , (ReadOnlySpan<StringBuilder?>)WhenPopulatedWithFilterNullableStringBuilderReadOnlySpan.AsSpan()
-                                                    , Filter)
+           .CollectionField.WhenPopulatedWithFilterNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderReadOnlySpan)
+              , (ReadOnlySpan<StringBuilder?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderReadOnlySpan
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
 public class MatchReadOnlySpanWhenPopulatedWithFilterStringBearer<T, TFilterBase>
-    (T[]? value, OrderedCollectionPredicate<TFilterBase> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsSingleFormatString
     where T : TFilterBase
 {
-    public T[]? WhenPopulatedWithFilterMatchReadOnlySpan { get; } = value;
+    public T[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFilterBase> Filter { get; set; } = filterPredicate;
+    public T[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterMatch(nameof(WhenPopulatedWithFilterMatchReadOnlySpan)
-                                                 , (ReadOnlySpan<T>)WhenPopulatedWithFilterMatchReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterMatch
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchReadOnlySpan)
+              , (ReadOnlySpan<T>)ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchReadOnlySpan
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsAny | OneFormatString)]
 public class MatchNullableReadOnlySpanWhenPopulatedWithFilterStringBearer<T, TFilterBase>
-    (T?[]? value, OrderedCollectionPredicate<TFilterBase> filterPredicate) : IStringBearer
+    : IStringBearer, IMoldSupportedValue<T?[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsSingleFormatString
     where T : TFilterBase
 {
-    public T?[]? WhenPopulatedWithFilterNullableMatchReadOnlySpan { get; } = value;
+    public T?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFilterBase> Filter { get; set; } = filterPredicate;
+    public T?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterMatchNullable(nameof(WhenPopulatedWithFilterNullableMatchReadOnlySpan)
-                                                         , (ReadOnlySpan<T?>)WhenPopulatedWithFilterNullableMatchReadOnlySpan.AsSpan(), Filter)
+           .CollectionField.WhenPopulatedWithFilterMatchNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchReadOnlySpan)
+              , (ReadOnlySpan<T?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchReadOnlySpan
+              , ElementPredicate, FormatString)
+           .Complete();
+
+    public string? FormatString { get; set; }
+}
+
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass | OneFormatString)]
+public class ObjectReadOnlySpanWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<object[]?>
+  , ISupportsOrderedCollectionPredicate<object>, ISupportsSingleFormatString
+{
+    public object[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public object[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenPopulatedWithFilterObject
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectReadOnlySpan)
+              , (ReadOnlySpan<object>)ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectReadOnlySpan
+              , ElementPredicate, FormatString);
+
+    public string? FormatString { get; set; }
+}
+
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableClass | OneFormatString)]
+public class NullableObjectReadOnlySpanWhenPopulatedWithFilterStringBearer
+    : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsOrderedCollectionPredicate<object?>, ISupportsSingleFormatString
+{
+    public object?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectReadOnlySpan
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public object?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<object?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object?>.GetNoFilterPredicate;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenPopulatedWithFilterObjectNullable
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectReadOnlySpan)
+              , (ReadOnlySpan<object?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectReadOnlySpan
+              , ElementPredicate, FormatString);
+
+    public string? FormatString { get; set; }
+}
+
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct)]
+public class BoolArrayWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
+{
+    public bool[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolArray
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public bool[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolArray, ElementPredicate)
            .Complete();
 }
 
-public class ObjectReadOnlySpanWhenPopulatedWithFilterStringBearer(object[]? value, OrderedCollectionPredicate<object> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
+public class NullableBoolArrayWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
 {
-    public object[]? WhenPopulatedWithFilterObjectReadOnlySpan { get; } = value;
+    public bool?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<object> Filter { get; set; } = filterPredicate;
+    public bool?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterObject(nameof(WhenPopulatedWithFilterObjectReadOnlySpan)
-                                                  , (ReadOnlySpan<object>)WhenPopulatedWithFilterObjectReadOnlySpan.AsSpan(), Filter);
-}
-
-public class NullableObjecReadOnlytSpanWhenPopulatedWithFilterStringBearer
-    (object?[]? value, OrderedCollectionPredicate<object?> filterPredicate) : IStringBearer
-{
-    public object?[]? WhenPopulatedWithFilterNullableObjectReadOnlySpan { get; } = value;
-
-    public OrderedCollectionPredicate<object?> Filter { get; set; } = filterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterObjectNullable(nameof(WhenPopulatedWithFilterNullableObjectReadOnlySpan)
-                                                          , (ReadOnlySpan<object?>)WhenPopulatedWithFilterNullableObjectReadOnlySpan.AsSpan(), Filter);
-}
-
-public class BoolArrayWhenPopulatedWithFilterStringBearer(bool[]? value, OrderedCollectionPredicate<bool> filterPredicate) : IStringBearer
-{
-    public bool[]? WhenPopulatedWithFilterBoolArray { get; } = value;
-
-    public OrderedCollectionPredicate<bool> Filter { get; set; } = filterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterBoolArray), WhenPopulatedWithFilterBoolArray, Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolArray, ElementPredicate)
            .Complete();
 }
 
-public class NullableBoolArrayWhenPopulatedWithFilterStringBearer(bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class SpanFormattableArrayWhenPopulatedWithFilterStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?[]?>
+  , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsSingleFormatString where TFmt : ISpanFormattable
 {
-    public bool?[]? WhenPopulatedWithFilterNullableBoolArray { get; } = value;
+    public TFmt?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<bool?> Filter { get; set; } = filterPredicate;
+    public TFmt?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterNullableBoolArray), WhenPopulatedWithFilterNullableBoolArray, Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableArray
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class SpanFormattableArrayWhenPopulatedWithFilterStringBearer<TFmt>(TFmt[]? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
-    where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class NullableSpanFormattableArrayWhenPopulatedWithFilterStringBearer<TFmtStruct>
+    : IStringBearer, IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsSingleFormatString
+    where TFmtStruct : struct, ISpanFormattable
 {
-    public TFmt[]? WhenPopulatedWithFilterSpanFormattableArray { get; } = value;
+    public TFmtStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFmt> Filter { get; set; } = filterPredicate;
+    public TFmtStruct?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFmtStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterSpanFormattableArray), WhenPopulatedWithFilterSpanFormattableArray, Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableArray
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class NullableSpanFormattableArrayWhenPopulatedWithFilterStringBearer<TStructFmt>(TStructFmt?[]? value, OrderedCollectionPredicate<TStructFmt?> filterPredicate) : IStringBearer
-    where TStructFmt : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class CloakedBearerArrayWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+    : IStringBearer, IMoldSupportedValue<TCloaked[]?>, ISupportsSingleRevealer<TCloakedRevealBase>
+      , ISupportsOrderedCollectionPredicate<TCloakedFilterBase> where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
-    public TStructFmt?[]? WhenPopulatedWithFilterNullableSpanFormattableArray { get; } = value;
+    public TCloaked[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TStructFmt?> Filter { get; set; } = filterPredicate;
+    public TCloaked[]? Value { get; set; }
+
+    public PalantírReveal<TCloakedRevealBase> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterNullableSpanFormattableArray), WhenPopulatedWithFilterNullableSpanFormattableArray, Filter)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray, ElementPredicate
+              , PalantirRevealer)
            .Complete();
 }
 
-public class CustomBearerArrayWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(
-    TCloaked[]? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal) : IStringBearer
-    where TCloaked : TCloakedRevealBase, TCloakedFilterBase
-{
-    public TCloaked[]? WhenPopulatedWithFilterCustomBearerArray { get; } = value;
-
-    public OrderedCollectionPredicate<TCloakedFilterBase> Filter { get; set; } = filterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterReveal(nameof(WhenPopulatedWithFilterCustomBearerArray), WhenPopulatedWithFilterCustomBearerArray, Filter, palantírReveal)
-           .Complete();
-}
-
-public class NullableCustomBearerArrayWhenPopulatedWithFilterStringBearer<TCloakedStruct>(
-    TCloakedStruct?[]? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class NullableCloakedBearerArrayWhenPopulatedWithFilterStringBearer<TCloakedStruct>
+    : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsSingleRevealer<TCloakedStruct>
+      , ISupportsOrderedCollectionPredicate<TCloakedStruct?>
     where TCloakedStruct : struct
 {
-    public TCloakedStruct?[]? WhenPopulatedWithFilterNullableCustomBearerArray { get; } = value;
+    public TCloakedStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCloakedStruct?> Filter { get; set; } = filterPredicate;
+    public TCloakedStruct?[]? Value { get; set; }
+
+
+    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterReveal(nameof(WhenPopulatedWithFilterNullableCustomBearerArray), WhenPopulatedWithFilterNullableCustomBearerArray, Filter, palantírReveal)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerArray
+              , ElementPredicate, PalantirRevealer)
            .Complete();
 }
 
-public class StringBearerArrayWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>(TBearer?[]? value, OrderedCollectionPredicate<TBearerBase?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass |
+                  AcceptsStringBearer)]
+public class StringBearerArrayWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
+    : IStringBearer, IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : IStringBearer, TBearerBase
 {
-    public TBearer?[]? WhenPopulatedWithFilterStringBearerArray { get; } = value;
+    public TBearer?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerBase?> Filter { get; set; } = filterPredicate;
+    public TBearer?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterReveal(nameof(WhenPopulatedWithFilterStringBearerArray), WhenPopulatedWithFilterStringBearerArray, Filter)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray, ElementPredicate)
            .Complete();
 }
 
-public class NullableStringBearerArrayWhenPopulatedWithFilterStringBearer<TBearerStruct>(TBearerStruct?[]? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
+public class NullableStringBearerArrayWhenPopulatedWithFilterStringBearer<TBearerStruct>
+    : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
-    public TBearerStruct?[]? WhenPopulatedWithFilterNullableStringBearerArray { get; } = value;
+    public TBearerStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerStruct?> Filter { get; set; } = filterPredicate;
+    public TBearerStruct?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterReveal(nameof(WhenPopulatedWithFilterNullableStringBearerArray), WhenPopulatedWithFilterNullableStringBearerArray, Filter)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerArray
+              , ElementPredicate)
            .Complete();
 }
 
-public class StringArrayWhenPopulatedWithFilterStringBearer(string?[]? value, OrderedCollectionPredicate<string?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class StringArrayWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>
+  , ISupportsSingleFormatString
 {
-    public string?[]? WhenPopulatedWithFilterStringArray { get; } = value;
+    public string?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<string?> Filter { get; set; } = filterPredicate;
+    public string?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterStringArray), WhenPopulatedWithFilterStringArray, Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringArray
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class CharSequenceArrayWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>(TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqFilterBase?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class CharSequenceArrayWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>
+    : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsSingleFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public TCharSeq?[]? WhenPopulatedWithFilterCharSequenceArray { get; } = value;
+    public TCharSeq?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> Filter { get; set; } = filterPredicate;
+    public TCharSeq?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeq(nameof(WhenPopulatedWithFilterCharSequenceArray), WhenPopulatedWithFilterCharSequenceArray, Filter)
+           .CollectionField.WhenPopulatedWithFilterCharSeq
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceArray
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class StringBuilderArrayWhenPopulatedWithFilterStringBearer(StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class StringBuilderArrayWhenPopulatedWithFilterStringBearer
+    : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsSingleFormatString
 {
-    public StringBuilder?[]? WhenPopulatedWithFilterStringBuilderArray { get; } = value;
+    public StringBuilder?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<StringBuilder?> Filter { get; set; } = filterPredicate;
+    public StringBuilder?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterStringBuilderArray), WhenPopulatedWithFilterStringBuilderArray, Filter)
+           .CollectionField
+           .WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderArray
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class MatchArrayWhenPopulatedWithFilterStringBearer<T, TFilterBase>(T[]? value, OrderedCollectionPredicate<TFilterBase?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsAny | OneFormatString)]
+public class MatchArrayWhenPopulatedWithFilterStringBearer<T, TFilterBase>
+    : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsSingleFormatString
     where T : TFilterBase
 {
-    public T[]? WhenPopulatedWithFilterStringBuilderArray { get; } = value;
+    public T[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchArray
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFilterBase?> Filter { get; set; } = filterPredicate;
+    public T[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterMatch(nameof(WhenPopulatedWithFilterStringBuilderArray), WhenPopulatedWithFilterStringBuilderArray, Filter)
+           .CollectionField
+           .WhenPopulatedWithFilterMatch
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchArray
+              , ElementPredicate, FormatString)
+           .Complete();
+
+    public string? FormatString { get; set; }
+}
+
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsAny | OneFormatString)]
+public class ObjectArrayWhenPopulatedWithFilterStringBearer
+    : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsOrderedCollectionPredicate<object>
+{
+    public object?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectArray
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public object?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenPopulatedWithFilterObject
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectArray)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectArray, ElementPredicate);
+}
+
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct)]
+public class BoolListWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<bool>>
+  , ISupportsOrderedCollectionPredicate<bool>
+{
+    public IReadOnlyList<bool>? ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public IReadOnlyList<bool> Value { get; set; } = null!;
+
+    public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList, ElementPredicate)
            .Complete();
 }
 
-public class ObjectArrayWhenPopulatedWithFilterStringBearer(object[]? value, OrderedCollectionPredicate<object?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
+public class NullableBoolListWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<bool?>?>
+  , ISupportsOrderedCollectionPredicate<bool?>
 {
-    public object?[]? WhenPopulatedWithFilterStringBuilderArray { get; } = value;
+    public IReadOnlyList<bool?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<object?> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<bool?>? Value { get; set; }
+
+    public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterObject(nameof(WhenPopulatedWithFilterStringBuilderArray), WhenPopulatedWithFilterStringBuilderArray, Filter);
-}
-
-public class BoolListWhenPopulatedWithFilterStringBearer(List<bool>? value, OrderedCollectionPredicate<bool> filterPredicate) : IStringBearer
-{
-    public IReadOnlyList<bool>? WhenPopulatedWithFilterBoolList { get; } = value;
-
-    public OrderedCollectionPredicate<bool> Filter { get; set; } = filterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterBoolList), WhenPopulatedWithFilterBoolList, Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList, ElementPredicate)
            .Complete();
 }
 
-public class NullableBoolListWhenPopulatedWithFilterStringBearer(List<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate) : IStringBearer
-{
-    public IReadOnlyList<bool?>? WhenPopulatedWithFilterNullableBoolList { get; } = value;
-
-    public OrderedCollectionPredicate<bool?> Filter { get; set; } = filterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterNullableBoolList), WhenPopulatedWithFilterNullableBoolList, Filter)
-           .Complete();
-}
-
-public class SpanFormattableListWhenPopulatedWithFilterStringBearer<TFmt>(List<TFmt>? value, OrderedCollectionPredicate<TFmt> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class SpanFormattableListWhenPopulatedWithFilterStringBearer<TFmt>
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TFmt?>?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsSingleFormatString
     where TFmt : ISpanFormattable
 {
-    public IReadOnlyList<TFmt>? WhenPopulatedWithFilterSpanFormattableList { get; } = value;
+    public IReadOnlyList<TFmt?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFmt> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<TFmt?>? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterSpanFormattableList), WhenPopulatedWithFilterSpanFormattableList, Filter)
+           .CollectionField
+           .WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class NullableSpanFormattableListWhenPopulatedWithFilterStringBearer<TStructFmt>(List<TStructFmt?>? value, OrderedCollectionPredicate<TStructFmt?> filterPredicate) : IStringBearer
-    where TStructFmt : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class NullableSpanFormattableListWhenPopulatedWithFilterStringBearer<TFmtStruct>
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsSingleFormatString
+    where TFmtStruct : struct, ISpanFormattable
 {
-    public IReadOnlyList<TStructFmt?>? WhenPopulatedWithFilterNullableSpanFormattableList { get; } = value;
+    public IReadOnlyList<TFmtStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TStructFmt?> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<TFmtStruct?>? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFmtStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterNullableSpanFormattableList), WhenPopulatedWithFilterNullableSpanFormattableList, Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList
+              , ElementPredicate)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class CustomBearerListWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(
-    List<TCloaked>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal) : IStringBearer
-    where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class CloakedBearerListWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCloaked>?>, ISupportsSingleRevealer<TCloakedRevealBase>
+      , ISupportsOrderedCollectionPredicate<TCloakedFilterBase> where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
-    public IReadOnlyList<TCloaked>? WhenPopulatedWithFilterCustomBearerList { get; } = value;
+    public IReadOnlyList<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCloakedFilterBase> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<TCloaked>? Value { get; set; }
+
+    public PalantírReveal<TCloakedRevealBase> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterReveal(nameof(WhenPopulatedWithFilterCustomBearerList), WhenPopulatedWithFilterCustomBearerList, Filter, palantírReveal)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList, ElementPredicate
+              , PalantirRevealer)
            .Complete();
 }
 
-public class NullableCustomBearerListWhenPopulatedWithFilterStringBearer<TCloakedStruct>(
-    List<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer
-    where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable
+                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OnePalantirRevealer)]
+public class NullableCloakedBearerListWhenPopulatedWithFilterStringBearer<TCloakedStruct> : IStringBearer
+  , IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>, ISupportsSingleRevealer<TCloakedStruct>
+  , ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
 {
-    public IReadOnlyList<TCloakedStruct?>? WhenPopulatedWithFilterNullableCustomBearerList { get; } = value;
+    public IReadOnlyList<TCloakedStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCloakedStruct?> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<TCloakedStruct?>? Value { get; set; }
+
+
+    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+
+    public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterReveal(nameof(WhenPopulatedWithFilterNullableCustomBearerList), WhenPopulatedWithFilterNullableCustomBearerList, Filter, palantírReveal)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList
+              , ElementPredicate, PalantirRevealer)
            .Complete();
 }
 
-public class StringBearerListWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>(List<TBearer?>? value, OrderedCollectionPredicate<TBearerBase?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+public class StringBearerListWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearer?>?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : IStringBearer, TBearerBase
 {
-    public IReadOnlyList<TBearer?>? WhenPopulatedWithFilterStringBearerList { get; } = value;
+    public IReadOnlyList<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerBase?> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<TBearer?>? Value { get; set; }
+
+    public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterReveal(nameof(WhenPopulatedWithFilterStringBearerList), WhenPopulatedWithFilterStringBearerList, Filter)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList, ElementPredicate)
            .Complete();
 }
 
-public class NullableStringBearerListWhenPopulatedWithFilterStringBearer<TBearerStruct>(List<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class NullableStringBearerListWhenPopulatedWithFilterStringBearer<TBearerStruct>
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
-    public IReadOnlyList<TBearerStruct?>? WhenPopulatedWithFilterNullableStringBearerList { get; } = value;
+    public IReadOnlyList<TBearerStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TBearerStruct?> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<TBearerStruct?>? Value { get; set; }
+
+    public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TBearerStruct?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterReveal(nameof(WhenPopulatedWithFilterNullableStringBearerList), WhenPopulatedWithFilterNullableStringBearerList, Filter)
+           .CollectionField.AlwaysRevealFiltered
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList, ElementPredicate)
            .Complete();
 }
 
-public class StringListWhenPopulatedWithFilterStringBearer(List<string?>? value, OrderedCollectionPredicate<string?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class StringListWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<string?>?>
+  , ISupportsOrderedCollectionPredicate<string?>, ISupportsSingleFormatString
 {
-    public IReadOnlyList<string?>? WhenPopulatedWithFilterStringList { get; } = value;
+    public IReadOnlyList<string?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<string?> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<string?>? Value { get; set; }
+
+    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterStringList), WhenPopulatedWithFilterStringList, Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class CharSequenceListWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>(List<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqFilterBase?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class CharSequenceListWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>
+      , ISupportsSingleFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public IReadOnlyList<TCharSeq?>? WhenPopulatedWithFilterCharSequenceList { get; } = value;
+    public IReadOnlyList<TCharSeq?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<TCharSeq?>? Value { get; set; }
+
+    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeq(nameof(WhenPopulatedWithFilterCharSequenceList), WhenPopulatedWithFilterCharSequenceList, Filter)
+           .CollectionField.WhenPopulatedWithFilterCharSeq
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class StringBuilderListWhenPopulatedWithFilterStringBearer(StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsChars | OneFormatString)]
+public class StringBuilderListWhenPopulatedWithFilterStringBearer
+    : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsSingleFormatString
 {
-    public StringBuilder?[]? WhenPopulatedWithFilterStringBuilderList { get; } = value;
+    public StringBuilder?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<StringBuilder?> Filter { get; set; } = filterPredicate;
+    public StringBuilder?[]? Value { get; set; }
+
+    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterStringBuilderList), WhenPopulatedWithFilterStringBuilderList, Filter)
+           .CollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class MatchListWhenPopulatedWithFilterStringBearer<T, TFilterBase>(List<T?>? value, OrderedCollectionPredicate<TFilterBase?> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsAny | OneFormatString)]
+public class MatchListWhenPopulatedWithFilterStringBearer<T, TFilterBase>
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsSingleFormatString
     where T : TFilterBase
 {
-    public IReadOnlyList<T?>? WhenPopulatedWithFilterMatchList { get; } = value;
+    public IReadOnlyList<T>? ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<TFilterBase?> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<T>? Value { get; set; }
+
+    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterMatch(nameof(WhenPopulatedWithFilterMatchList), WhenPopulatedWithFilterMatchList, Filter)
+           .CollectionField.WhenPopulatedWithFilterMatch
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList
+              , ElementPredicate, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class ObjectListWhenPopulatedWithFilterStringBearer(List<object?>? value, OrderedCollectionPredicate<object> filterPredicate) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | CollectionFilterPredicate | AcceptsNullableClass | OneFormatString)]
+public class ObjectListWhenPopulatedWithFilterStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<object?>?>
+  , ISupportsOrderedCollectionPredicate<object>, ISupportsSingleFormatString
 {
-    public List<object?>? WhenPopulatedWithFilterStringBuilderList { get; } = value;
+    public IReadOnlyList<object?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList
+    {
+        get => Value;
+        set => Value = value;
+    }
 
-    public OrderedCollectionPredicate<object> Filter { get; set; } = filterPredicate;
+    public IReadOnlyList<object?>? Value { get; set; }
+
+    public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterObject(nameof(WhenPopulatedWithFilterStringBuilderList), WhenPopulatedWithFilterStringBuilderList, Filter);
+           .CollectionField.WhenPopulatedWithFilterObject
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList
+              , ElementPredicate, FormatString);
+
+    public string? FormatString { get; set; }
 }

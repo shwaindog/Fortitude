@@ -20,8 +20,9 @@ public class BoolSpanAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedVal
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolSpan)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllBoolSpan.AsSpan())
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllBoolSpan.AsSpan())
            .Complete();
 }
 
@@ -38,8 +39,9 @@ public class NullableBoolSpanAlwaysAddAllStringBearer : IStringBearer, IMoldSupp
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolSpan)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolSpan.AsSpan())
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolSpan.AsSpan())
            .Complete();
 }
 
@@ -58,8 +60,9 @@ public class SpanFormattableSpanAlwaysAddAllStringBearer<TFmt> : IStringBearer, 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableStructSpan)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableStructSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableStructSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableStructSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -80,8 +83,9 @@ public class SpanFormattableNullableClassSpanAlwaysAddAllStringBearer<TFmt> : IS
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableClassSpan)
-                                               , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableClassSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAllNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableClassSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableClassSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -102,8 +106,9 @@ public class SpanFormattableStructSpanAlwaysAddAllStringBearer<TFmtStruct> : ISt
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableSpan)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -124,8 +129,9 @@ public class NullableSpanFormattableSpanAlwaysAddAllStringBearer<TFmtStruct> : I
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableSpan)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -149,8 +155,9 @@ public class CloakedBearerSpanAlwaysAddAllStringBearer<TCloaked, TCloakedBase> :
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerSpan)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerSpan.AsSpan(), PalantirRevealer)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerSpan.AsSpan(), PalantirRevealer)
            .Complete();
 }
 
@@ -172,8 +179,9 @@ public class CloakedBearerNullableRefSpanAlwaysAddAllStringBearer<TCloaked, TClo
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan)
-                                                  , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan.AsSpan(), PalantirRevealer)
+           .CollectionField.AlwaysRevealAllNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan.AsSpan(), PalantirRevealer)
            .Complete();
 }
 
@@ -197,8 +205,9 @@ public class NullableCloakedBearerSpanAlwaysAddAllStringBearer<TCloakedStruct>
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerSpan)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerSpan.AsSpan(), PalantirRevealer)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerSpan.AsSpan(), PalantirRevealer)
            .Complete();
 }
 
@@ -216,8 +225,9 @@ public class StringBearerSpanAlwaysAddAllStringBearer<TBearer> : IStringBearer, 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan.AsSpan())
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan.AsSpan())
            .Complete();
 }
 
@@ -235,8 +245,9 @@ public class StringBearerNullableRefSpanAlwaysAddAllStringBearer<TBearer> : IStr
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan)
-                                                  , ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan.AsSpan())
+           .CollectionField.AlwaysRevealAllNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan.AsSpan())
            .Complete();
 }
 
@@ -254,8 +265,9 @@ public class NullableStringBearerSpanAlwaysAddAllStringBearer<TBearerStruct> : I
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerSpan)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerSpan.AsSpan())
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerSpan.AsSpan())
            .Complete();
 }
 
@@ -272,8 +284,9 @@ public class StringSpanAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedV
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringSpan)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllStringSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -292,8 +305,9 @@ public class StringNullableSpanAlwaysAddAllStringBearer : IStringBearer, IMoldSu
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringSpan)
-                                               , ComplexTypeCollectionFieldAlwaysAddAllStringSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAllNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -313,8 +327,9 @@ public class CharSequenceSpanAlwaysAddAllStringBearer<TCharSeq> : IStringBearer,
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeq(nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceSpan)
-                                              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAllCharSeq
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -334,8 +349,9 @@ public class CharSequenceNullableSpanAlwaysAddAllStringBearer<TCharSeq> : IStrin
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeqNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan)
-                                                      , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAllCharSeqNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -354,8 +370,9 @@ public class StringBuilderSpanAlwaysAddAllStringBearer : IStringBearer, IMoldSup
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -374,8 +391,9 @@ public class StringBuilderNullableSpanAlwaysAddAllStringBearer : IStringBearer, 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan)
-                                               , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAllNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -394,8 +412,9 @@ public class MatchSpanAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSupporte
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatch(nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchSpan)
-                                            , ComplexTypeCollectionFieldAlwaysAddAllMatchSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAllMatch
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllMatchSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -414,8 +433,9 @@ public class MatchNullableSpanAlwaysAddAllStringBearer<T> : IStringBearer, IMold
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatch(nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchNullableSpan)
-                                            , ComplexTypeCollectionFieldAlwaysAddAllMatchNullableSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAllMatch
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchNullableSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllMatchNullableSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -434,8 +454,9 @@ public class ObjectSpanAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedV
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObject(nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectSpan)
-                                             , ComplexTypeCollectionFieldAlwaysAddAllObjectSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAllObject
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllObjectSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -454,8 +475,9 @@ public class ObjectNullableSpanAlwaysAddAllStringBearer : IStringBearer, IMoldSu
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObjectNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectNullableRefSpan)
-                                                     , ComplexTypeCollectionFieldAlwaysAddAllObjectNullableRefSpan.AsSpan(), FormatString)
+           .CollectionField.AlwaysAddAllObjectNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectNullableRefSpan)
+              , ComplexTypeCollectionFieldAlwaysAddAllObjectNullableRefSpan.AsSpan(), FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -474,8 +496,9 @@ public class BoolReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, IMoldSupp
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolReadOnlySpan)
-                                       , (ReadOnlySpan<bool>)ComplexTypeCollectionFieldAlwaysAddAllBoolReadOnlySpan)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolReadOnlySpan)
+              , (ReadOnlySpan<bool>)ComplexTypeCollectionFieldAlwaysAddAllBoolReadOnlySpan)
            .Complete();
 }
 
@@ -492,8 +515,9 @@ public class NullableBoolReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, I
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolReadOnlySpan)
-                                       , (ReadOnlySpan<bool?>)ComplexTypeCollectionFieldAlwaysAddAllNullableBoolReadOnlySpan)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolReadOnlySpan)
+              , (ReadOnlySpan<bool?>)ComplexTypeCollectionFieldAlwaysAddAllNullableBoolReadOnlySpan)
            .Complete();
 }
 
@@ -512,8 +536,9 @@ public class SpanFormattableReadOnlySpanAlwaysAddAllStringBearer<TFmt> : IString
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan)
-                                       , (ReadOnlySpan<TFmt>)ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan, FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan)
+              , (ReadOnlySpan<TFmt>)ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan, FormatString)
            .Complete();
 
 
@@ -558,9 +583,10 @@ public class SpanFormattableNullableStructReadOnlySpanAlwaysAddAllStringBearer<T
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan)
-                                       , (ReadOnlySpan<TFmtStruct?>)ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan
-                                       , FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan)
+              , (ReadOnlySpan<TFmtStruct?>)ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -581,9 +607,10 @@ public class NullableReadOnlySpanFormattableSpanAlwaysAddAllStringBearer<TFmtStr
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableReadOnlySpan)
-                                       , (ReadOnlySpan<TFmtStruct?>)ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableReadOnlySpan
-                                       , FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableReadOnlySpan)
+              , (ReadOnlySpan<TFmtStruct?>)ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -607,9 +634,10 @@ public class CloakedBearerReadOnlySpanAlwaysAddAllStringBearer<TCloaked, TCloake
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerReadOnlySpan)
-                                          , (ReadOnlySpan<TCloaked>)ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerReadOnlySpan
-                                          , PalantirRevealer)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerReadOnlySpan)
+              , (ReadOnlySpan<TCloaked>)ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerReadOnlySpan
+              , PalantirRevealer)
            .Complete();
 }
 
@@ -631,9 +659,10 @@ public class CloakedBearerNullableRefReadOnlySpanAlwaysAddAllStringBearer<TCloak
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan)
-                                                  , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan.AsSpan()
-                                                  , PalantirRevealer)
+           .CollectionField.AlwaysRevealAllNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan)
+              , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan.AsSpan()
+              , PalantirRevealer)
            .Complete();
 }
 
@@ -655,9 +684,10 @@ public class NullableCustomBearerReadOnlySpanAlwaysAddAllStringBearer<TCloakedSt
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerReadOnlySpan)
-                                          , (ReadOnlySpan<TCloakedStruct?>)ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerReadOnlySpan
-                                          , PalantirRevealer)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerReadOnlySpan)
+              , (ReadOnlySpan<TCloakedStruct?>)ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerReadOnlySpan
+              , PalantirRevealer)
            .Complete();
 }
 
@@ -675,8 +705,9 @@ public class StringBearerReadOnlySpanAlwaysAddAllStringBearer<TBearer> : IString
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
-                                          , (ReadOnlySpan<TBearer>)ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan.AsSpan())
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
+              , (ReadOnlySpan<TBearer>)ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
            .Complete();
 }
 
@@ -694,8 +725,9 @@ public class StringBearerNullableRefReadOnlySpanAlwaysAddAllStringBearer<TBearer
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
-                                                  , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan.AsSpan())
+           .CollectionField.AlwaysRevealAllNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
+              , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
            .Complete();
 }
 
@@ -713,8 +745,9 @@ public class NullableStringBearerReadOnlySpanAlwaysAddAllStringBearer<TBearerStr
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerReadOnlySpan)
-                                          , (ReadOnlySpan<TBearerStruct?>)ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerReadOnlySpan)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerReadOnlySpan)
+              , (ReadOnlySpan<TBearerStruct?>)ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerReadOnlySpan)
            .Complete();
 }
 
@@ -731,8 +764,10 @@ public class StringReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, IMoldSu
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringReadOnlySpan)
-                                       , (ReadOnlySpan<string>)ComplexTypeCollectionFieldAlwaysAddAllStringReadOnlySpan, FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringReadOnlySpan)
+              , (ReadOnlySpan<string>)ComplexTypeCollectionFieldAlwaysAddAllStringReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -751,9 +786,10 @@ public class StringNullableReadOnlySpanAlwaysAddAllStringBearer : IStringBearer,
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringNullableReadOnlySpan)
-                                               , (ReadOnlySpan<string?>)ComplexTypeCollectionFieldAlwaysAddAllStringNullableReadOnlySpan
-                                               , FormatString)
+           .CollectionField.AlwaysAddAllNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringNullableReadOnlySpan)
+              , (ReadOnlySpan<string?>)ComplexTypeCollectionFieldAlwaysAddAllStringNullableReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -773,8 +809,10 @@ public class CharSequenceReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : IStrin
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeq(nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceReadOnlySpan)
-                                              , (ReadOnlySpan<TCharSeq>)ComplexTypeCollectionFieldAlwaysAddAllCharSequenceReadOnlySpan, FormatString)
+           .CollectionField.AlwaysAddAllCharSeq
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceReadOnlySpan)
+              , (ReadOnlySpan<TCharSeq>)ComplexTypeCollectionFieldAlwaysAddAllCharSequenceReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -795,9 +833,10 @@ public class CharSequenceNullableReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeqNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan)
-                                                      , (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan
-                                                      , FormatString)
+           .CollectionField.AlwaysAddAllCharSeqNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan)
+              , (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -816,8 +855,10 @@ public class StringBuilderReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderReadOnlySpan)
-                                       , (ReadOnlySpan<StringBuilder>)ComplexTypeCollectionFieldAlwaysAddAllStringBuilderReadOnlySpan, FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderReadOnlySpan)
+              , (ReadOnlySpan<StringBuilder>)ComplexTypeCollectionFieldAlwaysAddAllStringBuilderReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -837,9 +878,10 @@ public class StringBuilderNullableReadOnlySpanAlwaysAddAllStringBearer : IString
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderNullableReadOnlySpan)
-                                               , (ReadOnlySpan<StringBuilder?>)ComplexTypeCollectionFieldAlwaysAddAllStringBuilderNullableReadOnlySpan
-                                               , FormatString)
+           .CollectionField.AlwaysAddAllNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderNullableReadOnlySpan)
+              , (ReadOnlySpan<StringBuilder?>)ComplexTypeCollectionFieldAlwaysAddAllStringBuilderNullableReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -859,8 +901,10 @@ public class MatchReadOnlySpanAlwaysAddAllStringBearer<T> : IStringBearer, IMold
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatch(nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan)
-                                            , (ReadOnlySpan<T>)ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan, FormatString)
+           .CollectionField.AlwaysAddAllMatch
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan)
+              , (ReadOnlySpan<T>)ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -880,8 +924,10 @@ public class MatchNullableReadOnlySpanAlwaysAddAllStringBearer<T> : IStringBeare
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatch(nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan)
-                                            , (ReadOnlySpan<T?>)ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan, FormatString)
+           .CollectionField.AlwaysAddAllMatch
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan)
+              , (ReadOnlySpan<T?>)ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -901,8 +947,10 @@ public class ObjectReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, IMoldSu
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObject(nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectSpan)
-                                             , (ReadOnlySpan<object>)ComplexTypeCollectionFieldAlwaysAddAllObjectSpan, FormatString)
+           .CollectionField.AlwaysAddAllObject
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectSpan)
+              , (ReadOnlySpan<object>)ComplexTypeCollectionFieldAlwaysAddAllObjectSpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -922,9 +970,10 @@ public class ObjectNullableReadOnlySpanAlwaysAddAllStringBearer : IStringBearer,
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObjectNullable(nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectNullableReadOnlySpan)
-                                                     , (ReadOnlySpan<object?>)ComplexTypeCollectionFieldAlwaysAddAllObjectNullableReadOnlySpan
-                                                     , FormatString)
+           .CollectionField.AlwaysAddAllObjectNullable
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectNullableReadOnlySpan)
+              , (ReadOnlySpan<object?>)ComplexTypeCollectionFieldAlwaysAddAllObjectNullableReadOnlySpan
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -943,7 +992,9 @@ public class BoolArrayAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedVa
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolArray), ComplexTypeCollectionFieldAlwaysAddAllBoolArray)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllBoolArray)
            .Complete();
 }
 
@@ -960,8 +1011,9 @@ public class NullableBoolArrayAlwaysAddAllStringBearer : IStringBearer, IMoldSup
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolArray)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolArray)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolArray)
            .Complete();
 }
 
@@ -980,9 +1032,10 @@ public class SpanFormattableArrayAlwaysAddAllStringBearer<TFmt> : IStringBearer,
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableArray)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableArray
-                                       , FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableArray
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1029,8 +1082,10 @@ public class CloakedBearerArrayAlwaysAddAllStringBearer<TCloaked, TCloakedBase> 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerArray)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerArray, PalantirRevealer)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerArray
+              , PalantirRevealer)
            .Complete();
 }
 
@@ -1052,8 +1107,10 @@ public class NullableCloakedBearerArrayAlwaysAddAllStringBearer<TCloakedStruct> 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerArray)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerArray, PalantirRevealer)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerArray
+              , PalantirRevealer)
            .Complete();
 }
 
@@ -1071,8 +1128,9 @@ public class StringBearerArrayAlwaysAddAllStringBearer<TBearer> : IStringBearer,
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerArray)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllStringBearerArray)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerArray)
            .Complete();
 }
 
@@ -1090,8 +1148,9 @@ public class NullableStringBearerArrayAlwaysAddAllStringBearer<TBearerStruct> : 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerArray)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerArray)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerArray)
            .Complete();
 }
 
@@ -1108,8 +1167,10 @@ public class StringArrayAlwaysAddAllStringBearer : IStringBearer, IMoldSupported
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringArray)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllStringArray, FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringArray
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1129,8 +1190,9 @@ public class CharSequenceArrayAlwaysAddAllStringBearer<TCharSeq> : IStringBearer
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeq(nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceArray)
-                                              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceArray)
+           .CollectionField.AlwaysAddAllCharSeq
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceArray)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1149,8 +1211,10 @@ public class StringBuilderArrayAlwaysAddAllStringBearer : IStringBearer, IMoldSu
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderArray)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderArray, FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderArray
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1169,8 +1233,10 @@ public class MatchArrayAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSupport
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatch(nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchArray)
-                                            , ComplexTypeCollectionFieldAlwaysAddAllMatchArray, FormatString)
+           .CollectionField.AlwaysAddAllMatch
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllMatchArray
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1189,8 +1255,10 @@ public class ObjectArrayAlwaysAddAllStringBearer : IStringBearer, IMoldSupported
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObject(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableObjectArray)
-                                             , ComplexTypeCollectionFieldAlwaysAddAllNullableObjectArray, FormatString)
+           .CollectionField.AlwaysAddAllObject
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableObjectArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableObjectArray
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1209,7 +1277,9 @@ public class BoolListAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedVal
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolList), ComplexTypeCollectionFieldAlwaysAddAllBoolList)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolList)
+              , ComplexTypeCollectionFieldAlwaysAddAllBoolList)
            .Complete();
 }
 
@@ -1226,8 +1296,9 @@ public class NullableBoolListAlwaysAddAllStringBearer : IStringBearer, IMoldSupp
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolList)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolList)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolList)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolList)
            .Complete();
 }
 
@@ -1246,8 +1317,10 @@ public class SpanFormattableListAlwaysAddAllStringBearer<TFmt> : IStringBearer, 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableList)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableList, FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableList)
+              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableList
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1269,8 +1342,10 @@ public class NullableSpanFormattableListAlwaysAddAllStringBearer<TFmtStruct> : I
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableList)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableList, FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableList)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableList
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1294,12 +1369,14 @@ public class CustomBearerListAlwaysAddAllStringBearer<TCloaked, TCloakedBase> : 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllCustomBearerList)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllCustomBearerList, PalantirRevealer)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCustomBearerList)
+              , ComplexTypeCollectionFieldAlwaysAddAllCustomBearerList
+              , PalantirRevealer)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber 
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
                 | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OnePalantirRevealer)]
 public class NullableCustomBearerListAlwaysAddAllStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>
   , ISupportsSingleRevealer<TCloakedStruct> where TCloakedStruct : struct
@@ -1316,8 +1393,10 @@ public class NullableCustomBearerListAlwaysAddAllStringBearer<TCloakedStruct> : 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerList)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerList, PalantirRevealer)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerList)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerList
+              , PalantirRevealer)
            .Complete();
 }
 
@@ -1335,8 +1414,9 @@ public class StringBearerListAlwaysAddAllStringBearer<TBearer> : IStringBearer, 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerList)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllStringBearerList)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerList)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerList)
            .Complete();
 }
 
@@ -1354,8 +1434,9 @@ public class NullableStringBearerListAlwaysAddAllStringBearer<TBearerStruct> : I
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerList)
-                                          , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerList)
+           .CollectionField.AlwaysRevealAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerList)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerList)
            .Complete();
 }
 
@@ -1372,8 +1453,10 @@ public class StringListAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedV
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringList)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllStringList, FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringList)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringList
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1394,8 +1477,10 @@ public class CharSequenceListAlwaysAddAllStringBearer<TCharSeq> : IStringBearer,
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeq(nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceList)
-                                              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceList, FormatString)
+           .CollectionField.AlwaysAddAllCharSeq
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceList)
+              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceList
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1415,8 +1500,10 @@ public class StringBuilderListAlwaysAddAllStringBearer : IStringBearer, IMoldSup
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderList)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderList, FormatString)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderList)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderList
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1435,8 +1522,10 @@ public class MatchListAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSupporte
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatch(nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchList)
-                                            , ComplexTypeCollectionFieldAlwaysAddAllMatchList, FormatString)
+           .CollectionField.AlwaysAddAllMatch
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchList)
+              , ComplexTypeCollectionFieldAlwaysAddAllMatchList
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1456,8 +1545,10 @@ public class ObjectListAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSupport
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObject(nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectList)
-                                             , ComplexTypeCollectionFieldAlwaysAddAllObjectList, FormatString)
+           .CollectionField.AlwaysAddAllObject
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectList)
+              , ComplexTypeCollectionFieldAlwaysAddAllObjectList
+              , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
