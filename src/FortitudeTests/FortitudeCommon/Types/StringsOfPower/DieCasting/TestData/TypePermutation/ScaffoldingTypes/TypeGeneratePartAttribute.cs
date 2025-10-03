@@ -73,6 +73,8 @@ public interface ISupportsDualFormatStrings
 
 public interface ISupportsOrderedCollectionPredicate<TElement>
 {
+    public static OrderedCollectionPredicate<TElement> GetNoFilterPredicate => (_, _) => CollectionItemResult.IncludeContinueToNext;
+
     [JsonIgnore] OrderedCollectionPredicate<TElement> ElementPredicate { get; set; }
 }
 

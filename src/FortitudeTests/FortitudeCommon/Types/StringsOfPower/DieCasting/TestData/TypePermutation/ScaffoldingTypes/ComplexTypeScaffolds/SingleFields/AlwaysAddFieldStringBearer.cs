@@ -70,8 +70,7 @@ public class SpanFormattableAlwaysAddStringBearer<TFmt> : IStringBearer, IMoldSu
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString | SupportsCustomHandling)]
 public class SpanFormattableWithHandlingAlwaysAddStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt>, ISupportsSingleFormatString
-  , ISupportsFieldHandling
-    where TFmt : ISpanFormattable
+  , ISupportsFieldHandling where TFmt : ISpanFormattable
 {
     public TFmt ComplexTypeFieldAlwaysAddSpanFormattableAs
     {
@@ -139,7 +138,7 @@ public class NullableSpanFormattableWithHandlingAlwaysAddStringBearer<TFmtStruct
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   OnePalantirRevealer)]
 public class CloakedBearerAlwaysAddStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TCloaked?>
   , ISupportsSingleRevealer<TCloakedBase> where TCloaked : TCloakedBase
