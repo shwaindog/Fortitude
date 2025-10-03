@@ -1,284 +1,572 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.OrderedCollectionFields;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
+    OrderedCollectionFields;
 
-public class BoolEnumerableWhenNonNullAddAllStringBearer(IEnumerable<bool>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct)]
+public class BoolEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool>?>
 {
-    public IEnumerable<bool>? WhenNonNullAddAllBoolEnumerable { get; } = value;
+    public IEnumerable<bool>? ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<bool>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllBoolEnumerable), WhenNonNullAddAllBoolEnumerable)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable)
            .Complete();
 }
 
-public class NullableBoolEnumerableWhenNonNullAddAllStringBearer(IEnumerable<bool?>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct)]
+public class NullableBoolEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool?>?>
 {
-    public IEnumerable<bool?>? WhenNonNullAddAllNullableBoolEnumerable { get; } = value;
+    public IEnumerable<bool?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<bool?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllNullableBoolEnumerable), WhenNonNullAddAllNullableBoolEnumerable)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable)
            .Complete();
 }
 
-public class SpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt>(IEnumerable<TFmt>? value) : IStringBearer
-    where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class SpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IEnumerable<TFmt>?>
+  , ISupportsSingleFormatString where TFmt : ISpanFormattable
 {
-    public IEnumerable<TFmt>? WhenNonNullAddAllSpanFormattableEnumerable { get; } = value;
+    public IEnumerable<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<TFmt>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllSpanFormattableEnumerable), WhenNonNullAddAllSpanFormattableEnumerable)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerable
+              , FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class NullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TStructFmt>(IEnumerable<TStructFmt?>? value) : IStringBearer
-    where TStructFmt : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class NullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TStructFmt> : IStringBearer
+  , IMoldSupportedValue<IEnumerable<TStructFmt?>?>, ISupportsSingleFormatString where TStructFmt : struct, ISpanFormattable
 {
-    public IEnumerable<TStructFmt?>? WhenNonNullAddAllNullableSpanFormattableEnumerable { get; } = value;
+    public IEnumerable<TStructFmt?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<TStructFmt?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllNullableSpanFormattableEnumerable), WhenNonNullAddAllNullableSpanFormattableEnumerable)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerable, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class CustomBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase>(
-    IEnumerable<TCloaked>? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer
-    where TCloaked : TCloakedBase
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class CloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase>
+    : IStringBearer, IMoldSupportedValue<IEnumerable<TCloaked>?>, ISupportsSingleRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
-    public IEnumerable<TCloaked>? WhenNonNullAddAllCustomBearerEnumerable { get; } = value;
+    public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<TCloaked>? Value { get; set; }
+
+    public PalantírReveal<TCloakedBase> PalantirRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllEnumerate(nameof(WhenNonNullAddAllCustomBearerEnumerable), WhenNonNullAddAllCustomBearerEnumerable, palantírReveal)
+           .CollectionField.WhenNonNullRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable, PalantirRevealer)
            .Complete();
 }
 
-public class NullableCustomBearerEnumerableWhenNonNullAddAllStringBearer<TCloakedStruct>(
-    IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer
-    where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
+                | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OnePalantirRevealer)]
+public class NullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloakedStruct>
+    : IStringBearer, IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>, ISupportsSingleRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
-    public IEnumerable<TCloakedStruct?>? WhenNonNullAddAllNullableCustomBearerEnumerable { get; } = value;
+    public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<TCloakedStruct?>? Value { get; set; }
+
+    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllEnumerate(nameof(WhenNonNullAddAllNullableCustomBearerEnumerable), WhenNonNullAddAllNullableCustomBearerEnumerable, palantírReveal)
+           .CollectionField.WhenNonNullRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerable, PalantirRevealer)
            .Complete();
 }
 
-public class StringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer>(IEnumerable<TBearer>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+public class StringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IEnumerable<TBearer>?>
     where TBearer : IStringBearer
 {
-    public IEnumerable<TBearer>? WhenNonNullAddAllStringBearerEnumerable { get; } = value;
+    public IEnumerable<TBearer>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<TBearer>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllEnumerate(nameof(WhenNonNullAddAllStringBearerEnumerable), WhenNonNullAddAllStringBearerEnumerable)
+           .CollectionField.WhenNonNullRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerable)
            .Complete();
 }
 
-public class NullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearerStruct>(IEnumerable<TBearerStruct?>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
+public class NullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer
+  , IMoldSupportedValue<IEnumerable<TBearerStruct?>?>
     where TBearerStruct : struct, IStringBearer
 {
-    public IEnumerable<TBearerStruct?>? WhenNonNullAddAllNullableStringBearerEnumerable { get; } = value;
+    public IEnumerable<TBearerStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<TBearerStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllEnumerate(nameof(WhenNonNullAddAllNullableStringBearerEnumerable), WhenNonNullAddAllNullableStringBearerEnumerable)
+           .CollectionField.WhenNonNullRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerable)
            .Complete();
 }
 
-public class StringEnumerableWhenNonNullAddAllStringBearer(IEnumerable<string?>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
+public class StringEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<string?>?>, ISupportsSingleFormatString
 {
-    public IEnumerable<string?>? WhenNonNullAddAllStringEnumerable { get; } = value;
+    public IEnumerable<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<string?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllStringEnumerable), WhenNonNullAddAllStringEnumerable)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class CharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq>(IEnumerable<TCharSeq?>? value) : IStringBearer
-    where TCharSeq : ICharSequence
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
+public class CharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IEnumerable<TCharSeq?>?>
+  , ISupportsSingleFormatString where TCharSeq : ICharSequence
 {
-    public IEnumerable<TCharSeq?>? WhenNonNullAddAllCharSequenceEnumerable { get; } = value;
+    public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<TCharSeq?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllCharSeqEnumerate(nameof(WhenNonNullAddAllCharSequenceEnumerable), WhenNonNullAddAllCharSequenceEnumerable)
+           .CollectionField.WhenNonNullAddAllCharSeqEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerable, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class StringBuilderEnumerableWhenNonNullAddAllStringBearer(IEnumerable<StringBuilder?>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
+public class StringBuilderEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<StringBuilder?>?>
+  , ISupportsSingleFormatString
 {
-    public IEnumerable<StringBuilder?>? WhenNonNullAddAllStringBuilderEnumerable { get; } = value;
+    public IEnumerable<StringBuilder?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<StringBuilder?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllStringBuilderEnumerable), WhenNonNullAddAllStringBuilderEnumerable)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerable, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class MatchEnumerableWhenNonNullAddAllStringBearer<T>(IEnumerable<T>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsAny | OneFormatString)]
+public class MatchEnumerableWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IEnumerable<T>?>
+  , ISupportsSingleFormatString
 {
-    public IEnumerable<T>? WhenNonNullAddAllMatchEnumerable { get; } = value;
+    public IEnumerable<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<T>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllMatchEnumerate(nameof(WhenNonNullAddAllMatchEnumerable), WhenNonNullAddAllMatchEnumerable)
+           .CollectionField.WhenNonNullAddAllMatchEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class ObjectEnumerableWhenNonNullAddAllStringBearer(IEnumerable<object?>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsAny | OneFormatString)]
+public class ObjectEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<object?>?>
+  , ISupportsSingleFormatString
 {
-    public IEnumerable<object?>? WhenNonNullAddAllObjectEnumerable { get; } = value;
+    public IEnumerable<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<object?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllObjectEnumerate(nameof(WhenNonNullAddAllObjectEnumerable), WhenNonNullAddAllObjectEnumerable)
+           .CollectionField.WhenNonNullAddAllObjectEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerable, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class BoolEnumeratorWhenNonNullAddAllStringBearer(IEnumerator<bool>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct)]
+public class BoolEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<bool>?>
 {
-    public IEnumerator<bool>? WhenNonNullAddAllBoolEnumerator { get; } = value;
+    public IEnumerator<bool>? ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<bool>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllBoolEnumerator), WhenNonNullAddAllBoolEnumerator)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator)
            .Complete();
 }
 
-public class NullableBoolEnumeratorWhenNonNullAddAllStringBearer(IEnumerator<bool?>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct)]
+public class NullableBoolEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<bool?>?>
 {
-    public IEnumerator<bool?>? WhenNonNullAddAllNullableBoolEnumerator { get; } = value;
+    public IEnumerator<bool?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<bool?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllNullableBoolEnumerator), WhenNonNullAddAllNullableBoolEnumerator)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator)
            .Complete();
 }
 
-public class SpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt>(IEnumerator<TFmt>? value) : IStringBearer
-    where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class SpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IEnumerator<TFmt>?>
+  , ISupportsSingleFormatString where TFmt : ISpanFormattable
 {
-    public IEnumerator<TFmt>? WhenNonNullAddAllSpanFormattableEnumerator { get; } = value;
+    public IEnumerator<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<TFmt>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllSpanFormattableEnumerator), WhenNonNullAddAllSpanFormattableEnumerator)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerator, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class NullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmtStruct>(IEnumerator<TFmtStruct?>? value) : IStringBearer
-    where TFmtStruct : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+public class NullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmtStruct> : IStringBearer
+  , IMoldSupportedValue<IEnumerator<TFmtStruct?>?>, ISupportsSingleFormatString where TFmtStruct : struct, ISpanFormattable
 {
-    public IEnumerator<TFmtStruct?>? WhenNonNullAddAllNullableSpanFormattableEnumerator { get; } = value;
+    public IEnumerator<TFmtStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<TFmtStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllNullableSpanFormattableEnumerator), WhenNonNullAddAllNullableSpanFormattableEnumerator)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerator, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class CustomBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase>(
-    IEnumerator<TCloaked>? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer
-    where TCloaked : TCloakedBase
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class CloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<IEnumerator<TCloaked>?>
+  , ISupportsSingleRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
-    public IEnumerator<TCloaked>? WhenNonNullAddAllCustomBearerEnumerator { get; } = value;
+    public IEnumerator<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<TCloaked>? Value { get; set; }
+
+    public PalantírReveal<TCloakedBase> PalantirRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllEnumerate(nameof(WhenNonNullAddAllCustomBearerEnumerator), WhenNonNullAddAllCustomBearerEnumerator, palantírReveal)
+           .CollectionField.WhenNonNullRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator, PalantirRevealer)
            .Complete();
 }
 
-public class NullableCustomBearerEnumeratorWhenNonNullAddAllStringBearer<TCloakedStruct>(
-    IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                  OnePalantirRevealer)]
+public class NullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloakedStruct> : IStringBearer
+  , IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>, ISupportsSingleRevealer<TCloakedStruct>
     where TCloakedStruct : struct
 {
-    public IEnumerator<TCloakedStruct?>? WhenNonNullAddAllNullableCustomBearerEnumerator { get; } = value;
+    public IEnumerator<TCloakedStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<TCloakedStruct?>? Value { get; set; }
+
+    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllEnumerate(nameof(WhenNonNullAddAllNullableCustomBearerEnumerator), WhenNonNullAddAllNullableCustomBearerEnumerator, palantírReveal)
+           .CollectionField.WhenNonNullRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerator, PalantirRevealer)
            .Complete();
 }
 
-public class StringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer>(IEnumerator<TBearer>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+public class StringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IEnumerator<TBearer>?>
     where TBearer : IStringBearer
 {
-    public IEnumerator<TBearer>? WhenNonNullAddAllStringBearerEnumerator { get; } = value;
+    public IEnumerator<TBearer>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<TBearer>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllEnumerate(nameof(WhenNonNullAddAllStringBearerEnumerator), WhenNonNullAddAllStringBearerEnumerator)
+           .CollectionField.WhenNonNullRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerator)
            .Complete();
 }
 
-public class NullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearerStruct>(IEnumerator<TBearerStruct?>? value) : IStringBearer
-    where TBearerStruct : struct, IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
+public class NullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer
+  , IMoldSupportedValue<IEnumerator<TBearerStruct?>?> where TBearerStruct : struct, IStringBearer
 {
-    public IEnumerator<TBearerStruct?>? WhenNonNullAddAllNullableStringBearerEnumerator { get; } = value;
+    public IEnumerator<TBearerStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<TBearerStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllEnumerate(nameof(WhenNonNullAddAllNullableStringBearerEnumerator), WhenNonNullAddAllNullableStringBearerEnumerator)
+           .CollectionField.WhenNonNullRevealAllEnumerate(nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerator)
+                                                        , ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerator)
            .Complete();
 }
 
-public class StringEnumeratorWhenNonNullAddAllStringBearer(IEnumerator<string?>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
+public class StringEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<string?>?>, ISupportsSingleFormatString
 {
-    public IEnumerator<string?>? WhenNonNullAddAllStringEnumerator { get; } = value;
+    public IEnumerator<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<string?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllStringEnumerator), WhenNonNullAddAllStringEnumerator)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class CharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq>(IEnumerator<TCharSeq?>? value) : IStringBearer
-    where TCharSeq : ICharSequence
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
+public class CharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IEnumerator<TCharSeq?>?>
+  , ISupportsSingleFormatString where TCharSeq : ICharSequence
 {
-    public IEnumerator<TCharSeq?>? WhenNonNullAddAllCharSequenceEnumerator { get; } = value;
+    public IEnumerator<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<TCharSeq?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllCharSeqEnumerate(nameof(WhenNonNullAddAllCharSequenceEnumerator), WhenNonNullAddAllCharSequenceEnumerator)
+           .CollectionField.WhenNonNullAddAllCharSeqEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerator, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class StringBuilderEnumeratorWhenNonNullAddAllStringBearer(IEnumerator<StringBuilder?>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
+public class StringBuilderEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<StringBuilder?>?>
+  , ISupportsSingleFormatString
 {
-    public IEnumerator<StringBuilder?>? WhenNonNullAddAllStringBuilderEnumerator { get; } = value;
+    public IEnumerator<StringBuilder?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<StringBuilder?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllStringBuilderEnumerator), WhenNonNullAddAllStringBuilderEnumerator)
+           .CollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerator, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class MatchEnumeratorWhenNonNullAddAllStringBearer<T>(IEnumerator<T>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsAny | OneFormatString)]
+public class MatchEnumeratorWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IEnumerator<T>?>, ISupportsSingleFormatString
 {
-    public IEnumerator<T>? WhenNonNullAddAllMatchEnumerator { get; } = value;
+    public IEnumerator<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<T>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllMatchEnumerate(nameof(WhenNonNullAddAllMatchEnumerator), WhenNonNullAddAllMatchEnumerator)
+           .CollectionField.WhenNonNullAddAllMatchEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }
 
-public class ObjectEnumeratorWhenNonNullAddAllStringBearer(IEnumerator<object?>? value) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsAny | OneFormatString)]
+public class ObjectEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<object?>?>, ISupportsSingleFormatString
 {
-    public IEnumerator<object?>? WhenNonNullAddAllObjectEnumerator { get; } = value;
+    public IEnumerator<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<object?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllObjectEnumerate(nameof(WhenNonNullAddAllObjectEnumerator), WhenNonNullAddAllObjectEnumerator)
+           .CollectionField.WhenNonNullAddAllObjectEnumerate
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator, FormatString)
            .Complete();
+
+    public string? FormatString { get; set; }
 }

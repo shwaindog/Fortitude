@@ -539,7 +539,7 @@ public class SpanFormattableNullableRefReadOnlySpanAlwaysAddAllStringBearer<TFmt
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableRefReadOnlySpan)
               , (ReadOnlySpan<TFmt?>)ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableRefReadOnlySpan, FormatString)
            .Complete();
-    
+
     public string? FormatString { get; set; }
 }
 
@@ -562,7 +562,7 @@ public class SpanFormattableNullableStructReadOnlySpanAlwaysAddAllStringBearer<T
                                        , (ReadOnlySpan<TFmtStruct?>)ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan
                                        , FormatString)
            .Complete();
-    
+
     public string? FormatString { get; set; }
 }
 
@@ -585,7 +585,7 @@ public class NullableReadOnlySpanFormattableSpanAlwaysAddAllStringBearer<TFmtStr
                                        , (ReadOnlySpan<TFmtStruct?>)ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableReadOnlySpan
                                        , FormatString)
            .Complete();
-    
+
     public string? FormatString { get; set; }
 }
 
@@ -781,7 +781,8 @@ public class CharSequenceReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : IStrin
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsChars | OneFormatString)]
-public class CharSequenceNullableReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsSingleFormatString
+public class CharSequenceNullableReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>
+  , ISupportsSingleFormatString
     where TCharSeq : ICharSequence
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan
@@ -823,7 +824,8 @@ public class StringBuilderReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, 
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsChars | OneFormatString)]
-public class StringBuilderNullableReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?[]>, ISupportsSingleFormatString
+public class StringBuilderNullableReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?[]>
+  , ISupportsSingleFormatString
 {
     public StringBuilder?[] ComplexTypeCollectionFieldAlwaysAddAllStringBuilderNullableReadOnlySpan
     {
@@ -844,7 +846,7 @@ public class StringBuilderNullableReadOnlySpanAlwaysAddAllStringBearer : IString
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsClass | AcceptsStruct | AcceptsSpanFormattable |
-    AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |  OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OneFormatString)]
 public class MatchReadOnlySpanAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsSingleFormatString
 {
     public T[]? ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan
@@ -865,7 +867,7 @@ public class MatchReadOnlySpanAlwaysAddAllStringBearer<T> : IStringBearer, IMold
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableClass | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |  OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OneFormatString)]
 public class MatchNullableReadOnlySpanAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<T?[]?>, ISupportsSingleFormatString
 {
     public T?[]? ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan
@@ -886,7 +888,7 @@ public class MatchNullableReadOnlySpanAlwaysAddAllStringBearer<T> : IStringBeare
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsClass | AcceptsStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |  OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OneFormatString)]
 public class ObjectReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<object[]?>, ISupportsSingleFormatString
 {
     public object[]? ComplexTypeCollectionFieldAlwaysAddAllObjectSpan
@@ -907,7 +909,7 @@ public class ObjectReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, IMoldSu
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableClass | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |  OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OneFormatString)]
 public class ObjectNullableReadOnlySpanAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsSingleFormatString
 {
     public object?[]? ComplexTypeCollectionFieldAlwaysAddAllObjectNullableReadOnlySpan
@@ -980,7 +982,7 @@ public class SpanFormattableArrayAlwaysAddAllStringBearer<TFmt> : IStringBearer,
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableArray)
                                        , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableArray
-                                         , FormatString)
+                                       , FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1001,8 +1003,9 @@ public class NullableSpanFormattableArrayAlwaysAddAllStringBearer<TFmtStruct> : 
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAll(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableArray)
-                                       , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableArray)
+           .CollectionField.AlwaysAddAll
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableArray)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableArray)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -1034,7 +1037,7 @@ public class CloakedBearerArrayAlwaysAddAllStringBearer<TCloaked, TCloakedBase> 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   OnePalantirRevealer)]
-public class NullableCloakedBearerArrayAlwaysAddAllStringBearer<TCloakedStruct>  : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>
+public class NullableCloakedBearerArrayAlwaysAddAllStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>
   , ISupportsSingleRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
     public TCloakedStruct?[]? ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerArray
@@ -1296,10 +1299,9 @@ public class CustomBearerListAlwaysAddAllStringBearer<TCloaked, TCloakedBase> : 
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  OnePalantirRevealer)]
-public class NullableCustomBearerListAlwaysAddAllStringBearer<TCloakedStruct>  : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber 
+                | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OnePalantirRevealer)]
+public class NullableCustomBearerListAlwaysAddAllStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>
   , ISupportsSingleRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
     public IReadOnlyList<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerList
@@ -1338,7 +1340,7 @@ public class StringBearerListAlwaysAddAllStringBearer<TBearer> : IStringBearer, 
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerListAlwaysAddAllStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -1378,7 +1380,8 @@ public class StringListAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedV
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsChars | OneFormatString)]
-public class CharSequenceListAlwaysAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>, ISupportsSingleFormatString
+public class CharSequenceListAlwaysAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>
+  , ISupportsSingleFormatString
     where TCharSeq : ICharSequence
 {
     public IReadOnlyList<TCharSeq?>? ComplexTypeCollectionFieldAlwaysAddAllCharSequenceList
@@ -1399,7 +1402,8 @@ public class CharSequenceListAlwaysAddAllStringBearer<TCharSeq> : IStringBearer,
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsChars | OneFormatString)]
-public class StringBuilderListAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>, ISupportsSingleFormatString
+public class StringBuilderListAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>
+  , ISupportsSingleFormatString
 {
     public IReadOnlyList<StringBuilder?>? ComplexTypeCollectionFieldAlwaysAddAllStringBuilderList
     {

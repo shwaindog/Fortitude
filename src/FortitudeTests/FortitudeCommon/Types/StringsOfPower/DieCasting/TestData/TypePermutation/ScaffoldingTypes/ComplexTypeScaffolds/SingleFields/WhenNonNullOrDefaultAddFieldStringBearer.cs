@@ -17,7 +17,6 @@ public class BoolWhenNonNullOrDefaultStringBearer: IStringBearer, IMoldSupported
     }
 
     public bool? Value { get; set; }
-    
 
     public bool DefaultValue { get; set; } = false;
 

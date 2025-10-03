@@ -4,7 +4,8 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.OrderedCollectionFields;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
+    OrderedCollectionFields;
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsStruct)]
 public class BoolEnumerableAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool>?>
@@ -19,11 +20,13 @@ public class BoolEnumerableAlwaysAddAllStringBearer : IStringBearer, IMoldSuppor
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable), ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsStruct | AcceptsNullableStruct)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableStruct)]
 public class NullableBoolEnumerableAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool?>?>
 {
     public IEnumerable<bool?>? ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable
@@ -36,13 +39,15 @@ public class NullableBoolEnumerableAlwaysAddAllStringBearer : IStringBearer, IMo
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable), ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
-public class SpanFormattableEnumerableAlwaysAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IEnumerable<TFmt?>?>, 
+public class SpanFormattableEnumerableAlwaysAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IEnumerable<TFmt?>?>,
     ISupportsSingleFormatString where TFmt : ISpanFormattable
 {
     public IEnumerable<TFmt?>? ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerable
@@ -55,8 +60,9 @@ public class SpanFormattableEnumerableAlwaysAddAllStringBearer<TFmt> : IStringBe
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerable)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerable, FormatString)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerable, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -77,8 +83,9 @@ public class NullableSpanFormattableEnumerableAlwaysAddAllStringBearer<TFmtStruc
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerable)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerable, FormatString)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerable, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -87,7 +94,8 @@ public class NullableSpanFormattableEnumerableAlwaysAddAllStringBearer<TFmtStruc
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   OnePalantirRevealer)]
-public class CloakedBearerEnumerableAlwaysAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<IEnumerable<TCloaked>?>
+public class CloakedBearerEnumerableAlwaysAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer
+  , IMoldSupportedValue<IEnumerable<TCloaked>?>, ISupportsSingleRevealer<TCloakedBase>
     where TCloaked : TCloakedBase
 {
     public IEnumerable<TCloaked>? ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable
@@ -102,15 +110,17 @@ public class CloakedBearerEnumerableAlwaysAddAllStringBearer<TCloaked, TCloakedB
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable)
-                                                   , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable, PalantirRevealer)
+           .CollectionField.AlwaysRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable, PalantirRevealer)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   OnePalantirRevealer)]
-public class NullableCustomBearerEnumerableAlwaysAddAllStringBearer<TCloakedStruct>: IStringBearer, IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>
+public class NullableCustomBearerEnumerableAlwaysAddAllStringBearer<TCloakedStruct> : IStringBearer
+  , IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>, ISupportsSingleRevealer<TCloakedStruct>
     where TCloakedStruct : struct
 {
     public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerEnumerable
@@ -125,8 +135,9 @@ public class NullableCustomBearerEnumerableAlwaysAddAllStringBearer<TCloakedStru
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerEnumerable)
-                                                   , ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerEnumerable, PalantirRevealer)
+           .CollectionField.AlwaysRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerEnumerable, PalantirRevealer)
            .Complete();
 }
 
@@ -144,8 +155,9 @@ public class StringBearerEnumerableAlwaysAddAllStringBearer<TBearer> : IStringBe
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable)
-                                                   , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable)
+           .CollectionField.AlwaysRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable)
            .Complete();
 }
 
@@ -163,8 +175,9 @@ public class NullableStringBearerEnumerableAlwaysAddAllStringBearer<TBearerStruc
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerable)
-                                                   , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerable)
+           .CollectionField.AlwaysRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerable)
            .Complete();
 }
 
@@ -181,15 +194,17 @@ public class StringEnumerableAlwaysAddAllStringBearer : IStringBearer, IMoldSupp
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringEnumerable)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerable, FormatString)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerable, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsChars | OneFormatString)]
-public class CharSequenceEnumerableAlwaysAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IEnumerable<TCharSeq?>?>, ISupportsSingleFormatString
+public class CharSequenceEnumerableAlwaysAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IEnumerable<TCharSeq?>?>
+  , ISupportsSingleFormatString
     where TCharSeq : ICharSequence
 {
     public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable
@@ -202,15 +217,17 @@ public class CharSequenceEnumerableAlwaysAddAllStringBearer<TCharSeq> : IStringB
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeqEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable)
-                                                       , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable, FormatString)
+           .CollectionField.AlwaysAddAllCharSeqEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsChars | OneFormatString)]
-public class StringBuilderEnumerableAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<StringBuilder?>?>, ISupportsSingleFormatString
+public class StringBuilderEnumerableAlwaysAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<StringBuilder?>?>
+  , ISupportsSingleFormatString
 {
     public IEnumerable<StringBuilder?>? ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable
     {
@@ -222,8 +239,9 @@ public class StringBuilderEnumerableAlwaysAddAllStringBearer : IStringBearer, IM
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable, FormatString)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -242,8 +260,9 @@ public class MatchEnumerableAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSu
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatchEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable)
-                                                     , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable, FormatString)
+           .CollectionField.AlwaysAddAllMatchEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -262,8 +281,9 @@ public class ObjectEnumerableAlwaysAddAllStringBearer : IStringBearer, IMoldSupp
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObjectEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerable)
-                                                      , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerable, FormatString)
+           .CollectionField.AlwaysAddAllObjectEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerable, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -282,8 +302,9 @@ public class BoolEnumeratorAlwaysAddAllStringBearer : IStringBearer, IMoldSuppor
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator)
            .Complete();
 }
 
@@ -300,8 +321,9 @@ public class NullableBoolEnumeratorAlwaysAddAllStringBearer : IStringBearer, IMo
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator)
            .Complete();
 }
 
@@ -320,8 +342,9 @@ public class SpanFormattableEnumeratorAlwaysAddAllStringBearer<TFmt> : IStringBe
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerator)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerator, FormatString)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerator, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -342,8 +365,9 @@ public class NullableSpanFormattableEnumeratorAlwaysAddAllStringBearer<TStructFm
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerator)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerator, FormatString)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerator, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -367,15 +391,17 @@ public class CloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloaked, TCloakedB
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerator)
-                                                   , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerator, PalantirRevealer)
+           .CollectionField.AlwaysRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerator, PalantirRevealer)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   OnePalantirRevealer)]
-public class NullableCloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>
+public class NullableCloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloakedStruct> : IStringBearer
+  , IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>, ISupportsSingleRevealer<TCloakedStruct>
     where TCloakedStruct : struct
 {
     public IEnumerator<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator
@@ -390,8 +416,9 @@ public class NullableCloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloakedStr
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator)
-                                                   , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator, PalantirRevealer)
+           .CollectionField.AlwaysRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator, PalantirRevealer)
            .Complete();
 }
 
@@ -409,8 +436,9 @@ public class StringBearerEnumeratorAlwaysAddAllStringBearer<TBearer> : IStringBe
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator)
-                                                   , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator)
+           .CollectionField.AlwaysRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator)
            .Complete();
 }
 
@@ -428,8 +456,9 @@ public class NullableStringBearerEnumeratorAlwaysAddAllStringBearer<TBearerStruc
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerator)
-                                                   , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerator)
+           .CollectionField.AlwaysRevealAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerator)
            .Complete();
 }
 
@@ -446,8 +475,9 @@ public class StringEnumeratorAlwaysAddAllStringBearer : IStringBearer, IMoldSupp
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringEnumerator)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerator, FormatString)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerator, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -467,8 +497,9 @@ public class CharSequenceEnumeratorAlwaysAddAllStringBearer<TCharSeq> : IStringB
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeqEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerator)
-                                                       , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerator, FormatString)
+           .CollectionField.AlwaysAddAllCharSeqEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerator, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -488,8 +519,9 @@ public class StringBuilderEnumeratorAlwaysAddAllStringBearer : IStringBearer, IM
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerator)
-                                                , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerator, FormatString)
+           .CollectionField.AlwaysAddAllEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerator, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
@@ -508,15 +540,16 @@ public class MatchEnumeratorAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSu
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatchEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator)
-                                                     , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator, FormatString)
+           .CollectionField.AlwaysAddAllMatchEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AlwaysWrites | AcceptsAny | OneFormatString)]
-public class ObjectEnumeratorAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IEnumerator<T>?>, ISupportsSingleFormatString 
+public class ObjectEnumeratorAlwaysAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IEnumerator<T>?>, ISupportsSingleFormatString
     where T : class
 {
     public IEnumerator<T>? ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator
@@ -529,8 +562,9 @@ public class ObjectEnumeratorAlwaysAddAllStringBearer<T> : IStringBearer, IMoldS
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObjectEnumerate(nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator)
-                                                      , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator, FormatString)
+           .CollectionField.AlwaysAddAllObjectEnumerate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator, FormatString)
            .Complete();
 
     public string? FormatString { get; set; }
