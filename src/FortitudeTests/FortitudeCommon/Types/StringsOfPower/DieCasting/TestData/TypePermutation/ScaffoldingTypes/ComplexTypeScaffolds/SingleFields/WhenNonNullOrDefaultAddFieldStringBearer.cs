@@ -27,9 +27,9 @@ public class BoolWhenNonNullOrDefaultStringBearer: IStringBearer, IMoldSupported
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableWhenNonNullOrDefaultStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?>
-  , IMoldSupportedDefaultValue<TFmt?>, ISupportsSingleFormatString where TFmt : ISpanFormattable
+  , IMoldSupportedDefaultValue<TFmt?>, ISupportsValueFormatString where TFmt : ISpanFormattable
 {
     public TFmt? ComplexTypeFieldWhenNonNullOrDefaultSpanFormattable
     {
@@ -41,19 +41,19 @@ public class SpanFormattableWhenNonNullOrDefaultStringBearer<TFmt> : IStringBear
 
     public TFmt? DefaultValue { get; set; }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(ComplexTypeFieldWhenNonNullOrDefaultSpanFormattable)
-                                        , ComplexTypeFieldWhenNonNullOrDefaultSpanFormattable, DefaultValue, FormatString)
+                                        , ComplexTypeFieldWhenNonNullOrDefaultSpanFormattable, DefaultValue, ValueFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString | SupportsCustomHandling)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsCustomHandling)]
 public class SpanFormattableWithHandlingWhenNonNullOrDefaultStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?>
-  , IMoldSupportedDefaultValue<TFmt?>, ISupportsSingleFormatString, ISupportsFieldHandling where TFmt : ISpanFormattable
+  , IMoldSupportedDefaultValue<TFmt?>, ISupportsValueFormatString, ISupportsFieldHandling where TFmt : ISpanFormattable
 {
     public TFmt? ComplexTypeFieldWhenNonNullOrDefaultSpanFormattableAs
     {
@@ -67,19 +67,19 @@ public class SpanFormattableWithHandlingWhenNonNullOrDefaultStringBearer<TFmt> :
 
     public TFmt? DefaultValue { get; set; }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultSpanFormattableAs), ComplexTypeFieldWhenNonNullOrDefaultSpanFormattableAs
-                                          , DefaultValue, FieldContentHandling, FormatString)
+                                          , DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class NullableSpanFormattableWhenNonNullOrDefaultStringBearer<TFmtStruct> : IStringBearer, IMoldSupportedValue<TFmtStruct?>
-  , IMoldSupportedDefaultValue<TFmtStruct>, ISupportsSingleFormatString
+  , IMoldSupportedDefaultValue<TFmtStruct>, ISupportsValueFormatString
     where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct? ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattable
@@ -92,19 +92,19 @@ public class NullableSpanFormattableWhenNonNullOrDefaultStringBearer<TFmtStruct>
 
     public TFmtStruct DefaultValue { get; set; }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattable)
-                                        , ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattable, DefaultValue, FormatString)
+                                        , ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattable, DefaultValue, ValueFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString | SupportsCustomHandling)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsCustomHandling)]
 public class NullableSpanFormattableWithHandlingWhenNonNullOrDefaultStringBearer<TFmtStruct> : IStringBearer, IMoldSupportedValue<TFmtStruct?> 
-  , IMoldSupportedDefaultValue<TFmtStruct>, ISupportsSingleFormatString, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<TFmtStruct>, ISupportsValueFormatString, ISupportsFieldHandling
     where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct? ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattableAs
@@ -118,20 +118,20 @@ public class NullableSpanFormattableWithHandlingWhenNonNullOrDefaultStringBearer
     public TFmtStruct? Value { get; set; }
 
     public TFmtStruct DefaultValue { get; set; }
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattableAs)
-                                          , ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattableAs, DefaultValue, FieldContentHandling, FormatString)
+                                          , ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattableAs, DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  OnePalantirRevealer)]
+                  SupportsValueRevealer)]
 public class CloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TCloaked?>
-  , IMoldSupportedDefaultValue<TCloaked>, ISupportsSingleRevealer<TCloakedBase> where TCloaked : TCloakedBase
+  , IMoldSupportedDefaultValue<TCloaked>, ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
     public TCloaked? ComplexTypeFieldWhenNonNullOrDefaultCloakedBearer
     {
@@ -141,23 +141,23 @@ public class CloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked, TCloakedBas
 
     public TCloaked? Value { get; set; }
 
-    public PalantírReveal<TCloakedBase> PalantirRevealer { get; set; } = null!;
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
     public TCloaked DefaultValue { get; set; } = default!;
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultReveal(nameof(ComplexTypeFieldWhenNonNullOrDefaultCloakedBearer)
-                                           , ComplexTypeFieldWhenNonNullOrDefaultCloakedBearer, PalantirRevealer
+                                           , ComplexTypeFieldWhenNonNullOrDefaultCloakedBearer, ValueRevealer
                                            , DefaultValue)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsChars
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
-                | OnePalantirRevealer | SupportsCustomHandling)]
+                | SupportsValueRevealer | SupportsCustomHandling)]
 public class CloakedBearerWithHandlingWhenNonNullOrDefaultStringBearer<TCloaked, TCloakedBase>: IStringBearer, IMoldSupportedValue<TCloaked?>
-  , IMoldSupportedDefaultValue<TCloaked>, ISupportsSingleRevealer<TCloakedBase>, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<TCloaked>, ISupportsValueRevealer<TCloakedBase>, ISupportsFieldHandling
     where TCloaked : TCloakedBase
 {
     public TCloaked? ComplexTypeFieldWhenNonNullOrDefaultCloakedBearerAs
@@ -168,7 +168,7 @@ public class CloakedBearerWithHandlingWhenNonNullOrDefaultStringBearer<TCloaked,
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
-    public PalantírReveal<TCloakedBase> PalantirRevealer { get; set; } = null!;
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
     public TCloaked DefaultValue { get; set; } = default!;
 
@@ -177,15 +177,15 @@ public class CloakedBearerWithHandlingWhenNonNullOrDefaultStringBearer<TCloaked,
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultRevealAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultCloakedBearerAs)
-                                             , ComplexTypeFieldWhenNonNullOrDefaultCloakedBearerAs, PalantirRevealer, DefaultValue, FieldContentHandling)
+                                             , ComplexTypeFieldWhenNonNullOrDefaultCloakedBearerAs, ValueRevealer, DefaultValue, FieldContentHandling)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  OnePalantirRevealer)]
+                  SupportsValueRevealer)]
 public class NullableCloakedBearerWhenNonNullOrDefaultStringBearer<TCloakedStruct>: IStringBearer, IMoldSupportedValue<TCloakedStruct?>
-  , IMoldSupportedDefaultValue<TCloakedStruct?>, ISupportsSingleRevealer<TCloakedStruct> where TCloakedStruct : struct
+  , IMoldSupportedDefaultValue<TCloakedStruct?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
     public TCloakedStruct? ComplexTypeFieldWhenNonNullOrDefaultCloakedBearer
     {
@@ -195,22 +195,22 @@ public class NullableCloakedBearerWhenNonNullOrDefaultStringBearer<TCloakedStruc
 
     public TCloakedStruct? Value { get; set; }
 
-    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
 
     public TCloakedStruct? DefaultValue { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultReveal(nameof(ComplexTypeFieldWhenNonNullOrDefaultCloakedBearer)
-                                           , ComplexTypeFieldWhenNonNullOrDefaultCloakedBearer, PalantirRevealer, DefaultValue)
+                                           , ComplexTypeFieldWhenNonNullOrDefaultCloakedBearer, ValueRevealer, DefaultValue)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
-                | OnePalantirRevealer | SupportsCustomHandling)]
+                | SupportsValueRevealer | SupportsCustomHandling)]
 public class NullableCloakedBearerWithHandlingWhenNonNullOrDefaultStringBearer<TCloakedStruct> : IStringBearer
-  , IMoldSupportedValue<TCloakedStruct?>, IMoldSupportedDefaultValue<TCloakedStruct?>, ISupportsSingleRevealer<TCloakedStruct>, ISupportsFieldHandling 
+  , IMoldSupportedValue<TCloakedStruct?>, IMoldSupportedDefaultValue<TCloakedStruct?>, ISupportsValueRevealer<TCloakedStruct>, ISupportsFieldHandling 
     where TCloakedStruct : struct
 {
     public TCloakedStruct? ComplexTypeFieldWhenNonNullOrDefaultCustomBearerAs
@@ -223,14 +223,14 @@ public class NullableCloakedBearerWithHandlingWhenNonNullOrDefaultStringBearer<T
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
-    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
 
     public TCloakedStruct? DefaultValue { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultRevealAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultCustomBearerAs)
-                                             , ComplexTypeFieldWhenNonNullOrDefaultCustomBearerAs, PalantirRevealer, DefaultValue, FieldContentHandling)
+                                             , ComplexTypeFieldWhenNonNullOrDefaultCustomBearerAs, ValueRevealer, DefaultValue, FieldContentHandling)
            .Complete();
 }
 
@@ -324,9 +324,9 @@ public class NullableStringBearerWithHandlingWhenNonNullOrDefaultStringBearer<TB
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString)]
 public class StringWhenNonNullOrDefaultAddStringBearer : IStringBearer
-  , IMoldSupportedValue<string?>, IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString, ISupportsSettingValueFromString
+  , IMoldSupportedValue<string?>, IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public string? ComplexTypeFieldWhenNonNullOrDefaultString
     {
@@ -342,20 +342,20 @@ public class StringWhenNonNullOrDefaultAddStringBearer : IStringBearer
         set => Value = value!;
     }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(ComplexTypeFieldWhenNonNullOrDefaultString), ComplexTypeFieldWhenNonNullOrDefaultString
-                                        , DefaultValue, FormatString)
+                                        , DefaultValue, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
 public class StringWithHandlingWhenNonNullOrDefaultAddStringBearer: IStringBearer, IMoldSupportedValue<string?>, IMoldSupportedDefaultValue<string>
-  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
+  , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public string? ComplexTypeFieldWhenNonNullOrDefaultStringAs
     {
@@ -374,18 +374,18 @@ public class StringWithHandlingWhenNonNullOrDefaultAddStringBearer: IStringBeare
     }
 
     public string DefaultValue { get; set; } = "";
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultStringAs), ComplexTypeFieldWhenNonNullOrDefaultStringAs
-                                          , DefaultValue, FieldContentHandling, FormatString)
+                                          , DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class StringRangeWhenNonNullOrDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string?>, IMoldSupportedDefaultValue<string>
-  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+  , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public string? ComplexTypeFieldWhenNonNullOrDefaultStringRange
     {
@@ -402,7 +402,7 @@ public class StringRangeWhenNonNullOrDefaultAddStringBearer : IStringBearer, IMo
     }
 
     public string DefaultValue { get; set; } = "";
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public int FromIndex { get; set; }
 
@@ -411,13 +411,13 @@ public class StringRangeWhenNonNullOrDefaultAddStringBearer : IStringBearer, IMo
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(ComplexTypeFieldWhenNonNullOrDefaultStringRange), ComplexTypeFieldWhenNonNullOrDefaultStringRange
-                                        , FromIndex, Length, DefaultValue, FormatString)
+                                        , FromIndex, Length, DefaultValue, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
 public class StringRangeWithHandlingWhenNonNullOrDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string?>
-  , IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public string? ComplexTypeFieldWhenNonNullOrDefaultStringRangeAs
     {
@@ -436,7 +436,7 @@ public class StringRangeWithHandlingWhenNonNullOrDefaultAddStringBearer : IStrin
     }
 
     public string DefaultValue { get; set; } = "";
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public int FromIndex { get; set; }
 
@@ -445,13 +445,13 @@ public class StringRangeWithHandlingWhenNonNullOrDefaultAddStringBearer : IStrin
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultStringRangeAs), ComplexTypeFieldWhenNonNullOrDefaultStringRangeAs
-                                        , FromIndex, Length, DefaultValue, FieldContentHandling, FormatString)
+                                        , FromIndex, Length, DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString)]
 public class CharArrayWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, IMoldSupportedDefaultValue<string>
-  , ISupportsSingleFormatString, ISupportsSettingValueFromString
+  , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public char[] ComplexTypeFieldWhenNonNullOrDefaultCharArray
     {
@@ -469,18 +469,18 @@ public class CharArrayWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSup
 
     public string DefaultValue { get; set; } = "";
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(ComplexTypeFieldWhenNonNullOrDefaultCharArray)
                                         , ComplexTypeFieldWhenNonNullOrDefaultCharArray, DefaultValue
-                                        , FormatString)
+                                        , ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
-public class CharArrayWithHandlingWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsSingleFormatString
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+public class CharArrayWithHandlingWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public char[] ComplexTypeFieldWhenNonNullOrDefaultCharArrayAs
@@ -498,20 +498,20 @@ public class CharArrayWithHandlingWhenNonNullOrDefaultStringBearer : IStringBear
         get => Value != null! ? new string(Value) : null;
         set => Value = value?.ToCharArray()!;
     }
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultCharArrayAs), ComplexTypeFieldWhenNonNullOrDefaultCharArrayAs
-                                          , DefaultValue, FieldContentHandling, FormatString)
+                                          , DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class CharArrayRangeWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, IMoldSupportedDefaultValue<string>
-  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+  , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public char[] ComplexTypeFieldWhenNonNullOrDefaultCharArrayRange
     {
@@ -530,20 +530,20 @@ public class CharArrayRangeWhenNonNullOrDefaultStringBearer : IStringBearer, IMo
         get => Value != null! ? new string(Value) : null;
         set => Value = value?.ToCharArray()!;
     }
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(ComplexTypeFieldWhenNonNullOrDefaultCharArrayRange), ComplexTypeFieldWhenNonNullOrDefaultCharArrayRange
-                                        , FromIndex, Length, DefaultValue, FormatString)
+                                        , FromIndex, Length, DefaultValue, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
 public class CharArrayRangeWithHandlingWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, IMoldSupportedDefaultValue<string>
-  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
+  , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public char[] ComplexTypeFieldWhenNonNullOrDefaultCharArrayRangeAs
     {
@@ -564,20 +564,20 @@ public class CharArrayRangeWithHandlingWhenNonNullOrDefaultStringBearer : IStrin
         get => Value != null! ? new string(Value) : null;
         set => Value = value?.ToCharArray()!;
     }
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultCharArrayRangeAs), ComplexTypeFieldWhenNonNullOrDefaultCharArrayRangeAs
-                                        , FromIndex, Length, DefaultValue, FieldContentHandling, FormatString)
+                                        , FromIndex, Length, DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString)]
 public class CharSequenceWhenNonNullOrDefaultStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
-  , IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString, ISupportsSettingValueFromString where TCharSeq : ICharSequence
+  , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString where TCharSeq : ICharSequence
 {
     public TCharSeq ComplexTypeFieldWhenNonNullOrDefaultCharSequence
     {
@@ -599,20 +599,20 @@ public class CharSequenceWhenNonNullOrDefaultStringBearer<TCharSeq> : IStringBea
         }
     }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddCharSeq(nameof(ComplexTypeFieldWhenNonNullOrDefaultCharSequence)
-                                               , ComplexTypeFieldWhenNonNullOrDefaultCharSequence, DefaultValue, FormatString)
+                                               , ComplexTypeFieldWhenNonNullOrDefaultCharSequence, DefaultValue, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
 public class CharSequenceWithHandlingWhenNonNullOrDefaultStringBearer<TCharSeq>: IStringBearer, IMoldSupportedValue<TCharSeq>
-  , IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
     where TCharSeq : ICharSequence
 {
     public TCharSeq ComplexTypeFieldWhenNonNullOrDefaultCharSequenceAs
@@ -637,20 +637,20 @@ public class CharSequenceWithHandlingWhenNonNullOrDefaultStringBearer<TCharSeq>:
         }
     }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
     
     public string DefaultValue { get; set; } = "";
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddCharSeqAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultCharSequenceAs)
-                                                 , ComplexTypeFieldWhenNonNullOrDefaultCharSequenceAs, DefaultValue, FieldContentHandling, FormatString)
+                                                 , ComplexTypeFieldWhenNonNullOrDefaultCharSequenceAs, DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class CharSequenceRangeWhenNonNullOrDefaultStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>, IMoldSupportedDefaultValue<string>
-  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+  , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
     where TCharSeq : ICharSequence
 {
     public TCharSeq ComplexTypeFieldWhenNonNullOrDefaultCharSequenceRange
@@ -676,20 +676,20 @@ public class CharSequenceRangeWhenNonNullOrDefaultStringBearer<TCharSeq> : IStri
             else { Value                                                 = (TCharSeq)(object)new MutableString(value); }
         }
     }
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddCharSeq(nameof(ComplexTypeFieldWhenNonNullOrDefaultCharSequenceRange), ComplexTypeFieldWhenNonNullOrDefaultCharSequenceRange
-                                               , FromIndex, Length, DefaultValue, FormatString)
+                                               , FromIndex, Length, DefaultValue, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
 public class CharSequenceRangeWithHandlingWhenNonNullOrDefaultStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq> 
-  , IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
     where TCharSeq : ICharSequence
 {
     public TCharSeq ComplexTypeFieldWhenNonNullOrDefaultCharSequenceRangeAs
@@ -717,20 +717,20 @@ public class CharSequenceRangeWithHandlingWhenNonNullOrDefaultStringBearer<TChar
             else { Value                                                 = (TCharSeq)(object)new MutableString(value); }
         }
     }
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddCharSeqAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultCharSequenceRangeAs), ComplexTypeFieldWhenNonNullOrDefaultCharSequenceRangeAs
-                                               , FromIndex, Length, DefaultValue, FieldContentHandling, FormatString)
+                                               , FromIndex, Length, DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString)]
 public class StringBuilderWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>, IMoldSupportedDefaultValue<string>
-  , ISupportsSingleFormatString, ISupportsSettingValueFromString
+  , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public StringBuilder ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilder
     {
@@ -746,20 +746,20 @@ public class StringBuilderWhenNonNullOrDefaultStringBearer : IStringBearer, IMol
         set => Value = new StringBuilder(value);
     }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilder)
-                                        , ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilder, DefaultValue, FormatString)
+                                        , ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilder, DefaultValue, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
 public class StringBuilderWithHandlingWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
-  , IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public StringBuilder ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderAs
     {
@@ -777,20 +777,20 @@ public class StringBuilderWithHandlingWhenNonNullOrDefaultStringBearer : IString
         set => Value = new StringBuilder(value);
     }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderAs)
-                                          , ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderAs, DefaultValue, FieldContentHandling, FormatString)
+                                          , ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderAs, DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class StringBuilderRangeWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>, IMoldSupportedDefaultValue<string>
-  , ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+  , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public StringBuilder ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRange
     {
@@ -810,20 +810,20 @@ public class StringBuilderRangeWhenNonNullOrDefaultStringBearer : IStringBearer,
         set => Value = new StringBuilder(value);
     }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRange), 
-                                          ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRange, FromIndex, Length, DefaultValue, FormatString)
+                                          ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRange, FromIndex, Length, DefaultValue, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | OneFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
 public class StringBuilderRangeWithHandlingWhenNonNullOrDefaultStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
-  , IMoldSupportedDefaultValue<string>, ISupportsSingleFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling, ISupportsIndexRangeLimiting
+  , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling, ISupportsIndexRangeLimiting
 {
     public StringBuilder ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRangeAs
     {
@@ -840,7 +840,7 @@ public class StringBuilderRangeWithHandlingWhenNonNullOrDefaultStringBearer : IS
     }
 
     public FieldContentHandling FieldContentHandling { get; set; }
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
@@ -852,13 +852,13 @@ public class StringBuilderRangeWithHandlingWhenNonNullOrDefaultStringBearer : IS
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddAs(nameof(ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRangeAs)
                                           , ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRangeAs
-                                          , FromIndex, Length, DefaultValue, FieldContentHandling, FormatString)
+                                          , FromIndex, Length, DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsAny | OneFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsAny | SupportsValueFormatString)]
 public class MatchWhenNonNullOrDefaultStringBearer<T>: IStringBearer, IMoldSupportedValue<T?>
-  , IMoldSupportedDefaultValue<T?>, ISupportsSingleFormatString
+  , IMoldSupportedDefaultValue<T?>, ISupportsValueFormatString
 {
     public T? ComplexTypeFieldWhenNonNullOrDefaultMatch
     {
@@ -868,20 +868,20 @@ public class MatchWhenNonNullOrDefaultStringBearer<T>: IStringBearer, IMoldSuppo
 
     public T? Value { get; set; }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public T? DefaultValue { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddMatch(nameof(ComplexTypeFieldWhenNonNullOrDefaultMatch), ComplexTypeFieldWhenNonNullOrDefaultMatch
-                                             , DefaultValue, FormatString)
+                                             , DefaultValue, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | OneFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
 public class ObjectWhenNonNullOrDefaultStringBearer: IStringBearer, IMoldSupportedValue<object?>,  IMoldSupportedDefaultValue<object?>
-  , ISupportsSingleFormatString
+  , ISupportsValueFormatString
 {
     public object? ComplexTypeFieldWhenNonNullOrDefaultObject
     {
@@ -891,13 +891,13 @@ public class ObjectWhenNonNullOrDefaultStringBearer: IStringBearer, IMoldSupport
 
     public object? Value { get; set; }
     
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public object? DefaultValue { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAddObject(nameof(ComplexTypeFieldWhenNonNullOrDefaultObject), ComplexTypeFieldWhenNonNullOrDefaultObject
-                                              , DefaultValue, FormatString)
+                                              , DefaultValue, ValueFormatString)
            .Complete();
 }

@@ -45,7 +45,7 @@ public class NullableBoolArrayWhenNonNullAddAllStringBearer : IStringBearer, IMo
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableArrayWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt[]?>
     where TFmt : ISpanFormattable
 {
@@ -65,9 +65,9 @@ public class SpanFormattableArrayWhenNonNullAddAllStringBearer<TFmt> : IStringBe
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class NullableSpanFormattableArrayWhenNonNullAddAllStringBearer<TStructFmt> : IStringBearer, IMoldSupportedValue<TStructFmt?[]?>
-  , ISupportsSingleFormatString where TStructFmt : struct, ISpanFormattable
+  , ISupportsValueFormatString where TStructFmt : struct, ISpanFormattable
 {
     public TStructFmt?[]? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableArray
     {
@@ -81,14 +81,14 @@ public class NullableSpanFormattableArrayWhenNonNullAddAllStringBearer<TStructFm
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableArray)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableArray, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableArray, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable
-                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OnePalantirRevealer)]
+                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
 public class CloakedBearerArrayWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TCloaked[]?>
     where TCloaked : TCloakedBase
 {
@@ -112,7 +112,7 @@ public class CloakedBearerArrayWhenNonNullAddAllStringBearer<TCloaked, TCloakedB
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
-                | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OnePalantirRevealer)]
+                | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
 public class NullableCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>
     where TCloakedStruct : struct
 {
@@ -174,8 +174,8 @@ public class NullableStringBearerArrayWhenNonNullAddAllStringBearer<TBearerStruc
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
-public class StringArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<string?[]?>, ISupportsSingleFormatString
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+public class StringArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringArray
     {
@@ -189,14 +189,14 @@ public class StringArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupp
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringArray)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllStringArray, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringArray, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
-public class CharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsSingleFormatString
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+public class CharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceArray
@@ -211,14 +211,14 @@ public class CharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : IStringB
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceArray)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceArray, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceArray, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
-public class StringBuilderArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsSingleFormatString
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+public class StringBuilderArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsValueFormatString
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray
     {
@@ -232,14 +232,14 @@ public class StringBuilderArrayWhenNonNullAddAllStringBearer : IStringBearer, IM
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsAny | OneFormatString)]
-public class MatchArrayWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsSingleFormatString
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
+public class MatchArrayWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsValueFormatString
 {
     public T[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray
     {
@@ -253,14 +253,14 @@ public class MatchArrayWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSu
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsAny | OneFormatString)]
-public class ObjectArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsSingleFormatString
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
+public class ObjectArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsValueFormatString
 {
     public object?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray
     {
@@ -274,10 +274,10 @@ public class ObjectArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupp
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObject
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct)]
@@ -318,9 +318,9 @@ public class NullableBoolListWhenNonNullAddAllStringBearer : IStringBearer, IMol
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableListWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TFmt>?>
-  , ISupportsSingleFormatString where TFmt : ISpanFormattable
+  , ISupportsValueFormatString where TFmt : ISpanFormattable
 {
     public IReadOnlyList<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableList
     {
@@ -334,16 +334,16 @@ public class SpanFormattableListWhenNonNullAddAllStringBearer<TFmt> : IStringBea
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableList, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableList, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | OneFormatString)]
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class NullableSpanFormattableListWhenNonNullAddAllStringBearer<TFmtStruct> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>
-  , ISupportsSingleFormatString where TFmtStruct : struct, ISpanFormattable
+  , ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
     public IReadOnlyList<TFmtStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableList
     {
@@ -357,16 +357,16 @@ public class NullableSpanFormattableListWhenNonNullAddAllStringBearer<TFmtStruct
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableList, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableList, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable
-                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OnePalantirRevealer)]
+                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
 public class CustomBearerListWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCloaked>?>
-  , ISupportsSingleRevealer<TCloakedBase> where TCloaked : TCloakedBase
+  , ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
     public IReadOnlyList<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCustomBearerList
     {
@@ -376,20 +376,20 @@ public class CustomBearerListWhenNonNullAddAllStringBearer<TCloaked, TCloakedBas
 
     public IReadOnlyList<TCloaked>? Value { get; set; }
 
-    public PalantírReveal<TCloakedBase> PalantirRevealer { get; set; } = null!;
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCustomBearerList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllCustomBearerList, PalantirRevealer)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllCustomBearerList, ValueRevealer)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
-                | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | OnePalantirRevealer)]
+                | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
 public class NullableCustomBearerListWhenNonNullAddAllStringBearer<TCloakedStruct> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>, ISupportsSingleRevealer<TCloakedStruct> where TCloakedStruct : struct
+  , IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
     public IReadOnlyList<TCloakedStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableCustomBearerList
     {
@@ -399,13 +399,13 @@ public class NullableCustomBearerListWhenNonNullAddAllStringBearer<TCloakedStruc
 
     public IReadOnlyList<TCloakedStruct?>? Value { get; set; }
 
-    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCustomBearerList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableCustomBearerList, PalantirRevealer)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableCustomBearerList, ValueRevealer)
            .Complete();
 }
 
@@ -449,8 +449,8 @@ public class NullableStringBearerListWhenNonNullAddAllStringBearer<TBearerStruct
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | OneFormatString)]
-public class StringListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<string?>?>, ISupportsSingleFormatString
+[TypeGeneratePart(ComplexType | AcceptsCollection | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+public class StringListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<string?>?>, ISupportsValueFormatString
 {
     public IReadOnlyList<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringList
     {
@@ -464,14 +464,14 @@ public class StringListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSuppo
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllStringList, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringList, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
 public class CharSequenceListWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>
-  , ISupportsSingleFormatString where TCharSeq : ICharSequence
+  , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
     public IReadOnlyList<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceList
     {
@@ -485,14 +485,14 @@ public class CharSequenceListWhenNonNullAddAllStringBearer<TCharSeq> : IStringBe
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceList, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceList, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
 public class StringBuilderListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>
-  , ISupportsSingleFormatString
+  , ISupportsValueFormatString
 {
     public IReadOnlyList<StringBuilder?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderList
     {
@@ -506,13 +506,13 @@ public class StringBuilderListWhenNonNullAddAllStringBearer : IStringBearer, IMo
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderList, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderList, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
-public class MatchListWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsSingleFormatString
+public class MatchListWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsValueFormatString
 {
     public IReadOnlyList<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchList
     {
@@ -526,13 +526,13 @@ public class MatchListWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSup
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllMatchList, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllMatchList, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
 
-public class ObjectListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<object?>?>, ISupportsSingleFormatString
+public class ObjectListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<object?>?>, ISupportsValueFormatString
 {
     public IReadOnlyList<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchList
     {
@@ -546,8 +546,8 @@ public class ObjectListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSuppo
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObject
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllMatchList, FormatString)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllMatchList, ValueFormatString)
            .Complete();
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 }
