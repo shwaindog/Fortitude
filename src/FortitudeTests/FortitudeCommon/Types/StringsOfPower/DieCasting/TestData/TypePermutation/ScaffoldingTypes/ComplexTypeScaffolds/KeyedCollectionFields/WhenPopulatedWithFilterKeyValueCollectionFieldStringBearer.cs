@@ -3,249 +3,465 @@
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
 
 #endregion
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.KeyedCollectionFields;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
+    KeyedCollectionFields;
 
-public class KeyValueDictionaryFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase>
-(
-    IReadOnlyDictionary<TKey, TValue>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
-    where TKey : TKFilterBase where TValue : TVFilterBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValueDictionaryFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
+  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+  , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
-    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithFilterKeyValueDictionaryBothFormatStrings { get; } = value;
+    public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public string? ValueFormatString { get; set; }
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
+
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterKeyValueDictionaryBothFormatStrings), WhenPopulatedWithFilterKeyValueDictionaryBothFormatStrings, filterPredicate, valueFormatString, keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothFormatStrings
+              , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairArrayBothFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase>
-(
-    KeyValuePair<TKey, TValue>[]? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
-    where TKey : TKFilterBase where TValue : TVFilterBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValuePairArrayBothFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
+  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+  , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
-    public KeyValuePair<TKey, TValue>[]? WhenPopulatedWithFilterKeyValuePairArrayBothFormatStrings { get; } = value;
+    public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public KeyValuePair<TKey, TValue>[]? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public string? ValueFormatString { get; set; }
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterKeyValuePairArrayBothFormatStrings), WhenPopulatedWithFilterKeyValuePairArrayBothFormatStrings, filterPredicate, valueFormatString, keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothFormatStrings
+              , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairListBothFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase>
-(
-    IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
-    where TKey : TKFilterBase where TValue : TVFilterBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValuePairListBothFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
+  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+  , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? WhenPopulatedWithFilterKeyValuePairListBothFormatStrings { get; } = value;
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public string? ValueFormatString { get; set; }
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterKeyValuePairListBothFormatStrings), WhenPopulatedWithFilterKeyValuePairListBothFormatStrings, filterPredicate, valueFormatString, keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothFormatStrings
+              , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairEnumerableBothFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase>
-(
-    IEnumerable<KeyValuePair<TKey, TValue>>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
-    where TKey : TKFilterBase where TValue : TVFilterBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValuePairEnumerableBothFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
+  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+  , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
-    public IEnumerable<KeyValuePair<TKey, TValue>>? WhenPopulatedWithFilterKeyValuePairEnumerableBothFormatStrings { get; } = value;
+    public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public string? ValueFormatString { get; set; }
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate(nameof(WhenPopulatedWithFilterKeyValuePairEnumerableBothFormatStrings), WhenPopulatedWithFilterKeyValuePairEnumerableBothFormatStrings, filterPredicate, valueFormatString
-                                                     , keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothFormatStrings
+              , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairEnumeratorBothFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase>
-(
-    IEnumerator<KeyValuePair<TKey, TValue>>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
-    where TKey : TKFilterBase where TValue : TVFilterBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValuePairEnumeratorBothFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
+  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+  , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
-    public IEnumerator<KeyValuePair<TKey, TValue>>? WhenPopulatedWithFilterKeyValuePairEnumeratorBothFormatStrings { get; } = value;
+    public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public string? ValueFormatString { get; set; }
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate(nameof(WhenPopulatedWithFilterKeyValuePairEnumeratorBothFormatStrings), WhenPopulatedWithFilterKeyValuePairEnumeratorBothFormatStrings, filterPredicate, valueFormatString
-                                                     , keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothFormatStrings
+              , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValueDictionaryValueRevealerKeyFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-(
-    IReadOnlyDictionary<TKey, TValue>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer 
-    where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
+public class KeyValueDictionaryValueRevealerKeyFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase> :
+    IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+  , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
 {
-    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithFilterKeyValueDictionaryValueRevealerKeyFormatStrings { get; } = value;
+    public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryValueRevealerKeyFormatString
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterKeyValueDictionaryValueRevealerKeyFormatStrings), WhenPopulatedWithFilterKeyValueDictionaryValueRevealerKeyFormatStrings, filterPredicate, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryValueRevealerKeyFormatString)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryValueRevealerKeyFormatString
+              , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairArrayValueRevealerKeyFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-(
-    KeyValuePair<TKey, TValue>[]? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer 
-    where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
+public class KeyValuePairArrayValueRevealerKeyFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase> :
+    IStringBearer, IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+  , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
 {
-    public KeyValuePair<TKey, TValue>[]? WhenPopulatedWithFilterKeyValuePairArrayValueRevealerKeyFormatStrings { get; } = value;
+    public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayValueRevealerKeyFormatString
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public KeyValuePair<TKey, TValue>[]? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterKeyValuePairArrayValueRevealerKeyFormatStrings), WhenPopulatedWithFilterKeyValuePairArrayValueRevealerKeyFormatStrings, filterPredicate, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayValueRevealerKeyFormatString)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayValueRevealerKeyFormatString
+              , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyValuePairListValueRevealerKeyFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-(
-    IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer 
-    where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
 {
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? WhenPopulatedWithFilterKeyValuePairListValueRevealerKeyFormatStrings { get; } = value;
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListValueRevealerKeyFormatString
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterKeyValuePairListValueRevealerKeyFormatStrings), WhenPopulatedWithFilterKeyValuePairListValueRevealerKeyFormatStrings, filterPredicate, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListValueRevealerKeyFormatString)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListValueRevealerKeyFormatString
+              , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyValuePairEnumerableValueRevealerKeyFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-(
-    IEnumerable<KeyValuePair<TKey, TValue>>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer 
-    where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+    : IStringBearer, IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
 {
-    public IEnumerable<KeyValuePair<TKey, TValue>>? WhenPopulatedWithFilterKeyValuePairEnumerableValueRevealerKeyFormatStrings { get; } = value;
+    public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableValueRevealerKeyFormatString
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate(nameof(WhenPopulatedWithFilterKeyValuePairEnumerableValueRevealerKeyFormatStrings), WhenPopulatedWithFilterKeyValuePairEnumerableValueRevealerKeyFormatStrings, filterPredicate, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableValueRevealerKeyFormatString)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableValueRevealerKeyFormatString
+              , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-(
-    IEnumerator<KeyValuePair<TKey, TValue>>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer 
-    where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+    : IStringBearer, IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
 {
-    public IEnumerator<KeyValuePair<TKey, TValue>>? WhenPopulatedWithFilterKeyValuePairEnumeratorValueRevealerKeyFormatStrings { get; } = value;
+    public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorValueRevealerKeyFormatString
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate(nameof(WhenPopulatedWithFilterKeyValuePairEnumeratorValueRevealerKeyFormatStrings), WhenPopulatedWithFilterKeyValuePairEnumeratorValueRevealerKeyFormatStrings, filterPredicate, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorValueRevealerKeyFormatString)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorValueRevealerKeyFormatString
+              , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyValueDictionaryBothRevealersWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
-(
-    IReadOnlyDictionary<TKey, TValue>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer 
+    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
 {
-    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithFilterKeyValueDictionaryBothRevealers { get; } = value;
+    public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterKeyValueDictionaryBothRevealers), WhenPopulatedWithFilterKeyValueDictionaryBothRevealers, filterPredicate, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothRevealers
+              , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyValuePairArrayBothRevealersWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
-(
-    KeyValuePair<TKey, TValue>[]? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer 
+    : IStringBearer, IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
 {
-    public KeyValuePair<TKey, TValue>[]? WhenPopulatedWithFilterKeyValuePairArrayBothRevealers { get; } = value;
+    public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public KeyValuePair<TKey, TValue>[]? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterKeyValuePairArrayBothRevealers), WhenPopulatedWithFilterKeyValuePairArrayBothRevealers, filterPredicate, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers
+              , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyValuePairListBothRevealersWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
-(
-    IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer 
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
 {
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? WhenPopulatedWithFilterKeyValuePairListBothRevealers { get; } = value;
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilter(nameof(WhenPopulatedWithFilterKeyValuePairListBothRevealers), WhenPopulatedWithFilterKeyValuePairListBothRevealers, filterPredicate, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenPopulatedWithFilter
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers
+              , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyValuePairEnumerableBothRevealersWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
-(
-    IEnumerable<KeyValuePair<TKey, TValue>>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer 
+    : IStringBearer, IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
 {
-    public IEnumerable<KeyValuePair<TKey, TValue>>? WhenPopulatedWithFilterKeyValuePairEnumerableBothRevealers { get; } = value;
+    public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate(nameof(WhenPopulatedWithFilterKeyValuePairEnumerableBothRevealers), WhenPopulatedWithFilterKeyValuePairEnumerableBothRevealers, filterPredicate, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers
+              , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
 }
 
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | OnlyPopulatedWrites | FilterPredicate | AcceptsClass
+                | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyValuePairEnumeratorBothRevealersWhenPopulatedWithFilterStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
-(
-    IEnumerator<KeyValuePair<TKey, TValue>>? value
-  , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer 
+    : IStringBearer, IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
 {
-    public IEnumerator<KeyValuePair<TKey, TValue>>? WhenPopulatedWithFilterKeyValuePairEnumeratorBothRevealers { get; } = value;
+    public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
+        ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate(nameof(WhenPopulatedWithFilterKeyValuePairEnumeratorBothRevealers), WhenPopulatedWithFilterKeyValuePairEnumeratorBothRevealers, filterPredicate, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenPopulatedWithFilterEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers
+              , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
 }

@@ -2,219 +2,407 @@
 
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
 
 #endregion
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.KeyedCollectionFields;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
+    KeyedCollectionFields;
 
-public class KeyValueDictionaryFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue>
-(
-    IReadOnlyDictionary<TKey, TValue>? value
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValueDictionaryFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue> : IStringBearer
+  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddAllKeyValueDictionaryBothFormatStrings { get; } = value;
+    public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAll(nameof(WhenNonNullAddAllKeyValueDictionaryBothFormatStrings), WhenNonNullAddAllKeyValueDictionaryBothFormatStrings, valueFormatString, keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAll
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothFormatStrings
+              , ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairArrayBothFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue>
-(
-    KeyValuePair<TKey, TValue>[]? value
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValuePairArrayBothFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue> : IStringBearer
+  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
-    public KeyValuePair<TKey, TValue>[]? WhenNonNullAddAllKeyValuePairArrayBothFormatStrings { get; } = value;
+    public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public KeyValuePair<TKey, TValue>[]? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAll(nameof(WhenNonNullAddAllKeyValuePairArrayBothFormatStrings), WhenNonNullAddAllKeyValuePairArrayBothFormatStrings, valueFormatString, keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAll
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothFormatStrings
+              , ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairListBothFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue>
-(
-    IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValuePairListBothFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue> : IStringBearer
+  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? WhenNonNullAddAllKeyValuePairListBothFormatStrings { get; } = value;
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public string? ValueFormatString { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAll(nameof(WhenNonNullAddAllKeyValuePairListBothFormatStrings), WhenNonNullAddAllKeyValuePairListBothFormatStrings, valueFormatString, keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAll
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothFormatStrings
+              , ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairEnumerableBothFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue>
-(
-    IEnumerable<KeyValuePair<TKey, TValue>>? value
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValuePairEnumerableBothFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue> : IStringBearer
+  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
-    public IEnumerable<KeyValuePair<TKey, TValue>>? WhenNonNullAddAllKeyValuePairEnumerableBothFormatStrings { get; } = value;
+    public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public string? ValueFormatString { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllKeyValuePairEnumerableBothFormatStrings), WhenNonNullAddAllKeyValuePairEnumerableBothFormatStrings, valueFormatString
-                                                     , keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothFormatStrings
+              , ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairEnumeratorBothFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue>
-(
-    IEnumerator<KeyValuePair<TKey, TValue>>? value
-  , string? valueFormatString = null
-  , string? keyFormatString = null) : IStringBearer
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyValuePairEnumeratorBothFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue> : IStringBearer
+  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
-    public IEnumerator<KeyValuePair<TKey, TValue>>? WhenNonNullAddAllKeyValuePairEnumeratorBothFormatStrings { get; } = value;
+    public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumeratorBothFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public string? ValueFormatString { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllKeyValuePairEnumeratorBothFormatStrings), WhenNonNullAddAllKeyValuePairEnumeratorBothFormatStrings, valueFormatString
-                                                     , keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumeratorBothFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumeratorBothFormatStrings
+              , ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-public class KeyValueDictionaryValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase>
-(
-    IReadOnlyDictionary<TKey, TValue>? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyFormatString)]
+public class KeyValueDictionaryValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>
+  , ISupportsKeyFormatString where TValue : TVRevealBase
 {
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddAllKeyValueDictionaryValueRevealerKeyFormatStrings { get; } = value;
+    public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryValueRevealerKeyFormatString
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAll(nameof(WhenNonNullAddAllKeyValueDictionaryValueRevealerKeyFormatStrings), WhenNonNullAddAllKeyValueDictionaryValueRevealerKeyFormatStrings, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAll
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryValueRevealerKeyFormatString)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryValueRevealerKeyFormatString
+              , ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairArrayValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase>
-(
-    KeyValuePair<TKey, TValue>[]? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyFormatString)]
+public class KeyValuePairArrayValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TValue : TVRevealBase
 {
-    public KeyValuePair<TKey, TValue>[]? WhenNonNullAddAllKeyValuePairArrayValueRevealerKeyFormatStrings { get; } = value;
+    public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayValueRevealerKeyFormatString
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public KeyValuePair<TKey, TValue>[]? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAll(nameof(WhenNonNullAddAllKeyValuePairArrayValueRevealerKeyFormatStrings), WhenNonNullAddAllKeyValuePairArrayValueRevealerKeyFormatStrings, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAll
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayValueRevealerKeyFormatString)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayValueRevealerKeyFormatString
+              , ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairListValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase>
-(
-    IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyFormatString)]
+public class KeyValuePairListValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
+  , ISupportsKeyFormatString where TValue : TVRevealBase
 {
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? WhenNonNullAddAllKeyValuePairListValueRevealerKeyFormatStrings { get; } = value;
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListValueRevealerKeyFormatStrings
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAll(nameof(WhenNonNullAddAllKeyValuePairListValueRevealerKeyFormatStrings), WhenNonNullAddAllKeyValuePairListValueRevealerKeyFormatStrings, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAll
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListValueRevealerKeyFormatStrings)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListValueRevealerKeyFormatStrings
+              , ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairEnumerableValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase>
-(
-    IEnumerable<KeyValuePair<TKey, TValue>>? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyFormatString)]
+public class KeyValuePairEnumerableValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
+  , ISupportsKeyFormatString where TValue : TVRevealBase
 {
-    public IEnumerable<KeyValuePair<TKey, TValue>>? WhenNonNullAddAllKeyValuePairEnumerableValueRevealerKeyFormatStrings { get; } = value;
+    public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableValueRevealerKeyFormatString
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllKeyValuePairEnumerableValueRevealerKeyFormatStrings), WhenNonNullAddAllKeyValuePairEnumerableValueRevealerKeyFormatStrings, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableValueRevealerKeyFormatString)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableValueRevealerKeyFormatString
+              , ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-public class KeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase>
-(
-    IEnumerator<KeyValuePair<TKey, TValue>>? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , string? keyFormatString = null) : IStringBearer where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyFormatString)]
+public class KeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenNonNullAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
+  , ISupportsKeyFormatString where TValue : TVRevealBase
 {
-    public IEnumerator<KeyValuePair<TKey, TValue>>? WhenNonNullAddAllKeyValuePairEnumeratorValueRevealerKeyFormatStrings { get; } = value;
+    public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumeratorValueRevealerKeyFormatString
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public string? KeyFormatString { get; set; }
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllKeyValuePairEnumeratorValueRevealerKeyFormatStrings), WhenNonNullAddAllKeyValuePairEnumeratorValueRevealerKeyFormatStrings, valueRevealer, keyFormatString)
+           .KeyedCollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumeratorValueRevealerKeyFormatString)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumeratorValueRevealerKeyFormatString
+              , ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-public class KeyValueDictionaryBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase>
-(
-    IReadOnlyDictionary<TKey, TValue>? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer where TKey : TKRevealBase where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyRevealer)]
+public class KeyValueDictionaryBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+    where TKey : TKRevealBase where TValue : TVRevealBase
 {
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddAllKeyValueDictionaryBothRevealers { get; } = value;
+    public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAll(nameof(WhenNonNullAddAllKeyValueDictionaryBothRevealers), WhenNonNullAddAllKeyValueDictionaryBothRevealers, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenNonNullAddAll
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothRevealers
+              , ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-public class KeyValuePairArrayBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase>
-(
-    KeyValuePair<TKey, TValue>[]? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer where TKey : TKRevealBase where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyRevealer)]
+public class KeyValuePairArrayBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+    where TKey : TKRevealBase where TValue : TVRevealBase
 {
-    public KeyValuePair<TKey, TValue>[]? WhenNonNullAddAllKeyValuePairArrayBothRevealers { get; } = value;
+    public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public KeyValuePair<TKey, TValue>[]? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAll(nameof(WhenNonNullAddAllKeyValuePairArrayBothRevealers), WhenNonNullAddAllKeyValuePairArrayBothRevealers, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenNonNullAddAll
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothRevealers
+              , ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-public class KeyValuePairListBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase>
-(
-    IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer where TKey : TKRevealBase where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyRevealer)]
+public class KeyValuePairListBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+    where TKey : TKRevealBase where TValue : TVRevealBase
 {
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? WhenNonNullAddAllKeyValuePairListBothRevealers { get; } = value;
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAll(nameof(WhenNonNullAddAllKeyValuePairListBothRevealers), WhenNonNullAddAllKeyValuePairListBothRevealers, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenNonNullAddAll
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothRevealers
+              , ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-public class KeyValuePairEnumerableBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase>
-(
-    IEnumerable<KeyValuePair<TKey, TValue>>? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer where TKey : TKRevealBase where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyRevealer)]
+public class KeyValuePairEnumerableBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+    where TKey : TKRevealBase where TValue : TVRevealBase
 {
-    public IEnumerable<KeyValuePair<TKey, TValue>>? WhenNonNullAddAllKeyValuePairEnumerableBothRevealers { get; } = value;
+    public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllKeyValuePairEnumerableBothRevealers), WhenNonNullAddAllKeyValuePairEnumerableBothRevealers, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothRevealers
+              , ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-public class KeyValuePairEnumeratorBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase>
-(
-    IEnumerator<KeyValuePair<TKey, TValue>>? value
-  , PalantírReveal<TVRevealBase> valueRevealer
-  , PalantírReveal<TKRevealBase> keyRevealer) : IStringBearer where TKey : TKRevealBase where TValue : TVRevealBase
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonNullWrites | AcceptsClass | AcceptsNullableClass
+                | SupportsValueRevealer | SupportsKeyRevealer)]
+public class KeyValuePairEnumeratorBothRevealersWhenNonNullAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+    where TKey : TKRevealBase where TValue : TVRevealBase
 {
-    public IEnumerator<KeyValuePair<TKey, TValue>>? WhenNonNullAddAllKeyValuePairEnumeratorBothRevealers { get; } = value;
+    public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumeratorBothRevealers
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
+
+    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
+
+    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(WhenNonNullAddAllKeyValuePairEnumeratorBothRevealers), WhenNonNullAddAllKeyValuePairEnumeratorBothRevealers, valueRevealer, keyRevealer)
+           .KeyedCollectionField.WhenNonNullAddAllEnumerate
+               (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumeratorBothRevealers)
+              , ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumeratorBothRevealers
+              , ValueRevealer, KeyRevealer)
            .Complete();
 }
