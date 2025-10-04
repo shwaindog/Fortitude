@@ -6,1261 +6,1673 @@ using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.OrderedCollectionType;
 
-public class BoolArrayAddAllSimpleOrderedCollectionStringBearer(bool[]? value) : IStringBearer, IEnumerable<bool>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray  | AcceptsStruct)]
+public class BoolArrayAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IEnumerable<bool>, IMoldSupportedValue<bool[]?>
 {
+    public bool[]? Value { get; set; } = null!;
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value)
+           .AddAll(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool> GetEnumerator() => (IEnumerator<bool>)value!.GetEnumerator();
+    public IEnumerator<bool> GetEnumerator() => (IEnumerator<bool>)Value!.GetEnumerator();
 }
 
-public class NullableBoolArrayAddAllSimpleOrderedCollectionStringBearer(bool?[]? value) : IStringBearer, IEnumerable<bool?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray  | AcceptsNullableStruct)]
+public class NullableBoolArrayAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
 {
+    public bool?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value)
+           .AddAll(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool?> GetEnumerator() => (IEnumerator<bool?>)value!.GetEnumerator();
+    public IEnumerator<bool?> GetEnumerator() => (IEnumerator<bool?>)Value!.GetEnumerator();
 }
 
-public class BoolSpanAddAllSimpleOrderedCollectionStringBearer(bool[]? value) : IStringBearer, IEnumerable<bool>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan  | AcceptsStruct)]
+public class BoolSpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<bool[]?>, IEnumerable<bool>
 {
+    public bool[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value.AsSpan())
+           .AddAll(Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool> GetEnumerator() => (IEnumerator<bool>)value!.GetEnumerator();
+    public IEnumerator<bool> GetEnumerator() => (IEnumerator<bool>)Value!.GetEnumerator();
 }
 
-public class NullableBoolSpanAddAllSimpleOrderedCollectionStringBearer(bool[]? value) : IStringBearer, IEnumerable<bool?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan  | AcceptsNullableStruct)]
+public class NullableBoolSpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
 {
+    public bool?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value.AsSpan())
+           .AddAll(Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool?> GetEnumerator() => (IEnumerator<bool?>)value!.GetEnumerator();
+    public IEnumerator<bool?> GetEnumerator() => (IEnumerator<bool?>)Value!.GetEnumerator();
 }
 
-public class BoolReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(bool[]? value) : IStringBearer, IEnumerable<bool>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan  | AcceptsStruct)]
+public class BoolReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<bool[]?>, IEnumerable<bool>
 {
+    public bool[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll((ReadOnlySpan<bool>)value.AsSpan())
+           .AddAll((ReadOnlySpan<bool>)Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool> GetEnumerator() => (IEnumerator<bool>)value!.GetEnumerator();
+    public IEnumerator<bool> GetEnumerator() => (IEnumerator<bool>)Value!.GetEnumerator();
 }
 
-public class NullableBoolReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(bool?[]? value) : IStringBearer, IEnumerable<bool?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan  | AcceptsNullableStruct)]
+public class NullableBoolReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
 {
+    public bool?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll((ReadOnlySpan<bool?>)value.AsSpan())
+           .AddAll((ReadOnlySpan<bool?>)Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool?> GetEnumerator() => (IEnumerator<bool?>)value!.GetEnumerator();
+    public IEnumerator<bool?> GetEnumerator() => (IEnumerator<bool?>)Value!.GetEnumerator();
 }
 
-public class BoolListAddAllSimpleOrderedCollectionStringBearer(List<bool>? value) : IStringBearer, IEnumerable<bool>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList  | AcceptsStruct)]
+public class BoolListAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<List<bool>?>, IEnumerable<bool>
 {
+    public List<bool>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value)
+           .AddAll(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<bool> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class NullableBoolListAddAllSimpleOrderedCollectionStringBearer(List<bool?>? value) : IStringBearer, IEnumerable<bool?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList  | AcceptsNullableStruct)]
+public class NullableBoolListAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<List<bool?>?>, IEnumerable<bool?>
 {
+    public List<bool?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value)
+           .AddAll(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<bool?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class BoolEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<bool>? value) : IStringBearer, IEnumerable<bool>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable  | AcceptsStruct)]
+public class BoolEnumerableAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool>?>, IEnumerable<bool>
 {
+    public IEnumerable<bool>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value)
+           .AddAllEnumerate(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<bool> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class NullableBoolEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<bool?>? value) : IStringBearer, IEnumerable<bool?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable  | AcceptsNullableStruct)]
+public class NullableBoolEnumerableAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool?>?>
+  , IEnumerable<bool?>
 {
+    public IEnumerable<bool?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value)
+           .AddAllEnumerate(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<bool?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class BoolEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<bool>? value) : IStringBearer, IEnumerable<bool>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator  | AcceptsStruct)]
+public class BoolEnumeratorAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<bool>?>, IEnumerable<bool>
 {
+    public IEnumerator<bool>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value)
+           .AddAllEnumerate(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool> GetEnumerator() => value!;
+    public IEnumerator<bool> GetEnumerator() => Value!;
 }
 
-public class NullableBoolEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<bool?>? value) : IStringBearer, IEnumerable<bool?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator  | AcceptsNullableStruct)]
+public class NullableBoolEnumeratorAddAllSimpleOrderedCollectionStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<bool?>?>
+  , IEnumerable<bool?>
 {
+    public IEnumerator<bool?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value)
+           .AddAllEnumerate(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<bool?> GetEnumerator() => value!;
+    public IEnumerator<bool?> GetEnumerator() => Value!;
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableArrayAddAllSimpleOrderedCollectionStringBearer<TFmt>
-    (TFmt[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<TFmt[]?>, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
+    public TFmt[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value, formatString)
+           .AddAll(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)value!.GetEnumerator();
+    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class NullableFormattableArrayAddAllSimpleOrderedCollectionStringBearer<TFmtStruct>
-    (TFmtStruct?[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmtStruct?>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<TFmtStruct?[]?>, IEnumerable<TFmtStruct?>
     where TFmtStruct : struct, ISpanFormattable
 {
+    public TFmtStruct?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value, formatString)
+           .AddAll(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)value!.GetEnumerator();
+    public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableSpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
-    (TFmt[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<TFmt[]?>, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
+    public TFmt[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value.AsSpan(), formatString)
+           .AddAll(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)value!.GetEnumerator();
+    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableNullableSpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
-    (TFmt?[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt>
     where TFmt : class, ISpanFormattable
 {
+    public TFmt?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllNullable(value.AsSpan(), formatString)
+           .AddAllNullable(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)value!.GetEnumerator();
+    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class NullableSpanFormattableSpanAddAllSimpleOrderedCollectionStringBearer<TFmtStruct>
-    (TFmtStruct?[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmtStruct?>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<TFmtStruct?[]?>, IEnumerable<TFmtStruct?>
     where TFmtStruct : struct, ISpanFormattable
 {
+    public TFmtStruct?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value.AsSpan(), formatString)
+           .AddAll(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)value!.GetEnumerator();
+    public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
-    (TFmt[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<TFmt[]?>, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
+    public TFmt[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll((ReadOnlySpan<TFmt>)value.AsSpan(), formatString)
+           .AddAll((ReadOnlySpan<TFmt>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)value!.GetEnumerator();
+    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
-    (TFmt?[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt>
     where TFmt : class, ISpanFormattable
 {
+    public TFmt?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllNullable((ReadOnlySpan<TFmt?>)value.AsSpan(), formatString)
+           .AddAllNullable((ReadOnlySpan<TFmt?>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)value!.GetEnumerator();
+    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class NullableSpanFormattableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TFmtStruct>
-    (TFmtStruct?[]? value, string? formatString = null) : IStringBearer, IEnumerable<TFmtStruct?>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<TFmtStruct?[]?>, IEnumerable<TFmtStruct?>
     where TFmtStruct : struct, ISpanFormattable
 {
+    public TFmtStruct?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll((ReadOnlySpan<TFmtStruct?>)value.AsSpan(), formatString)
+           .AddAll((ReadOnlySpan<TFmtStruct?>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)value!.GetEnumerator();
+    public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableListAddAllSimpleOrderedCollectionStringBearer<TFmt>
-    (IReadOnlyList<TFmt?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<IReadOnlyList<TFmt?>?>, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
+    public IReadOnlyList<TFmt?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value, formatString)
+           .AddAll(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)value!.GetEnumerator();
+    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class NullableSpanFormattableListAddAllSimpleOrderedCollectionStringBearer<TFmtStruct>
-    (IReadOnlyList<TFmtStruct?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmtStruct?>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>, IEnumerable<TFmtStruct?>
     where TFmtStruct : struct, ISpanFormattable
 {
+    public IReadOnlyList<TFmtStruct?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value, formatString)
+           .AddAll(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmtStruct?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TFmtStruct?> GetEnumerator() => Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableEnumerableAddAllSimpleOrderedCollectionStringBearer<TFmt>
-    (IEnumerable<TFmt?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<IEnumerable<TFmt?>?>, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
+    public IEnumerable<TFmt?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value, formatString)
+           .AddAllEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)value!.GetEnumerator();
+    public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class NullableSpanFormattableEnumerableAddAllSimpleOrderedCollectionStringBearer<TFmtStruct>
-    (IEnumerable<TFmtStruct?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmtStruct?>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<IEnumerable<TFmtStruct?>?>, IEnumerable<TFmtStruct?>
     where TFmtStruct : struct, ISpanFormattable
 {
+    public IEnumerable<TFmtStruct?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value, formatString)
+           .AddAllEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmtStruct?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TFmtStruct?> GetEnumerator() => Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class SpanFormattableEnumeratorAddAllSimpleOrderedCollectionStringBearer<TFmt>
-    (IEnumerator<TFmt?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmt>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<IEnumerator<TFmt?>?>, IEnumerable<TFmt>
     where TFmt : ISpanFormattable
 {
+    public IEnumerator<TFmt?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value, formatString)
+           .AddAllEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmt> GetEnumerator() => value!;
+    public IEnumerator<TFmt> GetEnumerator() => Value!;
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class NullableSpanFormattableEnumeratorAddAllSimpleOrderedCollectionStringBearer<TFmtStruct>
-    (IEnumerator<TFmtStruct?>? value, string? formatString = null) : IStringBearer, IEnumerable<TFmtStruct?>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<IEnumerator<TFmtStruct?>?>, IEnumerable<TFmtStruct?>
     where TFmtStruct : struct, ISpanFormattable
 {
+    public IEnumerator<TFmtStruct?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value, formatString)
+           .AddAllEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TFmtStruct?> GetEnumerator() => value!;
+    public IEnumerator<TFmtStruct?> GetEnumerator() => Value!;
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class CloakedBearerArrayRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
-    (TCloaked?[]? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked>
+    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, IMoldSupportedValue<TCloaked?[]?>, IEnumerable<TCloaked>
     where TCloaked : TCloakedBase
 {
+    public TCloaked?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value, palantírReveal)
+           .RevealAll(Value, ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)value!.GetEnumerator();
+    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class NullableCloakedBearerArrayRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
-    (TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?>
+    : IStringBearer, ISupportsValueRevealer<TCloakedStruct>, IMoldSupportedValue<TCloakedStruct?[]?>, IEnumerable<TCloakedStruct?>
     where TCloakedStruct : struct
 {
+    public TCloakedStruct?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value, palantírReveal)
+           .RevealAll(Value, ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)value!.GetEnumerator();
+    public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class CloakedBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
-    (TCloaked[]? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked>
+    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, IMoldSupportedValue<TCloaked[]?>, IEnumerable<TCloaked>
     where TCloaked : TCloakedBase
 {
+    public TCloaked[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value.AsSpan(), palantírReveal)
+           .RevealAll(Value.AsSpan(), ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)value!.GetEnumerator();
+    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class CloakedBearerNullableSpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
-    (TCloaked?[]? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked>
+    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, IMoldSupportedValue<TCloaked?[]?>, IEnumerable<TCloaked>
     where TCloaked : class, TCloakedBase
 {
+    public TCloaked?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllNullable(value.AsSpan(), palantírReveal)
+           .RevealAllNullable(Value.AsSpan(), ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)value!.GetEnumerator();
+    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class NullableCloakedBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
-    (TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?>
+    : IStringBearer, ISupportsValueRevealer<TCloakedStruct>, IMoldSupportedValue<TCloakedStruct?[]?>, IEnumerable<TCloakedStruct?>
     where TCloakedStruct : struct
 {
+    public TCloakedStruct?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value.AsSpan(), palantírReveal)
+           .RevealAll(Value.AsSpan(), ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)value!.GetEnumerator();
+    public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsStruct | AcceptsClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class CloakedBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
-    (TCloaked[]? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked>
+    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, IMoldSupportedValue<TCloaked[]?>, IEnumerable<TCloaked>
     where TCloaked : TCloakedBase
 {
+    public TCloaked[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TCloaked>)value.AsSpan(), palantírReveal)
+           .RevealAll((ReadOnlySpan<TCloaked>)Value.AsSpan(), ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)value!.GetEnumerator();
+    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class CloakedBearerNullableReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
-    (TCloaked?[]? value, PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked>
+    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, IMoldSupportedValue<TCloaked?[]?>, IEnumerable<TCloaked>
     where TCloaked : class, TCloakedBase
 {
+    public TCloaked?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllNullable((ReadOnlySpan<TCloaked?>)value.AsSpan(), palantírReveal)
+           .RevealAllNullable((ReadOnlySpan<TCloaked?>)Value.AsSpan(), ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)value!.GetEnumerator();
+    public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class NullableCloakedBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
-    (TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?>
+    : IStringBearer, ISupportsValueRevealer<TCloakedStruct>, IMoldSupportedValue<TCloakedStruct?[]?>, IEnumerable<TCloakedStruct?>
     where TCloakedStruct : struct
 {
+    public TCloakedStruct?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TCloakedStruct?>)value, palantírReveal)
+           .RevealAll((ReadOnlySpan<TCloakedStruct?>)Value, ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)value!.GetEnumerator();
+    public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class CloakedBearerListRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
-(
-    IReadOnlyList<TCloaked?>? value
-  , PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked?>
+    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, IMoldSupportedValue<IReadOnlyList<TCloaked?>?>, IEnumerable<TCloaked?>
     where TCloaked : TCloakedBase
 {
+    public IReadOnlyList<TCloaked?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value, palantírReveal)
+           .RevealAll(Value, ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloaked?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TCloaked?> GetEnumerator() => Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class NullableCloakedBearerListRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
-(
-    IReadOnlyList<TCloakedStruct?>? value
-  , PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
+    : IStringBearer, ISupportsValueRevealer<TCloakedStruct>, IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>, IEnumerable<TCloakedStruct?>
+    where TCloakedStruct : struct
 {
+    public IReadOnlyList<TCloakedStruct?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value, palantírReveal)
+           .RevealAll(Value, ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloakedStruct?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TCloakedStruct?> GetEnumerator() => Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class CloakedBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
-(
-    IEnumerable<TCloaked?>? value
-  , PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked?>
+    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, IMoldSupportedValue<IEnumerable<TCloaked?>?>, IEnumerable<TCloaked?>
     where TCloaked : TCloakedBase
 {
+    public IEnumerable<TCloaked?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(value, palantírReveal)
+           .RevealAllEnumerate(Value, ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloaked?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TCloaked?> GetEnumerator() => Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class NullableCloakedBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
-(
-    IEnumerable<TCloakedStruct?>? value
-  , PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
+    : IStringBearer, ISupportsValueRevealer<TCloakedStruct>, IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>, IEnumerable<TCloakedStruct?>
+    where TCloakedStruct : struct
 {
+    public IEnumerable<TCloakedStruct?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(value, palantírReveal)
+           .RevealAllEnumerate(Value, ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloakedStruct?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TCloakedStruct?> GetEnumerator() => Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class CloakedBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TCloakedBase>
-(
-    IEnumerator<TCloaked?>? value
-  , PalantírReveal<TCloakedBase> palantírReveal) : IStringBearer, IEnumerable<TCloaked?>
+    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, IMoldSupportedValue<IEnumerator<TCloaked?>?>, IEnumerable<TCloaked?>
     where TCloaked : TCloakedBase
 {
+    public IEnumerator<TCloaked?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(value, palantírReveal)
+           .RevealAllEnumerate(Value, ValueRevealer)
            .Complete();
 
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloaked?> GetEnumerator() => value!;
+    public IEnumerator<TCloaked?> GetEnumerator() => Value!;
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsNullableStruct
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | SupportsValueRevealer)]
 public class NullableCloakedBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
-(
-    IEnumerator<TCloakedStruct?>? value
-  , PalantírReveal<TCloakedStruct> palantírReveal) : IStringBearer, IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
+    : IStringBearer, ISupportsValueRevealer<TCloakedStruct>, IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>, IEnumerable<TCloakedStruct?>
+    where TCloakedStruct : struct
 {
+    public IEnumerator<TCloakedStruct?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(value, palantírReveal)
+           .RevealAllEnumerate(Value, ValueRevealer)
+           .Complete();
+
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<TCloakedStruct?> GetEnumerator() => Value!;
+}
+
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+public class StringBearerArrayRevealAllSimpleOrderedCollectionStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer[]?>
+  , IEnumerable<TBearer> where TBearer : IStringBearer
+{
+    public TBearer[]? Value { get; set; }
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleCollectionType(this)
+           .RevealAll(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCloakedStruct?> GetEnumerator() => value!;
+    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
 }
 
-public class StringBearerArrayRevealAllSimpleOrderedCollectionStringBearer<TBearer>(TBearer[]? value) : IStringBearer, IEnumerable<TBearer>
-    where TBearer : IStringBearer
-{
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .RevealAll(value)
-           .Complete();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)value!.GetEnumerator();
-}
-
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerArrayRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    (TBearerStruct?[]? value) : IStringBearer, IEnumerable<TBearerStruct?>
+    : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public TBearerStruct?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value)
+           .RevealAll(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)value!.GetEnumerator();
+    public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)Value!.GetEnumerator();
 }
 
-public class StringBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>(TBearer[]? value) : IStringBearer, IEnumerable<TBearer>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
+public class StringBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer[]?>
+  , IEnumerable<TBearer>
     where TBearer : IStringBearer
 {
+    public TBearer[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value.AsSpan())
+           .RevealAll(Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)value!.GetEnumerator();
+    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
 }
 
-public class StringBearerNullableSpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>(TBearer?[]? value) : IStringBearer, IEnumerable<TBearer>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+public class StringBearerNullableSpanRevealAllSimpleOrderedCollectionStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?[]?>
+  , IEnumerable<TBearer>
     where TBearer : class, IStringBearer
 {
+    public TBearer?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllNullable(value.AsSpan())
+           .RevealAllNullable(Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)value!.GetEnumerator();
+    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    (TBearerStruct?[]? value) : IStringBearer, IEnumerable<TBearerStruct?>
+    : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public TBearerStruct?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value.AsSpan())
+           .RevealAll(Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)value!.GetEnumerator();
+    public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)Value!.GetEnumerator();
 }
 
-public class StringBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>(TBearer[]? value) : IStringBearer, IEnumerable<TBearer>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
+public class StringBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer[]?>
+  , IEnumerable<TBearer>
     where TBearer : IStringBearer
 {
+    public TBearer[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TBearer>)value.AsSpan())
+           .RevealAll((ReadOnlySpan<TBearer>)Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)value!.GetEnumerator();
+    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
 }
 
-public class StringBearerNullableReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>(TBearer?[]? value)
-    : IStringBearer, IEnumerable<TBearer> where TBearer : class, IStringBearer
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsNullableClass |
+                  AcceptsStringBearer)]
+public class StringBearerNullableReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?[]?>
+  , IEnumerable<TBearer> where TBearer : class, IStringBearer
 {
+    public TBearer?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllNullable((ReadOnlySpan<TBearer?>)value.AsSpan())
+           .RevealAllNullable((ReadOnlySpan<TBearer?>)Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)value!.GetEnumerator();
+    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    (TBearerStruct?[]? value) : IStringBearer, IEnumerable<TBearerStruct?>
+    : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public TBearerStruct?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TBearerStruct?>)value.AsSpan())
+           .RevealAll((ReadOnlySpan<TBearerStruct?>)Value.AsSpan())
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)value!.GetEnumerator();
+    public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)Value!.GetEnumerator();
 }
 
-public class StringBearerListRevealAllSimpleOrderedCollectionStringBearer<TBearer>(IReadOnlyList<TBearer?>? value)
-    : IStringBearer, IEnumerable<TBearer> where TBearer : IStringBearer
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+public class StringBearerListRevealAllSimpleOrderedCollectionStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearer?>?>
+  , IEnumerable<TBearer> where TBearer : IStringBearer
 {
+    public IReadOnlyList<TBearer?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value)
+           .RevealAll(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)value!.GetEnumerator();
+    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerListRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    (IReadOnlyList<TBearerStruct?>? value) : IStringBearer, IEnumerable<TBearerStruct?>
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public IReadOnlyList<TBearerStruct?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(value)
+           .RevealAll(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearerStruct?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TBearerStruct?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class StringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearer>(IEnumerable<TBearer?>? value)
-    : IStringBearer, IEnumerable<TBearer> where TBearer : IStringBearer
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+public class StringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IEnumerable<TBearer?>?>
+  , IEnumerable<TBearer> where TBearer : IStringBearer
 {
+    public IEnumerable<TBearer?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(value)
+           .RevealAllEnumerate(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)value!.GetEnumerator();
+    public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    (IEnumerable<TBearerStruct?>? value) : IStringBearer, IEnumerable<TBearerStruct?> where TBearerStruct : struct, IStringBearer
+    : IStringBearer, IMoldSupportedValue<IEnumerable<TBearerStruct?>?>, IEnumerable<TBearerStruct?> where TBearerStruct : struct, IStringBearer
 {
+    public IEnumerable<TBearerStruct?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(value)
+           .RevealAllEnumerate(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearerStruct?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TBearerStruct?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class StringBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TBearer>(IEnumerator<TBearer?>? value)
-    : IStringBearer, IEnumerable<TBearer> where TBearer : IStringBearer
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+public class StringBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IEnumerator<TBearer?>?>
+  , IEnumerable<TBearer> where TBearer : IStringBearer
 {
+    public IEnumerator<TBearer?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(value)
+           .RevealAllEnumerate(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearer> GetEnumerator() => value!;
+    public IEnumerator<TBearer> GetEnumerator() => Value!;
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsNullableStruct | AcceptsStringBearer)]
 public class NullableStringBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    (IEnumerator<TBearerStruct?>? value) : IStringBearer, IEnumerable<TBearerStruct?> where TBearerStruct : struct, IStringBearer
+    : IStringBearer, IMoldSupportedValue<IEnumerator<TBearerStruct?>?>, IEnumerable<TBearerStruct?> where TBearerStruct : struct, IStringBearer
 {
+    public IEnumerator<TBearerStruct?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(value)
+           .RevealAllEnumerate(Value)
            .Complete();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TBearerStruct?> GetEnumerator() => value!;
+    public IEnumerator<TBearerStruct?> GetEnumerator() => Value!;
 }
 
-public class StringArrayAddAllSimpleOrderedCollectionStringBearer(string?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<string?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+public class StringArrayAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<string?[]?>
+  , IEnumerable<string?>
 {
+    public string?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value, formatString)
+           .AddAll(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)value!.GetEnumerator();
+    public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)Value!.GetEnumerator();
 }
 
-public class StringSpanAddAllSimpleOrderedCollectionStringBearer(string[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<string>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+public class StringSpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<string[]?>
+  , IEnumerable<string>
 {
+    public string[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value.AsSpan(), formatString)
+           .AddAll(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)value!.GetEnumerator();
+    public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)Value!.GetEnumerator();
 }
 
-public class StringNullableSpanAddAllSimpleOrderedCollectionStringBearer(string?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<string?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+public class StringNullableSpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<string?[]?>
+  , IEnumerable<string?>
 {
+    public string?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllNullable(value.AsSpan(), formatString)
+           .AddAllNullable(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)value!.GetEnumerator();
+    public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)Value!.GetEnumerator();
 }
 
-public class StringReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(string[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<string>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+public class StringReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<string[]?>
+  , IEnumerable<string>
 {
+    public string[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll((ReadOnlySpan<string>)value.AsSpan(), formatString)
+           .AddAll((ReadOnlySpan<string>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)value!.GetEnumerator();
+    public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)Value!.GetEnumerator();
 }
 
-public class StringNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(string?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<string?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsChars |
+                  SupportsValueFormatString)]
+public class StringNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<string?[]?>, IEnumerable<string?>
 {
+    public string?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllNullable((ReadOnlySpan<string?>)value.AsSpan(), formatString)
+           .AddAllNullable((ReadOnlySpan<string?>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)value!.GetEnumerator();
+    public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)Value!.GetEnumerator();
 }
 
-public class StringListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<string?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<string?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+public class StringListAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IReadOnlyList<string?>?>, IEnumerable<string?>
 {
+    public IReadOnlyList<string?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value, formatString)
+           .AddAll(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<string?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<string?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class StringEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<string?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<string?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+                  SupportsValueFormatString)]
+public class StringEnumerableAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerable<string?>?>, IEnumerable<string?>
 {
+    public IEnumerable<string?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value, formatString)
+           .AddAllEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<string?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<string?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class StringEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<string?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<string?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+                  SupportsValueFormatString)]
+public class StringEnumeratorAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerator<string?>?>, IEnumerable<string?>
 {
+    public IEnumerator<string?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value, formatString)
+           .AddAllEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<string?> GetEnumerator() => value!;
+    public IEnumerator<string?> GetEnumerator() => Value!;
 }
 
-public class CharSequenceArrayAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq?[]? value, string? formatCharSequence = null)
-    : IStringBearer, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+public class CharSequenceArrayAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq> : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
+    public TCharSeq?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeq(value, formatCharSequence)
+           .AddAllCharSeq(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)value!.GetEnumerator();
+    public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)Value!.GetEnumerator();
 }
 
-public class CharSequenceSpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq[]? value, string? formatCharSequence = null)
-    : IStringBearer, IEnumerable<TCharSeq> where TCharSeq : ICharSequence
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+public class CharSequenceSpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq> : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq> where TCharSeq : ICharSequence
 {
+    public TCharSeq[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeq(value.AsSpan(), formatCharSequence)
+           .AddAllCharSeq(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)value!.GetEnumerator();
+    public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)Value!.GetEnumerator();
 }
 
-public class CharSequenceNullableSpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq?[]? value, string? formatCharSequence = null)
-    : IStringBearer, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+public class CharSequenceNullableSpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq> : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
+    public TCharSeq?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeqNullable(value.AsSpan(), formatCharSequence)
+           .AddAllCharSeqNullable(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)value!.GetEnumerator();
+    public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)Value!.GetEnumerator();
 }
 
-public class CharSequenceReadOnlySpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>(TCharSeq[]? value, string? formatCharSequence = null)
-    : IStringBearer, IEnumerable<TCharSeq> where TCharSeq : ICharSequence
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+public class CharSequenceReadOnlySpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq> : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq> where TCharSeq : ICharSequence
 {
+    public TCharSeq[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeq((ReadOnlySpan<TCharSeq>)value.AsSpan(), formatCharSequence)
+           .AddAllCharSeq((ReadOnlySpan<TCharSeq>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)value!.GetEnumerator();
+    public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsChars |
+                  SupportsValueFormatString)]
 public class CharSequenceNullableReadOnlySpanAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>
-    (TCharSeq?[]? value, string? formatCharSequence = null) : IStringBearer, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
+    public TCharSeq?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeqNullable((ReadOnlySpan<TCharSeq?>)value.AsSpan(), formatCharSequence)
+           .AddAllCharSeqNullable((ReadOnlySpan<TCharSeq?>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)value!.GetEnumerator();
+    public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
 public class CharSequenceListAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>
-    (IReadOnlyList<TCharSeq?>? value, string? formatCharSequence = null)
-    : IStringBearer, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
+    public IReadOnlyList<TCharSeq?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeq(value, formatCharSequence)
+           .AddAllCharSeq(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCharSeq?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TCharSeq?> GetEnumerator() => Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+                  SupportsValueFormatString)]
 public class CharSequenceEnumerableAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>
-    (IEnumerable<TCharSeq?>? value, string? formatCharSequence = null)
-    : IStringBearer, IEnumerable<TCharSeq?>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<IEnumerable<TCharSeq?>?>, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence
 {
+    public IEnumerable<TCharSeq?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeqEnumerate(value, formatCharSequence)
+           .AddAllCharSeqEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCharSeq?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<TCharSeq?> GetEnumerator() => Value!.GetEnumerator();
 }
 
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+                  SupportsValueFormatString)]
 public class CharSequenceEnumeratorAddAllSimpleOrderedCollectionCharSequenceBearer<TCharSeq>
-    (IEnumerator<TCharSeq?>? value, string? formatCharSequence = null)
-    : IStringBearer, IEnumerable<TCharSeq?>
+    : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<IEnumerator<TCharSeq?>?>, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence
 {
+    public IEnumerator<TCharSeq?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeqEnumerate(value, formatCharSequence)
+           .AddAllCharSeqEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TCharSeq?> GetEnumerator() => value!;
+    public IEnumerator<TCharSeq?> GetEnumerator() => Value!;
 }
 
-public class StringBuilderArrayAddAllSimpleOrderedCollectionStringBearer(StringBuilder?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<StringBuilder?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+public class StringBuilderArrayAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
+    public StringBuilder?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value, formatString)
+           .AddAll(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)value!.GetEnumerator();
+    public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)Value!.GetEnumerator();
 }
 
-public class StringBuilderSpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<StringBuilder>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+public class StringBuilderSpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
+    public StringBuilder[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value.AsSpan(), formatString)
+           .AddAll(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)value!.GetEnumerator();
+    public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)Value!.GetEnumerator();
 }
 
-public class StringBuilderNullableSpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<StringBuilder?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+public class StringBuilderNullableSpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
+    public StringBuilder?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllNullable(value.AsSpan(), formatString)
+           .AddAllNullable(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)value!.GetEnumerator();
+    public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)Value!.GetEnumerator();
 }
 
-public class StringBuilderReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<StringBuilder>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+public class StringBuilderReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
+    public StringBuilder[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll((ReadOnlySpan<StringBuilder>)value.AsSpan(), formatString)
+           .AddAll((ReadOnlySpan<StringBuilder>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)value!.GetEnumerator();
+    public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)Value!.GetEnumerator();
 }
 
-public class StringBuilderNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(StringBuilder?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<StringBuilder?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsChars |
+                  SupportsValueFormatString)]
+public class StringBuilderNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
+    public StringBuilder?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllNullable((ReadOnlySpan<StringBuilder?>)value.AsSpan(), formatString)
+           .AddAllNullable((ReadOnlySpan<StringBuilder?>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)value!.GetEnumerator();
+    public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)Value!.GetEnumerator();
 }
 
-public class StringBuilderListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<StringBuilder?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<StringBuilder?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+public class StringBuilderListAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
+    public IReadOnlyList<StringBuilder?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAll(value, formatString)
+           .AddAll(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<StringBuilder?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<StringBuilder?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class StringBuilderEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<StringBuilder?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<StringBuilder?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+                  SupportsValueFormatString)]
+public class StringBuilderEnumerableAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerable<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
+    public IEnumerable<StringBuilder?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value, formatString)
+           .AddAllEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<StringBuilder?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<StringBuilder?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class StringBuilderEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<StringBuilder?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<StringBuilder?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+                  SupportsValueFormatString)]
+public class StringBuilderEnumeratorAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerator<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
+    public IEnumerator<StringBuilder?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(value, formatString)
+           .AddAllEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<StringBuilder?> GetEnumerator() => value!;
+    public IEnumerator<StringBuilder?> GetEnumerator() => Value!;
 }
 
-public class MatchArrayAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<T?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsAny | SupportsValueFormatString)]
+public class MatchArrayAddAllSimpleOrderedCollectionStringBearer<T> : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<T?[]?>
+  , IEnumerable<T?>
 {
+    public T?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatch(value, formatString)
+           .AddAllMatch(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)value!.GetEnumerator();
+    public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)Value!.GetEnumerator();
 }
 
-public class MatchSpanAddAllSimpleOrderedCollectionStringBearer<T>(T[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<T>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsStruct | AcceptsClass
+                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
+public class MatchSpanAddAllSimpleOrderedCollectionStringBearer<T> : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<T[]?>
+  , IEnumerable<T>
 {
+    public T[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatch(value.AsSpan(), formatString)
+           .AddAllMatch(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)value!.GetEnumerator();
+    public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)Value!.GetEnumerator();
 }
 
-public class MatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<T?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableStruct | AcceptsNullableClass
+                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
+public class MatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<T> : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<T?[]?>
+  , IEnumerable<T?>
 {
+    public T?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatchNullable(value.AsSpan(), formatString)
+           .AddAllMatchNullable(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)value!.GetEnumerator();
+    public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)Value!.GetEnumerator();
 }
 
-public class MatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T>(T[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<T>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsStruct | AcceptsClass
+                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
+public class MatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T> : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<T[]?>
+  , IEnumerable<T>
 {
+    public T[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatch((ReadOnlySpan<T>)value.AsSpan(), formatString)
+           .AddAllMatch((ReadOnlySpan<T>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)value!.GetEnumerator();
+    public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)Value!.GetEnumerator();
 }
 
-public class MatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T>(T?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<T?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct | AcceptsNullableClass
+                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
+public class MatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T> : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<T?[]?>, IEnumerable<T?>
 {
+    public T?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatchNullable((ReadOnlySpan<T?>)value.AsSpan(), formatString)
+           .AddAllMatchNullable((ReadOnlySpan<T?>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)value!.GetEnumerator();
+    public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)Value!.GetEnumerator();
 }
 
-public class MatchListAddAllSimpleOrderedCollectionStringBearer<T>(IReadOnlyList<T?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<T?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsAny | SupportsValueFormatString)]
+public class MatchListAddAllSimpleOrderedCollectionStringBearer<T> : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IReadOnlyList<T?>?>, IEnumerable<T?>
 {
+    public IReadOnlyList<T?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatch(value, formatString)
+           .AddAllMatch(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<T?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class MatchEnumerableAddAllSimpleOrderedCollectionStringBearer<T>(IEnumerable<T?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<T?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsAny | SupportsValueFormatString)]
+public class MatchEnumerableAddAllSimpleOrderedCollectionStringBearer<T> : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerable<T?>?>, IEnumerable<T?>
 {
+    public IEnumerable<T?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatchEnumerate(value, formatString)
+           .AddAllMatchEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<T?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class MatchEnumeratorAddAllSimpleOrderedCollectionStringBearer<T>(IEnumerator<T?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<T?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsAny | SupportsValueFormatString)]
+public class MatchEnumeratorAddAllSimpleOrderedCollectionStringBearer<T> : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerator<T?>?>, IEnumerable<T?>
 {
+    public IEnumerator<T?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatchEnumerate(value, formatString)
+           .AddAllMatchEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => value!;
+    public IEnumerator<T?> GetEnumerator() => Value!;
 }
 
-public class ObjectArrayAddAllSimpleOrderedCollectionStringBearer(object?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<object?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | AcceptsAny | SupportsValueFormatString)]
+public class ObjectArrayAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<object?[]?>
+  , IEnumerable<object?>
 {
+    public object?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllObject(value, formatString)
+           .AddAllObject(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)value!.GetEnumerator();
+    public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)Value!.GetEnumerator();
 }
 
-public class ObjectSpanAddAllSimpleOrderedCollectionStringBearer(object[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<object>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsStruct | AcceptsClass
+                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
+public class ObjectSpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<object[]?>
+  , IEnumerable<object>
 {
+    public object[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllObject(value.AsSpan(), formatString)
+           .AddAllObject(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<object> GetEnumerator() => (IEnumerator<object>)value!.GetEnumerator();
+    public IEnumerator<object> GetEnumerator() => (IEnumerator<object>)Value!.GetEnumerator();
 }
 
-public class ObjectNullableSpanAddAllSimpleOrderedCollectionStringBearer(object?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<object?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableStruct | AcceptsNullableClass
+                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
+public class ObjectNullableSpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<object?[]?>
+  , IEnumerable<object?>
 {
+    public object?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllObjectNullable(value.AsSpan(), formatString)
+           .AddAllObjectNullable(Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)value!.GetEnumerator();
+    public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)Value!.GetEnumerator();
 }
 
-public class ObjectReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(object[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<object>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsStruct | AcceptsClass
+                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
+public class ObjectReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString, IMoldSupportedValue<object[]?>
+  , IEnumerable<object>
 {
+    public object[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllObject((ReadOnlySpan<object>)value.AsSpan(), formatString)
+           .AddAllObject((ReadOnlySpan<object>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<object> GetEnumerator() => (IEnumerator<object>)value!.GetEnumerator();
+    public IEnumerator<object> GetEnumerator() => (IEnumerator<object>)Value!.GetEnumerator();
 }
 
-public class ObjectNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer(object?[]? value, string? formatString = null)
-    : IStringBearer, IEnumerable<object?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct | AcceptsNullableClass
+                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
+public class ObjectNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
+    public object?[]? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllObjectNullable((ReadOnlySpan<object?>)value.AsSpan(), formatString)
+           .AddAllObjectNullable((ReadOnlySpan<object?>)Value.AsSpan(), ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)value!.GetEnumerator();
+    public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)Value!.GetEnumerator();
 }
 
-public class ObjectListAddAllSimpleOrderedCollectionStringBearer(IReadOnlyList<object?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<object?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | AcceptsAny | SupportsValueFormatString)]
+public class ObjectListAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IReadOnlyList<object?>?>, IEnumerable<object?>
 {
+    public IReadOnlyList<object?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllObject(value, formatString)
+           .AddAllObject(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<object?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<object?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class ObjectEnumerableAddAllSimpleOrderedCollectionStringBearer(IEnumerable<object?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<object?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsAny | SupportsValueFormatString)]
+public class ObjectEnumerableAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerable<object?>?>, IEnumerable<object?>
 {
+    public IEnumerable<object?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllObjectEnumerate(value, formatString)
+           .AddAllObjectEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<object?> GetEnumerator() => value!.GetEnumerator();
+    public IEnumerator<object?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-public class ObjectEnumeratorAddAllSimpleOrderedCollectionStringBearer(IEnumerator<object?>? value, string? formatString = null)
-    : IStringBearer, IEnumerable<object?>
+[TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsAny | SupportsValueFormatString)]
+public class ObjectEnumeratorAddAllSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerator<object?>?>, IEnumerable<object?>
 {
+    public IEnumerator<object?>? Value { get; set; }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllObjectEnumerate(value, formatString)
+           .AddAllObjectEnumerate(Value, ValueFormatString)
            .Complete();
 
+    public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<object?> GetEnumerator() => value!;
+    public IEnumerator<object?> GetEnumerator() => Value!;
 }
