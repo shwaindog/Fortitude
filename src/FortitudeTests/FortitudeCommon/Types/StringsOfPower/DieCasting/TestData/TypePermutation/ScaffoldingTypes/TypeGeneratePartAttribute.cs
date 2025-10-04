@@ -45,13 +45,14 @@ public enum TypeGeneratePartFlags : ulong
   , NonNullAndPopulatedWrites = 0x00_08_00_00_00
   , OutputConditionMask       = 0x00_0F_00_00_00
   , FilterPredicate           = 0x00_10_00_00_00
-  , StatefulFilter            = 0x00_20_00_00_00
-  , SupportsValueFormatString         = 0x00_40_00_00_00
-  , SupportsKeyFormatString           = 0x00_80_00_00_00
-  , SupportsValueRevealer             = 0x01_00_00_00_00
-  , SupportsKeyRevealer               = 0x02_00_00_00_00
-  , SupportsCustomHandling    = 0x04_00_00_00_00
-  , SupportsIndexSubRanges    = 0x08_00_00_00_00
+  , SubsetListFilter          = 0x00_20_00_00_00
+  , StatefulFilter            = 0x00_40_00_00_00
+  , SupportsValueFormatString = 0x01_00_00_00_00
+  , SupportsKeyFormatString   = 0x02_00_00_00_00
+  , SupportsValueRevealer     = 0x04_00_00_00_00
+  , SupportsKeyRevealer       = 0x08_00_00_00_00
+  , SupportsCustomHandling    = 0x10_00_00_00_00
+  , SupportsIndexSubRanges    = 0x20_00_00_00_00
 }
 
 public class TypeGeneratePartAttribute(TypeGeneratePartFlags flags) : Attribute { }
@@ -74,6 +75,11 @@ public interface ISupportsValueFormatString
 public interface ISupportsKeyFormatString
 {
     [JsonIgnore] string? KeyFormatString { get; set; }
+}
+
+public interface ISupportsSubsetDisplayKeys<TKeyDerivedType>
+{
+    [JsonIgnore] IReadOnlyList<TKeyDerivedType> DisplayKeys { get; set; }
 }
 
 public interface ISupportsOrderedCollectionPredicate<TElement>
