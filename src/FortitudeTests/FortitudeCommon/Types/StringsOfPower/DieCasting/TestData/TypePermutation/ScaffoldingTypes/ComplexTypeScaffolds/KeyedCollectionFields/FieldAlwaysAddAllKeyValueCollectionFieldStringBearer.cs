@@ -11,7 +11,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValueDictionaryFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
+public class FieldKeyValueDictionaryFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
   , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothFormatStrings
@@ -36,7 +36,7 @@ public class KeyValueDictionaryFormatStringsAlwaysAddAllStringBearer<TKey, TValu
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValuePairArrayBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
+public class FieldKeyValuePairArrayBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
   , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothFormatStrings
@@ -61,7 +61,7 @@ public class KeyValuePairArrayBothFormatStringsAlwaysAddAllStringBearer<TKey, TV
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValuePairListBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
+public class FieldKeyValuePairListBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
   , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothFormatStrings
@@ -87,7 +87,7 @@ public class KeyValuePairListBothFormatStringsAlwaysAddAllStringBearer<TKey, TVa
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValuePairEnumerableBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
+public class FieldKeyValuePairEnumerableBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
   , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothFormatStrings
@@ -113,7 +113,7 @@ public class KeyValuePairEnumerableBothFormatStringsAlwaysAddAllStringBearer<TKe
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValuePairEnumeratorBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
+public class FieldKeyValuePairEnumeratorBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
   , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothFormatStrings
@@ -139,7 +139,7 @@ public class KeyValuePairEnumeratorBothFormatStringsAlwaysAddAllStringBearer<TKe
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValueDictionaryValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
@@ -167,7 +167,7 @@ public class KeyValueDictionaryValueRevealerKeyFormatStringsAlwaysAddAllStringBe
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValuePairArrayValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayValueRevealerKeyFormatString
@@ -193,7 +193,7 @@ public class KeyValuePairArrayValueRevealerKeyFormatStringsAlwaysAddAllStringBea
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValuePairListValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+public class FieldKeyValuePairListValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
@@ -220,7 +220,7 @@ public class KeyValuePairListValueRevealerKeyFormatStringsAlwaysAddAllStringBear
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValuePairEnumerableValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
@@ -247,7 +247,7 @@ public class KeyValuePairEnumerableValueRevealerKeyFormatStringsAlwaysAddAllStri
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValuePairEnumeratorValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
+public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
@@ -274,7 +274,7 @@ public class KeyValuePairEnumeratorValueRevealerKeyFormatStringsAlwaysAddAllStri
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValueDictionaryBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+public class FieldKeyValueDictionaryBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -301,7 +301,7 @@ public class KeyValueDictionaryBothRevealersAlwaysAddAllStringBearer<TKey, TValu
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValuePairArrayBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+public class FieldKeyValuePairArrayBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -328,7 +328,7 @@ public class KeyValuePairArrayBothRevealersAlwaysAddAllStringBearer<TKey, TValue
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValuePairListBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+public class FieldKeyValuePairListBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -355,7 +355,7 @@ public class KeyValuePairListBothRevealersAlwaysAddAllStringBearer<TKey, TValue,
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValuePairEnumerableBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+public class FieldKeyValuePairEnumerableBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -382,7 +382,7 @@ public class KeyValuePairEnumerableBothRevealersAlwaysAddAllStringBearer<TKey, T
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValuePairEnumeratorBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
+public class FieldKeyValuePairEnumeratorBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
   , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {

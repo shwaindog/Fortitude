@@ -5,15 +5,15 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
     KeyedCollectionFields;
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | NonNullWrites | SubsetListFilter
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | OnlyPopulatedWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived>
+public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
 
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromArrayBothFormatStrings
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromArrayBothFormatStrings
     {
         get => Value;
         set => Value = value;
@@ -33,21 +33,21 @@ public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysArra
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromArrayBothFormatStrings)
-              , WhenNonNullAddWithSelectKeysFromArrayBothFormatStrings
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromArrayBothFormatStrings)
+              , WhenPopulatedWithSelectKeysFromArrayBothFormatStrings
               , DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | NonNullWrites | SubsetListFilter
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | OnlyPopulatedWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived>
+public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromSpanBothFormatStrings
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromSpanBothFormatStrings
     {
         get => Value;
         set => Value = value;
@@ -67,21 +67,21 @@ public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysSpan
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromSpanBothFormatStrings)
-              , WhenNonNullAddWithSelectKeysFromSpanBothFormatStrings
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromSpanBothFormatStrings)
+              , WhenPopulatedWithSelectKeysFromSpanBothFormatStrings
               , DisplayKeys.ToArray().AsSpan(), ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived>
+public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromReadOnlySpanBothFormatStrings
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromReadOnlySpanBothFormatStrings
     {
         get => Value;
         set => Value = value;
@@ -101,21 +101,21 @@ public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysRead
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanBothFormatStrings)
-              , WhenNonNullAddWithSelectKeysFromReadOnlySpanBothFormatStrings
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanBothFormatStrings)
+              , WhenPopulatedWithSelectKeysFromReadOnlySpanBothFormatStrings
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived>
+public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromListBothFormatStrings
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromListBothFormatStrings
     {
         get => Value;
         set => Value = value;
@@ -135,21 +135,21 @@ public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysList
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromListBothFormatStrings)
-              , WhenNonNullAddWithSelectKeysFromListBothFormatStrings
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromListBothFormatStrings)
+              , WhenPopulatedWithSelectKeysFromListBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived>
+public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromEnumerableBothFormatStrings 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromEnumerableBothFormatStrings 
     {
         get => Value;
         set => Value = value;
@@ -169,21 +169,21 @@ public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysEnum
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
-               (nameof(WhenNonNullAddWithSelectKeysFromEnumerableBothFormatStrings)
-              , WhenNonNullAddWithSelectKeysFromEnumerableBothFormatStrings
+           .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
+               (nameof(WhenPopulatedWithSelectKeysFromEnumerableBothFormatStrings)
+              , WhenPopulatedWithSelectKeysFromEnumerableBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived>
+public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothFormatStrings 
     {
         get => Value;
         set => Value = value;
@@ -203,22 +203,22 @@ public class KeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKeysEnum
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
-               (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings)
-              , WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings
+           .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
+               (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothFormatStrings)
+              , WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothFormatStrings
               , DisplayKeys.GetEnumerator(), ValueFormatString, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | NonNullWrites | SubsetListFilter
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | OnlyPopulatedWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString 
     {
         get => Value;
         set => Value = value;
@@ -238,22 +238,22 @@ public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysArrayStr
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString)
-              , WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString)
+              , WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString
               , DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | NonNullWrites | SubsetListFilter
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | OnlyPopulatedWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString 
     {
         get => Value;
         set => Value = value;
@@ -273,22 +273,22 @@ public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysSpanStri
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString)
-              , WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString)
+              , WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString 
     {
         get => Value;
         set => Value = value;
@@ -308,22 +308,22 @@ public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysReadOnly
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString)
-              , WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString)
+              , WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString 
     {
         get => Value;
         set => Value = value;
@@ -343,22 +343,22 @@ public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysListStri
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString)
-              , WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString)
+              , WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings 
     {
         get => Value;
         set => Value = value;
@@ -378,22 +378,22 @@ public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysEnumerab
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
-               (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
-              , WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
+           .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
+               (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
+              , WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings 
     {
         get => Value;
         set => Value = value;
@@ -413,22 +413,22 @@ public class KeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysEnumerat
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
-               (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
-              , WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
+           .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
+               (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
+              , WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | NonNullWrites | SubsetListFilter
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | OnlyPopulatedWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromArrayBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromArrayBothRevealers 
     {
         get => Value;
         set => Value = value;
@@ -436,6 +436,7 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysArrayStr
 
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
+
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
@@ -448,22 +449,22 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysArrayStr
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromArrayBothRevealers)
-              , WhenNonNullAddWithSelectKeysFromArrayBothRevealers
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromArrayBothRevealers)
+              , WhenPopulatedWithSelectKeysFromArrayBothRevealers
               , DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | NonNullWrites | SubsetListFilter
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | OnlyPopulatedWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromSpanBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromSpanBothRevealers 
     {
         get => Value;
         set => Value = value;
@@ -471,6 +472,7 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysSpanStri
 
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
+
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
@@ -483,28 +485,29 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysSpanStri
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromSpanBothRevealers)
-              , WhenNonNullAddWithSelectKeysFromSpanBothRevealers
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromSpanBothRevealers)
+              , WhenPopulatedWithSelectKeysFromSpanBothRevealers
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | NonNullWrites 
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | OnlyPopulatedWrites 
                 | SubsetListFilter | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers 
     {
         get => Value;
         set => Value = value;
     }
 
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
@@ -518,22 +521,22 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysReadOnly
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers)
-              , WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers)
+              , WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysFromListBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromListBothRevealers 
     {
         get => Value;
         set => Value = value;
@@ -541,6 +544,7 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysListStri
 
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
+
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
@@ -553,22 +557,22 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysListStri
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeys
-               (nameof(WhenNonNullAddWithSelectKeysFromListBothRevealers)
-              , WhenNonNullAddWithSelectKeysFromListBothRevealers
+           .KeyedCollectionField.WhenPopulatedWithSelectKeys
+               (nameof(WhenPopulatedWithSelectKeysFromListBothRevealers)
+              , WhenPopulatedWithSelectKeysFromListBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers 
     {
         get => Value;
         set => Value = value;
@@ -576,6 +580,7 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysEnumerab
 
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
+
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
@@ -588,22 +593,22 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysEnumerab
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
-               (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers)
-              , WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers
+           .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
+               (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers)
+              , WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | NonNullWrites
+[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | OnlyPopulatedWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
-    public IReadOnlyDictionary<TKey, TValue>? WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers 
     {
         get => Value;
         set => Value = value;
@@ -611,6 +616,7 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysEnumerat
 
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
+
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
@@ -623,8 +629,8 @@ public class KeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysEnumerat
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
-               (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers), WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers
+           .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
+               (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers), WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyRevealer)
            .Complete();
 }

@@ -872,7 +872,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
     {
         return
             tos.StartSimpleValueType(this)
-                .String(nameof(backingArray), backingArray, 0, length).Complete();
+                .AsStringOrNull(nameof(backingArray), backingArray, 0, length).Complete();
     }
 
     public override string ToString() => new(WrittenAsSpan());

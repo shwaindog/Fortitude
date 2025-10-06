@@ -8,7 +8,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsNullableStruct)]
-public class NullableBoolWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<bool?>
+public class FieldNullableBoolWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<bool?>
 {
     public bool? ComplexTypeFieldWhenNonNullAddNullableBool
     {
@@ -26,7 +26,7 @@ public class NullableBoolWhenNonNullStringBearer : IStringBearer, IMoldSupported
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableWhenNonNullStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?>, ISupportsValueFormatString
+public class FieldSpanFormattableWhenNonNullStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?>, ISupportsValueFormatString
     where TFmt : ISpanFormattable
 {
     public TFmt? ComplexTypeFieldWhenNonNullAddSpanFormattable
@@ -47,7 +47,7 @@ public class SpanFormattableWhenNonNullStringBearer<TFmt> : IStringBearer, IMold
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsCustomHandling)]
-public class SpanFormattableWithHandlingWhenNonNullStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?>, ISupportsValueFormatString
+public class FieldSpanFormattableWithHandlingWhenNonNullStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?>, ISupportsValueFormatString
   , ISupportsFieldHandling where TFmt : ISpanFormattable
 {
     public TFmt? ComplexTypeFieldWhenNonNullAddSpanFormattableAs
@@ -71,7 +71,7 @@ public class SpanFormattableWithHandlingWhenNonNullStringBearer<TFmt> : IStringB
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class NullableSpanFormattableWhenNonNullStringBearer<TFmtStruct> : IStringBearer
+public class FieldNullableSpanFormattableWhenNonNullStringBearer<TFmtStruct> : IStringBearer
   , IMoldSupportedValue<TFmtStruct?>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct? ComplexTypeFieldWhenNonNullAddNullableSpanFormattable
@@ -93,7 +93,7 @@ public class NullableSpanFormattableWhenNonNullStringBearer<TFmtStruct> : IStrin
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsCustomHandling)]
-public class NullableSpanFormattableWithHandlingWhenNonNullStringBearer<TFmtStruct> : IStringBearer
+public class FieldNullableSpanFormattableWithHandlingWhenNonNullStringBearer<TFmtStruct> : IStringBearer
   , IMoldSupportedValue<TFmtStruct?>, ISupportsFieldHandling, ISupportsValueFormatString
     where TFmtStruct : struct, ISpanFormattable
 {
@@ -119,7 +119,7 @@ public class NullableSpanFormattableWithHandlingWhenNonNullStringBearer<TFmtStru
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class CloakedBearerWhenNonNullStringBearer<TTCloaked, TCloakedBase>
+public class FieldCloakedBearerWhenNonNullStringBearer<TTCloaked, TCloakedBase>
     : IStringBearer, IMoldSupportedValue<TTCloaked?>, ISupportsValueRevealer<TCloakedBase>
     where TTCloaked : TCloakedBase
 {
@@ -142,7 +142,7 @@ public class CloakedBearerWhenNonNullStringBearer<TTCloaked, TCloakedBase>
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsChars
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer | SupportsCustomHandling)]
-public class CloakedBearerWithHandlingWhenNonNullStringBearer<TTCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TTCloaked?>
+public class FieldCloakedBearerWithHandlingWhenNonNullStringBearer<TTCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TTCloaked?>
   , ISupportsFieldHandling, ISupportsValueRevealer<TCloakedBase> where TTCloaked : TCloakedBase
 {
     public TTCloaked? ComplexTypeFieldWhenNonNullRevealCloakedBearerAs
@@ -167,7 +167,7 @@ public class CloakedBearerWithHandlingWhenNonNullStringBearer<TTCloaked, TCloake
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class NullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?>
+public class FieldNullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?>
     where TCloakedStruct : struct
 {
     public TCloakedStruct? ComplexTypeFieldWhenNonNullRevealNullableCloakedBearer
@@ -192,7 +192,7 @@ public class NullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> : IStr
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer | SupportsCustomHandling)]
-public class NullableCloakedBearerWithHandlingWhenNonNullStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?>
+public class FieldNullableCloakedBearerWithHandlingWhenNonNullStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?>
   , ISupportsValueRevealer<TCloakedStruct>, ISupportsFieldHandling where TCloakedStruct : struct
 {
     public TCloakedStruct? ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs
@@ -215,7 +215,7 @@ public class NullableCloakedBearerWithHandlingWhenNonNullStringBearer<TCloakedSt
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class StringBearerWhenNonNullStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?>
+public class FieldStringBearerWhenNonNullStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?>
     where TBearer : IStringBearer
 {
     public TBearer? ComplexTypeFieldWhenNonNullRevealStringBearer
@@ -234,7 +234,7 @@ public class StringBearerWhenNonNullStringBearer<TBearer> : IStringBearer, IMold
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer |
                   SupportsCustomHandling)]
-public class StringBearerWithHandlingWhenNonNullStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?>, ISupportsFieldHandling 
+public class FieldStringBearerWithHandlingWhenNonNullStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?>, ISupportsFieldHandling 
     where TBearer : IStringBearer
 {
     public TBearer? ComplexTypeFieldWhenNonNullRevealStringBearerAs
@@ -254,7 +254,7 @@ public class StringBearerWithHandlingWhenNonNullStringBearer<TBearer> : IStringB
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct |  AcceptsNullableStruct | AcceptsStringBearer)]
-public class NullableStringBearerWhenNonNullStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?>
+public class FieldNullableStringBearerWhenNonNullStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? ComplexTypeFieldWhenNonNullRevealNullableStringBearer
@@ -272,7 +272,7 @@ public class NullableStringBearerWhenNonNullStringBearer<TBearerStruct> : IStrin
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites |AcceptsStruct | AcceptsNullableStruct | AcceptsStringBearer | SupportsCustomHandling)]
-public class NullableStringBearerWithHandlingWhenNonNullStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?>
+public class FieldNullableStringBearerWithHandlingWhenNonNullStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?>
   , ISupportsFieldHandling
     where TBearerStruct : struct, IStringBearer
 {
@@ -293,7 +293,7 @@ public class NullableStringBearerWithHandlingWhenNonNullStringBearer<TBearerStru
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class StringWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<string?>, ISupportsValueFormatString, ISupportsSettingValueFromString
+public class FieldStringWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<string?>, ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public string? ComplexTypeFieldWhenNonNullAddString
     {
@@ -318,7 +318,7 @@ public class StringWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
-public class StringWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<string?>, ISupportsValueFormatString
+public class FieldStringWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public string? ComplexTypeFieldWhenNonNullAddStringAs
@@ -346,7 +346,7 @@ public class StringWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSup
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
-public class StringRangeWhenNonNullStringBearer : IStringBearer, ISupportsValueFormatString
+public class FieldStringRangeWhenNonNullStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public string? ComplexTypeFieldWhenNonNullAddStringRange
@@ -376,7 +376,7 @@ public class StringRangeWhenNonNullStringBearer : IStringBearer, ISupportsValueF
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
-public class StringRangeWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<string?>, ISupportsValueFormatString
+public class FieldStringRangeWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public string? ComplexTypeFieldWhenNonNullAddStringRangeAs
@@ -410,7 +410,7 @@ public class StringRangeWithHandlingWhenNonNullStringBearer : IStringBearer, IMo
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class CharArrayWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<char[]?>, ISupportsValueFormatString
+public class FieldCharArrayWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
     public char[]? ComplexTypeFieldWhenNonNullAddCharArray
@@ -440,7 +440,7 @@ public class CharArrayWhenNonNullStringBearer : IStringBearer, IMoldSupportedVal
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
-public class CharArrayWithHandlingWhenNonNullStringBearer: IStringBearer, IMoldSupportedValue<char[]?>, ISupportsValueFormatString
+public class FieldCharArrayWithHandlingWhenNonNullStringBearer: IStringBearer, IMoldSupportedValue<char[]?>, ISupportsValueFormatString
 , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public char[]? ComplexTypeFieldWhenNonNullAddCharArrayAs
@@ -468,7 +468,7 @@ public class CharArrayWithHandlingWhenNonNullStringBearer: IStringBearer, IMoldS
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
-public class CharArrayRangeWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<char[]?>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+public class FieldCharArrayRangeWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<char[]?>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public char[]? ComplexTypeFieldWhenNonNullAddCharArrayRange
     {
@@ -497,7 +497,7 @@ public class CharArrayRangeWhenNonNullStringBearer : IStringBearer, IMoldSupport
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
-public class CharArrayRangeWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<char[]?>, ISupportsValueFormatString
+public class FieldCharArrayRangeWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public char[]? ComplexTypeFieldWhenNonNullAddCharArrayRangeAs
@@ -531,7 +531,7 @@ public class CharArrayRangeWithHandlingWhenNonNullStringBearer : IStringBearer, 
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class CharSequenceWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
+public class FieldCharSequenceWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldWhenNonNullAddCharSequence
@@ -563,7 +563,7 @@ public class CharSequenceWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMol
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
-public class CharSequenceWithHandlingWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
+public class FieldCharSequenceWithHandlingWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldWhenNonNullAddCharSequenceAs
@@ -598,7 +598,7 @@ public class CharSequenceWithHandlingWhenNonNullStringBearer<TCharSeq> : IString
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
-public class CharSequenceRangeWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
+public class FieldCharSequenceRangeWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldWhenNonNullAddCharSequenceRange
@@ -635,7 +635,7 @@ public class CharSequenceRangeWhenNonNullStringBearer<TCharSeq> : IStringBearer,
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
-public class CharSequenceRangeWithHandlingWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
+public class FieldCharSequenceRangeWithHandlingWhenNonNullStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldWhenNonNullAddCharSequenceRangeAs
@@ -674,7 +674,7 @@ public class CharSequenceRangeWithHandlingWhenNonNullStringBearer<TCharSeq> : IS
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class StringBuilderWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>
+public class FieldStringBuilderWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public StringBuilder? ComplexTypeFieldWhenNonNullAddStringBuilder
@@ -700,7 +700,7 @@ public class StringBuilderWhenNonNullStringBearer : IStringBearer, IMoldSupporte
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
-public class StringBuilderWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
+public class FieldStringBuilderWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public StringBuilder? ComplexTypeFieldWhenNonNullAddStringBuilderAs
@@ -729,7 +729,7 @@ public class StringBuilderWithHandlingWhenNonNullStringBearer : IStringBearer, I
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
-public class StringBuilderRangeWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
+public class FieldStringBuilderRangeWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public StringBuilder? ComplexTypeFieldWhenNonNullAddStringBuilderRange
@@ -760,7 +760,7 @@ public class StringBuilderRangeWhenNonNullStringBearer : IStringBearer, IMoldSup
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges | SupportsCustomHandling)]
-public class StringBuilderRangeWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString, ISupportsSettingValueFromString
+public class FieldStringBuilderRangeWithHandlingWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString, ISupportsSettingValueFromString
   , ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public StringBuilder? ComplexTypeFieldWhenNonNullAddStringBuilderRangeAs
@@ -793,7 +793,7 @@ public class StringBuilderRangeWithHandlingWhenNonNullStringBearer : IStringBear
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class MatchWhenNonNullStringBearer<T> : IStringBearer, IMoldSupportedValue<T?>, ISupportsValueFormatString
+public class FieldMatchWhenNonNullStringBearer<T> : IStringBearer, IMoldSupportedValue<T?>, ISupportsValueFormatString
 {
     public T? ComplexTypeFieldWhenNonNullAddMatch
     {
@@ -812,7 +812,7 @@ public class MatchWhenNonNullStringBearer<T> : IStringBearer, IMoldSupportedValu
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class ObjectWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<object?>, ISupportsValueFormatString
+public class FieldObjectWhenNonNullStringBearer : IStringBearer, IMoldSupportedValue<object?>, ISupportsValueFormatString
 {
     public object? ComplexTypeFieldWhenNonNullAddObject
     {

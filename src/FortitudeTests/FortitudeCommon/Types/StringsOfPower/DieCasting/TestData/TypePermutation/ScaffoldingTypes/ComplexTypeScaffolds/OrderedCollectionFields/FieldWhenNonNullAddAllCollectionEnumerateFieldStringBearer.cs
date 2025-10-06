@@ -11,7 +11,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
     OrderedCollectionFields;
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStruct)]
-public class BoolEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool>?>
+public class FieldBoolEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool>?>
 {
     public IEnumerable<bool>? ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable
     {
@@ -30,7 +30,7 @@ public class BoolEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldS
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct)]
-public class NullableBoolEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool?>?>
+public class FieldNullableBoolEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<bool?>?>
 {
     public IEnumerable<bool?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable
     {
@@ -50,7 +50,7 @@ public class NullableBoolEnumerableWhenNonNullAddAllStringBearer : IStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IEnumerable<TFmt>?>
+public class FieldSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IEnumerable<TFmt>?>
   , ISupportsValueFormatString where TFmt : ISpanFormattable
 {
     public IEnumerable<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerable
@@ -74,7 +74,7 @@ public class SpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt> : IStr
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class NullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TStructFmt> : IStringBearer
+public class FieldNullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TStructFmt> : IStringBearer
   , IMoldSupportedValue<IEnumerable<TStructFmt?>?>, ISupportsValueFormatString where TStructFmt : struct, ISpanFormattable
 {
     public IEnumerable<TStructFmt?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerable
@@ -98,7 +98,7 @@ public class NullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TStr
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class CloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase>
+public class FieldCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase>
     : IStringBearer, IMoldSupportedValue<IEnumerable<TCloaked>?>, ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
     public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable
@@ -121,7 +121,7 @@ public class CloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TClo
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
                 | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class NullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloakedStruct>
+public class FieldNullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloakedStruct>
     : IStringBearer, IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
     public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerable
@@ -143,7 +143,7 @@ public class NullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloak
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class StringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IEnumerable<TBearer>?>
+public class FieldStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IEnumerable<TBearer>?>
     where TBearer : IStringBearer
 {
     public IEnumerable<TBearer>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerable
@@ -163,7 +163,7 @@ public class StringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer> : IStr
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class NullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer
+public class FieldNullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer
   , IMoldSupportedValue<IEnumerable<TBearerStruct?>?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -184,7 +184,7 @@ public class NullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class StringEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<string?>?>, ISupportsValueFormatString
+public class FieldStringEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<string?>?>, ISupportsValueFormatString
 {
     public IEnumerable<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable
     {
@@ -205,7 +205,7 @@ public class StringEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMol
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class CharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IEnumerable<TCharSeq?>?>
+public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IEnumerable<TCharSeq?>?>
   , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
     public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerable
@@ -227,7 +227,7 @@ public class CharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> : ISt
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class StringBuilderEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<StringBuilder?>?>
+public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<StringBuilder?>?>
   , ISupportsValueFormatString
 {
     public IEnumerable<StringBuilder?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerable
@@ -249,7 +249,7 @@ public class StringBuilderEnumerableWhenNonNullAddAllStringBearer : IStringBeare
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class MatchEnumerableWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IEnumerable<T>?>
+public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IEnumerable<T>?>
   , ISupportsValueFormatString
 {
     public IEnumerable<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable
@@ -271,7 +271,7 @@ public class MatchEnumerableWhenNonNullAddAllStringBearer<T> : IStringBearer, IM
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class ObjectEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<object?>?>
+public class FieldObjectEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerable<object?>?>
   , ISupportsValueFormatString
 {
     public IEnumerable<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerable
@@ -293,7 +293,7 @@ public class ObjectEnumerableWhenNonNullAddAllStringBearer : IStringBearer, IMol
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStruct)]
-public class BoolEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<bool>?>
+public class FieldBoolEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<bool>?>
 {
     public IEnumerator<bool>? ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator
     {
@@ -312,7 +312,7 @@ public class BoolEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldS
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct)]
-public class NullableBoolEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<bool?>?>
+public class FieldNullableBoolEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<bool?>?>
 {
     public IEnumerator<bool?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator
     {
@@ -332,7 +332,7 @@ public class NullableBoolEnumeratorWhenNonNullAddAllStringBearer : IStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IEnumerator<TFmt>?>
+public class FieldSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IEnumerator<TFmt>?>
   , ISupportsValueFormatString where TFmt : ISpanFormattable
 {
     public IEnumerator<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerator
@@ -355,7 +355,7 @@ public class SpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt> : IStr
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class NullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmtStruct> : IStringBearer
+public class FieldNullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmtStruct> : IStringBearer
   , IMoldSupportedValue<IEnumerator<TFmtStruct?>?>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
     public IEnumerator<TFmtStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerator
@@ -379,7 +379,7 @@ public class NullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class CloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<IEnumerator<TCloaked>?>
+public class FieldCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<IEnumerator<TCloaked>?>
   , ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
     public IEnumerator<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator
@@ -403,7 +403,7 @@ public class CloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TClo
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class NullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloakedStruct> : IStringBearer
+public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloakedStruct> : IStringBearer
   , IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct>
     where TCloakedStruct : struct
 {
@@ -426,7 +426,7 @@ public class NullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloak
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class StringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IEnumerator<TBearer>?>
+public class FieldStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IEnumerator<TBearer>?>
     where TBearer : IStringBearer
 {
     public IEnumerator<TBearer>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerator
@@ -446,7 +446,7 @@ public class StringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer> : IStr
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class NullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer
+public class FieldNullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer
   , IMoldSupportedValue<IEnumerator<TBearerStruct?>?> where TBearerStruct : struct, IStringBearer
 {
     public IEnumerator<TBearerStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerator
@@ -465,7 +465,7 @@ public class NullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class StringEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<string?>?>, ISupportsValueFormatString
+public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<string?>?>, ISupportsValueFormatString
 {
     public IEnumerator<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator
     {
@@ -486,7 +486,7 @@ public class StringEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMol
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class CharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IEnumerator<TCharSeq?>?>
+public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IEnumerator<TCharSeq?>?>
   , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
     public IEnumerator<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerator
@@ -508,7 +508,7 @@ public class CharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> : ISt
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class StringBuilderEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<StringBuilder?>?>
+public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<StringBuilder?>?>
   , ISupportsValueFormatString
 {
     public IEnumerator<StringBuilder?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerator
@@ -530,7 +530,7 @@ public class StringBuilderEnumeratorWhenNonNullAddAllStringBearer : IStringBeare
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class MatchEnumeratorWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IEnumerator<T>?>, ISupportsValueFormatString
+public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IEnumerator<T>?>, ISupportsValueFormatString
 {
     public IEnumerator<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator
     {
@@ -551,7 +551,7 @@ public class MatchEnumeratorWhenNonNullAddAllStringBearer<T> : IStringBearer, IM
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class ObjectEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<object?>?>, ISupportsValueFormatString
+public class FieldObjectEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<object?>?>, ISupportsValueFormatString
 {
     public IEnumerator<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator
     {

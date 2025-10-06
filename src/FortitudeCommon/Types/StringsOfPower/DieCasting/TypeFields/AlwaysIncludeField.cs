@@ -59,18 +59,18 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
         stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value, palantírReveal).AddGoToNext();
 
     public TExt AlwaysReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value) where TBearer : IStringBearer =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendRevealBearerOrNull(value).AddGoToNext();
 
     public TExt AlwaysRevealAs<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType)
         where TBearer : IStringBearer =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendRevealBearerOrNull(value).AddGoToNext();
 
     public TExt AlwaysReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value) where TBearerStruct : struct, IStringBearer =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendRevealBearerOrNull(value).AddGoToNext();
 
     public TExt AlwaysRevealAs<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType)
         where TBearerStruct : struct, IStringBearer =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendRevealBearerOrNull(value).AddGoToNext();
 
     public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, Span<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>

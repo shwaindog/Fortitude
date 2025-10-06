@@ -9,10 +9,10 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.OrderedCollectionType;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.OrderedCollectionScaffolds;
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct)]
-public class BoolArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<bool[]?>, IEnumerable<bool>
 {
     public bool[]? Value { get; set; }
@@ -29,7 +29,7 @@ public class BoolArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBe
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct)]
-public class NullableBoolArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
+public class OrderedFromNullableBoolArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
   , IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
 {
     public bool?[]? Value { get; set; }
@@ -46,7 +46,7 @@ public class NullableBoolArrayAddFilteredSimpleOrderedCollectionStringBearer : I
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct)]
-public class BoolSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<bool[]?>, IEnumerable<bool>
 {
     public bool[]? Value { get; set; }
@@ -63,7 +63,7 @@ public class BoolSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBea
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct)]
-public class NullableBoolSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
+public class OrderedFromNullableBoolSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
   , IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
 {
     public bool?[]? Value { get; set; }
@@ -80,7 +80,7 @@ public class NullableBoolSpanAddFilteredSimpleOrderedCollectionStringBearer : IS
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct)]
-public class BoolReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<bool[]?>, IEnumerable<bool>
 {
     public bool[]? Value { get; set; }
@@ -97,7 +97,7 @@ public class BoolReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IS
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct)]
-public class NullableBoolReadOnlySpanSpanAddFilteredSimpleOrderedCollectionStringBearer
+public class OrderedFromNullableBoolReadOnlySpanSpanAddFilteredSimpleOrderedCollectionStringBearer
     : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>, IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
 {
     public bool?[]? Value { get; set; }
@@ -114,7 +114,7 @@ public class NullableBoolReadOnlySpanSpanAddFilteredSimpleOrderedCollectionStrin
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct)]
-public class BoolListAlwaysAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolListAlwaysAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<List<bool>?>, IEnumerable<bool>
 {
     public List<bool>? Value { get; set; }
@@ -131,7 +131,7 @@ public class BoolListAlwaysAddFilteredSimpleOrderedCollectionStringBearer : IStr
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct)]
-public class NullableBoolListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
+public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
   , IMoldSupportedValue<List<bool?>?>, IEnumerable<bool?>
 {
     public List<bool?>? Value { get; set; }
@@ -148,7 +148,7 @@ public class NullableBoolListAddFilteredSimpleOrderedCollectionStringBearer : IS
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct)]
-public class BoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<IEnumerable<bool>?>, IEnumerable<bool>
 {
     public IEnumerable<bool>? Value { get; set; }
@@ -165,7 +165,7 @@ public class BoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStr
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct)]
-public class NullableBoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer
+public class OrderedFromNullableBoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer
     : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>, IMoldSupportedValue<IEnumerable<bool?>?>, IEnumerable<bool?>
 {
     public IEnumerable<bool?>? Value { get; set; }
@@ -182,7 +182,7 @@ public class NullableBoolEnumerableAddFilteredSimpleOrderedCollectionStringBeare
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct)]
-public class BoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<IEnumerator<bool>?>, IEnumerable<bool>
 {
     public IEnumerator<bool>? Value { get; set; }
@@ -199,7 +199,7 @@ public class BoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStr
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct)]
-public class NullableBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
+public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
   , IMoldSupportedValue<IEnumerator<bool?>?>, IEnumerable<bool?>
 {
     public IEnumerator<bool?>? Value { get; set; }
@@ -217,7 +217,7 @@ public class NullableBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBeare
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt> where TFmt : ISpanFormattable, TBase
 {
     public TFmt?[]? Value { get; set; }
@@ -237,7 +237,7 @@ public class SpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class NullableSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<TFmtStruct?[]?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
@@ -259,7 +259,7 @@ public class NullableSpanFormattableArrayAddFilteredSimpleOrderedCollectionStrin
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt[]?>, IEnumerable<TFmt> where TFmt : ISpanFormattable
 {
     public TFmt[]? Value { get; set; }
@@ -279,7 +279,7 @@ public class SpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<T
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt?> where TFmt : class, ISpanFormattable
 {
     public TFmt?[]? Value { get; set; }
@@ -299,7 +299,7 @@ public class SpanFormattableNullableSpanAddFilteredSimpleOrderedCollectionString
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class NullableSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<TFmtStruct?[]?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
@@ -321,7 +321,7 @@ public class NullableSpanFormattableSpanAddFilteredSimpleOrderedCollectionString
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt[]?>, IEnumerable<TFmt> where TFmt : ISpanFormattable
 {
     public TFmt[]? Value { get; set; }
@@ -341,7 +341,7 @@ public class SpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionString
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt?> where TFmt : class, ISpanFormattable
 {
     public TFmt?[]? Value { get; set; }
@@ -361,7 +361,7 @@ public class SpanFormattableNullableReadOnlySpanAddFilteredSimpleOrderedCollecti
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class NullableSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<TFmtStruct?[]?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
@@ -383,7 +383,7 @@ public class NullableSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollecti
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<List<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
     public List<TFmt?>? Value { get; set; }
@@ -403,7 +403,7 @@ public class SpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<T
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class NullableSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<List<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
@@ -425,7 +425,7 @@ public class NullableSpanFormattableListAddFilteredSimpleOrderedCollectionString
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<IEnumerable<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
     public IEnumerable<TFmt?>? Value { get; set; }
@@ -445,7 +445,7 @@ public class SpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBe
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class NullableSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<IEnumerable<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
@@ -467,7 +467,7 @@ public class NullableSpanFormattableEnumerableAddFilteredSimpleOrderedCollection
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class SpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<IEnumerator<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
     public IEnumerator<TFmt?>? Value { get; set; }
@@ -487,7 +487,7 @@ public class SpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBe
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class NullableSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<IEnumerator<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
@@ -510,7 +510,7 @@ public class NullableSpanFormattableEnumeratorAddFilteredSimpleOrderedCollection
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class CloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
     : IStringBearer, ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
       , IMoldSupportedValue<TCloaked?[]?>, IEnumerable<TCloaked> where TCloaked : TCloakedFilterBase, TCloakedRevealBase
 {
@@ -533,7 +533,7 @@ public class CloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class NullableCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
+public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
   , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
@@ -556,7 +556,7 @@ public class NullableCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStri
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class CloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : IStringBearer
+public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : IStringBearer
   , ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
   , IEnumerable<TCloaked> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
@@ -579,7 +579,7 @@ public class CloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class CloakedBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
+public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked?[]?>
       , IEnumerable<TCloaked> where TCloaked : class, TCloakedBase, TCloakedFilterBase
 {
@@ -602,7 +602,7 @@ public class CloakedBearerNullableSpanRevealFilteredSimpleOrderedCollectionStrin
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class NullableCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
+public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
   , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
@@ -625,7 +625,7 @@ public class NullableCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStrin
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class CloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : IStringBearer
+public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : IStringBearer
   , ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
   , IEnumerable<TCloaked> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
@@ -648,7 +648,7 @@ public class CloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStrin
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class CloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
+public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked?[]?>
       , IEnumerable<TCloaked> where TCloaked : class, TCloakedBase, TCloakedFilterBase
 {
@@ -671,7 +671,7 @@ public class CloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollect
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class NullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
+public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
   , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
@@ -694,7 +694,7 @@ public class NullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollect
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class CloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
+public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
       , IMoldSupportedValue<IReadOnlyList<TCloaked?>?>, IEnumerable<TCloaked?> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
@@ -717,7 +717,7 @@ public class CloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class NullableCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
+public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
   , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
@@ -740,7 +740,7 @@ public class NullableCloakedBearerListRevealFilteredSimpleOrderedCollectionStrin
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class CloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
+public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
       , IMoldSupportedValue<IEnumerable<TCloaked?>?>, IEnumerable<TCloaked?> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
@@ -763,7 +763,7 @@ public class CloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringB
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class NullableCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
+public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
   , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
@@ -786,7 +786,7 @@ public class NullableCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectio
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class CloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
+public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
       , IMoldSupportedValue<IEnumerator<TCloaked?>?>, IEnumerable<TCloaked?> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
@@ -809,7 +809,7 @@ public class CloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringB
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class NullableCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
+public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
   , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
@@ -830,7 +830,7 @@ public class NullableCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectio
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class StringBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
+public class OrderedFromStringBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
   , IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
 {
@@ -849,7 +849,7 @@ public class StringBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
-public class NullableStringBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct>
+public class OrderedFromNullableStringBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct>
     : IStringBearer, ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -868,7 +868,7 @@ public class NullableStringBearerArrayRevealFilteredSimpleOrderedCollectionStrin
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
-public class StringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
+public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer[]?>, IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
 {
     public TBearer[]? Value { get; set; }
@@ -886,7 +886,7 @@ public class StringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<T
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class StringBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
+public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
   , IEnumerable<TBearer> where TBearer : class, IStringBearer, TBearerBase
 {
@@ -905,7 +905,7 @@ public class StringBearerNullableSpanRevealFilteredSimpleOrderedCollectionString
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
-public class NullableStringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
+public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -924,7 +924,7 @@ public class NullableStringBearerSpanRevealFilteredSimpleOrderedCollectionString
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
-public class StringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
+public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer[]?>, IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
 {
     public TBearer[]? Value { get; set; }
@@ -943,7 +943,7 @@ public class StringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionString
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsNullableClass |
                   AcceptsStringBearer)]
-public class StringBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
+public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
   , IEnumerable<TBearer> where TBearer : class, IStringBearer, TBearerBase
 {
@@ -962,7 +962,7 @@ public class StringBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollecti
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate  | AcceptsNullableStruct | AcceptsStringBearer)]
-public class NullableStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
+public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -981,7 +981,7 @@ public class NullableStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollecti
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate  | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class StringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
+public class OrderedFromStringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IReadOnlyList<TBearer?>?>, IEnumerable<TBearer>
     where TBearer : IStringBearer, TBearerBase
 {
@@ -1000,7 +1000,7 @@ public class StringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<T
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
-public class NullableStringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
+public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -1019,7 +1019,7 @@ public class NullableStringBearerListRevealFilteredSimpleOrderedCollectionString
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class StringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
+public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IEnumerable<TBearer?>?>, IEnumerable<TBearer>
     where TBearer : IStringBearer, TBearerBase
 {
@@ -1038,7 +1038,7 @@ public class StringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBe
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
-public class NullableStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
+public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IEnumerable<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -1057,7 +1057,7 @@ public class NullableStringBearerEnumerableRevealFilteredSimpleOrderedCollection
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class StringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
+public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IEnumerator<TBearer?>?>, IEnumerable<TBearer>
     where TBearer : IStringBearer, TBearerBase
 {
@@ -1076,7 +1076,7 @@ public class StringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBe
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
-public class NullableStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
+public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
   , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IEnumerator<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -1095,7 +1095,7 @@ public class NullableStringBearerEnumeratorRevealFilteredSimpleOrderedCollection
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class StringArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string?[]?>, IEnumerable<string?>
 {
     public string?[]? Value { get; set; }
@@ -1114,7 +1114,7 @@ public class StringArrayAddFilteredSimpleOrderedCollectionStringBearer : IString
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class StringSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string[]?>, IEnumerable<string>
 {
     public string[]? Value { get; set; }
@@ -1133,7 +1133,7 @@ public class StringSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringB
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class StringNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string?[]?>, IEnumerable<string?>
 {
     public string?[]? Value { get; set; }
@@ -1152,7 +1152,7 @@ public class StringNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : 
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class StringReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string[]?>, IEnumerable<string>
 {
     public string[]? Value { get; set; }
@@ -1172,7 +1172,7 @@ public class StringReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : 
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class StringNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string?[]?>, IEnumerable<string?>
 {
     public string?[]? Value { get; set; }
@@ -1191,7 +1191,7 @@ public class StringNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringB
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class StringListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<IReadOnlyList<string?>?>, IEnumerable<string?>
 {
     public IReadOnlyList<string?>? Value { get; set; }
@@ -1211,7 +1211,7 @@ public class StringListAddFilteredSimpleOrderedCollectionStringBearer : IStringB
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class StringEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<IEnumerable<string?>?>, IEnumerable<string?>
 {
     public IEnumerable<string?>? Value { get; set; }
@@ -1231,7 +1231,7 @@ public class StringEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IS
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class StringEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<IEnumerator<string?>?>, IEnumerable<string?>
 {
     public IEnumerator<string?>? Value { get; set; }
@@ -1250,7 +1250,7 @@ public class StringEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IS
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class CharSequenceArrayAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence, TCharSeqBase
 {
@@ -1271,7 +1271,7 @@ public class CharSequenceArrayAddFilteredSimpleOrderedCollectionCharSequenceBear
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class CharSequenceSpanAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq>
     where TCharSeq : ICharSequence, TCharSeqBase
 {
@@ -1292,7 +1292,7 @@ public class CharSequenceSpanAddFilteredSimpleOrderedCollectionCharSequenceBeare
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class CharSequenceNullableSpanAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
+public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
   , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
 {
@@ -1313,7 +1313,7 @@ public class CharSequenceNullableSpanAddFilteredSimpleOrderedCollectionCharSeque
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class CharSequenceReadOnlySpanAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
+public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
   , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq>
     where TCharSeq : ICharSequence, TCharSeqBase
 {
@@ -1335,7 +1335,7 @@ public class CharSequenceReadOnlySpanAddFilteredSimpleOrderedCollectionCharSeque
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class CharSequenceNullableReadOnlySpanAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
+public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
   , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence, TCharSeqBase
 {
@@ -1356,7 +1356,7 @@ public class CharSequenceNullableReadOnlySpanAddFilteredSimpleOrderedCollectionC
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class CharSequenceListAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
 {
@@ -1378,7 +1378,7 @@ public class CharSequenceListAddFilteredSimpleOrderedCollectionCharSequenceBeare
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class CharSequenceEnumerableAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
+public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
   , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IEnumerable<TCharSeq?>?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
 {
@@ -1400,7 +1400,7 @@ public class CharSequenceEnumerableAddFilteredSimpleOrderedCollectionCharSequenc
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class CharSequenceEnumeratorAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
+public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollectionCharSequenceBearer<TCharSeq, TCharSeqBase> : IStringBearer
   , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IEnumerator<TCharSeq?>?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
 {
@@ -1421,7 +1421,7 @@ public class CharSequenceEnumeratorAddFilteredSimpleOrderedCollectionCharSequenc
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class StringBuilderArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
     public StringBuilder?[]? Value { get; set; }
@@ -1441,7 +1441,7 @@ public class StringBuilderArrayAddFilteredSimpleOrderedCollectionStringBearer : 
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class StringBuilderSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
     public StringBuilder[]? Value { get; set; }
@@ -1461,7 +1461,7 @@ public class StringBuilderSpanAddFilteredSimpleOrderedCollectionStringBearer : I
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class StringBuilderNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
     public StringBuilder?[]? Value { get; set; }
@@ -1481,7 +1481,7 @@ public class StringBuilderNullableSpanAddFilteredSimpleOrderedCollectionStringBe
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class StringBuilderReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
     public StringBuilder[]? Value { get; set; }
@@ -1502,7 +1502,7 @@ public class StringBuilderReadOnlySpanAddFilteredSimpleOrderedCollectionStringBe
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class StringBuilderNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
     public StringBuilder?[]? Value { get; set; }
@@ -1522,7 +1522,7 @@ public class StringBuilderNullableReadOnlySpanAddFilteredSimpleOrderedCollection
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class StringBuilderListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
     public IReadOnlyList<StringBuilder?>? Value { get; set; }
@@ -1543,7 +1543,7 @@ public class StringBuilderListAddFilteredSimpleOrderedCollectionStringBearer : I
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class StringBuilderEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<IEnumerable<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
     public IEnumerable<StringBuilder?>? Value { get; set; }
@@ -1564,7 +1564,7 @@ public class StringBuilderEnumerableAddFilteredSimpleOrderedCollectionStringBear
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class StringBuilderEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<IEnumerator<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
     public IEnumerator<StringBuilder?>? Value { get; set; }
@@ -1584,7 +1584,7 @@ public class StringBuilderEnumeratorAddFilteredSimpleOrderedCollectionStringBear
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class MatchArrayAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T?[]?>, IEnumerable<T?> where T : TBase
 {
     public T?[]? Value { get; set; }
@@ -1605,7 +1605,7 @@ public class MatchArrayAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class MatchSpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T[]?>, IEnumerable<T> where T : TBase
 {
     public T[]? Value { get; set; }
@@ -1626,7 +1626,7 @@ public class MatchSpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> :
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class MatchNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T?[]?>, IEnumerable<T?> where T : TBase
 {
     public T?[]? Value { get; set; }
@@ -1647,7 +1647,7 @@ public class MatchNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<T, 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class MatchReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T[]?>, IEnumerable<T> where T : TBase
 {
     public T[]? Value { get; set; }
@@ -1668,7 +1668,7 @@ public class MatchReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<T, 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class MatchNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T?[]?>, IEnumerable<T?> where T : TBase
 {
     public T?[]? Value { get; set; }
@@ -1687,7 +1687,7 @@ public class MatchNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBe
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class MatchListAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<IReadOnlyList<T?>?>, IEnumerable<T?> where T : TBase
 {
     public IReadOnlyList<T?>? Value { get; set; }
@@ -1706,7 +1706,7 @@ public class MatchListAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> :
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class MatchEnumerableAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<IEnumerable<T?>?>, IEnumerable<T?> where T : TBase
 {
     public IEnumerable<T?>? Value { get; set; }
@@ -1725,7 +1725,7 @@ public class MatchEnumerableAddFilteredSimpleOrderedCollectionStringBearer<T, TB
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class MatchEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<IEnumerator<T?>?>, IEnumerable<T?> where T : TBase
 {
     public IEnumerator<T?>? Value { get; set; }
@@ -1744,7 +1744,7 @@ public class MatchEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<T, TB
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class ObjectArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
     public object?[]? Value { get; set; }
@@ -1765,7 +1765,7 @@ public class ObjectArrayAddFilteredSimpleOrderedCollectionStringBearer : IString
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class ObjectSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object[]?>, IEnumerable<object>
 {
     public object[]? Value { get; set; }
@@ -1786,7 +1786,7 @@ public class ObjectSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringB
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class ObjectNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
     public object?[]? Value { get; set; }
@@ -1807,7 +1807,7 @@ public class ObjectNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class ObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object[]?>, IEnumerable<object>
 {
     public object[]? Value { get; set; }
@@ -1828,7 +1828,7 @@ public class ObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class ObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
     public object?[]? Value { get; set; }
@@ -1847,7 +1847,7 @@ public class ObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringB
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class ObjectListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<IReadOnlyList<object?>?>, IEnumerable<object?>
 {
     public IReadOnlyList<object?>? Value { get; set; }
@@ -1866,7 +1866,7 @@ public class ObjectListAddFilteredSimpleOrderedCollectionStringBearer : IStringB
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class ObjectEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<IEnumerable<object?>?>, IEnumerable<object?>
 {
     public IEnumerable<object?>? Value { get; set; }
@@ -1885,7 +1885,7 @@ public class ObjectEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IS
 }
 
 [TypeGeneratePart(CollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class ObjectEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<IEnumerator<object?>?>, IEnumerable<object?>
 {
     public IEnumerator<object?>? Value { get; set; }

@@ -226,7 +226,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             {
                 if (i > 0) stb.GoToNextCollectionItemStart(elementType, i);
                 var item = value[i];
-                stb.AppendOrNull(item);
+                stb.AppendRevealBearerOrNull(item);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, elementType, value.Length);
         return stb.AddGoToNext();
@@ -251,7 +251,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             {
                 if (i > 0) stb.GoToNextCollectionItemStart(elementType, i);
                 var item = value[i];
-                stb.AppendOrNull(item);
+                stb.AppendRevealBearerOrNull(item);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, elementType, value.Length);
         return stb.AddGoToNext();
@@ -276,7 +276,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             {
                 if (i > 0) stb.GoToNextCollectionItemStart(elementType, i);
                 var item = value[i];
-                stb.AppendOrNull(item);
+                stb.AppendRevealBearerOrNull(item);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, elementType, value.Length);
         return stb.AddGoToNext();
@@ -717,7 +717,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             {
                 if (i > 0) stb.GoToNextCollectionItemStart(elementType, i);
                 var item = value[i];
-                stb.AppendOrNull(item);
+                stb.AppendRevealBearerOrNull(item);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, elementType, value.Length);
         return stb.AddGoToNext();
@@ -742,7 +742,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             {
                 if (i > 0) stb.GoToNextCollectionItemStart(elementType, i);
                 var item = value[i];
-                stb.AppendOrNull(item);
+                stb.AppendRevealBearerOrNull(item);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, elementType, value.Length);
         return stb.AddGoToNext();
@@ -767,7 +767,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             {
                 if (i > 0) stb.GoToNextCollectionItemStart(elementType, i);
                 var item = value[i];
-                stb.AppendOrNull(item);
+                stb.AppendRevealBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, elementType, value.Length);
