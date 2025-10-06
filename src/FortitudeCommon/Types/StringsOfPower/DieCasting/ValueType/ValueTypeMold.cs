@@ -64,28 +64,28 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, formatString);
 
     public TExt ValueWithFallback<T>(string nonJsonfieldName, T? value
-      , StringBearerRevealState<T> stringBearerRevealState, T fallbackValue) where T : struct =>
-        Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, stringBearerRevealState);
+      , PalantírReveal<T> palantírReveal, T fallbackValue) where T : struct =>
+        Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, palantírReveal);
 
     public TExt Value<T, TBase>(string nonJsonfieldName, T value
-      , StringBearerRevealState<TBase> stringBearerRevealState) where T : TBase =>
-        Stb.FieldValueNext(nonJsonfieldName, value, stringBearerRevealState);
+      , PalantírReveal<TBase> palantírReveal) where T : TBase =>
+        Stb.FieldValueNext(nonJsonfieldName, value, palantírReveal);
 
     public TExt ValueMatch(object value, string? formatString = null) =>
         Stb.ValueMatchNext(value, formatString);
 
     public TExt ValueWithFallback<T, TBase>(string nonJsonfieldName, T? value
-      , StringBearerRevealState<TBase> stringBearerRevealState, T fallbackValue) 
+      , PalantírReveal<TBase> palantírReveal, T fallbackValue) 
         where T : class, TBase where TBase : class =>
-        Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, stringBearerRevealState);
+        Stb.FieldValueNext(nonJsonfieldName, value ?? fallbackValue, palantírReveal);
 
     public TExt String<T, TBase>(string nonJsonfieldName, T value
-      , StringBearerRevealState<TBase> stringBearerRevealState) where T : TBase  =>
-        Stb.FieldStringNext(nonJsonfieldName, value, stringBearerRevealState);
+      , PalantírReveal<TBase> palantírReveal) where T : TBase  =>
+        Stb.FieldStringNext(nonJsonfieldName, value, palantírReveal);
 
     public TExt StringWithFallback<T, TBase>(string nonJsonfieldName, T? value
-      , StringBearerRevealState<TBase> stringBearerRevealState, T fallbackValue) where T : TBase =>
-        Stb.FieldStringNext(nonJsonfieldName, value ?? fallbackValue, stringBearerRevealState);
+      , PalantírReveal<TBase> palantírReveal, T fallbackValue) where T : TBase =>
+        Stb.FieldStringNext(nonJsonfieldName, value ?? fallbackValue, palantírReveal);
 
     public TExt String(string nonJsonfieldName, ReadOnlySpan<char> value) => 
         Stb.FieldStringNext(nonJsonfieldName, value);

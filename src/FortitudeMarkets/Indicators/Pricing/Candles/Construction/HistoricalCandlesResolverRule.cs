@@ -41,13 +41,13 @@ public struct HistoricalCandleParams(SourceTickerIdentifier sourceTickerIdentifi
 
     public TimeLength CacheLength { get; set; } = cacheLength;
     
-    public static StringBearerRevealState<HistoricalCandleParams> Styler { get; } =
+    public static PalantírReveal<HistoricalCandleParams> Styler { get; } =
         (bap, stsa) =>
             stsa.StartComplexType(bap, nameof(bap))
-                .Field.AlwaysAdd(nameof(bap.SourceTickerIdentifier), bap.SourceTickerIdentifier, SourceTickerIdentifier.Styler)
+                .Field.AlwaysReveal(nameof(bap.SourceTickerIdentifier), bap.SourceTickerIdentifier, SourceTickerIdentifier.Styler)
                 .Field.AlwaysAdd(nameof(bap.Period), bap.Period)
-                .Field.AlwaysAdd(nameof(bap.PricingInstrumentId), bap.PricingInstrumentId, PricingInstrumentIdValue.Styler)
-                .Field.AlwaysAdd(nameof(bap.CacheLength), bap.CacheLength, TimeLength.Styler)
+                .Field.AlwaysReveal(nameof(bap.PricingInstrumentId), bap.PricingInstrumentId, PricingInstrumentIdValue.Styler)
+                .Field.AlwaysReveal(nameof(bap.CacheLength), bap.CacheLength, TimeLength.Styler)
                 .Complete();
 }
 
@@ -61,10 +61,10 @@ public struct HistoricalCandleResponseRequest(BoundedTimeRange requestTimeRange)
 {
     public BoundedTimeRange RequestTimeRange { get; set; } = requestTimeRange;
     
-    public static StringBearerRevealState<HistoricalCandleResponseRequest> Styler { get; } =
+    public static PalantírReveal<HistoricalCandleResponseRequest> Styler { get; } =
         (bap, stsa) =>
             stsa.StartComplexType(bap, nameof(bap))
-                .Field.AlwaysAdd(nameof(bap.RequestTimeRange), bap.RequestTimeRange, BoundedTimeRange.Styler)
+                .Field.AlwaysReveal(nameof(bap.RequestTimeRange), bap.RequestTimeRange, BoundedTimeRange.Styler)
                 .Complete();
 }
 

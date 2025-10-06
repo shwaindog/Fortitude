@@ -431,7 +431,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
             .Field.AlwaysAdd(nameof(InstrumentName), InstrumentName)
             .Field.AlwaysAdd(nameof(TickerAvailability), TickerAvailability)
             .Field.AlwaysAdd(nameof(PublishedDetailLevel), PublishedDetailLevel)
-            .Field.AlwaysAdd(nameof(MarketClassificationConfig), MarketClassificationConfig)
+            .Field.AlwaysReveal(nameof(MarketClassificationConfig), MarketClassificationConfig)
             .Field.AlwaysAdd(nameof(MaximumPublishedLayers), MaximumPublishedLayers)
             .Field.AlwaysAdd(nameof(RoundingPrecision), RoundingPrecision)
             .Field.AlwaysAdd(nameof(Pip), Pip)
@@ -446,7 +446,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
             .Field.AlwaysAdd(nameof(LastTradedFlags), LastTradedFlags)
             .Field.AlwaysAdd(nameof(VenuePricingSymbol), VenuePricingSymbol)
             .Field.AlwaysAdd(nameof(VenueTradingSymbol), VenueTradingSymbol)
-            .Field.AlwaysAdd(nameof(TradingTimeTableConfig), TradingTimeTableConfig)
+            .Field.AlwaysReveal(nameof(TradingTimeTableConfig), TradingTimeTableConfig)
             .Field.AlwaysAdd(nameof(QuoteBehaviorFlags), QuoteBehaviorFlags)
             .Field.AlwaysAdd(nameof(Path), Path)
             .Complete();

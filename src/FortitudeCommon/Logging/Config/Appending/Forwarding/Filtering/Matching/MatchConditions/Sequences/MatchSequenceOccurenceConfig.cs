@@ -202,8 +202,8 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
-           .Field.AlwaysAdd(nameof(OnSequenceAbort), OnSequenceAbort)
-           .Field.AlwaysAdd(nameof(OnSequenceTimeout), OnSequenceTimeout)
-           .Field.AlwaysAdd(nameof(StartSequence), StartSequence)
+           .Field.AlwaysReveal(nameof(OnSequenceAbort), OnSequenceAbort)
+           .Field.AlwaysReveal(nameof(OnSequenceTimeout), OnSequenceTimeout)
+           .Field.AlwaysReveal(nameof(StartSequence), StartSequence)
            .Complete();
 }

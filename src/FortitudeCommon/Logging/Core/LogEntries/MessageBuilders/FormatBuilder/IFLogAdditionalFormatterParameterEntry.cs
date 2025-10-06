@@ -29,11 +29,11 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogAdditionalFormatterParameterEntry? And<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
+    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
@@ -107,8 +107,8 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     void AndFinalParam(bool value);
     void AndFinalParam(bool? value);
     void AndFinalParam<TFmt>(TFmt value) where TFmt : ISpanFormattable;
-    void AndFinalParam<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType;
-    void AndFinalParam<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    void AndFinalParam<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
+    void AndFinalParam<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
     void AndFinalParam(ReadOnlySpan<char> value);
     void AndFinalParam(ReadOnlySpan<char> value, int fromIndex, int count = int.MaxValue);
     void AndFinalParam(string? value);
@@ -150,11 +150,11 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogStringAppender AndFinalParamThenToAppender<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple)
+    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]

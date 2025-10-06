@@ -20,7 +20,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0)
     ];
 
-    private Func<int, bool>? useDynamicMapping;
+    // private Func<int, bool>? useDynamicMapping;
 
     public JsonEscapingEncodingTransfer Initialize(IJsonFormattingOptions owningJsonOptions, (Range, JsonEscapeType, Func<Rune, string>)[] cacheRanges)
     {

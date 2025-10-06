@@ -89,6 +89,6 @@ public class FileRepositoryConfig : ConfigSection, IFileRepositoryConfig
     public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this, nameof(FileRepositoryConfig))
             .Field.AlwaysAdd(nameof(RepositoryName), RepositoryName)
-            .Field.AlwaysAdd(nameof(RepositoryConfig), RepositoryConfig)
+            .Field.AlwaysReveal(nameof(RepositoryConfig), RepositoryConfig)
             .Complete();
 }

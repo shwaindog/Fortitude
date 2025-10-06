@@ -534,7 +534,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(DefaultTickerAvailability), DefaultTickerAvailability)
             .Field.AlwaysAdd(nameof(DefaultPublishTickerQuoteDetailLevel), DefaultPublishTickerQuoteDetailLevel)
-            .Field.AlwaysAdd(nameof(DefaultMarketClassificationConfig), DefaultMarketClassificationConfig)
+            .Field.AlwaysReveal(nameof(DefaultMarketClassificationConfig), DefaultMarketClassificationConfig)
             .Field.AlwaysAdd(nameof(DefaultRoundingPrecision), DefaultRoundingPrecision)
             .Field.AlwaysAdd(nameof(DefaultPip), DefaultPip)
             .Field.AlwaysAdd(nameof(DefaultMaximumPublishedLayers), DefaultMaximumPublishedLayers)

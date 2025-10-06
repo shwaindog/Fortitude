@@ -359,9 +359,9 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
             .Field.AlwaysAdd(nameof(SourceId), SourceId)
             .Field.AlwaysAdd(nameof(SourceName), SourceName)
             .Field.AlwaysAdd(nameof(MarketConnectionType), MarketConnectionType)
-            .Field.AlwaysAdd(nameof(SourceTickerConfig), SourceTickerConfig)
-            .Field.AlwaysAdd(nameof(PricingServerConfig), PricingServerConfig)
-            .Field.AlwaysAdd(nameof(TradingServerConfig), TradingServerConfig)
+            .Field.AlwaysReveal(nameof(SourceTickerConfig), SourceTickerConfig)
+            .Field.AlwaysReveal(nameof(PricingServerConfig), PricingServerConfig)
+            .Field.AlwaysReveal(nameof(TradingServerConfig), TradingServerConfig)
             .Complete();
 
     public override string ToString() =>

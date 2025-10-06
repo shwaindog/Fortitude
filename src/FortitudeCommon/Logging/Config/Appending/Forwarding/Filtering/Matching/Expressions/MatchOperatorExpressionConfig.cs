@@ -284,11 +284,11 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(EvaluateOrder), EvaluateOrder)
-           .Field.WhenNonNullAddStyled(nameof(All), All)
-           .Field.WhenNonNullAddStyled(nameof(Any), Any)
-           .Field.WhenNonNullAddStyled(nameof(And), And)
-           .Field.WhenNonNullAddStyled(nameof(Or), Or)
-           .Field.WhenNonNullAddStyled(nameof(IsTrue), IsTrue)
-           .Field.WhenNonNullAddStyled(nameof(IsFalse), IsFalse)
+           .Field.WhenNonNullReveal(nameof(All), All)
+           .Field.WhenNonNullReveal(nameof(Any), Any)
+           .Field.WhenNonNullReveal(nameof(And), And)
+           .Field.WhenNonNullReveal(nameof(Or), Or)
+           .Field.WhenNonNullReveal(nameof(IsTrue), IsTrue)
+           .Field.WhenNonNullReveal(nameof(IsFalse), IsFalse)
            .Complete();
 }

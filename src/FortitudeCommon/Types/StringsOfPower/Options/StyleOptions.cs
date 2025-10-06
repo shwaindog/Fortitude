@@ -54,7 +54,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private string? nullString;
     private bool?   ignoreEmptyCollection;
     private bool?   emptyCollectionWritesNull;
-    private bool?   skipNullableNullWritesNull;
+    private bool?   onNullWriteNullString;
     private string? itemSeparator;
 
     private IEncodingTransfer? encodingTransfer;
@@ -146,10 +146,16 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => itemSeparator = value;
     }
 
-    public bool SkipNullableNullWritesNull
+    public bool NullWritesNothing
     {
-        readonly get => skipNullableNullWritesNull ?? fallbackOptions?.Values.SkipNullableNullWritesNull ?? true;
-        set => skipNullableNullWritesNull = value;
+        readonly get => !onNullWriteNullString ?? fallbackOptions?.Values.NullWritesNothing ?? false;
+        set => onNullWriteNullString = !value;
+    }
+
+    public bool NullWritesNullString 
+    {
+        readonly get => onNullWriteNullString ?? fallbackOptions?.Values.NullWritesNothing ?? false;
+        set => onNullWriteNullString = value;
     }
 
     public bool EmptyCollectionWritesNull
@@ -633,12 +639,18 @@ public class StyleOptions : IJsonFormattingOptions
         set => values.ItemSeparator = value;
     }
 
-    public bool SkipNullableNullWritesNull
+    public bool NullWritesNothing
     {
-        get => values.SkipNullableNullWritesNull;
-        set => values.SkipNullableNullWritesNull = value;
+        get => values.NullWritesNothing;
+        set => values.NullWritesNothing = value;
     }
-
+    
+    public bool NullWritesNullString 
+    {
+        get => values.NullWritesNullString;
+        set => values.NullWritesNullString = value;
+    }
+    
     public bool EmptyCollectionWritesNull
     {
         get => values.EmptyCollectionWritesNull;

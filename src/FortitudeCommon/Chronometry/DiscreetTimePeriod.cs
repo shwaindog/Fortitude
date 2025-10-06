@@ -412,7 +412,7 @@ public readonly struct DiscreetTimePeriod
         return toConvert.Period;
     }
     
-    public static StringBearerRevealState<DiscreetTimePeriod> Styler { get; } =
+    public static PalantírReveal<DiscreetTimePeriod> Styler { get; } =
         (dtp, stsa) =>
             stsa.StartComplexType(dtp, nameof(dtp))
                 .Field.AlwaysAddObject(nameof(dtp.NumberOfPeriods), dtp.NumberOfPeriods)

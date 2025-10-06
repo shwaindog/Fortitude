@@ -111,13 +111,13 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , StringBearerRevealState<TVBase> valueStyler
+      , PalantírReveal<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : TVBase =>
         AddAllEnumerate(value, valueStyler, keyFormatString);
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TVBase>(KeyValuePair<TKey, TValue>[]? value
-          , StringBearerRevealState<TVBase> valueStyler
+          , PalantírReveal<TVBase> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : TVBase
     {
@@ -141,7 +141,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TVBase>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , StringBearerRevealState<TVBase> valueStyler
+          , PalantírReveal<TVBase> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : TVBase
     {
@@ -164,7 +164,7 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue, TVBase> (IEnumerable<KeyValuePair<TKey, TValue>>? value
-          , StringBearerRevealState<TVBase> valueStyler
+          , PalantírReveal<TVBase> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : TVBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -186,7 +186,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue, TVBase>
         (IEnumerator<KeyValuePair<TKey, TValue>>? value
-          , StringBearerRevealState<TVBase> valueStyler
+          , PalantírReveal<TVBase> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : TVBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -210,11 +210,11 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase =>
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase =>
         AddAllEnumerate(value, valueStyler, keyStyler);
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
-          , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
+          , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
@@ -233,7 +233,7 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
+          , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
@@ -252,7 +252,7 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-          , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
+          , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
@@ -270,7 +270,7 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-          , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
+          , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) where TKey : TKBase  where TValue : TVBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var hasValue = value?.MoveNext() ?? false;

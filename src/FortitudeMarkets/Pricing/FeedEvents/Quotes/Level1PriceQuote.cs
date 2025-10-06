@@ -622,8 +622,8 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     public override StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
-            .Field.AlwaysAdd(nameof(QuoteContainer), QuoteContainer)
-            .Field.AlwaysAdd(nameof(ConflatedTicksCandle), ConflatedTicksCandle)
+            .Field.AlwaysReveal(nameof(QuoteContainer), QuoteContainer)
+            .Field.AlwaysReveal(nameof(ConflatedTicksCandle), ConflatedTicksCandle)
             .Field.AlwaysAdd(nameof(QuoteBehavior), QuoteBehavior)
             .Complete();
 

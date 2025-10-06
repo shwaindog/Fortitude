@@ -12,8 +12,6 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 {
-    protected const string CmaSpc     = ", ";
-    protected const string ClnSpc     = ": ";
     protected const string DblQt      = "\"";
     protected const char   DblQtChar  = '"';
     protected const string BrcOpn     = "{";
@@ -25,7 +23,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public PrettyLogTypeFormatting Initialize(StyleOptions styleOptions)
+    public override PrettyLogTypeFormatting Initialize(StyleOptions styleOptions)
     {
         Options = styleOptions;
 
@@ -34,7 +32,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
     public virtual StyleOptions StyleOptions
     {
-        get => (StyleOptions)FormatOptions;
+        get => (StyleOptions)(FormatOptions ??= new StyleOptions());
         set => FormatOptions = value;
     }
 

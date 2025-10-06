@@ -37,7 +37,7 @@ public readonly struct MonthFloatingWeekday(MonthlyFloatingWeekDayOccurence floa
         }
     }
     
-    public static StringBearerRevealState<MonthFloatingWeekday?> Styler { get; } =
+    public static PalantírReveal<MonthFloatingWeekday?> Styler { get; } =
         (mfwd, stsa) =>
             stsa.StartComplexType(mfwd)
                 .Field.AlwaysAdd(nameof(mfwd.Value.OccurenceInMonth), mfwd?.OccurenceInMonth)

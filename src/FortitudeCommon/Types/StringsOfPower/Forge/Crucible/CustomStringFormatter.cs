@@ -26,30 +26,23 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
     protected static readonly ConcurrentDictionary<Type, IStringBearerFormattableProvider> GlobalCustomStyledToStringFormattableProviders = new();
 
-    protected static readonly string[] RawByteHex;
-
     protected static readonly char[] Base64LookupTable =
     [
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b'
       , 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3'
       , '4', '5', '6', '7', '8', '9', '+', '/'
     ];
-    protected IFormattingOptions FormatOptions;
+    protected IFormattingOptions? FormatOptions;
 
     static CustomStringFormatter()
     {
-        RawByteHex = new string[256];
-        for (int i = 0; i < 256; i++)
-        {
-            RawByteHex[i] = $"{i:X2}";
-        }
     }
 
     protected MutableString? CharSpanCollectionScratchBuffer { get; set; }
 
     public virtual IFormattingOptions Options
     {
-        get => FormatOptions;
+        get => FormatOptions ??= new FormattingOptions.FormattingOptions();
         set => FormatOptions = value;
     }
 
@@ -74,14 +67,14 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         return false;
     }
 
-    protected virtual bool TryGetCachedCustomStyledToStringFormatter<T>([NotNullWhen(true)] out StringBearerRevealState<T>? maybeFormatter)
+    protected virtual bool TryGetCachedCustomStyledToStringFormatter<T>([NotNullWhen(true)] out PalantírReveal<T>? maybeFormatter)
     {
         maybeFormatter = null;
         if (GlobalCustomStyledToStringFormattableProviders.TryGetValue(typeof(T), out var formattableProvider))
         {
             if (formattableProvider.SupportStyleToString && formattableProvider is IStringBearerRevelStateProvider<T> spanFormattableProvider)
             {
-                maybeFormatter = spanFormattableProvider.StringBearerRevealState;
+                maybeFormatter = spanFormattableProvider.EnumPalantír;
                 return true;
             }
         }
@@ -769,7 +762,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
     public virtual int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable
     {
-        if (source == null) return Options.SkipNullableNullWritesNull ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
+        if (source == null) return Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         int charsWritten;
         if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
         {
@@ -831,7 +824,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString)
         where TFmt : ISpanFormattable
     {
-        if (source == null) return Options.SkipNullableNullWritesNull ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString);
+        if (source == null) return Options.NullWritesNothing ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString);
         int charsWritten;
         var charSpan = stackalloc char[1024].ResetMemory();
         if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
@@ -895,14 +888,14 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
     public virtual int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : struct, ISpanFormattable
     {
-        if (source == null) return Options.SkipNullableNullWritesNull ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
+        if (source == null) return Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         return Format(source.Value, sb, formatString);
     }
 
     public virtual int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString)
         where TFmt : struct, ISpanFormattable
     {
-        if (source == null) return Options.SkipNullableNullWritesNull ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
+        if (source == null) return Options.NullWritesNothing ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         return Format(source.Value, destCharSpan, destStartIndex, formatString);
     }
 
@@ -970,8 +963,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case IEnumerator<ulong> uLongArray:         return FormatEnumerator(uLongArray, sb, formatString);
                 case IEnumerator<double> doubleArray:       return FormatEnumerator(doubleArray, sb, formatString);
                 case IEnumerator<decimal> decimalArray:     return FormatEnumerator(decimalArray, sb, formatString);
-                case IEnumerator<Int128> xtralongArray:     return FormatEnumerator(xtralongArray, sb, formatString);
-                case IEnumerator<UInt128> xtraUlongArray:   return FormatEnumerator(xtraUlongArray, sb, formatString);
+                case IEnumerator<Int128> veryLongArray:     return FormatEnumerator(veryLongArray, sb, formatString);
+                case IEnumerator<UInt128> veryUlongArray:   return FormatEnumerator(veryUlongArray, sb, formatString);
                 case IEnumerator<BigInteger> bigIntArray:   return FormatEnumerator(bigIntArray, sb, formatString);
                 case IEnumerator<Complex> complexNumArray:  return FormatEnumerator(complexNumArray, sb, formatString);
                 case IEnumerator<DateTime> dateTimeArray:   return FormatEnumerator(dateTimeArray, sb, formatString);
@@ -1006,8 +999,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case IEnumerator<ulong?> nullULongArray:         return FormatEnumerator(nullULongArray, sb, formatString);
                 case IEnumerator<double?> nullDoubleArray:       return FormatEnumerator(nullDoubleArray, sb, formatString);
                 case IEnumerator<decimal?> nullDecimalArray:     return FormatEnumerator(nullDecimalArray, sb, formatString);
-                case IEnumerator<Int128?> nullXtralongArray:     return FormatEnumerator(nullXtralongArray, sb, formatString);
-                case IEnumerator<UInt128?> nullXtraUlongArray:   return FormatEnumerator(nullXtraUlongArray, sb, formatString);
+                case IEnumerator<Int128?> nullVeryLongArray:     return FormatEnumerator(nullVeryLongArray, sb, formatString);
+                case IEnumerator<UInt128?> nullVeryUlongArray:   return FormatEnumerator(nullVeryUlongArray, sb, formatString);
                 case IEnumerator<BigInteger?> nullBigIntArray:   return FormatEnumerator(nullBigIntArray, sb, formatString);
                 case IEnumerator<Complex?> nullComplexNumArray:  return FormatEnumerator(nullComplexNumArray, sb, formatString);
                 case IEnumerator<DateTime?> nullDateTimeArray:   return FormatEnumerator(nullDateTimeArray, sb, formatString);
@@ -1044,8 +1037,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case IEnumerable<ulong> uLongArray:         return FormatEnumerable(uLongArray, sb, formatString);
                 case IEnumerable<double> doubleArray:       return FormatEnumerable(doubleArray, sb, formatString);
                 case IEnumerable<decimal> decimalArray:     return FormatEnumerable(decimalArray, sb, formatString);
-                case IEnumerable<Int128> xtralongArray:     return FormatEnumerable(xtralongArray, sb, formatString);
-                case IEnumerable<UInt128> xtraUlongArray:   return FormatEnumerable(xtraUlongArray, sb, formatString);
+                case IEnumerable<Int128> veryLongArray:     return FormatEnumerable(veryLongArray, sb, formatString);
+                case IEnumerable<UInt128> veryULongArray:   return FormatEnumerable(veryULongArray, sb, formatString);
                 case IEnumerable<BigInteger> bigIntArray:   return FormatEnumerable(bigIntArray, sb, formatString);
                 case IEnumerable<Complex> complexNumArray:  return FormatEnumerable(complexNumArray, sb, formatString);
                 case IEnumerable<DateTime> dateTimeArray:   return FormatEnumerable(dateTimeArray, sb, formatString);
@@ -1080,8 +1073,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case IEnumerable<ulong?> nullULongArray:         return FormatEnumerable(nullULongArray, sb, formatString);
                 case IEnumerable<double?> nullDoubleArray:       return FormatEnumerable(nullDoubleArray, sb, formatString);
                 case IEnumerable<decimal?> nullDecimalArray:     return FormatEnumerable(nullDecimalArray, sb, formatString);
-                case IEnumerable<Int128?> nullXtralongArray:     return FormatEnumerable(nullXtralongArray, sb, formatString);
-                case IEnumerable<UInt128?> nullXtraUlongArray:   return FormatEnumerable(nullXtraUlongArray, sb, formatString);
+                case IEnumerable<Int128?> nullVeryLongArray:     return FormatEnumerable(nullVeryLongArray, sb, formatString);
+                case IEnumerable<UInt128?> nullVeryULongArray:   return FormatEnumerable(nullVeryULongArray, sb, formatString);
                 case IEnumerable<BigInteger?> nullBigIntArray:   return FormatEnumerable(nullBigIntArray, sb, formatString);
                 case IEnumerable<Complex?> nullComplexNumArray:  return FormatEnumerable(nullComplexNumArray, sb, formatString);
                 case IEnumerable<DateTime?> nullDateTimeArray:   return FormatEnumerable(nullDateTimeArray, sb, formatString);
@@ -1118,8 +1111,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case IReadOnlyList<ulong> uLongArray:         return FormatList(uLongArray, sb, formatString);
                 case IReadOnlyList<double> doubleArray:       return FormatList(doubleArray, sb, formatString);
                 case IReadOnlyList<decimal> decimalArray:     return FormatList(decimalArray, sb, formatString);
-                case IReadOnlyList<Int128> xtralongArray:     return FormatList(xtralongArray, sb, formatString);
-                case IReadOnlyList<UInt128> xtraUlongArray:   return FormatList(xtraUlongArray, sb, formatString);
+                case IReadOnlyList<Int128> veryLongArray:     return FormatList(veryLongArray, sb, formatString);
+                case IReadOnlyList<UInt128> veryULongArray:   return FormatList(veryULongArray, sb, formatString);
                 case IReadOnlyList<BigInteger> bigIntArray:   return FormatList(bigIntArray, sb, formatString);
                 case IReadOnlyList<Complex> complexNumArray:  return FormatList(complexNumArray, sb, formatString);
                 case IReadOnlyList<DateTime> dateTimeArray:   return FormatList(dateTimeArray, sb, formatString);
@@ -1153,8 +1146,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case IReadOnlyList<ulong?> nullULongArray:         return FormatList(nullULongArray, sb, formatString);
                 case IReadOnlyList<double?> nullDoubleArray:       return FormatList(nullDoubleArray, sb, formatString);
                 case IReadOnlyList<decimal?> nullDecimalArray:     return FormatList(nullDecimalArray, sb, formatString);
-                case IReadOnlyList<Int128?> nullXtralongArray:     return FormatList(nullXtralongArray, sb, formatString);
-                case IReadOnlyList<UInt128?> nullXtraUlongArray:   return FormatList(nullXtraUlongArray, sb, formatString);
+                case IReadOnlyList<Int128?> nullVeryLongArray:     return FormatList(nullVeryLongArray, sb, formatString);
+                case IReadOnlyList<UInt128?> nullVeryULongArray:   return FormatList(nullVeryULongArray, sb, formatString);
                 case IReadOnlyList<BigInteger?> nullBigIntArray:   return FormatList(nullBigIntArray, sb, formatString);
                 case IReadOnlyList<Complex?> nullComplexNumArray:  return FormatList(nullComplexNumArray, sb, formatString);
                 case IReadOnlyList<DateTime?> nullDateTimeArray:   return FormatList(nullDateTimeArray, sb, formatString);
@@ -1190,8 +1183,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case ulong[] uLongArray:         return FormatArray(uLongArray, sb, formatString);
                 case double[] doubleArray:       return FormatArray(doubleArray, sb, formatString);
                 case decimal[] decimalArray:     return FormatArray(decimalArray, sb, formatString);
-                case Int128[] xtralongArray:     return FormatArray(xtralongArray, sb, formatString);
-                case UInt128[] xtraUlongArray:   return FormatArray(xtraUlongArray, sb, formatString);
+                case Int128[] veryLongArray:     return FormatArray(veryLongArray, sb, formatString);
+                case UInt128[] veryULongArray:   return FormatArray(veryULongArray, sb, formatString);
                 case BigInteger[] bigIntArray:   return FormatArray(bigIntArray, sb, formatString);
                 case Complex[] complexNumArray:  return FormatArray(complexNumArray, sb, formatString);
                 case DateTime[] dateTimeArray:   return FormatArray(dateTimeArray, sb, formatString);
@@ -1225,8 +1218,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 case ulong?[] nullULongArray:         return FormatArray(nullULongArray, sb, formatString);
                 case double?[] nullDoubleArray:       return FormatArray(nullDoubleArray, sb, formatString);
                 case decimal?[] nullDecimalArray:     return FormatArray(nullDecimalArray, sb, formatString);
-                case Int128?[] nullXtralongArray:     return FormatArray(nullXtralongArray, sb, formatString);
-                case UInt128?[] nullXtraUlongArray:   return FormatArray(nullXtraUlongArray, sb, formatString);
+                case Int128?[] nullVeryLongArray:     return FormatArray(nullVeryLongArray, sb, formatString);
+                case UInt128?[] nullVeryULongArray:   return FormatArray(nullVeryULongArray, sb, formatString);
                 case BigInteger?[] nullBigIntArray:   return FormatArray(nullBigIntArray, sb, formatString);
                 case Complex?[] nullComplexNumArray:  return FormatArray(nullComplexNumArray, sb, formatString);
                 case DateTime?[] nullDateTimeArray:   return FormatArray(nullDateTimeArray, sb, formatString);
@@ -1241,78 +1234,78 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         return 0;
     }
 
-    public abstract int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt> arg0, IStringBuilder sb, string? formatString = null)
-        where TFmt : ISpanFormattable;
-
-    public abstract int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
-        where TFmt : ISpanFormattable;
-
     public abstract int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
-        where TFmt : struct, ISpanFormattable;
+        where TFmt : ISpanFormattable;
 
     public abstract int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
-        where TFmt : struct, ISpanFormattable;
-
-    public abstract int FormatArray<TFmt>(TFmt[] arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
-
-    public abstract int FormatArray<TFmt>(TFmt[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
         where TFmt : ISpanFormattable;
 
-    public abstract int FormatArray<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null) where TFmt : struct, ISpanFormattable;
+    public abstract int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
+
+    public abstract int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
+
+    public abstract int FormatArray<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
 
     public abstract int FormatArray<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
-        where TFmt : struct, ISpanFormattable;
-
-    public abstract int FormatList<TFmt>(IReadOnlyList<TFmt> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
-
-    public abstract int FormatList<TFmt>(IReadOnlyList<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
         where TFmt : ISpanFormattable;
 
-    public abstract int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
-        where TFmt : struct, ISpanFormattable;
+    public abstract int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, IStringBuilder sb, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+
+    public abstract int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
+
+    public abstract int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
 
     public abstract int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
-        where TFmt : struct, ISpanFormattable;
-
-    public abstract int FormatEnumerable<TFmt>(IEnumerable<TFmt> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
-
-    public abstract int FormatEnumerable<TFmt>(IEnumerable<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
         where TFmt : ISpanFormattable;
 
-    public abstract int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
-        where TFmt : struct, ISpanFormattable;
+    public abstract int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
+
+    public abstract int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
+
+    public abstract int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
 
     public abstract int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
-        where TFmt : struct, ISpanFormattable;
-
-    public abstract int FormatEnumerator<TFmt>(IEnumerator<TFmt> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
-
-    public abstract int FormatEnumerator<TFmt>(IEnumerator<TFmt> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
         where TFmt : ISpanFormattable;
 
-    public abstract int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
-        where TFmt : struct, ISpanFormattable;
+    public abstract int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
+
+    public abstract int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
+
+    public abstract int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
 
     public abstract int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
-        where TFmt : struct, ISpanFormattable;
+        where TFmt : ISpanFormattable;
+
+    public abstract int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
+
+    public abstract int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
 
     public abstract int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems);
     public abstract int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems);
 
-    public abstract int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString)
+    public abstract int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString)
         where TFmt : ISpanFormattable;
 
-    public abstract int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex
+    public abstract int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex
       , string formatString) where TFmt : ISpanFormattable;
 
-    public abstract int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString)
-        where TFmt : struct, ISpanFormattable;
+    public abstract int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, IStringBuilder sb, string formatString)
+        where TFmtStruct : struct, ISpanFormattable;
 
-    public abstract int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex
-      , string formatString) where TFmt : struct, ISpanFormattable;
+    public abstract int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, Span<char> destination, int destStartIndex
+      , string formatString) where TFmtStruct : struct, ISpanFormattable;
 
     public abstract int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb);
-    public abstract int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destination, int destStartIndex);
+    public abstract int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex);
     public abstract int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount);
     public abstract int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount);
 }

@@ -152,6 +152,6 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
         tos.StartComplexType(this)
            .AddBaseStyledToStringFields(this)
            .Field.AlwaysAdd(nameof(LogEntryFormatLayout), LogEntryFormatLayout)
-           .Field.WhenNonNullOrDefaultAddStyled(nameof(InheritsFrom), InheritsFrom)
+           .Field.WhenNonNullOrDefaultReveal(nameof(InheritsFrom), InheritsFrom)
            .Complete();
 }

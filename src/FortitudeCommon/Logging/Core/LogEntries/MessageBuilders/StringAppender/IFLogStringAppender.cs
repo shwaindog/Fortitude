@@ -42,10 +42,10 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender Append<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType;
+    IFLogStringAppender Append<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    IFLogStringAppender Append<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append(ReadOnlySpan<char> value);
@@ -129,11 +129,11 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender AppendLine<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState)
+    IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine(ReadOnlySpan<char> value);
@@ -203,8 +203,8 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     void FinalAppend(bool? value);
     void FinalAppend<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable;
     void FinalAppend<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
-    void FinalAppend<TToStyle, TStylerType>(TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType;
-    void FinalAppend<TToStyle, TStylerType>((TToStyle, StringBearerRevealState<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    void FinalAppend<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
+    void FinalAppend<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
     void FinalAppend(ReadOnlySpan<char> value);
     void FinalAppend(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
     void FinalAppend(string? value);

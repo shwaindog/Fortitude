@@ -158,7 +158,7 @@ public static class StringExtensions
 
     public static string Format(this string formatString, object? arg0, object? arg1, object? arg2) => string.Format(formatString, arg0, arg1, arg2);
     
-    public static bool IsEquivalentTo(this string search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
+    public static bool SequenceMatches(this string search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
     {
         var cappedLength = Math.Min(count, checkIsSame.Length - fromIndex);
         if(checkIsSame.Length == cappedLength) return false;

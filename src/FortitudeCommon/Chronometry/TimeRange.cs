@@ -22,7 +22,7 @@ public struct UnboundedTimeRange
     public DateTime? FromTime { get; }
     public DateTime? ToTime { get; }
 
-    public static StringBearerRevealState<UnboundedTimeRange> Styler { get; } =
+    public static PalantírReveal<UnboundedTimeRange> Styler { get; } =
         (utr, stsa) =>
             stsa.StartComplexType(utr, nameof(utr))
                 .Field.WhenNonDefaultAdd(nameof(utr.FromTime), utr.FromTime, DateTime.MinValue, "{0:O}")
@@ -43,7 +43,7 @@ public struct UnboundedTimeSpanRange
     public TimeSpan? LowerLimit { get; }
     public TimeSpan? UpperLimit { get; }
     
-    public static StringBearerRevealState<UnboundedTimeSpanRange> Styler { get; } =
+    public static PalantírReveal<UnboundedTimeSpanRange> Styler { get; } =
         (utsr, stsa) =>
             stsa.StartComplexType(utsr, nameof(utsr))
                 .Field.WhenNonDefaultAdd(nameof(utsr.LowerLimit), utsr.LowerLimit, TimeSpan.Zero)
@@ -69,7 +69,7 @@ public struct BoundedTimeRange
     public DateTime FromTime { get; }
     public DateTime ToTime { get; }
     
-    public static StringBearerRevealState<BoundedTimeRange> Styler { get; } =
+    public static PalantírReveal<BoundedTimeRange> Styler { get; } =
         (btr, stsa) =>
             stsa.StartComplexType(btr, nameof(btr))
                 .Field.WhenNonDefaultAdd(nameof(btr.FromTime), btr.FromTime, DateTime.MinValue, "{0:O}")
@@ -94,7 +94,7 @@ public struct BoundedTimeSpanRange
     public TimeSpan UpperLimit { get; }
 
     
-    public static StringBearerRevealState<BoundedTimeSpanRange> Styler { get; } =
+    public static PalantírReveal<BoundedTimeSpanRange> Styler { get; } =
         (btsr, stsa) =>
             stsa.StartComplexType(btsr, nameof(btsr))
                 .Field.WhenNonDefaultAdd(nameof(btsr.LowerLimit), btsr.LowerLimit, TimeSpan.Zero)
@@ -118,7 +118,7 @@ public struct SubPeriodOffset
 
 public static class TimeRangeExtensions
 {
-    public static StringBearerRevealState<UnboundedTimeRange> UnboundedTimeRangeFormatter
+    public static PalantírReveal<UnboundedTimeRange> UnboundedTimeRangeFormatter
         = FormatUnboundedTimeRangeAppender;
 
     public static StateExtractStringRange FormatUnboundedTimeRangeAppender(this UnboundedTimeRange timeRange, ITheOneString sbc)
@@ -128,7 +128,7 @@ public static class TimeRangeExtensions
            .Field.AlwaysAdd(nameof(timeRange.ToTime), timeRange.ToTime, "{0:yyyy-MM-dd HH:mm:ss}").Complete();
     }
     
-    public static StringBearerRevealState<UnboundedTimeSpanRange> UnboundedTimeSpanRangeFormatter
+    public static PalantírReveal<UnboundedTimeSpanRange> UnboundedTimeSpanRangeFormatter
         = FormatUnboundedTimeSpanRangeAppender;
 
     public static StateExtractStringRange FormatUnboundedTimeSpanRangeAppender(this UnboundedTimeSpanRange timeRange, ITheOneString sbc)
@@ -138,7 +138,7 @@ public static class TimeRangeExtensions
            .Field.AlwaysAdd(nameof(timeRange.UpperLimit), timeRange.UpperLimit, "{0:dd HH:mm:ss}").Complete();
     }
     
-    public static StringBearerRevealState<BoundedTimeRange> BoundedTimeRangeFormatter
+    public static PalantírReveal<BoundedTimeRange> BoundedTimeRangeFormatter
         = FormatBoundedTimeRangeAppender;
 
     public static StateExtractStringRange FormatBoundedTimeRangeAppender(this BoundedTimeRange timeRange, ITheOneString sbc)
@@ -149,7 +149,7 @@ public static class TimeRangeExtensions
     }
 
     
-    public static StringBearerRevealState<BoundedTimeSpanRange> BoundedTimeSpanRangeFormatter
+    public static PalantírReveal<BoundedTimeSpanRange> BoundedTimeSpanRangeFormatter
         = FormatBoundedTimeSpanRangeAppender;
 
     public static StateExtractStringRange FormatBoundedTimeSpanRangeAppender(this BoundedTimeSpanRange timeRange, ITheOneString sbc)

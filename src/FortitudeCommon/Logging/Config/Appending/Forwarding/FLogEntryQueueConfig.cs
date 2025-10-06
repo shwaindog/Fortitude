@@ -192,6 +192,6 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
            .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)
            .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
            .Field.AlwaysAdd(nameof(QueueDropInterval), QueueDropInterval)
-           .Field.WhenNonNullAddStyled(nameof(LogEntryPool), LogEntryPool)
+           .Field.WhenNonNullReveal(nameof(LogEntryPool), LogEntryPool)
            .Complete();
 }

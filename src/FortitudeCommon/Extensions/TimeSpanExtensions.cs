@@ -8,9 +8,9 @@ namespace FortitudeCommon.Extensions;
 
 public static class TimeSpanExtensions
 {
-    public static StringBearerRevealState<TimeSpan> TimeSpanStyler = FormatTimeSpanAsStructAppender;
+    public static PalantírReveal<TimeSpan> TimeSpanStyler = FormatTimeSpanAsStructAppender;
 
-    public static StringBearerRevealState<TimeSpan> StylerComplexType(this TimeSpan _) => TimeSpanStyler;
+    public static PalantírReveal<TimeSpan> StylerComplexType(this TimeSpan _) => TimeSpanStyler;
 
     public static StateExtractStringRange FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, ITheOneString sbc)
     {

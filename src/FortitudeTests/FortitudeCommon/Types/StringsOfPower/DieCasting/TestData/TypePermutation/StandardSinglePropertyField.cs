@@ -88,7 +88,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         CharSequenceSingPropield  = ms;
 
         VersionSingPropield = Version.Parse("2.0.1");
-        IntPtrSingPropield  = IPAddress.Parse("192.168.0.1");
+        IpAddressSingPropield  = IPAddress.Parse("192.168.0.1");
         UriSingPropield     = new Uri("https://github.com/shwaindog/Fortitude");
 
         SpanFormattableSingPropield = new TestCustomSpanFormattable("SpanFormattableSingPropield");
@@ -194,7 +194,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         CharSequenceSingPropield  = null!;
 
         VersionSingPropield = null!;
-        IntPtrSingPropield  = null!;
+        IpAddressSingPropield  = null!;
         UriSingPropield     = null!;
 
         SpanFormattableSingPropield = null!;
@@ -281,7 +281,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
     public ICharSequence CharSequenceSingPropield { get; set; } = null!;
 
     public Version VersionSingPropield = null!;
-    public IPAddress IntPtrSingPropield { get; set; } = null!;
+    public IPAddress IpAddressSingPropield { get; set; } = null!;
     public Uri UriSingPropield = null!;
 
     public TestCustomSpanFormattable SpanFormattableSingPropield { get; set; } = null!;
@@ -352,8 +352,8 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.AlwaysAdd(nameof(NullTimeOnlySingPropield), NullTimeOnlySingPropield);
         ctb.Field.AlwaysAdd(nameof(NullGuidSingPropield), NullGuidSingPropield);
         ctb.Field.AlwaysAdd(nameof(StringSingPropield), StringSingPropield);
-        ctb.Field.AlwaysAdd(nameof(CharSequenceSingPropield), CharSequenceSingPropield);
-        ctb.Field.AlwaysAdd(nameof(IntPtrSingPropield), IntPtrSingPropield);
+        ctb.Field.AlwaysAddCharSeq(nameof(CharSequenceSingPropield), CharSequenceSingPropield);
+        ctb.Field.AlwaysAdd(nameof(IpAddressSingPropield), IpAddressSingPropield);
         ctb.Field.AlwaysAdd(nameof(SpanFormattableSingPropield), SpanFormattableSingPropield);
         ctb.Field.AlwaysAdd(nameof(NdUNfEnumSingPropield), NdUNfEnumSingPropield);
         ctb.Field.AlwaysAdd(nameof(NdUWfEnumSingPropield), NdUWfEnumSingPropield);
@@ -434,8 +434,8 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonDefaultAdd(nameof(NullTimeOnlySingPropield), NullTimeOnlySingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullGuidSingPropield), NullGuidSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(StringSingPropield), StringSingPropield);
-        ctb.Field.WhenNonDefaultAdd(nameof(CharSequenceSingPropield), CharSequenceSingPropield);
-        ctb.Field.WhenNonDefaultAdd(nameof(IntPtrSingPropield), IntPtrSingPropield);
+        ctb.Field.WhenNonDefaultAddCharSeq(nameof(CharSequenceSingPropield), CharSequenceSingPropield);
+        ctb.Field.WhenNonDefaultAdd(nameof(IpAddressSingPropield), IpAddressSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(SpanFormattableSingPropield), SpanFormattableSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NdUNfEnumSingPropield), NdUNfEnumSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NdUWfEnumSingPropield), NdUWfEnumSingPropield);
@@ -516,8 +516,8 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonNullAdd(nameof(NullTimeOnlySingPropield), NullTimeOnlySingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullGuidSingPropield), NullGuidSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(StringSingPropield), StringSingPropield);
-        ctb.Field.WhenNonNullAdd(nameof(CharSequenceSingPropield), CharSequenceSingPropield);
-        ctb.Field.WhenNonNullAdd(nameof(IntPtrSingPropield), IntPtrSingPropield);
+        ctb.Field.WhenNonNullAddCharSeq(nameof(CharSequenceSingPropield), CharSequenceSingPropield);
+        ctb.Field.WhenNonNullAdd(nameof(IpAddressSingPropield), IpAddressSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(SpanFormattableSingPropield), SpanFormattableSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NdUNfEnumSingPropield), NdUNfEnumSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NdUWfEnumSingPropield), NdUWfEnumSingPropield);
@@ -625,9 +625,9 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonNullOrDefaultAdd(nameof(NullIpNetworkSingPropield), NullIpNetworkSingPropield);
         ctb.Field.WhenNonNullOrDefaultAdd(nameof(StringSingPropield), StringSingPropield);
         ctb.Field.WhenNonNullOrDefaultAdd(nameof(StringBuilderSingPropield), StringBuilderSingPropield);
-        ctb.Field.WhenNonNullOrDefaultAdd(nameof(CharSequenceSingPropield), CharSequenceSingPropield);
+        ctb.Field.WhenNonNullOrDefaultAddCharSeq(nameof(CharSequenceSingPropield), CharSequenceSingPropield);
         ctb.Field.WhenNonNullOrDefaultAdd(nameof(VersionSingPropield), VersionSingPropield);
-        ctb.Field.WhenNonNullOrDefaultAdd(nameof(IntPtrSingPropield), IntPtrSingPropield);
+        ctb.Field.WhenNonNullOrDefaultAdd(nameof(IpAddressSingPropield), IpAddressSingPropield);
         ctb.Field.WhenNonNullOrDefaultAdd(nameof(UriSingPropield), UriSingPropield);
         ctb.Field.WhenNonNullOrDefaultAdd(nameof(SpanFormattableSingPropield), SpanFormattableSingPropield);
         ctb.Field.WhenNonNullOrDefaultAdd(nameof(NdLNfEnumSingPropield), NdLNfEnumSingPropield);
@@ -939,7 +939,7 @@ public struct StandardSinglePropertyFieldStruct
     public WithDefaultLongWithFlagsEnum? NullWdLWfEnumSingPropield;
     public WithDefaultULongWithFlagsEnum? NullWdUWfEnumSingPropield { get; set; }
 
-    public static StringBearerRevealState<StandardSinglePropertyFieldStruct> SelectStateRevealer(TestFieldRevealMode fieldRevealMode)
+    public static PalantírReveal<StandardSinglePropertyFieldStruct> SelectStateRevealer(TestFieldRevealMode fieldRevealMode)
     {
         switch (fieldRevealMode)
         {
@@ -952,7 +952,7 @@ public struct StandardSinglePropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardSinglePropertyFieldStruct> AlwaysRevealAllState
+    public static PalantírReveal<StandardSinglePropertyFieldStruct> AlwaysRevealAllState
     {
         get
         {
@@ -1015,7 +1015,7 @@ public struct StandardSinglePropertyFieldStruct
                     ctb.Field.AlwaysAdd(nameof(NullIpNetworkSingPropield), ssps.NullIpNetworkSingPropield);
                     ctb.Field.AlwaysAdd(nameof(StringSingPropield), ssps.StringSingPropield);
                     ctb.Field.AlwaysAdd(nameof(StringBuilderSingPropield), ssps.StringBuilderSingPropield);
-                    ctb.Field.AlwaysAdd(nameof(CharSequenceSingPropield), ssps.CharSequenceSingPropield);
+                    ctb.Field.AlwaysAddCharSeq(nameof(CharSequenceSingPropield), ssps.CharSequenceSingPropield);
                     ctb.Field.AlwaysAdd(nameof(VersionSingPropield), ssps.VersionSingPropield);
                     ctb.Field.AlwaysAdd(nameof(IntPtrSingPropield), ssps.IntPtrSingPropield);
                     ctb.Field.AlwaysAdd(nameof(UriSingPropield), ssps.UriSingPropield);
@@ -1041,7 +1041,7 @@ public struct StandardSinglePropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardSinglePropertyFieldStruct> WhenNonDefaultRevealState
+    public static PalantírReveal<StandardSinglePropertyFieldStruct> WhenNonDefaultRevealState
     {
         get
         {
@@ -1104,7 +1104,7 @@ public struct StandardSinglePropertyFieldStruct
                     ctb.Field.WhenNonDefaultAdd(nameof(NullIpNetworkSingPropield), ssps.NullIpNetworkSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(StringSingPropield), ssps.StringSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(StringBuilderSingPropield), ssps.StringBuilderSingPropield);
-                    ctb.Field.WhenNonDefaultAdd(nameof(CharSequenceSingPropield), ssps.CharSequenceSingPropield);
+                    ctb.Field.WhenNonDefaultAddCharSeq(nameof(CharSequenceSingPropield), ssps.CharSequenceSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(VersionSingPropield), ssps.VersionSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(IntPtrSingPropield), ssps.IntPtrSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(UriSingPropield), ssps.UriSingPropield);
@@ -1130,7 +1130,7 @@ public struct StandardSinglePropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardSinglePropertyFieldStruct> WhenNonNullRevealState
+    public static PalantírReveal<StandardSinglePropertyFieldStruct> WhenNonNullRevealState
     {
         get
         {
@@ -1193,7 +1193,7 @@ public struct StandardSinglePropertyFieldStruct
                     ctb.Field.WhenNonNullAdd(nameof(NullIpNetworkSingPropield), ssps.NullIpNetworkSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(StringSingPropield), ssps.StringSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(StringBuilderSingPropield), ssps.StringBuilderSingPropield);
-                    ctb.Field.WhenNonNullAdd(nameof(CharSequenceSingPropield), ssps.CharSequenceSingPropield);
+                    ctb.Field.WhenNonNullAddCharSeq(nameof(CharSequenceSingPropield), ssps.CharSequenceSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(VersionSingPropield), ssps.VersionSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(IntPtrSingPropield), ssps.IntPtrSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(UriSingPropield), ssps.UriSingPropield);
@@ -1219,7 +1219,7 @@ public struct StandardSinglePropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardSinglePropertyFieldStruct> WhenNonNullOrDefaultRevealState
+    public static PalantírReveal<StandardSinglePropertyFieldStruct> WhenNonNullOrDefaultRevealState
     {
         get
         {
@@ -1282,7 +1282,7 @@ public struct StandardSinglePropertyFieldStruct
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(NullIpNetworkSingPropield), ssps.NullIpNetworkSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(StringSingPropield), ssps.StringSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(StringBuilderSingPropield), ssps.StringBuilderSingPropield);
-                    ctb.Field.WhenNonNullOrDefaultAdd(nameof(CharSequenceSingPropield), ssps.CharSequenceSingPropield);
+                    ctb.Field.WhenNonNullOrDefaultAddCharSeq(nameof(CharSequenceSingPropield), ssps.CharSequenceSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(VersionSingPropield), ssps.VersionSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(IntPtrSingPropield), ssps.IntPtrSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(UriSingPropield), ssps.UriSingPropield);

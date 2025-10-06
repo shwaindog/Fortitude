@@ -2,6 +2,8 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 
+// ReSharper disable ClassNeverInstantiated.Global
+
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 public enum JsonEncodingTransferType
@@ -57,7 +59,7 @@ public interface IJsonFormattingOptions : IFormattingOptions
 
     long DateTimeTicksToNumberPrecision(long timeStampTicks);
 
-    private static List<string> existingKeys = new();
+    private static readonly List<string> ExistingKeys = new();
 
     public static string CreateKey(Type encodingTransferType, (Range, JsonEscapeType, Func<Rune, string>)[] cacheRanges, Range[] exemptEscapingRanges
       , Range[] unicodeEscapingRanges)
@@ -90,9 +92,9 @@ public interface IJsonFormattingOptions : IFormattingOptions
         var len = buildKey.PopulatedLength();
         buildKey = buildKey[..len];
         string? asString = null;
-        for (int i = 0; i < existingKeys.Count; i++)
+        for (int i = 0; i < ExistingKeys.Count; i++)
         {
-            var existing = existingKeys[i];
+            var existing = ExistingKeys[i];
             if (buildKey.SequenceMatches(existing))
             {
                 asString = existing;
@@ -102,12 +104,12 @@ public interface IJsonFormattingOptions : IFormattingOptions
         if (asString == null)
         {
             asString = buildKey.ToString();
-            existingKeys.Add(asString);
+            ExistingKeys.Add(asString);
         }
         return asString;
     }
 
-    private static List<string> existingTableMappingKeys = new();
+    private static readonly List<string> ExistingTableMappingKeys = new();
 
     public static string CreateMappingTableKey((Range, JsonEscapeType, Func<Rune, string>)[] cacheRanges)
     {
@@ -123,9 +125,9 @@ public interface IJsonFormattingOptions : IFormattingOptions
         var len = buildKey.PopulatedLength();
         buildKey = buildKey[..len];
         string? asString = null;
-        for (int i = 0; i < existingTableMappingKeys.Count; i++)
+        for (int i = 0; i < ExistingTableMappingKeys.Count; i++)
         {
-            var existing = existingTableMappingKeys[i];
+            var existing = ExistingTableMappingKeys[i];
             if (buildKey.SequenceMatches(existing))
             {
                 asString = existing;
@@ -135,7 +137,7 @@ public interface IJsonFormattingOptions : IFormattingOptions
         if (asString == null)
         {
             asString = buildKey.ToString();
-            existingTableMappingKeys.Add(asString);
+            ExistingTableMappingKeys.Add(asString);
         }
         return asString;
     }
@@ -145,10 +147,11 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
 {
     public const string DefaultJsonDateTImeFormat = "yyyy-MM-ddTHH:mm:ss";
     public const string DefaultJsonDateOnlyFormat = "yyyy-MM-dd";
+    public const string DefaultJsonTimeFormat = "HH:mm:ss.FFFFFFF";
 
     private string? jsonDateTImeFormat;
     private string? dateOnlyAsStringFormatString;
-    private Range[] unicodeEscapingRanges;
+    private Range[] unicodeEscapingRanges = DefaultJsUnicodeEscapeRange[0];
     private bool    explicitlySetEncodingTransfer;
 
     //   Default = 0
@@ -161,8 +164,10 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
     // , UniCdEscCtrlCharsDblQtBkSlToEndBmpChar
     // , CustomEncodingTransfer
 
+    #pragma warning disable CA2211
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Range[][] DefaultJsUnicodeEscapeRange =
-    [
+        [
         [new Range(0, 34), new Range(128, CharExtensions.UnicodeCodePoints)] // Default
       , [new Range(0, 34), new Range(128, 161)] // BkSlEscCtrlCharsDblQtAndBkSlOnly - always unicode escape Console/ formatting Control Chars
       , [new Range(0, 34), new Range(128, 161)] // BkSlEscCtrlCharsDblQtBkSlToEndOfLatin1 -  always unicode escape Console/ formatting Control Chars
@@ -172,6 +177,7 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
       , [new Range(0, 34), new Range(128, 161), new Range(256, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndOfLatin1
       , [new Range(0, 34), new Range(128, 161), new Range(0x10000, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndBmpChar
     ];
+    #pragma warning restore CA2211
 
     private JsonEncodingTransferType jsonEncodingTransferType = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtBkSlToEndOfLatin1;
 
@@ -219,7 +225,7 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
         set => dateOnlyAsStringFormatString = value;
     }
 
-    public string TimeAsStringFormatString { get; set; }
+    public string TimeAsStringFormatString { get; set; } = DefaultJsonTimeFormat;
 
     public bool WrapValuesInQuotes { get; set; }
 
@@ -369,7 +375,7 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
         }
     }
 
-    public Func<Rune, string> AsciiRangeBackSlashEscapeMapping { get; set; }
+    public Func<Rune, string> AsciiRangeBackSlashEscapeMapping { get; set; } = DefaultAsciiBackSlashEscapeMapping;
 
     public static string DefaultAsciiBackSlashEscapeMapping(Rune inputChar)
     {

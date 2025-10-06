@@ -19,7 +19,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TFmt>
-    (string fieldName, TFmt[]? value, OrderedCollectionPredicate<TFmt> filterPredicate
+    (string fieldName, TFmt?[]? value, OrderedCollectionPredicate<TFmt> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
@@ -28,37 +28,45 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TToStyle, TStylerType, TToStyleBase>
-    (string fieldName, TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
-      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType, TToStyleBase =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, stringBearerRevealState) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+    (string fieldName, TCloaked?[]? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
+      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase =>
+        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealFiltered<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
+      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct  =>
+        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealFiltered<TBearer, TBearerBase>(string fieldName, TBearer?[]? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate) where TBearer : IStringBearer, TBearerBase =>
+        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealFiltered<TBearerStruct>(string fieldName, TBearerStruct?[]? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate) where TBearerStruct : struct, IStringBearer =>
+        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
-    (string fieldName, string?[]? value, OrderedCollectionPredicate<string?> filterPredicate
+    (string fieldName, string?[]? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFilteredCharSequence<TCharSeq>
-        (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate) where TCharSeq : ICharSequence =>
-        !stb.SkipFields && value != null ? AlwaysAddFilteredCharSequence(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAddFilteredCharSeq<TCharSeq, TCharSeqBase>
+        (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate) where TCharSeq : ICharSequence, TCharSeqBase =>
+        !stb.SkipFields && value != null ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
-        (string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) =>
+        (string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate) =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddFiltered<TStyledObj>(string fieldName, TStyledObj[]? value
-      , OrderedCollectionPredicate<TStyledObj> filterPredicate)
-        where TStyledObj : class, IStringBearer =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddFiltered<T, TBase1, TBase2>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase1?> filterPredicate
-      , StringBearerRevealState<TBase2?> stringBearerRevealState) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, stringBearerRevealState) : stb.StyleTypeBuilder;
-
-
-    [CallsObjectToString]
+    
     public TExt WhenNonNullAddFilteredMatch<T, TBase>
-    (string fieldName, T[]? value, OrderedCollectionPredicate<TBase> filterPredicate
+    (string fieldName, T?[]? value, OrderedCollectionPredicate<TBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where T : TBase =>
+        !stb.SkipFields && value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
+    
+    [CallsObjectToString]
+    public TExt WhenNonNullAddFilteredObject<T, TBase>
+    (string fieldName, T?[]? value, OrderedCollectionPredicate<TBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where T : TBase =>
         !stb.SkipFields && value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
@@ -70,7 +78,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TFmt>
-    (string fieldName, IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TFmt> filterPredicate
+    (string fieldName, IReadOnlyList<TFmt?>? value, OrderedCollectionPredicate<TFmt> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
@@ -79,29 +87,48 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TToStyle, TStylerType, TToStyleBase>
-    (string fieldName, IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
-      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType, TToStyleBase =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, stringBearerRevealState) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+    (string fieldName, IReadOnlyList<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
+      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase =>
+        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealFiltered<TCloakedStruct>(string fieldName, IReadOnlyList<TCloakedStruct?>? value
+      , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
+      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct  =>
+        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealFiltered<TBearer, TBearerBase>(string fieldName, IReadOnlyList<TBearer?>? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate) where TBearer : IStringBearer, TBearerBase =>
+        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealFiltered<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate) where TBearerStruct : struct, IStringBearer =>
+        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
-    (string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
+    (string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFilteredCharSequence<TCharSeq>
-        (string fieldName, IReadOnlyList<ICharSequence?>? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate) 
-        where TCharSeq : ICharSequence =>
-        !stb.SkipFields && value != null ? AlwaysAddFilteredCharSequence(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAddFilteredCharSeq<TCharSeq, TCharSeqBase>
+        (string fieldName, IReadOnlyList<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate) 
+        where TCharSeq : ICharSequence, TCharSeqBase =>
+        !stb.SkipFields && value != null ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered
-        (string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate) =>
+        (string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate) =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate) : stb.StyleTypeBuilder;
 
-    [CallsObjectToString]
-    public TExt WhenNonNullAddFilteredMatch<T>
-    (string fieldName, IReadOnlyList<T>? value, OrderedCollectionPredicate<T> filterPredicate
+    public TExt WhenNonNullAddFilteredMatch<T, TBase>
+    (string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class =>
+        where T : TBase =>
+        !stb.SkipFields && value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
+
+    [CallsObjectToString]
+    public TExt WhenNonNullAddFilteredObject<T, TBase>
+    (string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where T : TBase =>
         !stb.SkipFields && value != null ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString) : stb.StyleTypeBuilder;
 }

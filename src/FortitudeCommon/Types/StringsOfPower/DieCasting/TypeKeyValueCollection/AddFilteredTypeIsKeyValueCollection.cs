@@ -183,13 +183,13 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate 
-      , StringBearerRevealState<TVBase2> valueStyler
+      , PalantírReveal<TVBase2> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2 =>
         AddFilteredEnumerate(value, filterPredicate, valueStyler, keyFormatString);
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, StringBearerRevealState<TVBase2> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
@@ -225,7 +225,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , KeyValuePredicate<TKBase, TVBase1> filterPredicate, StringBearerRevealState<TVBase2> valueStyler
+          , KeyValuePredicate<TKBase, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
@@ -261,7 +261,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2> (IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , PalantírReveal<TVBase2> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -298,7 +298,7 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase, TVBase1> filterPredicate,  StringBearerRevealState<TVBase2> valueStyler
+      , KeyValuePredicate<TKBase, TVBase1> filterPredicate,  PalantírReveal<TVBase2> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
@@ -344,13 +344,13 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate 
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
+      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
         AddFilteredEnumerate(value, filterPredicate, valueStyler, keyStyler);
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
+      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -383,7 +383,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate 
-          , StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
+          , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -415,7 +415,7 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -450,7 +450,7 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, StringBearerRevealState<TVBase2> valueStyler, StringBearerRevealState<TKBase2> keyStyler)
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;

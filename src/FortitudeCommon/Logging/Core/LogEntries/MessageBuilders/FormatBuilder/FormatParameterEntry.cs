@@ -431,12 +431,12 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
         return Me;
     }
 
-    internal TFormatEntryImpl ReplaceTokenNumber<TToStyle, TStylerType>(TToStyle? param, StringBearerRevealState<TStylerType> stringBearerRevealState)
+    internal TFormatEntryImpl ReplaceTokenNumber<TToStyle, TStylerType>(TToStyle? param, PalantírReveal<TStylerType> palantírReveal)
         where TToStyle : TStylerType
     {
         if (param == null) return ReplaceTokenNumber("");
         FormatSb.Clear();
-        stringBearerRevealState(param, FormatStsa!);
+        palantírReveal(param, FormatStsa!);
         for (var i = 0; i < FormatTokens.Count; i++)
         {
             var token = FormatTokens[i];
@@ -672,11 +672,11 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
 
     public static TFormatEntryImpl? ReplaceCustStyleTokens<TFormatEntryImpl, TIFormatEntry, TToStyle, TStylerType>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
-      , TToStyle? paramValue, StringBearerRevealState<TStylerType> stringBearerRevealState)
+      , TToStyle? paramValue, PalantírReveal<TStylerType> palantírReveal)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder
         where TToStyle : TStylerType =>
-        maybeParam?.ReplaceTokenNumber(paramValue, stringBearerRevealState);
+        maybeParam?.ReplaceTokenNumber(paramValue, palantírReveal);
 
     public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam

@@ -2,43 +2,57 @@
 
 public interface IFormattingOptions
 {
-    public const    string DefaultNullString  = "null";
-    
-    protected const string DefaultTrueString  = "true";
-    protected const string DefaultFalseString = "false";
+    public const string DefaultNullString = "null";
+
+    protected const string DefaultTrueString    = "true";
+    protected const string DefaultFalseString   = "false";
     protected const string DefaultItemSeparator = ", ";
-    
-    
+
+
     string ItemSeparator { get; set; }
-    
-    bool SkipNullableNullWritesNull { get; set; }
-    
+
+    bool NullWritesNothing { get; set; }
+
+    bool NullWritesNullString { get; set; }
+
     bool EmptyCollectionWritesNull { get; set; }
-    
+
     bool IgnoreEmptyCollection { get; set; }
-    
+
     string NullString { get; set; }
-    
+
     string True { get; set; }
-    
+
     string False { get; set; }
-    
+
     IEncodingTransfer EncodingTransfer { get; set; }
-    
+
     ICustomStringFormatter Formatter { get; set; }
 }
 
 public class FormattingOptions : IFormattingOptions
 {
     protected IEncodingTransfer?      CurrentEncodingTransfer;
-    protected   ICustomStringFormatter? Stringformatter;
+    protected ICustomStringFormatter? Stringformatter;
+
+    private bool writeNullString = true;
 
     protected const char TokenClose = '}';
     protected const char TokenOpen  = '{';
-    
+
     public string ItemSeparator { get; set; } = IFormattingOptions.DefaultItemSeparator;
 
-    public bool SkipNullableNullWritesNull { get; set; } = false;
+    public bool NullWritesNothing
+    {
+        get => !writeNullString;
+        set => writeNullString = !value;
+    }
+
+    public bool NullWritesNullString
+    {
+        get => writeNullString;
+        set => writeNullString = value;
+    }
 
     public bool EmptyCollectionWritesNull { get; set; } = false;
 

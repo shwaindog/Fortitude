@@ -198,7 +198,7 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(ParentConnectionName), ParentConnectionName)
-            .Field.AlwaysAdd(nameof(TradingServerConnectionConfig), TradingServerConnectionConfig)
+            .Field.AlwaysReveal(nameof(TradingServerConnectionConfig), TradingServerConnectionConfig)
             .Field.AlwaysAdd(nameof(SupportedOrderTypes), SupportedOrderTypes)
             .Field.AlwaysAdd(nameof(SupportedTimeInForce), SupportedTimeInForce)
             .Field.AlwaysAdd(nameof(SupportedVenueFeatures), SupportedVenueFeatures)

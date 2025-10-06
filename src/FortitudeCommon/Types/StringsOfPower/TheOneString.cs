@@ -52,6 +52,8 @@ public interface ITheOneString : IReusableObject<ITheOneString>
     SimpleOrderedCollectionMold StartSimpleCollectionType<T>(T toStyle, string? overrideName = null);
 
     ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<T, TElement>(T toStyle, string? overrideName = null);
+    
+    ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(object toStyle, string? overrideName = null);
 
     ComplexOrderedCollectionMold StartComplexCollectionType<T>(T toStyle, string? overrideName = null);
 
@@ -381,6 +383,21 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return explicitOrderedCollectionBuilder;
     }
 
+    public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(object collectionInstance, string? overrideName = null)
+    {
+        var appendSettings = AppendSettings;
+        var type           = collectionInstance.GetType();
+        var existingRefId  = SourceGraphVisitRefId(collectionInstance, type);
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(type, Settings.StyledTypeFormatter);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        var explicitOrderedCollectionBuilder =
+            Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>()
+                    .InitializeExplicitOrderedCollectionBuilder
+                        (type, this, appendSettings, overrideName ?? type.Name, remainingDepth, typeFormatter, existingRefId);
+        TypeStart(collectionInstance, explicitOrderedCollectionBuilder, type);
+        return explicitOrderedCollectionBuilder;
+    }
+
     public ComplexTypeMold StartComplexType<T>(T toStyle, string? overrideName = null)
     {
         var appendSettings = AppendSettings;
@@ -465,8 +482,28 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         };
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
 
+        StartNewVisit(newType, newVisit);
+    }
+
+    protected void ObjectStart(object toStyle, TypeMolder newType, Type toStyleType)
+    {
+        var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, toStyleType, newType.IsComplexType
+                                        , toStyle, (CurrentNode?.GraphDepth ?? -1) + 1
+                                        , IndentLevel, Sb!.Length
+                                        , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, null)
+        {
+            TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).ComponentAccess
+        };
+        if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
+
+        
+        StartNewVisit(newType, newVisit);
+    }
+
+    private void StartNewVisit(TypeMolder newType, GraphNodeVisit newVisit)
+    {
         newType.Start();
-        newVisit = newVisit.SetBufferFirstFieldStart(Sb.Length);
+        newVisit = newVisit.SetBufferFirstFieldStart(Sb!.Length);
         OrderedObjectGraph.Add(newVisit);
 
         CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
@@ -503,6 +540,24 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
                     return OrderedObjectGraph[i].RefId;
                 }
             }
+        return 0;
+    }
+
+    private int SourceGraphVisitRefId(object toStyleInstance, Type type)
+    {
+        for (var i = 0; i < OrderedObjectGraph.Count; i++)
+        {
+            var graphNodeVisit = OrderedObjectGraph[i];
+            if (HasVisited(toStyleInstance, type, graphNodeVisit))
+            {
+                if (graphNodeVisit.RefId == 0)
+                {
+                    OrderedObjectGraph[i] = graphNodeVisit.SetRefId(NextRefId());
+                    InsertRefId(OrderedObjectGraph[i], i);
+                }
+                return OrderedObjectGraph[i].RefId;
+            }
+        }
         return 0;
     }
 

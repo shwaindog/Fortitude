@@ -21,7 +21,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     protected const string SpcBrcCls = " }";
     public virtual string Name => nameof(CompactLogTypeFormatting);
 
-    public CompactLogTypeFormatting Initialize(StyleOptions styleOptions)
+    public virtual CompactLogTypeFormatting Initialize(StyleOptions styleOptions)
     {
         Options = styleOptions;
 
@@ -108,7 +108,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TVBase>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType, TKey key
-      , TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, string? keyFormatString = null) where TB : TypeMolder where TValue : TVBase
+      , TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null) where TB : TypeMolder where TValue : TVBase
     {
         _ = keyFormatString.IsNotNullOrEmpty()
             ? typeBuilder.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
@@ -118,7 +118,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType
-      , TKey key, TValue value, int retrieveCount, StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) where TB : TypeMolder where TKey : TKBase where TValue : TVBase
+      , TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) where TB : TypeMolder where TKey : TKBase where TValue : TVBase
     {
         keyStyler(key, typeBuilder.Master);
         typeBuilder.FieldEnd();
@@ -142,7 +142,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB, TCustStyle, TCustBase>(ITypeMolderDieCast<TB> typeBuilder
       , TCustStyle item
-      , int retrieveCount, StringBearerRevealState<TCustBase> styler) where TB : TypeMolder where TCustStyle : TCustBase
+      , int retrieveCount, PalantírReveal<TCustBase> styler) where TB : TypeMolder where TCustStyle : TCustBase
     {
         styler(item, typeBuilder.Master);
         return typeBuilder;
@@ -248,7 +248,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle
-      , StringBearerRevealState<TBase> styler) where TB : TypeMolder where T : TBase =>
+      , PalantírReveal<TBase> styler) where TB : TypeMolder where T : TBase =>
         styler(toStyle, typeBuilder.Master).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, IStringBearer styledObj)
@@ -297,7 +297,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle
-      , StringBearerRevealState<TBase> styler) where TB : TypeMolder where T : TBase =>
+      , PalantírReveal<TBase> styler) where TB : TypeMolder where T : TBase =>
         styler(toStyle, typeBuilder.Master).ToInternalTypeBuilder(typeBuilder);
 
     public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder

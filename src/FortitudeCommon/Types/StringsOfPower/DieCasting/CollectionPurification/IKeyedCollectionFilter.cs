@@ -29,7 +29,7 @@ public class KeyedCollectionFilter<TKey, TValue> : RecyclableObject, IKeyedColle
 {
     private static readonly IReadOnlyList<KeyValuePair<TKey, TValue>> EmptyList = new List<KeyValuePair<TKey, TValue>>().AsReadOnly();
 
-    private KeyValuePredicate<TKey, TValue> kvpPredicate;
+    private KeyValuePredicate<TKey, TValue> kvpPredicate = null!;
     
     public KeyedCollectionFilter<TKey, TValue> Initialize(KeyValuePredicate<TKey, TValue> predicate)
     {
@@ -85,7 +85,7 @@ public class KeyedCollectionFilter<TKey, TValue> : RecyclableObject, IKeyedColle
         IncludedItems  = 0;
     }
 
-    public virtual List<TKey>? RestrictedKeyList  => null!;
+    public virtual List<TKey>? RestrictedKeyList  => null;
     
     public virtual CollectionItemResult CheckIncludeAndContinue(int retrieveCount, TKey key, TValue value) 
     {

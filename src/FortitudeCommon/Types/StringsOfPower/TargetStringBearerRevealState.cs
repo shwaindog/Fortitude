@@ -20,7 +20,7 @@ public static class TargetStringBearerRevealState
     {
         TBase asBase = baseHasStyledToString;
 
-        var callBaseToString = (StringBearerRevealState<TBase>)nonVirtualToString.GetOrAdd(typeof(TBase), bType => CreateInvokeMethod<TBase>());
+        var callBaseToString = (PalantírReveal<TBase>)nonVirtualToString.GetOrAdd(typeof(TBase), bType => CreateInvokeMethod<TBase>());
 
         callBaseToString(asBase, stsa);
     }
@@ -30,7 +30,7 @@ public static class TargetStringBearerRevealState
     {
         Type baseType = typeof(T).BaseType!;
 
-        var callBaseToString = (StringBearerRevealState<T>)nonVirtualToString.GetOrAdd(baseType, bType => CreateInvokeMethod(bType));
+        var callBaseToString = (PalantírReveal<T>)nonVirtualToString.GetOrAdd(baseType, bType => CreateInvokeMethod(bType));
 
         callBaseToString(baseHasStyledToString, stsa);
     }
@@ -49,7 +49,7 @@ public static class TargetStringBearerRevealState
         return new StateExtractStringRange();
     }
 
-    public static StringBearerRevealState<TBase> CreateInvokeMethod<TBase>() where TBase : class, IStringBearer
+    public static PalantírReveal<TBase> CreateInvokeMethod<TBase>() where TBase : class, IStringBearer
     {
         var methodToCall = typeof(TBase).GetMethod(nameof(IStringBearer.RevealState), [TheOneStringType]);
 
@@ -65,7 +65,7 @@ public static class TargetStringBearerRevealState
         {
             return CreateInvokeMethod(baseType.BaseType);
         }
-        var baseTypeCustomStyler = typeof(StringBearerRevealState<>).MakeGenericType(baseType);
+        var baseTypeCustomStyler = typeof(PalantírReveal<>).MakeGenericType(baseType);
         if (methodToCall == null || methodToCall.IsAbstract)
         {
             var myType         = typeof(TargetStringBearerRevealState);
@@ -97,9 +97,9 @@ public static class TargetStringBearerRevealState
         return methodInvoker;
     }
 
-    public static StringBearerRevealState<T> GetNonVirtualDispatchStyledToString<T>(MethodInfo methodToCall)
+    public static PalantírReveal<T> GetNonVirtualDispatchStyledToString<T>(MethodInfo methodToCall)
     {
-        var methodInvoker = (StringBearerRevealState<T>)GetNonVirtualDispatchStyledToString(typeof(T), methodToCall, typeof(StringBearerRevealState<T>));
+        var methodInvoker = (PalantírReveal<T>)GetNonVirtualDispatchStyledToString(typeof(T), methodToCall, typeof(PalantírReveal<T>));
         return methodInvoker;
     }
 }

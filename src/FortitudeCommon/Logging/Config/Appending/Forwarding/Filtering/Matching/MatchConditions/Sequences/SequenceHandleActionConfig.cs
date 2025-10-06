@@ -145,8 +145,8 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.WhenNonNullAddStyled(nameof(SendMessage), SendMessage)
-           .Field.WhenNonNullAddStyled(nameof(SendToAppender), SendToAppender)
+           .Field.WhenNonNullReveal(nameof(SendMessage), SendMessage)
+           .Field.WhenNonNullReveal(nameof(SendToAppender), SendToAppender)
            .Field.AlwaysAdd(nameof(SendTriggeringLogEntries), SendTriggeringLogEntries)
            .Complete();
 }

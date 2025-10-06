@@ -5,7 +5,7 @@ namespace FortitudeCommon.Extensions;
 public static class CharSequenceExtensions
 {
     
-    public static bool IsEquivalentTo(this ICharSequence search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
+    public static bool SequenceMatches(this ICharSequence search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
     {
         var cappedLength = Math.Min(count, checkIsSame.Length - fromIndex);
         if(checkIsSame.Length == cappedLength) return false;

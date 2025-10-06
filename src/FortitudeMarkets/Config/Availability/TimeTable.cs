@@ -456,10 +456,10 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
     public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(OperatingTimeZone), OperatingTimeZone.Id)
-            .Field.AlwaysAdd(nameof(WeeklyTimeTableConfig), WeeklyTimeTableConfig)
-            .CollectionField.AlwaysAddAll(nameof(CalendarHolidays), CalendarHolidays)
+            .Field.AlwaysReveal(nameof(WeeklyTimeTableConfig), WeeklyTimeTableConfig)
+            .CollectionField.AlwaysRevealAll(nameof(CalendarHolidays), CalendarHolidays)
             .CollectionField.AlwaysAddAll(nameof(FollowsIrregularHolidays), FollowsIrregularHolidays)
-            .CollectionField.AlwaysAddAll(nameof(UpcomingIrregularHolidays), UpcomingIrregularHolidays)
+            .CollectionField.AlwaysRevealAll(nameof(UpcomingIrregularHolidays), UpcomingIrregularHolidays)
             .Complete();
 
     public override string ToString() =>

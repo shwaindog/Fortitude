@@ -147,7 +147,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
-      , StringBearerRevealState<TVBase> valueStyler
+      , PalantírReveal<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey where TValue : TVBase 
     {
@@ -171,7 +171,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
         (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
-          , StringBearerRevealState<TVBase> valueStyler
+          , PalantírReveal<TVBase> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TKDerived : TKey  where TValue : TVBase 
     {
@@ -196,7 +196,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
-      , StringBearerRevealState<TVBase> valueStyler
+      , PalantírReveal<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)  
         where TKDerived : TKey  where TValue : TVBase 
     {
@@ -220,7 +220,7 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>
-    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, StringBearerRevealState<TVBase> valueStyler
+    (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, PalantírReveal<TVBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)   
         where TKDerived : TKey  where TValue : TVBase 
     {
@@ -243,7 +243,7 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKDerived> selectKeys, StringBearerRevealState<TVBase> valueStyler 
+      , IEnumerator<TKDerived> selectKeys, PalantírReveal<TVBase> valueStyler 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)    
         where TKDerived : TKey  where TValue : TVBase 
     {
@@ -271,7 +271,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
-      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) 
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) 
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -293,7 +293,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
-      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler)
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler)
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -315,7 +315,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
-      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) 
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) 
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -336,7 +336,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
         (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
-          , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) 
+          , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) 
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -357,7 +357,7 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
-      , StringBearerRevealState<TVBase> valueStyler, StringBearerRevealState<TKBase> keyStyler) 
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) 
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;

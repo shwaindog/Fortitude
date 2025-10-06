@@ -562,7 +562,7 @@ public class StandardListPropertyFieldClass : IStringBearer
         ctb.CollectionField.AlwaysAddAll(nameof(NullIpNetworkListPropield), NullIpNetworkListPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(StringListPropield), StringListPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(StringBuilderListPropield), StringBuilderListPropield);
-        ctb.CollectionField.AlwaysAddAllCharSequence(nameof(CharSequenceListPropield), CharSequenceListPropield);
+        ctb.CollectionField.AlwaysAddAllCharSeq(nameof(CharSequenceListPropield), CharSequenceListPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(VersionListPropield), VersionListPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(IntPtrListPropield), IntPtrListPropield);
         ctb.CollectionField.AlwaysAddAll(nameof(UriListPropield), UriListPropield);
@@ -640,7 +640,7 @@ public class StandardListPropertyFieldClass : IStringBearer
         ctb.CollectionField.WhenPopulatedAddAll(nameof(NullIpNetworkListPropield), NullIpNetworkListPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(StringListPropield), StringListPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(StringBuilderListPropield), StringBuilderListPropield);
-        ctb.CollectionField.WhenPopulatedAddAllCharSequence(nameof(CharSequenceListPropield), CharSequenceListPropield);
+        ctb.CollectionField.WhenPopulatedAddAllCharSeq(nameof(CharSequenceListPropield), CharSequenceListPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(VersionListPropield), VersionListPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(IntPtrListPropield), IntPtrListPropield);
         ctb.CollectionField.WhenPopulatedAddAll(nameof(UriListPropield), UriListPropield);
@@ -768,7 +768,7 @@ public class StandardListPropertyFieldClass : IStringBearer
                                             , FilterRegistry.OrderedCollectionFilterDefault(StringListPropield).CheckPredicate);
         ctb.CollectionField.AlwaysAddFiltered(nameof(StringBuilderListPropield), StringBuilderListPropield
                                             , FilterRegistry.OrderedCollectionFilterDefault(StringBuilderListPropield).CheckPredicate);
-        ctb.CollectionField.AlwaysAddFilteredCharSequence(nameof(CharSequenceListPropield), CharSequenceListPropield
+        ctb.CollectionField.AlwaysAddFilteredCharSeq(nameof(CharSequenceListPropield), CharSequenceListPropield
                                                         , FilterRegistry.OrderedCollectionFilterDefault(CharSequenceListPropield).CheckPredicate);
         ctb.CollectionField.AlwaysAddFiltered(nameof(VersionListPropield), VersionListPropield
                                             , FilterRegistry.OrderedCollectionFilterDefault(VersionListPropield).CheckPredicate);
@@ -916,7 +916,7 @@ public class StandardListPropertyFieldClass : IStringBearer
                                                   , FilterRegistry.OrderedCollectionFilterDefault(StringListPropield).CheckPredicate);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(StringBuilderListPropield), StringBuilderListPropield
                                                   , FilterRegistry.OrderedCollectionFilterDefault(StringBuilderListPropield).CheckPredicate);
-        ctb.CollectionField.WhenPopulatedWithFilterCharSequence(nameof(CharSequenceListPropield), CharSequenceListPropield
+        ctb.CollectionField.WhenPopulatedWithFilterCharSeq(nameof(CharSequenceListPropield), CharSequenceListPropield
                                                               , FilterRegistry.OrderedCollectionFilterDefault(CharSequenceListPropield).CheckPredicate);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(VersionListPropield), VersionListPropield
                                                   , FilterRegistry.OrderedCollectionFilterDefault(VersionListPropield).CheckPredicate);
@@ -1440,7 +1440,7 @@ public struct StandardListPropertyFieldStruct
 
     public static IFilterRegistry FilterRegistry { get; set; } = new FilterRegistry(new AddOddRetrieveCountFactory());
 
-    public static StringBearerRevealState<StandardListPropertyFieldStruct> SelectStateRevealer(TestCollectionFieldRevealMode testCollectionFieldRevealMode)
+    public static PalantírReveal<StandardListPropertyFieldStruct> SelectStateRevealer(TestCollectionFieldRevealMode testCollectionFieldRevealMode)
     {
         switch (testCollectionFieldRevealMode)
         {
@@ -1453,7 +1453,7 @@ public struct StandardListPropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardListPropertyFieldStruct> AlwaysRevealAllState
+    public static PalantírReveal<StandardListPropertyFieldStruct> AlwaysRevealAllState
     {
         get
         {
@@ -1512,7 +1512,7 @@ public struct StandardListPropertyFieldStruct
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.NullIpNetworkListPropield), sapfs.NullIpNetworkListPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.StringListPropield), sapfs.StringListPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.StringBuilderListPropield), sapfs.StringBuilderListPropield);
-                    ctb.CollectionField.AlwaysAddAllCharSequence(nameof(sapfs.CharSequenceListPropield), sapfs.CharSequenceListPropield);
+                    ctb.CollectionField.AlwaysAddAllCharSeq(nameof(sapfs.CharSequenceListPropield), sapfs.CharSequenceListPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.VersionListPropield), sapfs.VersionListPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.IntPtrListPropield), sapfs.IntPtrListPropield);
                     ctb.CollectionField.AlwaysAddAll(nameof(sapfs.UriListPropield), sapfs.UriListPropield);
@@ -1538,7 +1538,7 @@ public struct StandardListPropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardListPropertyFieldStruct> WhenPopulatedReveal
+    public static PalantírReveal<StandardListPropertyFieldStruct> WhenPopulatedReveal
     {
         get
         {
@@ -1597,7 +1597,7 @@ public struct StandardListPropertyFieldStruct
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.NullIpNetworkListPropield), sapfs.NullIpNetworkListPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.StringListPropield), sapfs.StringListPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.StringBuilderListPropield), sapfs.StringBuilderListPropield);
-                    ctb.CollectionField.WhenPopulatedAddAllCharSequence(nameof(sapfs.CharSequenceListPropield), sapfs.CharSequenceListPropield);
+                    ctb.CollectionField.WhenPopulatedAddAllCharSeq(nameof(sapfs.CharSequenceListPropield), sapfs.CharSequenceListPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.VersionListPropield), sapfs.VersionListPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.IntPtrListPropield), sapfs.IntPtrListPropield);
                     ctb.CollectionField.WhenPopulatedAddAll(nameof(sapfs.UriListPropield), sapfs.UriListPropield);
@@ -1623,7 +1623,7 @@ public struct StandardListPropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardListPropertyFieldStruct> AlwaysAddFiltered
+    public static PalantírReveal<StandardListPropertyFieldStruct> AlwaysAddFiltered
     {
         get
         {
@@ -1767,7 +1767,7 @@ public struct StandardListPropertyFieldStruct
                                                                   (sapfs.StringListPropield).CheckPredicate);
                     ctb.CollectionField.AlwaysAddFiltered(nameof(sapfs.StringBuilderListPropield), sapfs.StringBuilderListPropield, FilterRegistry
                                                               .OrderedCollectionFilterDefault(sapfs.StringBuilderListPropield).CheckPredicate);
-                    ctb.CollectionField.AlwaysAddFilteredCharSequence(nameof(sapfs.CharSequenceListPropield), sapfs.CharSequenceListPropield, FilterRegistry
+                    ctb.CollectionField.AlwaysAddFilteredCharSeq(nameof(sapfs.CharSequenceListPropield), sapfs.CharSequenceListPropield, FilterRegistry
                                                                           .OrderedCollectionFilterDefault(sapfs.CharSequenceListPropield).CheckPredicate);
                     ctb.CollectionField.AlwaysAddFiltered(nameof(sapfs.VersionListPropield), sapfs.VersionListPropield, FilterRegistry
                                                               .OrderedCollectionFilterDefault
@@ -1824,7 +1824,7 @@ public struct StandardListPropertyFieldStruct
         }
     }
 
-    public static StringBearerRevealState<StandardListPropertyFieldStruct> WhenPopulatedWithFilterReveal
+    public static PalantírReveal<StandardListPropertyFieldStruct> WhenPopulatedWithFilterReveal
     {
         get
         {
@@ -1959,7 +1959,7 @@ public struct StandardListPropertyFieldStruct
                                                                         (sapfs.StringListPropield).CheckPredicate);
                     ctb.CollectionField.WhenPopulatedWithFilter(nameof(sapfs.StringBuilderListPropield), sapfs.StringBuilderListPropield, FilterRegistry
                                                                     .OrderedCollectionFilterDefault(sapfs.StringBuilderListPropield).CheckPredicate);
-                    ctb.CollectionField.WhenPopulatedWithFilterCharSequence(nameof(sapfs.CharSequenceListPropield), sapfs.CharSequenceListPropield
+                    ctb.CollectionField.WhenPopulatedWithFilterCharSeq(nameof(sapfs.CharSequenceListPropield), sapfs.CharSequenceListPropield
                                                                           , FilterRegistry
                                                                             .OrderedCollectionFilterDefault(sapfs.CharSequenceListPropield).CheckPredicate);
                     ctb.CollectionField.WhenPopulatedWithFilter(nameof(sapfs.VersionListPropield), sapfs.VersionListPropield, FilterRegistry

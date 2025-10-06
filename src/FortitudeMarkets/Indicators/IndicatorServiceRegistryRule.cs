@@ -252,10 +252,10 @@ public struct IndicatorServiceRegistryParams
 
     public IIndicatorServicesConfig IndicatorServiceConfig { get; }
     
-    public static StringBearerRevealState<IndicatorServiceRegistryParams> Styler { get; } =
+    public static PalantírReveal<IndicatorServiceRegistryParams> Styler { get; } =
         (isrp, stsa) =>
             stsa.StartComplexType(isrp)
-                .Field.AlwaysAdd(nameof(isrp.IndicatorServiceConfig), isrp.IndicatorServiceConfig)
+                .Field.AlwaysReveal(nameof(isrp.IndicatorServiceConfig), isrp.IndicatorServiceConfig)
                 .Complete();
 }
 
@@ -331,7 +331,7 @@ public class IndicatorServiceRegistryRule : Rule
         var launchResult = await this.RequestAsync<GlobalServiceRequest, ServiceRunStateResponse>
             (IndicatorServiceConstants.GlobalIndicatorsServiceStartRequest, new GlobalServiceRequest(RequestType.StartOrStatus, serviceType));
         if (launchResult.RunStatus is ServiceRunStatus.NoServiceFound or ServiceRunStatus.ServiceStartFailed)
-            Logger.WrnFmt("Start of Global Service {0} returned {1}").Args(serviceType, launchResult.RunStatus);
+            Logger.WrnFmt("Start of Global Service {0} returned {1}")?.Args(serviceType, launchResult.RunStatus);
         return launchResult;
     }
 
@@ -535,7 +535,7 @@ public class IndicatorServiceRegistryRule : Rule
                 }
                 catch (Exception ex)
                 {
-                    Logger.WrnFmt("When attempt to start rule {0}. Got {1}").Args(serviceInfo.Rule!.FriendlyName, ex);
+                    Logger.WrnFmt("When attempt to start rule {0}. Got {1}")?.Args(serviceInfo.Rule!.FriendlyName, ex);
                     return GlobalServiceStateLookup[serviceReq.ServiceType].LastStartResult
                         = new ServiceRunStateResponse(serviceInfo.Rule!, ServiceRunStatus.ServiceStartFailed, DateTime.UtcNow);
                 }
@@ -571,7 +571,7 @@ public class IndicatorServiceRegistryRule : Rule
                 }
                 catch (Exception ex)
                 {
-                    Logger.WrnFmt("When attempt to start rule {0}. Got {1}").Args(serviceInfo.Rule!.FriendlyName, ex);
+                    Logger.WrnFmt("When attempt to start rule {0}. Got {1}")?.Args(serviceInfo.Rule!.FriendlyName, ex);
                     return TickerPeriodServiceStateLookup[serviceReq.TickerPeriodServiceInfo].LastStartResult
                         = new ServiceRunStateResponse(serviceInfo.Rule!, ServiceRunStatus.ServiceStartFailed, DateTime.UtcNow);
                 }

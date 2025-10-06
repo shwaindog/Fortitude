@@ -35,7 +35,7 @@ public readonly struct BidAskPair // not inheriting from IBidAskPair to prevent 
     public decimal BidPrice { get; }
     public decimal AskPrice { get; }
     
-    public static StringBearerRevealState<BidAskPair> Styler { get; } =
+    public static PalantírReveal<BidAskPair> Styler { get; } =
         (bap, stsa) =>
             stsa.StartComplexType(bap, nameof(bap))
                 .Field.WhenNonDefaultAdd(nameof(bap.BidPrice), bap.BidPrice)

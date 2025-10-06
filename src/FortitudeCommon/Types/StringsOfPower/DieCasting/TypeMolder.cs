@@ -160,7 +160,7 @@ public static class StyledTypeBuilderExtensions
         stb.Sb.Append(value).AnyToCompAccess(stb);
 
     public static ITypeMolderDieCast<TExt> AppendFormatted<TExt, TFmt>
-    (this ITypeMolderDieCast<TExt> stb, TFmt value
+    (this ITypeMolderDieCast<TExt> stb, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, bool isKeyName = false)
         where TExt : TypeMolder where TFmt : ISpanFormattable
     {
@@ -171,7 +171,7 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
-    public static ITypeMolderDieCast<TExt> AppendValue<TExt, TFmt>(this ITypeMolderDieCast<TExt> stb, TFmt value
+    public static ITypeMolderDieCast<TExt> AppendValue<TExt, TFmt>(this ITypeMolderDieCast<TExt> stb, TFmt? value
       , bool isKeyName = false)
         where TExt : TypeMolder where TFmt : ISpanFormattable
     {
@@ -468,8 +468,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static ITypeMolderDieCast<TExt> AppendOrNull<TToStyle, TStylerType, TExt>(this ITypeMolderDieCast<TExt> stb
-      , TToStyle? toStyle
-      , StringBearerRevealState<TStylerType> styler, bool isKeyName = false) where TToStyle : TStylerType where TExt : TypeMolder
+      , TToStyle? toStyle, PalantírReveal<TStylerType> styler, bool isKeyName = false) where TToStyle : TStylerType where TExt : TypeMolder
     {
         var sb = stb.Sb;
         if (toStyle != null)
@@ -478,6 +477,30 @@ public static class StyledTypeBuilderExtensions
                 stb.StyleFormatter.FormatFieldName(stb, toStyle, styler);
             else
                 stb.StyleFormatter.FormatFieldContents(stb, toStyle, styler);
+
+            if (!stb.Settings.DisableCircularRefCheck && !typeof(TToStyle).IsValueType)
+            {
+                stb.Master.EnsureRegisteredVisited(toStyle);
+            }
+        }
+        else
+        {
+            sb.Append(Null);
+        }
+        return stb;
+    }
+
+    public static ITypeMolderDieCast<TExt> AppendOrNull<TToStyle, TStylerType, TExt>(this ITypeMolderDieCast<TExt> stb
+      , TToStyle? toStyle, PalantírReveal<TStylerType> styler, bool isKeyName = false) 
+        where TToStyle : struct, TStylerType where TExt : TypeMolder
+    {
+        var sb = stb.Sb;
+        if (toStyle != null)
+        {
+            if (isKeyName)
+                stb.StyleFormatter.FormatFieldName(stb, toStyle.Value, styler);
+            else
+                stb.StyleFormatter.FormatFieldContents(stb, toStyle.Value, styler);
 
             if (!stb.Settings.DisableCircularRefCheck && !typeof(TToStyle).IsValueType)
             {
@@ -824,7 +847,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItem<TExt, T>
-    (this ITypeMolderDieCast<TExt> stb, T value, int retrieveCount
+    (this ITypeMolderDieCast<TExt> stb, T? value, int retrieveCount
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString)
         where TExt : TypeMolder where T : ISpanFormattable =>
         stb.StyleFormatter.CollectionNextItemFormat(value, retrieveCount, stb.Sb, formatString).AnyToCompAccess(stb);

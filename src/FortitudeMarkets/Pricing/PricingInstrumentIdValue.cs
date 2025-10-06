@@ -466,9 +466,9 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
     public override StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
-            .Field.AlwaysAdd(nameof(CoveringPeriod), CoveringPeriod, DiscreetTimePeriod.Styler)
+            .Field.AlwaysReveal(nameof(CoveringPeriod), CoveringPeriod, DiscreetTimePeriod.Styler)
             .Field.AlwaysAdd(nameof(InstrumentType), InstrumentType)
-            .Field.AlwaysAdd(nameof(MarketClassification), MarketClassification, MarketClassification.Styler)
+            .Field.AlwaysReveal(nameof(MarketClassification), MarketClassification, MarketClassification.Styler)
             .Field.AlwaysAdd(nameof(Category), Category)
             .Field.WhenNonDefaultAdd(nameof(SourcePublishLocation), SourcePublishLocation)
             .Field.WhenNonDefaultAdd(nameof(AdapterReceiveLocation), AdapterReceiveLocation)
@@ -624,7 +624,7 @@ public readonly struct PricingInstrumentIdValue // not inheriting from IPricingI
     public string SourceName     => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
 
     
-    public static StringBearerRevealState<PricingInstrumentIdValue> Styler { get; } =
+    public static PalantírReveal<PricingInstrumentIdValue> Styler { get; } =
         (piiv, stsa) =>
             stsa.StartComplexType(piiv, nameof(piiv))
                 .Field.AlwaysAdd(nameof(piiv.SourceTickerId), piiv.SourceTickerId)
@@ -632,9 +632,9 @@ public readonly struct PricingInstrumentIdValue // not inheriting from IPricingI
                 .Field.AlwaysAdd(nameof(piiv.InstrumentId), piiv.InstrumentId)
                 .Field.AlwaysAdd(nameof(piiv.InstrumentName), piiv.InstrumentName)
                 .Field.AlwaysAdd(nameof(piiv.SourceName), piiv.SourceName)
-                .Field.AlwaysAdd(nameof(piiv.CoveringPeriod), piiv.CoveringPeriod, DiscreetTimePeriod.Styler)
+                .Field.AlwaysReveal(nameof(piiv.CoveringPeriod), piiv.CoveringPeriod, DiscreetTimePeriod.Styler)
                 .Field.AlwaysAdd(nameof(piiv.InstrumentType), piiv.InstrumentType)
-                .Field.AlwaysAdd(nameof(piiv.MarketClassification), piiv.MarketClassification, MarketClassification.Styler)
+                .Field.AlwaysReveal(nameof(piiv.MarketClassification), piiv.MarketClassification, MarketClassification.Styler)
                 .Field.AlwaysAdd(nameof(piiv.Category), piiv.Category)
                 .Field.WhenNonDefaultAdd(nameof(piiv.SourcePublishLocation), piiv.SourcePublishLocation)
                 .Field.WhenNonDefaultAdd(nameof(piiv.AdapterReceiveLocation), piiv.AdapterReceiveLocation)

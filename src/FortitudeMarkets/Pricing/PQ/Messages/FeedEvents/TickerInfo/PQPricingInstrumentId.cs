@@ -603,9 +603,9 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
     public override StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .AddBaseStyledToStringFields(this)
-            .Field.AlwaysAdd(nameof(CoveringPeriod), CoveringPeriod, DiscreetTimePeriod.Styler)
+            .Field.AlwaysReveal(nameof(CoveringPeriod), CoveringPeriod, DiscreetTimePeriod.Styler)
             .Field.AlwaysAdd(nameof(InstrumentType), InstrumentType)
-            .Field.AlwaysAdd(nameof(MarketClassification), MarketClassification, MarketClassification.Styler)
+            .Field.AlwaysReveal(nameof(MarketClassification), MarketClassification, MarketClassification.Styler)
             .Field.AlwaysAdd(nameof(Category), Category)
             .Field.WhenNonDefaultAdd(nameof(SourcePublishLocation), SourcePublishLocation)
             .Field.WhenNonDefaultAdd(nameof(AdapterReceiveLocation), AdapterReceiveLocation)

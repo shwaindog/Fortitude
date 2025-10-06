@@ -48,15 +48,15 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState) 
+    public TExt FieldValueNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, PalantírReveal<TStylerType> palantírReveal) 
         where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
-        stringBearerRevealState(value, Master);
+        palantírReveal(value, Master);
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueOrNullNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle? value, StringBearerRevealState<TStylerType> stringBearerRevealState) 
+    public TExt FieldValueOrNullNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle? value, PalantírReveal<TStylerType> palantírReveal) 
         where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
@@ -66,19 +66,19 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         }
         else
         {
-            stringBearerRevealState(value, Master);
+            palantírReveal(value, Master);
         }
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, StringBearerRevealState<TStylerType> stringBearerRevealState
+    public TExt FieldStringNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle value, PalantírReveal<TStylerType> palantírReveal
       , string defaultValue = "") where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
         if (value != null)
         {
-            stringBearerRevealState(value, Master);
+            palantírReveal(value, Master);
         }
         else
         {
@@ -88,7 +88,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldStringOrNullNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle? value, StringBearerRevealState<TStylerType> stringBearerRevealState) 
+    public TExt FieldStringOrNullNext<TToStyle, TStylerType>(string nonJsonfieldName, TToStyle? value, PalantírReveal<TStylerType> palantírReveal) 
         where TToStyle : TStylerType
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
@@ -99,7 +99,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         else
         {
             Sb.Append("\"");
-            stringBearerRevealState(value, Master);
+            palantírReveal(value, Master);
             Sb.Append("\"");
         }
         return ConditionalCollectionSuffix();

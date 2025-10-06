@@ -559,7 +559,7 @@ public class MessageQueue : IMessageQueue
             .Field.AlwaysAdd(nameof(Name), Name)
             .Field.AlwaysAdd(nameof(Id), Id)
             .Field.AlwaysAdd(nameof(IsRunning), IsRunning)
-            .Field.AlwaysAdd(nameof(Context), Context)
+            .Field.AlwaysReveal(nameof(Context), Context)
             .Complete() ;
 
     public override string ToString() => $"{nameof(MessageQueue)}({nameof(name)}: \"{name}\")";

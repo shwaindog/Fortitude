@@ -28,7 +28,7 @@ public class OrderedCollectionFilter<TItem> : RecyclableObject, IOrderedCollecti
 {
     private static readonly IReadOnlyList<TItem> EmptyList = new List<TItem>().AsReadOnly();
 
-    private OrderedCollectionPredicate<TItem> itemPredicate;
+    private OrderedCollectionPredicate<TItem> itemPredicate = null!;
 
     public OrderedCollectionFilter<TItem> Initialize(OrderedCollectionPredicate<TItem> predicate)
     {

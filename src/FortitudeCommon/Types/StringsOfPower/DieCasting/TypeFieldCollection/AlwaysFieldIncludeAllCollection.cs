@@ -40,7 +40,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TFmt>(string fieldName, TFmt[]? value
+    public TExt AlwaysAddAll<TFmt>(string fieldName, TFmt?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmt : ISpanFormattable
     {
@@ -72,14 +72,57 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TToStyle, TStylerType>
-        (string fieldName, TToStyle?[]? value, StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TStylerType
+    public TExt AlwaysRevealAll<TCloaked, TCloakedBase>
+        (string fieldName, TCloaked?[]? value, PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAll(value, stringBearerRevealState).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAll(value, palantírReveal).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAll<TCloakedStruct>
+        (string fieldName, TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal) 
+        where TCloakedStruct : struct
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.Master.StartSimpleCollectionType(value).AddAll(value, palantírReveal).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAll<TBearer>(string fieldName, TBearer?[]? value)
+        where TBearer : IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.Master.StartSimpleCollectionType(value).RevealAllBearers(value).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.Master.StartSimpleCollectionType(value).RevealAllBearers(value).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -100,7 +143,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllCharSequence<TCharSeq>(string fieldName, TCharSeq?[]? value
+    public TExt AlwaysAddAllCharSeq<TCharSeq>(string fieldName, TCharSeq?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TCharSeq : ICharSequence
     {
@@ -129,14 +172,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TStyledObj>(string fieldName, TStyledObj[]? value)
-        where TStyledObj : class, IStringBearer
+    public TExt AlwaysAddAllMatch<T>(string fieldName, T?[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllStyled(value).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllMatch(value, formatString).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -144,15 +187,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllMatch<T>(string fieldName, T[]? value
+    public TExt AlwaysAddAllObject<T>(string fieldName, T?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class
+    where T : class
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllMatch(value).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllMatch(value, formatString).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -185,7 +228,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt>? value
+    public TExt AlwaysAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmt : ISpanFormattable
     {
@@ -215,15 +258,58 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TToStyle, TStylerType>
-        (string fieldName, IReadOnlyList<TToStyle>? value, StringBearerRevealState<TStylerType> stringBearerRevealState)
-        where TToStyle : TStylerType
+    public TExt AlwaysRevealAll<TCloaked, TCloakedBase>
+        (string fieldName, IReadOnlyList<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : TCloakedBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAll(value, stringBearerRevealState).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAll(value, palantírReveal).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAll<TCloakedStruct>
+        (string fieldName, IReadOnlyList<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal)
+        where TCloakedStruct : struct
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.Master.StartSimpleCollectionType(value).AddAll(value, palantírReveal).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAll<TBearer>(string fieldName, IReadOnlyList<TBearer?>? value)
+        where TBearer : IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.Master.StartSimpleCollectionType(value).AddAllBearer(value).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAll<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.Master.StartSimpleCollectionType(value).AddAllBearer(value).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -244,7 +330,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllCharSequence<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq?>? value
+    public TExt AlwaysAddAllCharSeq<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TCharSeq : ICharSequence
     {
@@ -272,23 +358,25 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.Sb.Append(stb.Settings.NullStyle);
         return stb.AddGoToNext();
     }
-
-    public TExt AlwaysAddAll<TStyledObj>(string fieldName, IReadOnlyList<TStyledObj>? value)
-        where TStyledObj : class, IStringBearer
+    
+    public TExt AlwaysAddAllMatch<T>(string fieldName, IReadOnlyList<T>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllStyled(value).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllMatch(value).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
         return stb.AddGoToNext();
     }
     
-    public TExt AlwaysAddAllMatch<T>(string fieldName, IReadOnlyList<T>? value
+    [CallsObjectToString]
+    public TExt AlwaysAddAllObject<T>(string fieldName, IReadOnlyList<T>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    where T : class
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -327,7 +415,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllEnumerate<TFmt>(string fieldName, IEnumerable<TFmt>? value
+    public TExt AlwaysAddAllEnumerate<TFmt>(string fieldName, IEnumerable<TFmt?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmt : ISpanFormattable
     {
@@ -357,15 +445,58 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllEnumerate<TToStyle, TStylerType>
-        (string fieldName, IEnumerable<TToStyle?>? value, StringBearerRevealState<TStylerType> stringBearerRevealState)
-        where TToStyle : TStylerType
+    public TExt AlwaysRevealAllEnumerate<TCloaked, TCloakedBase>
+        (string fieldName, IEnumerable<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : TCloakedBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllEnumerate(value, stringBearerRevealState).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllEnumerate(value, palantírReveal).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAllEnumerate<TCloakedStruct>
+        (string fieldName, IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal)
+        where TCloakedStruct : struct
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.Master.StartSimpleCollectionType(value).AddAllEnumerate(value, palantírReveal).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAllEnumerate<TBearer>(string fieldName, IEnumerable<TBearer?>? value)
+        where TBearer : IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.Master.StartSimpleCollectionType(value).ReavealAllEnumerate(value).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAllEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.Master.StartSimpleCollectionType(value).ReavealAllEnumerate(value).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -386,7 +517,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllCharSequenceEnumerate<TCharSeq>(string fieldName, IEnumerable<TCharSeq?>? value
+    public TExt AlwaysAddAllCharSeqEnumerate<TCharSeq>(string fieldName, IEnumerable<TCharSeq?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TCharSeq : ICharSequence
     {
@@ -394,7 +525,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllCharSequenceEnumerate(value, formatString).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllCharSeqEnumerate(value, formatString).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -415,14 +546,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllEnumerate<TStyledObj>(string fieldName, IEnumerable<TStyledObj>? value)
-        where TStyledObj : class, IStringBearer
+    public TExt AlwaysAddAllMatchEnumerate<T>(string fieldName, IEnumerable<T>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllStyledEnumerate(value).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllMatchEnumerate(value, formatString).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -430,15 +561,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllMatchEnumerate<T>(string fieldName, IEnumerable<T>? value
+    public TExt AlwaysAddAllObjectEnumerate<T>(string fieldName, IEnumerable<T>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class
+    where T : class
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllMatchEnumerate(value).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllMatchEnumerate(value, formatString).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -473,7 +604,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllEnumerate<TFmt>(string fieldName, IEnumerator<TFmt>? value
+    public TExt AlwaysAddAllEnumerate<TFmt>(string fieldName, IEnumerator<TFmt?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmt : ISpanFormattable
     {
@@ -505,16 +636,62 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllEnumerate<TToStyle, TStylerType>
-        (string fieldName, IEnumerator<TToStyle>? value, StringBearerRevealState<TStylerType> stringBearerRevealState)
-        where TToStyle : TStylerType
+    public TExt AlwaysRevealAllEnumerate<TCloaked, TCloakedBase>
+        (string fieldName, IEnumerator<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : TCloakedBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllEnumerate(value, stringBearerRevealState).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllEnumerate(value, palantírReveal).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAllEnumerate<TCloakedStruct>
+        (string fieldName, IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal)
+        where TCloakedStruct : struct
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            stb.Master.StartSimpleCollectionType(value).AddAllEnumerate(value, palantírReveal).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAllEnumerate<TBearer>(string fieldName, IEnumerator<TBearer?>? value)
+        where TBearer : IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            stb.Master.StartSimpleCollectionType(value).ReavealAllEnumerate(value).Complete();
+        }
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealAllEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            stb.Master.StartSimpleCollectionType(value).ReavealAllEnumerate(value).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -536,7 +713,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllCharSequenceEnumerate<TCharSeq>(string fieldName, IEnumerator<TCharSeq?>? value
+    public TExt AlwaysAddAllCharSeqEnumerate<TCharSeq>(string fieldName, IEnumerator<TCharSeq?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TCharSeq : ICharSequence
     {
@@ -545,7 +722,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllCharSequenceEnumerate(value, formatString).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllCharSeqEnumerate(value, formatString).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -567,15 +744,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllEnumerate<TStyledObj>(string fieldName, IEnumerator<TStyledObj>? value)
-        where TStyledObj : class, IStringBearer
+    public TExt AlwaysAddAllMatchEnumerate<T>(string fieldName, IEnumerator<T>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            stb.Master.StartSimpleCollectionType(value).AddAllStyledEnumerate(value).Complete();
+            stb.Master.StartSimpleCollectionType(value).AddAllMatchEnumerate(value, formatString).Complete();
         }
         else
             stb.Sb.Append(stb.Settings.NullStyle);
@@ -583,8 +760,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllMatchEnumerate<T>(string fieldName, IEnumerator<T>? value
+    public TExt AlwaysAddAllObjectEnumerate<T>(string fieldName, IEnumerator<T>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    where T : class
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);

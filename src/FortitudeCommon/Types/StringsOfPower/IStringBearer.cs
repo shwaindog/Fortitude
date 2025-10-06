@@ -6,7 +6,7 @@ namespace FortitudeCommon.Types.StringsOfPower;
 
 
 [Obsolete("Generates temporary heap object. Consider implementing IStyledToStringObject for this type.")]
-public class CallsObjectToString : System.Attribute { }
+public class CallsObjectToString : Attribute { }
 
 [Obsolete("Generates temporary heap object")]
 public class CreatesParamsObjectArray : System.Attribute { }

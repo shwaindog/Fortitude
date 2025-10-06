@@ -83,7 +83,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered<TFmt>
-    (string fieldName, TFmt[]? value, OrderedCollectionPredicate<TFmt> filterPredicate
+    (string fieldName, TFmt?[]? value, OrderedCollectionPredicate<TFmt> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmt : ISpanFormattable
     {
@@ -95,7 +95,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -105,8 +105,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<TFmt[], TFmt>(value);
-                eocm.AddElementAndGoToNextElement(item);
+                eocm ??= stb.Master.StartExplicitCollectionType<TFmt>(value);
+                eocm.AddElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -143,8 +143,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<TFmtStruct?[], TFmtStruct?>(value);
-                eocm.AddElementAndGoToNextElement(item);
+                eocm ??= stb.Master.StartExplicitCollectionType<TFmtStruct?>(value);
+                eocm.AddElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -158,13 +158,49 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TToStyle, TToStyleBase, TStylerType>
-    (string fieldName, TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
-      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TToStyleBase, TStylerType
+    public TExt AlwaysRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+    (string fieldName, TCloaked?[]? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
+      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
-        ExplicitOrderedCollectionMold<TToStyle>? eocm = null;
+        ExplicitOrderedCollectionMold<TCloaked>? eocm = null;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                eocm ??= stb.Master.StartExplicitCollectionType<TCloaked>(value);
+                eocm.AddElementAndGoToNextElement(item, palantírReveal);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        if (eocm != null)
+        {
+            eocm.AppendCollectionComplete();
+            return stb.AddGoToNext();
+        }
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFiltered<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
+      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        ExplicitOrderedCollectionMold<TCloakedStruct>? eocm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -180,8 +216,80 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<TToStyle[], TToStyle>(value);
-                eocm.AddElementAndGoToNextElement(item, stringBearerRevealState);
+                eocm ??= stb.Master.StartExplicitCollectionType<TCloakedStruct>(value);
+                eocm.AddElementAndGoToNextElement(item, palantírReveal);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        if (eocm != null)
+        {
+            eocm.AppendCollectionComplete();
+            return stb.AddGoToNext();
+        }
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(string fieldName, TBearer?[]? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+        where TBearer : IStringBearer, TBearerBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        ExplicitOrderedCollectionMold<TBearer?>? eocm = null;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                eocm ??= stb.Master.StartExplicitCollectionType<TBearer?>(value);
+                eocm.AddElementAndGoToNextElement(item);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        if (eocm != null)
+        {
+            eocm.AppendCollectionComplete();
+            return stb.AddGoToNext();
+        }
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFiltered<TBearerStruct>(string fieldName, TBearerStruct?[]? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate) where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        ExplicitOrderedCollectionMold<TBearerStruct?>? eocm = null;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                eocm ??= stb.Master.StartExplicitCollectionType<TBearerStruct?>(value);
+                eocm.AddElementAndGoToNextElement(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -196,7 +304,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered
-    (string fieldName, string?[]? value, OrderedCollectionPredicate<string?> filterPredicate
+    (string fieldName, string?[]? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -207,7 +315,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -232,20 +340,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredCharSequence<TCharSeq>
-    (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<ICharSequence?> filterPredicate
+    public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>
+    (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
-        ExplicitOrderedCollectionMold<TCharSeq?>? eocm = null;
+        ExplicitOrderedCollectionMold<TCharSeq>? eocm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -255,7 +363,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<TCharSeq?[], TCharSeq?>(value);
+                eocm ??= stb.Master.StartExplicitCollectionType<TCharSeq>(value);
                 eocm.AddCharSequenceElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -270,7 +378,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
+    public TExt AlwaysAddFiltered(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -281,7 +389,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -306,56 +414,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TStyledObj, TBase>(string fieldName, TStyledObj[]? value, OrderedCollectionPredicate<TBase> filterPredicate)
-        where TStyledObj : IStringBearer, TBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        stb.FieldNameJoin(fieldName);
-        ExplicitOrderedCollectionMold<TStyledObj?>? eocm = null;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate(i, item);
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                eocm ??= stb.Master.StartExplicitCollectionType<TStyledObj?[], TStyledObj?>(value);
-                eocm.AddElementAndGoToNextElement(item);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (eocm != null)
-        {
-            eocm.AppendCollectionComplete();
-            return stb.AddGoToNext();
-        }
-        stb.Sb.Append(stb.Settings.NullStyle);
-        return stb.AddGoToNext();
-    }
-
-    [CallsObjectToString]
-    public TExt AlwaysAddFilteredMatch<T, TBase>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase> filterPredicate
+    public TExt AlwaysAddFilteredMatch<T, TBase>(string fieldName, T?[]? value, OrderedCollectionPredicate<TBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where T : TBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
-        ExplicitOrderedCollectionMold<T?>? eocm = null;
+        ExplicitOrderedCollectionMold<T>? eocm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -365,7 +436,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<T?[], T?>(value);
+                eocm ??= stb.Master.StartExplicitCollectionType<T>(value);
                 eocm.AddMatchElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -380,6 +451,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
+    [CallsObjectToString]
+    public TExt AlwaysAddFilteredObject<T, TBase>(string fieldName, T[]? value, OrderedCollectionPredicate<TBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where T : class, TBase
+    {
+        return AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString);
+    }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
@@ -401,7 +479,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<IReadOnlyList<bool>, bool>(value);
+                eocm ??= stb.Master.StartExplicitCollectionType<bool>(value);
                 eocm.AddElementAndGoToNextElement(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -436,7 +514,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<IReadOnlyList<bool?>, bool?>(value);
+                eocm ??= stb.Master.StartExplicitCollectionType<bool?>(value);
                 eocm.AddElementAndGoToNextElement(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -451,7 +529,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TFmt>(string fieldName, IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TFmt> filterPredicate
+    public TExt AlwaysAddFiltered<TFmt>(string fieldName, IReadOnlyList<TFmt?>? value, OrderedCollectionPredicate<TFmt> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TFmt : ISpanFormattable
     {
@@ -463,7 +541,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -473,7 +551,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<IReadOnlyList<TFmt>, TFmt>(value);
+                eocm ??= stb.Master.StartExplicitCollectionType<TFmt>(value);
                 eocm.AddElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -510,7 +588,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<IReadOnlyList<TFmtStruct?>, TFmtStruct?>(value);
+                eocm ??= stb.Master.StartExplicitCollectionType<TFmtStruct?>(value);
                 eocm.AddElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -525,13 +603,50 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TToStyle, TToStyleBase, TStylerType>
-    (string fieldName, IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filterPredicate
-      , StringBearerRevealState<TStylerType> stringBearerRevealState) where TToStyle : TToStyleBase, TStylerType
+    public TExt AlwaysRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+    (string fieldName, IReadOnlyList<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
+      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
-        ExplicitOrderedCollectionMold<TToStyle>? eocm = null;
+        ExplicitOrderedCollectionMold<TCloaked>? eocm = null;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                eocm ??= stb.Master.StartExplicitCollectionType<TCloaked>(value);
+                eocm.AddElementAndGoToNextElement(item, palantírReveal);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        if (eocm != null)
+        {
+            eocm.AppendCollectionComplete();
+            return stb.AddGoToNext();
+        }
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFiltered<TCloakedStruct>
+    (string fieldName, IReadOnlyList<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
+      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        ExplicitOrderedCollectionMold<TCloakedStruct?>? eocm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
@@ -547,8 +662,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<IReadOnlyList<TToStyle>, TToStyle>(value);
-                eocm.AddElementAndGoToNextElement(item, stringBearerRevealState);
+                eocm ??= stb.Master.StartExplicitCollectionType<TCloakedStruct?>(value);
+                eocm.AddElementAndGoToNextElement(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -562,7 +677,79 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
+    public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(string fieldName, IReadOnlyList<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+        where TBearer : IStringBearer, TBearerBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        ExplicitOrderedCollectionMold<TBearer>? eocm = null;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                eocm ??= stb.Master.StartExplicitCollectionType<TBearer>(value);
+                eocm.AddBearerElementAndGoToNextElement(item);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        if (eocm != null)
+        {
+            eocm.AppendCollectionComplete();
+            return stb.AddGoToNext();
+        }
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFiltered<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate) where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        ExplicitOrderedCollectionMold<TBearerStruct>? eocm = null;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item         = value[i];
+                var filterResult = filterPredicate(i, item);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                eocm ??= stb.Master.StartExplicitCollectionType<IReadOnlyList<TBearerStruct?>, TBearerStruct>(value);
+                eocm.AddBearerElementAndGoToNextElement(item);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        if (eocm != null)
+        {
+            eocm.AppendCollectionComplete();
+            return stb.AddGoToNext();
+        }
+        stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -573,7 +760,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -598,10 +785,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredCharSequence<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq?>? value
-      , OrderedCollectionPredicate<ICharSequence?> filterPredicate
+    public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>(string fieldName, IReadOnlyList<TCharSeq?>? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -611,7 +798,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -636,7 +823,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -647,7 +834,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -672,11 +859,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    [CallsObjectToString]
-    public TExt AlwaysAddFilteredMatch<T, TBase>(string fieldName, IReadOnlyList<T>? value, OrderedCollectionPredicate<TBase> filterPredicate
+    public TExt AlwaysAddFilteredMatch<T, TBase>(string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class, TBase
-        where TBase : class
+        where T : TBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -686,7 +871,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate(i, item!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -696,7 +881,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                eocm ??= stb.Master.StartExplicitCollectionType<IReadOnlyList<T>, T>(value);
+                eocm ??= stb.Master.StartExplicitCollectionType<T>(value);
                 eocm.AddMatchElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -710,4 +895,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.Sb.Append(stb.Settings.NullStyle);
         return stb.AddGoToNext();
     }
+    
+    [CallsObjectToString]
+    public TExt AlwaysAddFilteredObject<T, TBase>(string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where T : class, TBase
+    {
+        return AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString);
+    }
+    
+    
 }

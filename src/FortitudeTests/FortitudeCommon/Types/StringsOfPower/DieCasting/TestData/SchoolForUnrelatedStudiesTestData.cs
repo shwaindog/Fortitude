@@ -638,8 +638,8 @@ public class Person : IStringBearer
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FirstName), FirstName)
             .Field.WhenNonDefaultAdd(nameof(DateOfBirth), DateOfBirth)
-            .Field.WhenNonNullOrDefaultAdd(nameof(LastName), LastName)
-            .CollectionField.WhenNonNullAddAll(nameof(Licenses), Licenses)
+            .Field.WhenNonNullOrDefaultAddCharSeq(nameof(LastName), LastName)
+            .CollectionField.WhenNonNullRevealAll(nameof(Licenses), Licenses)
             .Complete();
 
     public override string ToString() =>
@@ -660,7 +660,7 @@ public class Student : EducationAttendee
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(StudentNumber), StudentNumber)
+            .Field.AlwaysAddCharSeq(nameof(StudentNumber), StudentNumber)
             .KeyedCollectionField.AlwaysAddAll(nameof(Enrollments), Enrollments)
             .AddBaseStyledToStringFields(this)
             .Complete();
@@ -787,8 +787,8 @@ public record ArtsSubject(string SubjectName) : CourseSubject(SubjectName)
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(ManagingArtsFaculty), ManagingArtsFaculty)
-            .Field.AlwaysAdd(nameof(SubjectOwner), SubjectOwner)
+            .Field.AlwaysReveal(nameof(ManagingArtsFaculty), ManagingArtsFaculty)
+            .Field.AlwaysReveal(nameof(SubjectOwner), SubjectOwner)
             .AddBaseStyledToStringFields(this)
             .Complete();
 
@@ -803,7 +803,7 @@ public record EngineeringSubject(string SubjectName) : CourseSubject(SubjectName
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-            .CollectionField.WhenPopulatedAddAll(nameof(RequiredPrerequisiteSubjects), RequiredPrerequisiteSubjects)
+            .CollectionField.WhenPopulatedRevealAll(nameof(RequiredPrerequisiteSubjects), RequiredPrerequisiteSubjects)
             .AddBaseStyledToStringFields(this)
             .Complete();
 
@@ -823,9 +823,9 @@ public record TradesSubject(string SubjectName) : CourseSubject(SubjectName)
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-            .Field.AlwaysAdd(nameof(RequiredAttendeeLicense), RequiredAttendeeLicense)
-            .Field.AlwaysAdd(nameof(RequiredTeacherLicense), RequiredTeacherLicense)
-            .Field.AlwaysAdd(nameof(SubjectOwner), SubjectOwner)
+            .Field.AlwaysReveal(nameof(RequiredAttendeeLicense), RequiredAttendeeLicense)
+            .Field.AlwaysReveal(nameof(RequiredTeacherLicense), RequiredTeacherLicense)
+            .Field.AlwaysReveal(nameof(SubjectOwner), SubjectOwner)
             .AddBaseStyledToStringFields(this)
             .Complete();
 
@@ -899,7 +899,7 @@ public class TradeSkills : Faculty
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FacultyType), FacultyType)
-            .CollectionField.WhenPopulatedAddAll(nameof(BoardOfFaculty), BoardOfFaculty)
+            .CollectionField.WhenPopulatedRevealAll(nameof(BoardOfFaculty), BoardOfFaculty)
             .KeyedCollectionField.AlwaysAddAll(nameof(CurrentStudents), CurrentStudents)
             .AddBaseStyledToStringFields(this)
             .Complete();
@@ -1065,7 +1065,7 @@ public class AutomobileLicense : License
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.WhenNonDefaultAdd(nameof(Manual), Manual)
-            .CollectionField.AlwaysAddAll(nameof(CurrentRestrictions), CurrentRestrictions, Restrictions.Styler)
+            .CollectionField.AlwaysRevealAll(nameof(CurrentRestrictions), CurrentRestrictions, Restrictions.Styler)
             .KeyedCollectionField.AlwaysAddAll(nameof(Citations), Citations, null, "givenOn_{0:yyyyMMdd}")
             .AddBaseStyledToStringFields(this);
 
@@ -1084,7 +1084,7 @@ public struct Restrictions(TimeSpan length)
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public KeyValuePair<DateTime, SubRestrictions>[] SubRestrictionsApplied { get; set; } = null!;
 
-    public static StringBearerRevealState<Restrictions> Styler { get; } =
+    public static PalantírReveal<Restrictions> Styler { get; } =
         (restriction, stsa) =>
             stsa.StartComplexType(restriction, nameof(Restrictions))
                 .Field.AlwaysAdd(nameof(lengthRemaining), restriction.lengthRemaining)
@@ -1105,7 +1105,7 @@ public struct SubRestrictions()
 
     public bool Enforcable { get; set; }
 
-    public static StringBearerRevealState<SubRestrictions> Styler { get; } =
+    public static PalantírReveal<SubRestrictions> Styler { get; } =
         (subRest, stsa) =>
             stsa.StartComplexType(subRest, nameof(SubRestrictions))
                 .Field.AlwaysAddObject(nameof(SubDescription), subRest.SubDescription)

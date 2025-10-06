@@ -173,8 +173,8 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
            .Field.AlwaysAdd(nameof(Name), Name)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
            .Field.AlwaysAdd(nameof(Inherits), Inherits)
-           .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
-           .Field.WhenNonNullAddStyled(nameof(LogEntryPool), LogEntryPool).Complete();
+           .Field.AlwaysReveal(nameof(DescendantLoggers), DescendantLoggers)
+           .Field.WhenNonNullReveal(nameof(LogEntryPool), LogEntryPool).Complete();
 
     public override string ToString() => this.DefaultToString();
 }

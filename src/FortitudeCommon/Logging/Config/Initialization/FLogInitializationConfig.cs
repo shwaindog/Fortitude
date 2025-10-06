@@ -129,7 +129,7 @@ public class FLogInitializationConfig : FLogConfig, IMutableFLogInitializationCo
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(AsyncBufferingInit), AsyncBufferingInit)
-           .Field.AlwaysAdd(nameof(LogEntryPoolsInit), LogEntryPoolsInit)
+           .Field.AlwaysReveal(nameof(AsyncBufferingInit), AsyncBufferingInit)
+           .Field.AlwaysReveal(nameof(LogEntryPoolsInit), LogEntryPoolsInit)
            .Complete();
 }
