@@ -16,19 +16,23 @@ public class ScaffoldingValidateClassTests
 
     private static IVersatileFLogger logger = null!;
 
-    public readonly string[] ClassNameCleanup = ["`1", "`2", "`3", "`4", "`5", "`6", "Field"];
+    public readonly string[] ClassNameCleanup = ["`1", "`2", "`3", "`4", "`5", "`6", "Field", "OrderedFrom"];
     public readonly string[] WithSelectKeysNameCleanup =
     [
-        ComplexKeyedCollectionFieldWithSelectKeysStripOut
-      , ComplexKeyedCollectionFieldAlwaysAddAllStripOut
-      , ComplexKeyedCollectionFieldAlwaysAddFilteredStripOut
-      , ComplexKeyedCollectionFieldWhenNonNullAddAllStripOut
-      , ComplexKeyedCollectionFieldWhenNonNullAddFilteredStripOut
-      , ComplexKeyedCollectionFieldWhenPopulatedWithFilterStripOut
-      , ComplexKeyedCollectionFieldWhenPopulatedStripOut
-      , ComplexKeyedCollectionFieldWhenNonNullAddStripOut
-      , ComplexKeyedCollectionFieldAlwaysStripOut
-      , ComplexKeyedCollectionFieldStringBearerStripOut
+        KeyedCollectionScaffoldNameAddWithSelectKeysStripOut
+      , KeyedCollectionScaffoldNameAlwaysAddAllStripOut
+      , KeyedCollectionScaffoldNameAlwaysAddFilteredStripOut
+      , KeyedCollectionScaffoldNameWhenNonNullAddAllStripOut
+      , KeyedCollectionScaffoldNameWhenNonNullAddFilteredStripOut
+      , KeyedCollectionScaffoldNameWhenPopulatedWithFilterStripOut
+      , KeyedCollectionScaffoldNameWhenPopulatedStripOut
+      , KeyedCollectionScaffoldNameWhenNonNullStripOut
+      , KeyedCollectionScaffoldNameWithSelectKeysStripOut
+      , KeyedCollectionScaffoldNameAddAllStripOut
+      , KeyedCollectionScaffoldNameAlwaysStripOut
+      , KeyedCollectionScaffoldNameKeyedFromStripOut
+      , KeyedCollectionScaffoldNameKeyValueStripOut
+      , KeyedCollectionScaffoldNameStringBearerStripOut
     ];
 
     private readonly string[] complexFieldAllowedNonDefaultExemptions       = ["NullableBool"];
@@ -41,6 +45,13 @@ public class ScaffoldingValidateClassTests
     private const string ComplexFieldWhenNonDefaultSuffix       = "WhenNonDefaultStringBearer";
     private const string ComplexFieldWhenNonNullSuffix          = "WhenNonNullStringBearer";
     private const string ComplexFieldWhenNonNullOrDefaultSuffix = "WhenNonNullOrDefaultStringBearer";
+    
+    
+    private const string OrderedCollectionAddAllSuffix = "AllSimpleOrderedCollectionStringBearer";
+    private const string OrderedCollectionAddFilteredSuffix = "FilteredSimpleOrderedCollectionStringBearer";
+    
+    private const string KeyedCollectionAllSuffix = "AllStringBearer";
+    private const string KeyedCollectionAddFilteredSuffix = "FilteredStringBearer";
 
     private const string ComplexCollectionFieldAlwaysAddFilteredSuffix       = "AlwaysAddFilteredStringBearer";
     private const string ComplexCollectionFieldAlwaysAddAllSuffix            = "AlwaysAddAllStringBearer";
@@ -49,21 +60,20 @@ public class ScaffoldingValidateClassTests
     private const string ComplexCollectionFieldWhenNonNullAddAllSuffix       = "WhenNonNullAddAllStringBearer";
     private const string ComplexCollectionFieldWhenNonNullAddFilteredSuffix  = "WhenNonNullAddFilteredStringBearer";
 
-    private const string ComplexKeyedCollectionFieldAlwaysAddFilteredSuffix        = "AlwaysAddFilteredStringBearer";
-    private const string ComplexKeyedCollectionFieldAlwaysAddAllSuffix             = "AlwaysAddAllStringBearer";
-    private const string ComplexKeyedCollectionFieldWithSelectKeysStripOut         = "WithSelectKeys";
-    private const string ComplexKeyedCollectionFieldAlwaysAddAllStripOut           = "AlwaysAddAll";
-    private const string ComplexKeyedCollectionFieldAlwaysAddFilteredStripOut      = "AlwaysAddFiltered";
-    private const string ComplexKeyedCollectionFieldWhenNonNullAddAllStripOut      = "WhenNonNullAddAll";
-    private const string ComplexKeyedCollectionFieldWhenNonNullAddFilteredStripOut = "WhenNonNullAddFiltered";
-    private const string ComplexKeyedCollectionFieldWhenPopulatedWithFilterStripOut = "WhenPopulatedWithFilter";
-    private const string ComplexKeyedCollectionFieldWhenNonNullAddStripOut         = "WhenNonNullAdd";
-    private const string ComplexKeyedCollectionFieldWhenPopulatedStripOut          = "WhenPopulated";
-    private const string ComplexKeyedCollectionFieldAlwaysStripOut                 = "Always";
-    private const string ComplexKeyedCollectionFieldStringBearerStripOut           = "StringBearer";
-    private const string ComplexKeyedCollectionFieldWhenPopulatedAddAllSuffix      = "WhenPopulatedAddAllStringBearer";
-    private const string ComplexKeyedCollectionFieldWhenNonNullAddAllSuffix        = "WhenNonNullAddAllStringBearer";
-    private const string ComplexKeyedCollectionFieldWhenNonNullAddFilteredSuffix   = "WhenNonNullAddFilteredStringBearer";
+    private const string KeyedCollectionScaffoldNameAddWithSelectKeysStripOut       = "AddWithSelectKeys";
+    private const string KeyedCollectionScaffoldNameAlwaysAddAllStripOut            = "AlwaysAddAll";
+    private const string KeyedCollectionScaffoldNameAlwaysAddFilteredStripOut       = "AlwaysAddFiltered";
+    private const string KeyedCollectionScaffoldNameWhenNonNullAddAllStripOut       = "WhenNonNullAddAll";
+    private const string KeyedCollectionScaffoldNameWhenNonNullAddFilteredStripOut  = "WhenNonNullAddFiltered";
+    private const string KeyedCollectionScaffoldNameWhenPopulatedWithFilterStripOut = "WhenPopulatedWithFilter";
+    private const string KeyedCollectionScaffoldNameWhenNonNullStripOut          = "WhenNonNull";
+    private const string KeyedCollectionScaffoldNameWithSelectKeysStripOut       = "WithSelectKeys";
+    private const string KeyedCollectionScaffoldNameAddAllStripOut                  = "AddAll";
+    private const string KeyedCollectionScaffoldNameWhenPopulatedStripOut           = "WhenPopulated";
+    private const string KeyedCollectionScaffoldNameAlwaysStripOut                  = "Always";
+    private const string KeyedCollectionScaffoldNameKeyedFromStripOut               = "KeyedFrom";
+    private const string KeyedCollectionScaffoldNameKeyValueStripOut               = "KeyValue";
+    private const string KeyedCollectionScaffoldNameStringBearerStripOut            = "StringBearer";
 
     [ClassInitialize]
     public static void AllTestsInClassStaticSetup(TestContext testContext)
@@ -87,6 +97,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "");
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddInvokers.Count).FinalAppend("");
@@ -101,6 +112,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonDefaultSuffix, "");
             var countExisting = nonDefaultUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(nonDefaultInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             nonDefaultUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(nonDefaultInvokers.Count).FinalAppend("");
@@ -134,6 +146,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "");
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddInvokers.Count).FinalAppend("");
@@ -148,6 +161,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonNullSuffix, "");
             var countExisting = nonNullUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(nonNullInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             nonNullUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(nonNullInvokers.Count).FinalAppend("");
@@ -192,6 +206,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "");
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddInvokers.Count).FinalAppend("");
@@ -206,6 +221,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonNullOrDefaultSuffix, "");
             var countExisting = nonNullOrDefaultUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(nonNullOrDefaultInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             nonNullOrDefaultUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(nonNullOrDefaultInvokers.Count).FinalAppend("");
@@ -250,6 +266,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "");
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddAllInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllInvokers.Count).FinalAppend("");
@@ -264,6 +281,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddFilteredSuffix, "");
             var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddFilteredUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddFilteredInvokers.Count).FinalAppend("");
@@ -310,6 +328,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "");
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddAllInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllInvokers.Count).FinalAppend("");
@@ -324,6 +343,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenNonNullAddFilteredSuffix, "");
             var countExisting = nonNullAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(nonNullAddFiltered.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             nonNullAddFilteredUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(nonNullAddFilteredInvokers.Count).FinalAppend("");
@@ -370,6 +390,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "");
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddAllInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllInvokers.Count).FinalAppend("");
@@ -384,6 +405,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenNonNullAddAllSuffix, "");
             var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddFilteredUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddFilteredInvokers.Count).FinalAppend("");
@@ -430,6 +452,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "");
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddAllInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllInvokers.Count).FinalAppend("");
@@ -444,6 +467,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenPopulatedAddAllSuffix, "");
             var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddFilteredUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddFilteredInvokers.Count).FinalAppend("");
@@ -490,6 +514,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddFilteredSuffix, "");
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddFilteredInvokers.Count).FinalAppend("");
@@ -504,6 +529,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenPopulatedWithFilterSuffix, "");
             var countExisting = whenPopulatedWithFilterUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(whenPopulatedWithFilterInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             whenPopulatedWithFilterUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(whenPopulatedWithFilteredInvokers.Count).FinalAppend("");
@@ -550,6 +576,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddAllUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllFilteredInvokers.Count).FinalAppend("");
@@ -564,6 +591,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
             var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddFilteredUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddFilteredInvokers.Count).FinalAppend("");
@@ -672,6 +700,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddAllUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllFilteredInvokers.Count).FinalAppend("");
@@ -686,6 +715,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
             var countExisting = whenNonNullAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(whenNonNullInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             whenNonNullAddAllUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(whenNonNullAddAllInvokers.Count).FinalAppend("");
@@ -732,6 +762,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddAllUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllFilteredInvokers.Count).FinalAppend("");
@@ -746,6 +777,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
             var countExisting = whenPopulatedWithFilterUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(whenPopulatedWithFilterInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             whenPopulatedWithFilterUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(whenPopulatedWithFilterInvokers.Count).FinalAppend("");
@@ -792,6 +824,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddAllUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllFilteredInvokers.Count).FinalAppend("");
@@ -806,6 +839,7 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
             var countExisting = alwaysAddSelectKeysUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysWithSelectKeysInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             alwaysAddSelectKeysUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(whenNonNullWithSelectKeysInvokers.Count).FinalAppend("");
@@ -845,16 +879,17 @@ public class ScaffoldingValidateClassTests
     public void ComplexKeyedCollectionFieldAlwaysAddWithSelectKeysScaffoldingCloseToWhenPopulatedWithSelectKeysScaffoldingTypes()
     {
         var alwaysAddAllFilteredInvokers = scafReg.ComplexTypeKeyedCollectionFieldAlwaysAddSelectKeysFilter().ToList();
-        var alwaysAddAllUniqueNamePart   = new List<string>();
+        var alwaysAddFilteredUniqueNamePart   = new List<string>();
 
         var le = logger.InfoAppend("Complex Type KeyedCollection Fields -  AlwaysAddWithSelectKeys Scaffolding Classes - ")?.AppendLine();
         foreach (var alwaysAddFiltered in alwaysAddAllFilteredInvokers)
         {
             var uniquePart = alwaysAddFiltered
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
-            var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
+            var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
-            alwaysAddAllUniqueNamePart.Add(uniquePart);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            alwaysAddFilteredUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllFilteredInvokers.Count).FinalAppend("");
 
@@ -868,11 +903,12 @@ public class ScaffoldingValidateClassTests
                              .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
             var countExisting = whenPopulatedWithSelectKeysUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(whenPopulatedWithKeysInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
             whenPopulatedWithSelectKeysUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(whenPopulatedWithSelectKeysInvokers.Count).FinalAppend("");
 
-        var inAlwaysWithSelectKeysAllButNotWhenPopulated = alwaysAddAllUniqueNamePart.Except(whenPopulatedWithSelectKeysUniqueNamePart);
+        var inAlwaysWithSelectKeysAllButNotWhenPopulated = alwaysAddFilteredUniqueNamePart.Except(whenPopulatedWithSelectKeysUniqueNamePart);
 
         var counter = 0;
         le = logger.ErrorAppend("Complex Type Collection Fields -  Found in AlwaysAddWithSelectKeys  but not in WhenPopulatedWithSelectKeys - ")
@@ -886,7 +922,7 @@ public class ScaffoldingValidateClassTests
 
         Assert.AreEqual(0, inAlwaysWithSelectKeysAllButNotWhenPopulated.Count());
 
-        var inPopulatedAddButNotInAlwaysWithSelectKeys = whenPopulatedWithSelectKeysUniqueNamePart.Except(alwaysAddAllUniqueNamePart);
+        var inPopulatedAddButNotInAlwaysWithSelectKeys = whenPopulatedWithSelectKeysUniqueNamePart.Except(alwaysAddFilteredUniqueNamePart);
 
         counter = 0;
         le = logger.WarnAppend("Complex Type Collection Fields -  Found in WhenPopulatedWithSelectKeys but not AlwaysAddWithSelectKeys - ")
@@ -901,5 +937,197 @@ public class ScaffoldingValidateClassTests
         Assert.AreEqual(0, inPopulatedAddButNotInAlwaysWithSelectKeys.Count());
 
         Assert.AreEqual(whenPopulatedWithSelectKeysInvokers.Count, whenPopulatedWithSelectKeysInvokers.Count);
+    }
+
+    [TestMethod]
+    public void OrderedCollectionAlwaysAddAllScaffoldingCloseToAddFilteredScaffoldingTypes()
+    {
+        var alwaysAddAllInvokers = scafReg.OrderedCollectionAlwaysAddAllFilter().ToList();
+        var alwaysAddAllUniqueNamePart   = new List<string>();
+
+        var le = logger.InfoAppend("OrderedCollection -  AlwaysAddAll Scaffolding Classes - ")?.AppendLine();
+        foreach (var alwaysAddFiltered in alwaysAddAllInvokers)
+        {
+            var uniquePart = alwaysAddFiltered
+                             .Name.RemoveAll(ClassNameCleanup).Replace(OrderedCollectionAddAllSuffix, "");
+            var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
+            le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            alwaysAddAllUniqueNamePart.Add(uniquePart);
+        }
+        le?.AppendLine().Append("Total ").AppendLine(alwaysAddAllInvokers.Count).FinalAppend("");
+
+        var addFilteredInvokers       = scafReg.OrderedCollectionAddFiltered().ToList();
+        var addFilteredUniqueNamePart = new List<string>();
+
+        le = logger.WarnAppend("OrderedCollection -  AddFiltered Scaffolding Classes - ")?.AppendLine();
+        foreach (var addFilteredInvoker in addFilteredInvokers)
+        {
+            var uniquePart = addFilteredInvoker
+                             .Name.RemoveAll(ClassNameCleanup).Replace(OrderedCollectionAddFilteredSuffix, "");
+            var countExisting = addFilteredUniqueNamePart.Count(s => s == uniquePart);
+            le = le?.Append(BulletList).Append(addFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            addFilteredUniqueNamePart.Add(uniquePart);
+        }
+        le?.AppendLine().Append("Total ").AppendLine(addFilteredInvokers.Count).FinalAppend("");
+
+        var inAlwaysAddAllButNotAddFiltered = alwaysAddAllUniqueNamePart.Except(addFilteredUniqueNamePart);
+
+        var counter = 0;
+        le = logger.ErrorAppend("OrderedCollection -  Found in AlwaysAddAll  but not in AddFiltered - ")
+                   ?.AppendLine();
+        foreach (var uniqueNamePart in inAlwaysAddAllButNotAddFiltered)
+        {
+            le = le?.Append(BulletList).AppendLine(uniqueNamePart);
+            counter++;
+        }
+        le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
+
+        Assert.AreEqual(0, inAlwaysAddAllButNotAddFiltered.Count());
+
+        var addFilteredNotInAddAll = addFilteredUniqueNamePart.Except(alwaysAddAllUniqueNamePart);
+
+        counter = 0;
+        le = logger.WarnAppend("OrderedCollection -  Found in AddFiltered but not AlwaysAddAll - ")
+                   ?.AppendLine();
+        foreach (var uniqueNamePart in addFilteredNotInAddAll)
+        {
+            le = le?.Append(BulletList).AppendLine(uniqueNamePart);
+            counter++;
+        }
+        le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
+
+        Assert.AreEqual(0, addFilteredNotInAddAll.Count());
+
+        Assert.AreEqual(addFilteredInvokers.Count, addFilteredInvokers.Count);
+    }
+
+    [TestMethod]
+    public void KeyedCollectionAlwaysAddAllScaffoldingCloseToAddFilteredScaffoldingTypes()
+    {
+        var addAllInvokers       = scafReg.KeyedCollectionAlwaysAddAllFilter().ToList();
+        var addAllUniqueNamePart = new List<string>();
+
+        var le = logger.InfoAppend("KeyedCollection -  AddAll Scaffolding Classes - ")?.AppendLine();
+        foreach (var alwaysAddFiltered in addAllInvokers)
+        {
+            var uniquePart = alwaysAddFiltered
+                             .Name.RemoveAll(ClassNameCleanup).Replace(KeyedCollectionAllSuffix, "");
+            var countExisting = addAllUniqueNamePart.Count(s => s == uniquePart);
+            le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            addAllUniqueNamePart.Add(uniquePart);
+        }
+        le?.AppendLine().Append("Total ").AppendLine(addAllInvokers.Count).FinalAppend("");
+
+        var addFilteredInvokers       = scafReg.KeyedCollectionAddFiltered().ToList();
+        var addFilteredUniqueNamePart = new List<string>();
+
+        le = logger.WarnAppend("KeyedCollection -  AddFiltered Scaffolding Classes - ")?.AppendLine();
+        foreach (var addFilteredInvoker in addFilteredInvokers)
+        {
+            var uniquePart = addFilteredInvoker
+                             .Name.RemoveAll(ClassNameCleanup).Replace(KeyedCollectionAddFilteredSuffix, "");
+            var countExisting = addFilteredUniqueNamePart.Count(s => s == uniquePart);
+            le = le?.Append(BulletList).Append(addFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            addFilteredUniqueNamePart.Add(uniquePart);
+        }
+        le?.AppendLine().Append("Total ").AppendLine(addFilteredInvokers.Count).FinalAppend("");
+
+        var inAddAllButNotAddFiltered = addAllUniqueNamePart.Except(addFilteredUniqueNamePart);
+
+        var counter = 0;
+        le = logger.ErrorAppend("KeyedCollection -  Found in AddAll  but not in AddFiltered - ")
+                   ?.AppendLine();
+        foreach (var uniqueNamePart in inAddAllButNotAddFiltered)
+        {
+            le = le?.Append(BulletList).AppendLine(uniqueNamePart);
+            counter++;
+        }
+        le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
+
+        Assert.AreEqual(0, inAddAllButNotAddFiltered.Count());
+
+        var addFilteredNotInAddAll = addFilteredUniqueNamePart.Except(addAllUniqueNamePart);
+
+        counter = 0;
+        le = logger.WarnAppend("KeyedCollection -  Found in AddFiltered but not AddAll - ")
+                   ?.AppendLine();
+        foreach (var uniqueNamePart in addFilteredNotInAddAll)
+        {
+            le = le?.Append(BulletList).AppendLine(uniqueNamePart);
+            counter++;
+        }
+        le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
+
+        Assert.AreEqual(0, addFilteredNotInAddAll.Count());
+
+        Assert.AreEqual(addFilteredInvokers.Count, addFilteredInvokers.Count);
+    }
+
+    [TestMethod]
+    public void ComplexKeyedCollectionFieldAlwaysAddWithSelectKeysCloseToKeyedCollectionAddWithSelectKeysScaffoldingTypes()
+    {
+        var complexTypeWithSelectKeyeInvokers       = scafReg.ComplexTypeKeyedCollectionFieldAlwaysAddSelectKeysFilter().ToList();
+        var complexTypeWithSelectKeyesUniqueNamePart = new List<string>();
+
+        var le = logger.InfoAppend("Complex Type KeyedCollection Fields -  AlwaysAddWithSelectKeys Scaffolding Classes - ")?.AppendLine();
+        foreach (var complexTypeWithSelectKeysField in complexTypeWithSelectKeyeInvokers)
+        {
+            var uniquePart = complexTypeWithSelectKeysField
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+            var countExisting = complexTypeWithSelectKeyesUniqueNamePart.Count(s => s == uniquePart);
+            le = le?.Append(BulletList).Append(complexTypeWithSelectKeysField.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            complexTypeWithSelectKeyesUniqueNamePart.Add(uniquePart);
+        }
+        le?.AppendLine().Append("Total ").AppendLine(complexTypeWithSelectKeyeInvokers.Count).FinalAppend("");
+
+        var withSelectKeysInvokers       = scafReg.KeyedCollectionAddWithSelectedKeysFilter().ToList();
+        var withSelectKeysUniqueNamePart = new List<string>();
+
+        le = logger.WarnAppend("KeyedCollection -  WithSelectKeys Scaffolding Classes - ")?.AppendLine();
+        foreach (var addFilteredInvoker in withSelectKeysInvokers)
+        {
+            var uniquePart = addFilteredInvoker
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+            var countExisting = withSelectKeysUniqueNamePart.Count(s => s == uniquePart);
+            le = le?.Append(BulletList).Append(addFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            withSelectKeysUniqueNamePart.Add(uniquePart);
+        }
+        le?.AppendLine().Append("Total ").AppendLine(withSelectKeysInvokers.Count).FinalAppend("");
+
+        var inAddAllButNotAddWithSelectKeys = complexTypeWithSelectKeyesUniqueNamePart.Except(withSelectKeysUniqueNamePart);
+
+        var counter = 0;
+        le = logger.ErrorAppend("Found in Complex Type KeyedCollection Fields AlwaysAddWithSelectKeys  but not in KeyedCollection WithSelectKeys - ")
+                   ?.AppendLine();
+        foreach (var uniqueNamePart in inAddAllButNotAddWithSelectKeys)
+        {
+            le = le?.Append(BulletList).AppendLine(uniqueNamePart);
+            counter++;
+        }
+        le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
+
+        Assert.AreEqual(0, inAddAllButNotAddWithSelectKeys.Count());
+
+        var addWithSelectKeysNotInAddAll = withSelectKeysUniqueNamePart.Except(complexTypeWithSelectKeyesUniqueNamePart);
+
+        counter = 0;
+        le = logger.WarnAppend("Found in KeyedCollection WithSelectKeys but not in Complex Type KeyedCollection Fields AlwaysAddWithSelectKeys  - ")
+                   ?.AppendLine();
+        foreach (var uniqueNamePart in addWithSelectKeysNotInAddAll)
+        {
+            le = le?.Append(BulletList).AppendLine(uniqueNamePart);
+            counter++;
+        }
+        le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
+
+        Assert.AreEqual(0, addWithSelectKeysNotInAddAll.Count());
+
+        Assert.AreEqual(withSelectKeysInvokers.Count, withSelectKeysInvokers.Count);
     }
 }

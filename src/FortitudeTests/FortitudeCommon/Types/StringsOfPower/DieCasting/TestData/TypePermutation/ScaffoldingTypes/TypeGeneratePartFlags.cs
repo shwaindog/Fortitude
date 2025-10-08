@@ -9,7 +9,7 @@ public enum ScaffoldingStringBuilderInvokeFlags : ulong
     None                        = 0x00_00_00_00_00
   , SimpleType                  = 0x00_00_00_00_01
   , ComplexType                 = 0x00_00_00_00_02
-  , CollectionType              = 0x00_00_00_00_04
+  , OrderedCollectionType              = 0x00_00_00_00_04
   , KeyedCollectionType         = 0x00_00_00_00_08
   , AcceptsCollection           = 0x00_00_00_00_10
   , AcceptsKeyValueCollection   = 0x00_00_00_00_20
