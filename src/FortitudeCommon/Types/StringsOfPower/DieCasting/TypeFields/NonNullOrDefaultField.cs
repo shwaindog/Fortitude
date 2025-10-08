@@ -68,6 +68,38 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
         where TBearerStruct : struct, IStringBearer =>
         !stb.SkipFields && value != null && !Equals(value, defaultValue) ? AlwaysRevealAs(fieldName, value, flags) : stb.StyleTypeBuilder;
 
+    public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, Span<char> value, string defaultValue = ""
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields || value is { Length: 0 } || value.SequenceMatches(defaultValue)
+            ? stb.StyleTypeBuilder
+            : formatString.IsNotNullOrEmpty()
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
+                : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
+    public TExt WhenNonNullOrDefaultAddAs(ReadOnlySpan<char> fieldName, Span<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields|| value is { Length: 0 } || value.SequenceMatches(defaultValue)
+            ? stb.StyleTypeBuilder
+            : formatString.IsNotNullOrEmpty()
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
+                : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
+    public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value, string defaultValue = ""
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields || value is { Length: 0 } || value.SequenceMatches(defaultValue)
+            ? stb.StyleTypeBuilder
+            : formatString.IsNotNullOrEmpty()
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
+                : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
+    public TExt WhenNonNullOrDefaultAddAs(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields || value is { Length: 0 } || value.SequenceMatches(defaultValue)
+            ? stb.StyleTypeBuilder
+            : formatString.IsNotNullOrEmpty()
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
+                : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+
     public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, string? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;

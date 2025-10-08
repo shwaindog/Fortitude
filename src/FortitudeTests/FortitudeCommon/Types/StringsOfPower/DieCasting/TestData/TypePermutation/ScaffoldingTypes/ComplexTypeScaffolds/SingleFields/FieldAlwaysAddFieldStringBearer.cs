@@ -6,7 +6,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -310,7 +310,7 @@ public class FieldNullableStringBearerWithHandlingAlwaysAddStringBearer<TBearerS
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
 public class FieldCharSpanAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public char[] ComplexTypeFieldAlwaysAddCharSpan
@@ -335,7 +335,7 @@ public class FieldCharSpanAlwaysAddStringBearer : IStringBearer, IMoldSupportedV
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharSpanWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -365,7 +365,7 @@ public class FieldCharSpanWithHandlingAlwaysAddStringBearer : IStringBearer, IMo
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
 public class FieldCharReadOnlySpanAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<string>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -391,7 +391,7 @@ public class FieldCharReadOnlySpanAlwaysAddStringBearer : IStringBearer, IMoldSu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharReadOnlySpanWithHandlingAlwaysAddStringBearer : IStringBearer, IMoldSupportedValue<string>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {

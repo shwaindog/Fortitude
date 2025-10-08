@@ -2816,4 +2816,326 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddFilteredObject(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString);
+    
+    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerable<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TFmt : ISpanFormattable, TFmtBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFilteredEnumerate<TCloaked, TCloakedFilterBase, TCloakedBase>
+        (string fieldName, IEnumerable<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : TCloakedBase, TCloakedFilterBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFilteredEnumerate<TCloakedStruct>
+        (string fieldName, IEnumerable<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal)
+        where TCloakedStruct : struct
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerable<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+        where TBearer : IStringBearer, TBearerBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<string?>? value, OrderedCollectionPredicate<string> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerable<TCharSeq?>? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TCharSeq : ICharSequence, TCharSeqBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredCharSeqEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerable<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    where TAny : TAnyBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredMatchEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    [CallsObjectToString]
+    public TExt AlwaysAddFilteredObjectEnumerate(string fieldName, IEnumerable<object?>? value, OrderedCollectionPredicate<object> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredObjectEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+    
+    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerator<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TFmt : ISpanFormattable, TFmtBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFilteredEnumerate<TCloaked, TCloakedFilterBase, TCloakedBase>
+        (string fieldName, IEnumerator<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : TCloakedBase, TCloakedFilterBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFilteredEnumerate<TCloakedStruct>
+        (string fieldName, IEnumerator<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal)
+        where TCloakedStruct : struct
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerator<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+        where TBearer : IStringBearer, TBearerBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<string?>? value, OrderedCollectionPredicate<string> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerator<TCharSeq?>? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TCharSeq : ICharSequence, TCharSeqBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredCharSeqEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    public TExt AlwaysAddFilteredMatchEnumerate<T, TBase>(string fieldName, IEnumerator<T?>? value, OrderedCollectionPredicate<TBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    where T : TBase
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredMatchEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
+
+    [CallsObjectToString]
+    public TExt AlwaysAddFilteredObjectEnumerate(string fieldName, IEnumerator<object?>? value, OrderedCollectionPredicate<object> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+            stb.Master.StartSimpleCollectionType(value).AddFilteredObjectEnumerate(value, filterPredicate, formatString).Complete();
+        else
+            stb.Sb.Append(stb.Settings.NullStyle);
+        return stb.AddGoToNext();
+    }
 }

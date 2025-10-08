@@ -6,7 +6,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -1062,7 +1062,7 @@ public class SimpleAsStringStringRangeWithDefaultSimpleValueTypeStringBearer : I
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
 public class SimpleAsStringCharArrayWithFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString

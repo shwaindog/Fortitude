@@ -86,6 +86,28 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAs(fieldName, value, flags) 
             : stb.StyleTypeBuilder;
 
+    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, Span<char> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value.Length > 0 
+            ? AlwaysAdd(fieldName, value, formatString) 
+            : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAs(ReadOnlySpan<char> fieldName, Span<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value.Length > 0 
+            ? AlwaysAddAs(fieldName, value, flags, formatString) 
+            : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value.Length > 0 
+            ? AlwaysAdd(fieldName, value, formatString) 
+            : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAs(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value.Length > 0 
+            ? AlwaysAddAs(fieldName, value, flags, formatString) 
+            : stb.StyleTypeBuilder;
+
     public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, string? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString) 

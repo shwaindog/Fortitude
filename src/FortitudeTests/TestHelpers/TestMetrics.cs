@@ -6,6 +6,7 @@
 using System.Reflection;
 using FortitudeBusRules.Messages;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
@@ -124,11 +125,7 @@ public class TestMetrics
     public IEnumerable<Type> OuterClassesInAssembly(Type sampleTypeFoundInAssembly)
     {
         var assembly = sampleTypeFoundInAssembly.Assembly;
-        return assembly
-               .GetTypes()
-               .Where(t => t.IsClass && (!t.FullName?.Contains("<") ?? false)
-                                     && (!t.FullName?.Contains("+") ?? false))
-               .OrderBy(t => t.FullName);
+        return assembly.GetAllTopLevelClassTypes();
     }
 
     public bool PrintTestClassStateIfApplicable(Type determineTestClassState)

@@ -26,6 +26,12 @@ public static class TypeExtensions
     public static readonly Type SpanFormattableType       = typeof(ISpanFormattable);
     public static readonly Type NullableTypeDef           = typeof(Nullable<>);
 
+
+    public static bool ImplementsInterface<TInterface>(this Type type) => type.GetInterfaces().Contains(typeof(TInterface));
+    
+    public static bool ImplementsGenericTypeInterface(this Type type, Type genericTypeDef) => 
+        type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericTypeDef);
+    
     public static bool IsCollection(this Type type) =>
         type.GetInterfaces().Any(i => i == CollectionType || i.IsGenericType && i.GetGenericTypeDefinition() == CollectionTypeDef);
 
@@ -428,4 +434,18 @@ public static class TypeExtensions
         check == typeof(Dictionary<string, string>)
      || check == typeof(IDictionary<string, string>)
      || check == typeof(IImmutableDictionary<string, string>);
+    
+    public static IEnumerable<Type> GetAllTopLevelClassTypes(this Assembly assembly) =>
+        assembly
+            .GetTypes()
+            .Where(t => t.IsClass && (!t.FullName?.Contains('<') ?? false)
+                                  && (!t.FullName?.Contains('+') ?? false))
+            .OrderBy(t => t.FullName);
+    
+    public static IEnumerable<Type> GetAllTopLevelStructTypes(this Assembly assembly) =>
+        assembly
+            .GetTypes()
+            .Where(t => t.IsValueType && (!t.FullName?.Contains('<') ?? false)
+                                  && (!t.FullName?.Contains('+') ?? false))
+            .OrderBy(t => t.FullName);
 }

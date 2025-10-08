@@ -3,7 +3,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -82,7 +82,7 @@ public class FieldSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmt> : IStri
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableSpanAlwaysAddFilteredStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?[]?>
+public class FieldSpanFormattableNullableClassSpanAlwaysAddFilteredStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?[]?>
   , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString where TFmt : class, ISpanFormattable
 {
     public TFmt?[]? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableSpan
@@ -165,7 +165,7 @@ public class FieldCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloaked, TCloa
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable
                 | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldCloakedBearerNullableSpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : IStringBearer
+public class FieldCloakedBearerNullableClassSpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : IStringBearer
   , IMoldSupportedValue<TCloaked?[]?>, ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
 {
@@ -244,7 +244,7 @@ public class FieldStringBearerSpanAlwaysAddFilteredStringBearer<TBearer, TBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsStringBearer)]
-public class FieldStringBearerNullableSpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
+public class FieldStringBearerNullableClassSpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
     : IStringBearer, IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : class, IStringBearer, TBearerBase
 {
@@ -576,7 +576,7 @@ public class FieldBoolReadOnlySpanAlwaysAddFilteredStringBearer : IStringBearer,
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
-public class FieldNullableBoolReadOnlySpanSpanAlwaysAddFilteredStringBearer
+public class FieldNullableBoolReadOnlySpanAlwaysAddFilteredStringBearer
     : IStringBearer, IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
 {
     public bool?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolReadOnlySpan
@@ -600,7 +600,7 @@ public class FieldNullableBoolReadOnlySpanSpanAlwaysAddFilteredStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableReadOnlySpanSpanAlwaysAddFilteredStringBearer<TFmt>
+public class FieldSpanFormattableReadOnlySpanAlwaysAddFilteredStringBearer<TFmt>
     : IStringBearer, IMoldSupportedValue<TFmt[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
     where TFmt : struct, ISpanFormattable
 {
@@ -627,7 +627,7 @@ public class FieldSpanFormattableReadOnlySpanSpanAlwaysAddFilteredStringBearer<T
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableReadOnlySpanAlwaysAddFilteredStringBearer<TFmt>
+public class FieldSpanFormattableNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TFmt>
     : IStringBearer, IMoldSupportedValue<TFmt?[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
     where TFmt : class, ISpanFormattable
 {
@@ -713,7 +713,7 @@ public class FieldCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloake
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class FieldCustomBearerNullableReadOnlySpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
     : IStringBearer, IMoldSupportedValue<TCloaked?[]?>, ISupportsValueRevealer<TCloakedRevealBase>
       , ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
@@ -743,7 +743,7 @@ public class FieldCustomBearerNullableReadOnlySpanAlwaysAddFilteredStringBearer<
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class FieldNullableCustomBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloakedStruct>
+public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloakedStruct>
     : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsValueRevealer<TCloakedStruct>
       , ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
 {
@@ -795,7 +795,7 @@ public class FieldStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<TBearer,
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsStringBearer)]
-public class FieldStringBearerNullableReadOnlySpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
+public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
     : IStringBearer, IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : class, IStringBearer, TBearerBase
 {
@@ -1594,7 +1594,8 @@ public class FieldNullableCloakedBearerListAlwaysAddFilteredStringBearer<TCloake
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass 
+                | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerListAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearer?>?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : IStringBearer, TBearerBase
@@ -1697,15 +1698,15 @@ public class FieldCharSequenceListAlwaysAddFilteredStringBearer<TCharSeq, TCharS
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldStringBuilderListAlwaysAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : IStringBearer, IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
-    public StringBuilder?[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList
+    public IReadOnlyList<StringBuilder?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList
     {
         get => Value;
         set => Value = value;
     }
 
-    public StringBuilder?[]? Value { get; set; }
+    public IReadOnlyList<StringBuilder?>? Value { get; set; }
 
     public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;

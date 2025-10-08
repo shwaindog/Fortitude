@@ -2,7 +2,7 @@
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
     OrderedCollectionFields;
@@ -119,11 +119,11 @@ public class FieldCloakedBearerEnumerableAlwaysAddAllStringBearer<TCloaked, TClo
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class FieldNullableCustomBearerEnumerableAlwaysAddAllStringBearer<TCloakedStruct> : IStringBearer
+public class FieldNullableCloakedBearerEnumerableAlwaysAddAllStringBearer<TCloakedStruct> : IStringBearer
   , IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct>
     where TCloakedStruct : struct
 {
-    public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerEnumerable
+    public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerable
     {
         get => Value;
         set => Value = value;
@@ -136,8 +136,8 @@ public class FieldNullableCustomBearerEnumerableAlwaysAddAllStringBearer<TCloake
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableCustomBearerEnumerable, ValueRevealer)
+               (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerable, ValueRevealer)
            .Complete();
 }
 

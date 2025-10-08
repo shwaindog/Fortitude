@@ -5,7 +5,7 @@ using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
     OrderedCollectionFields;
@@ -529,7 +529,7 @@ public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer : IString
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
 public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IEnumerator<T>?>, ISupportsValueFormatString
 {
     public IEnumerator<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator
@@ -550,7 +550,7 @@ public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<T> : IStringBeare
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
 public class FieldObjectEnumeratorWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IEnumerator<object?>?>, ISupportsValueFormatString
 {
     public IEnumerator<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator

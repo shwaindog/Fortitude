@@ -98,6 +98,15 @@ public static class ReflectionHelper
                          .Compile();
     }
 
+    public static Func<TReturnType> GenericTypeDefaultCtorBinder<TReturnType>(Type typeDefToBuild, params Type[] genericTypeArguments)
+    {
+        var typedToConstruct = typeDefToBuild.MakeGenericType(genericTypeArguments);
+
+        var constructorInfo = typedToConstruct.GetConstructor(genericTypeArguments)!;
+
+        return Expression.Lambda<Func<TReturnType>>(Expression.New(constructorInfo)).Compile();
+    }
+
     /// <summary>
     ///     Gets a member from an object
     ///     The member name can be composed of other member name (such as "Statistics.Decile.Value")
@@ -179,8 +188,6 @@ public static class ReflectionHelper
 
         return false;
     }
-
-    public static bool ImplementsInterface<TInterface>(this Type type) => type.GetInterfaces().Contains(typeof(TInterface));
 
     /// <summary>
     ///     Gets a member from an object

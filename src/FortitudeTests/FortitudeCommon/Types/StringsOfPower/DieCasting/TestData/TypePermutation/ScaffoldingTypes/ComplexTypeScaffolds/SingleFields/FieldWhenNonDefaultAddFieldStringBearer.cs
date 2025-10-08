@@ -6,7 +6,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -330,8 +330,8 @@ public class FieldNullableStringBearerWithHandlingWhenNonDefaultStringBearer<TBe
     public FieldContentHandling FieldContentHandling { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldCharSpanWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<char[]>, IMoldSupportedDefaultValue<string>
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString)]
+public class FieldCharSpanWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, IMoldSupportedDefaultValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharSpan
@@ -358,8 +358,8 @@ public class FieldCharSpanWhenNonDefaultAddStringBearer : IStringBearer, IMoldSu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
-public class FieldCharSpanWithHandlingWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+public class FieldCharSpanWithHandlingWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<char[]>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharSpanAs
@@ -389,8 +389,8 @@ public class FieldCharSpanWithHandlingWhenNonDefaultAddStringBearer : IStringBea
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldCharReadOnlySpanWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString)]
+public class FieldCharReadOnlySpanWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public string ComplexTypeFieldWhenNonDefaultCharReadOnlySpan
@@ -418,8 +418,8 @@ public class FieldCharReadOnlySpanWhenNonDefaultAddStringBearer : IStringBearer,
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
-public class FieldCharReadOnlySpanWithHandlingWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+public class FieldCharReadOnlySpanWithHandlingWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<string>
   , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public string ComplexTypeFieldWhenNonDefaultCharReadOnlySpanAs
@@ -451,7 +451,7 @@ public class FieldCharReadOnlySpanWithHandlingWhenNonDefaultAddStringBearer : IS
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
+public class FieldStringWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public string ComplexTypeFieldWhenNonDefaultString
@@ -478,7 +478,7 @@ public class FieldStringWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupp
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
-public class FieldStringWithHandlingWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
+public class FieldStringWithHandlingWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
   , ISupportsValueFormatString, ISupportsFieldHandling, ISupportsSettingValueFromString
 {
     public string ComplexTypeFieldWhenNonDefaultStringAs
@@ -509,7 +509,7 @@ public class FieldStringWithHandlingWhenNonDefaultAddStringBearer : IStringBeare
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
-public class FieldStringRangeWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
+public class FieldStringRangeWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public string ComplexTypeFieldWhenNonDefaultStringRange
@@ -542,7 +542,7 @@ public class FieldStringRangeWhenNonDefaultAddStringBearer : IStringBearer, IMol
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
-public class FieldStringRangeWithHandlingWhenNonDefaultAddStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
+public class FieldStringRangeWithHandlingWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<string>, IMoldSupportedDefaultValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public string ComplexTypeFieldWhenNonDefaultStringRangeAs

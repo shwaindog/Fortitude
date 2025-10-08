@@ -72,14 +72,6 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
         where TBearerStruct : struct, IStringBearer =>
         stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendRevealBearerOrNull(value).AddGoToNext();
 
-    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, Span<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        stb.SkipFields
-            ? stb.StyleTypeBuilder
-            : formatString.IsNotNullOrEmpty()
-                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
-                : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
-
     public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, Span<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
@@ -88,7 +80,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                 ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
-    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, Span<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
@@ -104,12 +96,12 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                 ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
-    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, string? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : formatString.IsNotNullOrEmpty()
-                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext()
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNullOnZeroLength(value, formatString).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
     public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, string? value
@@ -120,12 +112,13 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                 ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
-    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
-      , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, string? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
-            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
+            : formatString.IsNotNullOrEmpty()
+                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext()
+                : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
 
     public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
@@ -133,13 +126,20 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             ? stb.StyleTypeBuilder
             : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
 
-    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, char[]? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
+      , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+        stb.SkipFields
+            ? stb.StyleTypeBuilder
+            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext();
 
     public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
+
+    public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, char[]? value, FieldContentHandling flags = FieldContentHandling.DefaultForValueType
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
 
     public TExt AlwaysAddAs(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int length = int.MaxValue
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType

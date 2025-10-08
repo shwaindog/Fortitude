@@ -5,7 +5,7 @@ using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -1119,7 +1119,7 @@ public class SimpleAsValueStringRangeWithDefaultSimpleValueTypeStringBearer : IS
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
 public class SimpleAsValueCharArrayWithFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString

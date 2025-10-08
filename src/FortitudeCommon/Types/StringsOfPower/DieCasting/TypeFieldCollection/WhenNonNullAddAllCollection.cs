@@ -11,6 +11,168 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldCollection;
 
 public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 {
+    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<bool> value) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<bool?> value) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll<TFmt>(ReadOnlySpan<char> fieldName, Span<TFmt> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllNullable<TFmt>(ReadOnlySpan<char> fieldName, Span<TFmt?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : class, ISpanFormattable =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysAddAllNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAll<TCloaked, TCloakedBase>
+        (ReadOnlySpan<char> fieldName, Span<TCloaked> value, PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAllNullable<TCloaked, TCloakedBase>
+        (ReadOnlySpan<char> fieldName, Span<TCloaked?> value, PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : class, TCloakedBase =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAllNullable(fieldName, value, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAll<TCloakedStruct>
+        (ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value) where TBearer : IStringBearer =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAllNullable<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer?> value) where TBearer : class, IStringBearer =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAllNullable(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value) where TBearerStruct : struct, IStringBearer =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<string> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, Span<string?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllCharSeq(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllCharSeqNullable<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllCharSeqNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllMatch<T>(ReadOnlySpan<char> fieldName, Span<T> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllMatchNull<T>(ReadOnlySpan<char> fieldName, Span<T?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    [CallsObjectToString]
+    public TExt WhenNonNullAddAllObject(ReadOnlySpan<char> fieldName, Span<object> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    [CallsObjectToString]
+    public TExt WhenNonNullAddAllObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    
+    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllNullable<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : class, ISpanFormattable =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysAddAllNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAll<TCloaked, TCloakedBase>
+        (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value, PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAllNullable<TCloaked, TCloakedBase>
+        (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked?> value, PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : class, TCloakedBase =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAllNullable(fieldName, value, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAll<TCloakedStruct>
+        (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value, palantírReveal) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value) where TBearer : IStringBearer =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAllNullable<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer?> value) where TBearer : class, IStringBearer =>
+        !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAllNullable(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value) where TBearerStruct : struct, IStringBearer =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllCharSeq(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllCharSeqNullable<TCharSeq>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllCharSeqNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllMatch<T>(ReadOnlySpan<char> fieldName, ReadOnlySpan<T> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAddAllMatchNullable<T>(ReadOnlySpan<char> fieldName, ReadOnlySpan<T?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    [CallsObjectToString]
+    public TExt WhenNonNullAddAllObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+
+    [CallsObjectToString]
+    public TExt WhenNonNullAddAllObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    
     public TExt  WhenNonNullAddAll(string fieldName, bool[]? value) => !stb.SkipFields && value != null ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAll(string fieldName, bool?[]? value) => !stb.SkipFields &&  value != null ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
