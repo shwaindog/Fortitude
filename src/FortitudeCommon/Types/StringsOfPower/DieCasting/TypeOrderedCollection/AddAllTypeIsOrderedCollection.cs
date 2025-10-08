@@ -49,12 +49,49 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
+    public TExt AddAll(Span<bool> value)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(bool);
+        stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
+        
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                stb.AppendCollectionItem(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
     public TExt AddAll(ReadOnlySpan<bool> value)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
         
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                stb.AppendCollectionItem(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAll(Span<bool?> value)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(bool?);
+        stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -260,12 +297,104 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
+    public TExt AddAll<TFmt>(Span<TFmt> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TFmt);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+    
+    public TExt AddAllNullable<TFmt>(Span<TFmt?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : class, ISpanFormattable
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TFmt);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+    
     public TExt AddAll<TFmt>(ReadOnlySpan<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TFmt);
         var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+    
+    public TExt AddAllNullable<TFmt>(ReadOnlySpan<TFmt?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : class, ISpanFormattable
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TFmt);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+    
+    public TExt AddAll<TFmtStruct>(Span<TFmtStruct?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TFmtStruct?);
+        var any      = false;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -446,7 +575,7 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TExt AddAll<TCloaked, TCloakedBase>(TCloaked?[]? value, PalantírReveal<TCloakedBase> palantírReveal)
+    public TExt RevealAll<TCloaked, TCloakedBase>(TCloaked?[]? value, PalantírReveal<TCloakedBase> palantírReveal)
         where TCloaked : TCloakedBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -470,7 +599,7 @@ public partial class OrderedCollectionMold<TExt>
     }
 
     
-    public TExt AddAll<TCloakedStruct>(TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal)
+    public TExt RevealAll<TCloakedStruct>(TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal)
         where TCloakedStruct : struct
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -493,7 +622,7 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TCloaked, TCloakedBase>(ReadOnlySpan<TCloaked?> value, PalantírReveal<TCloakedBase> palantírReveal)
+    public TExt RevealAll<TCloaked, TCloakedBase>(Span<TCloaked> value, PalantírReveal<TCloakedBase> palantírReveal)
         where TCloaked : TCloakedBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -516,7 +645,30 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TCloakedStruct>(ReadOnlySpan<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal)
+    public TExt RevealAllNullable<TCloaked, TCloakedBase>(Span<TCloaked?> value, PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : class, TCloakedBase
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TCloaked);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item, palantírReveal);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TCloakedStruct>(Span<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal)
         where TCloakedStruct : struct
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -539,7 +691,76 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TCloaked, TCloakedBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal)
+    public TExt RevealAll<TCloaked, TCloakedBase>(ReadOnlySpan<TCloaked> value, PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : TCloakedBase
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TCloaked);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item, palantírReveal);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAllNullable<TCloaked, TCloakedBase>(ReadOnlySpan<TCloaked?> value, PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : class, TCloakedBase
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TCloaked);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item, palantírReveal);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TCloakedStruct>(ReadOnlySpan<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal)
+        where TCloakedStruct : struct
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TCloakedStruct);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendOrNull(item, palantírReveal);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TCloaked, TCloakedBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal)
         where TCloaked : TCloakedBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -562,7 +783,7 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TCloakedStruct>(IReadOnlyList<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal)
+    public TExt RevealAll<TCloakedStruct>(IReadOnlyList<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal)
         where TCloakedStruct : struct
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -585,7 +806,7 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate<TCloaked, TCloakedBase>(IEnumerable<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal)
+    public TExt RevealAllEnumerate<TCloaked, TCloakedBase>(IEnumerable<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal)
         where TCloaked : TCloakedBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -607,7 +828,7 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate<TCloakedStruct>(IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal)
+    public TExt RevealAllEnumerate<TCloakedStruct>(IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal)
         where TCloakedStruct : struct 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -629,7 +850,7 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate<TCloaked, TCloakedBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal) 
+    public TExt RevealAllEnumerate<TCloaked, TCloakedBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal) 
         where TCloaked : TCloakedBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -654,7 +875,7 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal) 
+    public TExt RevealAllEnumerate<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal) 
         where TCloakedStruct : struct 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -672,6 +893,328 @@ public partial class OrderedCollectionMold<TExt>
                 stb.AppendOrNull(item, palantírReveal);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TBearer>(TBearer?[]? value)
+        where TBearer : IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0 );
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TBearer>(TBearer?[]? value)
+        where TBearer : struct, IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0 );
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TBearer>(Span<TBearer> value) where TBearer : IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAllNullable<TBearer>(Span<TBearer?> value) where TBearer : class, IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TBearerStruct>(Span<TBearerStruct?> value)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearerStruct);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TBearer>(ReadOnlySpan<TBearer> value) where TBearer : IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAllNullable<TBearer>(ReadOnlySpan<TBearer?> value) where TBearer : class, IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TBearerStruct>(ReadOnlySpan<TBearerStruct?> value)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearerStruct);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TBearer>(IReadOnlyList<TBearer?>? value)
+        where TBearer : IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAll<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearerStruct);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAllEnumerate<TBearer>(IEnumerable<TBearer?>? value)
+        where TBearer : IStringBearer 
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        var itemCount   = 0;
+        if (value != null)
+        {
+            foreach (var item in value)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAllEnumerate<TBearerStruct>(IEnumerable<TBearerStruct?>? value)
+        where TBearerStruct : struct, IStringBearer 
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearerStruct);
+        var any         = false;
+        var itemCount   = 0;
+        if (value != null)
+        {
+            foreach (var item in value)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAllEnumerate<TBearer>(IEnumerator<TBearer?>? value)
+        where TBearer : IStringBearer 
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        var hasValue    = value?.MoveNext() ?? false;
+        var itemCount   = 0;
+        if (hasValue)
+        {
+            while (hasValue)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value!.Current;
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt RevealAllEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value)
+        where TBearerStruct : struct, IStringBearer 
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TBearerStruct);
+        var any         = false;
+        var hasValue    = value?.MoveNext() ?? false;
+        var itemCount   = 0;
+        if (hasValue)
+        {
+            while (hasValue)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value!.Current;
+                
+                any = true;
+                stb.AppendRevealBearerOrNull(item);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
@@ -704,7 +1247,82 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(ReadOnlySpan<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAll(Span<string> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(string);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllNullable(Span<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(string);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAll(ReadOnlySpan<string> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(string);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllNullable(ReadOnlySpan<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -806,7 +1424,7 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequence<TCharSeq>(TCharSeq?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+    public TExt AddAllCharSeq<TCharSeq>(TCharSeq?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TCharSeq : ICharSequence 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -832,7 +1450,7 @@ public partial class OrderedCollectionMold<TExt>
         return any ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequence<TCharSeq>(ReadOnlySpan<TCharSeq?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
+    public TExt AddAllCharSeq<TCharSeq>(Span<TCharSeq> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
         where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -858,7 +1476,85 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllCharSequence<TCharSeq>(IReadOnlyList<TCharSeq?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
+    public TExt AddAllCharSeqNullable<TCharSeq>(Span<TCharSeq?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
+        where TCharSeq : ICharSequence
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TCharSeq);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllCharSeq<TCharSeq>(ReadOnlySpan<TCharSeq> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
+        where TCharSeq : ICharSequence
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TCharSeq);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllCharSeqNullable<TCharSeq>(ReadOnlySpan<TCharSeq?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
+        where TCharSeq : ICharSequence
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(TCharSeq);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllCharSeq<TCharSeq>(IReadOnlyList<TCharSeq?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  
         where TCharSeq : ICharSequence
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -963,7 +1659,82 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(ReadOnlySpan<StringBuilder?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAll(Span<StringBuilder> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(StringBuilder);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllNullable(Span<StringBuilder?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(StringBuilder);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAll(ReadOnlySpan<StringBuilder> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(StringBuilder);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllNullable(ReadOnlySpan<StringBuilder?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -1065,218 +1836,6 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt RevealAllBearers<TBearer>(TBearer?[]? value)
-        where TBearer : IStringBearer
-    {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(TBearer);
-        var any         = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
-                var item = value[i];
-                
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
-        }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0 );
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
-    }
-
-    public TExt RevealAllBearers<TBearer>(TBearer?[]? value)
-        where TBearer : struct, IStringBearer
-    {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(TBearer);
-        var any         = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
-                var item = value[i];
-                
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
-        }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0 );
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
-    }
-
-    public TExt AddAllBearer<TStyledObj>(ReadOnlySpan<TStyledObj> value)
-        where TStyledObj : class, IStringBearer
-    {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(TStyledObj);
-        var any         = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
-                var item = value[i];
-                
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
-        }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
-    }
-
-    public TExt AddAllBearer<TBearer>(IReadOnlyList<TBearer?>? value)
-        where TBearer : IStringBearer
-    {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(TBearer);
-        var any         = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Count; i++)
-            {
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
-                var item = value[i];
-                
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
-        }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
-    }
-
-    public TExt AddAllBearer<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value)
-        where TBearerStruct : struct, IStringBearer
-    {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(TBearerStruct);
-        var any         = false;
-        if (value != null)
-        {
-            for (var i = 0; i < value.Count; i++)
-            {
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
-                var item = value[i];
-                
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
-        }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
-    }
-
-    public TExt ReavealAllEnumerate<TBearer>(IEnumerable<TBearer?>? value)
-        where TBearer : IStringBearer 
-    {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(TBearer);
-        var any         = false;
-        var itemCount   = 0;
-        if (value != null)
-        {
-            foreach (var item in value)
-            {
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
-            }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
-        }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
-    }
-
-    public TExt ReavealAllEnumerate<TBearer>(IEnumerable<TBearer?>? value)
-        where TBearer : struct, IStringBearer 
-    {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(TBearer);
-        var any         = false;
-        var itemCount   = 0;
-        if (value != null)
-        {
-            foreach (var item in value)
-            {
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
-            }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
-        }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
-    }
-
-    public TExt ReavealAllEnumerate<TBearer>(IEnumerator<TBearer?>? value)
-        where TBearer : IStringBearer 
-    {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(TBearer);
-        var any         = false;
-        var hasValue    = value?.MoveNext() ?? false;
-        var itemCount   = 0;
-        if (hasValue)
-        {
-            while (hasValue)
-            {
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
-                var item = value!.Current;
-                
-                any = true;
-                stb.AppendOrNull(item);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
-            }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
-        }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
-    }
-
-    public TExt ReavealAllEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value)
-        where TBearerStruct : struct, IStringBearer 
-    {
-        if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(TBearerStruct);
-        var any         = false;
-        var hasValue    = value?.MoveNext() ?? false;
-        var itemCount   = 0;
-        if (hasValue)
-        {
-            while (hasValue)
-            {
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
-                var item = value!.Current;
-                
-                any = true;
-                stb.AppendOrNull(item);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
-            }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
-        }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
-    }
-
-    [CallsObjectToString] 
     public TExt AddAllMatch<T>(T[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1302,7 +1861,56 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    [CallsObjectToString] 
+    public TExt AddAllMatch<T>(Span<T> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(T);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    public TExt AddAllMatchNullable<T>(Span<T?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(T);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
     public TExt AddAllMatch<T>(ReadOnlySpan<T> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1328,7 +1936,31 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    [CallsObjectToString] 
+    public TExt AddAllMatchNullable<T>(ReadOnlySpan<T?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(T);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
     public TExt AddAllMatch<T>(IReadOnlyList<T>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1354,7 +1986,6 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    [CallsObjectToString] 
     public TExt AddAllMatchEnumerate<T>(IEnumerable<T>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1379,11 +2010,220 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    [CallsObjectToString] 
     public TExt AddAllMatchEnumerate<T>(IEnumerator<T>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(T);
+        var any         = false;
+        var itemCount   = 0;
+        var hasValue    = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            while (hasValue)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value!.Current;
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+    
+    [CallsObjectToString] 
+    public TExt AddAllObject(object?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(object);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    [CallsObjectToString] 
+    public TExt AddAllObject(Span<object> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(object);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    [CallsObjectToString] 
+    public TExt AddAllObjectNullable(Span<object?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(object);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    [CallsObjectToString] 
+    public TExt AddAllObject(ReadOnlySpan<object> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(object);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    [CallsObjectToString] 
+    public TExt AddAllObjectNullable(ReadOnlySpan<object?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(object);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    [CallsObjectToString] 
+    public TExt AddAllObject(IReadOnlyList<object?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(object);
+        var any         = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                var item = value[i];
+                
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.GoToNextCollectionItemStart(elementType, i);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    [CallsObjectToString] 
+    public TExt AddAllObjectEnumerate(IEnumerable<object?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(object);
+        var any         = false;
+        var itemCount   = 0;
+        if (value != null)
+        {
+            foreach (var item in value)
+            {
+                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                any = true;
+                if (formatString.IsNotNullOrEmpty())
+                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                else
+                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+            }
+            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+        }
+        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+    }
+
+    [CallsObjectToString] 
+    public TExt AddAllObjectEnumerate(IEnumerator<object?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        if (stb.SkipBody) return stb.StyleTypeBuilder;
+        var elementType = typeof(object);
         var any         = false;
         var itemCount   = 0;
         var hasValue    = value?.MoveNext() ?? false;

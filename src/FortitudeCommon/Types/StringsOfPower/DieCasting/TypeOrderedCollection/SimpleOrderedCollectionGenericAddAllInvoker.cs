@@ -17,10 +17,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
 
     private const string AddAllMethodName                      = $"{nameof(SimpleOrderedCollectionMold.AddAll)}";
     private const string AddAllEnumerateMethodName             = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerate)}";
-    private const string AddAllCharSequenceMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSequence)}";
+    private const string AddAllCharSequenceMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeq)}";
     private const string AddAllCharSequenceEnumerateMethodName = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeqEnumerate)}";
-    private const string AddAllStyledMethodName                = $"{nameof(SimpleOrderedCollectionMold.RevealAllBearers)}";
-    private const string AddAllStyledEnumerateMethodName       = $"{nameof(SimpleOrderedCollectionMold.ReavealAllEnumerate)}";
+    private const string RevealAllMethodName                   = $"{nameof(SimpleOrderedCollectionMold.RevealAll)}";
+    private const string RevealAllEnumerateMethodName          = $"{nameof(SimpleOrderedCollectionMold.RevealAllEnumerate)}";
     private const string AddAllMatchMethodName                 = $"{nameof(SimpleOrderedCollectionMold.AddAllMatch)}";
     private const string AddAllMatchEnumerateMethodName        = $"{nameof(SimpleOrderedCollectionMold.AddAllMatchEnumerate)}";
 
@@ -353,7 +353,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         for (var i = 0; i < allPubMethods.Length; i++)
         {
             var mi = allPubMethods[i];
-            if (mi.Name != AddAllStyledMethodName) continue;
+            if (mi.Name != RevealAllMethodName) continue;
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 1) continue;
             var genericParam = genericParams[0];
@@ -557,7 +557,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         for (var i = 0; i < allPubMethods.Length; i++)
         {
             var mi = allPubMethods[i];
-            if (mi.Name != AddAllStyledMethodName) continue;
+            if (mi.Name != RevealAllMethodName) continue;
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 1) continue;
             var genericParam = genericParams[0];
@@ -761,7 +761,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         for (var i = 0; i < allPubMethods.Length; i++)
         {
             var mi = allPubMethods[i];
-            if (mi.Name != AddAllStyledEnumerateMethodName) continue;
+            if (mi.Name != RevealAllEnumerateMethodName) continue;
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 1) continue;
             var genericParam = genericParams[0];
@@ -965,7 +965,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         for (var i = 0; i < allPubMethods.Length; i++)
         {
             var mi = allPubMethods[i];
-            if (mi.Name != AddAllStyledEnumerateMethodName) continue;
+            if (mi.Name != RevealAllEnumerateMethodName) continue;
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 1) continue;
             var genericParam = genericParams[0];
@@ -1092,26 +1092,26 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         if (itemType == StringBuilderType)
         {
             if (keyedCollType.IsReadOnlyListAndNotArray()) selectedMethodInfo = StringBuilderReadOnlyListAddAll;
-            
-            if (keyedCollType.IsArray()) selectedMethodInfo        = StringBuilderArrayAddAll;
-            if (keyedCollType.IsEnumerable()) selectedMethodInfo   = StringBuilderEnumerableAddAll;
-            if (keyedCollType.IsEnumerator()) selectedMethodInfo   = StringBuilderEnumeratorAddAll;
+
+            if (keyedCollType.IsArray()) selectedMethodInfo      = StringBuilderArrayAddAll;
+            if (keyedCollType.IsEnumerable()) selectedMethodInfo = StringBuilderEnumerableAddAll;
+            if (keyedCollType.IsEnumerator()) selectedMethodInfo = StringBuilderEnumeratorAddAll;
         }
         if (itemType.Derives(StyledToStringObjectType))
         {
             if (keyedCollType.IsReadOnlyListAndNotArray()) selectedMethodInfo = StyledToStringObjReadOnlyListAddAll;
-            
-            if (keyedCollType.IsArray()) selectedMethodInfo        = StyledToStringObjArrayAddAll;
-            if (keyedCollType.IsEnumerable()) selectedMethodInfo   = StyledToStringObjEnumerableAddAll;
-            if (keyedCollType.IsEnumerator()) selectedMethodInfo   = StyledToStringObjEnumeratorAddAll;
+
+            if (keyedCollType.IsArray()) selectedMethodInfo      = StyledToStringObjArrayAddAll;
+            if (keyedCollType.IsEnumerable()) selectedMethodInfo = StyledToStringObjEnumerableAddAll;
+            if (keyedCollType.IsEnumerator()) selectedMethodInfo = StyledToStringObjEnumeratorAddAll;
         }
         if (selectedMethodInfo == null)
         {
             if (keyedCollType.IsReadOnlyListAndNotArray()) selectedMethodInfo = ReadOnlyListAddAllMatch;
-            
-            if (keyedCollType.IsArray()) selectedMethodInfo        = ArrayAddAllMatch;
-            if (keyedCollType.IsEnumerable()) selectedMethodInfo   = EnumerableAddAllMatch;
-            if (keyedCollType.IsEnumerator()) selectedMethodInfo   = EnumeratorAddAllMatch;
+
+            if (keyedCollType.IsArray()) selectedMethodInfo      = ArrayAddAllMatch;
+            if (keyedCollType.IsEnumerable()) selectedMethodInfo = EnumerableAddAllMatch;
+            if (keyedCollType.IsEnumerator()) selectedMethodInfo = EnumeratorAddAllMatch;
             isFormattable = selectedMethodInfo != null;
         }
         if (selectedMethodInfo == null)
@@ -1128,10 +1128,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             OrderedCollAddAllInvokers.TryAdd(keyedCollType, noOpInvoker);
             return noOpInvoker;
         }
-        if (selectedMethodInfo.IsGenericMethod)
-        {
-            selectedMethodInfo = selectedMethodInfo.MakeGenericMethod(itemType);
-        }
+        if (selectedMethodInfo.IsGenericMethod) { selectedMethodInfo = selectedMethodInfo.MakeGenericMethod(itemType); }
         Type invokerType = Func4TypesType.MakeGenericType
             (SimpleOrderedCollectionBuilderType, keyedCollType, StringType, SimpleOrderedCollectionBuilderType);
         var invoker = isFormattable

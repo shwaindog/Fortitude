@@ -61,7 +61,7 @@ public abstract partial class FLogEntryMessageBuilder
         where TToStyle : TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAll(value, palantírReveal).Complete();
+                  .RevealAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -71,7 +71,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAll(value, formatString).Complete();
+                .RevealAll(value, formatString).Complete();
         return appender;
     }
 
@@ -80,7 +80,7 @@ public abstract partial class FLogEntryMessageBuilder
         where TToStyle : TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAll(value, palantírReveal).Complete();
+                  .RevealAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -90,7 +90,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAll(value, formatString).Complete();
+                .RevealAll(value, formatString).Complete();
         return appender;
     }
 
@@ -157,7 +157,7 @@ public abstract partial class FLogEntryMessageBuilder
       , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddFiltered(value, filter, palantírReveal).Complete();
+                  .RevealFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -167,7 +167,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, filter, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddFiltered(value, filter, structStyler).Complete();
+                .RevealFiltered(value, filter, structStyler).Complete();
         return appender;
     }
 
@@ -176,7 +176,7 @@ public abstract partial class FLogEntryMessageBuilder
       , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddFiltered(value, filter, palantírReveal).Complete();
+                  .RevealFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -186,7 +186,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, filter, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddFiltered(value, filter, structStyler).Complete();
+                .RevealFiltered(value, filter, structStyler).Complete();
         return appender;
     }
 
@@ -249,7 +249,7 @@ public abstract partial class FLogEntryMessageBuilder
         where TToStyle : TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, palantírReveal).Complete();
+                  .RevealAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -259,7 +259,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllEnumerate(value, structStyler).Complete();
+                .RevealAllEnumerate(value, structStyler).Complete();
         return appender;
     }
 
@@ -268,7 +268,7 @@ public abstract partial class FLogEntryMessageBuilder
         where TToStyle : TStylerType
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, palantírReveal).Complete();
+                  .RevealAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -278,7 +278,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllEnumerate(value, structStyler).Complete();
+                .RevealAllEnumerate(value, structStyler).Complete();
         return appender;
     }
 
@@ -443,7 +443,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class, TBase where TBase : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAll(value, palantírReveal).Complete();
+                  .RevealAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -453,7 +453,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, customTypeStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAll(value, customTypeStyler).Complete();
+                .RevealAll(value, customTypeStyler).Complete();
         return appender;
     }
 
@@ -462,7 +462,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class, TBase where TBase : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAll(value, palantírReveal).Complete();
+                  .RevealAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -472,7 +472,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, customTypeStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAll(value, customTypeStyler).Complete();
+                .RevealAll(value, customTypeStyler).Complete();
         return appender;
     }
 
@@ -481,7 +481,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddFiltered(value, filter, palantírReveal).Complete();
+                  .RevealFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -491,7 +491,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, filter, customTypeStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddFiltered(value, filter, customTypeStyler).Complete();
+                .RevealFiltered(value, filter, customTypeStyler).Complete();
         return appender;
     }
 
@@ -500,7 +500,7 @@ public abstract partial class FLogEntryMessageBuilder
       , PalantírReveal<TBase2> palantírReveal) where T : class, TBase1, TBase2 where TBase1 : class where TBase2 : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddFiltered(value, filter, palantírReveal).Complete();
+                  .RevealFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -510,7 +510,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, filter, customTypeStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddFiltered(value, filter, customTypeStyler).Complete();
+                .RevealFiltered(value, filter, customTypeStyler).Complete();
         return appender;
     }
 
@@ -519,7 +519,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class, TBase where TBase : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, palantírReveal).Complete();
+                  .RevealAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -529,7 +529,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, customTypeStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllEnumerate(value, customTypeStyler).Complete();
+                .RevealAllEnumerate(value, customTypeStyler).Complete();
         return appender;
     }
 
@@ -538,7 +538,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class, TBase where TBase : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, palantírReveal).Complete();
+                  .RevealAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -548,7 +548,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, customTypeStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllEnumerate(value, customTypeStyler).Complete();
+                .RevealAllEnumerate(value, customTypeStyler).Complete();
         return appender;
     }
 }

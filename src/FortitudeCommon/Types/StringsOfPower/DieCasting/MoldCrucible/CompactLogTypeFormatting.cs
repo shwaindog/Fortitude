@@ -59,7 +59,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return typeBuilder.Sb.Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, string fieldName)
+    public virtual ITypeMolderDieCast<TB> AppendFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, ReadOnlySpan<char> fieldName)
         where TB : TypeMolder =>
         typeBuilder.Sb.Append(fieldName).ToInternalTypeBuilder(typeBuilder);
 

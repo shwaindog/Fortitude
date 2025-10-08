@@ -239,8 +239,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
 
         return existingRefId > 0 || remainingDepth <= 0
-            ? StartComplexValueType(obj).ValueMatch(obj, formatString).Complete()
-            : StartSimpleValueType(obj).ValueMatch(obj, formatString).Complete();
+            ? StartComplexValueType(obj).AsValueMatch(obj, formatString).Complete()
+            : StartSimpleValueType(obj).AsValueMatch(obj, formatString).Complete();
     }
 
     public bool RegisterVisitedCheckCanContinue(object obj)
@@ -250,7 +250,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var existingRefId = SourceGraphVisitRefId(obj, type);
         if (existingRefId > 0)
         {
-            StartComplexValueType(obj).String("", "").Complete();
+            StartComplexValueType(obj).AsStringOrNull("", "").Complete();
             return false;
         }
         var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false, obj, (CurrentNode?.GraphDepth ?? -1) + 1

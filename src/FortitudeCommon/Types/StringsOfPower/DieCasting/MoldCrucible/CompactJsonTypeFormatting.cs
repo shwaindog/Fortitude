@@ -39,7 +39,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         where TB : TypeMolder =>
         typeBuilder.Sb.Append(BrcOpn).ToInternalTypeBuilder(typeBuilder);
 
-    public virtual ITypeMolderDieCast<TB> AppendFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, string fieldName)
+    public virtual ITypeMolderDieCast<TB> AppendFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, ReadOnlySpan<char> fieldName)
         where TB : TypeMolder =>
         typeBuilder.Sb.Append(DblQt).Append(fieldName).Append(DblQt).ToInternalTypeBuilder(typeBuilder);
 

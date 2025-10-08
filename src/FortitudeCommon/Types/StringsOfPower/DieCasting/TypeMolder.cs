@@ -449,8 +449,26 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
-    public static ITypeMolderDieCast<TExt> AppendOrNull<TExt>(this ITypeMolderDieCast<TExt> stb
+    public static ITypeMolderDieCast<TExt> AppendRevealBearerOrNull<TExt>(this ITypeMolderDieCast<TExt> stb
       , IStringBearer? value, bool isKeyName = false) where TExt : TypeMolder
+    {
+        var sb = stb.Sb;
+        if (value != null)
+        {
+            if (isKeyName)
+                stb.StyleFormatter.FormatFieldName(stb, value);
+            else
+                stb.StyleFormatter.FormatFieldContents(stb, value);
+        }
+        else
+        {
+            sb.Append(Null);
+        }
+        return stb;
+    }
+    
+    public static ITypeMolderDieCast<TExt> AppendRevealBearerOrNull<TExt, TBearer>(this ITypeMolderDieCast<TExt> stb
+      , TBearer? value, bool isKeyName = false) where TExt : TypeMolder where TBearer : struct, IStringBearer
     {
         var sb = stb.Sb;
         if (value != null)
@@ -558,7 +576,7 @@ public static class StyledTypeBuilderExtensions
                 case IStringBuilder valueStringBuilder: stb.AppendFormattedCollectionItemOrNull(valueStringBuilder, retrieveCount, formatString); break;
                 case StringBuilder valueSb:             stb.AppendFormattedCollectionItemOrNull(valueSb, retrieveCount, formatString); break;
 
-                case IStringBearer styledToStringObj: stb.AppendOrNull(styledToStringObj); break;
+                case IStringBearer styledToStringObj: stb.AppendRevealBearerOrNull(styledToStringObj); break;
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
@@ -624,7 +642,7 @@ public static class StyledTypeBuilderExtensions
                 case ICharSequence valueCharSequence: stb.AppendFormattedOrNull(valueCharSequence, formatString); break;
                 case StringBuilder valueSb:           stb.AppendFormattedOrNull(valueSb, formatString); break;
 
-                case IStringBearer styledToStringObj: stb.AppendOrNull(styledToStringObj, isKeyName); break;
+                case IStringBearer styledToStringObj: stb.AppendRevealBearerOrNull(styledToStringObj, isKeyName); break;
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
@@ -703,7 +721,7 @@ public static class StyledTypeBuilderExtensions
                 case IStringBuilder valueFrozenString: stb.AppendCollectionItem(valueFrozenString, retrieveCount); break;
                 case StringBuilder valueFrozenString:  stb.AppendCollectionItem(valueFrozenString, retrieveCount); break;
 
-                case IStringBearer styledToStringObject: stb.AppendOrNull(styledToStringObject); break;
+                case IStringBearer styledToStringObject: stb.AppendRevealBearerOrNull(styledToStringObject); break;
                 case IEnumerator:
                 case IEnumerable:
                     var type = value.GetType();
@@ -778,7 +796,7 @@ public static class StyledTypeBuilderExtensions
                 case ICharSequence charSequence:  stb.AppendOrNull(charSequence, isKeyName); break;
                 case StringBuilder stringBuilder: stb.AppendOrNull(stringBuilder, isKeyName); break;
 
-                case IStringBearer styledToStringObject: stb.AppendOrNull(styledToStringObject, isKeyName); break;
+                case IStringBearer styledToStringObject: stb.AppendRevealBearerOrNull(styledToStringObject, isKeyName); break;
                 case IEnumerator:
                 case IEnumerable:
                     var type = value.GetType();
@@ -818,8 +836,16 @@ public static class StyledTypeBuilderExtensions
     {
         stb.StyleFormatter.FormatCollectionStart(stb, elementType, hasElements, collectionInstance.GetType());
     }
+    
+    // public static ITypeMolderDieCast<TExt> FieldNameJoin<TExt>(this ITypeMolderDieCast<TExt> stb, string fieldName)
+    //     where TExt : TypeMolder
+    // {
+    //     stb.StyleFormatter.AppendFieldName(stb, fieldName);
+    //     stb.StyleFormatter.AppendFieldValueSeparator(stb);
+    //     return stb;
+    // }
 
-    public static ITypeMolderDieCast<TExt> FieldNameJoin<TExt>(this ITypeMolderDieCast<TExt> stb, string fieldName)
+    public static ITypeMolderDieCast<TExt> FieldNameJoin<TExt>(this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName)
         where TExt : TypeMolder
     {
         stb.StyleFormatter.AppendFieldName(stb, fieldName);
