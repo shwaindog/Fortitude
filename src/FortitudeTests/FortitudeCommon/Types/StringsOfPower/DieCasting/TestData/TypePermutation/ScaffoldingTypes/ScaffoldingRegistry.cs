@@ -54,10 +54,16 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
 
     public bool SupportsSettingValueFromString => ScaffoldingType.ImplementsInterface<ISupportsSettingValueFromString>();
 
-    public string Name { get; } = ScaffoldingType.Name;
+    public string Name { get; } = ScaffoldingType.ShortNameInCSharpFormat();
 
     public Func<IStringBearer> CreateStringBearerFunc(params Type[] genericTypeArguments)
-        => ReflectionHelper.GenericTypeDefaultCtorBinder<IStringBearer>(ScaffoldingType, genericTypeArguments);
+    {
+        if (ScaffoldingType.IsGenericType)
+        {
+            return ReflectionHelper.GenericTypeDefaultCtorBinder<IStringBearer>(ScaffoldingType, genericTypeArguments);
+        }
+        return ReflectionHelper.DefaultCtorFunc<IStringBearer>(ScaffoldingType);
+    }
 };
 
 public static class ScaffoldingRegistry
@@ -243,22 +249,40 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsValueRevealer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsValueRevealer));
     
+    public static IEnumerable<ScaffoldingPartEntry> NotHasSupportsValueRevealer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(SupportsValueRevealer));
+    
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsKeyRevealer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsKeyRevealer));
     
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsIndexSubRanges(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges));
+    
+    public static IEnumerable<ScaffoldingPartEntry> HasSpanFormattable(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsSpanFormattable));
+    
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableClass | AcceptsNullableStruct));
+    
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct));
+    
+    public static IEnumerable<ScaffoldingPartEntry> NoExplicitAcceptsNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass | AcceptsNullableStruct) || spe.ScaffoldingFlags.HasAllOf(AcceptsAny));
+    
+    public static IEnumerable<ScaffoldingPartEntry> NoExplicitAcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsClass | AcceptsStruct) || spe.ScaffoldingFlags.HasAllOf(AcceptsAny));
 
 
     public static IEnumerable<ScaffoldingPartEntry> HasAcceptsAny(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsAny));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsAny));
 
     public static IEnumerable<ScaffoldingPartEntry> NotHasAcceptsAny(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => !spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsAny));
+        subSet.Where(spe => !spe.ScaffoldingFlags.HasAllOf(AcceptsAny));
 
 
-    public static IEnumerable<ScaffoldingPartEntry> AcceptsStringBearer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsStringBearer));
+    public static IEnumerable<ScaffoldingPartEntry> HasAcceptsStringBearer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsStringBearer));
 
     
 

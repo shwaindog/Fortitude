@@ -12,14 +12,22 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.OrderedCollectionScaffolds;
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct)]
-public class OrderedFromBoolArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolArrayAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<bool[]?>, IEnumerable<bool>
 {
+    public bool[]? OrderedCollectionAddFilteredBoolArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredBoolArray);
+
     public bool[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate)
+           .AddFiltered(OrderedCollectionAddFilteredBoolArray, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -29,14 +37,22 @@ public class OrderedFromBoolArrayAddFilteredSimpleOrderedCollectionStringBearer 
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct)]
-public class OrderedFromNullableBoolArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
+public class OrderedFromNullableBoolArrayAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool?>
   , IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
 {
+    public bool?[]? OrderedCollectionAddFilteredNullableBoolArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolArray);
+
     public bool?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate)
+           .AddFiltered(OrderedCollectionAddFilteredNullableBoolArray, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -46,14 +62,22 @@ public class OrderedFromNullableBoolArrayAddFilteredSimpleOrderedCollectionStrin
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct)]
-public class OrderedFromBoolSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<bool[]?>, IEnumerable<bool>
 {
+    public bool[]? OrderedCollectionAddFilteredBoolSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredBoolSpan);
+
     public bool[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value.AsSpan(), ElementPredicate)
+           .AddFiltered(OrderedCollectionAddFilteredBoolSpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -63,14 +87,22 @@ public class OrderedFromBoolSpanAddFilteredSimpleOrderedCollectionStringBearer :
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct)]
-public class OrderedFromNullableBoolSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
+public class OrderedFromNullableBoolSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool?>
   , IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
 {
+    public bool?[]? OrderedCollectionAddFilteredNullableBoolSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolSpan);
+
     public bool?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value.AsSpan(), ElementPredicate)
+           .AddFiltered(OrderedCollectionAddFilteredNullableBoolSpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -80,14 +112,22 @@ public class OrderedFromNullableBoolSpanAddFilteredSimpleOrderedCollectionString
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct)]
-public class OrderedFromBoolReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<bool[]?>, IEnumerable<bool>
 {
+    public bool[]? OrderedCollectionAddFilteredBoolReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredBoolReadOnlySpan);
+
     public bool[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<bool>)Value.AsSpan(), ElementPredicate)
+           .AddFiltered((ReadOnlySpan<bool>)OrderedCollectionAddFilteredBoolReadOnlySpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -98,13 +138,21 @@ public class OrderedFromBoolReadOnlySpanAddFilteredSimpleOrderedCollectionString
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct)]
 public class OrderedFromNullableBoolReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer
-    : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>, IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
+    : ISupportsOrderedCollectionPredicate<bool?>, IMoldSupportedValue<bool?[]?>, IEnumerable<bool?>
 {
+    public bool?[]? OrderedCollectionAddFilteredNullableBoolReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolReadOnlySpan);
+
     public bool?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<bool?>)Value.AsSpan(), ElementPredicate)
+           .AddFiltered((ReadOnlySpan<bool?>)OrderedCollectionAddFilteredNullableBoolReadOnlySpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -114,14 +162,22 @@ public class OrderedFromNullableBoolReadOnlySpanAddFilteredSimpleOrderedCollecti
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct)]
-public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<List<bool>?>, IEnumerable<bool>
 {
+    public List<bool>? OrderedCollectionAddFilteredBoolList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredBoolList);
+
     public List<bool>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate)
+           .AddFiltered(OrderedCollectionAddFilteredBoolList, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -131,14 +187,22 @@ public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer :
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct)]
-public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
+public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool?>
   , IMoldSupportedValue<List<bool?>?>, IEnumerable<bool?>
 {
+    public List<bool?>? OrderedCollectionAddFilteredNullableBoolList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolList);
+
     public List<bool?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate)
+           .AddFiltered(OrderedCollectionAddFilteredNullableBoolList, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -148,14 +212,22 @@ public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionString
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct)]
-public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<IEnumerable<bool>?>, IEnumerable<bool>
 {
+    public IEnumerable<bool>? OrderedCollectionAddFilteredBoolEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredBoolEnumerable);
+
     public IEnumerable<bool>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredBoolEnumerable, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -166,13 +238,21 @@ public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBe
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct)]
 public class OrderedFromNullableBoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer
-    : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>, IMoldSupportedValue<IEnumerable<bool?>?>, IEnumerable<bool?>
+    : ISupportsOrderedCollectionPredicate<bool?>, IMoldSupportedValue<IEnumerable<bool?>?>, IEnumerable<bool?>
 {
+    public IEnumerable<bool?>? OrderedCollectionAddFilteredNullableBoolEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolEnumerable);
+
     public IEnumerable<bool?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredNullableBoolEnumerable, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -182,14 +262,22 @@ public class OrderedFromNullableBoolEnumerableAddFilteredSimpleOrderedCollection
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct)]
-public class OrderedFromBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool>
+public class OrderedFromBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<IEnumerator<bool>?>, IEnumerable<bool>
 {
+    public IEnumerator<bool>? OrderedCollectionAddFilteredBoolEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredBoolEnumerator);
+
     public IEnumerator<bool>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredBoolEnumerator, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -199,14 +287,22 @@ public class OrderedFromBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBe
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct)]
-public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsOrderedCollectionPredicate<bool?>
+public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool?>
   , IMoldSupportedValue<IEnumerator<bool?>?>, IEnumerable<bool?>
 {
+    public IEnumerator<bool?>? OrderedCollectionAddFilteredNullableBoolEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolEnumerator);
+
     public IEnumerator<bool?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredNullableBoolEnumerator, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -217,14 +313,22 @@ public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollection
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt> where TFmt : ISpanFormattable, TBase
 {
+    public TFmt?[]? OrderedCollectionAddFilteredSpanFormattableArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableArray);
+
     public TFmt?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredSpanFormattableArray, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TBase>.GetNoFilterPredicate;
@@ -237,15 +341,23 @@ public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionSt
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<TFmtStruct?[]?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
+    public TFmtStruct?[]? OrderedCollectionAddFilteredNullableSpanFormattableArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableArray);
+
     public TFmtStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredNullableSpanFormattableArray, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -259,14 +371,22 @@ public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedColl
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt[]?>, IEnumerable<TFmt> where TFmt : ISpanFormattable
 {
+    public TFmt[]? OrderedCollectionAddFilteredSpanFormattableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableSpan);
+
     public TFmt[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredSpanFormattableSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -279,14 +399,22 @@ public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStr
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt?> where TFmt : class, ISpanFormattable
 {
+    public TFmt?[]? OrderedCollectionAddFilteredSpanFormattableNullableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableNullableSpan);
+
     public TFmt?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable(OrderedCollectionAddFilteredSpanFormattableNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -299,15 +427,23 @@ public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedColle
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<TFmtStruct?[]?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
+    public TFmtStruct?[]? OrderedCollectionAddFilteredNullableSpanFormattableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableSpan);
+
     public TFmtStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredNullableSpanFormattableSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -321,14 +457,22 @@ public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedColle
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt[]?>, IEnumerable<TFmt> where TFmt : ISpanFormattable
 {
+    public TFmt[]? OrderedCollectionAddFilteredSpanFormattableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableReadOnlySpan);
+
     public TFmt[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<TFmt>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered((ReadOnlySpan<TFmt>)OrderedCollectionAddFilteredSpanFormattableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -341,14 +485,22 @@ public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedColle
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt?> where TFmt : class, ISpanFormattable
 {
+    public TFmt?[]? OrderedCollectionAddFilteredSpanFormattableNullableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableNullableReadOnlySpan);
+
     public TFmt?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable((ReadOnlySpan<TFmt?>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable((ReadOnlySpan<TFmt?>)OrderedCollectionAddFilteredSpanFormattableNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -361,15 +513,23 @@ public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrde
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<TFmtStruct?[]?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
+    public TFmtStruct?[]? OrderedCollectionAddFilteredNullableSpanFormattableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableReadOnlySpan);
+
     public TFmtStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<TFmtStruct?>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered((ReadOnlySpan<TFmtStruct?>)OrderedCollectionAddFilteredNullableSpanFormattableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -383,14 +543,22 @@ public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrde
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<List<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
+    public List<TFmt?>? OrderedCollectionAddFilteredSpanFormattableList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableList);
+
     public List<TFmt?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredSpanFormattableList, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -403,15 +571,23 @@ public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStr
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<List<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
+    public List<TFmtStruct?>? OrderedCollectionAddFilteredNullableSpanFormattableList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableList);
+
     public List<TFmtStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredNullableSpanFormattableList, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -425,14 +601,22 @@ public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedColle
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<IEnumerable<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
+    public IEnumerable<TFmt?>? OrderedCollectionAddFilteredSpanFormattableEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableEnumerable);
+
     public IEnumerable<TFmt?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredSpanFormattableEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -445,15 +629,23 @@ public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollect
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<IEnumerable<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
+    public IEnumerable<TFmtStruct?>? OrderedCollectionAddFilteredNullableSpanFormattableEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableEnumerable);
+
     public IEnumerable<TFmtStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredNullableSpanFormattableEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -467,14 +659,22 @@ public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrdere
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<IEnumerator<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
+    public IEnumerator<TFmt?>? OrderedCollectionAddFilteredSpanFormattableEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableEnumerator);
+
     public IEnumerator<TFmt?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredSpanFormattableEnumerator, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -487,15 +687,23 @@ public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollect
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<IEnumerator<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
+    public IEnumerator<TFmtStruct?>? OrderedCollectionAddFilteredNullableSpanFormattableEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableEnumerator);
+
     public IEnumerator<TFmtStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredNullableSpanFormattableEnumerator, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -511,14 +719,22 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrdere
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : IStringBearer, ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+    : ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
       , IMoldSupportedValue<TCloaked?[]?>, IEnumerable<TCloaked> where TCloaked : TCloakedFilterBase, TCloakedRevealBase
 {
+    public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerArray);
+
     public TCloaked?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value, ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerArray, ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
@@ -533,15 +749,23 @@ public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionS
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
-  , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
+public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
+  ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
+    public TCloakedStruct?[]? OrderedCollectionRevealFilteredNullableCloakedBearerArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerArray);
+
     public TCloakedStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value, ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredNullableCloakedBearerArray, ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
@@ -556,15 +780,23 @@ public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCol
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : IStringBearer
-  , ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
+public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : 
+  ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
   , IEnumerable<TCloaked> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
+    public TCloaked[]? OrderedCollectionRevealFilteredCloakedBearerSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerSpan);
+
     public TCloaked[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value.AsSpan(), ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerSpan.AsSpan(), ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
@@ -580,14 +812,22 @@ public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionSt
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
-    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked?[]?>
+    : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked?[]?>
       , IEnumerable<TCloaked> where TCloaked : class, TCloakedBase, TCloakedFilterBase
 {
+    public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerNullableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerNullableSpan);
+
     public TCloaked?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable(Value.AsSpan(), ElementPredicate, ValueRevealer)
+           .RevealFilteredNullable(OrderedCollectionRevealFilteredCloakedBearerNullableSpan.AsSpan(), ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
@@ -602,15 +842,23 @@ public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedColl
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
-  , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
+public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
+  ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
+    public TCloakedStruct?[]? OrderedCollectionRevealFilteredNullableCloakedBearerSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerSpan);
+
     public TCloakedStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value.AsSpan(), ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredNullableCloakedBearerSpan.AsSpan(), ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
@@ -625,15 +873,23 @@ public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedColl
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : IStringBearer
-  , ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
+public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : 
+  ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
   , IEnumerable<TCloaked> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
+    public TCloaked[]? OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan);
+
     public TCloaked[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value.AsSpan(), ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan.AsSpan(), ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
@@ -649,14 +905,22 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
-    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked?[]?>
+    : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked?[]?>
       , IEnumerable<TCloaked> where TCloaked : class, TCloakedBase, TCloakedFilterBase
 {
+    public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan);
+
     public TCloaked?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable(Value.AsSpan(), ElementPredicate, ValueRevealer)
+           .RevealFilteredNullable(OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
@@ -671,15 +935,23 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrd
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
-  , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
+public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
+  ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
+    public TCloakedStruct?[]? OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan);
+
     public TCloakedStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value.AsSpan(), ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan.AsSpan(), ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
@@ -695,14 +967,22 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrd
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
-    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+    : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
       , IMoldSupportedValue<IReadOnlyList<TCloaked?>?>, IEnumerable<TCloaked?> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
+    public IReadOnlyList<TCloaked?>? OrderedCollectionRevealFilteredCloakedBearerList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerList);
+
     public IReadOnlyList<TCloaked?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value, ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerList, ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
@@ -717,15 +997,23 @@ public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionSt
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
-  , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>
+public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
+  ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
+    public IReadOnlyList<TCloakedStruct?>? OrderedCollectionRevealFilteredNullableCloakedBearerList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerList);
+
     public IReadOnlyList<TCloakedStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value, ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredNullableCloakedBearerList, ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
@@ -741,14 +1029,22 @@ public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedColl
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
-    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+    : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
       , IMoldSupportedValue<IEnumerable<TCloaked?>?>, IEnumerable<TCloaked?> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
+    public IEnumerable<TCloaked?>? OrderedCollectionRevealFilteredCloakedBearerEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerEnumerable);
+
     public IEnumerable<TCloaked?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(Value, ElementPredicate, ValueRevealer)
+           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredCloakedBearerEnumerable, ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
@@ -763,15 +1059,23 @@ public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollec
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
-  , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>
+public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
+  ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
+    public IEnumerable<TCloakedStruct?>? OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable);
+
     public IEnumerable<TCloakedStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(Value, ValueRevealer)
+           .RevealAllEnumerate(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
@@ -787,14 +1091,22 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrder
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
-    : IStringBearer, ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+    : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
       , IMoldSupportedValue<IEnumerator<TCloaked?>?>, IEnumerable<TCloaked?> where TCloaked : TCloakedBase, TCloakedFilterBase
 {
+    public IEnumerator<TCloaked?>? OrderedCollectionRevealFilteredCloakedBearerEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerEnumerator);
+
     public IEnumerator<TCloaked?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(Value, ElementPredicate, ValueRevealer)
+           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredCloakedBearerEnumerator, ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
@@ -809,15 +1121,23 @@ public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollec
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : IStringBearer
-  , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>
+public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
+  ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>
   , IEnumerable<TCloakedStruct?> where TCloakedStruct : struct
 {
+    public IEnumerator<TCloakedStruct?>? OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator);
+
     public IEnumerator<TCloakedStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(Value, ElementPredicate, ValueRevealer)
+           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator, ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
@@ -830,15 +1150,23 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrder
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class OrderedFromStringBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
+public class OrderedFromStringBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
+  ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
   , IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
 {
+    public TBearer?[]? OrderedCollectionRevealFilteredStringBearerArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerArray);
+
     public TBearer?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value, ElementPredicate)
+           .RevealFiltered(OrderedCollectionRevealFilteredStringBearerArray, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -850,14 +1178,22 @@ public class OrderedFromStringBearerArrayRevealFilteredSimpleOrderedCollectionSt
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
 public class OrderedFromNullableStringBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct>
-    : IStringBearer, ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
+    : ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public TBearerStruct?[]? OrderedCollectionRevealFilteredNullableStringBearerArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerArray);
+
     public TBearerStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value, ElementPredicate)
+           .RevealFiltered(OrderedCollectionRevealFilteredNullableStringBearerArray, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -868,14 +1204,22 @@ public class OrderedFromNullableStringBearerArrayRevealFilteredSimpleOrderedColl
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
-public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer[]?>, IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
+public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
+  ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer[]?>, IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
 {
+    public TBearer[]? OrderedCollectionRevealFilteredStringBearerSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerSpan);
+
     public TBearer[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value.AsSpan(), ElementPredicate)
+           .RevealFiltered(OrderedCollectionRevealFilteredStringBearerSpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -886,15 +1230,23 @@ public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStr
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
+public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
+  ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
   , IEnumerable<TBearer> where TBearer : class, IStringBearer, TBearerBase
 {
+    public TBearer?[]? OrderedCollectionRevealFilteredStringBearerNullableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerNullableSpan);
+
     public TBearer?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable(Value.AsSpan(), ElementPredicate)
+           .RevealFilteredNullable(OrderedCollectionRevealFilteredStringBearerNullableSpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -905,15 +1257,23 @@ public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedColle
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
-public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
+public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : 
+  ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public TBearerStruct?[]? OrderedCollectionRevealFilteredNullableStringBearerSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerSpan);
+
     public TBearerStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value.AsSpan(), ElementPredicate)
+           .RevealFiltered(OrderedCollectionRevealFilteredNullableStringBearerSpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -924,14 +1284,22 @@ public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedColle
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
-public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer[]?>, IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
+public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
+  ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer[]?>, IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
 {
+    public TBearer[]? OrderedCollectionRevealFilteredStringBearerReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerReadOnlySpan);
+
     public TBearer[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered((ReadOnlySpan<TBearer>)Value.AsSpan(), ElementPredicate)
+           .RevealFiltered((ReadOnlySpan<TBearer>)OrderedCollectionRevealFilteredStringBearerReadOnlySpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -943,15 +1311,23 @@ public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedColle
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsNullableClass |
                   AcceptsStringBearer)]
-public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
+public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
+  ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
   , IEnumerable<TBearer> where TBearer : class, IStringBearer, TBearerBase
 {
+    public TBearer?[]? OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan);
+
     public TBearer?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable((ReadOnlySpan<TBearer?>)Value.AsSpan(), ElementPredicate)
+           .RevealFilteredNullable((ReadOnlySpan<TBearer?>)OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -962,15 +1338,23 @@ public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrde
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate  | AcceptsNullableStruct | AcceptsStringBearer)]
-public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
+public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : 
+  ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public TBearerStruct?[]? OrderedCollectionRevealFilteredNullableStringBearerReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerReadOnlySpan);
+
     public TBearerStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered((ReadOnlySpan<TBearerStruct?>)Value.AsSpan(), ElementPredicate)
+           .RevealFiltered((ReadOnlySpan<TBearerStruct?>)OrderedCollectionRevealFilteredNullableStringBearerReadOnlySpan.AsSpan(), ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -981,15 +1365,23 @@ public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrde
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate  | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class OrderedFromStringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IReadOnlyList<TBearer?>?>, IEnumerable<TBearer>
+public class OrderedFromStringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
+  ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IReadOnlyList<TBearer?>?>, IEnumerable<TBearer>
     where TBearer : IStringBearer, TBearerBase
 {
+    public IReadOnlyList<TBearer?>? OrderedCollectionRevealFilteredStringBearerList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerList);
+
     public IReadOnlyList<TBearer?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value, ElementPredicate)
+           .RevealFiltered(OrderedCollectionRevealFilteredStringBearerList, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -1000,15 +1392,23 @@ public class OrderedFromStringBearerListRevealFilteredSimpleOrderedCollectionStr
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
-public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
+public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : 
+  ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public IReadOnlyList<TBearerStruct?>? OrderedCollectionRevealFilteredNullableStringBearerList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerList);
+
     public IReadOnlyList<TBearerStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(Value, ElementPredicate)
+           .RevealFiltered(OrderedCollectionRevealFilteredNullableStringBearerList, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -1019,15 +1419,23 @@ public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedColle
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IEnumerable<TBearer?>?>, IEnumerable<TBearer>
+public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
+  ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IEnumerable<TBearer?>?>, IEnumerable<TBearer>
     where TBearer : IStringBearer, TBearerBase
 {
+    public IEnumerable<TBearer?>? OrderedCollectionRevealFilteredStringBearerEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerEnumerable);
+
     public IEnumerable<TBearer?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(Value, ElementPredicate)
+           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredStringBearerEnumerable, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -1038,15 +1446,23 @@ public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollect
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
-public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IEnumerable<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
+public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : 
+  ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IEnumerable<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public IEnumerable<TBearerStruct?>? OrderedCollectionRevealFilteredNullableStringBearerEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerEnumerable);
+
     public IEnumerable<TBearerStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(Value, ElementPredicate)
+           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredNullableStringBearerEnumerable, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -1057,15 +1473,23 @@ public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrdere
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IEnumerator<TBearer?>?>, IEnumerable<TBearer>
+public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
+  ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IEnumerator<TBearer?>?>, IEnumerable<TBearer>
     where TBearer : IStringBearer, TBearerBase
 {
+    public IEnumerator<TBearer?>? OrderedCollectionRevealFilteredStringBearerEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerEnumerator);
+
     public IEnumerator<TBearer?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(Value, ElementPredicate)
+           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredStringBearerEnumerator, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -1076,15 +1500,23 @@ public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollect
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
-public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : IStringBearer
-  , ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IEnumerator<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
+public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : 
+  ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IEnumerator<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
+    public IEnumerator<TBearerStruct?>? OrderedCollectionRevealFilteredNullableStringBearerEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerEnumerator);
+
     public IEnumerator<TBearerStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(Value, ElementPredicate)
+           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredNullableStringBearerEnumerator, ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -1095,14 +1527,22 @@ public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrdere
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string?[]?>, IEnumerable<string?>
 {
+    public string?[]? OrderedCollectionAddFilteredStringArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringArray);
+
     public string?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredStringArray, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<string> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string>.GetNoFilterPredicate;
@@ -1114,14 +1554,22 @@ public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBeare
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string[]?>, IEnumerable<string>
 {
+    public string[]? OrderedCollectionAddFilteredStringSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringSpan);
+
     public string[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredStringSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<string> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string>.GetNoFilterPredicate;
@@ -1133,14 +1581,22 @@ public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string?[]?>, IEnumerable<string?>
 {
+    public string?[]? OrderedCollectionAddFilteredStringNullableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringNullableSpan);
+
     public string?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable(OrderedCollectionAddFilteredStringNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<string> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string>.GetNoFilterPredicate;
@@ -1152,14 +1608,22 @@ public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStri
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string[]?>, IEnumerable<string>
 {
+    public string[]? OrderedCollectionAddFilteredStringReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringReadOnlySpan);
+
     public string[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<string>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered((ReadOnlySpan<string>)OrderedCollectionAddFilteredStringReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<string> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string>.GetNoFilterPredicate;
@@ -1172,14 +1636,22 @@ public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStri
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string?[]?>, IEnumerable<string?>
 {
+    public string?[]? OrderedCollectionAddFilteredStringNullableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringNullableReadOnlySpan);
+
     public string?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable((ReadOnlySpan<string?>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable((ReadOnlySpan<string?>)OrderedCollectionAddFilteredStringNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<string> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string>.GetNoFilterPredicate;
@@ -1191,14 +1663,22 @@ public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollec
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<IReadOnlyList<string?>?>, IEnumerable<string?>
 {
+    public IReadOnlyList<string?>? OrderedCollectionAddFilteredStringList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringList);
+
     public IReadOnlyList<string?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredStringList, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<string> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string>.GetNoFilterPredicate;
@@ -1211,14 +1691,22 @@ public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<IEnumerable<string?>?>, IEnumerable<string?>
 {
+    public IEnumerable<string?>? OrderedCollectionAddFilteredStringEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringEnumerable);
+
     public IEnumerable<string?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredStringEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<string> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string>.GetNoFilterPredicate;
@@ -1231,14 +1719,22 @@ public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionString
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<IEnumerator<string?>?>, IEnumerable<string?>
 {
+    public IEnumerator<string?>? OrderedCollectionAddFilteredStringEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringEnumerator);
+
     public IEnumerator<string?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredStringEnumerator, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<string> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string>.GetNoFilterPredicate;
@@ -1250,15 +1746,23 @@ public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionString
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence, TCharSeqBase
 {
+    public TCharSeq?[]? OrderedCollectionAddFilteredCharSequenceArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceArray);
+
     public TCharSeq?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeq(OrderedCollectionAddFilteredCharSequenceArray, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -1271,15 +1775,23 @@ public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStrin
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq>
     where TCharSeq : ICharSequence, TCharSeqBase
 {
+    public TCharSeq[]? OrderedCollectionAddFilteredCharSequenceSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceSpan);
+
     public TCharSeq[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeq(OrderedCollectionAddFilteredCharSequenceSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -1292,15 +1804,23 @@ public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionString
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : IStringBearer
-  , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>
+public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
+  ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
 {
+    public TCharSeq?[]? OrderedCollectionAddFilteredCharSequenceNullableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceNullableSpan);
+
     public TCharSeq?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqNullable(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeqNullable(OrderedCollectionAddFilteredCharSequenceNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -1313,15 +1833,23 @@ public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollecti
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : IStringBearer
-  , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq>
+public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
+  ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq>
     where TCharSeq : ICharSequence, TCharSeqBase
 {
+    public TCharSeq[]? OrderedCollectionAddFilteredCharSequenceReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceReadOnlySpan);
+
     public TCharSeq[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq((ReadOnlySpan<TCharSeq>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeq((ReadOnlySpan<TCharSeq>)OrderedCollectionAddFilteredCharSequenceReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -1335,15 +1863,23 @@ public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollecti
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : IStringBearer
-  , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?>
+public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
+  ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence, TCharSeqBase
 {
+    public TCharSeq?[]? OrderedCollectionAddFilteredCharSequenceNullableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceNullableReadOnlySpan);
+
     public TCharSeq?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqNullable((ReadOnlySpan<TCharSeq?>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeqNullable((ReadOnlySpan<TCharSeq?>)OrderedCollectionAddFilteredCharSequenceNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -1356,15 +1892,23 @@ public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrdered
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
 {
+    public IReadOnlyList<TCharSeq?>? OrderedCollectionAddFilteredCharSequenceList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceList);
+
     public IReadOnlyList<TCharSeq?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeq(OrderedCollectionAddFilteredCharSequenceList, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -1378,15 +1922,23 @@ public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionString
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : IStringBearer
-  , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IEnumerable<TCharSeq?>?>
+public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
+  ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IEnumerable<TCharSeq?>?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
 {
+    public IEnumerable<TCharSeq?>? OrderedCollectionAddFilteredCharSequenceEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceEnumerable);
+
     public IEnumerable<TCharSeq?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeqEnumerate(OrderedCollectionAddFilteredCharSequenceEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -1400,15 +1952,23 @@ public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollection
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : IStringBearer
-  , ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IEnumerator<TCharSeq?>?>
+public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
+  ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IEnumerator<TCharSeq?>?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
 {
+    public IEnumerator<TCharSeq?>? OrderedCollectionAddFilteredCharSequenceEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceEnumerator);
+
     public IEnumerator<TCharSeq?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeqEnumerate(OrderedCollectionAddFilteredCharSequenceEnumerator, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -1421,14 +1981,22 @@ public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollection
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
+    public StringBuilder?[]? OrderedCollectionAddFilteredStringBuilderArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderArray);
+
     public StringBuilder?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredStringBuilderArray, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -1441,14 +2009,22 @@ public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStri
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
+    public StringBuilder[]? OrderedCollectionAddFilteredStringBuilderSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderSpan);
+
     public StringBuilder[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredStringBuilderSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -1461,14 +2037,22 @@ public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStrin
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
+    public StringBuilder?[]? OrderedCollectionAddFilteredStringBuilderNullableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderNullableSpan);
+
     public StringBuilder?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable(OrderedCollectionAddFilteredStringBuilderNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -1481,14 +2065,22 @@ public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollect
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
+    public StringBuilder[]? OrderedCollectionAddFilteredStringBuilderReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderReadOnlySpan);
+
     public StringBuilder[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<StringBuilder>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered((ReadOnlySpan<StringBuilder>)OrderedCollectionAddFilteredStringBuilderReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -1502,14 +2094,22 @@ public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollect
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
+    public StringBuilder?[]? OrderedCollectionAddFilteredStringBuilderNullableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderNullableReadOnlySpan);
+
     public StringBuilder?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable((ReadOnlySpan<StringBuilder?>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable((ReadOnlySpan<StringBuilder?>)OrderedCollectionAddFilteredStringBuilderNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -1522,14 +2122,22 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrdere
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
-public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
+    public IReadOnlyList<StringBuilder?>? OrderedCollectionAddFilteredStringBuilderList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderList);
+
     public IReadOnlyList<StringBuilder?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(Value, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredStringBuilderList, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -1543,14 +2151,22 @@ public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStrin
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<IEnumerable<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
+    public IEnumerable<StringBuilder?>? OrderedCollectionAddFilteredStringBuilderEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderEnumerable);
+
     public IEnumerable<StringBuilder?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredStringBuilderEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -1564,14 +2180,22 @@ public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectio
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsChars |
                   SupportsValueFormatString)]
-public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<IEnumerator<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
+    public IEnumerator<StringBuilder?>? OrderedCollectionAddFilteredStringBuilderEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderEnumerator);
+
     public IEnumerator<StringBuilder?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate(OrderedCollectionAddFilteredStringBuilderEnumerator, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -1584,14 +2208,22 @@ public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectio
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T?[]?>, IEnumerable<T?> where T : TBase
 {
+    public T?[]? OrderedCollectionAddFilteredMatchArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredMatchArray);
+
     public T?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredMatch(OrderedCollectionAddFilteredMatchArray, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TBase>.GetNoFilterPredicate;
@@ -1605,14 +2237,22 @@ public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T[]?>, IEnumerable<T> where T : TBase
 {
+    public T[]? OrderedCollectionAddFilteredMatchSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredMatchSpan);
+
     public T[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredMatch(OrderedCollectionAddFilteredMatchSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TBase>.GetNoFilterPredicate;
@@ -1626,14 +2266,22 @@ public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromMatchNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T?[]?>, IEnumerable<T?> where T : TBase
 {
+    public T?[]? OrderedCollectionAddFilteredMatchNullableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredMatchNullableSpan);
+
     public T?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchNullable(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredMatchNullable(OrderedCollectionAddFilteredMatchNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TBase>.GetNoFilterPredicate;
@@ -1647,14 +2295,22 @@ public class OrderedFromMatchNullableSpanAddFilteredSimpleOrderedCollectionStrin
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T[]?>, IEnumerable<T> where T : TBase
 {
+    public T[]? OrderedCollectionAddFilteredMatchReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredMatchReadOnlySpan);
+
     public T[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch((ReadOnlySpan<T>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredMatch((ReadOnlySpan<T>)OrderedCollectionAddFilteredMatchReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TBase>.GetNoFilterPredicate;
@@ -1668,14 +2324,22 @@ public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStrin
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromMatchNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<T?[]?>, IEnumerable<T?> where T : TBase
 {
+    public T?[]? OrderedCollectionAddFilteredMatchNullableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredMatchNullableReadOnlySpan);
+
     public T?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchNullable((ReadOnlySpan<T?>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredMatchNullable((ReadOnlySpan<T?>)OrderedCollectionAddFilteredMatchNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TBase>.GetNoFilterPredicate;
@@ -1687,14 +2351,22 @@ public class OrderedFromMatchNullableReadOnlySpanAddFilteredSimpleOrderedCollect
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<IReadOnlyList<T?>?>, IEnumerable<T?> where T : TBase
 {
+    public IReadOnlyList<T?>? OrderedCollectionAddFilteredMatchList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredMatchList);
+
     public IReadOnlyList<T?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredMatch(OrderedCollectionAddFilteredMatchList, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TBase>.GetNoFilterPredicate;
@@ -1706,14 +2378,22 @@ public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<IEnumerable<T?>?>, IEnumerable<T?> where T : TBase
 {
+    public IEnumerable<T?>? OrderedCollectionAddFilteredMatchEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredMatchEnumerable);
+
     public IEnumerable<T?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredMatchEnumerate(OrderedCollectionAddFilteredMatchEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TBase>.GetNoFilterPredicate;
@@ -1725,14 +2405,22 @@ public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringB
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : IStringBearer, ISupportsValueFormatString
+public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<T, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<IEnumerator<T?>?>, IEnumerable<T?> where T : TBase
 {
+    public IEnumerator<T?>? OrderedCollectionAddFilteredMatchEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredMatchEnumerator);
+
     public IEnumerator<T?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredMatchEnumerate(OrderedCollectionAddFilteredMatchEnumerator, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TBase>.GetNoFilterPredicate;
@@ -1744,14 +2432,22 @@ public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringB
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
+    public object?[]? OrderedCollectionAddFilteredObjectArray
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredObjectArray);
+
     public object?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObject(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredObject(OrderedCollectionAddFilteredObjectArray, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -1765,14 +2461,22 @@ public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBeare
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object[]?>, IEnumerable<object>
 {
+    public object[]? OrderedCollectionAddFilteredObjectSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredObjectSpan);
+
     public object[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObject(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredObject(OrderedCollectionAddFilteredObjectSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -1786,14 +2490,22 @@ public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
+    public object?[]? OrderedCollectionAddFilteredObjectNullableSpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredObjectNullableSpan);
+
     public object?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectNullable(Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredObjectNullable(OrderedCollectionAddFilteredObjectNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -1807,14 +2519,22 @@ public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStri
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object[]?>, IEnumerable<object>
 {
+    public object[]? OrderedCollectionAddFilteredObjectReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredObjectReadOnlySpan);
+
     public object[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObject((ReadOnlySpan<object>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredObject((ReadOnlySpan<object>)OrderedCollectionAddFilteredObjectReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -1828,14 +2548,22 @@ public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStri
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
+    public object?[]? OrderedCollectionAddFilteredObjectNullableReadOnlySpan
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredObjectNullableReadOnlySpan);
+
     public object?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectNullable((ReadOnlySpan<object?>)Value.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredObjectNullable((ReadOnlySpan<object?>)OrderedCollectionAddFilteredObjectNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -1847,14 +2575,22 @@ public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollec
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<IReadOnlyList<object?>?>, IEnumerable<object?>
 {
+    public IReadOnlyList<object?>? OrderedCollectionAddFilteredObjectList
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredObjectList);
+
     public IReadOnlyList<object?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObject(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredObject(OrderedCollectionAddFilteredObjectList, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -1866,14 +2602,22 @@ public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<IEnumerable<object?>?>, IEnumerable<object?>
 {
+    public IEnumerable<object?>? OrderedCollectionAddFilteredObjectEnumerable
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredObjectEnumerable);
+
     public IEnumerable<object?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredObjectEnumerate(OrderedCollectionAddFilteredObjectEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -1885,14 +2629,22 @@ public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionString
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromObjectEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : IStringBearer, ISupportsValueFormatString
+public class OrderedFromObjectEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<IEnumerator<object?>?>, IEnumerable<object?>
 {
+    public IEnumerator<object?>? OrderedCollectionAddFilteredObjectEnumerator
+    {
+        get => Value;
+        set =>Value = value;
+    }
+
+    public string PropertyName => nameof(OrderedCollectionAddFilteredObjectEnumerator);
+
     public IEnumerator<object?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectEnumerate(Value, ElementPredicate, ValueFormatString)
+           .AddFilteredObjectEnumerate(OrderedCollectionAddFilteredObjectEnumerator, ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;

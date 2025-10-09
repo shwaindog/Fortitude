@@ -33,7 +33,7 @@ public class ComplexTypeMold : MultiValueTypeMolder<ComplexTypeMold>
 
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
+        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt);
     }
     
     public override void AppendClosing()

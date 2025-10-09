@@ -102,7 +102,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddInvoker in alwaysAddInvokers)
         {
             var uniquePart = alwaysAddInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -117,7 +117,7 @@ public class ScaffoldingValidateClassTests
         foreach (var nonDefaultInvoker in nonDefaultInvokers)
         {
             var uniquePart = nonDefaultInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonDefaultSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonDefaultSuffix, "").TruncateAt('<');
             var countExisting = nonDefaultUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(nonDefaultInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -151,7 +151,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddInvoker in alwaysAddInvokers)
         {
             var uniquePart = alwaysAddInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -166,7 +166,7 @@ public class ScaffoldingValidateClassTests
         foreach (var nonNullInvoker in nonNullInvokers)
         {
             var uniquePart = nonNullInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonNullSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonNullSuffix, "").TruncateAt('<');
             var countExisting = nonNullUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(nonNullInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -211,7 +211,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddInvoker in alwaysAddInvokers)
         {
             var uniquePart = alwaysAddInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -226,7 +226,7 @@ public class ScaffoldingValidateClassTests
         foreach (var nonNullOrDefaultInvoker in nonNullOrDefaultInvokers)
         {
             var uniquePart = nonNullOrDefaultInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonNullOrDefaultSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonNullOrDefaultSuffix, "").TruncateAt('<');
             var countExisting = nonNullOrDefaultUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(nonNullOrDefaultInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -271,7 +271,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddAllInvoker in alwaysAddAllInvokers)
         {
             var uniquePart = alwaysAddAllInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddAllInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -286,7 +286,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysFilteredInvoker in alwaysAddFilteredInvokers)
         {
             var uniquePart = alwaysFilteredInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddFilteredSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddFilteredSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -333,7 +333,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddAllInvoker in alwaysAddAllInvokers)
         {
             var uniquePart = alwaysAddAllInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddAllInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -348,7 +348,7 @@ public class ScaffoldingValidateClassTests
         foreach (var nonNullAddFiltered in nonNullAddFilteredInvokers)
         {
             var uniquePart = nonNullAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenNonNullAddFilteredSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenNonNullAddFilteredSuffix, "").TruncateAt('<');
             var countExisting = nonNullAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(nonNullAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -395,7 +395,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddAllInvoker in alwaysAddAllInvokers)
         {
             var uniquePart = alwaysAddAllInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddAllInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -410,7 +410,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysFilteredInvoker in alwaysAddFilteredInvokers)
         {
             var uniquePart = alwaysFilteredInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenNonNullAddAllSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenNonNullAddAllSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -457,7 +457,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddAllInvoker in alwaysAddAllInvokers)
         {
             var uniquePart = alwaysAddAllInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddAllSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddAllInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -472,7 +472,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysFilteredInvoker in alwaysAddFilteredInvokers)
         {
             var uniquePart = alwaysFilteredInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenPopulatedAddAllSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenPopulatedAddAllSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -519,7 +519,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFiltered in alwaysAddFilteredInvokers)
         {
             var uniquePart = alwaysAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddFilteredSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldAlwaysAddFilteredSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -534,7 +534,7 @@ public class ScaffoldingValidateClassTests
         foreach (var whenPopulatedWithFilterInvoker in whenPopulatedWithFilteredInvokers)
         {
             var uniquePart = whenPopulatedWithFilterInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenPopulatedWithFilterSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(ComplexCollectionFieldWhenPopulatedWithFilterSuffix, "").TruncateAt('<');
             var countExisting = whenPopulatedWithFilterUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(whenPopulatedWithFilterInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -581,7 +581,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFiltered in alwaysAddAllFilteredInvokers)
         {
             var uniquePart = alwaysAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -596,7 +596,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFilteredInvoker in alwaysAddFilteredInvokers)
         {
             var uniquePart = alwaysAddFilteredInvoker
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -643,7 +643,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFiltered in alwaysAddAllFilteredInvokers)
         {
             var uniquePart = alwaysAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -658,7 +658,7 @@ public class ScaffoldingValidateClassTests
         foreach (var whenNonNullAddFilteredInvoker in whenNonNullAddFilteredInvokers)
         {
             var uniquePart = whenNonNullAddFilteredInvoker
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = whenNonNullAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(whenNonNullAddFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -705,7 +705,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFiltered in alwaysAddAllFilteredInvokers)
         {
             var uniquePart = alwaysAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -720,7 +720,7 @@ public class ScaffoldingValidateClassTests
         foreach (var whenNonNullInvoker in whenNonNullAddAllInvokers)
         {
             var uniquePart = whenNonNullInvoker
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = whenNonNullAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(whenNonNullInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -767,7 +767,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFiltered in alwaysAddAllFilteredInvokers)
         {
             var uniquePart = alwaysAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -782,7 +782,7 @@ public class ScaffoldingValidateClassTests
         foreach (var whenPopulatedWithFilterInvoker in whenPopulatedWithFilterInvokers)
         {
             var uniquePart = whenPopulatedWithFilterInvoker
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = whenPopulatedWithFilterUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(whenPopulatedWithFilterInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -829,7 +829,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFiltered in alwaysAddAllFilteredInvokers)
         {
             var uniquePart = alwaysAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -844,7 +844,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysWithSelectKeysInvoker in whenNonNullWithSelectKeysInvokers)
         {
             var uniquePart = alwaysWithSelectKeysInvoker
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = alwaysAddSelectKeysUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysWithSelectKeysInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -893,7 +893,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFiltered in alwaysAddAllFilteredInvokers)
         {
             var uniquePart = alwaysAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = alwaysAddFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -908,7 +908,7 @@ public class ScaffoldingValidateClassTests
         foreach (var whenPopulatedWithKeysInvoker in whenPopulatedWithSelectKeysInvokers)
         {
             var uniquePart = whenPopulatedWithKeysInvoker
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = whenPopulatedWithSelectKeysUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(whenPopulatedWithKeysInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -957,7 +957,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFiltered in alwaysAddAllInvokers)
         {
             var uniquePart = alwaysAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).Replace(OrderedCollectionAddAllSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(OrderedCollectionAddAllSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -972,7 +972,7 @@ public class ScaffoldingValidateClassTests
         foreach (var addFilteredInvoker in addFilteredInvokers)
         {
             var uniquePart = addFilteredInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(OrderedCollectionAddFilteredSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(OrderedCollectionAddFilteredSuffix, "").TruncateAt('<');
             var countExisting = addFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(addFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -1021,7 +1021,7 @@ public class ScaffoldingValidateClassTests
         foreach (var alwaysAddFiltered in addAllInvokers)
         {
             var uniquePart = alwaysAddFiltered
-                             .Name.RemoveAll(ClassNameCleanup).Replace(KeyedCollectionAllSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(KeyedCollectionAllSuffix, "").TruncateAt('<');
             var countExisting = addAllUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(alwaysAddFiltered.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -1036,7 +1036,7 @@ public class ScaffoldingValidateClassTests
         foreach (var addFilteredInvoker in addFilteredInvokers)
         {
             var uniquePart = addFilteredInvoker
-                             .Name.RemoveAll(ClassNameCleanup).Replace(KeyedCollectionAddFilteredSuffix, "");
+                             .Name.RemoveAll(ClassNameCleanup).Replace(KeyedCollectionAddFilteredSuffix, "").TruncateAt('<');
             var countExisting = addFilteredUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(addFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -1085,7 +1085,7 @@ public class ScaffoldingValidateClassTests
         foreach (var complexTypeWithSelectKeysField in complexTypeWithSelectKeyeInvokers)
         {
             var uniquePart = complexTypeWithSelectKeysField
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = complexTypeWithSelectKeyesUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(complexTypeWithSelectKeysField.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -1100,7 +1100,7 @@ public class ScaffoldingValidateClassTests
         foreach (var addFilteredInvoker in withSelectKeysInvokers)
         {
             var uniquePart = addFilteredInvoker
-                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup);
+                             .Name.RemoveAll(ClassNameCleanup).RemoveAll(WithSelectKeysNameCleanup).TruncateAt('<');
             var countExisting = withSelectKeysUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(addFilteredInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -1150,7 +1150,7 @@ public class ScaffoldingValidateClassTests
         foreach (var asValueInvoker in allAsValueInvokers)
         {
             var uniquePart = asValueInvoker
-                             .Name.RemoveAll(CommonNameCleanup).Replace(SimpleAsValuePrefix, "").Replace(SimpleValueTypeSuffix, "");
+                             .Name.RemoveAll(CommonNameCleanup).Replace(SimpleAsValuePrefix, "").Replace(SimpleValueTypeSuffix, "").TruncateAt('<');
             var countExisting = asValueUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(asValueInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
@@ -1165,7 +1165,7 @@ public class ScaffoldingValidateClassTests
         foreach (var asStringInvoker in asStringInvokers)
         {
             var uniquePart = asStringInvoker
-                             .Name.RemoveAll(CommonNameCleanup).Replace(SimpleAsStringPrefix, "").Replace(SimpleValueTypeSuffix, "");
+                             .Name.RemoveAll(CommonNameCleanup).Replace(SimpleAsStringPrefix, "").Replace(SimpleValueTypeSuffix, "").TruncateAt('<');
             var countExisting = asStringUniqueNamePart.Count(s => s == uniquePart);
             le = le?.Append(BulletList).Append(asStringInvoker.Name).Append(" - ").AppendLine(countExisting);
             le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);

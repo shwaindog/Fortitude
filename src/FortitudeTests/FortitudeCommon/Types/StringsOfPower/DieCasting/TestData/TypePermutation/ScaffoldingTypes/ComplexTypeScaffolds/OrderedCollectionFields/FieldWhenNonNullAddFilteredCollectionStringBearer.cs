@@ -12,7 +12,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsStruct)]
-public class FieldBoolSpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
+public class FieldBoolSpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
 {
     public bool[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolSpan
     {
@@ -20,6 +20,7 @@ public class FieldBoolSpanWhenNonNullAddFilteredStringBearer : IStringBearer, IM
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolSpan);
     public bool[]? Value { get; set; }
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -34,7 +35,7 @@ public class FieldBoolSpanWhenNonNullAddFilteredStringBearer : IStringBearer, IM
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
-public class FieldNullableBoolSpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
+public class FieldNullableBoolSpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
 {
     public bool?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolSpan
     {
@@ -42,6 +43,7 @@ public class FieldNullableBoolSpanWhenNonNullAddFilteredStringBearer : IStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolSpan);
     public bool?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -57,7 +59,7 @@ public class FieldNullableBoolSpanWhenNonNullAddFilteredStringBearer : IStringBe
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableSpanWhenNonNullAddFilteredStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt[]?>
+public class FieldSpanFormattableSpanWhenNonNullAddFilteredStringBearer<TFmt> : IMoldSupportedValue<TFmt[]?>
   , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString where TFmt : ISpanFormattable
 {
     public TFmt[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableSpan
@@ -66,6 +68,7 @@ public class FieldSpanFormattableSpanWhenNonNullAddFilteredStringBearer<TFmt> : 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableSpan);
     public TFmt[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -83,7 +86,7 @@ public class FieldSpanFormattableSpanWhenNonNullAddFilteredStringBearer<TFmt> : 
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableClassSpanWhenNonNullAddFilteredStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?[]?>
+public class FieldSpanFormattableNullableClassSpanWhenNonNullAddFilteredStringBearer<TFmt> : IMoldSupportedValue<TFmt?[]?>
   , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString where TFmt : class, ISpanFormattable
 {
     public TFmt?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableNullableSpan
@@ -92,6 +95,7 @@ public class FieldSpanFormattableNullableClassSpanWhenNonNullAddFilteredStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableNullableSpan);
     public TFmt?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -110,7 +114,7 @@ public class FieldSpanFormattableNullableClassSpanWhenNonNullAddFilteredStringBe
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableSpanWhenNonNullAddFilteredStringBearer<TFmtStruct>
-    : IStringBearer, IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
+    : IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
     where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableSpan
@@ -119,6 +123,7 @@ public class FieldNullableSpanFormattableSpanWhenNonNullAddFilteredStringBearer<
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableSpan);
     public TFmtStruct?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -138,7 +143,7 @@ public class FieldNullableSpanFormattableSpanWhenNonNullAddFilteredStringBearer<
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : IStringBearer,
+public class FieldCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
     IMoldSupportedValue<TCloaked[]?>, ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
@@ -148,6 +153,7 @@ public class FieldCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TCloaked, 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerSpan);
     public TCloaked[]? Value { get; set; }
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
@@ -166,8 +172,8 @@ public class FieldCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TCloaked, 
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable
                 | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldCloakedBearerNullableClassSpanWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : IStringBearer
-  , IMoldSupportedValue<TCloaked?[]?>, ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+public class FieldCloakedBearerNullableClassSpanWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
+  IMoldSupportedValue<TCloaked?[]?>, ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
 {
     public TCloaked?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerNullableSpan
@@ -176,6 +182,7 @@ public class FieldCloakedBearerNullableClassSpanWhenNonNullAddFilteredStringBear
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerNullableSpan);
     public TCloaked?[]? Value { get; set; }
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
@@ -195,7 +202,7 @@ public class FieldCloakedBearerNullableClassSpanWhenNonNullAddFilteredStringBear
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class FieldNullableCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>
+public class FieldNullableCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TCloakedStruct> : IMoldSupportedValue<TCloakedStruct?[]?>
   , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
 {
     public TCloakedStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerSpan
@@ -204,6 +211,7 @@ public class FieldNullableCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TC
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerSpan);
     public TCloakedStruct?[]? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
@@ -222,7 +230,7 @@ public class FieldNullableCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TC
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
 public class FieldStringBearerSpanWhenNonNullAddFilteredStringBearer<TBearer, TBearerBase>
-    : IStringBearer, IMoldSupportedValue<TBearer[]?>, ISupportsOrderedCollectionPredicate<TBearerBase>
+    : IMoldSupportedValue<TBearer[]?>, ISupportsOrderedCollectionPredicate<TBearerBase>
     where TBearer : IStringBearer, TBearerBase
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerSpan
@@ -231,6 +239,7 @@ public class FieldStringBearerSpanWhenNonNullAddFilteredStringBearer<TBearer, TB
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerSpan);
     public TBearer[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -246,7 +255,7 @@ public class FieldStringBearerSpanWhenNonNullAddFilteredStringBearer<TBearer, TB
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerNullableClassSpanWhenNonNullAddFilteredStringBearer<TBearer, TBearerBase>
-    : IStringBearer, IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
+    : IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : class, IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerNullableSpan
@@ -255,6 +264,7 @@ public class FieldStringBearerNullableClassSpanWhenNonNullAddFilteredStringBeare
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerNullableSpan);
     public TBearer?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
@@ -271,7 +281,7 @@ public class FieldStringBearerNullableClassSpanWhenNonNullAddFilteredStringBeare
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
 public class FieldNullableStringBearerSpanWhenNonNullAddFilteredStringBearer<TBearerStruct>
-    : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
+    : IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerSpan
@@ -280,6 +290,7 @@ public class FieldNullableStringBearerSpanWhenNonNullAddFilteredStringBearer<TBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerSpan);
     public TBearerStruct?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -295,7 +306,7 @@ public class FieldNullableStringBearerSpanWhenNonNullAddFilteredStringBearer<TBe
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringSpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<string[]?>, ISupportsOrderedCollectionPredicate<string?>
+public class FieldStringSpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<string[]?>, ISupportsOrderedCollectionPredicate<string?>
   , ISupportsValueFormatString
 {
     public string[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringSpan
@@ -304,6 +315,7 @@ public class FieldStringSpanWhenNonNullAddFilteredStringBearer : IStringBearer, 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringSpan);
     public string[]? Value { get; set; }
 
     public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
@@ -320,7 +332,7 @@ public class FieldStringSpanWhenNonNullAddFilteredStringBearer : IStringBearer, 
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringNullableSpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<string?[]?>
+public class FieldStringNullableSpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<string?[]?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringSpan
@@ -329,6 +341,7 @@ public class FieldStringNullableSpanWhenNonNullAddFilteredStringBearer : IString
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringSpan);
     public string?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
@@ -347,7 +360,7 @@ public class FieldStringNullableSpanWhenNonNullAddFilteredStringBearer : IString
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldCharSequenceSpanWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IStringBearer, IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceSpan
@@ -356,6 +369,7 @@ public class FieldCharSequenceSpanWhenNonNullAddFilteredStringBearer<TCharSeq, T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceSpan);
     public TCharSeq[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
@@ -374,7 +388,7 @@ public class FieldCharSequenceSpanWhenNonNullAddFilteredStringBearer<TCharSeq, T
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldCharSequenceNullableSpanWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCharSequenceSpan
@@ -383,6 +397,7 @@ public class FieldCharSequenceNullableSpanWhenNonNullAddFilteredStringBearer<TCh
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCharSequenceSpan);
     public TCharSeq?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
@@ -400,7 +415,7 @@ public class FieldCharSequenceNullableSpanWhenNonNullAddFilteredStringBearer<TCh
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringBuilderSpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder[]?>
+public class FieldStringBuilderSpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<StringBuilder[]?>
   , ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
     public StringBuilder[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderSpan
@@ -409,6 +424,7 @@ public class FieldStringBuilderSpanWhenNonNullAddFilteredStringBearer : IStringB
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderSpan);
     public StringBuilder[]? Value { get; set; }
 
     public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
@@ -427,7 +443,7 @@ public class FieldStringBuilderSpanWhenNonNullAddFilteredStringBearer : IStringB
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldStringBuilderNullableSpanWhenNonNullAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBuilderSpan
     {
@@ -435,6 +451,7 @@ public class FieldStringBuilderNullableSpanWhenNonNullAddFilteredStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBuilderSpan);
     public StringBuilder?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
@@ -453,7 +470,7 @@ public class FieldStringBuilderNullableSpanWhenNonNullAddFilteredStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldMatchSpanWhenNonNullAddFilteredStringBearer<T, TFilterBase>
-    : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
+    : IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
     where T : TFilterBase
 {
     public T[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchSpan
@@ -462,6 +479,7 @@ public class FieldMatchSpanWhenNonNullAddFilteredStringBearer<T, TFilterBase>
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchSpan);
     public T[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
@@ -480,7 +498,7 @@ public class FieldMatchSpanWhenNonNullAddFilteredStringBearer<T, TFilterBase>
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
 public class FieldMatchNullableSpanWhenNonNullAddFilteredStringBearer<T, TFilterBase>
-    : IStringBearer, IMoldSupportedValue<T?[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
+    : IMoldSupportedValue<T?[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
     where T : TFilterBase
 {
     public T?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchSpan
@@ -489,6 +507,7 @@ public class FieldMatchNullableSpanWhenNonNullAddFilteredStringBearer<T, TFilter
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchSpan);
     public T?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
@@ -507,7 +526,7 @@ public class FieldMatchNullableSpanWhenNonNullAddFilteredStringBearer<T, TFilter
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass | SupportsValueFormatString)]
-public class FieldObjectSpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<object[]?>, ISupportsOrderedCollectionPredicate<object>
+public class FieldObjectSpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<object[]?>, ISupportsOrderedCollectionPredicate<object>
   , ISupportsValueFormatString
 {
     public object[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectSpan
@@ -516,6 +535,7 @@ public class FieldObjectSpanWhenNonNullAddFilteredStringBearer : IStringBearer, 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectSpan);
     public object[]? Value { get; set; }
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -531,7 +551,7 @@ public class FieldObjectSpanWhenNonNullAddFilteredStringBearer : IStringBearer, 
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldNullableObjectSpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<object?[]?>
+public class FieldNullableObjectSpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<object?[]?>
   , ISupportsOrderedCollectionPredicate<object?>, ISupportsValueFormatString
 {
     public object?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableObjectSpan
@@ -540,6 +560,7 @@ public class FieldNullableObjectSpanWhenNonNullAddFilteredStringBearer : IString
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableObjectSpan);
     public object?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<object?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object?>.GetNoFilterPredicate;
@@ -555,7 +576,7 @@ public class FieldNullableObjectSpanWhenNonNullAddFilteredStringBearer : IString
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsStruct)]
-public class FieldBoolReadOnlySpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
+public class FieldBoolReadOnlySpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
 {
     public bool[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolReadOnlySpan
     {
@@ -563,6 +584,7 @@ public class FieldBoolReadOnlySpanWhenNonNullAddFilteredStringBearer : IStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolReadOnlySpan);
     public bool[]? Value { get; set; }
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -578,7 +600,7 @@ public class FieldBoolReadOnlySpanWhenNonNullAddFilteredStringBearer : IStringBe
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
 public class FieldNullableBoolReadOnlySpanWhenNonNullAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
+    : IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
 {
     public bool?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolReadOnlySpan
     {
@@ -586,6 +608,7 @@ public class FieldNullableBoolReadOnlySpanWhenNonNullAddFilteredStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolReadOnlySpan);
     public bool?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -602,7 +625,7 @@ public class FieldNullableBoolReadOnlySpanWhenNonNullAddFilteredStringBearer
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldSpanFormattableReadOnlySpanWhenNonNullAddFilteredStringBearer<TFmt>
-    : IStringBearer, IMoldSupportedValue<TFmt[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
+    : IMoldSupportedValue<TFmt[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
     where TFmt : struct, ISpanFormattable
 {
     public TFmt[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableReadOnlySpan
@@ -611,6 +634,7 @@ public class FieldSpanFormattableReadOnlySpanWhenNonNullAddFilteredStringBearer<
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableReadOnlySpan);
     public TFmt[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -629,7 +653,7 @@ public class FieldSpanFormattableReadOnlySpanWhenNonNullAddFilteredStringBearer<
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddFilteredStringBearer<TFmt>
-    : IStringBearer, IMoldSupportedValue<TFmt?[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
+    : IMoldSupportedValue<TFmt?[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
     where TFmt : class, ISpanFormattable
 {
     public TFmt?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableNullableReadOnlySpan
@@ -638,6 +662,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddFiltered
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableNullableReadOnlySpan);
     public TFmt?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -656,7 +681,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddFiltered
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableReadOnlySpanWhenNonNullAddFilteredStringBearer<TFmtStruct>
-    : IStringBearer, IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
+    : IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
     where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableReadOnlySpan
@@ -665,6 +690,7 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenNonNullAddFilteredStrin
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableReadOnlySpan);
     public TFmtStruct?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -685,7 +711,7 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenNonNullAddFilteredStrin
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : IStringBearer, IMoldSupportedValue<TCloaked[]?>, ISupportsValueRevealer<TCloakedRevealBase>
+    : IMoldSupportedValue<TCloaked[]?>, ISupportsValueRevealer<TCloakedRevealBase>
       , ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
@@ -695,6 +721,7 @@ public class FieldCloakedBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TC
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerReadOnlySpan);
     public TCloaked[]? Value { get; set; }
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
@@ -715,7 +742,7 @@ public class FieldCloakedBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TC
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : IStringBearer, IMoldSupportedValue<TCloaked?[]?>, ISupportsValueRevealer<TCloakedRevealBase>
+    : IMoldSupportedValue<TCloaked?[]?>, ISupportsValueRevealer<TCloakedRevealBase>
       , ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
 {
@@ -725,6 +752,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddFilteredSt
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerNullableReadOnlySpan);
     public TCloaked?[]? Value { get; set; }
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
@@ -745,7 +773,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddFilteredSt
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldNullableCloakedBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TCloakedStruct>
-    : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsValueRevealer<TCloakedStruct>
+    : IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsValueRevealer<TCloakedStruct>
       , ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
 {
     public TCloakedStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerReadOnlySpan
@@ -754,6 +782,7 @@ public class FieldNullableCloakedBearerReadOnlySpanWhenNonNullAddFilteredStringB
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerReadOnlySpan);
     public TCloakedStruct?[]? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
@@ -772,7 +801,7 @@ public class FieldNullableCloakedBearerReadOnlySpanWhenNonNullAddFilteredStringB
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
 public class FieldStringBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TBearer, TBearerBase>
-    : IStringBearer, IMoldSupportedValue<TBearer[]?>, ISupportsOrderedCollectionPredicate<TBearerBase>
+    : IMoldSupportedValue<TBearer[]?>, ISupportsOrderedCollectionPredicate<TBearerBase>
     where TBearer : IStringBearer, TBearerBase
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerReadOnlySpan
@@ -781,6 +810,7 @@ public class FieldStringBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerReadOnlySpan);
     public TBearer[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -797,7 +827,7 @@ public class FieldStringBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TBe
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerNullableClassReadOnlySpanWhenNonNullAddFilteredStringBearer<TBearer, TBearerBase>
-    : IStringBearer, IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
+    : IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : class, IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerNullableReadOnlySpan
@@ -806,6 +836,7 @@ public class FieldStringBearerNullableClassReadOnlySpanWhenNonNullAddFilteredStr
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerNullableReadOnlySpan);
     public TBearer?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
@@ -822,7 +853,7 @@ public class FieldStringBearerNullableClassReadOnlySpanWhenNonNullAddFilteredStr
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
 public class FieldNullableStringBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TBearerStruct>
-    : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
+    : IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerReadOnlySpan
@@ -831,6 +862,7 @@ public class FieldNullableStringBearerReadOnlySpanWhenNonNullAddFilteredStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerReadOnlySpan);
     public TBearerStruct?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -846,7 +878,7 @@ public class FieldNullableStringBearerReadOnlySpanWhenNonNullAddFilteredStringBe
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringReadOnlySpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<string[]?>
+public class FieldStringReadOnlySpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<string[]?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
     public string[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringReadOnlySpan
@@ -855,6 +887,7 @@ public class FieldStringReadOnlySpanWhenNonNullAddFilteredStringBearer : IString
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringReadOnlySpan);
     public string[]? Value { get; set; }
 
     public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
@@ -872,7 +905,7 @@ public class FieldStringReadOnlySpanWhenNonNullAddFilteredStringBearer : IString
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldStringNullableReadOnlySpanWhenNonNullAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
+    : IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringReadOnlySpan
     {
@@ -880,6 +913,7 @@ public class FieldStringNullableReadOnlySpanWhenNonNullAddFilteredStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringReadOnlySpan);
     public string?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
@@ -897,7 +931,7 @@ public class FieldStringNullableReadOnlySpanWhenNonNullAddFilteredStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldCharSequenceReadOnlySpanWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IStringBearer, IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceReadOnlySpan
@@ -906,6 +940,7 @@ public class FieldCharSequenceReadOnlySpanWhenNonNullAddFilteredStringBearer<TCh
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceReadOnlySpan);
     public TCharSeq[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
@@ -924,7 +959,7 @@ public class FieldCharSequenceReadOnlySpanWhenNonNullAddFilteredStringBearer<TCh
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCharSequenceReadOnlySpan
@@ -933,6 +968,7 @@ public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddFilteredStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCharSequenceReadOnlySpan);
     public TCharSeq?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
@@ -951,7 +987,7 @@ public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddFilteredStringBe
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldStringBuilderReadOnlySpanWhenNonNullAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<StringBuilder[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : IMoldSupportedValue<StringBuilder[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
     public StringBuilder[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderReadOnlySpan
     {
@@ -959,6 +995,7 @@ public class FieldStringBuilderReadOnlySpanWhenNonNullAddFilteredStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderReadOnlySpan);
     public StringBuilder[]? Value { get; set; }
 
     public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
@@ -977,7 +1014,7 @@ public class FieldStringBuilderReadOnlySpanWhenNonNullAddFilteredStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBuilderReadOnlySpan
     {
@@ -985,6 +1022,7 @@ public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddFilteredStringB
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBuilderReadOnlySpan);
     public StringBuilder?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
@@ -1003,7 +1041,7 @@ public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddFilteredStringB
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldMatchReadOnlySpanWhenNonNullAddFilteredStringBearer<T, TFilterBase>
-    : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
+    : IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
     where T : TFilterBase
 {
     public T[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchReadOnlySpan
@@ -1012,6 +1050,7 @@ public class FieldMatchReadOnlySpanWhenNonNullAddFilteredStringBearer<T, TFilter
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchReadOnlySpan);
     public T[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
@@ -1030,7 +1069,7 @@ public class FieldMatchReadOnlySpanWhenNonNullAddFilteredStringBearer<T, TFilter
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
 public class FieldMatchNullableReadOnlySpanWhenNonNullAddFilteredStringBearer<T, TFilterBase>
-    : IStringBearer, IMoldSupportedValue<T?[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
+    : IMoldSupportedValue<T?[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
     where T : TFilterBase
 {
     public T?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchReadOnlySpan
@@ -1039,6 +1078,7 @@ public class FieldMatchNullableReadOnlySpanWhenNonNullAddFilteredStringBearer<T,
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchReadOnlySpan);
     public T?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
@@ -1056,7 +1096,7 @@ public class FieldMatchNullableReadOnlySpanWhenNonNullAddFilteredStringBearer<T,
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass | SupportsValueFormatString)]
-public class FieldObjectReadOnlySpanWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<object[]?>
+public class FieldObjectReadOnlySpanWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<object[]?>
   , ISupportsOrderedCollectionPredicate<object>, ISupportsValueFormatString
 {
     public object[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectReadOnlySpan
@@ -1065,6 +1105,7 @@ public class FieldObjectReadOnlySpanWhenNonNullAddFilteredStringBearer : IString
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectReadOnlySpan);
     public object[]? Value { get; set; }
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -1081,7 +1122,7 @@ public class FieldObjectReadOnlySpanWhenNonNullAddFilteredStringBearer : IString
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldNullableObjectReadOnlySpanWhenNonNullAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsOrderedCollectionPredicate<object?>, ISupportsValueFormatString
+    : IMoldSupportedValue<object?[]?>, ISupportsOrderedCollectionPredicate<object?>, ISupportsValueFormatString
 {
     public object?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableObjectReadOnlySpan
     {
@@ -1089,6 +1130,7 @@ public class FieldNullableObjectReadOnlySpanWhenNonNullAddFilteredStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableObjectReadOnlySpan);
     public object?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<object?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object?>.GetNoFilterPredicate;
@@ -1104,7 +1146,7 @@ public class FieldNullableObjectReadOnlySpanWhenNonNullAddFilteredStringBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsStruct)]
-public class FieldBoolArrayWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
+public class FieldBoolArrayWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
 {
     public bool[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolArray
     {
@@ -1112,6 +1154,7 @@ public class FieldBoolArrayWhenNonNullAddFilteredStringBearer : IStringBearer, I
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolArray);
     public bool[]? Value { get; set; }
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -1125,7 +1168,7 @@ public class FieldBoolArrayWhenNonNullAddFilteredStringBearer : IStringBearer, I
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
-public class FieldNullableBoolArrayWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
+public class FieldNullableBoolArrayWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
 {
     public bool?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolArray
     {
@@ -1133,6 +1176,7 @@ public class FieldNullableBoolArrayWhenNonNullAddFilteredStringBearer : IStringB
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolArray);
     public bool?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -1147,7 +1191,7 @@ public class FieldNullableBoolArrayWhenNonNullAddFilteredStringBearer : IStringB
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableArrayWhenNonNullAddFilteredStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?[]?>
+public class FieldSpanFormattableArrayWhenNonNullAddFilteredStringBearer<TFmt> : IMoldSupportedValue<TFmt?[]?>
   , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString where TFmt : ISpanFormattable
 {
     public TFmt?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableArray
@@ -1156,6 +1200,7 @@ public class FieldSpanFormattableArrayWhenNonNullAddFilteredStringBearer<TFmt> :
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableArray);
     public TFmt?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -1174,7 +1219,7 @@ public class FieldSpanFormattableArrayWhenNonNullAddFilteredStringBearer<TFmt> :
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableArrayWhenNonNullAddFilteredStringBearer<TFmtStruct>
-    : IStringBearer, IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
+    : IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
     where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableArray
@@ -1183,6 +1228,7 @@ public class FieldNullableSpanFormattableArrayWhenNonNullAddFilteredStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableArray);
     public TFmtStruct?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -1203,7 +1249,7 @@ public class FieldNullableSpanFormattableArrayWhenNonNullAddFilteredStringBearer
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerArrayWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : IStringBearer, IMoldSupportedValue<TCloaked[]?>, ISupportsValueRevealer<TCloakedRevealBase>
+    : IMoldSupportedValue<TCloaked[]?>, ISupportsValueRevealer<TCloakedRevealBase>
       , ISupportsOrderedCollectionPredicate<TCloakedFilterBase> where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
     public TCloaked[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerArray
@@ -1212,6 +1258,7 @@ public class FieldCloakedBearerArrayWhenNonNullAddFilteredStringBearer<TCloaked,
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerArray);
     public TCloaked[]? Value { get; set; }
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
@@ -1232,7 +1279,7 @@ public class FieldCloakedBearerArrayWhenNonNullAddFilteredStringBearer<TCloaked,
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldNullableCloakedBearerArrayWhenNonNullAddFilteredStringBearer<TCloakedStruct>
-    : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsValueRevealer<TCloakedStruct>
+    : IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsValueRevealer<TCloakedStruct>
       , ISupportsOrderedCollectionPredicate<TCloakedStruct?>
     where TCloakedStruct : struct
 {
@@ -1242,6 +1289,7 @@ public class FieldNullableCloakedBearerArrayWhenNonNullAddFilteredStringBearer<T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerArray);
     public TCloakedStruct?[]? Value { get; set; }
 
 
@@ -1262,7 +1310,7 @@ public class FieldNullableCloakedBearerArrayWhenNonNullAddFilteredStringBearer<T
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass |
                   AcceptsStringBearer)]
 public class FieldStringBearerArrayWhenNonNullAddFilteredStringBearer<TBearer, TBearerBase>
-    : IStringBearer, IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
+    : IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerArray
@@ -1271,6 +1319,7 @@ public class FieldStringBearerArrayWhenNonNullAddFilteredStringBearer<TBearer, T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerArray);
     public TBearer?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
@@ -1286,7 +1335,7 @@ public class FieldStringBearerArrayWhenNonNullAddFilteredStringBearer<TBearer, T
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
 public class FieldNullableStringBearerArrayWhenNonNullAddFilteredStringBearer<TBearerStruct>
-    : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
+    : IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerArray
@@ -1295,6 +1344,7 @@ public class FieldNullableStringBearerArrayWhenNonNullAddFilteredStringBearer<TB
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerArray);
     public TBearerStruct?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -1310,7 +1360,7 @@ public class FieldNullableStringBearerArrayWhenNonNullAddFilteredStringBearer<TB
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringArrayWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>
+public class FieldStringArrayWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>
   , ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringArray
@@ -1319,6 +1369,7 @@ public class FieldStringArrayWhenNonNullAddFilteredStringBearer : IStringBearer,
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringArray);
     public string?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
@@ -1336,7 +1387,7 @@ public class FieldStringArrayWhenNonNullAddFilteredStringBearer : IStringBearer,
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldCharSequenceArrayWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceArray
@@ -1345,6 +1396,7 @@ public class FieldCharSequenceArrayWhenNonNullAddFilteredStringBearer<TCharSeq, 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceArray);
     public TCharSeq?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
@@ -1363,7 +1415,7 @@ public class FieldCharSequenceArrayWhenNonNullAddFilteredStringBearer<TCharSeq, 
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldStringBuilderArrayWhenNonNullAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderArray
     {
@@ -1371,6 +1423,7 @@ public class FieldStringBuilderArrayWhenNonNullAddFilteredStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderArray);
     public StringBuilder?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
@@ -1390,7 +1443,7 @@ public class FieldStringBuilderArrayWhenNonNullAddFilteredStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
 public class FieldMatchArrayWhenNonNullAddFilteredStringBearer<T, TFilterBase>
-    : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
+    : IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
     where T : TFilterBase
 {
     public T[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchArray
@@ -1399,6 +1452,7 @@ public class FieldMatchArrayWhenNonNullAddFilteredStringBearer<T, TFilterBase>
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchArray);
     public T[]? Value { get; set; }
 
     public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
@@ -1418,7 +1472,7 @@ public class FieldMatchArrayWhenNonNullAddFilteredStringBearer<T, TFilterBase>
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsAny)]
 public class FieldObjectArrayWhenNonNullAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsOrderedCollectionPredicate<object>
+    : IMoldSupportedValue<object?[]?>, ISupportsOrderedCollectionPredicate<object>
 {
     public object?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectArray
     {
@@ -1426,6 +1480,7 @@ public class FieldObjectArrayWhenNonNullAddFilteredStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectArray);
     public object?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
@@ -1438,7 +1493,7 @@ public class FieldObjectArrayWhenNonNullAddFilteredStringBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsStruct)]
-public class FieldBoolListWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<bool>>
+public class FieldBoolListWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<IReadOnlyList<bool>>
   , ISupportsOrderedCollectionPredicate<bool>
 {
     public IReadOnlyList<bool>? ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolList
@@ -1447,6 +1502,7 @@ public class FieldBoolListWhenNonNullAddFilteredStringBearer : IStringBearer, IM
         set => Value = value!;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolList);
     public IReadOnlyList<bool> Value { get; set; } = null!;
 
     public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
@@ -1460,7 +1516,7 @@ public class FieldBoolListWhenNonNullAddFilteredStringBearer : IStringBearer, IM
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
-public class FieldNullableBoolListWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<bool?>?>
+public class FieldNullableBoolListWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<IReadOnlyList<bool?>?>
   , ISupportsOrderedCollectionPredicate<bool?>
 {
     public IReadOnlyList<bool?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolList
@@ -1469,6 +1525,7 @@ public class FieldNullableBoolListWhenNonNullAddFilteredStringBearer : IStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolList);
     public IReadOnlyList<bool?>? Value { get; set; }
 
     public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
@@ -1484,7 +1541,7 @@ public class FieldNullableBoolListWhenNonNullAddFilteredStringBearer : IStringBe
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldSpanFormattableListWhenNonNullAddFilteredStringBearer<TFmt>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TFmt?>?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
+    : IMoldSupportedValue<IReadOnlyList<TFmt?>?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
     where TFmt : ISpanFormattable
 {
     public IReadOnlyList<TFmt?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableList
@@ -1493,6 +1550,7 @@ public class FieldSpanFormattableListWhenNonNullAddFilteredStringBearer<TFmt>
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableList);
     public IReadOnlyList<TFmt?>? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
@@ -1512,7 +1570,7 @@ public class FieldSpanFormattableListWhenNonNullAddFilteredStringBearer<TFmt>
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableListWhenNonNullAddFilteredStringBearer<TFmtStruct>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
+    : IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
     where TFmtStruct : struct, ISpanFormattable
 {
     public IReadOnlyList<TFmtStruct?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableList
@@ -1521,6 +1579,7 @@ public class FieldNullableSpanFormattableListWhenNonNullAddFilteredStringBearer<
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableList);
     public IReadOnlyList<TFmtStruct?>? Value { get; set; }
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -1541,7 +1600,7 @@ public class FieldNullableSpanFormattableListWhenNonNullAddFilteredStringBearer<
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerListWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCloaked>?>, ISupportsValueRevealer<TCloakedRevealBase>
+    : IMoldSupportedValue<IReadOnlyList<TCloaked>?>, ISupportsValueRevealer<TCloakedRevealBase>
       , ISupportsOrderedCollectionPredicate<TCloakedFilterBase> where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
     public IReadOnlyList<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerList
@@ -1550,6 +1609,7 @@ public class FieldCloakedBearerListWhenNonNullAddFilteredStringBearer<TCloaked, 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerList);
     public IReadOnlyList<TCloaked>? Value { get; set; }
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
@@ -1568,8 +1628,8 @@ public class FieldCloakedBearerListWhenNonNullAddFilteredStringBearer<TCloaked, 
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable
                 | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldNullableCloakedBearerListWhenNonNullAddFilteredStringBearer<TCloakedStruct> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct>
+public class FieldNullableCloakedBearerListWhenNonNullAddFilteredStringBearer<TCloakedStruct> : 
+  IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct>
   , ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
 {
     public IReadOnlyList<TCloakedStruct?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerList
@@ -1578,6 +1638,7 @@ public class FieldNullableCloakedBearerListWhenNonNullAddFilteredStringBearer<TC
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerList);
     public IReadOnlyList<TCloakedStruct?>? Value { get; set; }
 
 
@@ -1597,7 +1658,7 @@ public class FieldNullableCloakedBearerListWhenNonNullAddFilteredStringBearer<TC
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerListWhenNonNullAddFilteredStringBearer<TBearer, TBearerBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearer?>?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
+    : IMoldSupportedValue<IReadOnlyList<TBearer?>?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
     where TBearer : IStringBearer, TBearerBase
 {
     public IReadOnlyList<TBearer?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerList
@@ -1606,6 +1667,7 @@ public class FieldStringBearerListWhenNonNullAddFilteredStringBearer<TBearer, TB
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerList);
     public IReadOnlyList<TBearer?>? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
@@ -1621,7 +1683,7 @@ public class FieldStringBearerListWhenNonNullAddFilteredStringBearer<TBearer, TB
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars)]
 public class FieldNullableStringBearerListWhenNonNullAddFilteredStringBearer<TBearerStruct>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
+    : IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public IReadOnlyList<TBearerStruct?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerList
@@ -1630,6 +1692,7 @@ public class FieldNullableStringBearerListWhenNonNullAddFilteredStringBearer<TBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerList);
     public IReadOnlyList<TBearerStruct?>? Value { get; set; }
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -1644,7 +1707,7 @@ public class FieldNullableStringBearerListWhenNonNullAddFilteredStringBearer<TBe
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringListWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<string?>?>
+public class FieldStringListWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<IReadOnlyList<string?>?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
     public IReadOnlyList<string?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringList
@@ -1653,6 +1716,7 @@ public class FieldStringListWhenNonNullAddFilteredStringBearer : IStringBearer, 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringList);
     public IReadOnlyList<string?>? Value { get; set; }
 
     public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
@@ -1670,7 +1734,7 @@ public class FieldStringListWhenNonNullAddFilteredStringBearer : IStringBearer, 
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldCharSequenceListWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IStringBearer, IMoldSupportedValue<List<TCharSeq?>?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase>
+    : IMoldSupportedValue<List<TCharSeq?>?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase>
       , ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
@@ -1680,6 +1744,7 @@ public class FieldCharSequenceListWhenNonNullAddFilteredStringBearer<TCharSeq, T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceList);
     public List<TCharSeq?>? Value { get; set; }
 
     public OrderedCollectionPredicate<TCharSeqFilterBase> ElementPredicate { get; set; }
@@ -1698,7 +1763,7 @@ public class FieldCharSequenceListWhenNonNullAddFilteredStringBearer<TCharSeq, T
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
 public class FieldStringBuilderListWhenNonNullAddFilteredStringBearer
-    : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderList
     {
@@ -1706,6 +1771,7 @@ public class FieldStringBuilderListWhenNonNullAddFilteredStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderList);
     public StringBuilder?[]? Value { get; set; }
 
     public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
@@ -1724,7 +1790,7 @@ public class FieldStringBuilderListWhenNonNullAddFilteredStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
 public class FieldMatchListWhenNonNullAddFilteredStringBearer<T, TFilterBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsOrderedCollectionPredicate<TFilterBase?>, ISupportsValueFormatString
+    : IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsOrderedCollectionPredicate<TFilterBase?>, ISupportsValueFormatString
     where T : TFilterBase
 {
     public IReadOnlyList<T>? ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchList
@@ -1733,6 +1799,7 @@ public class FieldMatchListWhenNonNullAddFilteredStringBearer<T, TFilterBase>
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchList);
     public IReadOnlyList<T>? Value { get; set; }
 
     public OrderedCollectionPredicate<TFilterBase?> ElementPredicate { get; set; }
@@ -1750,7 +1817,7 @@ public class FieldMatchListWhenNonNullAddFilteredStringBearer<T, TFilterBase>
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldObjectListWhenNonNullAddFilteredStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<object?>?>
+public class FieldObjectListWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<IReadOnlyList<object?>?>
   , ISupportsOrderedCollectionPredicate<object>, ISupportsValueFormatString
 {
     public IReadOnlyList<object?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectList
@@ -1759,6 +1826,7 @@ public class FieldObjectListWhenNonNullAddFilteredStringBearer : IStringBearer, 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectList);
     public IReadOnlyList<object?>? Value { get; set; }
 
     public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;

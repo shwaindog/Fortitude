@@ -5,10 +5,10 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     KeyedCollectionScaffolds;
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray  | SubsetListFilter
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
@@ -19,6 +19,7 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysArrayStringBea
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromArrayBothFormatStrings);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -39,10 +40,10 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysArrayStringBea
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan  | SubsetListFilter
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
@@ -52,6 +53,7 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysSpanStringBear
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromSpanBothFormatStrings);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -72,10 +74,10 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysSpanStringBear
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
@@ -85,6 +87,7 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysReadOnlySpanSt
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanBothFormatStrings);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -105,10 +108,10 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysReadOnlySpanSt
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
@@ -118,6 +121,7 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysListStringBear
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromListBothFormatStrings);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -138,10 +142,10 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysListStringBear
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
@@ -151,6 +155,7 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysEnumerableStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromEnumerableBothFormatStrings );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -171,10 +176,10 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysEnumerableStri
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
@@ -184,6 +189,7 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysEnumeratorStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -204,10 +210,10 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysEnumeratorStri
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray  | SubsetListFilter
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
@@ -218,6 +224,7 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysArrayStringBearer<
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromArrayValueRevealerKeyFormatString );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -238,10 +245,10 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysArrayStringBearer<
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan  | SubsetListFilter
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
@@ -252,6 +259,7 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysSpanStringBearer<T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromSpanValueRevealerKeyFormatString );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -272,10 +280,10 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysSpanStringBearer<T
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
@@ -286,6 +294,7 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysReadOnlySpanString
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -306,10 +315,10 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysReadOnlySpanString
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
@@ -320,6 +329,7 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysListStringBearer<T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromListValueRevealerKeyFormatString );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -340,10 +350,10 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysListStringBearer<T
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
@@ -354,6 +364,7 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumerableStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -374,10 +385,10 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumerableStringBe
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
     where TKSelectDerived : TKey where TValue : TVRevealBase
 {
@@ -388,6 +399,7 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumeratorStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -408,10 +420,10 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumeratorStringBe
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray  | SubsetListFilter
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -422,6 +434,7 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysArrayStringBearer<
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromArrayBothRevealers );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
 
@@ -443,10 +456,10 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysArrayStringBearer<
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan  | SubsetListFilter
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -457,6 +470,7 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysSpanStringBearer<T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromSpanBothRevealers );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
 
@@ -478,10 +492,10 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysSpanStringBearer<T
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan  
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites 
                 | SubsetListFilter | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -492,6 +506,7 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysReadOnlySpanString
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanBothRevealers );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
 
@@ -513,10 +528,10 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysReadOnlySpanString
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -527,6 +542,7 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysListStringBearer<T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysFromListBothRevealers );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
 
@@ -548,10 +564,10 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysListStringBearer<T
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -562,6 +578,7 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysEnumerableStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumerableBothRevealers );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
 
@@ -583,10 +600,10 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysEnumerableStringBe
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator 
+[TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
+    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
       , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
     where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
 {
@@ -597,6 +614,7 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysEnumeratorStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumeratorBothRevealers );
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
     
 

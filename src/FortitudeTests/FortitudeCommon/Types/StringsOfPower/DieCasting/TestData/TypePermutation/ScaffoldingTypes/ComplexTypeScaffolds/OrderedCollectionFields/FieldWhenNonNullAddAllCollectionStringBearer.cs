@@ -9,7 +9,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStruct)]
-public class FieldBoolSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<bool[]>
+public class FieldBoolSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<bool[]>
 {
     public bool[] ComplexTypeCollectionFieldWhenNonNullAddAllBoolSpan
     {
@@ -17,6 +17,7 @@ public class FieldBoolSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSu
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolSpan);
     public bool[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -28,7 +29,7 @@ public class FieldBoolSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSu
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStruct | AcceptsNullableStruct)]
-public class FieldNullableBoolSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<bool?[]>
+public class FieldNullableBoolSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<bool?[]>
 {
     public bool?[] ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolSpan
     {
@@ -36,6 +37,7 @@ public class FieldNullableBoolSpanWhenNonNullAddAllStringBearer : IStringBearer,
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolSpan);
     public bool?[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -48,7 +50,7 @@ public class FieldNullableBoolSpanWhenNonNullAddAllStringBearer : IStringBearer,
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt[]>, ISupportsValueFormatString
+public class FieldSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<TFmt[]>, ISupportsValueFormatString
     where TFmt : ISpanFormattable
 {
     public TFmt[] ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableSpan
@@ -57,6 +59,7 @@ public class FieldSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmt> : IStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableSpan);
     public TFmt[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -71,7 +74,7 @@ public class FieldSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmt> : IStri
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableClassSpanWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?[]>
+public class FieldSpanFormattableNullableClassSpanWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<TFmt?[]>
   , ISupportsValueFormatString
     where TFmt : class, ISpanFormattable
 {
@@ -81,6 +84,7 @@ public class FieldSpanFormattableNullableClassSpanWhenNonNullAddAllStringBearer<
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableClassSpan);
     public TFmt?[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -96,7 +100,7 @@ public class FieldSpanFormattableNullableClassSpanWhenNonNullAddAllStringBearer<
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldNullableSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmtStruct> : IStringBearer, IMoldSupportedValue<TFmtStruct[]?>
+public class FieldNullableSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmtStruct> : IMoldSupportedValue<TFmtStruct[]?>
   , ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct[]? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableSpan
@@ -105,6 +109,7 @@ public class FieldNullableSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmtS
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableSpan);
     public TFmtStruct[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -120,7 +125,7 @@ public class FieldNullableSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmtS
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerSpanWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TCloaked[]>
+public class FieldCloakedBearerSpanWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IMoldSupportedValue<TCloaked[]>
   , ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
     public TCloaked[] ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerSpan
@@ -129,6 +134,7 @@ public class FieldCloakedBearerSpanWhenNonNullAddAllStringBearer<TCloaked, TCloa
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerSpan);
     public TCloaked[] Value { get; set; } = null!;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
@@ -145,7 +151,7 @@ public class FieldCloakedBearerSpanWhenNonNullAddAllStringBearer<TCloaked, TCloa
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerNullableClassSpanWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase>
-    : IStringBearer, IMoldSupportedValue<TCloaked?[]>, ISupportsValueRevealer<TCloakedBase> where TCloaked : class, TCloakedBase
+    : IMoldSupportedValue<TCloaked?[]>, ISupportsValueRevealer<TCloakedBase> where TCloaked : class, TCloakedBase
 {
     public TCloaked?[] ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan
     {
@@ -153,6 +159,7 @@ public class FieldCloakedBearerNullableClassSpanWhenNonNullAddAllStringBearer<TC
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan);
     public TCloaked?[] Value { get; set; } = null!;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
@@ -170,7 +177,7 @@ public class FieldCloakedBearerNullableClassSpanWhenNonNullAddAllStringBearer<TC
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldNullableCloakedBearerSpanWhenNonNullAddAllStringBearer<TCloakedStruct>
-    : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsValueRevealer<TCloakedStruct>
+    : IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsValueRevealer<TCloakedStruct>
     where TCloakedStruct : struct
 {
     public TCloakedStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerSpan
@@ -179,6 +186,7 @@ public class FieldNullableCloakedBearerSpanWhenNonNullAddAllStringBearer<TCloake
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerSpan);
     public TCloakedStruct?[]? Value { get; set; }
 
 
@@ -193,7 +201,7 @@ public class FieldNullableCloakedBearerSpanWhenNonNullAddAllStringBearer<TCloake
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
-public class FieldStringBearerSpanWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer[]?>
+public class FieldStringBearerSpanWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<TBearer[]?>
     where TBearer : IStringBearer
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan
@@ -202,6 +210,7 @@ public class FieldStringBearerSpanWhenNonNullAddAllStringBearer<TBearer> : IStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan);
     public TBearer[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -213,7 +222,7 @@ public class FieldStringBearerSpanWhenNonNullAddAllStringBearer<TBearer> : IStri
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsNullableClass | AcceptsStringBearer)]
-public class FieldStringBearerNullableClassSpanWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?[]?>
+public class FieldStringBearerNullableClassSpanWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<TBearer?[]?>
     where TBearer : class, IStringBearer
 {
     public TBearer?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan
@@ -222,6 +231,7 @@ public class FieldStringBearerNullableClassSpanWhenNonNullAddAllStringBearer<TBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan);
     public TBearer?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -233,7 +243,7 @@ public class FieldStringBearerNullableClassSpanWhenNonNullAddAllStringBearer<TBe
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerSpanWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>
+public class FieldNullableStringBearerSpanWhenNonNullAddAllStringBearer<TBearerStruct> : IMoldSupportedValue<TBearerStruct?[]?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerSpan
@@ -242,6 +252,7 @@ public class FieldNullableStringBearerSpanWhenNonNullAddAllStringBearer<TBearerS
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerSpan);
     public TBearerStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -253,7 +264,7 @@ public class FieldNullableStringBearerSpanWhenNonNullAddAllStringBearer<TBearerS
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<string[]?>, ISupportsValueFormatString
+public class FieldStringSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<string[]?>, ISupportsValueFormatString
 {
     public string[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringSpan
     {
@@ -261,6 +272,7 @@ public class FieldStringSpanWhenNonNullAddAllStringBearer : IStringBearer, IMold
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringSpan);
     public string[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -274,7 +286,7 @@ public class FieldStringSpanWhenNonNullAddAllStringBearer : IStringBearer, IMold
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringNullableSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
+public class FieldStringNullableSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringSpan
     {
@@ -282,6 +294,7 @@ public class FieldStringNullableSpanWhenNonNullAddAllStringBearer : IStringBeare
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringSpan);
     public string?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -295,7 +308,7 @@ public class FieldStringNullableSpanWhenNonNullAddAllStringBearer : IStringBeare
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldCharSequenceSpanWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq[]?>, ISupportsValueFormatString
+public class FieldCharSequenceSpanWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq[]?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence
 {
     public TCharSeq[]? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceSpan
@@ -304,6 +317,7 @@ public class FieldCharSequenceSpanWhenNonNullAddAllStringBearer<TCharSeq> : IStr
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceSpan);
     public TCharSeq[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -317,7 +331,7 @@ public class FieldCharSequenceSpanWhenNonNullAddAllStringBearer<TCharSeq> : IStr
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldCharSequenceNullableSpanWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>
+public class FieldCharSequenceNullableSpanWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?[]?>
   , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceNullableSpan
@@ -326,6 +340,7 @@ public class FieldCharSequenceNullableSpanWhenNonNullAddAllStringBearer<TCharSeq
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceNullableSpan);
     public TCharSeq?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -340,7 +355,7 @@ public class FieldCharSequenceNullableSpanWhenNonNullAddAllStringBearer<TCharSeq
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringBuilderSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder[]>, ISupportsValueFormatString
+public class FieldStringBuilderSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<StringBuilder[]>, ISupportsValueFormatString
 {
     public StringBuilder[] ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderSpan
     {
@@ -348,6 +363,7 @@ public class FieldStringBuilderSpanWhenNonNullAddAllStringBearer : IStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderSpan);
     public StringBuilder[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -361,7 +377,7 @@ public class FieldStringBuilderSpanWhenNonNullAddAllStringBearer : IStringBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringBuilderNullableSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?[]>
+public class FieldStringBuilderNullableSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<StringBuilder?[]>
   , ISupportsValueFormatString
 {
     public StringBuilder?[] ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderSpan
@@ -370,6 +386,7 @@ public class FieldStringBuilderNullableSpanWhenNonNullAddAllStringBearer : IStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderSpan);
     public StringBuilder?[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -383,7 +400,7 @@ public class FieldStringBuilderNullableSpanWhenNonNullAddAllStringBearer : IStri
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchSpanWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsValueFormatString
+public class FieldMatchSpanWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<T[]?>, ISupportsValueFormatString
 {
     public T[]? ComplexTypeCollectionFieldWhenNonNullAddAllMatchSpan
     {
@@ -391,6 +408,7 @@ public class FieldMatchSpanWhenNonNullAddAllStringBearer<T> : IStringBearer, IMo
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchSpan);
     public T[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -404,7 +422,7 @@ public class FieldMatchSpanWhenNonNullAddAllStringBearer<T> : IStringBearer, IMo
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchNullableSpanWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<T?[]?>, ISupportsValueFormatString
+public class FieldMatchNullableSpanWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<T?[]?>, ISupportsValueFormatString
 {
     public T?[]? ComplexTypeCollectionFieldWhenNonNullAddAllMatchNullableSpan
     {
@@ -412,6 +430,7 @@ public class FieldMatchNullableSpanWhenNonNullAddAllStringBearer<T> : IStringBea
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchNullableSpan);
     public T?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -425,7 +444,7 @@ public class FieldMatchNullableSpanWhenNonNullAddAllStringBearer<T> : IStringBea
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStruct | AcceptsClass | SupportsValueFormatString)]
-public class FieldObjectSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<object[]?>, ISupportsValueFormatString
+public class FieldObjectSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<object[]?>, ISupportsValueFormatString
 {
     public object[]? ComplexTypeCollectionFieldWhenNonNullAddAllObjectSpan
     {
@@ -433,6 +452,7 @@ public class FieldObjectSpanWhenNonNullAddAllStringBearer : IStringBearer, IMold
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectSpan);
     public object[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -446,7 +466,7 @@ public class FieldObjectSpanWhenNonNullAddAllStringBearer : IStringBearer, IMold
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldNullableObjectSpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsValueFormatString
+public class FieldNullableObjectSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<object?[]?>, ISupportsValueFormatString
 {
     public object?[]? ComplexTypeCollectionFieldWhenNonNullAddAllObjectNullableRefSpan
     {
@@ -454,6 +474,7 @@ public class FieldNullableObjectSpanWhenNonNullAddAllStringBearer : IStringBeare
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectNullableRefSpan);
     public object?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -468,7 +489,7 @@ public class FieldNullableObjectSpanWhenNonNullAddAllStringBearer : IStringBeare
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsStruct)]
-public class FieldBoolReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<bool[]>
+public class FieldBoolReadOnlySpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<bool[]>
 {
     public bool[] ComplexTypeCollectionFieldWhenNonNullAddAllBoolReadOnlySpan
     {
@@ -476,6 +497,7 @@ public class FieldBoolReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer,
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolReadOnlySpan);
     public bool[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -487,7 +509,7 @@ public class FieldBoolReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer,
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsNullableStruct)]
-public class FieldNullableBoolReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<bool?[]>
+public class FieldNullableBoolReadOnlySpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<bool?[]>
 {
     public bool?[] ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolReadOnlySpan
     {
@@ -495,6 +517,7 @@ public class FieldNullableBoolReadOnlySpanWhenNonNullAddAllStringBearer : IStrin
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolReadOnlySpan);
     public bool?[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -507,7 +530,7 @@ public class FieldNullableBoolReadOnlySpanWhenNonNullAddAllStringBearer : IStrin
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableReadOnlySpanWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt[]>
+public class FieldSpanFormattableReadOnlySpanWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<TFmt[]>
   , ISupportsValueFormatString
     where TFmt : ISpanFormattable
 {
@@ -517,6 +540,7 @@ public class FieldSpanFormattableReadOnlySpanWhenNonNullAddAllStringBearer<TFmt>
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableReadOnlySpan);
     public TFmt[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -533,7 +557,7 @@ public class FieldSpanFormattableReadOnlySpanWhenNonNullAddAllStringBearer<TFmt>
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt?[]>
+public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<TFmt?[]>
   , ISupportsValueFormatString where TFmt : class, ISpanFormattable
 {
     public TFmt?[] ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableRefReadOnlySpan
@@ -542,6 +566,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddAllStrin
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableRefReadOnlySpan);
     public TFmt?[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -556,7 +581,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddAllStrin
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsCustomHandling)]
-public class FieldNullableSpanFormattableReadOnlySpanWhenNonNullAddAllStringBearer<TFmtStruct> : IStringBearer, IMoldSupportedValue<TFmtStruct?[]?>
+public class FieldNullableSpanFormattableReadOnlySpanWhenNonNullAddAllStringBearer<TFmtStruct> : IMoldSupportedValue<TFmtStruct?[]?>
   , ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableReadOnlySpan
@@ -565,6 +590,7 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenNonNullAddAllStringBear
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableReadOnlySpan);
     public TFmtStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -581,7 +607,7 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenNonNullAddAllStringBear
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TCloaked[]>
+public class FieldCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IMoldSupportedValue<TCloaked[]>
   , ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
     public TCloaked[] ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerReadOnlySpan
@@ -590,6 +616,7 @@ public class FieldCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer<TCloake
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerReadOnlySpan);
     public TCloaked[] Value { get; set; } = null!;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
@@ -606,8 +633,8 @@ public class FieldCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer<TCloake
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer
-  , IMoldSupportedValue<TCloaked?[]>
+public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : 
+  IMoldSupportedValue<TCloaked?[]>
   , ISupportsValueRevealer<TCloakedBase> where TCloaked : class, TCloakedBase
 {
     public TCloaked?[] ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan
@@ -616,6 +643,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddAllStringB
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan);
     public TCloaked?[] Value { get; set; } = null!;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
@@ -632,7 +660,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddAllStringB
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
-public class FieldNullableCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>
+public class FieldNullableCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer<TCloakedStruct> : IMoldSupportedValue<TCloakedStruct?[]?>
   , ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
     public TCloakedStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerReadOnlySpan
@@ -641,6 +669,7 @@ public class FieldNullableCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerReadOnlySpan);
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
 
     public TCloakedStruct?[]? Value { get; set; }
@@ -655,7 +684,7 @@ public class FieldNullableCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
-public class FieldStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer[]?>
+public class FieldStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<TBearer[]?>
     where TBearer : IStringBearer
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan
@@ -664,6 +693,7 @@ public class FieldStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<TBearer>
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan);
     public TBearer[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -675,7 +705,7 @@ public class FieldStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<TBearer>
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsNullableClass | AcceptsStringBearer)]
-public class FieldStringBearerNullableClassReadOnlySpanWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer?[]?>
+public class FieldStringBearerNullableClassReadOnlySpanWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<TBearer?[]?>
     where TBearer : class, IStringBearer
 {
     public TBearer?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan
@@ -684,6 +714,7 @@ public class FieldStringBearerNullableClassReadOnlySpanWhenNonNullAddAllStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan);
     public TBearer?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -695,7 +726,7 @@ public class FieldStringBearerNullableClassReadOnlySpanWhenNonNullAddAllStringBe
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>
+public class FieldNullableStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<TBearerStruct> : IMoldSupportedValue<TBearerStruct?[]?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerReadOnlySpan
@@ -704,6 +735,7 @@ public class FieldNullableStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerReadOnlySpan);
     public TBearerStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -715,7 +747,7 @@ public class FieldNullableStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<string[]?>, ISupportsValueFormatString
+public class FieldStringReadOnlySpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<string[]?>, ISupportsValueFormatString
 {
     public string[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringReadOnlySpan
     {
@@ -723,6 +755,7 @@ public class FieldStringReadOnlySpanWhenNonNullAddAllStringBearer : IStringBeare
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringReadOnlySpan);
     public string[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -736,7 +769,7 @@ public class FieldStringReadOnlySpanWhenNonNullAddAllStringBearer : IStringBeare
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringNullableReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
+public class FieldStringNullableReadOnlySpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringNullableReadOnlySpan
     {
@@ -744,6 +777,7 @@ public class FieldStringNullableReadOnlySpanWhenNonNullAddAllStringBearer : IStr
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringNullableReadOnlySpan);
     public string?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -758,7 +792,7 @@ public class FieldStringNullableReadOnlySpanWhenNonNullAddAllStringBearer : IStr
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldCharSequenceReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq[]?>
+public class FieldCharSequenceReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq[]?>
   , ISupportsValueFormatString
     where TCharSeq : ICharSequence
 {
@@ -768,6 +802,7 @@ public class FieldCharSequenceReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceReadOnlySpan);
     public TCharSeq[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -782,7 +817,7 @@ public class FieldCharSequenceReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>
+public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?[]?>
   , ISupportsValueFormatString
     where TCharSeq : ICharSequence
 {
@@ -792,6 +827,7 @@ public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddAllStringBearer<
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceNullableSpan);
     public TCharSeq?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -806,7 +842,7 @@ public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddAllStringBearer<
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringBuilderReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder[]>
+public class FieldStringBuilderReadOnlySpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<StringBuilder[]>
   , ISupportsValueFormatString
 {
     public StringBuilder[] ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderReadOnlySpan
@@ -815,6 +851,7 @@ public class FieldStringBuilderReadOnlySpanWhenNonNullAddAllStringBearer : IStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderReadOnlySpan);
     public StringBuilder[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -829,7 +866,7 @@ public class FieldStringBuilderReadOnlySpanWhenNonNullAddAllStringBearer : IStri
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?[]>
+public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<StringBuilder?[]>
   , ISupportsValueFormatString
 {
     public StringBuilder?[] ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderNullableReadOnlySpan
@@ -838,6 +875,7 @@ public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddAllStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderNullableReadOnlySpan);
     public StringBuilder?[] Value { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -853,7 +891,7 @@ public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddAllStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsClass | AcceptsStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueFormatString)]
-public class FieldMatchReadOnlySpanWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsValueFormatString
+public class FieldMatchReadOnlySpanWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<T[]?>, ISupportsValueFormatString
 {
     public T[]? ComplexTypeCollectionFieldWhenNonNullAddAllMatchReadOnlySpan
     {
@@ -861,6 +899,7 @@ public class FieldMatchReadOnlySpanWhenNonNullAddAllStringBearer<T> : IStringBea
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchReadOnlySpan);
     public T[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -875,7 +914,7 @@ public class FieldMatchReadOnlySpanWhenNonNullAddAllStringBearer<T> : IStringBea
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsNullableClass | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueFormatString)]
-public class FieldMatchNullableReadOnlySpanWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<T?[]?>, ISupportsValueFormatString
+public class FieldMatchNullableReadOnlySpanWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<T?[]?>, ISupportsValueFormatString
 {
     public T?[]? ComplexTypeCollectionFieldWhenNonNullAddAllMatchNullableReadOnlySpan
     {
@@ -883,6 +922,7 @@ public class FieldMatchNullableReadOnlySpanWhenNonNullAddAllStringBearer<T> : IS
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchNullableReadOnlySpan);
     public T?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -898,7 +938,7 @@ public class FieldMatchNullableReadOnlySpanWhenNonNullAddAllStringBearer<T> : IS
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsClass | AcceptsStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueFormatString)]
-public class FieldObjectReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<object[]?>, ISupportsValueFormatString
+public class FieldObjectReadOnlySpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<object[]?>, ISupportsValueFormatString
 {
     public object[]? ComplexTypeCollectionFieldWhenNonNullAddAllObjectSpan
     {
@@ -906,6 +946,7 @@ public class FieldObjectReadOnlySpanWhenNonNullAddAllStringBearer : IStringBeare
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectSpan);
     public object[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -920,7 +961,7 @@ public class FieldObjectReadOnlySpanWhenNonNullAddAllStringBearer : IStringBeare
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsNullableClass | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueFormatString)]
-public class FieldNullableObjectReadOnlySpanWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsValueFormatString
+public class FieldNullableObjectReadOnlySpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<object?[]?>, ISupportsValueFormatString
 {
     public object?[]? ComplexTypeCollectionFieldWhenNonNullAddAllObjectNullableReadOnlySpan
     {
@@ -928,6 +969,7 @@ public class FieldNullableObjectReadOnlySpanWhenNonNullAddAllStringBearer : IStr
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectNullableReadOnlySpan);
     public object?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -942,7 +984,7 @@ public class FieldNullableObjectReadOnlySpanWhenNonNullAddAllStringBearer : IStr
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsStruct)]
-public class FieldBoolArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<bool[]?>
+public class FieldBoolArrayWhenNonNullAddAllStringBearer : IMoldSupportedValue<bool[]?>
 {
     public bool[]? ComplexTypeCollectionFieldWhenNonNullAddAllBoolArray
     {
@@ -950,6 +992,7 @@ public class FieldBoolArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldS
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolArray);
     public bool[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -961,7 +1004,7 @@ public class FieldBoolArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldS
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsNullableStruct)]
-public class FieldNullableBoolArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<bool?[]?>
+public class FieldNullableBoolArrayWhenNonNullAddAllStringBearer : IMoldSupportedValue<bool?[]?>
 {
     public bool?[]? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolArray
     {
@@ -969,6 +1012,7 @@ public class FieldNullableBoolArrayWhenNonNullAddAllStringBearer : IStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolArray);
     public bool?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -980,7 +1024,7 @@ public class FieldNullableBoolArrayWhenNonNullAddAllStringBearer : IStringBearer
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableArrayWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<TFmt[]?>, ISupportsValueFormatString
+public class FieldSpanFormattableArrayWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<TFmt[]?>, ISupportsValueFormatString
     where TFmt : ISpanFormattable
 {
     public TFmt[]? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableArray
@@ -989,6 +1033,7 @@ public class FieldSpanFormattableArrayWhenNonNullAddAllStringBearer<TFmt> : IStr
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableArray);
     public TFmt[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1003,7 +1048,7 @@ public class FieldSpanFormattableArrayWhenNonNullAddAllStringBearer<TFmt> : IStr
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldNullableSpanFormattableArrayWhenNonNullAddAllStringBearer<TStructFmt> : IStringBearer, IMoldSupportedValue<TStructFmt?[]?>
+public class FieldNullableSpanFormattableArrayWhenNonNullAddAllStringBearer<TStructFmt> : IMoldSupportedValue<TStructFmt?[]?>
   , ISupportsValueFormatString where TStructFmt : struct, ISpanFormattable
 {
     public TStructFmt?[]? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableArray
@@ -1012,6 +1057,7 @@ public class FieldNullableSpanFormattableArrayWhenNonNullAddAllStringBearer<TStr
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableArray);
     public TStructFmt?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1026,7 +1072,7 @@ public class FieldNullableSpanFormattableArrayWhenNonNullAddAllStringBearer<TStr
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable
                 | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TCloaked[]?>
+public class FieldCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IMoldSupportedValue<TCloaked[]?>
 , ISupportsValueRevealer<TCloakedBase>
     where TCloaked : TCloakedBase
 {
@@ -1036,6 +1082,7 @@ public class FieldCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloaked, TClo
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerArray);
     public TCloaked[]? Value { get; set; }
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
@@ -1051,7 +1098,7 @@ public class FieldCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloaked, TClo
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
                 | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldNullableCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?[]?>
+public class FieldNullableCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloakedStruct> : IMoldSupportedValue<TCloakedStruct?[]?>
   , ISupportsValueRevealer<TCloakedStruct>
     where TCloakedStruct : struct
 {
@@ -1061,6 +1108,7 @@ public class FieldNullableCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloak
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerArray);
     public TCloakedStruct?[]? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
@@ -1075,7 +1123,7 @@ public class FieldNullableCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloak
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class FieldStringBearerArrayWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<TBearer[]?>
+public class FieldStringBearerArrayWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<TBearer[]?>
     where TBearer : IStringBearer
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerArray
@@ -1084,6 +1132,7 @@ public class FieldStringBearerArrayWhenNonNullAddAllStringBearer<TBearer> : IStr
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerArray);
     public TBearer[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1094,7 +1143,7 @@ public class FieldStringBearerArrayWhenNonNullAddAllStringBearer<TBearer> : IStr
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerArrayWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<TBearerStruct?[]?>
+public class FieldNullableStringBearerArrayWhenNonNullAddAllStringBearer<TBearerStruct> : IMoldSupportedValue<TBearerStruct?[]?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerArray
@@ -1103,6 +1152,7 @@ public class FieldNullableStringBearerArrayWhenNonNullAddAllStringBearer<TBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerArray);
     public TBearerStruct?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1114,7 +1164,7 @@ public class FieldNullableStringBearerArrayWhenNonNullAddAllStringBearer<TBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
+public class FieldStringArrayWhenNonNullAddAllStringBearer : IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringArray
     {
@@ -1122,6 +1172,7 @@ public class FieldStringArrayWhenNonNullAddAllStringBearer : IStringBearer, IMol
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringArray);
     public string?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1135,7 +1186,7 @@ public class FieldStringArrayWhenNonNullAddAllStringBearer : IStringBearer, IMol
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldCharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq?[]?>, ISupportsValueFormatString
+public class FieldCharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?[]?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceArray
@@ -1144,6 +1195,7 @@ public class FieldCharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : ISt
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceArray);
     public TCharSeq?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1157,7 +1209,7 @@ public class FieldCharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : ISt
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringBuilderArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?[]?>, ISupportsValueFormatString
+public class FieldStringBuilderArrayWhenNonNullAddAllStringBearer : IMoldSupportedValue<StringBuilder?[]?>, ISupportsValueFormatString
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray
     {
@@ -1165,6 +1217,7 @@ public class FieldStringBuilderArrayWhenNonNullAddAllStringBearer : IStringBeare
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray);
     public StringBuilder?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1178,7 +1231,7 @@ public class FieldStringBuilderArrayWhenNonNullAddAllStringBearer : IStringBeare
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchArrayWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<T[]?>, ISupportsValueFormatString
+public class FieldMatchArrayWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<T[]?>, ISupportsValueFormatString
 {
     public T[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray
     {
@@ -1186,6 +1239,7 @@ public class FieldMatchArrayWhenNonNullAddAllStringBearer<T> : IStringBearer, IM
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray);
     public T[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1199,7 +1253,7 @@ public class FieldMatchArrayWhenNonNullAddAllStringBearer<T> : IStringBearer, IM
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldObjectArrayWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<object?[]?>, ISupportsValueFormatString
+public class FieldObjectArrayWhenNonNullAddAllStringBearer : IMoldSupportedValue<object?[]?>, ISupportsValueFormatString
 {
     public object?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray
     {
@@ -1207,6 +1261,7 @@ public class FieldObjectArrayWhenNonNullAddAllStringBearer : IStringBearer, IMol
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray);
     public object?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1220,7 +1275,7 @@ public class FieldObjectArrayWhenNonNullAddAllStringBearer : IStringBearer, IMol
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsStruct)]
-public class FieldBoolListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<bool>?>
+public class FieldBoolListWhenNonNullAddAllStringBearer : IMoldSupportedValue<IReadOnlyList<bool>?>
 {
     public IReadOnlyList<bool>? ComplexTypeCollectionFieldWhenNonNullAddAllBoolList
     {
@@ -1228,6 +1283,7 @@ public class FieldBoolListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSu
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolList);
     public IReadOnlyList<bool>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1238,7 +1294,7 @@ public class FieldBoolListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSu
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsNullableStruct)]
-public class FieldNullableBoolListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<bool?>?>
+public class FieldNullableBoolListWhenNonNullAddAllStringBearer : IMoldSupportedValue<IReadOnlyList<bool?>?>
 {
     public IReadOnlyList<bool?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolList
     {
@@ -1246,6 +1302,7 @@ public class FieldNullableBoolListWhenNonNullAddAllStringBearer : IStringBearer,
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolList);
     public IReadOnlyList<bool?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1258,7 +1315,7 @@ public class FieldNullableBoolListWhenNonNullAddAllStringBearer : IStringBearer,
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableListWhenNonNullAddAllStringBearer<TFmt> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TFmt>?>
+public class FieldSpanFormattableListWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<IReadOnlyList<TFmt>?>
   , ISupportsValueFormatString where TFmt : ISpanFormattable
 {
     public IReadOnlyList<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableList
@@ -1267,6 +1324,7 @@ public class FieldSpanFormattableListWhenNonNullAddAllStringBearer<TFmt> : IStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableList);
     public IReadOnlyList<TFmt>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1281,7 +1339,7 @@ public class FieldSpanFormattableListWhenNonNullAddAllStringBearer<TFmt> : IStri
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldNullableSpanFormattableListWhenNonNullAddAllStringBearer<TFmtStruct> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>
+public class FieldNullableSpanFormattableListWhenNonNullAddAllStringBearer<TFmtStruct> : IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>
   , ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
     public IReadOnlyList<TFmtStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableList
@@ -1290,6 +1348,7 @@ public class FieldNullableSpanFormattableListWhenNonNullAddAllStringBearer<TFmtS
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableList);
     public IReadOnlyList<TFmtStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1304,7 +1363,7 @@ public class FieldNullableSpanFormattableListWhenNonNullAddAllStringBearer<TFmtS
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable
                 | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldCloakedBearerListWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCloaked>?>
+public class FieldCloakedBearerListWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IMoldSupportedValue<IReadOnlyList<TCloaked>?>
   , ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
     public IReadOnlyList<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerList
@@ -1313,6 +1372,7 @@ public class FieldCloakedBearerListWhenNonNullAddAllStringBearer<TCloaked, TCloa
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerList);
     public IReadOnlyList<TCloaked>? Value { get; set; }
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
@@ -1327,8 +1387,8 @@ public class FieldCloakedBearerListWhenNonNullAddAllStringBearer<TCloaked, TCloa
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
                 | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldNullableCloakedBearerListWhenNonNullAddAllStringBearer<TCloakedStruct> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
+public class FieldNullableCloakedBearerListWhenNonNullAddAllStringBearer<TCloakedStruct> : 
+  IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
     public IReadOnlyList<TCloakedStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerList
     {
@@ -1336,6 +1396,7 @@ public class FieldNullableCloakedBearerListWhenNonNullAddAllStringBearer<TCloake
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerList);
     public IReadOnlyList<TCloakedStruct?>? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
@@ -1349,7 +1410,7 @@ public class FieldNullableCloakedBearerListWhenNonNullAddAllStringBearer<TCloake
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class FieldStringBearerListWhenNonNullAddAllStringBearer<TBearer> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearer>?>
+public class FieldStringBearerListWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<IReadOnlyList<TBearer>?>
     where TBearer : IStringBearer
 {
     public IReadOnlyList<TBearer>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerList
@@ -1358,6 +1419,7 @@ public class FieldStringBearerListWhenNonNullAddAllStringBearer<TBearer> : IStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerList);
     public IReadOnlyList<TBearer>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1369,7 +1431,7 @@ public class FieldStringBearerListWhenNonNullAddAllStringBearer<TBearer> : IStri
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerListWhenNonNullAddAllStringBearer<TBearerStruct> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>
+public class FieldNullableStringBearerListWhenNonNullAddAllStringBearer<TBearerStruct> : IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>
     where TBearerStruct : struct, IStringBearer
 {
     public IReadOnlyList<TBearerStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerList
@@ -1378,6 +1440,7 @@ public class FieldNullableStringBearerListWhenNonNullAddAllStringBearer<TBearerS
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerList);
     public IReadOnlyList<TBearerStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1389,7 +1452,7 @@ public class FieldNullableStringBearerListWhenNonNullAddAllStringBearer<TBearerS
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<string?>?>, ISupportsValueFormatString
+public class FieldStringListWhenNonNullAddAllStringBearer : IMoldSupportedValue<IReadOnlyList<string?>?>, ISupportsValueFormatString
 {
     public IReadOnlyList<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringList
     {
@@ -1397,6 +1460,7 @@ public class FieldStringListWhenNonNullAddAllStringBearer : IStringBearer, IMold
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringList);
     public IReadOnlyList<string?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1410,7 +1474,7 @@ public class FieldStringListWhenNonNullAddAllStringBearer : IStringBearer, IMold
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldCharSequenceListWhenNonNullAddAllStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>
+public class FieldCharSequenceListWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>
   , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
     public IReadOnlyList<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceList
@@ -1419,6 +1483,7 @@ public class FieldCharSequenceListWhenNonNullAddAllStringBearer<TCharSeq> : IStr
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceList);
     public IReadOnlyList<TCharSeq?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1432,7 +1497,7 @@ public class FieldCharSequenceListWhenNonNullAddAllStringBearer<TCharSeq> : IStr
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
-public class FieldStringBuilderListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>
+public class FieldStringBuilderListWhenNonNullAddAllStringBearer : IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>
   , ISupportsValueFormatString
 {
     public IReadOnlyList<StringBuilder?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderList
@@ -1441,6 +1506,7 @@ public class FieldStringBuilderListWhenNonNullAddAllStringBearer : IStringBearer
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderList);
     public IReadOnlyList<StringBuilder?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1454,7 +1520,7 @@ public class FieldStringBuilderListWhenNonNullAddAllStringBearer : IStringBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsAny | NonNullWrites | SupportsValueFormatString)]
-public class FieldMatchListWhenNonNullAddAllStringBearer<T> : IStringBearer, IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsValueFormatString
+public class FieldMatchListWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsValueFormatString
 {
     public IReadOnlyList<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchList
     {
@@ -1462,6 +1528,7 @@ public class FieldMatchListWhenNonNullAddAllStringBearer<T> : IStringBearer, IMo
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchList);
     public IReadOnlyList<T>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
@@ -1475,7 +1542,7 @@ public class FieldMatchListWhenNonNullAddAllStringBearer<T> : IStringBearer, IMo
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsAny | NonNullWrites | SupportsValueFormatString)]
-public class FieldObjectListWhenNonNullAddAllStringBearer : IStringBearer, IMoldSupportedValue<IReadOnlyList<object?>?>, ISupportsValueFormatString
+public class FieldObjectListWhenNonNullAddAllStringBearer : IMoldSupportedValue<IReadOnlyList<object?>?>, ISupportsValueFormatString
 {
     public IReadOnlyList<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchList
     {
@@ -1483,6 +1550,7 @@ public class FieldObjectListWhenNonNullAddAllStringBearer : IStringBearer, IMold
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchList);
     public IReadOnlyList<object?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>

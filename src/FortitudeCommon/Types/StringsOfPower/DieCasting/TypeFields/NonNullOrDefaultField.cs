@@ -196,10 +196,10 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullOrDefaultAddMatch<T>(ReadOnlySpan<char> fieldName, T? value, T? defaultValue = default
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipFields && value != null && value.Equals(defaultValue) ? AlwaysAddMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && value != null && !value.Equals(defaultValue) ? AlwaysAddMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     [CallsObjectToString]
     public TExt WhenNonNullOrDefaultAddObject(ReadOnlySpan<char> fieldName, object? value, object? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipFields && value != null && value.Equals(defaultValue) ? AlwaysAddObject(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && value != null && !value.Equals(defaultValue) ? AlwaysAddObject(fieldName, value, formatString) : stb.StyleTypeBuilder;
 }

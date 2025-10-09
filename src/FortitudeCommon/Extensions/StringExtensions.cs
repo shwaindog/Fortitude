@@ -181,4 +181,11 @@ public static class StringExtensions
         return true;
     }
 
+    public static  string TruncateAt(this string toTruncate, char terminatorChar)
+    {
+        var indexOfTerminator =  toTruncate.IndexOf(terminatorChar);
+        if(indexOfTerminator == -1) return toTruncate;
+        return toTruncate.Substring(0, indexOfTerminator);
+    }
+
 }

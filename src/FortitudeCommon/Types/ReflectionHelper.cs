@@ -27,6 +27,14 @@ public static class ReflectionHelper
 
         return Expression.Lambda<Func<TClass>>(constructorNewExpression).Compile();
     }
+    
+    public static Func<TClass> DefaultCtorFunc<TClass>(Type concreteType)
+    {
+        var constructorInfo          = concreteType.GetConstructor(Type.EmptyTypes)!;
+        var constructorNewExpression = Expression.New(constructorInfo);
+
+        return Expression.Lambda<Func<TClass>>(constructorNewExpression).Compile();
+    }
 
     public static Func<TParam, TClass> CtorBinder<TParam, TClass>()
     {
@@ -102,7 +110,7 @@ public static class ReflectionHelper
     {
         var typedToConstruct = typeDefToBuild.MakeGenericType(genericTypeArguments);
 
-        var constructorInfo = typedToConstruct.GetConstructor(genericTypeArguments)!;
+        var constructorInfo = typedToConstruct.GetConstructor([])!;
 
         return Expression.Lambda<Func<TReturnType>>(Expression.New(constructorInfo)).Compile();
     }
