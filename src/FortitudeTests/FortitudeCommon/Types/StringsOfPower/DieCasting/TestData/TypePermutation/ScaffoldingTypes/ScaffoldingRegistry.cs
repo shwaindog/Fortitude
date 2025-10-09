@@ -17,6 +17,7 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
     private static readonly Type SupportsOrderedCollectionPredicateType = typeof(ISupportsOrderedCollectionPredicate<>);
     private static readonly Type SupportsKeyedCollectionPredicateType   = typeof(ISupportsKeyedCollectionPredicate<,>);
     private static readonly Type SupportsValueRevealerType              = typeof(ISupportsValueRevealer<>);
+    private static readonly Type SupportsKeyRevealerType              = typeof(ISupportsKeyRevealer<>);
 
     public Type ValueType { get; } = ScaffoldingType.MoldSupportedValueGetValueType();
 
@@ -44,6 +45,8 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
     public bool SupportsKeyedCollectionPredicate => ScaffoldingType.ImplementsGenericTypeInterface(SupportsKeyedCollectionPredicateType);
 
     public bool SupportsValueRevealer => ScaffoldingType.ImplementsGenericTypeInterface(SupportsValueRevealerType);
+
+    public bool SupportsKeyRevealer => ScaffoldingType.ImplementsGenericTypeInterface(SupportsKeyRevealerType);
 
     public bool SupportsIndexRangeLimiting => ScaffoldingType.ImplementsInterface<ISupportsIndexRangeLimiting>();
 
@@ -174,6 +177,9 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> KeyedCollectionAddWithSelectedKeysFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsKeyedCollectionType().ProcessesKeyedCollection().NoFilterPredicate().HasSubsetList();
 
+    public static IEnumerable<ScaffoldingPartEntry> IsSimpleType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SimpleType));
+
     public static IEnumerable<ScaffoldingPartEntry> IsComplexType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ComplexType));
 
@@ -227,16 +233,34 @@ public static class ScaffoldingRegistry
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsChars(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsChars));
+    
+    public static IEnumerable<ScaffoldingPartEntry> HasSupportsValueFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsValueFormatString));
+    
+    public static IEnumerable<ScaffoldingPartEntry> HasSupportsKeyFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsKeyFormatString));
+    
+    public static IEnumerable<ScaffoldingPartEntry> HasSupportsValueRevealer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsValueRevealer));
+    
+    public static IEnumerable<ScaffoldingPartEntry> HasSupportsKeyRevealer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsKeyRevealer));
+    
+    public static IEnumerable<ScaffoldingPartEntry> HasSupportsIndexSubRanges(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges));
+
+
+    public static IEnumerable<ScaffoldingPartEntry> HasAcceptsAny(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsAny));
+
+    public static IEnumerable<ScaffoldingPartEntry> NotHasAcceptsAny(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => !spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsAny));
 
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsStringBearer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsStringBearer));
 
-
-    public static IEnumerable<ScaffoldingPartEntry> AcceptsCloakedValueRevealer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsValueRevealer));
+    
 
 
-    public static IEnumerable<ScaffoldingPartEntry> HasValueFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsValueFormatString));
 }

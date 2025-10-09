@@ -131,7 +131,7 @@ public class FieldNullableSpanFormattableWithHandlingWhenNonDefaultStringBearer<
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerWhenNonDefaultStringBearer<TCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TCloaked>
   , IMoldSupportedDefaultValue<TCloaked>, ISupportsValueRevealer<TCloakedBase>
@@ -157,7 +157,7 @@ public class FieldCloakedBearerWhenNonDefaultStringBearer<TCloaked, TCloakedBase
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsChars
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass 
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer | SupportsCustomHandling)]
 public class FieldCloakedBearerWithHandlingWhenNonDefaultStringBearer<TCloaked, TCloakedBase>
@@ -420,7 +420,7 @@ public class FieldCharReadOnlySpanWhenNonDefaultStringBearer : IStringBearer, IM
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | OnlyPopulatedWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharReadOnlySpanWithHandlingWhenNonDefaultStringBearer : IStringBearer, IMoldSupportedValue<string>
-  , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public string ComplexTypeFieldWhenNonDefaultCharReadOnlySpanAs
     {
@@ -428,7 +428,7 @@ public class FieldCharReadOnlySpanWithHandlingWhenNonDefaultStringBearer : IStri
         set => Value = value;
     }
 
-    public string? FormatString { get; set; }
+    public string? ValueFormatString { get; set; }
 
     public string DefaultValue { get; set; } = "";
 
@@ -438,7 +438,7 @@ public class FieldCharReadOnlySpanWithHandlingWhenNonDefaultStringBearer : IStri
         tos.StartComplexType(this)
            .Field.WhenNonDefaultAddAs(nameof(ComplexTypeFieldWhenNonDefaultCharReadOnlySpanAs)
                                     , ComplexTypeFieldWhenNonDefaultCharReadOnlySpanAs.AsSpan()
-                                    , DefaultValue, FieldContentHandling, FormatString)
+                                    , DefaultValue, FieldContentHandling, ValueFormatString)
            .Complete();
 
     public FieldContentHandling FieldContentHandling { get; set; }

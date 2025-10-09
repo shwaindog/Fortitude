@@ -5,6 +5,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
@@ -16,7 +17,9 @@ public class ScaffoldingValidateClassTests
 
     private static IVersatileFLogger logger = null!;
 
-    public readonly string[] ClassNameCleanup = ["`1", "`2", "`3", "`4", "`5", "`6", "Field", "OrderedFrom"];
+    public static readonly string[] CommonNameCleanup = ["`1", "`2", "`3", "`4", "`5", "`6"];
+
+    public readonly string[] ClassNameCleanup = [..CommonNameCleanup, "Field", "OrderedFrom"];
     public readonly string[] WithSelectKeysNameCleanup =
     [
         KeyedCollectionScaffoldNameAddWithSelectKeysStripOut
@@ -45,12 +48,12 @@ public class ScaffoldingValidateClassTests
     private const string ComplexFieldWhenNonDefaultSuffix       = "WhenNonDefaultStringBearer";
     private const string ComplexFieldWhenNonNullSuffix          = "WhenNonNullStringBearer";
     private const string ComplexFieldWhenNonNullOrDefaultSuffix = "WhenNonNullOrDefaultStringBearer";
-    
-    
-    private const string OrderedCollectionAddAllSuffix = "AllSimpleOrderedCollectionStringBearer";
+
+
+    private const string OrderedCollectionAddAllSuffix      = "AllSimpleOrderedCollectionStringBearer";
     private const string OrderedCollectionAddFilteredSuffix = "FilteredSimpleOrderedCollectionStringBearer";
-    
-    private const string KeyedCollectionAllSuffix = "AllStringBearer";
+
+    private const string KeyedCollectionAllSuffix         = "AllStringBearer";
     private const string KeyedCollectionAddFilteredSuffix = "FilteredStringBearer";
 
     private const string ComplexCollectionFieldAlwaysAddFilteredSuffix       = "AlwaysAddFilteredStringBearer";
@@ -60,19 +63,24 @@ public class ScaffoldingValidateClassTests
     private const string ComplexCollectionFieldWhenNonNullAddAllSuffix       = "WhenNonNullAddAllStringBearer";
     private const string ComplexCollectionFieldWhenNonNullAddFilteredSuffix  = "WhenNonNullAddFilteredStringBearer";
 
+    private const string SimpleAsValuePrefix  = "SimpleAsValue";
+    private const string SimpleAsStringPrefix = "SimpleAsString";
+
+    private const string SimpleValueTypeSuffix = "SimpleValueTypeStringBearer";
+
     private const string KeyedCollectionScaffoldNameAddWithSelectKeysStripOut       = "AddWithSelectKeys";
     private const string KeyedCollectionScaffoldNameAlwaysAddAllStripOut            = "AlwaysAddAll";
     private const string KeyedCollectionScaffoldNameAlwaysAddFilteredStripOut       = "AlwaysAddFiltered";
     private const string KeyedCollectionScaffoldNameWhenNonNullAddAllStripOut       = "WhenNonNullAddAll";
     private const string KeyedCollectionScaffoldNameWhenNonNullAddFilteredStripOut  = "WhenNonNullAddFiltered";
     private const string KeyedCollectionScaffoldNameWhenPopulatedWithFilterStripOut = "WhenPopulatedWithFilter";
-    private const string KeyedCollectionScaffoldNameWhenNonNullStripOut          = "WhenNonNull";
-    private const string KeyedCollectionScaffoldNameWithSelectKeysStripOut       = "WithSelectKeys";
+    private const string KeyedCollectionScaffoldNameWhenNonNullStripOut             = "WhenNonNull";
+    private const string KeyedCollectionScaffoldNameWithSelectKeysStripOut          = "WithSelectKeys";
     private const string KeyedCollectionScaffoldNameAddAllStripOut                  = "AddAll";
     private const string KeyedCollectionScaffoldNameWhenPopulatedStripOut           = "WhenPopulated";
     private const string KeyedCollectionScaffoldNameAlwaysStripOut                  = "Always";
     private const string KeyedCollectionScaffoldNameKeyedFromStripOut               = "KeyedFrom";
-    private const string KeyedCollectionScaffoldNameKeyValueStripOut               = "KeyValue";
+    private const string KeyedCollectionScaffoldNameKeyValueStripOut                = "KeyValue";
     private const string KeyedCollectionScaffoldNameStringBearerStripOut            = "StringBearer";
 
     [ClassInitialize]
@@ -878,8 +886,8 @@ public class ScaffoldingValidateClassTests
     [TestMethod]
     public void ComplexKeyedCollectionFieldAlwaysAddWithSelectKeysScaffoldingCloseToWhenPopulatedWithSelectKeysScaffoldingTypes()
     {
-        var alwaysAddAllFilteredInvokers = scafReg.ComplexTypeKeyedCollectionFieldAlwaysAddSelectKeysFilter().ToList();
-        var alwaysAddFilteredUniqueNamePart   = new List<string>();
+        var alwaysAddAllFilteredInvokers    = scafReg.ComplexTypeKeyedCollectionFieldAlwaysAddSelectKeysFilter().ToList();
+        var alwaysAddFilteredUniqueNamePart = new List<string>();
 
         var le = logger.InfoAppend("Complex Type KeyedCollection Fields -  AlwaysAddWithSelectKeys Scaffolding Classes - ")?.AppendLine();
         foreach (var alwaysAddFiltered in alwaysAddAllFilteredInvokers)
@@ -942,8 +950,8 @@ public class ScaffoldingValidateClassTests
     [TestMethod]
     public void OrderedCollectionAlwaysAddAllScaffoldingCloseToAddFilteredScaffoldingTypes()
     {
-        var alwaysAddAllInvokers = scafReg.OrderedCollectionAlwaysAddAllFilter().ToList();
-        var alwaysAddAllUniqueNamePart   = new List<string>();
+        var alwaysAddAllInvokers       = scafReg.OrderedCollectionAlwaysAddAllFilter().ToList();
+        var alwaysAddAllUniqueNamePart = new List<string>();
 
         var le = logger.InfoAppend("OrderedCollection -  AlwaysAddAll Scaffolding Classes - ")?.AppendLine();
         foreach (var alwaysAddFiltered in alwaysAddAllInvokers)
@@ -1070,7 +1078,7 @@ public class ScaffoldingValidateClassTests
     [TestMethod]
     public void ComplexKeyedCollectionFieldAlwaysAddWithSelectKeysCloseToKeyedCollectionAddWithSelectKeysScaffoldingTypes()
     {
-        var complexTypeWithSelectKeyeInvokers       = scafReg.ComplexTypeKeyedCollectionFieldAlwaysAddSelectKeysFilter().ToList();
+        var complexTypeWithSelectKeyeInvokers        = scafReg.ComplexTypeKeyedCollectionFieldAlwaysAddSelectKeysFilter().ToList();
         var complexTypeWithSelectKeyesUniqueNamePart = new List<string>();
 
         var le = logger.InfoAppend("Complex Type KeyedCollection Fields -  AlwaysAddWithSelectKeys Scaffolding Classes - ")?.AppendLine();
@@ -1129,5 +1137,449 @@ public class ScaffoldingValidateClassTests
         Assert.AreEqual(0, addWithSelectKeysNotInAddAll.Count());
 
         Assert.AreEqual(withSelectKeysInvokers.Count, withSelectKeysInvokers.Count);
+    }
+
+    [TestMethod]
+    public void AllSimpleValueTypeAsValueScaffoldingHasMatchingAsStringScaffolding()
+    {
+        var allSimpleTypeInvokers = scafReg.IsSimpleType().ToList();
+        var allAsValueInvokers    = allSimpleTypeInvokers.Where(spe => spe.Name.Contains("SimpleAsValue")).ToList();
+        var asValueUniqueNamePart = new List<string>();
+
+        var le = logger.InfoAppend("Simple Type Fields -  AsValue Scaffolding Classes - ")?.AppendLine();
+        foreach (var asValueInvoker in allAsValueInvokers)
+        {
+            var uniquePart = asValueInvoker
+                             .Name.RemoveAll(CommonNameCleanup).Replace(SimpleAsValuePrefix, "").Replace(SimpleValueTypeSuffix, "");
+            var countExisting = asValueUniqueNamePart.Count(s => s == uniquePart);
+            le = le?.Append(BulletList).Append(asValueInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            asValueUniqueNamePart.Add(uniquePart);
+        }
+        le?.AppendLine().Append("Total ").AppendLine(allAsValueInvokers.Count).FinalAppend("");
+
+        var asStringInvokers       = allSimpleTypeInvokers.Where(spe => spe.Name.Contains("SimpleAsString")).ToList();
+        var asStringUniqueNamePart = new List<string>();
+
+        le = logger.WarnAppend("Simple Type Fields -  AsString Scaffolding Classes - ")?.AppendLine();
+        foreach (var asStringInvoker in asStringInvokers)
+        {
+            var uniquePart = asStringInvoker
+                             .Name.RemoveAll(CommonNameCleanup).Replace(SimpleAsStringPrefix, "").Replace(SimpleValueTypeSuffix, "");
+            var countExisting = asStringUniqueNamePart.Count(s => s == uniquePart);
+            le = le?.Append(BulletList).Append(asStringInvoker.Name).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            asStringUniqueNamePart.Add(uniquePart);
+        }
+        le?.AppendLine().Append("Total ").AppendLine(asStringInvokers.Count).FinalAppend("");
+
+        var inAlwaysAddButNotInFiltered = asValueUniqueNamePart.Except(asStringUniqueNamePart);
+
+        var counter = 0;
+        le = logger.ErrorAppend("Complex Type Collection Fields -  Found in AsValue  but not in AsString - ")?.AppendLine();
+        foreach (var uniqueNamePart in inAlwaysAddButNotInFiltered)
+        {
+            le = le?.Append(BulletList).AppendLine(uniqueNamePart);
+            counter++;
+        }
+        le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
+
+        Assert.AreEqual(0, inAlwaysAddButNotInFiltered.Count());
+
+        var inFilteredAddButNotInAlwaysAdd = asStringUniqueNamePart.Except(asValueUniqueNamePart);
+
+        counter = 0;
+        le      = logger.WarnAppend("Complex Type Collection Fields -  Found in AsString but not AsValue - ")?.AppendLine();
+        foreach (var uniqueNamePart in inFilteredAddButNotInAlwaysAdd)
+        {
+            le = le?.Append(BulletList).AppendLine(uniqueNamePart);
+            counter++;
+        }
+        le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
+
+        Assert.AreEqual(0, inFilteredAddButNotInAlwaysAdd.Count());
+
+        Assert.AreEqual(allAsValueInvokers.Count, asStringInvokers.Count);
+    }
+
+    [TestMethod]
+    public void AllComplexTypeSingleValueFieldAcceptsCharsScaffoldingImplementISupportsSettingValueFromString()
+    {
+        var allComplexSingleFieldsThatAcceptChars =
+            scafReg.IsComplexType().ProcessesSingleValue().AcceptsChars().NotHasAcceptsAny().ToList();
+
+        foreach (var checkImplementsSettingValueFromString in allComplexSingleFieldsThatAcceptChars)
+        {
+            try { Assert.IsTrue(checkImplementsSettingValueFromString.SupportsSettingValueFromString); }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Complex Type Accepts Char Fields -  Expected - ")?
+                      .AppendLine(checkImplementsSettingValueFromString.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(nameof(ISupportsSettingValueFromString));
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AllComplexTypeSingleValueFieldAcceptsCharsScaffoldingImplementISupportsValueFormatString()
+    {
+        var allComplexSingleFieldsThatAcceptChars =
+            scafReg.IsComplexType().ProcessesSingleValue().AcceptsChars().NotHasAcceptsAny().ToList();
+
+        foreach (var checkImplementsSettingValueFromString in allComplexSingleFieldsThatAcceptChars)
+        {
+            try { Assert.IsTrue(checkImplementsSettingValueFromString.SupportsValueFormatString); }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Complex Type Accepts Char Fields -  Expected - ")?
+                      .AppendLine(checkImplementsSettingValueFromString.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(nameof(ISupportsValueFormatString));
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeWithsSupportsValueFormatStringImplementsISupportsValueFormatString()
+    {
+        var allSupportsValueFormatString =
+            scafReg.HasSupportsValueFormatString().ToList();
+
+        foreach (var checkImplementsSettingValueFormatString in allSupportsValueFormatString)
+        {
+            try { Assert.IsTrue(checkImplementsSettingValueFormatString.SupportsValueFormatString); }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with SupportsValueFormatString Flag -  Expected - ")?
+                      .AppendLine(checkImplementsSettingValueFormatString.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(nameof(ISupportsValueFormatString));
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeImplementingISupportsValueFormatStringHasSupportsValueFormatString()
+    {
+        var allSupportsValueFormatString =
+            scafReg.Where(spe => spe.SupportsValueFormatString).ToList();
+
+        foreach (var checkImplementsSettingValueFormatString in allSupportsValueFormatString)
+        {
+            try
+            {
+                Assert.IsTrue(checkImplementsSettingValueFormatString
+                              .ScaffoldingFlags
+                              .HasAllOf(SupportsValueFormatString));
+            }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with ISupportsValueFormatString -  Expected - ")?
+                      .AppendLine(checkImplementsSettingValueFormatString.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(nameof(ISupportsValueFormatString));
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeWithsSupportsKeyFormatStringImplementsISupportsKeyFormatString()
+    {
+        var allSupportsKeyFormatString =
+            scafReg.HasSupportsKeyFormatString().ToList();
+
+        foreach (var checkImplementsSettingKeyFormatString in allSupportsKeyFormatString)
+        {
+            try { Assert.IsTrue(checkImplementsSettingKeyFormatString.SupportsKeyFormatString); }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with SupportsKeyFormatString Flag -  Expected - ")?
+                      .AppendLine(checkImplementsSettingKeyFormatString.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(nameof(ISupportsKeyFormatString));
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeImplementingISupportsKeyFormatStringHasSupportsKeyFormatString()
+    {
+        var allAcceptsKeyFormatString =
+            scafReg.Where(spe => spe.SupportsKeyFormatString).ToList();
+
+        foreach (var checkImplementsSettingKeyFormatString in allAcceptsKeyFormatString)
+        {
+            try
+            {
+                Assert.IsTrue(checkImplementsSettingKeyFormatString
+                              .ScaffoldingFlags
+                              .HasAllOf(SupportsKeyFormatString));
+            }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with ISupportsKeyFormatString -  Expected - ")?
+                      .AppendLine(checkImplementsSettingKeyFormatString.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(nameof(ISupportsKeyFormatString));
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeWithsSupportsValueRevealerImplementsISupportsValueRevealer()
+    {
+        var allSupportsValueRevealer =
+            scafReg.HasSupportsValueRevealer().ToList();
+
+        foreach (var checkImplementsValueRevealer in allSupportsValueRevealer)
+        {
+            try { Assert.IsTrue(checkImplementsValueRevealer.SupportsValueRevealer); }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with SupportsValueRevealer Flag -  Expected - ")?
+                      .AppendLine(checkImplementsValueRevealer.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(typeof(ISupportsValueRevealer<>).Name);
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeImplementingISupportsValueRevealerHasSupportsValueRevealer()
+    {
+        var allSupportsValueRevealer =
+            scafReg.Where(spe => spe.SupportsValueRevealer).ToList();
+
+        foreach (var checkImplementsValueRevealer in allSupportsValueRevealer)
+        {
+            try
+            {
+                Assert.IsTrue(checkImplementsValueRevealer
+                              .ScaffoldingFlags
+                              .HasAllOf(SupportsValueRevealer));
+            }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with ")?
+                      .Append((typeof(ISupportsValueRevealer<>).Name))
+                      .Append("  -  Expected - ")
+                      .AppendLine(checkImplementsValueRevealer.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(SupportsValueRevealer);
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeWithsSupportsKeyRevealerImplementsISupportsKeyRevealer()
+    {
+        var allSupportsKeyRevealer =
+            scafReg.HasSupportsKeyRevealer().ToList();
+
+        foreach (var checkImplementsKeyRevealer in allSupportsKeyRevealer)
+        {
+            try { Assert.IsTrue(checkImplementsKeyRevealer.SupportsKeyRevealer); }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with SupportsKeyRevealer Flag -  Expected - ")?
+                      .AppendLine(checkImplementsKeyRevealer.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(typeof(ISupportsKeyRevealer<>).Name);
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeImplementingISupportsKeyRevealerHasSupportsKeyRevealer()
+    {
+        var allSupportsKeyRevealer =
+            scafReg.Where(spe => spe.SupportsKeyRevealer).ToList();
+
+        foreach (var checkImplementsValueRevealer in allSupportsKeyRevealer)
+        {
+            try
+            {
+                Assert.IsTrue(checkImplementsValueRevealer
+                              .ScaffoldingFlags
+                              .HasAllOf(SupportsKeyRevealer));
+            }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with ")?
+                      .Append((typeof(ISupportsKeyRevealer<>).Name))
+                      .Append("  -  Expected - ")
+                      .AppendLine(checkImplementsValueRevealer.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(SupportsKeyRevealer);
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeWithSupportsIndexSubRangesImplementsISupportsIndexRangeLimiting()
+    {
+        var allSupportsIndexSubRanges =
+            scafReg.HasSupportsIndexSubRanges().ToList();
+
+        foreach (var checkImplementsSupportsIndexSubRanges in allSupportsIndexSubRanges)
+        {
+            try { Assert.IsTrue(checkImplementsSupportsIndexSubRanges.SupportsIndexRangeLimiting); }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with SupportsIndexSubRanges Flag -  Expected - ")?
+                      .AppendLine(checkImplementsSupportsIndexSubRanges.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(nameof(ISupportsIndexRangeLimiting));
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeImplementingISupportsIndexRangeLimitingHasSupportsIndexSubRanges()
+    {
+        var allSupportsIndexSubRanges =
+            scafReg.Where(spe => spe.SupportsIndexRangeLimiting).ToList();
+
+        foreach (var checkImplementsSupportsIndexSubRanges in allSupportsIndexSubRanges)
+        {
+            try
+            {
+                Assert.IsTrue(checkImplementsSupportsIndexSubRanges
+                              .ScaffoldingFlags
+                              .HasAllOf(SupportsIndexSubRanges));
+            }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with ")?
+                      .Append((nameof(ISupportsIndexRangeLimiting)))
+                      .Append(" ISupportsValueFormatString -  Expected - ")
+                      .AppendLine(checkImplementsSupportsIndexSubRanges.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(SupportsIndexSubRanges);
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyOrderedCollectionWithsFilterPredicateImplementsISupportsOrderedCollectionPredicate()
+    {
+        var allOrderedCollectionFilterPredicate =
+            scafReg.ProcessesCollection().HasFilterPredicate().ToList();
+
+        foreach (var checkImplementsOrderedCollectionPredicate in allOrderedCollectionFilterPredicate)
+        {
+            try { Assert.IsTrue(checkImplementsOrderedCollectionPredicate.SupportsOrderedCollectionPredicate); }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with FilterPredicate Flag -  Expected - ")?
+                      .AppendLine(checkImplementsOrderedCollectionPredicate.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(typeof(ISupportsOrderedCollectionPredicate<>).Name);
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeImplementingISupportsOrderedCollectionPredicateHasFilterPredicate()
+    {
+        var allOrderedCollectionFilterPredicate =
+            scafReg.Where(spe => spe.SupportsOrderedCollectionPredicate).ToList();
+
+        foreach (var checkImplementsOrderedCollectionPredicate in allOrderedCollectionFilterPredicate)
+        {
+            try
+            {
+                Assert.IsTrue(checkImplementsOrderedCollectionPredicate
+                              .ScaffoldingFlags
+                              .HasAllOf(FilterPredicate | AcceptsCollection));
+            }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with ")?
+                      .Append((typeof(ISupportsOrderedCollectionPredicate<>).Name))
+                      .Append("  -  Expected - ")
+                      .AppendLine(checkImplementsOrderedCollectionPredicate.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(FilterPredicate);
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyKeyedCollectionWithsFilterPredicateImplementsISupportsKeyedCollectionPredicate()
+    {
+        var allKeyedCollectionFilterPredicate =
+            scafReg.ProcessesKeyedCollection().HasFilterPredicate().ToList();
+
+        foreach (var checkImplementsKeyedCollectionPredicate in allKeyedCollectionFilterPredicate)
+        {
+            try { Assert.IsTrue(checkImplementsKeyedCollectionPredicate.SupportsKeyedCollectionPredicate); }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with FilterPredicate Flag -  Expected - ")?
+                      .AppendLine(checkImplementsKeyedCollectionPredicate.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(typeof(ISupportsKeyedCollectionPredicate<,>).Name);
+
+                throw;
+            }
+        }
+    }
+
+    [TestMethod]
+    public void AnyScaffoldingTypeImplementingISupportsKeyedCollectionPredicateHasFilterPredicate()
+    {
+        var allKeyedCollectionFilterPredicate =
+            scafReg.Where(spe => spe.SupportsKeyedCollectionPredicate).ToList();
+
+        foreach (var checkImplementsKeyedCollectionPredicate in allKeyedCollectionFilterPredicate)
+        {
+            try
+            {
+                Assert.IsTrue(checkImplementsKeyedCollectionPredicate
+                              .ScaffoldingFlags
+                              .HasAllOf(FilterPredicate | AcceptsKeyValueCollection));
+            }
+            catch (Exception)
+            {
+                logger.ErrorAppend("Any Scaffolding with ")?
+                      .Append((typeof(ISupportsKeyedCollectionPredicate<,>).Name))
+                      .Append("  -  Expected - ")
+                      .AppendLine(checkImplementsKeyedCollectionPredicate.Name)
+                      .Append(" to implement ")
+                      .FinalAppend(FilterPredicate);
+
+                throw;
+            }
+        }
     }
 }

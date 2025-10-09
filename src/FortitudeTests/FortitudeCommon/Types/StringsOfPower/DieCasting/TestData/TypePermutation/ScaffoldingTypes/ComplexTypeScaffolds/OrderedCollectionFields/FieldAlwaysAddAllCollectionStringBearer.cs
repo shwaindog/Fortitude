@@ -142,7 +142,7 @@ public class FieldCloakedBearerSpanAlwaysAddAllStringBearer<TCloaked, TCloakedBa
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerNullableClassSpanAlwaysAddAllStringBearer<TCloaked, TCloakedBase>
-    : IStringBearer, IMoldSupportedValue<TCloaked?[]> where TCloaked : class, TCloakedBase
+    : IStringBearer, IMoldSupportedValue<TCloaked?[]>, ISupportsValueRevealer<TCloakedBase> where TCloaked : class, TCloakedBase
 {
     public TCloaked?[] ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan
     {
@@ -152,13 +152,13 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddAllStringBearer<TCloake
 
     public TCloaked?[] Value { get; set; } = null!;
 
-    public PalantírReveal<TCloakedBase> PalantirRevealer { get; set; } = null!;
+    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan)
-              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan.AsSpan(), PalantirRevealer)
+              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan.AsSpan(), ValueRevealer)
            .Complete();
 }
 

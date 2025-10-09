@@ -129,7 +129,7 @@ public class FieldNullableSpanFormattableWithHandlingWhenNonNullStringBearer<TFm
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerWhenNonNullStringBearer<TTCloaked, TCloakedBase>
     : IStringBearer, IMoldSupportedValue<TTCloaked?>, ISupportsValueRevealer<TCloakedBase>
@@ -154,7 +154,7 @@ public class FieldCloakedBearerWhenNonNullStringBearer<TTCloaked, TCloakedBase>
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsChars
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass 
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer | SupportsCustomHandling)]
 public class FieldCloakedBearerWithHandlingWhenNonNullStringBearer<TTCloaked, TCloakedBase> : IStringBearer, IMoldSupportedValue<TTCloaked?>
@@ -185,6 +185,7 @@ public class FieldCloakedBearerWithHandlingWhenNonNullStringBearer<TTCloaked, TC
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldNullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> : IStringBearer, IMoldSupportedValue<TCloakedStruct?>
+    , ISupportsValueRevealer<TCloakedStruct>
     where TCloakedStruct : struct
 {
     public TCloakedStruct? ComplexTypeFieldWhenNonNullRevealNullableCloakedBearer
@@ -196,16 +197,15 @@ public class FieldNullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> :
     public FieldContentHandling FieldContentHandling { get; set; }
 
     public TCloakedStruct? Value { get; set; }
-
-
-    public PalantírReveal<TCloakedStruct> PalantirRevealer { get; set; } = null!;
+    
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealNullableCloakedBearer)
               , ComplexTypeFieldWhenNonNullRevealNullableCloakedBearer
-              , PalantirRevealer)
+              , ValueRevealer)
            .Complete();
 }
 

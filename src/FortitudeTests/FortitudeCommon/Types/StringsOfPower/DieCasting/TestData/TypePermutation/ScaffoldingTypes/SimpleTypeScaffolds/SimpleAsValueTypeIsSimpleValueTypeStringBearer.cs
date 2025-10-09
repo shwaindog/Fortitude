@@ -663,7 +663,7 @@ public class SimpleAsValueNullableStringBearerWithDefaultNoFieldSimpleValueTypeS
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString |
                   SupportsSettingDefaultValue)]
-public class SimpleAsValueCharSpanWithFieldAsSpanSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
+public class SimpleAsValueCharSpanWithFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -727,7 +727,7 @@ public class SimpleAsValueCharSpanWithDefaultWithFieldAsSpanSimpleValueTypeStrin
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueCharSpanWithWithFieldAsSpanSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
+public class SimpleAsValueCharSpanWithFieldSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -781,10 +781,10 @@ public class SimpleAsValueCharSpanWithNoFieldAsSpanSimpleValueTypeStringBearer :
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString |
                   SupportsSettingDefaultValue)]
-public class SimpleAsValueCharReadOnlySpanWithFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
+public class SimpleAsValueCharReadOnlySpanWithFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
-    public string SimpleTypeAsValueCharReadOnlySpanWritesEmpty
+    public string SimpleTypeAsValueCharReadOnlySpanOrDefault
     {
         get => Value;
         set => Value = value;
@@ -801,8 +801,8 @@ public class SimpleAsValueCharReadOnlySpanWithFieldWritesEmptySimpleValueTypeStr
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               ((ReadOnlySpan<char>)nameof(SimpleTypeAsValueCharReadOnlySpanWritesEmpty)
-              , (ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpanWritesEmpty
+               ((ReadOnlySpan<char>)nameof(SimpleTypeAsValueCharReadOnlySpanOrDefault)
+              , (ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpanOrDefault
               , ValueFormatString)
            .Complete();
 
@@ -842,7 +842,7 @@ public class SimpleAsValueCharReadOnlySpanWithDefaultWithFieldSimpleValueTypeStr
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueCharReadOnlySpanWithWithFieldSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
+public class SimpleAsValueCharReadOnlySpanWithFieldOrNullSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
     public string SimpleTypeAsValueCharReadOnlySpan
@@ -871,7 +871,7 @@ public class SimpleAsValueCharReadOnlySpanWithWithFieldSimpleValueTypeStringBear
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars)]
-public class SimpleAsValueCharReadOnlySpanWithNoFieldSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
+public class SimpleAsValueCharReadOnlySpanWithNoFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
 {
     public string SimpleTypeAsValueCharReadOnlySpan
     {
@@ -894,9 +894,9 @@ public class SimpleAsValueCharReadOnlySpanWithNoFieldSimpleValueTypeStringBearer
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars)]
-public class SimpleAsValueCharSpanWithNoFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
+public class SimpleAsValueCharSpanWithNoFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
 {
-    public char[] SimpleTypeAsValueCharSpanWritesEmpty
+    public char[] SimpleTypeAsValueCharSpanOrDefault
     {
         get => Value;
         set => Value = value;
@@ -912,14 +912,14 @@ public class SimpleAsValueCharSpanWithNoFieldWritesEmptySimpleValueTypeStringBea
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .AsValue(SimpleTypeAsValueCharSpanWritesEmpty.AsSpan())
+           .AsValue(SimpleTypeAsValueCharSpanOrDefault.AsSpan())
            .Complete();
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars)]
-public class SimpleAsValueCharReadOnlySpanWithNoFieldWritesEmptyFieldSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
+public class SimpleAsValueCharReadOnlySpanWithNoFieldOrDefaultFieldSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
 {
-    public string SimpleTypeAsValueCharReadOnlySpanWritesEmpty
+    public string SimpleTypeAsValueCharReadOnlySpanOrDefault
     {
         get => Value;
         set => Value = value;
@@ -935,14 +935,14 @@ public class SimpleAsValueCharReadOnlySpanWithNoFieldWritesEmptyFieldSimpleValue
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .AsValue((ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpanWritesEmpty)
+           .AsValue((ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpanOrDefault)
            .Complete();
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars)]
-public class SimpleAsValueStringWithNoFieldWritesEmptyFieldSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
+public class SimpleAsValueStringWithNoFieldOrDefaultFieldSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
 {
-    public string SimpleTypeAsValueStringWritesEmptyNoFormatting
+    public string SimpleTypeAsValueStringOrDefaultNoFormatting
     {
         get => Value;
         set => Value = value;
@@ -958,16 +958,16 @@ public class SimpleAsValueStringWithNoFieldWritesEmptyFieldSimpleValueTypeString
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .AsValue(SimpleTypeAsValueStringWritesEmptyNoFormatting)
+           .AsValue(SimpleTypeAsValueStringOrDefaultNoFormatting)
            .Complete();
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueStringWithFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
+public class SimpleAsValueStringWithFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
-    public string SimpleTypeAsValueStringWritesEmpty
+    public string SimpleTypeAsValueStringOrDefault
     {
         get => Value;
         set => Value = value;
@@ -984,8 +984,8 @@ public class SimpleAsValueStringWithFieldWritesEmptySimpleValueTypeStringBearer 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               ((ReadOnlySpan<char>)nameof(SimpleTypeAsValueStringWritesEmpty)
-              , SimpleTypeAsValueStringWritesEmpty
+               ((ReadOnlySpan<char>)nameof(SimpleTypeAsValueStringOrDefault)
+              , SimpleTypeAsValueStringOrDefault
               , ValueFormatString)
            .Complete();
 
@@ -1022,10 +1022,10 @@ public class SimpleAsValueStringWithFieldSimpleValueTypeStringBearer : IStringBe
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
-public class SimpleAsValueStringRangeWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
+public class SimpleAsValueStringRangeOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public string SimpleTypeAsValueStringRangeWritesEmpty
+    public string SimpleTypeAsValueStringRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1045,8 +1045,8 @@ public class SimpleAsValueStringRangeWritesEmptySimpleValueTypeStringBearer : IS
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsValue
-               (nameof(SimpleTypeAsValueStringRangeWritesEmpty)
-              , SimpleTypeAsValueStringRangeWritesEmpty
+               (nameof(SimpleTypeAsValueStringRangeOrDefault)
+              , SimpleTypeAsValueStringRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
@@ -1120,11 +1120,11 @@ public class SimpleAsValueStringRangeWithDefaultSimpleValueTypeStringBearer : IS
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueCharArrayWithFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
+public class SimpleAsValueCharArrayWithFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
-    public char[] SimpleTypeAsValueCharArrayWritesEmpty
+    public char[] SimpleTypeAsValueCharArrayOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1140,8 +1140,8 @@ public class SimpleAsValueCharArrayWithFieldWritesEmptySimpleValueTypeStringBear
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsValue
-               (nameof(SimpleTypeAsValueCharArrayWritesEmpty)
-              , SimpleTypeAsValueCharArrayWritesEmpty
+               (nameof(SimpleTypeAsValueCharArrayOrDefault)
+              , SimpleTypeAsValueCharArrayOrDefault
               , ValueFormatString)
            .Complete();
 
@@ -1149,10 +1149,10 @@ public class SimpleAsValueCharArrayWithFieldWritesEmptySimpleValueTypeStringBear
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
-public class SimpleAsValueCharArrayRangeWithFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
+public class SimpleAsValueCharArrayRangeWithFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public char[] SimpleTypeAsValueCharArrayRangeWritesEmpty
+    public char[] SimpleTypeAsValueCharArrayRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1172,8 +1172,8 @@ public class SimpleAsValueCharArrayRangeWithFieldWritesEmptySimpleValueTypeStrin
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsValue
-               (nameof(SimpleTypeAsValueCharArrayRangeWritesEmpty)
-              , SimpleTypeAsValueCharArrayRangeWritesEmpty
+               (nameof(SimpleTypeAsValueCharArrayRangeOrDefault)
+              , SimpleTypeAsValueCharArrayRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
@@ -1181,10 +1181,10 @@ public class SimpleAsValueCharArrayRangeWithFieldWritesEmptySimpleValueTypeStrin
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
-public class SimpleAsValueCharArrayRangeNoFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
+public class SimpleAsValueCharArrayRangeNoFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public char[] SimpleTypeAsValueCharArrayRangeWritesEmpty
+    public char[] SimpleTypeAsValueCharArrayRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1204,7 +1204,7 @@ public class SimpleAsValueCharArrayRangeNoFieldWritesEmptySimpleValueTypeStringB
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsValue
-               (SimpleTypeAsValueCharArrayRangeWritesEmpty
+               (SimpleTypeAsValueCharArrayRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
@@ -1342,10 +1342,10 @@ public class SimpleAsValueCharArrayRangeNoFieldWithDefaultSimpleValueTypeStringB
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueCharSequenceWithFieldWritesEmptySimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
+public class SimpleAsValueCharSequenceWithFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceWritesEmpty
+    public TCharSeq SimpleTypeAsValueCharSequenceOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1369,8 +1369,8 @@ public class SimpleAsValueCharSequenceWithFieldWritesEmptySimpleValueTypeStringB
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               (nameof(SimpleTypeAsValueCharSequenceWritesEmpty)
-              , SimpleTypeAsValueCharSequenceWritesEmpty
+               (nameof(SimpleTypeAsValueCharSequenceOrDefault)
+              , SimpleTypeAsValueCharSequenceOrDefault
               , ValueFormatString)
            .Complete();
 
@@ -1378,11 +1378,11 @@ public class SimpleAsValueCharSequenceWithFieldWritesEmptySimpleValueTypeStringB
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueCharSequenceNoFieldWritesEmptySimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
+public class SimpleAsValueCharSequenceNoFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceWritesEmpty
+    public TCharSeq SimpleTypeAsValueCharSequenceOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1406,18 +1406,18 @@ public class SimpleAsValueCharSequenceNoFieldWritesEmptySimpleValueTypeStringBea
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               (SimpleTypeAsValueCharSequenceWritesEmpty
+               (SimpleTypeAsValueCharSequenceOrDefault
               , ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueCharSequenceRangeWithFieldWritesEmptySimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+public class SimpleAsValueCharSequenceRangeWithFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeWritesEmpty
+    public TCharSeq SimpleTypeAsValueCharSequenceRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1444,19 +1444,19 @@ public class SimpleAsValueCharSequenceRangeWithFieldWritesEmptySimpleValueTypeSt
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               (nameof(SimpleTypeAsValueCharSequenceRangeWritesEmpty)
-              , SimpleTypeAsValueCharSequenceRangeWritesEmpty
+               (nameof(SimpleTypeAsValueCharSequenceRangeOrDefault)
+              , SimpleTypeAsValueCharSequenceRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueCharSequenceRangeNoFieldWritesEmptySimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+public class SimpleAsValueCharSequenceRangeNoFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeWritesEmpty
+    public TCharSeq SimpleTypeAsValueCharSequenceRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1483,18 +1483,18 @@ public class SimpleAsValueCharSequenceRangeNoFieldWritesEmptySimpleValueTypeStri
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               (SimpleTypeAsValueCharSequenceRangeWritesEmpty
+               (SimpleTypeAsValueCharSequenceRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsValueCharSequenceRangeWithFieldSimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeWritesEmpty
+    public TCharSeq SimpleTypeAsValueCharSequenceRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1521,19 +1521,19 @@ public class SimpleAsValueCharSequenceRangeWithFieldSimpleValueTypeStringBearer<
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValueOrNull
-               (nameof(SimpleTypeAsValueCharSequenceRangeWritesEmpty)
-              , SimpleTypeAsValueCharSequenceRangeWritesEmpty
+               (nameof(SimpleTypeAsValueCharSequenceRangeOrDefault)
+              , SimpleTypeAsValueCharSequenceRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsValueCharSequenceRangeNoFieldSimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeWritesEmpty
+    public TCharSeq SimpleTypeAsValueCharSequenceRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1560,14 +1560,14 @@ public class SimpleAsValueCharSequenceRangeNoFieldSimpleValueTypeStringBearer<TC
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValueOrNull
-               (SimpleTypeAsValueCharSequenceRangeWritesEmpty
+               (SimpleTypeAsValueCharSequenceRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsValueCharSequenceRangeWithFieldWithDefaultSimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -1608,7 +1608,7 @@ public class SimpleAsValueCharSequenceRangeWithFieldWithDefaultSimpleValueTypeSt
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsValueCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStringBearer<TCharSeq> : IStringBearer, IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -1648,10 +1648,10 @@ public class SimpleAsValueCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStri
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueStringBuilderWithFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
+public class SimpleAsValueStringBuilderWithFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
   , ISupportsValueFormatString, ISupportsSettingValueFromString 
 {
-    public StringBuilder SimpleTypeAsValueStringBuilderWritesEmpty
+    public StringBuilder SimpleTypeAsValueStringBuilderOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1668,8 +1668,8 @@ public class SimpleAsValueStringBuilderWithFieldWritesEmptySimpleValueTypeString
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               (nameof(SimpleTypeAsValueStringBuilderWritesEmpty)
-              , SimpleTypeAsValueStringBuilderWritesEmpty
+               (nameof(SimpleTypeAsValueStringBuilderOrDefault)
+              , SimpleTypeAsValueStringBuilderOrDefault
               , ValueFormatString)
            .Complete();
 
@@ -1677,10 +1677,10 @@ public class SimpleAsValueStringBuilderWithFieldWritesEmptySimpleValueTypeString
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueStringBuilderNoFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
+public class SimpleAsValueStringBuilderNoFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
   , ISupportsValueFormatString, ISupportsSettingValueFromString 
 {
-    public StringBuilder SimpleTypeAsValueStringBuilderWritesEmpty
+    public StringBuilder SimpleTypeAsValueStringBuilderOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1697,18 +1697,18 @@ public class SimpleAsValueStringBuilderNoFieldWritesEmptySimpleValueTypeStringBe
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               (SimpleTypeAsValueStringBuilderWritesEmpty
+               (SimpleTypeAsValueStringBuilderOrDefault
               , ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueStringBuilderRangeWithFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+public class SimpleAsValueStringBuilderRangeWithFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting 
 {
-    public StringBuilder SimpleTypeAsValueStringBuilderRangeWritesEmpty
+    public StringBuilder SimpleTypeAsValueStringBuilderRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1729,19 +1729,19 @@ public class SimpleAsValueStringBuilderRangeWithFieldWritesEmptySimpleValueTypeS
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               (nameof(SimpleTypeAsValueStringBuilderRangeWritesEmpty)
-              , SimpleTypeAsValueStringBuilderRangeWritesEmpty
+               (nameof(SimpleTypeAsValueStringBuilderRangeOrDefault)
+              , SimpleTypeAsValueStringBuilderRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
-public class SimpleAsValueStringBuilderRangeNoFieldWritesEmptySimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+public class SimpleAsValueStringBuilderRangeNoFieldOrDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting 
 {
-    public StringBuilder SimpleTypeAsValueStringBuilderRangeWritesEmpty
+    public StringBuilder SimpleTypeAsValueStringBuilderRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1762,18 +1762,18 @@ public class SimpleAsValueStringBuilderRangeNoFieldWritesEmptySimpleValueTypeStr
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValue
-               (SimpleTypeAsValueStringBuilderRangeWritesEmpty
+               (SimpleTypeAsValueStringBuilderRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsValueStringBuilderRangeWithFieldSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public StringBuilder? SimpleTypeAsValueStringBuilderRangeWritesEmpty
+    public StringBuilder? SimpleTypeAsValueStringBuilderRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1794,19 +1794,19 @@ public class SimpleAsValueStringBuilderRangeWithFieldSimpleValueTypeStringBearer
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValueOrNull
-               (nameof(SimpleTypeAsValueStringBuilderRangeWritesEmpty)
-              , SimpleTypeAsValueStringBuilderRangeWritesEmpty
+               (nameof(SimpleTypeAsValueStringBuilderRangeOrDefault)
+              , SimpleTypeAsValueStringBuilderRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsValueStringBuilderRangeNoFieldSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting 
 {
-    public StringBuilder? SimpleTypeAsValueStringBuilderRangeWritesEmpty
+    public StringBuilder? SimpleTypeAsValueStringBuilderRangeOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1827,14 +1827,14 @@ public class SimpleAsValueStringBuilderRangeNoFieldSimpleValueTypeStringBearer :
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsValueOrNull
-               (SimpleTypeAsValueStringBuilderRangeWritesEmpty
+               (SimpleTypeAsValueStringBuilderRangeOrDefault
               , FromIndex, Length, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsValueStringBuilderRangeWithFieldWithDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting 
 {
@@ -1869,7 +1869,7 @@ public class SimpleAsValueStringBuilderRangeWithFieldWithDefaultSimpleValueTypeS
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsValueStringBuilderRangeNoFieldWithDefaultSimpleValueTypeStringBearer : IStringBearer, IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting 
 {
@@ -1903,9 +1903,9 @@ public class SimpleAsValueStringBuilderRangeNoFieldWithDefaultSimpleValueTypeStr
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class SimpleAsValueMatchWritesEmptySimpleValueTypeStringBearer<TAny> : IStringBearer, IMoldSupportedValue<TAny?>, ISupportsValueFormatString
+public class SimpleAsValueMatchOrDefaultSimpleValueTypeStringBearer<TAny> : IStringBearer, IMoldSupportedValue<TAny?>, ISupportsValueFormatString
 {
-    public TAny? SimpleTypeAsValueMatchWritesEmpty
+    public TAny? SimpleTypeAsValueMatchOrDefault
     {
         get => Value;
         set => Value = value;
@@ -1915,7 +1915,7 @@ public class SimpleAsValueMatchWritesEmptySimpleValueTypeStringBearer<TAny> : IS
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .AsValueMatch(nameof(SimpleTypeAsValueMatchWritesEmpty), SimpleTypeAsValueMatchWritesEmpty, ValueFormatString)
+           .AsValueMatch(nameof(SimpleTypeAsValueMatchOrDefault), SimpleTypeAsValueMatchOrDefault, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
