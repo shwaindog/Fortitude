@@ -32,7 +32,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , Type valueType, string? alternativeName) where TB : TypeMolder
     {
         var sb = typeBuilder.Sb;
-        sb.Append(alternativeName ?? valueType.Name);
+        if (alternativeName != null)
+        {
+            sb.Append(alternativeName);
+        }
+        else
+        {
+            valueType.AppendShortNameInCSharpFormat(sb);
+        }
         if (valueType.IsEnum)
         {
             sb.Append(Dot);
@@ -55,7 +62,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , string? alternativeName = null)
         where TB : TypeMolder
     {
-        typeBuilder.Sb.Append(alternativeName ?? complexType.Name).Append(Spc);
+        var sb = typeBuilder.Sb;
+        if (alternativeName != null)
+        {
+            sb.Append(alternativeName);
+        }
+        else
+        {
+            complexType.AppendShortNameInCSharpFormat(sb);
+        }
+        sb.Append(Spc);
         return typeBuilder.Sb.Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
     }
 
@@ -87,13 +103,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TB> AppendKeyedCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType, Type keyType
       , Type valueType) where TB : TypeMolder
     {
-        typeBuilder.Sb.Append(keyedCollectionType.Name).Append(Spc);
+        var sb = typeBuilder.Sb;
+        keyedCollectionType.AppendShortNameInCSharpFormat(sb);
+        sb.Append(Spc);
         return typeBuilder.Sb.Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
     }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyedCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType, Type keyType
-      , Type valueType, int totalItemCount) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
+      , Type valueType, int totalItemCount) where TB : TypeMolder
+    {
+        return typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
+    }
 
     public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType, TKey key
       , TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null) where TB : TypeMolder
@@ -136,7 +156,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TB> FormatCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder
       , Type itemElementType, bool hasItems, Type collectionType) where TB : TypeMolder
     {
-        if (!(collectionType.FullName?.StartsWith("System") ?? true)) typeBuilder.Sb.Append(collectionType.Name).Append(Spc);
+        if (!(collectionType.FullName?.StartsWith("System") ?? true))
+        {
+            var sb = typeBuilder.Sb;
+            collectionType.AppendShortNameInCSharpFormat(sb);
+            sb.Append(Spc);
+        }
         return base.CollectionStart(itemElementType, typeBuilder.Sb, hasItems).ToInternalTypeBuilder(typeBuilder);
     }
 

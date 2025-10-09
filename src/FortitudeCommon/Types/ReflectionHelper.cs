@@ -27,6 +27,14 @@ public static class ReflectionHelper
 
         return Expression.Lambda<Func<TClass>>(constructorNewExpression).Compile();
     }
+    
+    public static Func<TClass> DefaultCtorFunc<TClass>(Type concreteType)
+    {
+        var constructorInfo          = concreteType.GetConstructor(Type.EmptyTypes)!;
+        var constructorNewExpression = Expression.New(constructorInfo);
+
+        return Expression.Lambda<Func<TClass>>(constructorNewExpression).Compile();
+    }
 
     public static Func<TParam, TClass> CtorBinder<TParam, TClass>()
     {
@@ -96,6 +104,15 @@ public static class ReflectionHelper
                              (Expression.New(constructorInfo, ctorParam1, ctorParam2, ctorParam3, ctorParam4)
                             , ctorParam1, ctorParam2, ctorParam3, ctorParam4)
                          .Compile();
+    }
+
+    public static Func<TReturnType> GenericTypeDefaultCtorBinder<TReturnType>(Type typeDefToBuild, params Type[] genericTypeArguments)
+    {
+        var typedToConstruct = typeDefToBuild.MakeGenericType(genericTypeArguments);
+
+        var constructorInfo = typedToConstruct.GetConstructor([])!;
+
+        return Expression.Lambda<Func<TReturnType>>(Expression.New(constructorInfo)).Compile();
     }
 
     /// <summary>
@@ -179,8 +196,6 @@ public static class ReflectionHelper
 
         return false;
     }
-
-    public static bool ImplementsInterface<TInterface>(this Type type) => type.GetInterfaces().Contains(typeof(TInterface));
 
     /// <summary>
     ///     Gets a member from an object

@@ -47,6 +47,16 @@ public static class StringExtensions
         return false;
     }
 
+    public static string RemoveAll(this string toCleanup, params string[] toRemove)
+    {
+        var sb = new StringBuilder(toCleanup);
+        foreach (var remove in toRemove)
+        {
+            sb.Replace(remove, "");
+        }
+        return sb.ToString();
+    }
+
 
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? value)   => string.IsNullOrEmpty(value);
     public static bool IsNotNullOrEmpty([NotNullWhen(true)] this string? value) => !string.IsNullOrEmpty(value);
@@ -169,6 +179,13 @@ public static class StringExtensions
             if (checkChar != compareChar) return false;
         }
         return true;
+    }
+
+    public static  string TruncateAt(this string toTruncate, char terminatorChar)
+    {
+        var indexOfTerminator =  toTruncate.IndexOf(terminatorChar);
+        if(indexOfTerminator == -1) return toTruncate;
+        return toTruncate.Substring(0, indexOfTerminator);
     }
 
 }

@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Storage.TimeSeries.FileSystem;

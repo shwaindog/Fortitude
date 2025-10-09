@@ -350,13 +350,19 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
     public TExt RevealAsStringOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = "") 
         where TBearer : IStringBearer => Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue);
     
-    public TExt AsStringOrDefault(Span<char> nonJsonfieldName, Span<char> value, string defaultValue = "", string? formatString = null) => 
+    public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string? formatString = null) => 
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, "", formatString);
+    
+    public TExt AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string defaultValue = "", string? formatString = null) => 
         Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString);
     
-    public TExt AsStringOrNull(Span<char> nonJsonfieldName, Span<char> value, string? formatString = null) => 
+    public TExt AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string? formatString = null) => 
         Stb.FieldStringNext(nonJsonfieldName, value, formatString);
     
     public TExt AsStringOrNull(Span<char> value) => Stb.FieldStringNext("", value);
+    
+    public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string? formatString = null) => 
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, "", formatString);
     
     public TExt AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string defaultValue = "", string? formatString = null) => 
         Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString);

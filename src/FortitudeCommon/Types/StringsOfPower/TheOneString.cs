@@ -239,8 +239,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
 
         return existingRefId > 0 || remainingDepth <= 0
-            ? StartComplexValueType(obj).AsValueMatch(obj, formatString).Complete()
-            : StartSimpleValueType(obj).AsValueMatch(obj, formatString).Complete();
+            ? StartComplexValueType(obj).AsValueMatch("", obj, formatString).Complete()
+            : StartSimpleValueType(obj).AsValueMatch("",  obj, formatString).Complete();
     }
 
     public bool RegisterVisitedCheckCanContinue(object obj)

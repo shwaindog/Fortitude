@@ -902,6 +902,10 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public int TryFormat<TAny>(TAny source, IStringBuilder sb, string formatString)
     {
         if (source == null) return 0;
+        if (source is ISpanFormattable formattable)
+        {
+            return Format(formattable, sb, formatString);
+        }
         var type                     = source.GetType();
         var maybeIterableElementType = type.GetIterableElementType();
         if (maybeIterableElementType == null) return 0;

@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 #endregion
 
@@ -11,8 +11,8 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class FieldKeyValueDictionaryFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class FieldKeyValueDictionaryFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothFormatStrings
     {
@@ -20,6 +20,7 @@ public class FieldKeyValueDictionaryFormatStringsAlwaysAddAllStringBearer<TKey, 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothFormatStrings);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -36,8 +37,8 @@ public class FieldKeyValueDictionaryFormatStringsAlwaysAddAllStringBearer<TKey, 
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class FieldKeyValuePairArrayBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class FieldKeyValuePairArrayBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothFormatStrings
     {
@@ -45,6 +46,7 @@ public class FieldKeyValuePairArrayBothFormatStringsAlwaysAddAllStringBearer<TKe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothFormatStrings);
     public KeyValuePair<TKey, TValue>[]? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -61,8 +63,8 @@ public class FieldKeyValuePairArrayBothFormatStringsAlwaysAddAllStringBearer<TKe
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class FieldKeyValuePairListBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class FieldKeyValuePairListBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothFormatStrings
     {
@@ -70,6 +72,7 @@ public class FieldKeyValuePairListBothFormatStringsAlwaysAddAllStringBearer<TKey
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothFormatStrings);
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -87,8 +90,8 @@ public class FieldKeyValuePairListBothFormatStringsAlwaysAddAllStringBearer<TKey
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class FieldKeyValuePairEnumerableBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class FieldKeyValuePairEnumerableBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothFormatStrings
     {
@@ -96,6 +99,7 @@ public class FieldKeyValuePairEnumerableBothFormatStringsAlwaysAddAllStringBeare
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothFormatStrings);
     public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -113,8 +117,8 @@ public class FieldKeyValuePairEnumerableBothFormatStringsAlwaysAddAllStringBeare
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class FieldKeyValuePairEnumeratorBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class FieldKeyValuePairEnumeratorBothFormatStringsAlwaysAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothFormatStrings
     {
@@ -122,6 +126,7 @@ public class FieldKeyValuePairEnumeratorBothFormatStringsAlwaysAddAllStringBeare
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothFormatStrings);
     public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -139,8 +144,8 @@ public class FieldKeyValuePairEnumeratorBothFormatStringsAlwaysAddAllStringBeare
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>
+public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryValueRevealerKeyFormatString
@@ -149,6 +154,7 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsAlwaysAddAllStr
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryValueRevealerKeyFormatString);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -167,8 +173,8 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsAlwaysAddAllStr
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TValue : TVRevealBase
+public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayValueRevealerKeyFormatString
     {
@@ -176,6 +182,7 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsAlwaysAddAllStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayValueRevealerKeyFormatString);
     public KeyValuePair<TKey, TValue>[]? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -193,8 +200,8 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsAlwaysAddAllStri
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class FieldKeyValuePairListValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
+public class FieldKeyValuePairListValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllListValueRevealerKeyFormatStrings
@@ -203,6 +210,7 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsAlwaysAddAllStrin
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllListValueRevealerKeyFormatStrings);
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -220,8 +228,8 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsAlwaysAddAllStrin
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
+public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableValueRevealerKeyFormatString
@@ -230,6 +238,7 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsAlwaysAddAl
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableValueRevealerKeyFormatString);
     public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -247,8 +256,8 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsAlwaysAddAl
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
+public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorValueRevealerKeyFormatString
@@ -257,6 +266,7 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsAlwaysAddAl
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorValueRevealerKeyFormatString);
     public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -274,8 +284,8 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsAlwaysAddAl
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class FieldKeyValueDictionaryBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class FieldKeyValueDictionaryBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothRevealers
@@ -284,6 +294,7 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysAddAllStringBearer<TKey, 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothRevealers);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -301,8 +312,8 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysAddAllStringBearer<TKey, 
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class FieldKeyValuePairArrayBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class FieldKeyValuePairArrayBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothRevealers
@@ -311,6 +322,7 @@ public class FieldKeyValuePairArrayBothRevealersAlwaysAddAllStringBearer<TKey, T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothRevealers);
     public KeyValuePair<TKey, TValue>[]? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -328,8 +340,8 @@ public class FieldKeyValuePairArrayBothRevealersAlwaysAddAllStringBearer<TKey, T
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class FieldKeyValuePairListBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class FieldKeyValuePairListBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealers
@@ -338,6 +350,7 @@ public class FieldKeyValuePairListBothRevealersAlwaysAddAllStringBearer<TKey, TV
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealers);
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -355,8 +368,8 @@ public class FieldKeyValuePairListBothRevealersAlwaysAddAllStringBearer<TKey, TV
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class FieldKeyValuePairEnumerableBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class FieldKeyValuePairEnumerableBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothRevealers
@@ -365,6 +378,7 @@ public class FieldKeyValuePairEnumerableBothRevealersAlwaysAddAllStringBearer<TK
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothRevealers);
     public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -382,8 +396,8 @@ public class FieldKeyValuePairEnumerableBothRevealersAlwaysAddAllStringBearer<TK
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class FieldKeyValuePairEnumeratorBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class FieldKeyValuePairEnumeratorBothRevealersAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealers
@@ -392,6 +406,7 @@ public class FieldKeyValuePairEnumeratorBothRevealersAlwaysAddAllStringBearer<TK
         set => Value = value;
     }
 
+    public string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealers);
     public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;

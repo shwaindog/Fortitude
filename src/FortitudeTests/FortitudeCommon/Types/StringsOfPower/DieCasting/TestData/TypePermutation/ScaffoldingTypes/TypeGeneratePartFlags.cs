@@ -1,21 +1,15 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Runtime.InteropServices.ComTypes;
-using System.Text.Json.Serialization;
-using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
-
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
 [Flags]
-public enum TypeGeneratePartFlags : ulong
+public enum ScaffoldingStringBuilderInvokeFlags : ulong
 {
     None                        = 0x00_00_00_00_00
   , SimpleType                  = 0x00_00_00_00_01
   , ComplexType                 = 0x00_00_00_00_02
-  , CollectionType              = 0x00_00_00_00_04
+  , OrderedCollectionType              = 0x00_00_00_00_04
   , KeyedCollectionType         = 0x00_00_00_00_08
   , AcceptsCollection           = 0x00_00_00_00_10
   , AcceptsKeyValueCollection   = 0x00_00_00_00_20
@@ -56,69 +50,12 @@ public enum TypeGeneratePartFlags : ulong
   , SupportsSettingDefaultValue = 0x40_00_00_00_00
 }
 
-public class TypeGeneratePartAttribute(TypeGeneratePartFlags flags) : Attribute { }
-
-public interface IMoldSupportedValue<TValue>
+public static class ScaffoldingStringBuilderInvokeFlagsExtensions
 {
-    [JsonIgnore] TValue Value { get; set; }
-}
+    
 
-public interface IMoldSupportedDefaultValue<TValue>
-{
-    [JsonIgnore] TValue DefaultValue { get; set; }
-}
-
-public interface ISupportsValueFormatString
-{
-    [JsonIgnore] string? ValueFormatString { get; set; }
-}
-
-public interface ISupportsKeyFormatString
-{
-    [JsonIgnore] string? KeyFormatString { get; set; }
-}
-
-public interface ISupportsSubsetDisplayKeys<TKeyDerivedType>
-{
-    [JsonIgnore] IReadOnlyList<TKeyDerivedType> DisplayKeys { get; set; }
-}
-
-public interface ISupportsOrderedCollectionPredicate<TElement>
-{
-    public static OrderedCollectionPredicate<TElement> GetNoFilterPredicate => (_, _) => CollectionItemResult.IncludeContinueToNext;
-
-    [JsonIgnore] OrderedCollectionPredicate<TElement> ElementPredicate { get; set; }
-}
-
-public interface ISupportsKeyedCollectionPredicate<TKey, TValue>
-{
-    public static KeyValuePredicate<TKey, TValue> GetNoFilterPredicate => (_, _, _) => CollectionItemResult.IncludeContinueToNext;
-    [JsonIgnore] KeyValuePredicate<TKey, TValue> KeyValuePredicate { get; set; }
-}
-
-public interface ISupportsValueRevealer<TRevealerType>
-{
-    [JsonIgnore] PalantírReveal<TRevealerType> ValueRevealer { get; set; }
-}
-
-public interface ISupportsKeyRevealer<TCloaked>
-{
-    [JsonIgnore] PalantírReveal<TCloaked> KeyRevealer { get; set; }
-}
-
-public interface ISupportsIndexRangeLimiting
-{
-    [JsonIgnore] int FromIndex { get; set; }
-
-    [JsonIgnore] int Length { get; set; }
-}
-
-public interface ISupportsFieldHandling
-{
-    [JsonIgnore] FieldContentHandling FieldContentHandling { get; set; }
-}
-
-public interface ISupportsSettingValueFromString
-{
-    [JsonIgnore] string? StringValue { get; set; }
+    public static bool HasAllOf(this ScaffoldingStringBuilderInvokeFlags flags, ScaffoldingStringBuilderInvokeFlags checkAllAreSet)  => (flags & checkAllAreSet) == checkAllAreSet;
+    public static bool HasNoneOf(this ScaffoldingStringBuilderInvokeFlags flags, ScaffoldingStringBuilderInvokeFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;
+    public static bool HasAnyOf(this ScaffoldingStringBuilderInvokeFlags flags, ScaffoldingStringBuilderInvokeFlags checkAnyAreFound) => (flags & checkAnyAreFound) > 0;
+    public static bool IsExactly(this ScaffoldingStringBuilderInvokeFlags flags, ScaffoldingStringBuilderInvokeFlags checkAllFound)   => flags == checkAllFound;
 }

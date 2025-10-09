@@ -3,17 +3,17 @@
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 #endregion
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     KeyedCollectionScaffolds;
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromDictionaryFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+public class KeyedFromDictionaryFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
+  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
   , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings
@@ -22,6 +22,7 @@ public class KeyedFromDictionaryFormatStringsAddFilteredStringBearer<TKey, TValu
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -40,10 +41,10 @@ public class KeyedFromDictionaryFormatStringsAddFilteredStringBearer<TKey, TValu
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromPairArrayBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
-  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+public class KeyedFromPairArrayBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
+  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
   , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothFormatStrings
@@ -52,6 +53,7 @@ public class KeyedFromPairArrayBothFormatStringsAddFilteredStringBearer<TKey, TV
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothFormatStrings);
     public KeyValuePair<TKey, TValue>[]? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -69,10 +71,10 @@ public class KeyedFromPairArrayBothFormatStringsAddFilteredStringBearer<TKey, TV
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromPairListBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+public class KeyedFromPairListBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
+  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
   , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothFormatStrings
@@ -81,6 +83,7 @@ public class KeyedFromPairListBothFormatStringsAddFilteredStringBearer<TKey, TVa
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothFormatStrings);
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -98,10 +101,10 @@ public class KeyedFromPairListBothFormatStringsAddFilteredStringBearer<TKey, TVa
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromPairEnumerableBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+public class KeyedFromPairEnumerableBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
+  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
   , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings
@@ -110,6 +113,7 @@ public class KeyedFromPairEnumerableBothFormatStringsAddFilteredStringBearer<TKe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings);
     public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -127,10 +131,10 @@ public class KeyedFromPairEnumerableBothFormatStringsAddFilteredStringBearer<TKe
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromPairEnumeratorBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+public class KeyedFromPairEnumeratorBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
+  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
   , ISupportsValueFormatString, ISupportsKeyFormatString where TKey : TKFilterBase where TValue : TVFilterBase
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings
@@ -139,6 +143,7 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddFilteredStringBearer<TKe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings);
     public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -156,7 +161,7 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddFilteredStringBearer<TKe
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase> :
     IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -168,6 +173,7 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddFilteredStringBe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -185,7 +191,7 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddFilteredStringBe
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase> :
     IStringBearer, IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -197,6 +203,7 @@ public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddFilteredStringBea
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString);
     public KeyValuePair<TKey, TValue>[]? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -214,7 +221,7 @@ public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddFilteredStringBea
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairListValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -226,6 +233,7 @@ public class KeyedFromPairListValueRevealerKeyFormatStringsAddFilteredStringBear
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString);
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -243,7 +251,7 @@ public class KeyedFromPairListValueRevealerKeyFormatStringsAddFilteredStringBear
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -255,6 +263,7 @@ public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddFilteredStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString);
     public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -272,7 +281,7 @@ public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddFilteredStri
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -284,6 +293,7 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddFilteredStri
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString);
     public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -301,7 +311,7 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddFilteredStri
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -314,6 +324,7 @@ public class KeyedFromDictionaryBothRevealersAddFilteredStringBearer<TKey, TValu
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -331,7 +342,7 @@ public class KeyedFromDictionaryBothRevealersAddFilteredStringBearer<TKey, TValu
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -344,6 +355,7 @@ public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers);
     public KeyValuePair<TKey, TValue>[]? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -361,7 +373,7 @@ public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -374,6 +386,7 @@ public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue,
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers);
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -391,7 +404,7 @@ public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue,
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -404,6 +417,7 @@ public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
     public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -421,7 +435,7 @@ public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, T
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumeratorBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IStringBearer, IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -434,6 +448,7 @@ public class KeyedFromPairEnumeratorBothRevealersAddFilteredStringBearer<TKey, T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers);
     public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;

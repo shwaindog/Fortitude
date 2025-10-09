@@ -2,17 +2,17 @@
 
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.TypeGeneratePartFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 #endregion
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     KeyedCollectionScaffolds;
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothFormatStrings
     {
@@ -20,6 +20,7 @@ public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> : 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothFormatStrings);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -31,10 +32,10 @@ public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> : 
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromPairArrayBothFormatStringsAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class KeyedFromPairArrayBothFormatStringsAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothFormatStrings
     {
@@ -42,6 +43,7 @@ public class KeyedFromPairArrayBothFormatStringsAddAllStringBearer<TKey, TValue>
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothFormatStrings);
     public KeyValuePair<TKey, TValue>[]? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -55,10 +57,10 @@ public class KeyedFromPairArrayBothFormatStringsAddAllStringBearer<TKey, TValue>
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromPairListBothFormatStringsAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class KeyedFromPairListBothFormatStringsAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllListBothFormatStrings
     {
@@ -66,6 +68,7 @@ public class KeyedFromPairListBothFormatStringsAddAllStringBearer<TKey, TValue> 
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListBothFormatStrings);
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -80,10 +83,10 @@ public class KeyedFromPairListBothFormatStringsAddAllStringBearer<TKey, TValue> 
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromPairEnumerableBothFormatStringsAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class KeyedFromPairEnumerableBothFormatStringsAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothFormatStrings
     {
@@ -91,6 +94,7 @@ public class KeyedFromPairEnumerableBothFormatStringsAddAllStringBearer<TKey, TV
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothFormatStrings);
     public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -105,10 +109,10 @@ public class KeyedFromPairEnumerableBothFormatStringsAddAllStringBearer<TKey, TV
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromPairEnumeratorBothFormatStringsAddAllStringBearer<TKey, TValue> : IStringBearer
-  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class KeyedFromPairEnumeratorBothFormatStringsAddAllStringBearer<TKey, TValue> : 
+  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothFormatStrings
     {
@@ -116,6 +120,7 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddAllStringBearer<TKey, TV
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothFormatStrings);
     public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -130,10 +135,10 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddAllStringBearer<TKey, TV
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>
+public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryValueRevealerKeyFormatString
@@ -142,6 +147,7 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryValueRevealerKeyFormatString);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -157,10 +163,10 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TValue : TVRevealBase
+public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddAllArrayValueRevealerKeyFormatString
     {
@@ -168,6 +174,7 @@ public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddAllStringBearer<T
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayValueRevealerKeyFormatString);
     public KeyValuePair<TKey, TValue>[]? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -182,10 +189,10 @@ public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddAllStringBearer<T
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyedFromPairListValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
+public class KeyedFromPairListValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllListValueRevealerKeyFormatStrings
@@ -194,6 +201,7 @@ public class KeyedFromPairListValueRevealerKeyFormatStringsAddAllStringBearer<TK
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListValueRevealerKeyFormatStrings);
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -208,10 +216,10 @@ public class KeyedFromPairListValueRevealerKeyFormatStringsAddAllStringBearer<TK
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
+public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString
@@ -220,6 +228,7 @@ public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddAllStringBea
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString);
     public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -234,10 +243,10 @@ public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddAllStringBea
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
-public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
+public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
+  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
   , ISupportsKeyFormatString where TValue : TVRevealBase
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorValueRevealerKeyFormatString
@@ -246,6 +255,7 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBea
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorValueRevealerKeyFormatString);
     public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public string? KeyFormatString { get; set; }
@@ -260,10 +270,10 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBea
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothRevealers
@@ -272,6 +282,7 @@ public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TK
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothRevealers);
     public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -286,10 +297,10 @@ public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TK
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothRevealers
@@ -298,6 +309,7 @@ public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKR
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothRevealers);
     public KeyValuePair<TKey, TValue>[]? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -312,10 +324,10 @@ public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKR
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllListBothRevealers
@@ -324,6 +336,7 @@ public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRe
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListBothRevealers);
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -338,10 +351,10 @@ public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRe
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyedFromPairEnumerableBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class KeyedFromPairEnumerableBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers
@@ -350,6 +363,7 @@ public class KeyedFromPairEnumerableBothRevealersAddAllStringBearer<TKey, TValue
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers);
     public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
@@ -358,16 +372,14 @@ public class KeyedFromPairEnumerableBothRevealersAddAllStringBearer<TKey, TValue
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
-               (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers
-              , ValueRevealer, KeyRevealer)
+           .AddAllEnumerate(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers, ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyedFromPairEnumeratorBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : IStringBearer
-  , IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
+public class KeyedFromPairEnumeratorBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
+  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
     where TKey : TKRevealBase where TValue : TVRevealBase
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers
@@ -376,6 +388,7 @@ public class KeyedFromPairEnumeratorBothRevealersAddAllStringBearer<TKey, TValue
         set => Value = value;
     }
 
+    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers);
     public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
