@@ -76,11 +76,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllMatch<T>(ReadOnlySpan<char> fieldName, Span<T> value
+    public TExt WhenPopulatedAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, Span<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllMatchNull<T>(ReadOnlySpan<char> fieldName, Span<T?> value
+    public TExt WhenPopulatedAddAllMatchNull<TAny>(ReadOnlySpan<char> fieldName, Span<TAny?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
@@ -157,11 +157,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllNullable(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllMatch<T>(ReadOnlySpan<char> fieldName, ReadOnlySpan<T> value
+    public TExt WhenPopulatedAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllMatchNullable<T>(ReadOnlySpan<char> fieldName, ReadOnlySpan<T?> value
+    public TExt WhenPopulatedAddAllMatchNullable<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
@@ -215,13 +215,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllMatch<T>(string fieldName, T?[]? value
+    public TExt WhenPopulatedAddAllMatch<TAny>(string fieldName, TAny?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObject<T>(string fieldName, T?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : class =>
+    public TExt WhenPopulatedAddAllObject(string fieldName, object?[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool>? value) =>
@@ -266,13 +266,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Count: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllMatch<T>(string fieldName, IReadOnlyList<T?>? value
+    public TExt WhenPopulatedAddAllMatch<TAny>(string fieldName, IReadOnlyList<TAny?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Count: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObject<T>(string fieldName, IReadOnlyList<T?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : class =>
+    public TExt WhenPopulatedAddAllObject(string fieldName, IReadOnlyList<object?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
         !stb.SkipFields && value is { Count: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<bool>? value) =>
@@ -317,14 +317,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllMatchEnumerate<T>(string fieldName, IEnumerable<T?>? value
+    public TExt WhenPopulatedAddAllMatchEnumerate<TAny>(string fieldName, IEnumerable<TAny?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllMatchEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObjectEnumerate<T>(string fieldName, IEnumerable<T?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : class =>
+    public TExt WhenPopulatedAddAllObjectEnumerate(string fieldName, IEnumerable<object?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         WhenPopulatedAddAllMatchEnumerate(fieldName, value, formatString);
 
     public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool>? value)
@@ -572,7 +571,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAllMatchEnumerate<T>(string fieldName, IEnumerator<T?>? value
+    public TExt WhenPopulatedAddAllMatchEnumerate<TAny>(string fieldName, IEnumerator<TAny?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -582,7 +581,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (hasValue)
         {
             stb.FieldNameJoin(fieldName);
-            var eoctb = stb.Master.StartExplicitCollectionType<T>(value!);
+            var eoctb = stb.Master.StartExplicitCollectionType<TAny>(value!);
             while (hasValue)
             {
                 eoctb.AddMatchElementAndGoToNextElement(value!.Current, formatString);
@@ -595,7 +594,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObjectEnumerate<T>(string fieldName, IEnumerator<T?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : class =>
+    public TExt WhenPopulatedAddAllObjectEnumerate(string fieldName, IEnumerator<object?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
         WhenPopulatedAddAllMatchEnumerate(fieldName, value, formatString);
 }

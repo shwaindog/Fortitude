@@ -1093,19 +1093,19 @@ public class FieldStringBuilderRangeWithHandlingWhenNonNullOrDefaultStringBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchWhenNonNullOrDefaultStringBearer<T> : IMoldSupportedValue<T?>
-  , IMoldSupportedDefaultValue<T?>, ISupportsValueFormatString
+public class FieldMatchWhenNonNullOrDefaultStringBearer<TAny> : IMoldSupportedValue<TAny?>
+  , IMoldSupportedDefaultValue<TAny?>, ISupportsValueFormatString
 {
-    public T? ComplexTypeFieldWhenNonNullOrDefaultMatch
+    public TAny? ComplexTypeFieldWhenNonNullOrDefaultMatch
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeFieldWhenNonNullOrDefaultMatch);
-    public T? DefaultValue { get; set; }
+    public TAny? DefaultValue { get; set; }
 
-    public T? Value { get; set; }
+    public TAny? Value { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

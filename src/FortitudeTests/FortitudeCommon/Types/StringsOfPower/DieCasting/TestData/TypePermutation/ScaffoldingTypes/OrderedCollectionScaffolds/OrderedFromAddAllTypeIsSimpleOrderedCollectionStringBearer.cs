@@ -2014,10 +2014,10 @@ public class OrderedFromStringBuilderEnumeratorAddAllSimpleOrderedCollectionStri
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromMatchArrayAddAllSimpleOrderedCollectionStringBearer<T> : ISupportsValueFormatString, IMoldSupportedValue<T?[]?>
-  , IEnumerable<T?>
+public class OrderedFromMatchArrayAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString, IMoldSupportedValue<TAny?[]?>
+  , IEnumerable<TAny?>
 {
-    public T?[]? OrderedCollectionAddAllMatchArray
+    public TAny?[]? OrderedCollectionAddAllMatchArray
     {
         get => Value;
         set =>Value = value;
@@ -2025,7 +2025,7 @@ public class OrderedFromMatchArrayAddAllSimpleOrderedCollectionStringBearer<T> :
 
     public string PropertyName => nameof(OrderedCollectionAddAllMatchArray);
 
-    public T?[]? Value { get; set; }
+    public TAny?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -2035,16 +2035,16 @@ public class OrderedFromMatchArrayAddAllSimpleOrderedCollectionStringBearer<T> :
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)Value!.GetEnumerator();
+    public IEnumerator<TAny?> GetEnumerator() => (IEnumerator<TAny?>)Value!.GetEnumerator();
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromMatchSpanAddAllSimpleOrderedCollectionStringBearer<T> : ISupportsValueFormatString, IMoldSupportedValue<T[]?>
-  , IEnumerable<T>
+public class OrderedFromMatchSpanAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString, IMoldSupportedValue<TAny[]?>
+  , IEnumerable<TAny>
 {
-    public T[]? OrderedCollectionAddAllMatchSpan
+    public TAny[]? OrderedCollectionAddAllMatchSpan
     {
         get => Value;
         set =>Value = value;
@@ -2052,7 +2052,7 @@ public class OrderedFromMatchSpanAddAllSimpleOrderedCollectionStringBearer<T> : 
 
     public string PropertyName => nameof(OrderedCollectionAddAllMatchSpan);
 
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -2062,16 +2062,16 @@ public class OrderedFromMatchSpanAddAllSimpleOrderedCollectionStringBearer<T> : 
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)Value!.GetEnumerator();
+    public IEnumerator<TAny> GetEnumerator() => (IEnumerator<TAny>)Value!.GetEnumerator();
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<T> : ISupportsValueFormatString, IMoldSupportedValue<T?[]?>
-  , IEnumerable<T?>
+public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString, IMoldSupportedValue<TAny?[]?>
+  , IEnumerable<TAny?>
 {
-    public T?[]? OrderedCollectionAddAllMatchNullableSpan
+    public TAny?[]? OrderedCollectionAddAllMatchNullableSpan
     {
         get => Value;
         set =>Value = value;
@@ -2079,7 +2079,7 @@ public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBear
 
     public string PropertyName => nameof(OrderedCollectionAddAllMatchNullableSpan);
 
-    public T?[]? Value { get; set; }
+    public TAny?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -2089,16 +2089,16 @@ public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBear
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)Value!.GetEnumerator();
+    public IEnumerator<TAny?> GetEnumerator() => (IEnumerator<TAny?>)Value!.GetEnumerator();
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsStruct | AcceptsClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromMatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T> : ISupportsValueFormatString, IMoldSupportedValue<T[]?>
-  , IEnumerable<T>
+public class OrderedFromMatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString, IMoldSupportedValue<TAny[]?>
+  , IEnumerable<TAny>
 {
-    public T[]? OrderedCollectionAddAllMatchReadOnlySpan
+    public TAny[]? OrderedCollectionAddAllMatchReadOnlySpan
     {
         get => Value;
         set =>Value = value;
@@ -2106,26 +2106,26 @@ public class OrderedFromMatchReadOnlySpanAddAllSimpleOrderedCollectionStringBear
 
     public string PropertyName => nameof(OrderedCollectionAddAllMatchReadOnlySpan);
 
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatch((ReadOnlySpan<T>)OrderedCollectionAddAllMatchReadOnlySpan.AsSpan(), ValueFormatString)
+           .AddAllMatch((ReadOnlySpan<TAny>)OrderedCollectionAddAllMatchReadOnlySpan.AsSpan(), ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)Value!.GetEnumerator();
+    public IEnumerator<TAny> GetEnumerator() => (IEnumerator<TAny>)Value!.GetEnumerator();
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct | AcceptsNullableClass
                 | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
-public class OrderedFromMatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<T> : ISupportsValueFormatString
-  , IMoldSupportedValue<T?[]?>, IEnumerable<T?>
+public class OrderedFromMatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString
+  , IMoldSupportedValue<TAny?[]?>, IEnumerable<TAny?>
 {
-    public T?[]? OrderedCollectionAddAllMatchNullableReadOnlySpan
+    public TAny?[]? OrderedCollectionAddAllMatchNullableReadOnlySpan
     {
         get => Value;
         set =>Value = value;
@@ -2133,24 +2133,24 @@ public class OrderedFromMatchNullableReadOnlySpanAddAllSimpleOrderedCollectionSt
 
     public string PropertyName => nameof(OrderedCollectionAddAllMatchNullableReadOnlySpan);
 
-    public T?[]? Value { get; set; }
+    public TAny?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatchNullable((ReadOnlySpan<T?>)OrderedCollectionAddAllMatchNullableReadOnlySpan.AsSpan(), ValueFormatString)
+           .AddAllMatchNullable((ReadOnlySpan<TAny?>)OrderedCollectionAddAllMatchNullableReadOnlySpan.AsSpan(), ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => (IEnumerator<T?>)Value!.GetEnumerator();
+    public IEnumerator<TAny?> GetEnumerator() => (IEnumerator<TAny?>)Value!.GetEnumerator();
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromMatchListAddAllSimpleOrderedCollectionStringBearer<T> : ISupportsValueFormatString
-  , IMoldSupportedValue<IReadOnlyList<T?>?>, IEnumerable<T?>
+public class OrderedFromMatchListAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString
+  , IMoldSupportedValue<IReadOnlyList<TAny?>?>, IEnumerable<TAny?>
 {
-    public IReadOnlyList<T?>? OrderedCollectionAddAllMatchList
+    public IReadOnlyList<TAny?>? OrderedCollectionAddAllMatchList
     {
         get => Value;
         set =>Value = value;
@@ -2158,7 +2158,7 @@ public class OrderedFromMatchListAddAllSimpleOrderedCollectionStringBearer<T> : 
 
     public string PropertyName => nameof(OrderedCollectionAddAllMatchList);
 
-    public IReadOnlyList<T?>? Value { get; set; }
+    public IReadOnlyList<TAny?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -2168,14 +2168,14 @@ public class OrderedFromMatchListAddAllSimpleOrderedCollectionStringBearer<T> : 
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => Value!.GetEnumerator();
+    public IEnumerator<TAny?> GetEnumerator() => Value!.GetEnumerator();
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromMatchEnumerableAddAllSimpleOrderedCollectionStringBearer<T> : ISupportsValueFormatString
-  , IMoldSupportedValue<IEnumerable<T?>?>, IEnumerable<T?>
+public class OrderedFromMatchEnumerableAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerable<TAny?>?>, IEnumerable<TAny?>
 {
-    public IEnumerable<T?>? OrderedCollectionAddAllMatchEnumerable
+    public IEnumerable<TAny?>? OrderedCollectionAddAllMatchEnumerable
     {
         get => Value;
         set =>Value = value;
@@ -2183,7 +2183,7 @@ public class OrderedFromMatchEnumerableAddAllSimpleOrderedCollectionStringBearer
 
     public string PropertyName => nameof(OrderedCollectionAddAllMatchEnumerable);
 
-    public IEnumerable<T?>? Value { get; set; }
+    public IEnumerable<TAny?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -2193,14 +2193,14 @@ public class OrderedFromMatchEnumerableAddAllSimpleOrderedCollectionStringBearer
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => Value!.GetEnumerator();
+    public IEnumerator<TAny?> GetEnumerator() => Value!.GetEnumerator();
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsAny | SupportsValueFormatString)]
-public class OrderedFromMatchEnumeratorAddAllSimpleOrderedCollectionStringBearer<T> : ISupportsValueFormatString
-  , IMoldSupportedValue<IEnumerator<T?>?>, IEnumerable<T?>
+public class OrderedFromMatchEnumeratorAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString
+  , IMoldSupportedValue<IEnumerator<TAny?>?>, IEnumerable<TAny?>
 {
-    public IEnumerator<T?>? OrderedCollectionAddAllMatchEnumerator
+    public IEnumerator<TAny?>? OrderedCollectionAddAllMatchEnumerator
     {
         get => Value;
         set =>Value = value;
@@ -2208,7 +2208,7 @@ public class OrderedFromMatchEnumeratorAddAllSimpleOrderedCollectionStringBearer
 
     public string PropertyName => nameof(OrderedCollectionAddAllMatchEnumerator);
 
-    public IEnumerator<T?>? Value { get; set; }
+    public IEnumerator<TAny?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -2218,7 +2218,7 @@ public class OrderedFromMatchEnumeratorAddAllSimpleOrderedCollectionStringBearer
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<T?> GetEnumerator() => Value!;
+    public IEnumerator<TAny?> GetEnumerator() => Value!;
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsAny | SupportsValueFormatString)]

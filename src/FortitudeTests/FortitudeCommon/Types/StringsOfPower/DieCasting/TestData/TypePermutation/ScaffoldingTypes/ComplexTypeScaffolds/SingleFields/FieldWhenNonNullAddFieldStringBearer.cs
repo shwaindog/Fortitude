@@ -1036,16 +1036,16 @@ public class FieldStringBuilderRangeWithHandlingWhenNonNullStringBearer : IMoldS
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchWhenNonNullStringBearer<T> : IMoldSupportedValue<T?>, ISupportsValueFormatString
+public class FieldMatchWhenNonNullStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString
 {
-    public T? ComplexTypeFieldWhenNonNullAddMatch
+    public TAny? ComplexTypeFieldWhenNonNullAddMatch
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddMatch);
-    public T? Value { get; set; }
+    public TAny? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

@@ -222,8 +222,10 @@ public static class TypeExtensions
     public static bool IsNullable(this Type type) =>
         type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef;
 
+    public static bool IsNotNullable(this Type type) => !type.IsNullable();
+
     public static object? GetDefaultForUnderlyingNullableOrThis(this Type type) =>
-        (type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef)
+        type.IsNullable()
             ? type.GenericTypeArguments[0].GetDefaultConstructorInstance()
             : type.GetDefaultConstructorInstance();
 
@@ -262,6 +264,7 @@ public static class TypeExtensions
           , _         => type.Name
         };
 
+
     public static string ShortNameInCSharpFormat(this Type typeNameToFriendlify) =>
         typeNameToFriendlify.AppendShortNameInCSharpFormat(new MutableString()).ToString();
 
@@ -273,8 +276,12 @@ public static class TypeExtensions
             var indexOfTick = typeName.IndexOf('`');
             if (indexOfTick > 0)
             {
-                sb.Append(typeName[..indexOfTick]);
-                sb.Append('<');
+                var isNullable = nameToPrint.IsNullable();
+                if (!isNullable)
+                {
+                    sb.Append(typeName[..indexOfTick]);
+                    sb.Append('<');
+                }
                 if (nameToPrint.ContainsGenericParameters)
                 {
                     var genericTypeParams = nameToPrint.GetTypeInfo().GenericTypeParameters;
@@ -294,7 +301,7 @@ public static class TypeExtensions
                             sb.Append("out ");
                             break;
                         }
-                        genericParam.AppendShortNameInCSharpFormat(sb);
+                        genericParam.AppendShortNameInCSharpFormat(sb, false);
                     }
                 }
                 for (var i = 0; i < nameToPrint.GenericTypeArguments.Length; i++)
@@ -302,9 +309,10 @@ public static class TypeExtensions
                     var genericTypeArg = nameToPrint.GenericTypeArguments[i];
 
                     if (i > 0) sb.Append(", ");
-                    genericTypeArg.AppendShortNameInCSharpFormat(sb);
+                    genericTypeArg.AppendShortNameInCSharpFormat(sb, false);
+                    if (isNullable) sb.Append('?');
                 }
-                sb.Append('>');
+                if (!isNullable) sb.Append('>');
 
                 if (includeParamConstraints && nameToPrint.ContainsGenericParameters)
                 {

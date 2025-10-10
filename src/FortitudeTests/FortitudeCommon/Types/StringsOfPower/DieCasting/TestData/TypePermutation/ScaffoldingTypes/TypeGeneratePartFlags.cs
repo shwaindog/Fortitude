@@ -1,6 +1,8 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
+
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
 [Flags]
@@ -52,7 +54,16 @@ public enum ScaffoldingStringBuilderInvokeFlags : ulong
 
 public static class ScaffoldingStringBuilderInvokeFlagsExtensions
 {
+
+    public static bool IsNullableSpanFormattableOnly(this ScaffoldingStringBuilderInvokeFlags flags) => 
+        flags.IsNotAcceptsAny() && flags.HasAcceptsNullableStruct() && flags.HasAcceptsSpanFormattable();
     
+    public static bool IsAcceptsAny(this ScaffoldingStringBuilderInvokeFlags flags)                  => (flags & AcceptsAny) == AcceptsAny; 
+    public static bool IsNotAcceptsAny(this ScaffoldingStringBuilderInvokeFlags flags)               => !flags.HasAllOf(AcceptsAny); 
+    public static bool HasAcceptsNullableStruct(this ScaffoldingStringBuilderInvokeFlags flags)      => (flags & AcceptsNullableStruct) > 0; 
+    public static bool HasAcceptsStruct(this ScaffoldingStringBuilderInvokeFlags flags)              => (flags & AcceptsStruct) > 0;
+    public static bool DoesNotAcceptsStruct(this ScaffoldingStringBuilderInvokeFlags flags)          => !flags.HasAcceptsStruct();
+    public static bool HasAcceptsSpanFormattable(this ScaffoldingStringBuilderInvokeFlags flags)     => (flags & AcceptsSpanFormattable) > 0; 
 
     public static bool HasAllOf(this ScaffoldingStringBuilderInvokeFlags flags, ScaffoldingStringBuilderInvokeFlags checkAllAreSet)  => (flags & checkAllAreSet) == checkAllAreSet;
     public static bool HasNoneOf(this ScaffoldingStringBuilderInvokeFlags flags, ScaffoldingStringBuilderInvokeFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;

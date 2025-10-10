@@ -28,7 +28,7 @@ public class SelectTypeFieldTests
     }
 
     [TestMethod]
-    public void WithCompactLogAllComplexTypeSpanFormattableFieldFormattingTests()
+    public void WithCompactLogAllComplexTypeSpanFmtFieldFormattingTests()
     {
         var nonNullableSpanFormattableInvokers = 
             scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullables().ToList();
@@ -40,7 +40,7 @@ public class SelectTypeFieldTests
         }
         le?.AppendLine().Append("Total ").AppendLine(nonNullableSpanFormattableInvokers.Count).FinalAppend("");
 
-        var formatExpect = SpanFormattableTestData.AllSpanFormattableExpectations;
+        var formatExpect = SpanFormattableTestData.AllSpanFormattableExpectations.Where( fe => !fe.IsNullableStruct).ToList();
         
         var tos = new TheOneString().Initialize(StringStyle.Compact | StringStyle.Log);
         foreach (var nonNullFormatInvoker in nonNullableSpanFormattableInvokers)
@@ -55,4 +55,35 @@ public class SelectTypeFieldTests
             }
         }
     }
+
+    [TestMethod]
+    public void WithCompactLogAllComplexTypeNullFmtStructFieldFormattingTests()
+    {
+        var nonNullableSpanFormattableInvokers = 
+            scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().OnlyAcceptsNullableStructs().ToList();
+
+        var le = logger.InfoAppend("Complex Type Single Value Field -  Always Add Scaffolding Classes - ")?.AppendLine();
+        foreach (var nonNullFormatInvoker in nonNullableSpanFormattableInvokers)
+        {
+            le = le?.Append(BulletList).AppendLine(nonNullFormatInvoker.Name);
+        }
+        le?.AppendLine().Append("Total ").AppendLine(nonNullableSpanFormattableInvokers.Count).FinalAppend("");
+
+        var formatExpect = SpanFormattableTestData.AllSpanFormattableExpectations.Where( fe => fe.IsNullableStruct).ToList();
+        
+        var tos = new TheOneString().Initialize(StringStyle.Compact | StringStyle.Log);
+        foreach (var nonNullFormatInvoker in nonNullableSpanFormattableInvokers)
+        {
+            foreach (var formatExpectation in formatExpect)
+            {
+                tos.Clear();
+                var stringBearer = formatExpectation.CreateStringBearerWithValueFor(nonNullFormatInvoker);
+                stringBearer.RevealState(tos);
+                logger.InfoAppend("Result - ")?
+                    .FinalAppend(tos.WriteBuffer.ToString());
+            }
+        }
+    }
+    
+    
 }

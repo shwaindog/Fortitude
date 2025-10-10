@@ -1025,18 +1025,18 @@ public class FieldStringBuilderRangeWithHandlingWhenNonDefaultStringBearer : IMo
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | OnlyPopulatedWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchWhenNonDefaultStringBearer<T> : IMoldSupportedValue<T?>, IMoldSupportedDefaultValue<T?>, ISupportsValueFormatString
+public class FieldMatchWhenNonDefaultStringBearer<TAny> : IMoldSupportedValue<TAny?>, IMoldSupportedDefaultValue<TAny?>, ISupportsValueFormatString
 {
-    public T? ComplexTypeFieldWhenNonDefaultMatch
+    public TAny? ComplexTypeFieldWhenNonDefaultMatch
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultMatch);
-    public T? DefaultValue { get; set; }
+    public TAny? DefaultValue { get; set; }
 
-    public T? Value { get; set; }
+    public TAny? Value { get; set; }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

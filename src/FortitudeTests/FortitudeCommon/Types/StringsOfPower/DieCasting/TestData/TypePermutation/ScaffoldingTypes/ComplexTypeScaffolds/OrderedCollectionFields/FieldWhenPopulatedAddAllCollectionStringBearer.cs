@@ -399,16 +399,16 @@ public class FieldStringBuilderNullableSpanWhenPopulatedAddAllStringBearer : IMo
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchSpanWhenPopulatedAddAllStringBearer<T> : IMoldSupportedValue<T[]?>, ISupportsValueFormatString
+public class FieldMatchSpanWhenPopulatedAddAllStringBearer<TAny> : IMoldSupportedValue<TAny[]?>, ISupportsValueFormatString
 {
-    public T[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchSpan
+    public TAny[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchSpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchSpan);
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -421,16 +421,16 @@ public class FieldMatchSpanWhenPopulatedAddAllStringBearer<T> : IMoldSupportedVa
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchNullableSpanWhenPopulatedAddAllStringBearer<T> : IMoldSupportedValue<T?[]?>, ISupportsValueFormatString
+public class FieldMatchNullableSpanWhenPopulatedAddAllStringBearer<TAny> : IMoldSupportedValue<TAny?[]?>, ISupportsValueFormatString
 {
-    public T?[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableSpan
+    public TAny?[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableSpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableSpan);
-    public T?[]? Value { get; set; }
+    public TAny?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -890,22 +890,22 @@ public class FieldStringBuilderNullableReadOnlySpanWhenPopulatedAddAllStringBear
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | AcceptsClass | AcceptsStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueFormatString)]
-public class FieldMatchReadOnlySpanWhenPopulatedAddAllStringBearer<T> : IMoldSupportedValue<T[]?>, ISupportsValueFormatString
+public class FieldMatchReadOnlySpanWhenPopulatedAddAllStringBearer<TAny> : IMoldSupportedValue<TAny[]?>, ISupportsValueFormatString
 {
-    public T[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchReadOnlySpan
+    public TAny[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchReadOnlySpan);
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchReadOnlySpan)
-              , (ReadOnlySpan<T>)ComplexTypeCollectionFieldWhenPopulatedAddAllMatchReadOnlySpan, ValueFormatString)
+              , (ReadOnlySpan<TAny>)ComplexTypeCollectionFieldWhenPopulatedAddAllMatchReadOnlySpan, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
@@ -913,22 +913,22 @@ public class FieldMatchReadOnlySpanWhenPopulatedAddAllStringBearer<T> : IMoldSup
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | AcceptsNullableClass | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueFormatString)]
-public class FieldMatchNullableReadOnlySpanWhenPopulatedAddAllStringBearer<T> : IMoldSupportedValue<T?[]?>, ISupportsValueFormatString
+public class FieldMatchNullableReadOnlySpanWhenPopulatedAddAllStringBearer<TAny> : IMoldSupportedValue<TAny?[]?>, ISupportsValueFormatString
 {
-    public T?[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan
+    public TAny?[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan);
-    public T?[]? Value { get; set; }
+    public TAny?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan)
-              , (ReadOnlySpan<T?>)ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan
+              , (ReadOnlySpan<TAny?>)ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan
               , ValueFormatString)
            .Complete();
 
@@ -1233,16 +1233,16 @@ public class FieldStringBuilderArrayWhenPopulatedAddAllStringBearer : IMoldSuppo
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | NonNullAndPopulatedWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchArrayWhenPopulatedAddAllStringBearer<T> : IMoldSupportedValue<T[]?>, ISupportsValueFormatString
+public class FieldMatchArrayWhenPopulatedAddAllStringBearer<TAny> : IMoldSupportedValue<TAny[]?>, ISupportsValueFormatString
 {
-    public T[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchArray
+    public TAny[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchArray
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchArray);
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -1530,16 +1530,16 @@ public class FieldStringBuilderListWhenPopulatedAddAllStringBearer : IMoldSuppor
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullAndPopulatedWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchListWhenPopulatedAddAllStringBearer<T> : IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsValueFormatString
+public class FieldMatchListWhenPopulatedAddAllStringBearer<TAny> : IMoldSupportedValue<IReadOnlyList<TAny>?>, ISupportsValueFormatString
 {
-    public IReadOnlyList<T>? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchList
+    public IReadOnlyList<TAny>? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchList
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchList);
-    public IReadOnlyList<T>? Value { get; set; }
+    public IReadOnlyList<TAny>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

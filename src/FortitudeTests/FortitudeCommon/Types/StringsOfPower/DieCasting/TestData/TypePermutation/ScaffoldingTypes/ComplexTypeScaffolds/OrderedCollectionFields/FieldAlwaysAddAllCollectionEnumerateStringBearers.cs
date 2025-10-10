@@ -259,16 +259,16 @@ public class FieldStringBuilderEnumerableAlwaysAddAllStringBearer : IMoldSupport
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchEnumerableAlwaysAddAllStringBearer<T> : IMoldSupportedValue<IEnumerable<T>?>, ISupportsValueFormatString
+public class FieldMatchEnumerableAlwaysAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerable<TAny>?>, ISupportsValueFormatString
 {
-    public IEnumerable<T>? ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable
+    public IEnumerable<TAny>? ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable);
-    public IEnumerable<T>? Value { get; set; }
+    public IEnumerable<TAny>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -552,16 +552,16 @@ public class FieldStringBuilderEnumeratorAlwaysAddAllStringBearer : IMoldSupport
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchEnumeratorAlwaysAddAllStringBearer<T> : IMoldSupportedValue<IEnumerator<T>?>, ISupportsValueFormatString
+public class FieldMatchEnumeratorAlwaysAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerator<TAny>?>, ISupportsValueFormatString
 {
-    public IEnumerator<T>? ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator
+    public IEnumerator<TAny>? ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator);
-    public IEnumerator<T>? Value { get; set; }
+    public IEnumerator<TAny>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

@@ -117,13 +117,13 @@ public class JsonSingleFieldSerializationTests
     }
 
     [TestMethod]
-    public void AllDefaultSingleFieldsWhenNonDefaultTheOneStringJsonCompactMatchesTextJsonSerialize()
+    public void AllDefaultSingleFieldsWhenNonNullTheOneStringJsonCompactMatchesTextJsonSerialize()
     {
         var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
         singlePropertyFieldClass.InitializeAllDefault();
-        singlePropertyFieldClass.TestFieldRevealMode = TestFieldRevealMode.WhenNonDefault;
+        singlePropertyFieldClass.TestFieldRevealMode = TestFieldRevealMode.WhenNonNull;
         
-        jsonMatchOneStringSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+        jsonMatchOneStringSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         
         var textJsonStringify = JsonSerializer.Serialize(singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
 

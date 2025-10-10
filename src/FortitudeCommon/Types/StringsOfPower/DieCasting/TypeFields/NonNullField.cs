@@ -207,7 +207,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             ? AlwaysAddAs(fieldName, value, startIndex, count, flags, formatString) 
             : stb.StyleTypeBuilder;
     
-    public TExt WhenNonNullAddMatch<T>(ReadOnlySpan<char> fieldName, T? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+    public TExt WhenNonNullAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null 
             ? AlwaysAddMatch(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;

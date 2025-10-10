@@ -1836,10 +1836,10 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllMatch<T>(T[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAllMatch<TAny>(TAny[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
         {
@@ -1861,10 +1861,10 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllMatch<T>(Span<T> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAllMatch<TAny>(Span<TAny> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
         {
@@ -1886,10 +1886,10 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllMatchNullable<T>(Span<T?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAllMatchNullable<TAny>(Span<TAny?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
         {
@@ -1911,10 +1911,10 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllMatch<T>(ReadOnlySpan<T> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAllMatch<TAny>(ReadOnlySpan<TAny> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
         {
@@ -1936,10 +1936,10 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllMatchNullable<T>(ReadOnlySpan<T?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAllMatchNullable<TAny>(ReadOnlySpan<TAny?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
         {
@@ -1961,10 +1961,10 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllMatch<T>(IReadOnlyList<T>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAllMatch<TAny>(IReadOnlyList<TAny>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
         {
@@ -1986,10 +1986,10 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllMatchEnumerate<T>(IEnumerable<T>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAllMatchEnumerate<TAny>(IEnumerable<TAny>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
         var any         = false;
         var itemCount   = 0;
         if (value != null)
@@ -2010,10 +2010,10 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllMatchEnumerate<T>(IEnumerator<T>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AddAllMatchEnumerate<TAny>(IEnumerator<TAny>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
         var any         = false;
         var itemCount   = 0;
         var hasValue    = value?.MoveNext() ?? false;

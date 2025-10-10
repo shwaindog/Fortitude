@@ -305,21 +305,21 @@ public class FieldStringBuilderEnumerableAlwaysAddFilteredStringBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchEnumerableAlwaysAddFilteredStringBearer<T, TFilterBase>
-    : IMoldSupportedValue<IEnumerable<T>?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
-    where T : TFilterBase
+public class FieldMatchEnumerableAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
+    : IMoldSupportedValue<IEnumerable<TAny>?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    where TAny : TAnyFilterBase
 {
-    public IEnumerable<T>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
+    public IEnumerable<TAny>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList);
-    public IEnumerable<T>? Value { get; set; }
+    public IEnumerable<TAny>? Value { get; set; }
 
-    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -655,21 +655,21 @@ public class FieldStringBuilderEnumeratorAlwaysAddFilteredStringBearer
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchEnumeratorAlwaysAddFilteredStringBearer<T, TFilterBase>
-    : IMoldSupportedValue<IEnumerator<T>?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
-    where T : TFilterBase
+public class FieldMatchEnumeratorAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
+    : IMoldSupportedValue<IEnumerator<TAny>?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    where TAny : TAnyFilterBase
 {
-    public IEnumerator<T>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
+    public IEnumerator<TAny>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList);
-    public IEnumerator<T>? Value { get; set; }
+    public IEnumerator<TAny>? Value { get; set; }
 
-    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

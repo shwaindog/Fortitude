@@ -202,7 +202,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                 ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext());
 
-    public TExt AlwaysAddMatch<T>(ReadOnlySpan<char> fieldName, T? value
+    public TExt AlwaysAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder

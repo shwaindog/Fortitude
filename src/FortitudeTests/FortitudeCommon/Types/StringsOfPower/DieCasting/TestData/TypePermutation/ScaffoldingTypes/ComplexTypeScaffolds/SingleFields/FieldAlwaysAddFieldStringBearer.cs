@@ -993,16 +993,16 @@ public class FieldStringBuilderRangeWithHandlingAlwaysAddStringBearer : IMoldSup
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchAlwaysAddStringBearer<T> : IMoldSupportedValue<T?>, ISupportsValueFormatString
+public class FieldMatchAlwaysAddStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString
 {
-    public T? ComplexTypeFieldAlwaysAddMatch
+    public TAny? ComplexTypeFieldAlwaysAddMatch
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeFieldAlwaysAddMatch);
-    public T? Value { get; set; }
+    public TAny? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

@@ -260,17 +260,17 @@ public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer : IMoldSu
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<IEnumerable<T>?>
+public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerable<TAny>?>
   , ISupportsValueFormatString
 {
-    public IEnumerable<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable
+    public IEnumerable<TAny>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable);
-    public IEnumerable<T>? Value { get; set; }
+    public IEnumerable<TAny>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -554,16 +554,16 @@ public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer : IMoldSu
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<IEnumerator<T>?>, ISupportsValueFormatString
+public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerator<TAny>?>, ISupportsValueFormatString
 {
-    public IEnumerator<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator
+    public IEnumerator<TAny>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator);
-    public IEnumerator<T>? Value { get; set; }
+    public IEnumerator<TAny>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

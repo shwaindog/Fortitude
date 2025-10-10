@@ -20,8 +20,6 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     protected const char   BrcClsChar = '}';
     protected const string Cma        = ",";
     protected const string Cln        = ":";
-    
-    public override string Name => nameof(CompactJsonTypeFormatting);
 
     public override PrettyLogTypeFormatting Initialize(StyleOptions styleOptions)
     {
@@ -30,109 +28,105 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return this;
     }
 
+    public override string Name => nameof(CompactJsonTypeFormatting);
+
     public virtual StyleOptions StyleOptions
     {
         get => (StyleOptions)(FormatOptions ??= new StyleOptions());
         set => FormatOptions = value;
     }
 
-    public override ITypeMolderDieCast<TB> AppendComplexTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder, Type complextType, string? alternativeName = null)
+    public override ITypeMolderDieCast<TMold> AppendComplexTypeOpening<TMold>(ITypeMolderDieCast<TMold> typeMold, Type complextType
+      , string? alternativeName = null)
     {
-        typeBuilder.IncrementIndent();
-        return (typeBuilder.Sb.Append(BrcOpn)
-                          .Append(typeBuilder.Master.Settings.NewLineStyle)
-                          .Append(typeBuilder.Master.Settings.IndentChar
-                                , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel)))
-            .ToInternalTypeBuilder(typeBuilder);
+        typeMold.IncrementIndent();
+        return typeMold.Sb.Append(BrcOpn)
+                       .Append(typeMold.Master.Settings.NewLineStyle)
+                       .Append(typeMold.Master.Settings.IndentChar
+                             , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel))
+                       .ToInternalTypeBuilder(typeMold);
     }
 
-    public override ITypeMolderDieCast<TB> AppendFieldValueSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder) =>
-        typeBuilder.Sb.Append(ClnSpc).ToInternalTypeBuilder(typeBuilder);
-    
-    public override ITypeMolderDieCast<TB> AddNextFieldSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder)
-    {
-        return
-            typeBuilder.Sb
-                       .Append(Cma)
-                       .Append(typeBuilder.Master.Settings.NewLineStyle)
-                       .Append(typeBuilder.Master.Settings.IndentChar
-                             , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel))
-                       .ToInternalTypeBuilder(typeBuilder);
-    }
+    public override ITypeMolderDieCast<TMold> AppendFieldValueSeparator<TMold>(ITypeMolderDieCast<TMold> typeMold) =>
+        typeMold.Sb.Append(ClnSpc).ToInternalTypeBuilder(typeMold);
+
+    public override ITypeMolderDieCast<TMold> AddNextFieldSeparator<TMold>(ITypeMolderDieCast<TMold> typeMold) =>
+        typeMold.Sb
+                .Append(Cma)
+                .Append(typeMold.Master.Settings.NewLineStyle)
+                .Append(typeMold.Master.Settings.IndentChar
+                      , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel))
+                .ToInternalTypeBuilder(typeMold);
 
     public override int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel)
     {
-        var nlPadding = options.IndentSize * indentLevel;
-        var bufferSize = nlPadding + 1 + options.NewLineStyle.Length;
+        var nlPadding      = options.IndentSize * indentLevel;
+        var bufferSize     = nlPadding + 1 + options.NewLineStyle.Length;
         var nextFieldStart = stackalloc char[bufferSize].ResetMemory();
         nextFieldStart[0] = ',';
         nextFieldStart.Append(options.NewLineStyle);
-        var spacesFrom = nextFieldStart.PopulatedLength();
-        for (int i = spacesFrom; i < bufferSize; i++)
-        {
-            nextFieldStart[i] = ' ';
-        }
+        var spacesFrom                                                  = nextFieldStart.PopulatedLength();
+        for (var i = spacesFrom; i < bufferSize; i++) nextFieldStart[i] = ' ';
         sb.InsertAt(nextFieldStart, atIndex);
         return bufferSize;
     }
 
-    public override ITypeMolderDieCast<TB> AppendTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder)
+    public override ITypeMolderDieCast<TMold> AppendTypeClosing<TMold>(ITypeMolderDieCast<TMold> typeMold)
     {
-        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        typeBuilder.DecrementIndent();
-        return (typeBuilder.Sb.Append(typeBuilder.Master.Settings.NewLineStyle)
-                   .Append(typeBuilder.Master.Settings.IndentChar
-                         , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel))
-                   .Append(BrcCls))
-            .ToInternalTypeBuilder(typeBuilder);
+        typeMold.Sb.RemoveLastWhiteSpacedCommaIfFound();
+        typeMold.DecrementIndent();
+        return typeMold.Sb.Append(typeMold.Master.Settings.NewLineStyle)
+                       .Append(typeMold.Master.Settings.IndentChar
+                             , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel))
+                       .Append(BrcCls)
+                       .ToInternalTypeBuilder(typeMold);
     }
 
 
-    public override ITypeMolderDieCast<TB> AppendKeyedCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType
-      , Type keyType, Type valueType) 
+    public override ITypeMolderDieCast<TMold> AppendKeyedCollectionStart<TMold>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
+      , Type keyType, Type valueType)
     {
-        base.AppendKeyedCollectionStart(typeBuilder, keyedCollectionType, keyType, valueType);
-        
-        typeBuilder.IncrementIndent();
-        
-        var sb = typeBuilder.Sb;
-        return sb.Append(typeBuilder.Master.Settings.NewLineStyle)
-            .Append(typeBuilder.Master.Settings.IndentChar
-                  , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel))
-            .ToInternalTypeBuilder(typeBuilder);
+        base.AppendKeyedCollectionStart(typeMold, keyedCollectionType, keyType, valueType);
+
+        typeMold.IncrementIndent();
+
+        var sb = typeMold.Sb;
+        return sb.Append(typeMold.Master.Settings.NewLineStyle)
+                 .Append(typeMold.Master.Settings.IndentChar
+                       , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel))
+                 .ToInternalTypeBuilder(typeMold);
     }
 
-    public override ITypeMolderDieCast<TB> AppendKeyedCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType
+    public override ITypeMolderDieCast<TMold> AppendKeyedCollectionEnd<TMold>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
       , Type keyType, Type valueType, int totalItemCount)
     {
-        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        typeBuilder.DecrementIndent();
+        typeMold.Sb.RemoveLastWhiteSpacedCommaIfFound();
+        typeMold.DecrementIndent();
         if (totalItemCount > 0)
-        {
-            typeBuilder.Sb.Append(typeBuilder.Master.Settings.NewLineStyle)
-                       .Append(typeBuilder.Master.Settings.IndentChar
-                             , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel));
-        }
-        base.AppendKeyedCollectionEnd(typeBuilder, keyedCollectionType, keyType, valueType, totalItemCount);
-        return typeBuilder;
+            typeMold.Sb.Append(typeMold.Master.Settings.NewLineStyle)
+                    .Append(typeMold.Master.Settings.IndentChar
+                          , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel));
+        base.AppendKeyedCollectionEnd(typeMold, keyedCollectionType, keyType, valueType, totalItemCount);
+        return typeMold;
     }
-    
-    public override ITypeMolderDieCast<TB> FormatCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType
+
+    public override ITypeMolderDieCast<TMold> FormatCollectionStart<TMold>(ITypeMolderDieCast<TMold> typeMold, Type itemElementType
       , bool hasItems, Type collectionType)
     {
-        if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString) return typeBuilder.Sb.Append(DblQt).ToInternalTypeBuilder(typeBuilder);
-        if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return typeBuilder.Sb.Append(DblQt).ToInternalTypeBuilder(typeBuilder);
+        if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString) return typeMold.Sb.Append(DblQt).ToInternalTypeBuilder(typeMold);
+        if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String)
+            return typeMold.Sb.Append(DblQt).ToInternalTypeBuilder(typeMold);
 
-        if (!hasItems) return typeBuilder;
-        typeBuilder.IncrementIndent();
-        
-        return (typeBuilder.Sb.Append(SqBrktOpn)
-                          .Append(typeBuilder.Master.Settings.NewLineStyle)
-                          .Append(typeBuilder.Master.Settings.IndentChar
-                                , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel)))
-            .ToInternalTypeBuilder(typeBuilder);
+        if (!hasItems) return typeMold;
+        typeMold.IncrementIndent();
+
+        return typeMold.Sb.Append(SqBrktOpn)
+                       .Append(typeMold.Master.Settings.NewLineStyle)
+                       .Append(typeMold.Master.Settings.IndentChar
+                             , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel))
+                       .ToInternalTypeBuilder(typeMold);
     }
-    
+
     public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber)
     {
         if (collectionElementType == typeof(char) && StyleOptions.CharArrayWritesString) return 0;
@@ -140,58 +134,59 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return sb.Append(CmaSpc).ReturnCharCount(1);
     }
 
-    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber) 
+    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber)
     {
         if (collectionElementType == typeof(char) && StyleOptions.CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return 0;
         return destSpan.OverWriteAt(atIndex, CmaSpc);
     }
 
-    public override ITypeMolderDieCast<TB> AddCollectionElementSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder, Type elementType, int nextItemNumber)
+    public override ITypeMolderDieCast<TMold> AddCollectionElementSeparator<TMold>(ITypeMolderDieCast<TMold> typeMold, Type elementType
+      , int nextItemNumber)
     {
-        base.AddCollectionElementSeparator(elementType, typeBuilder.Sb, nextItemNumber);
-        if(elementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return typeBuilder;
-        if (elementType == typeof(char) && StyleOptions.CharArrayWritesString) return typeBuilder;
-        if (typeBuilder.Settings.PrettyCollectionStyle.IsCollectionContentWidthWrap())
+        base.AddCollectionElementSeparator(elementType, typeMold.Sb, nextItemNumber);
+        if (elementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return typeMold;
+        if (elementType == typeof(char) && StyleOptions.CharArrayWritesString) return typeMold;
+        if (typeMold.Settings.PrettyCollectionStyle.IsCollectionContentWidthWrap())
         {
-            if (typeBuilder.Settings.PrettyCollectionsColumnContentWidthWrap < typeBuilder.Sb.LineContentWidth)
+            if (typeMold.Settings.PrettyCollectionsColumnContentWidthWrap < typeMold.Sb.LineContentWidth)
             {
-                typeBuilder.Sb.Length -= 1; // remove last Space
-                typeBuilder.Sb.Append(typeBuilder.Master.Settings.NewLineStyle)
-                           .Append(typeBuilder.Master.Settings.IndentChar
-                                 , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel));
+                typeMold.Sb.Length -= 1; // remove last Space
+                typeMold.Sb.Append(typeMold.Master.Settings.NewLineStyle)
+                        .Append(typeMold.Master.Settings.IndentChar
+                              , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel));
             }
         }
         else
         {
-            typeBuilder.Sb.Append(typeBuilder.Master.Settings.NewLineStyle)
-                       .Append(typeBuilder.Master.Settings.IndentChar
-                             , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel));
+            typeMold.Sb.Append(typeMold.Master.Settings.NewLineStyle)
+                    .Append(typeMold.Master.Settings.IndentChar
+                          , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel));
         }
-        return typeBuilder;
+        return typeMold;
     }
 
-    public override ITypeMolderDieCast<TB> FormatCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType, int totalItemCount)
+    public override ITypeMolderDieCast<TMold> FormatCollectionEnd<TMold>(ITypeMolderDieCast<TMold> typeMold, Type itemElementType, int totalItemCount)
     {
         if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString)
         {
-            CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
-            return typeBuilder;
+            CollectionEnd(itemElementType, typeMold.Sb, totalItemCount);
+            return typeMold;
         }
         if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String)
         {
-            CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
-            return typeBuilder;
+            CollectionEnd(itemElementType, typeMold.Sb, totalItemCount);
+            return typeMold;
         }
 
-        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
+        typeMold.Sb.RemoveLastWhiteSpacedCommaIfFound();
         if (totalItemCount > 0)
         {
-            typeBuilder.DecrementIndent();
-            typeBuilder.Sb.Append(typeBuilder.Master.Settings.NewLineStyle)
-                       .Append(typeBuilder.Master.Settings.IndentChar
-                             , typeBuilder.Master.Settings.IndentRepeat(typeBuilder.IndentLevel));
+            typeMold.DecrementIndent();
+            typeMold.Sb.Append(typeMold.Master.Settings.NewLineStyle)
+                    .Append(typeMold.Master.Settings.IndentChar
+                          , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel));
         }
-        return typeBuilder.Sb.Append(SqBrktCls).ToInternalTypeBuilder(typeBuilder);
+        return typeMold.Sb.Append(SqBrktCls).ToInternalTypeBuilder(typeMold);
     }
 }

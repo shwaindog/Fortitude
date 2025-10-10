@@ -727,13 +727,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilterMatch<T, TBase>(ReadOnlySpan<char> fieldName, Span<T> value, OrderedCollectionPredicate<TBase> filterPredicate
+    public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : TBase
+        where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<T>);
-        var elementType    = typeof(T);
+        var collectionType = typeof(Span<TAny>);
+        var elementType    = typeof(TAny);
 
         var matchedItems = 0;
         if (value.Length > 0)
@@ -769,14 +769,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilterMatchNullable<T, TBase>(ReadOnlySpan<char> fieldName, Span<T?> value
-      , OrderedCollectionPredicate<TBase> filterPredicate
+    public TExt WhenPopulatedWithFilterMatchNullable<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny?> value
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : TBase
+        where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<T>);
-        var elementType    = typeof(T);
+        var collectionType = typeof(Span<TAny>);
+        var elementType    = typeof(TAny);
 
         var matchedItems = 0;
         if (value.Length > 0)
@@ -1538,14 +1538,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilterMatch<T, TBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<T> value
-      , OrderedCollectionPredicate<TBase> filterPredicate
+    public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : TBase
+        where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<T>);
-        var elementType    = typeof(T);
+        var collectionType = typeof(ReadOnlySpan<TAny>);
+        var elementType    = typeof(TAny);
 
         var matchedItems = 0;
         if (value.Length > 0)
@@ -1581,14 +1581,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilterMatchNullable<T, TBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<T?> value
-      , OrderedCollectionPredicate<TBase> filterPredicate
+    public TExt WhenPopulatedWithFilterMatchNullable<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny?> value
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : TBase
+        where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<T>);
-        var elementType    = typeof(T);
+        var collectionType = typeof(ReadOnlySpan<TAny>);
+        var elementType    = typeof(TAny);
 
         var matchedItems = 0;
         if (value.Length > 0)
@@ -2064,12 +2064,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilterMatch<T, TBase>(string fieldName, T?[]? value, OrderedCollectionPredicate<TBase> filterPredicate
+    public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(string fieldName, TAny?[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : TBase
+        where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        ExplicitOrderedCollectionMold<T>? eocm = null;
+        ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -2088,7 +2088,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<T>(value);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value);
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2534,12 +2534,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilterMatch<T, TBase>(string fieldName, IReadOnlyList<T?>? value, OrderedCollectionPredicate<TBase> filterPredicate
+    public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(string fieldName, IReadOnlyList<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where T : TBase
+        where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        ExplicitOrderedCollectionMold<T>? eocm = null;
+        ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
@@ -2558,7 +2558,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<T>(value);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value);
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3088,16 +3088,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenPopulatedWithFilterMatchEnumerate<T, TBase>(string fieldName, IEnumerable<T?>? value
-      , OrderedCollectionPredicate<TBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : TBase
+    public TExt WhenPopulatedWithFilterMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerable<TAny?>? value
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
 
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
         var itemCount   = 0;
 
-        ExplicitOrderedCollectionMold<T>? eocm = null;
+        ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value != null)
         {
             var count     = 0;
@@ -3119,7 +3119,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<T>(value);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value);
                 }
                 if (formatString.IsNotNullOrEmpty())
                     stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
@@ -3289,9 +3289,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
     
 
-    public TExt WhenPopulatedWithFilterEnumerate<TFmt, TBase>(string fieldName, IEnumerator<TFmt?>? value
-      , OrderedCollectionPredicate<TBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TFmt : ISpanFormattable, TBase
+    public TExt WhenPopulatedWithFilterEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerator<TFmt?>? value
+      , OrderedCollectionPredicate<TFmtBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TFmt);
@@ -3786,14 +3786,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenPopulatedWithFilterMatchEnumerate<T, TBase>(string fieldName, IEnumerator<T?>? value
-      , OrderedCollectionPredicate<TBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where T : TBase
+    public TExt WhenPopulatedWithFilterMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerator<TAny?>? value
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
-        var elementType = typeof(T);
+        var elementType = typeof(TAny);
 
-        ExplicitOrderedCollectionMold<T>? eocm = null;
+        ExplicitOrderedCollectionMold<TAny>? eocm = null;
 
         var hasValue  = value?.MoveNext() ?? false;
         var itemCount = 0;
@@ -3824,7 +3824,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<T>(value);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value);
                 }
                 if (formatString.IsNotNullOrEmpty())
                     stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);

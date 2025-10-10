@@ -428,7 +428,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllMatch<T>(ReadOnlySpan<char> fieldName, Span<T> value
+    public TExt AlwaysAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, Span<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -439,8 +439,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.Sb.Append(stb.Settings.NullString);
                 return stb.AddGoToNext();
             }
-        var collectionType = typeof(Span<T>);
-        var elementType    = typeof(T);
+        var collectionType = typeof(Span<TAny>);
+        var elementType    = typeof(TAny);
         stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
         if (value.Length > 0)
             for (var i = 0; i < value.Length; i++)
@@ -673,7 +673,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal)
+    public TExt AlwaysRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
+      , PalantírReveal<TCloakedStruct> palantírReveal)
         where TCloakedStruct : struct
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -920,7 +921,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllMatch<T>(ReadOnlySpan<char> fieldName, ReadOnlySpan<T> value
+    public TExt AlwaysAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -931,8 +932,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.Sb.Append(stb.Settings.NullString);
                 return stb.AddGoToNext();
             }
-        var collectionType = typeof(ReadOnlySpan<T>);
-        var elementType    = typeof(T);
+        var collectionType = typeof(ReadOnlySpan<TAny>);
+        var elementType    = typeof(TAny);
         stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
         if (value.Length > 0)
             for (var i = 0; i < value.Length; i++)
@@ -944,7 +945,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllMatchNullable<T>(ReadOnlySpan<char> fieldName, ReadOnlySpan<T?> value
+    public TExt AlwaysAddAllMatchNullable<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -955,8 +956,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.Sb.Append(stb.Settings.NullString);
                 return stb.AddGoToNext();
             }
-        var collectionType = typeof(ReadOnlySpan<T>);
-        var elementType    = typeof(T);
+        var collectionType = typeof(ReadOnlySpan<TAny>);
+        var elementType    = typeof(TAny);
         stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
         if (value.Length > 0)
             for (var i = 0; i < value.Length; i++)
@@ -1156,7 +1157,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllMatch<T>(string fieldName, T?[]? value
+    public TExt AlwaysAddAllMatch<TAny>(string fieldName, TAny?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -1316,7 +1317,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllMatch<T>(string fieldName, IReadOnlyList<T>? value
+    public TExt AlwaysAddAllMatch<TAny>(string fieldName, IReadOnlyList<TAny>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -1476,7 +1477,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllMatchEnumerate<T>(string fieldName, IEnumerable<T>? value
+    public TExt AlwaysAddAllMatchEnumerate<TAny>(string fieldName, IEnumerable<TAny>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -1647,7 +1648,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllMatchEnumerate<T>(string fieldName, IEnumerator<T>? value
+    public TExt AlwaysAddAllMatchEnumerate<TAny>(string fieldName, IEnumerator<TAny>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
