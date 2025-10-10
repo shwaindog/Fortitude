@@ -29,12 +29,12 @@ public class ComplexValueTypeMold : ValueTypeMold<ComplexValueTypeMold>
     
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
+        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
     }
     
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess.Sb);
     }
 
     protected override void SourceBuilderComponentAccess()

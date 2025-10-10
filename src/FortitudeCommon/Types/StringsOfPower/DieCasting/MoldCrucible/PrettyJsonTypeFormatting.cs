@@ -25,27 +25,23 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public override ITypeMolderDieCast<TMold> AppendComplexTypeOpening<TMold>(ITypeMolderDieCast<TMold> typeMold, Type complextType
+    public override IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complextType
       , string? alternativeName = null)
     {
-        typeMold.IncrementIndent();
-        return typeMold.Sb.Append(BrcOpn)
-                       .Append(typeMold.Master.Settings.NewLineStyle)
-                       .Append(typeMold.Master.Settings.IndentChar
-                             , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel))
-                       .ToInternalTypeBuilder(typeMold);
+        StyleOptions.IndentLevel++;
+        return sb.Append(BrcOpn)
+                 .Append(StyleOptions.NewLineStyle)
+                 .Append(StyleOptions.IndentChar
+                       , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
     }
 
-    public override ITypeMolderDieCast<TMold> AppendFieldValueSeparator<TMold>(ITypeMolderDieCast<TMold> typeMold) =>
-        typeMold.Sb.Append(ClnSpc).ToInternalTypeBuilder(typeMold);
+    public override IStringBuilder AppendFieldValueSeparator(IStringBuilder sb) => sb.Append(ClnSpc);
 
-    public override ITypeMolderDieCast<TMold> AddNextFieldSeparator<TMold>(ITypeMolderDieCast<TMold> typeMold) =>
-        typeMold.Sb
-                .Append(Cma)
-                .Append(typeMold.Master.Settings.NewLineStyle)
-                .Append(typeMold.Master.Settings.IndentChar
-                      , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel))
-                .ToInternalTypeBuilder(typeMold);
+    public override IStringBuilder AddNextFieldSeparator(IStringBuilder sb) =>
+        sb.Append(Cma)
+          .Append(StyleOptions.NewLineStyle)
+          .Append(StyleOptions.IndentChar
+                , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
 
     public override int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel)
     {
@@ -60,51 +56,46 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return bufferSize;
     }
 
-    public override ITypeMolderDieCast<TMold> AppendTypeClosing<TMold>(ITypeMolderDieCast<TMold> typeMold)
+    public override IStringBuilder AppendTypeClosing(IStringBuilder sb)
     {
-        typeMold.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        typeMold.DecrementIndent();
-        return typeMold.Sb.Append(typeMold.Master.Settings.NewLineStyle)
-                       .Append(typeMold.Master.Settings.IndentChar
-                             , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel))
-                       .Append(BrcCls)
-                       .ToInternalTypeBuilder(typeMold);
+        sb.RemoveLastWhiteSpacedCommaIfFound();
+        StyleOptions.IndentLevel--;
+        return sb.Append(StyleOptions.NewLineStyle)
+                 .Append(StyleOptions.IndentChar
+                       , StyleOptions.IndentRepeat(StyleOptions.IndentLevel))
+                 .Append(BrcCls);
     }
 
 
-    public override ITypeMolderDieCast<TMold> AppendKeyedCollectionStart<TMold>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
+    public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType)
     {
-        base.AppendKeyedCollectionStart(typeMold, keyedCollectionType, keyType, valueType);
+        base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType);
 
-        typeMold.IncrementIndent();
+        StyleOptions.IndentLevel++;
 
-        var sb = typeMold.Sb;
-        return sb.Append(typeMold.Master.Settings.NewLineStyle)
-                 .Append(typeMold.Master.Settings.IndentChar
-                       , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel))
-                 .ToInternalTypeBuilder(typeMold);
+        return sb.Append(StyleOptions.NewLineStyle)
+                 .Append(StyleOptions.IndentChar
+                       , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
     }
 
-    public override ITypeMolderDieCast<TMold> AppendKeyedCollectionEnd<TMold>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
+    public override IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int totalItemCount)
     {
-        typeMold.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        typeMold.DecrementIndent();
+        sb.RemoveLastWhiteSpacedCommaIfFound();
+        StyleOptions.IndentLevel--;
         if (totalItemCount > 0)
-            typeMold.Sb.Append(typeMold.Master.Settings.NewLineStyle)
-                    .Append(typeMold.Master.Settings.IndentChar
-                          , typeMold.Master.Settings.IndentRepeat(typeMold.IndentLevel));
-        base.AppendKeyedCollectionEnd(typeMold, keyedCollectionType, keyType, valueType, totalItemCount);
-        return typeMold;
+            sb.Append(StyleOptions.NewLineStyle)
+              .Append(StyleOptions.IndentChar
+                    , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+        return base.AppendKeyedCollectionEnd(sb, keyedCollectionType, keyType, valueType, totalItemCount);
     }
 
-    public override ITypeMolderDieCast<TMold> FormatCollectionStart<TMold>(ITypeMolderDieCast<TMold> typeMold, Type itemElementType
+    public override IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType
       , bool hasItems, Type collectionType)
     {
-        if (!hasItems) return typeMold;
-        CollectionStart(itemElementType, typeMold.Sb, hasItems);
-        return typeMold;
+        if (!hasItems) return sb;
+        return CollectionStart(itemElementType, sb, hasItems).ToStringBuilder(sb);
     }
 
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems)
@@ -184,12 +175,9 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return addedChars;
     }
 
-    public override ITypeMolderDieCast<TMold> AddCollectionElementSeparator<TMold>(ITypeMolderDieCast<TMold> typeMold, Type elementType
-      , int nextItemNumber)
-    {
-        AddCollectionElementSeparator(elementType, typeMold.Sb, nextItemNumber);
-        return typeMold;
-    }
+    public override IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType
+      , int nextItemNumber) =>
+        AddCollectionElementSeparator(elementType, sb, nextItemNumber).ToStringBuilder(sb);
 
     public override int CollectionEnd(Type elementType, IStringBuilder sb, int itemsCount)
     {
@@ -232,9 +220,6 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return addedChars;
     }
 
-    public override ITypeMolderDieCast<TMold> FormatCollectionEnd<TMold>(ITypeMolderDieCast<TMold> typeMold, Type itemElementType, int totalItemCount)
-    {
-        CollectionEnd(itemElementType, typeMold.Sb, totalItemCount);
-        return typeMold;
-    }
+    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount) => 
+        CollectionEnd(itemElementType, sb, totalItemCount).ToStringBuilder(sb);
 }

@@ -12,30 +12,24 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 {
     string Name { get; }
 
-    ITypeMolderDieCast<TMold> AppendValueTypeOpening<TMold>(ITypeMolderDieCast<TMold> typeMold, Type valueType, string? alternativeName = null)
-        where TMold : TypeMolder;
+    IStringBuilder AppendValueTypeOpening(IStringBuilder sb, Type valueType, string? alternativeName = null);
 
-    ITypeMolderDieCast<TMold> AppendValueTypeClosing<TMold>(ITypeMolderDieCast<TMold> typeMold, Type valueType) where TMold : TypeMolder;
+    IStringBuilder AppendValueTypeClosing(IStringBuilder sb, Type valueType);
 
-    ITypeMolderDieCast<TMold> AppendComplexTypeOpening<TMold>(ITypeMolderDieCast<TMold> typeMold, Type complexType, string? alternativeName = null)
-        where TMold : TypeMolder;
+    IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complexType, string? alternativeName = null);
 
-    ITypeMolderDieCast<TMold> AppendFieldName<TMold>(ITypeMolderDieCast<TMold> typeMold, ReadOnlySpan<char> fieldName) where TMold : TypeMolder;
+    IStringBuilder AppendFieldValueSeparator(IStringBuilder sb);
 
-    ITypeMolderDieCast<TMold> AppendFieldValueSeparator<TMold>(ITypeMolderDieCast<TMold> typeMold) where TMold : TypeMolder;
-
-    ITypeMolderDieCast<TMold> AddNextFieldSeparator<TMold>(ITypeMolderDieCast<TMold> typeMold)
-        where TMold : TypeMolder;
+    IStringBuilder AddNextFieldSeparator(IStringBuilder sb);
 
     int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel);
 
-    ITypeMolderDieCast<TMold> AppendTypeClosing<TMold>(ITypeMolderDieCast<TMold> typeMold) where TMold : TypeMolder;
+    IStringBuilder AppendTypeClosing(IStringBuilder sb);
 
-    ITypeMolderDieCast<TMold> AppendKeyedCollectionStart<TMold>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , Type keyType, Type valueType) where TMold : TypeMolder;
+    IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType);
 
-    ITypeMolderDieCast<TMold> AppendKeyedCollectionEnd<TMold>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount) where TMold : TypeMolder;
+    IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
+      , Type keyType, Type valueType, int totalItemCount);
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
       , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null) where TMold : TypeMolder;
@@ -48,114 +42,93 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler)
         where TMold : TypeMolder where TValue : TVBase where TKey : TKBase;
 
-    ITypeMolderDieCast<TMold> AppendKeyedCollectionNextItem<TMold>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , Type keyType, Type valueType, int previousItemNumber) where TMold : TypeMolder;
+    IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
+      , Type keyType, Type valueType, int previousItemNumber);
 
-    ITypeMolderDieCast<TMold> FormatCollectionStart<TMold>(ITypeMolderDieCast<TMold> typeMold, Type itemElementType, bool hasItems
-      , Type collectionType)
-        where TMold : TypeMolder;
+    IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType, bool hasItems, Type collectionType);
 
-    ITypeMolderDieCast<TMold> CollectionNextItemFormat<TMold, TCloaked, TCloakedBase>(ITypeMolderDieCast<TMold> typeMold, TCloaked item
-      , int retrieveCount
-      , PalantírReveal<TCloakedBase> styler) where TMold : TypeMolder where TCloaked : TCloakedBase;
+    IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked item
+      , int retrieveCount, PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase;
 
-    ITypeMolderDieCast<TMold> CollectionNextItemFormat<TMold>(ITypeMolderDieCast<TMold> typeMold, string? item, int retrieveCount
-      , string? formatString = null) where TMold : TypeMolder;
+    IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount
+      , string? formatString = null);
 
-    ITypeMolderDieCast<TMold> CollectionNextItemFormat<TMold, TCharSeq>(ITypeMolderDieCast<TMold> typeMold, TCharSeq? item, int retrieveCount
-      , string? formatString = null) where TMold : TypeMolder where TCharSeq : ICharSequence;
+    IStringBuilder CollectionNextItemFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount, string? formatString = null)  where TCharSeq : ICharSequence;
 
-    ITypeMolderDieCast<TMold> CollectionNextItemFormat<TMold>(ITypeMolderDieCast<TMold> typeMold, StringBuilder? item, int retrieveCount
-      , string? formatString = null) where TMold : TypeMolder;
+    IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item, int retrieveCount, string? formatString = null);
 
-    ITypeMolderDieCast<TMold> CollectionNextItemFormat<TMold>(ITypeMolderDieCast<TMold> typeMold, IStringBearer? item, int retrieveCount)
-        where TMold : TypeMolder;
+    IStringBuilder CollectionNextItemFormat(ITheOneString tos, IStringBearer? item, int retrieveCount);
 
-    ITypeMolderDieCast<TMold> FormatCollectionEnd<TMold>(ITypeMolderDieCast<TMold> typeMold, Type itemElementType, int totalItemCount)
-        where TMold : TypeMolder;
+    IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount);
 
-    ITypeMolderDieCast<TMold> AddCollectionElementSeparator<TMold>(ITypeMolderDieCast<TMold> typeMold, Type elementType, int nextItemNumber)
-        where TMold : TypeMolder;
-
+    IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber);
+    
+    IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName);
+    
     IStringBuilder FormatFieldNameMatch<T>(IStringBuilder sb, T source, string? formatString = null);
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold>(ITypeMolderDieCast<TMold> typeMold, bool source, string? formatString = null)
-        where TMold : TypeMolder;
+    IStringBuilder FormatFieldName(IStringBuilder sb, bool source, string? formatString = null);
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold>(ITypeMolderDieCast<TMold> typeMold, bool? source, string? formatString = null)
-        where TMold : TypeMolder;
+    IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null);
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold, TFmt>(ITypeMolderDieCast<TMold> typeMold, TFmt? source, string? formatString = null)
-        where TMold : TypeMolder where TFmt : ISpanFormattable;
+    IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null) where TFmt : ISpanFormattable;
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold, TFmtStruct>(ITypeMolderDieCast<TMold> typeMold, TFmtStruct? source, string? formatString = null)
-        where TMold : TypeMolder where TFmtStruct : struct, ISpanFormattable;
+    IStringBuilder FormatFieldName<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null)
+        where TFmtStruct : struct, ISpanFormattable;
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold>(ITypeMolderDieCast<TMold> typeMold, ReadOnlySpan<char> source, int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue)
-        where TMold : TypeMolder;
+    IStringBuilder FormatFieldName(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
+      , string? formatString = null, int maxTransferCount = int.MaxValue);
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold>(ITypeMolderDieCast<TMold> typeMold, char[] source, int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TMold : TypeMolder;
+    IStringBuilder FormatFieldName(IStringBuilder sb, char[] source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue);
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold>(ITypeMolderDieCast<TMold> typeMold, ICharSequence source, int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TMold : TypeMolder;
+    IStringBuilder FormatFieldName(IStringBuilder sb, ICharSequence source, int sourceFrom = 0
+      , string? formatString = null, int maxTransferCount = int.MaxValue);
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold>(ITypeMolderDieCast<TMold> typeMold, StringBuilder source, int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TMold : TypeMolder;
+    IStringBuilder FormatFieldName(IStringBuilder sb, StringBuilder source, int sourceFrom = 0
+      , string? formatString = null, int maxTransferCount = int.MaxValue);
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold, TCloaked, TCloakedBase>(ITypeMolderDieCast<TMold> typeMold, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler)
-        where TMold : TypeMolder where TCloaked : TCloakedBase;
+    IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
+        where TCloaked : TCloakedBase;
 
-    ITypeMolderDieCast<TMold> FormatFieldName<TMold>(ITypeMolderDieCast<TMold> typeMold, IStringBearer styledObj)
-        where TMold : TypeMolder;
+    IStringBuilder FormatFieldName(ITheOneString tos, IStringBearer styledObj);
 
     IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null);
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold>(ITypeMolderDieCast<TMold> typeMold, bool source, string? formatString = null)
-        where TMold : TypeMolder;
+    IStringBuilder FormatFieldContents(IStringBuilder sb, bool source, string? formatString = null);
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold>(ITypeMolderDieCast<TMold> typeMold, bool? source, string? formatString = null)
-        where TMold : TypeMolder;
+    IStringBuilder FormatFieldContents(IStringBuilder sb, bool? source, string? formatString = null);
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold, TFmt>(ITypeMolderDieCast<TMold> typeMold, TFmt? source, string? formatString = null)
-        where TMold : TypeMolder where TFmt : ISpanFormattable;
+    IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null)
+        where TFmt : ISpanFormattable;
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold, TFmt>(ITypeMolderDieCast<TMold> typeMold, TFmt? source, string? formatString = null)
-        where TMold : TypeMolder where TFmt : struct, ISpanFormattable;
+    IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null)
+        where TFmt : struct, ISpanFormattable;
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold>(ITypeMolderDieCast<TMold> typeMold, ReadOnlySpan<char> source, int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue)
-        where TMold : TypeMolder;
+    IStringBuilder FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
+      , string? formatString = null, int maxTransferCount = int.MaxValue);
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold>(ITypeMolderDieCast<TMold> typeMold, char[] source, int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TMold : TypeMolder;
+    IStringBuilder FormatFieldContents(IStringBuilder sb, char[] source, int sourceFrom = 0
+      , string? formatString = null, int maxTransferCount = int.MaxValue);
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold>(ITypeMolderDieCast<TMold> typeMold, ICharSequence source, int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TMold : TypeMolder;
+    IStringBuilder FormatFieldContents(IStringBuilder sb, ICharSequence source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue);
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold>(ITypeMolderDieCast<TMold> typeMold, StringBuilder source, int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TMold : TypeMolder;
+    IStringBuilder FormatFieldContents(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue);
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold, TCloaked, TCloakedBase>(ITypeMolderDieCast<TMold> typeMold, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler)
-        where TMold : TypeMolder where TCloaked : TCloakedBase;
+    IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
+        where TCloaked : TCloakedBase;
 
-    ITypeMolderDieCast<TMold> FormatFieldContents<TMold>(ITypeMolderDieCast<TMold> typeMold, IStringBearer styledObj)
-        where TMold : TypeMolder;
+    IStringBuilder FormatFieldContents(ITheOneString tos, IStringBearer styledObj);
 }
 
 public static class StyleTypeFormattingExtensions
 {
+    
+    public static IStringBuilder FieldEnd(this IStringBuilder sb, IStyledTypeFormatting stf) => stf.AppendFieldValueSeparator(sb);
+
+
     public static IStringBuilder RemoveLastWhiteSpacedCommaIfFound(this IStringBuilder sb)
     {
         if (sb.Length < 2) return sb;

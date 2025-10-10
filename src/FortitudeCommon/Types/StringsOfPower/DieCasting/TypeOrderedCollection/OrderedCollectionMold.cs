@@ -31,12 +31,12 @@ public partial class OrderedCollectionMold<TExt> : KnownTypeMolder<TExt>
     {
         if (CompAsOrderedCollection.CollectionInComplexType)
         {
-            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
+            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
         }
         else
         {
             var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            CompAccess.StyleFormatter.FormatCollectionStart(CompAccess, elementType!, true, CompAccess.TypeBeingBuilt);
+            CompAccess.StyleFormatter.FormatCollectionStart(CompAccess.Sb, elementType!, true, CompAccess.TypeBeingBuilt);
         }
     }
     
@@ -44,12 +44,12 @@ public partial class OrderedCollectionMold<TExt> : KnownTypeMolder<TExt>
     {
         if (CompAsOrderedCollection.CollectionInComplexType)
         {
-            CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+            CompAccess.StyleFormatter.AppendTypeClosing(CompAccess.Sb);
         }
         else
         {
             var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            CompAccess.StyleFormatter.FormatCollectionEnd(CompAccess, elementType!, 1);
+            CompAccess.StyleFormatter.FormatCollectionEnd(CompAccess.Sb, elementType!, 1);
         }
     }
 

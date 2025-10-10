@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Numerics;
@@ -10,6 +11,7 @@ using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
@@ -21,9 +23,7 @@ public interface IFormatExpectation
     bool IsNullableStruct { get; }
     
     object? UnknownInput { get; }
-
-    string ExpectedOutput { get; }
-
+    string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition);
     string? FormatString { get; }
 
     bool HasDefault { get; }
@@ -35,38 +35,168 @@ public interface ITypedFormatExpectation<out T> : IFormatExpectation
 }
 
 public record FmtExpect<T>
-    (T Input, string ExpectedOutput, string? FormatString = null, bool HasDefault = false, T? DefaultValue = default)
-    : ITypedFormatExpectation<T> where T : ISpanFormattable
+    (T Input, string? FormatString = null, bool HasDefault = false, T? DefaultValue = default)
+    : ITypedFormatExpectation<T>, IEnumerable<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> where T : ISpanFormattable
 {
+    private List<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> expectedResults = new();
+    
+    public void Add(ScaffoldingStringBuilderInvokeFlags key, string value)
+    {
+        for (var i = 0; i < expectedResults.Count; i++)
+        {
+            var existing    = expectedResults[i];
+            var existingKey = existing.Key;
+            if ((existingKey & key) == 0) continue;
+            existingKey &= ~key;
+            if (existingKey == None)
+            {
+                expectedResults.RemoveAt(i);
+            }
+            else
+            {
+                expectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
+            }
+            break;
+        }
+        expectedResults.Add(new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(key, value));
+    }
+
+    public void Add(KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string> newExpectedResult)
+    {
+        for (var i = 0; i < expectedResults.Count; i++)
+        {
+            var existing    = expectedResults[i];
+            var existingKey = existing.Key;
+            if ((existingKey & newExpectedResult.Key) == 0) continue;
+            existingKey &= ~newExpectedResult.Key;
+            if (existingKey == None)
+            {
+                expectedResults.RemoveAt(i);
+            }
+            else
+            {
+                expectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
+            }
+            break;
+        }
+        expectedResults.Add(newExpectedResult);
+    }
+
+    public string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
+    {
+        for (var i = 0; i < expectedResults.Count; i++)
+        {
+            var existing = expectedResults[i];
+            if (existing.Key != condition) continue;
+            return existing.Value;
+        }
+        return string.Empty;
+    }
+
     public object? UnknownInput => Input;
     public Type InputType => typeof(T);
     public Type SpanFormattableType => typeof(T);
     public bool IsNullableStruct => false;
+
+    IEnumerator IEnumerable.                                                      GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> GetEnumerator() => expectedResults.GetEnumerator();
 };
 
-public record NullFmtStructExpect<T>
-    (T? Input, string ExpectedOutput, string? FormatString = null, bool HasDefault = false, T? DefaultValue = null) : ITypedFormatExpectation<T?>
+public record NullFmtStructExpect<T>(T? Input, string ExpectedOutput, string? FormatString = null, bool HasDefault = false, T? DefaultValue = null) 
+    : ITypedFormatExpectation<T?>, IEnumerable<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>>
     where T : struct, ISpanFormattable
 {
+    private List<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> expectedResults = new();
+
+    public void Add(ScaffoldingStringBuilderInvokeFlags key, string value)
+    {
+        for (var i = 0; i < expectedResults.Count; i++)
+        {
+            var existing    = expectedResults[i];
+            var existingKey = existing.Key;
+            if ((existingKey & key) == 0) continue;
+            existingKey &= ~key;
+            if (existingKey == None)
+            {
+                expectedResults.RemoveAt(i);
+            }
+            else
+            {
+                expectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
+            }
+            break;
+        }
+        expectedResults.Add(new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(key, value));
+    }
+
+    public void Add(KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string> newExpectedResult)
+    {
+        for (var i = 0; i < expectedResults.Count; i++)
+        {
+            var existing           = expectedResults[i];
+            var existingKey = existing.Key;
+            if ((existingKey & newExpectedResult.Key) == 0) continue;
+            existingKey &= ~newExpectedResult.Key;
+            if (existingKey == None)
+            {
+                expectedResults.RemoveAt(i);
+            }
+            else
+            {
+                expectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
+            }
+            break;
+        }
+        expectedResults.Add(newExpectedResult);
+    }
+
+    public string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
+    {
+        for (var i = 0; i < expectedResults.Count; i++)
+        {
+            var existing = expectedResults[i];
+            if ((existing.Key & condition) == 0) continue;
+            return existing.Value;
+        }
+        return string.Empty;
+    }
+    
     public object? UnknownInput => Input;
     public Type InputType => typeof(T?);
     public Type SpanFormattableType => typeof(T);
     
     public bool IsNullableStruct => true;
+
+    IEnumerator IEnumerable.                                                      GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> GetEnumerator() => expectedResults.GetEnumerator();
 }
 
 public static class SpanFormattableTestData
 {
-    public static readonly FmtExpect<byte> ByteDefault = new(0, "128");
-    public static readonly FmtExpect<byte> ByteNoFormatString = new(128, "128");
-    public static readonly FmtExpect<byte> ByteNo2DpFormatFormatString = new(128, "128.00", "C2");
+    public static readonly FmtExpect<byte> ByteDefault = new(0, "128")
+    {
+        {AlwaysWrites | NonNullAndPopulatedWrites, "0" }
+    };
+    public static readonly FmtExpect<byte> ByteNoFormatString = new(128, "128")
+    {
+        {AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "$128.00" }
+    };
+    public static readonly FmtExpect<byte> ByteNo2DpFormatFormatString = new(128, "C2")
+    {
+        {AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "$128.00" }
+    };
     public static readonly FmtExpect<byte> ByteRightPadding20AsStringFormatString =
-        new(128, "128.00", "\"{0,-20}\"");
+        new (128,  "\"{0,-20}\"")
+        {
+            {AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"128                 \"" }
+        };
     
-    public static readonly NullFmtStructExpect<byte> NullableByteDefault = new(0, "128");
-    public static readonly NullFmtStructExpect<byte> NullableByteNull = new(null, "null");
-    public static readonly NullFmtStructExpect<byte> NullableByteNoFormatString = new(128, "128");
-    public static readonly NullFmtStructExpect<byte> NullableByteNo2DpFormatFormatString = new(128, "128.00", "C2");
+    public static readonly NullFmtStructExpect<byte> NullableByteDefault                 = new(0, "128");
+    public static readonly NullFmtStructExpect<byte>  NullableByteNull                    = new(null, "null");
+    public static readonly NullFmtStructExpect<byte>  NullableByteNoFormatString          = new(128, "128");
+    public static readonly NullFmtStructExpect<byte>  NullableByteNo2DpFormatFormatString = new(128, "128.00", "C2");
     public static readonly NullFmtStructExpect<byte> NullableByteRightPadding20AsStringFormatString =
         new(128, "128.00", "\"{0,20}\"");
     

@@ -234,7 +234,7 @@ public static class ScaffoldingRegistry
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.NonNullAndPopulatedWrites));
 
     public static IEnumerable<ScaffoldingPartEntry> PopulatedWrites(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(OnlyPopulatedWrites));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(NonEmptyWrites));
 
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsChars(this IEnumerable<ScaffoldingPartEntry> subSet) =>

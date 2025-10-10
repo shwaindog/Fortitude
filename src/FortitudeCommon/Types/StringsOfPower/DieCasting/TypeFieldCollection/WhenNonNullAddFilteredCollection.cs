@@ -38,7 +38,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, true, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, true, collectionType);
                 }
                 stb.AppendCollectionItem(item, i);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -47,7 +47,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -78,7 +78,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, true, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, true, collectionType);
                 }
                 stb.AppendCollectionItem(item, i);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -87,7 +87,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -121,7 +121,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -130,7 +130,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -164,7 +164,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -173,7 +173,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -207,7 +207,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -216,7 +216,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -249,7 +249,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendOrNull(item, palantírReveal);
@@ -259,7 +259,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -292,7 +292,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendOrNull(item, palantírReveal);
@@ -302,7 +302,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -335,7 +335,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendOrNull(item, palantírReveal);
@@ -345,7 +345,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -377,7 +377,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendRevealBearerOrNull(item);
@@ -387,7 +387,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -419,7 +419,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendRevealBearerOrNull(item);
@@ -429,7 +429,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -461,7 +461,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendRevealBearerOrNull(item);
@@ -471,7 +471,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -503,7 +503,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -512,7 +512,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -544,7 +544,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -553,7 +553,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -586,7 +586,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -595,7 +595,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -628,7 +628,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -637,7 +637,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -670,7 +670,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -679,7 +679,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -712,7 +712,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -721,7 +721,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -754,7 +754,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -763,7 +763,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -797,7 +797,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -806,7 +806,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -848,7 +848,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, true, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, true, collectionType);
                 }
                 stb.AppendCollectionItem(item, i);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -857,7 +857,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -888,7 +888,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, true, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, true, collectionType);
                 }
                 stb.AppendCollectionItem(item, i);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -897,7 +897,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -931,7 +931,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -940,7 +940,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -974,7 +974,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -983,7 +983,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1017,7 +1017,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1026,7 +1026,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1059,7 +1059,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendOrNull(item, palantírReveal);
@@ -1069,7 +1069,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1102,7 +1102,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendOrNull(item, palantírReveal);
@@ -1112,7 +1112,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1145,7 +1145,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendOrNull(item, palantírReveal);
@@ -1155,7 +1155,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1187,7 +1187,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendRevealBearerOrNull(item);
@@ -1197,7 +1197,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1229,7 +1229,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendRevealBearerOrNull(item);
@@ -1239,7 +1239,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1271,7 +1271,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
                 stb.AppendRevealBearerOrNull(item);
@@ -1281,7 +1281,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1313,7 +1313,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1322,7 +1322,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1355,7 +1355,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1364,7 +1364,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1397,7 +1397,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1406,7 +1406,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1439,7 +1439,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1448,7 +1448,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1481,7 +1481,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1490,7 +1490,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1523,7 +1523,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1532,7 +1532,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1566,7 +1566,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1575,7 +1575,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
@@ -1609,7 +1609,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (matchedItems++ == 0)
                 {
                     stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1618,7 +1618,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (matchedItems != 0)
         {
-            stb.StyleFormatter.FormatCollectionEnd(stb, elementType, matchedItems);
+            stb.StyleFormatter.FormatCollectionEnd(stb.Sb, elementType, matchedItems);
             return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;

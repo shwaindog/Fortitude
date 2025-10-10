@@ -33,13 +33,14 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
     public override void AppendOpening()
     {
         var keyValueTypes = CompAccess.TypeBeingBuilt.GetKeyedCollectionTypes()!;
-        CompAccess.StyleFormatter.AppendKeyedCollectionStart(CompAccess, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
+        CompAccess.StyleFormatter.AppendKeyedCollectionStart(CompAccess.Sb, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key
+                                                           , keyValueTypes.Value.Value);
     }
 
     public override void AppendClosing()
     {
         var keyValueTypes = CompAccess.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        CompAccess.StyleFormatter.AppendKeyedCollectionEnd(CompAccess, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value, elementCount);
+        CompAccess.StyleFormatter.AppendKeyedCollectionEnd(CompAccess.Sb, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value, elementCount);
     }
 
     protected override void InheritedStateReset()
@@ -99,7 +100,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
     public ExplicitKeyedCollectionMold<TKey, TValue> AppendNextKeyedCollectionEntrySeparator()
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AddNextFieldSeparator(stb);
+        stb.StyleFormatter.AddNextFieldSeparator(stb.Sb);
         return this;
     }
     

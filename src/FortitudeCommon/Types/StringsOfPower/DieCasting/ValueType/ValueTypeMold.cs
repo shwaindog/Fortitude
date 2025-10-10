@@ -32,19 +32,19 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
     {
         if (PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) return;
         if (Stb.ValueInComplexType)
-            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
+            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
         else
-            CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess, CompAccess.TypeBeingBuilt);
+            CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt);
     }
 
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess, CompAccess.TypeBeingBuilt);
+        CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt);
     }
 
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendValueTypeClosing(CompAccess, CompAccess.TypeBeingBuilt);
+        CompAccess.StyleFormatter.AppendValueTypeClosing(CompAccess.Sb, CompAccess.TypeBeingBuilt);
     }
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, bool value) =>

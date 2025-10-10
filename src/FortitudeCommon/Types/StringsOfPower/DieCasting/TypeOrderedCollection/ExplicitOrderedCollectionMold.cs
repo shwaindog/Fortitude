@@ -127,7 +127,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++elementCount);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -145,7 +145,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++elementCount);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -162,7 +162,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount, formatString);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++elementCount, formatString);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -180,7 +180,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount, formatString);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++elementCount, formatString);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -197,7 +197,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++elementCount, formatString);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++elementCount, formatString);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -223,7 +223,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     public ExplicitOrderedCollectionMold<TElement> AppendNextCollectionItemSeparator()
     {
         if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.StyleFormatter.AddCollectionElementSeparator(CompAsOrderedCollection, TypeOfElement, elementCount);
+        CompAsOrderedCollection.StyleFormatter.AddCollectionElementSeparator(CompAsOrderedCollection.Sb, TypeOfElement, elementCount);
         return this;
     }
 

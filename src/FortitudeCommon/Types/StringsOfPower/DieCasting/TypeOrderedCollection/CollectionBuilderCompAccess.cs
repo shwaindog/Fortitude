@@ -23,9 +23,9 @@ public class CollectionBuilderCompAccess<TExt> : TypeMolderDieCast<TExt> where T
     {
         if (CollectionInComplexType)
         {
-            StyleFormatter.AppendFieldName( this, "$values");
-            StyleFormatter.AppendFieldValueSeparator(this);
-            StyleFormatter.FormatCollectionStart(this, elementType, hasAny, TypeBeingBuilt);
+            StyleFormatter.AppendFieldName( Sb, "$values");
+            StyleFormatter.AppendFieldValueSeparator(Sb);
+            StyleFormatter.FormatCollectionStart(Sb, elementType, hasAny, TypeBeingBuilt);
         }
     }
 
@@ -33,7 +33,7 @@ public class CollectionBuilderCompAccess<TExt> : TypeMolderDieCast<TExt> where T
     {
         if (CollectionInComplexType)
         {
-            StyleFormatter.FormatCollectionEnd(this, elementType, count);
+            StyleFormatter.FormatCollectionEnd(Sb, elementType, count);
         }
         return false;
     }
