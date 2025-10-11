@@ -28,7 +28,7 @@ public class TargetStringBearerRevealStateTests
         
         Console.Out.WriteLine("Without virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLogBuildTypeAndDeployEnvConfig { BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
+        Assert.AreEqual("FLoggerActivationConfig { BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
 
         stsa.Clear();
         baseHasStyledToString.RevealState(stsa);
@@ -58,7 +58,7 @@ public class TargetStringBearerRevealStateTests
         
         Console.Out.WriteLine("Without virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLogBuildTypeAndDeployEnvConfig { BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
+        Assert.AreEqual("FLoggerActivationConfig { BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
 
         stsa.Clear();
         baseHasStyledToString.RevealState(stsa);

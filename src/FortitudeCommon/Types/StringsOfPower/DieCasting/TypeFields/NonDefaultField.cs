@@ -280,8 +280,12 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
     [CallsObjectToString]
     public TExt WhenNonDefaultAddObject(ReadOnlySpan<char> fieldName, object? value, object? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipFields && (value != null && value.GetType().IsValueType &&  !Equals(value, defaultValue ?? value.GetType().GetDefaultForUnderlyingNullableOrThis()))
-      || !Equals(value, defaultValue)
+        !stb.SkipFields && ((value != null || defaultValue != null)
+                         && (value ?? defaultValue!).GetType().IsValueType
+                         && !Equals(value, defaultValue ?? (value ?? defaultValue!).GetType().GetDefaultForUnderlyingNullableOrThis()))
+     || ((value != null || defaultValue != null)
+      && !(value ?? defaultValue!).GetType().IsValueType
+      && !Equals(value, defaultValue))
             ? AlwaysAddObject(fieldName, value, formatString)
             : stb.StyleTypeBuilder;
 }

@@ -580,15 +580,15 @@ public static class StyledTypeBuilderExtensions
                 case DateTime valueDateTime: stb.AppendFormattedCollectionItem(valueDateTime, retrieveCount, formatString); break;
                 case DateOnly valueDateOnly: stb.AppendFormattedCollectionItem(valueDateOnly, retrieveCount, formatString); break;
                 case TimeSpan valueTimeSpan: stb.AppendFormattedCollectionItem(valueTimeSpan, retrieveCount, formatString); break;
-                case TimeOnly valueTimeSpan: stb.AppendFormattedCollectionItem(valueTimeSpan, retrieveCount, formatString); break;
-                case Rune valueTimeSpan:     stb.AppendFormattedCollectionItem(valueTimeSpan, retrieveCount, formatString); break;
+                case TimeOnly valueTimeOnly: stb.AppendFormattedCollectionItem(valueTimeOnly, retrieveCount, formatString); break;
+                case Rune valueRune:     stb.AppendFormattedCollectionItem(valueRune, retrieveCount, formatString); break;
                 case Guid valueGuid:         stb.AppendFormattedCollectionItem(valueGuid, retrieveCount, formatString); break;
-                case IPNetwork valueIntPtr:  stb.AppendFormattedCollectionItem(valueIntPtr, retrieveCount, formatString); break;
+                case IPNetwork valueIpNetwork:  stb.AppendFormattedCollectionItem(valueIpNetwork, retrieveCount, formatString); break;
                 case char[] valueCharArray:  stb.AppendCollectionItem(valueCharArray, retrieveCount); break;
                 case string valueString:     stb.AppendFormattedCollectionItemOrNull(valueString, retrieveCount, formatString); break;
-                case Version valueGuid:      stb.AppendValue(valueGuid, isKeyName); break;
-                case IPAddress valueIntPtr:  stb.AppendValue(valueIntPtr, isKeyName); break;
-                case Uri valueUri:           stb.AppendValue(valueUri, isKeyName); break;
+                case Version valueVersion:      stb.AppendFormattedCollectionItem(valueVersion, retrieveCount, formatString); break;
+                case IPAddress valueIpAddress:  stb.AppendFormattedCollectionItem(valueIpAddress, retrieveCount, formatString); break;
+                case Uri valueUri:           stb.AppendFormattedCollectionItem(valueUri, retrieveCount, formatString); break;
                 case Enum:
                 case ISpanFormattable:
                     var actualValueType = value.GetType();
@@ -634,8 +634,7 @@ public static class StyledTypeBuilderExtensions
                     }
                     break;
 
-                case IFrozenString valueFrozenString:   stb.AppendFormattedCollectionItemOrNull(valueFrozenString, retrieveCount, formatString); break;
-                case IStringBuilder valueStringBuilder: stb.AppendFormattedCollectionItemOrNull(valueStringBuilder, retrieveCount, formatString); break;
+                case ICharSequence valueCharSequence:   stb.AppendFormattedCollectionItemOrNull(valueCharSequence, retrieveCount, formatString); break;
                 case StringBuilder valueSb:             stb.AppendFormattedCollectionItemOrNull(valueSb, retrieveCount, formatString); break;
 
                 case IStringBearer styledToStringObj: stb.AppendRevealBearerOrNull(styledToStringObj); break;
@@ -690,15 +689,15 @@ public static class StyledTypeBuilderExtensions
                 case DateTime valueDateTime: stb.AppendFormatted(valueDateTime, formatString, isKeyName); break;
                 case DateOnly valueDateOnly: stb.AppendFormatted(valueDateOnly, formatString, isKeyName); break;
                 case TimeSpan valueTimeSpan: stb.AppendFormatted(valueTimeSpan, formatString, isKeyName); break;
-                case TimeOnly valueTimeSpan: stb.AppendFormatted(valueTimeSpan, formatString, isKeyName); break;
-                case Rune valueTimeSpan:     stb.AppendFormatted(valueTimeSpan, formatString, isKeyName); break;
+                case TimeOnly valueTimeOnly: stb.AppendFormatted(valueTimeOnly, formatString, isKeyName); break;
+                case Rune valueRune:     stb.AppendFormatted(valueRune, formatString, isKeyName); break;
                 case Guid valueGuid:         stb.AppendFormatted(valueGuid, formatString, isKeyName); break;
-                case IPNetwork valueIntPtr:  stb.AppendFormatted(valueIntPtr, formatString, isKeyName); break;
+                case IPNetwork valueIpNetwork:  stb.AppendFormatted(valueIpNetwork, formatString, isKeyName); break;
                 case char[] valueCharArray:  stb.AppendFormattedOrNull(valueCharArray, formatString, isKeyName); break;
                 case string valueString:     stb.AppendFormattedOrNull(valueString, formatString, isKeyName); break;
-                case Version valueGuid:      stb.AppendValue(valueGuid, isKeyName); break;
-                case IPAddress valueIntPtr:  stb.AppendValue(valueIntPtr, isKeyName); break;
-                case Uri valueUri:           stb.AppendValue(valueUri, isKeyName); break;
+                case Version valueVersion:      stb.AppendFormatted(valueVersion, formatString, isKeyName); break;
+                case IPAddress valueIpAddress:  stb.AppendFormatted(valueIpAddress, formatString, isKeyName); break;
+                case Uri valueUri:           stb.AppendFormatted(valueUri, formatString, isKeyName); break;
                 case Enum:
                 case ISpanFormattable:
                     var actualValueType = value.GetType();
@@ -730,17 +729,17 @@ public static class StyledTypeBuilderExtensions
                     if (typeOfTValue.ImplementsInterface(typeof(ISpanFormattable)))
                     {
                         var castInvoker = (SpanFmtStructContentHandler<TValue>) invoker;
-                        castInvoker(stb.Sb, stb.StyleFormatter, value, null, isKeyName);
+                        castInvoker(stb.Sb, stb.StyleFormatter, value, formatString, isKeyName);
                     }
                     else if (value is Enum valueEnum)
                     {
                         var castInvoker = (SpanFmtStructContentHandler<Enum>) invoker;
-                        castInvoker(stb.Sb, stb.StyleFormatter, valueEnum, null, isKeyName);
+                        castInvoker(stb.Sb, stb.StyleFormatter, valueEnum, formatString, isKeyName);
                     }
                     else
                     {
                         var castInvoker = (SpanFmtStructContentHandler<ISpanFormattable>)invoker;
-                        castInvoker(stb.Sb, stb.StyleFormatter, (ISpanFormattable)value, null, isKeyName);
+                        castInvoker(stb.Sb, stb.StyleFormatter, (ISpanFormattable)value, formatString, isKeyName);
                     }
                     break;
 
@@ -810,14 +809,14 @@ public static class StyledTypeBuilderExtensions
                 case DateTime valueDateTime: stb.AppendCollectionItem(valueDateTime, retrieveCount); break;
                 case DateOnly valueDateOnly: stb.AppendCollectionItem(valueDateOnly, retrieveCount); break;
                 case TimeSpan valueTimeSpan: stb.AppendCollectionItem(valueTimeSpan, retrieveCount); break;
-                case TimeOnly valueTimeSpan: stb.AppendCollectionItem(valueTimeSpan, retrieveCount); break;
-                case Rune valueTimeSpan:     stb.AppendCollectionItem(valueTimeSpan, retrieveCount); break;
+                case TimeOnly valueTimeOnly: stb.AppendCollectionItem(valueTimeOnly, retrieveCount); break;
+                case Rune valueRune:     stb.AppendCollectionItem(valueRune, retrieveCount); break;
                 case Guid valueGuid:         stb.AppendCollectionItem(valueGuid, retrieveCount); break;
-                case IPNetwork valueIntPtr:  stb.AppendCollectionItem(valueIntPtr, retrieveCount); break;
+                case IPNetwork valueIpNetwork:  stb.AppendCollectionItem(valueIpNetwork, retrieveCount); break;
                 case char[] valueCharArray:  stb.AppendCollectionItem(valueCharArray, retrieveCount); break;
                 case string valueString:     stb.AppendCollectionItem(valueString, retrieveCount); break;
-                case Version valueGuid:      stb.AppendCollectionItem(valueGuid, retrieveCount); break;
-                case IPAddress valueIntPtr:  stb.AppendCollectionItem(valueIntPtr, retrieveCount); break;
+                case Version valueVersion:      stb.AppendCollectionItem(valueVersion, retrieveCount); break;
+                case IPAddress valueIpAddress:  stb.AppendCollectionItem(valueIpAddress, retrieveCount); break;
                 case Uri valueUri:           stb.AppendCollectionItem(valueUri, retrieveCount); break;
                 case Enum:
                 case ISpanFormattable:
@@ -864,8 +863,7 @@ public static class StyledTypeBuilderExtensions
                     }
                     break;
 
-                case IFrozenString valueFrozenString:  stb.AppendCollectionItem(valueFrozenString, retrieveCount); break;
-                case IStringBuilder valueFrozenString: stb.AppendCollectionItem(valueFrozenString, retrieveCount); break;
+                case ICharSequence valueCharSequence:  stb.AppendCollectionItem(valueCharSequence, retrieveCount); break;
                 case StringBuilder valueFrozenString:  stb.AppendCollectionItem(valueFrozenString, retrieveCount); break;
 
                 case IStringBearer styledToStringObject: stb.AppendRevealBearerOrNull(styledToStringObject); break;
@@ -929,14 +927,14 @@ public static class StyledTypeBuilderExtensions
                 case DateTime valueDateTime: stb.AppendValue(valueDateTime, isKeyName); break;
                 case DateOnly valueDateOnly: stb.AppendValue(valueDateOnly, isKeyName); break;
                 case TimeSpan valueTimeSpan: stb.AppendValue(valueTimeSpan, isKeyName); break;
-                case TimeOnly valueTimeSpan: stb.AppendValue(valueTimeSpan, isKeyName); break;
-                case Rune valueTimeSpan:     stb.AppendValue(valueTimeSpan, isKeyName); break;
+                case TimeOnly valueTimeOnly: stb.AppendValue(valueTimeOnly, isKeyName); break;
+                case Rune valueRune:     stb.AppendValue(valueRune, isKeyName); break;
                 case Guid valueGuid:         stb.AppendValue(valueGuid, isKeyName); break;
-                case IPNetwork valueIntPtr:  stb.AppendValue(valueIntPtr, isKeyName); break;
+                case IPNetwork valueIpNetwork:  stb.AppendValue(valueIpNetwork, isKeyName); break;
                 case char[] valueCharArray:  stb.AppendOrNull(valueCharArray, isKeyName); break;
                 case string valueString:     stb.AppendOrNull(valueString, isKeyName); break;
-                case Version valueGuid:      stb.AppendValue(valueGuid, isKeyName); break;
-                case IPAddress valueIntPtr:  stb.AppendValue(valueIntPtr, isKeyName); break;
+                case Version valueVersion:      stb.AppendValue(valueVersion, isKeyName); break;
+                case IPAddress valueIpAddress:  stb.AppendValue(valueIpAddress, isKeyName); break;
                 case Uri valueUri:           stb.AppendValue(valueUri, isKeyName); break;
                 case Enum:
                 case ISpanFormattable:

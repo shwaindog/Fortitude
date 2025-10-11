@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
@@ -14,7 +15,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFie
 public class SelectTypeFieldTests
 {
     private IReadOnlyList<ScaffoldingPartEntry> scafReg = ScaffoldingRegistry.AllScaffoldingTypes;
-    
+
 
     private static IVersatileFLogger logger     = null!;
     private const  string            BulletList = "    * ";
@@ -30,7 +31,7 @@ public class SelectTypeFieldTests
     [TestMethod]
     public void WithCompactLogAllComplexTypeSpanFmtFieldFormattingTests()
     {
-        var nonNullableSpanFormattableInvokers = 
+        var nonNullableSpanFormattableInvokers =
             scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullables().ToList();
 
         var le = logger.InfoAppend("Complex Type Single Value Field -  Always Add Scaffolding Classes - ")?.AppendLine();
@@ -40,8 +41,20 @@ public class SelectTypeFieldTests
         }
         le?.AppendLine().Append("Total ").AppendLine(nonNullableSpanFormattableInvokers.Count).FinalAppend("");
 
-        var formatExpect = SpanFormattableTestData.AllSpanFormattableExpectations.Where( fe => !fe.IsNullableStruct).ToList();
-        
+        var formatExpect = SpanFormattableTestData.AllSpanFormattableExpectations.Where(fe => !fe.IsNullableStruct).ToList();
+
+        string BuildExpectedOutput(ISinglePropertyTestStringBearer testStringBearer,  ScaffoldingPartEntry entry, IFormatExpectation expectation)
+        {
+            const string compactLogTemplate = "{0} {{ {1}}}";
+
+            var expectValue = expectation.GetExpectedOutputFor(entry.ScaffoldingFlags);
+            if (expectValue.IsNotNullOrEmpty())
+            {
+                expectValue = testStringBearer.PropertyName + ": " + expectValue + " ";
+            }
+            return string.Format(compactLogTemplate, testStringBearer.GetType().ShortNameInCSharpFormat(), expectValue);
+        }
+
         var tos = new TheOneString().Initialize(StringStyle.Compact | StringStyle.Log);
         foreach (var nonNullFormatInvoker in nonNullableSpanFormattableInvokers)
         {
@@ -50,8 +63,23 @@ public class SelectTypeFieldTests
                 tos.Clear();
                 var stringBearer = formatExpectation.CreateStringBearerWithValueFor(nonNullFormatInvoker);
                 stringBearer.RevealState(tos);
-                logger.InfoAppend("Result - ")?
-                    .FinalAppend(tos.WriteBuffer.ToString());
+                var buildExpectedOutput = BuildExpectedOutput((ISinglePropertyTestStringBearer)stringBearer, nonNullFormatInvoker, formatExpectation);
+                var result              = tos.WriteBuffer.ToString();
+                if (buildExpectedOutput != result)
+                {
+                    logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
+                          .Append(result).AppendLine()
+                          .AppendLine("Expected it to match -")
+                          .Append(buildExpectedOutput)
+                          .FinalAppend("");
+                }
+                else
+                {
+                    logger.InfoAppend("Result Matched Expected - ")?.AppendLine()
+                          .Append(result).AppendLine()
+                          .FinalAppend("");
+                }
+                Assert.AreEqual(buildExpectedOutput, result);
             }
         }
     }
@@ -59,7 +87,7 @@ public class SelectTypeFieldTests
     [TestMethod]
     public void WithCompactLogAllComplexTypeNullFmtStructFieldFormattingTests()
     {
-        var nonNullableSpanFormattableInvokers = 
+        var nonNullableSpanFormattableInvokers =
             scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().OnlyAcceptsNullableStructs().ToList();
 
         var le = logger.InfoAppend("Complex Type Single Value Field -  Always Add Scaffolding Classes - ")?.AppendLine();
@@ -69,8 +97,20 @@ public class SelectTypeFieldTests
         }
         le?.AppendLine().Append("Total ").AppendLine(nonNullableSpanFormattableInvokers.Count).FinalAppend("");
 
-        var formatExpect = SpanFormattableTestData.AllSpanFormattableExpectations.Where( fe => fe.IsNullableStruct).ToList();
+        var formatExpect = SpanFormattableTestData.AllSpanFormattableExpectations.Where(fe => fe.IsNullableStruct).ToList();
         
+        string BuildExpectedOutput(ISinglePropertyTestStringBearer testStringBearer,  ScaffoldingPartEntry entry, IFormatExpectation expectation)
+        {
+            const string compactLogTemplate = "{0} {{ {1}}}";
+
+            var expectValue = expectation.GetExpectedOutputFor(entry.ScaffoldingFlags);
+            if (expectValue.IsNotNullOrEmpty())
+            {
+                expectValue = testStringBearer.PropertyName + ": " + expectValue + " ";
+            }
+            return string.Format(compactLogTemplate, testStringBearer.GetType().ShortNameInCSharpFormat(), expectValue);
+        }
+
         var tos = new TheOneString().Initialize(StringStyle.Compact | StringStyle.Log);
         foreach (var nonNullFormatInvoker in nonNullableSpanFormattableInvokers)
         {
@@ -79,11 +119,24 @@ public class SelectTypeFieldTests
                 tos.Clear();
                 var stringBearer = formatExpectation.CreateStringBearerWithValueFor(nonNullFormatInvoker);
                 stringBearer.RevealState(tos);
-                logger.InfoAppend("Result - ")?
-                    .FinalAppend(tos.WriteBuffer.ToString());
+                var buildExpectedOutput = BuildExpectedOutput((ISinglePropertyTestStringBearer)stringBearer, nonNullFormatInvoker, formatExpectation);
+                var result              = tos.WriteBuffer.ToString();
+                if (buildExpectedOutput != result)
+                {
+                    logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
+                          .Append(result).AppendLine()
+                          .AppendLine("Expected it to match -")
+                          .Append(buildExpectedOutput)
+                          .FinalAppend("");
+                }
+                else
+                {
+                    logger.InfoAppend("Result Matched Expected - ")?.AppendLine()
+                          .Append(result).AppendLine()
+                          .FinalAppend("");
+                }
+                Assert.AreEqual(buildExpectedOutput, result);
             }
         }
     }
-    
-    
 }

@@ -793,20 +793,26 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         {
             var charSpan   = stackalloc char[1024].ResetMemory();
             var charsAdded = 0;
-            formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out _
+            formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var outputSubRange
                                                          , out var layout, out _, out var format, out var suffix);
             if (prefix.Length > 0)
                 charsAdded += sb.Append(prefix).ReturnCharCount(prefix.Length); // prefix and suffix intentional will not be escaped;
             if (source.TryFormat(charSpan, out charsWritten, format, null))
             {
+                var toTransfer = charSpan[..charsWritten];
+                if (!outputSubRange.IsAllRange())
+                {
+                    outputSubRange.BoundRangeToLength(toTransfer.Length);
+                    toTransfer = toTransfer[outputSubRange];
+                }
                 if (layout.Length == 0)
                 {
-                    Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], sb);
+                    Options.EncodingTransfer.Transfer(this, toTransfer, sb);
                     if (suffix.Length > 0) charsAdded += sb.Append(suffix).ReturnCharCount(suffix.Length);
                     return charsWritten + charsAdded;
                 }
                 var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
-                var padSize = padSpan.PadAndAlign(charSpan[..charsWritten], layout);
+                var padSize = padSpan.PadAndAlign(toTransfer, layout);
                 Options.EncodingTransfer.Transfer(this, padSpan[..padSize], sb);
                 if (suffix.Length > 0) charsAdded += sb.Append(suffix).ReturnCharCount(suffix.Length); // prefix and suffix intentional will not be escaped;
                 return padSize + charsAdded;
@@ -848,7 +854,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
             }
             return Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
         }
-        formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out _
+        formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var outputSubRange
                                                      , out var layout, out _, out var format, out var suffix);
         try
         {
@@ -856,15 +862,21 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
             if (prefix.Length > 0) charsAdded += destCharSpan.OverWriteAt(destStartIndex, prefix); // prefix and suffix intentional will not be escaped;
             if (source.TryFormat(charSpan, out charsWritten, format, null))
             {
+                var toTransfer = charSpan[..charsWritten];
+                if (!outputSubRange.IsAllRange())
+                {
+                    outputSubRange.BoundRangeToLength(toTransfer.Length);
+                    toTransfer = toTransfer[outputSubRange];
+                }
                 if (layout.Length == 0)
                 {
-                    Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex + charsAdded);
+                    Options.EncodingTransfer.Transfer(this, toTransfer, destCharSpan, destStartIndex + charsAdded);
                     charsAdded += charsWritten;
                     if (suffix.Length > 0) charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, suffix);
                     return charsAdded;
                 }
                 var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
-                var padSize = padSpan.PadAndAlign(charSpan[..charsWritten], layout);
+                var padSize = padSpan.PadAndAlign(toTransfer, layout);
                 Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex);
                 charsAdded += padSize;
                 if (suffix.Length > 0) 
@@ -875,12 +887,18 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         catch (FormatException) { }
         if (source.TryFormat(charSpan, out charsWritten, "", null))
         {
+            var toTransfer = charSpan[..charsWritten];
+            if (!outputSubRange.IsAllRange())
+            {
+                outputSubRange.BoundRangeToLength(toTransfer.Length);
+                toTransfer = toTransfer[outputSubRange];
+            }
             if (layout.Length == 0)
             {
-                return Options.EncodingTransfer.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
+                return Options.EncodingTransfer.Transfer(this, toTransfer, destCharSpan, destStartIndex);
             }
             var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
-            var padSize = padSpan.PadAndAlign(charSpan[..charsWritten], layout);
+            var padSize = padSpan.PadAndAlign(toTransfer, layout);
             return Options.EncodingTransfer.Transfer(this, padSpan[..padSize], destCharSpan, destStartIndex);
         }
         return charsWritten;
