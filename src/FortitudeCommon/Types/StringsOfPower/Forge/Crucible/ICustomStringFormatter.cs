@@ -39,6 +39,15 @@ public interface ICustomStringFormatter : IRecyclableObject
     int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
     int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
 
+    int Format(bool source, IStringBuilder sb, ReadOnlySpan<char> formatString);
+
+    int Format(bool source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString);
+
+    int Format(bool? source, IStringBuilder sb, ReadOnlySpan<char> formatString);
+
+    int Format(bool? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString);
+
+
     int Format<TFmtStruct>(TFmtStruct? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmtStruct : struct, ISpanFormattable;
 
     int Format<TFmtStruct>(TFmtStruct? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) where TFmtStruct : struct, ISpanFormattable;
@@ -96,8 +105,22 @@ public interface ICustomStringFormatter : IRecyclableObject
         where TFmtStruct : struct, ISpanFormattable;
 
 
+    int StringValueDelimiter(IStringBuilder sb);
+    int StringValueDelimiter(Span<char> destSpan, int destStartIndex);
+    int StringFieldDelimiter(IStringBuilder sb);
+    int StringFieldDelimiter(Span<char> destSpan, int destStartIndex);
+
+
     int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems);
     int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems);
+
+    int CollectionNextItemFormat(bool nextItem, int retrieveCount, IStringBuilder sb, string formatString);
+
+    int CollectionNextItemFormat(bool nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString);
+    
+    int CollectionNextItemFormat(bool? nextItem, int retrieveCount, IStringBuilder sb, string formatString);
+
+    int CollectionNextItemFormat(bool? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString);
 
     int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : ISpanFormattable;
 
@@ -129,4 +152,5 @@ public interface ICustomStringFormatter : IRecyclableObject
 public static class CustomStringFormatterExtensions
 {
     public static int ReturnCharCount(this IStringBuilder sb, int charsAdded) => charsAdded;
+    public static int ReturnInt<T>(this T _,  int charsAdded) => charsAdded;
 }

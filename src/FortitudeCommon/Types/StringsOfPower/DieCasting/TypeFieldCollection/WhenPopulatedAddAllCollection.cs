@@ -13,11 +13,13 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldCollection;
 
 public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 {
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<bool> value) =>
-        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<bool> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<bool?> value) =>
-        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<bool?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TFmt>(ReadOnlySpan<char> fieldName, Span<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
@@ -94,11 +96,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
     
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value) =>
-        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value) =>
-        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
@@ -175,11 +179,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, bool[]? value) =>
-        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAll(string fieldName, bool[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, bool?[]? value) =>
-        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAll(string fieldName, bool?[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TFmt>(string fieldName, TFmt?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
@@ -224,11 +230,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value is { Length: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool>? value) =>
-        !stb.SkipFields && value is { Count: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Count: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool?>? value) =>
-        !stb.SkipFields && value is { Count: > 0 } ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && value is { Count: > 0 } ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
@@ -275,11 +283,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
         !stb.SkipFields && value is { Count: > 0 } ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<bool>? value) =>
-        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<bool>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<bool?>? value) =>
-        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<bool?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        !stb.SkipFields && (value?.Any() ?? false) ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAllEnumerate<TFmt>(string fieldName, IEnumerable<TFmt?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
@@ -326,7 +336,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         WhenPopulatedAddAllMatchEnumerate(fieldName, value, formatString);
 
-    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool>? value)
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -334,11 +345,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<IEnumerator<bool>, bool>(value!);
             while (hasValue)
             {
-                eoctb.AddElementAndGoToNextElement(value!.Current);
+                eoctb.AddElementAndGoToNextElement(value!.Current, formatString);
                 hasValue = value.MoveNext();
             }
             eoctb.AppendCollectionComplete();
@@ -347,7 +359,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool?>? value)
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -355,11 +368,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<IEnumerator<bool?>, bool?>(value!);
             while (hasValue)
             {
-                eoctb.AddElementAndGoToNextElement(value!.Current);
+                eoctb.AddElementAndGoToNextElement(value!.Current, formatString);
                 hasValue = value.MoveNext();
             }
             eoctb.AppendCollectionComplete();
@@ -378,6 +392,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<TFmt>(value!);
             while (hasValue)
@@ -401,6 +416,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value!);
             while (hasValue)
@@ -514,6 +530,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<string>(value!);
             while (hasValue)
@@ -536,6 +553,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<TCharSeq?>(value!);
             while (hasValue)
@@ -558,6 +576,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<StringBuilder>(value!);
             while (hasValue)
@@ -580,6 +599,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<TAny>(value!);
             while (hasValue)

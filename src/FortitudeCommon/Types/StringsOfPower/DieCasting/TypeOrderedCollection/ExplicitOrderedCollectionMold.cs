@@ -42,6 +42,29 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         return AppendNextCollectionItemSeparator();
     }
 
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(bool element, string? formatString = null)
+    {
+        if (CompAsOrderedCollection.SkipBody) return this;
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(element, ++elementCount, CompAsOrderedCollection.Sb, formatString ?? "");
+        return AppendNextCollectionItemSeparator();
+    }
+
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(bool? element, string? formatString = null)
+    {
+        if (CompAsOrderedCollection.SkipBody) return this;
+        if (element == null)
+        {
+            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            {
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                return AppendNextCollectionItemSeparator();
+            }
+            return CompAsOrderedCollection.StyleTypeBuilder;
+        }
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(element, ++elementCount, CompAsOrderedCollection.Sb, formatString ?? "");
+        return AppendNextCollectionItemSeparator();
+    }
+
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TFmtElement>(TFmtElement? element, string? formatString = null)
         where TFmtElement : TElement, ISpanFormattable
     {
@@ -213,10 +236,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
                 return AppendNextCollectionItemSeparator();
             }
         }
-        if (formatString is not null)
-            CompAsOrderedCollection.AppendFormattedCollectionItemMatchOrNull(element, ++elementCount, formatString);
-        else
-            CompAsOrderedCollection.AppendCollectionItemMatchOrNull(element, ++elementCount);
+        CompAsOrderedCollection.AppendFormattedCollectionItemMatchOrNull(element, ++elementCount, formatString ?? "");
         return AppendNextCollectionItemSeparator();
     }
 

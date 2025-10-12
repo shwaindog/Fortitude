@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -13,7 +12,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldCollection;
 #pragma warning disable CS0618 // Type or member is obsolete
 public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 {
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<bool> value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<bool> value, OrderedCollectionPredicate<bool> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         var collectionType = typeof(Span<bool>);
@@ -22,6 +22,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -40,7 +41,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, true, collectionType);
                 }
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -53,7 +54,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         var collectionType = typeof(Span<bool?>);
@@ -62,6 +64,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -80,7 +83,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, true, collectionType);
                 }
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -105,6 +108,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -123,7 +127,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -148,6 +152,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -166,7 +171,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -191,6 +196,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -209,7 +215,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -487,6 +493,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -505,7 +512,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -528,6 +535,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -546,7 +554,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -570,6 +578,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -588,7 +597,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -612,6 +621,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -630,7 +640,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -644,8 +654,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
-      , OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , OrderedCollectionPredicate<StringBuilder> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         var collectionType = typeof(Span<StringBuilder>);
@@ -654,6 +663,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -672,7 +682,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -696,6 +706,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -714,7 +725,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -738,6 +749,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -756,7 +768,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -781,6 +793,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -799,7 +812,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -823,7 +836,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString);
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value, OrderedCollectionPredicate<bool> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         var collectionType = typeof(ReadOnlySpan<bool>);
@@ -832,6 +846,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -850,7 +865,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, true, collectionType);
                 }
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -863,7 +878,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         var collectionType = typeof(ReadOnlySpan<bool?>);
@@ -872,6 +888,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var matchedItems = 0;
         if (value.Length > 0)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -890,7 +907,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, true, collectionType);
                 }
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1637,12 +1654,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString);
 
-    public TExt WhenPopulatedWithFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         ExplicitOrderedCollectionMold<bool>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -1661,7 +1680,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<bool[], bool>(value);
                 }
-                eocm.AddElementAndGoToNextElement(item);
+                eocm.AddElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1674,12 +1693,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -1698,7 +1719,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<bool?[], bool?>(value);
                 }
-                eocm.AddElementAndGoToNextElement(item);
+                eocm.AddElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1720,6 +1741,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -1760,6 +1782,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TFmtStruct?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -1955,6 +1978,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<string?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -1995,6 +2019,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TCharSeq?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -2033,6 +2058,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<StringBuilder?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -2072,6 +2098,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
@@ -2109,12 +2136,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString);
 
 
-    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
@@ -2133,7 +2162,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<bool?>(value);
                 }
-                eocm.AddElementAndGoToNextElement(item);
+                eocm.AddElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2146,12 +2175,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
@@ -2170,7 +2201,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<bool?>(value);
                 }
-                eocm.AddElementAndGoToNextElement(item);
+                eocm.AddElementAndGoToNextElement(item, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2192,6 +2223,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
@@ -2231,6 +2263,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TFmtStruct?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
@@ -2425,6 +2458,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<string?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
@@ -2464,6 +2498,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TCharSeq>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
@@ -2503,6 +2538,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<StringBuilder?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
@@ -2542,6 +2578,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
@@ -2578,7 +2615,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString);
     
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -2587,6 +2625,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<bool>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
@@ -2608,7 +2647,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<bool>(value);
                 }
-                stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2622,7 +2661,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
@@ -2631,6 +2671,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
@@ -2652,7 +2693,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<bool?>(value);
                 }
-                stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2677,6 +2718,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
@@ -2698,7 +2740,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TFmt>(value);
                 }
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2723,6 +2765,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TFmtStruct?>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
@@ -2744,7 +2787,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value);
                 }
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2952,6 +2995,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<string>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
@@ -2973,10 +3017,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<string>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3001,6 +3042,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<StringBuilder>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
@@ -3022,10 +3064,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3049,6 +3088,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<StringBuilder>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
@@ -3070,10 +3110,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3100,6 +3137,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
@@ -3121,10 +3159,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TAny>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         }
@@ -3148,6 +3183,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<object>? eocm = null;
         if (value != null)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
@@ -3169,10 +3205,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<object>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
         }
@@ -3184,7 +3217,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -3194,6 +3228,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<bool>? eocm = null;
         if (hasValue)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             while (hasValue)
@@ -3221,7 +3256,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<bool>(value);
                 }
-                stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3236,7 +3271,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
@@ -3246,6 +3282,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (hasValue)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             while (hasValue)
@@ -3273,7 +3310,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<bool?>(value);
                 }
-                stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3301,6 +3338,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (hasValue)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             while (hasValue)
@@ -3328,7 +3366,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TFmt>(value);
                 }
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3355,6 +3393,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<TFmtStruct?>? eocm = null;
         if (hasValue)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             while (hasValue)
@@ -3382,7 +3421,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value);
                 }
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3626,6 +3665,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<string>? eocm = null;
         if (hasValue)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             while (hasValue)
@@ -3653,10 +3693,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<string>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3682,6 +3719,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<StringBuilder>? eocm = null;
         if (hasValue)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             while (hasValue)
@@ -3710,10 +3748,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(value);
                 }
                 
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3739,6 +3774,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ExplicitOrderedCollectionMold<StringBuilder>? eocm = null;
         if (hasValue)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             while (hasValue)
@@ -3767,10 +3803,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(value);
                 }
 
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3799,6 +3832,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var itemCount = 0;
         if (hasValue)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             while (hasValue)
@@ -3826,10 +3860,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TAny>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3857,6 +3888,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var itemCount = 0;
         if (hasValue)
         {
+            formatString ??= "";
             var count     = 0;
             var skipCount = 0;
             while (hasValue)
@@ -3884,10 +3916,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<object>(value);
                 }
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;

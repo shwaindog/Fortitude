@@ -14,9 +14,10 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 public partial class SelectTypeField<TExt> where TExt : TypeMolder
 {
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, bool value, bool defaultValue = false) =>
+    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, bool value, bool defaultValue = false
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != defaultValue
-            ? AlwaysAdd(fieldName, value)
+            ? AlwaysAdd(fieldName, value, formatString)
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value, TFmt? defaultValue = default(TFmt)

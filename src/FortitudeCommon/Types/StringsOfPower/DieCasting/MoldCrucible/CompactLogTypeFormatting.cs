@@ -87,12 +87,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
       , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null) where TMold : TypeMolder
     {
-        _ = keyFormatString.IsNotNullOrEmpty()
-            ? typeMold.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-            : typeMold.AppendMatchOrNull(key, true).FieldEnd();
-        _ = valueFormatString.IsNotNullOrEmpty()
-            ? typeMold.AppendMatchFormattedOrNull(value, valueFormatString)
-            : typeMold.AppendMatchOrNull(value);
+        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true).FieldEnd();
+        typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "");
         return typeMold;
     }
 
@@ -100,9 +96,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null)
         where TMold : TypeMolder where TValue : TVBase
     {
-        _ = keyFormatString.IsNotNullOrEmpty()
-            ? typeMold.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-            : typeMold.AppendMatchOrNull(key, true).FieldEnd();
+        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true).FieldEnd();
         valueStyler(value, typeMold.Master);
         return typeMold;
     }
@@ -140,10 +134,22 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount
       , string? formatString = null)
     {
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            sb.AppendFormat(this, formatString, item);
-        else
-            sb.Append(item, this);
+        if (item == null)
+        {
+            return sb.Append(StyleOptions.NullStyle);
+        }
+        sb.AppendFormat(this, formatString ?? "", item);
+        return sb;
+    }
+
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount
+      , string? formatString = null)
+    {
+        if (item == null)
+        {
+            return sb.Append(StyleOptions.NullStyle);
+        }
+        sb.AppendFormat(this, formatString ?? "", item);
         return sb;
     }
 
@@ -194,12 +200,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             : sb.Append(source);
 
     public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool source, string? formatString = null)  => 
-        sb.Append(source ? Options.True : Options.False);
+        Format(source, sb, formatString).ToStringBuilder(sb);
 
     public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null)  =>
         (source != null
-            ? sb.Append(source.Value ? Options.True : Options.False)
-            : sb.Append(StyleOptions.NullStyle));
+            ? Format(source, sb, formatString)
+            : base.Format(StyleOptions.NullStyle, 0, sb, formatString)).ToStringBuilder(sb);
 
     public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null) where TFmt : ISpanFormattable =>
         base.Format(source, sb, formatString).ToStringBuilder(sb);

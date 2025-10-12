@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -13,17 +12,18 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 public partial class OrderedCollectionMold<TExt> 
     where TExt : TypeMolder
 {
-    public TExt AddAll(bool[]? value)
+    public TExt AddAll(bool[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, (value?.Length ?? 0)  > 0);
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -31,17 +31,19 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(bool?[]? value)
+    public TExt AddAll(bool?[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, (value?.Length ?? 0) > 0);
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -49,7 +51,8 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(Span<bool> value)
+    public TExt AddAll(Span<bool> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -57,10 +60,11 @@ public partial class OrderedCollectionMold<TExt>
         
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -68,7 +72,8 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(ReadOnlySpan<bool> value)
+    public TExt AddAll(ReadOnlySpan<bool> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -76,10 +81,11 @@ public partial class OrderedCollectionMold<TExt>
         
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -87,17 +93,19 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(Span<bool?> value)
+    public TExt AddAll(Span<bool?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -105,17 +113,19 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(ReadOnlySpan<bool?> value)
+    public TExt AddAll(ReadOnlySpan<bool?> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -123,17 +133,19 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(IReadOnlyList<bool>? value)
+    public TExt AddAll(IReadOnlyList<bool>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, (value?.Count ?? 0) > 0);
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -141,17 +153,19 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll(IReadOnlyList<bool?>? value)
+    public TExt AddAll(IReadOnlyList<bool?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, (value?.Count ?? 0) > 0);
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 var item = value[i];
-                stb.AppendCollectionItem(item, i);
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -159,7 +173,8 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate(IEnumerable<bool>? value)
+    public TExt AddAllEnumerate(IEnumerable<bool>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -167,11 +182,12 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (value != null)
         {
+            formatString ??= "";
             foreach (var item in value)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -180,7 +196,8 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate(IEnumerable<bool?>? value)
+    public TExt AddAllEnumerate(IEnumerable<bool?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -188,11 +205,12 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (value != null)
         {
+            formatString ??= "";
             foreach (var item in value)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -201,7 +219,8 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate(IEnumerator<bool>? value)
+    public TExt AddAllEnumerate(IEnumerator<bool>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -210,13 +229,14 @@ public partial class OrderedCollectionMold<TExt>
         var hasValue  = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             while (hasValue)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -226,7 +246,8 @@ public partial class OrderedCollectionMold<TExt>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate(IEnumerator<bool?>? value)
+    public TExt AddAllEnumerate(IEnumerator<bool?>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -235,13 +256,14 @@ public partial class OrderedCollectionMold<TExt>
         var hasValue  = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             while (hasValue)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendCollectionItem(item, itemCount);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -259,13 +281,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -282,13 +305,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -305,13 +329,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -328,13 +353,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -351,13 +377,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -374,13 +401,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -397,13 +425,14 @@ public partial class OrderedCollectionMold<TExt>
         var any      = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -420,13 +449,14 @@ public partial class OrderedCollectionMold<TExt>
         var any      = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -443,13 +473,14 @@ public partial class OrderedCollectionMold<TExt>
         var any      = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -466,13 +497,14 @@ public partial class OrderedCollectionMold<TExt>
         var any      = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -490,11 +522,12 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (value != null)
         {
+            formatString ??= "";
             foreach (var item in value)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -512,11 +545,12 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (value != null)
         {
+            formatString ??= "";
             foreach (var item in value)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -535,12 +569,13 @@ public partial class OrderedCollectionMold<TExt>
         var hasValue    = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             while (hasValue)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
                 var item = value!.Current;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -560,12 +595,13 @@ public partial class OrderedCollectionMold<TExt>
         var hasValue    = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             while (hasValue)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
                 var item = value!.Current;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString ?? "");
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1229,16 +1265,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1254,16 +1288,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1279,16 +1311,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1304,16 +1334,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1329,16 +1357,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1354,16 +1380,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1380,14 +1404,12 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (value != null)
         {
+            formatString ??= "";
             foreach (var item in value)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1405,16 +1427,14 @@ public partial class OrderedCollectionMold<TExt>
         var hasValue    = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             while (hasValue)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value!.Current;
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1432,16 +1452,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1458,16 +1476,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1484,16 +1500,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1510,16 +1524,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1536,16 +1548,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1562,16 +1572,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1589,14 +1597,12 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (value != null)
         {
+            formatString ??= "";
             foreach (var item in value)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1615,16 +1621,14 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (hasValue)
         {
+            formatString ??= "";
             while (hasValue)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value!.Current;
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1641,16 +1645,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1666,16 +1668,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1691,16 +1691,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1716,16 +1714,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1741,16 +1737,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1766,16 +1760,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, i);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1792,14 +1784,12 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (value != null)
         {
+            formatString ??= "";
             foreach (var item in value)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1817,16 +1807,14 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (hasValue)
         {
+            formatString ??= "";
             while (hasValue)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value!.Current;
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1843,16 +1831,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1868,16 +1854,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1893,16 +1877,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1918,16 +1900,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1943,16 +1923,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1968,16 +1946,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1994,14 +1970,12 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (value != null)
         {
+            formatString ??= "";
             foreach (var item in value)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -2019,16 +1993,14 @@ public partial class OrderedCollectionMold<TExt>
         var hasValue    = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             while (hasValue)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value!.Current;
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -2046,16 +2018,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -2072,16 +2042,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -2098,16 +2066,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -2124,16 +2090,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -2150,16 +2114,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Length; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -2176,16 +2138,14 @@ public partial class OrderedCollectionMold<TExt>
         var any         = false;
         if (value != null)
         {
+            formatString ??= "";
             for (var i = 0; i < value.Count; i++)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value[i];
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, i);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -2203,14 +2163,12 @@ public partial class OrderedCollectionMold<TExt>
         var itemCount   = 0;
         if (value != null)
         {
+            formatString ??= "";
             foreach (var item in value)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -2229,16 +2187,14 @@ public partial class OrderedCollectionMold<TExt>
         var hasValue    = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            formatString ??= "";
             while (hasValue)
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 var item = value!.Current;
                 
                 any = true;
-                if (formatString.IsNotNullOrEmpty())
-                    stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
-                else
-                    stb.AppendCollectionItemMatchOrNull(item, itemCount);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }

@@ -27,6 +27,8 @@ public partial class KeyValueCollectionMold
 
         if (value != null)
         {
+            valueFormatString ??= "";
+            keyFormatString   ??= "";
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             ItemCount = 0;
             for (var i = 0; i < value.Length; i++)
@@ -42,12 +44,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
-                _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendMatchOrNull(kvp.Value);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -65,6 +63,8 @@ public partial class KeyValueCollectionMold
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            valueFormatString ??= "";
+            keyFormatString   ??= "";
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             ItemCount = 0;
             for (var i = 0; i < value.Count; i++)
@@ -80,12 +80,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
-                _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendMatchOrNull(kvp.Value);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -103,6 +99,8 @@ public partial class KeyValueCollectionMold
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            valueFormatString ??= "";
+            keyFormatString   ??= "";
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             var count     = 0;
             var skipCount = 0;
@@ -120,12 +118,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
-                _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendMatchOrNull(kvp.Value);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -144,6 +138,8 @@ public partial class KeyValueCollectionMold
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            valueFormatString ??= "";
+            keyFormatString   ??= "";
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             var count     = 0;
             var skipCount = 0;
@@ -167,12 +163,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
-                _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendMatchOrNull(kvp.Value);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -196,6 +188,7 @@ public partial class KeyValueCollectionMold
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            keyFormatString   ??= "";
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             ItemCount = 0;
             for (var i = 0; i < value.Length; i++)
@@ -211,9 +204,7 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -232,6 +223,7 @@ public partial class KeyValueCollectionMold
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            keyFormatString   ??= "";
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             ItemCount = 0;
             for (var i = 0; i < value.Count; i++)
@@ -247,9 +239,7 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -267,6 +257,7 @@ public partial class KeyValueCollectionMold
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         if (value != null)
         {
+            keyFormatString   ??= "";
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             var skipCount = 0;
             int count     = 0;
@@ -285,9 +276,7 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -306,6 +295,7 @@ public partial class KeyValueCollectionMold
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
+            keyFormatString   ??= "";
             var kvpType   = typeof(KeyValuePair<TKey, TValue>);
             var count     = 0;
             var skipCount = 0;
@@ -329,9 +319,7 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd()
-                    : stb.AppendMatchOrNull(kvp.Key, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount);

@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -47,17 +48,19 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         CompAccess.StyleFormatter.AppendValueTypeClosing(CompAccess.Sb, CompAccess.TypeBeingBuilt);
     }
 
-    public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, bool value) =>
-        Stb.FieldValueNext(nonJsonfieldName, value);
+    public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, bool value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        Stb.FieldValueNext(nonJsonfieldName, value, formatString);
 
-    public TExt AsValue(bool value) =>
-        Stb.FieldValueNext("", value);
+    public TExt AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        Stb.FieldValueNext("", value, formatString);
 
-    public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, bool? value) =>
-        Stb.FieldValueNext(nonJsonfieldName, value);
+    public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, bool? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        Stb.FieldValueNext(nonJsonfieldName, value, formatString);
 
-    public TExt AsValueOrNull(bool? value) =>
-        Stb.FieldValueNext("", value);
+    public TExt AsValueOrNull(bool? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        Stb.FieldValueNext("", value, formatString);
 
     public TExt AsValue<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value, string? formatString = null) where TFmt : ISpanFormattable =>
         Stb.FieldValueNext(nonJsonfieldName, value, formatString);
@@ -284,17 +287,19 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , string? formatString = null) =>
         Stb.ValueMatchOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString);
 
-    public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, bool value) =>
-        Stb.FieldStringNext(nonJsonfieldName, value);
+    public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, bool value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        Stb.FieldStringNext(nonJsonfieldName, value, formatString);
 
-    public TExt AsString(bool value) =>
-        AsString("", value);
+    public TExt AsString(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        AsString("", value, formatString);
 
-    public TExt AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, bool? value) =>
-        Stb.FieldStringNext(nonJsonfieldName, value);
+    public TExt AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, bool? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        Stb.FieldStringNext(nonJsonfieldName, value, formatString);
 
-    public TExt AsStringOrNull(bool? value) =>
-        AsStringOrNull("", value);
+    public TExt AsStringOrNull(bool? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        AsStringOrNull("", value, formatString);
 
     public TExt AsString<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value, string? formatString = null) where TFmt : ISpanFormattable =>
         Stb.FieldStringOrNullNext(nonJsonfieldName, value, formatString);

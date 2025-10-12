@@ -53,13 +53,19 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool source, string? formatString = null) =>
-        sb.Append(DblQt).Append(source ? Options.True : Options.False).Append(DblQt).ToStringBuilder(sb);
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool source, string? formatString = null)
+    {
+        sb.Append(DblQt);
+        Format(source, sb, formatString);
+        return sb.Append(DblQt);
+    }
 
-    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null)  =>
-        source != null
-            ? (sb.Append(DblQt).Append(source.Value ? Options.True : Options.False).Append(DblQt))
-            : sb.Append(DblQt).Append(StyleOptions.NullStyle).Append(DblQt);
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null)
+    {
+        sb.Append(DblQt);
+        Format(source, sb, formatString);
+        return sb.Append(DblQt);
+    }
 
     public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null) where TFmt : ISpanFormattable
     {
@@ -273,9 +279,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , string? formatString = null
       , int maxTransferCount = int.MaxValue)
     {
-        sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
-        sb.Append(DblQt);
         return sb;
     }
 
@@ -340,24 +344,17 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             AppendComplexTypeOpening(typeMold.Sb, keyedCollectionType);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd(this);
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? typeMold.AppendMatchFormattedOrNull(key, keyFormatString, true)
-                : typeMold.AppendMatchOrNull(key, true);
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true);
             AddNextFieldSeparator(typeMold.Sb);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(this);
-            _ = valueFormatString.IsNotNullOrEmpty()
-                ? typeMold.AppendMatchFormattedOrNull(value, valueFormatString)
-                : typeMold.AppendMatchOrNull(value);
+            typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "");
             AppendTypeClosing(typeMold.Sb);
         }
         else
         {
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? typeMold.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                : typeMold.AppendMatchOrNull(key, true).FieldEnd();
-            _ = valueFormatString.IsNotNullOrEmpty()
-                ? typeMold.AppendMatchFormattedOrNull(value, valueFormatString)
-                : typeMold.AppendMatchOrNull(value);
+
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true).FieldEnd();
+            typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "");
         }
         return typeMold;
     }
@@ -372,9 +369,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             AppendComplexTypeOpening(typeMold.Sb, keyedCollectionType);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd(this);
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? typeMold.AppendMatchFormattedOrNull(key, keyFormatString, true)
-                : typeMold.AppendMatchOrNull(key, true);
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true);
             AddNextFieldSeparator(typeMold.Sb);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(this);
             valueStyler(value, typeMold.Master);
@@ -382,9 +377,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         }
         else
         {
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? typeMold.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                : typeMold.AppendMatchOrNull(key, true).FieldEnd();
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true).FieldEnd();
             valueStyler(value, typeMold.Master);
         }
         return typeMold;
@@ -450,10 +443,21 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             return sb.Append(StyleOptions.NullStyle);
         }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            sb.AppendFormat(this, formatString, item);
-        else
-            sb.Append(item, this);
+        
+        sb.Append(DblQt);
+        Format(item, 0, sb, formatString ?? "");
+        sb.Append(DblQt);
+        return sb;
+    }
+
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount
+      , string? formatString = null)
+    {
+        if (item == null)
+        {
+            return sb.Append(StyleOptions.NullStyle);
+        }
+        Format(item, 0, sb, formatString ?? "");
         return sb;
     }
 
@@ -464,10 +468,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             return sb.Append(StyleOptions.NullStyle);
         }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            sb.Append(item, 0, item.Length, formatString, this);
-        else
-            sb.Append(item, this);
+        Format(item, 0, sb, formatString ?? "");
         return sb;
     }
 
@@ -478,10 +479,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             return sb.Append(StyleOptions.NullStyle);
         }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            sb.Append(item, 0, item.Length, formatString, this);
-        else
-            sb.Append(item, this);
+        Format(item, 0, sb, formatString ?? "");
         return sb;
     }
 

@@ -199,9 +199,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsBoolArray()) continue;
+            if (methodParams[1].ParameterType != StringType) continue;
 
             foundMatch = mi;
             break;
@@ -220,9 +221,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsNullableBoolArray()) continue;
+            if (methodParams[1].ParameterType != StringType) continue;
 
             foundMatch = mi;
             break;
@@ -403,9 +405,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsBoolList()) continue;
+            if (methodParams[1].ParameterType != StringType) continue;
 
             foundMatch = mi;
             break;
@@ -424,9 +427,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsReadOnlyListOfNullable(BoolType)) continue;
+            if (methodParams[1].ParameterType != StringType) continue;
 
             foundMatch = mi;
             break;
@@ -607,9 +611,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOf(BoolType)) continue;
+            if (methodParams[1].ParameterType != StringType) continue;
 
             foundMatch = mi;
             break;
@@ -628,9 +633,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOfNullable(BoolType)) continue;
+            if (methodParams[1].ParameterType != StringType) continue;
 
             foundMatch = mi;
             break;
@@ -811,9 +817,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOf(BoolType)) continue;
+            if (methodParams[1].ParameterType != StringType) continue;
 
             foundMatch = mi;
             break;
@@ -832,9 +839,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOfNullable(BoolType)) continue;
+            if (methodParams[1].ParameterType != StringType) continue;
 
             foundMatch = mi;
             break;
