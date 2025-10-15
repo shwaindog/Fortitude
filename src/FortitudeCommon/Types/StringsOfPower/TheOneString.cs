@@ -5,6 +5,7 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
@@ -208,6 +209,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
+        OrderedObjectGraph.Clear();
 
         return this;
     }
@@ -222,6 +224,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
+        OrderedObjectGraph.Clear();
 
         return this;
     }
@@ -461,6 +464,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
+        
+        OrderedObjectGraph.Clear();
 
         return this;
     }
@@ -500,10 +505,18 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         newType.Start();
         newVisit = newVisit.SetBufferFirstFieldStart(Sb!.Length);
-        OrderedObjectGraph.Add(newVisit);
+        
+        if(!IsExemptFromCircularRefNodeTracking(newType.TypeBeingBuilt))
+            OrderedObjectGraph.Add(newVisit);
 
         CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
         nextTypeAppendSettings = new MoldDieCastSettings(SkipTypeParts.None);
+    }
+
+    public bool IsExemptFromCircularRefNodeTracking(Type typeStarted)
+    {
+        return typeStarted.IsString() || typeStarted.IsStringBuilder() || typeStarted.IsCharArray() 
+            || typeStarted.IsCharSequence() || typeStarted.IsArrayOf(typeof(Rune));
     }
 
     protected void PopCurrentSettings()
@@ -588,14 +601,14 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
               , _                   => 4
             }; //
 
-        var idSpan = stackalloc char[refDigitsCount + 8].ResetMemory();
+        Span<char> idSpan = stackalloc char[refDigitsCount + 8];
         idSpan.Append("\"$id\":\"");
         var insert = idSpan[7..];
         if (refId.TryFormat(insert, out var written, ""))
         {
             idSpan.Append("\"");
             var shiftBy = idSpan.Length;
-            Sb!.InsertAt(idSpan, indexToInsertAt);
+            Sb!.InsertAt(idSpan, indexToInsertAt, shiftBy);
             shiftBy += Settings.StyledTypeFormatter.InsertFieldSeparatorAt(Sb!, indexToInsertAt + idSpan.Length, Settings
                                                                          , forThisNode.IndentLevel + 1);
             for (int i = graphNodeIndex; i < OrderedObjectGraph.Count; i++)

@@ -53,19 +53,11 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool source, string? formatString = null)
-    {
-        sb.Append(DblQt);
-        Format(source, sb, formatString);
-        return sb.Append(DblQt);
-    }
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool source, string? formatString = null) => 
+        Format(source, sb, formatString).ToStringBuilder(sb);
 
-    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null)
-    {
-        sb.Append(DblQt);
-        Format(source, sb, formatString);
-        return sb.Append(DblQt);
-    }
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null) => 
+        Format(source, sb, formatString).ToStringBuilder(sb);
 
     public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null) where TFmt : ISpanFormattable
     {
@@ -86,40 +78,40 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return FormatFieldName(sb, source.Value, formatString);
     }
 
-    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
-      , string? formatString = null, int maxTransferCount = int.MaxValue)
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
         return sb.Append(DblQt);
     }
 
-    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, char[] source, int sourceFrom = 0
-      , string? formatString = null, int maxTransferCount = int.MaxValue)
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, char[] source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
         return sb.Append(DblQt);
     }
 
-    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, ICharSequence source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, ICharSequence source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
         return sb.Append(DblQt);
     }
 
-    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, StringBuilder source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
         return sb.Append(DblQt);
     }
 
-    public virtual IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase
+    public virtual IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler) 
+        where TCloaked : TCloakedBase
     {
         var sb           = tos.WriteBuffer;
         var preAppendLen = sb.Length;
@@ -154,10 +146,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             rawValue = source.ToString() ?? "";
         }
-        if (formatString.IsNotNullOrEmpty())
-            sb.AppendFormat(this, formatString, rawValue);
-        else
-            sb.Append(rawValue);
+        sb.AppendFormat(this, formatString ?? "{0}", rawValue);
         return sb;
     }
 
@@ -182,12 +171,12 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source
-      , string? formatString = null) where TFmt : ISpanFormattable =>
+    public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null) 
+        where TFmt : ISpanFormattable =>
         base.Format(source, sb, formatString ?? "").ToStringBuilder(sb);
 
-    public virtual IStringBuilder FormatFieldContents<TFmtStruct>(IStringBuilder sb, TFmtStruct? source
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable
+    public virtual IStringBuilder FormatFieldContents<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null) 
+        where TFmtStruct : struct, ISpanFormattable
     {
         if (!source.HasValue)
         {
@@ -196,8 +185,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return FormatFieldContents(sb, source.Value, formatString);
     }
 
-    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
@@ -240,8 +229,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ICharSequence source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ICharSequence source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
         if (JsonOptions.CharArrayWritesString)
         {
@@ -274,9 +263,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, StringBuilder source
-      , int sourceFrom = 0
-      , string? formatString = null
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue)
     {
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
@@ -302,8 +289,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
 
-    public virtual IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb
-      , Type keyedCollectionType, Type keyType, Type valueType) 
+    public virtual IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType) 
     {
         if (StyleOptions.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
@@ -318,8 +304,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount) 
+    public virtual IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
+      , int totalItemCount) 
     {
         if (StyleOptions.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
@@ -436,8 +422,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return tos.WriteBuffer;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item
-      , int retrieveCount, string? formatString = null)
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount, string? formatString = null)
     {
         if (item == null)
         {
@@ -450,8 +435,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount
-      , string? formatString = null)
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount, string? formatString = null)
     {
         if (item == null)
         {
@@ -461,8 +445,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item
-      , int retrieveCount, string? formatString = null) where TCharSeq : ICharSequence
+    public virtual IStringBuilder CollectionNextItemFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount
+      , string? formatString = null) where TCharSeq : ICharSequence
     {
         if (item == null)
         {

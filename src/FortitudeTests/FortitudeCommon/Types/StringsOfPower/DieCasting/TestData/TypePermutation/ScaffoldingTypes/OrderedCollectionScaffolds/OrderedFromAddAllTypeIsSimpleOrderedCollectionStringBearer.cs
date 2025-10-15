@@ -1402,7 +1402,7 @@ public class OrderedFromNullableStringBearerEnumeratorRevealAllSimpleOrderedColl
     public IEnumerator<TBearerStruct?> GetEnumerator() => Value!;
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringArrayAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString, IMoldSupportedValue<string?[]?>
   , IEnumerable<string?>
 {
@@ -1427,7 +1427,7 @@ public class OrderedFromStringArrayAddAllSimpleOrderedCollectionStringBearer : I
     public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringSpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString, IMoldSupportedValue<string[]?>
   , IEnumerable<string>
 {
@@ -1452,7 +1452,7 @@ public class OrderedFromStringSpanAddAllSimpleOrderedCollectionStringBearer : IS
     public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringNullableSpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString, IMoldSupportedValue<string?[]?>
   , IEnumerable<string?>
 {
@@ -1477,7 +1477,7 @@ public class OrderedFromStringNullableSpanAddAllSimpleOrderedCollectionStringBea
     public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString, IMoldSupportedValue<string[]?>
   , IEnumerable<string>
 {
@@ -1502,7 +1502,7 @@ public class OrderedFromStringReadOnlySpanAddAllSimpleOrderedCollectionStringBea
     public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsChars |
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsString |
                   SupportsValueFormatString)]
 public class OrderedFromStringNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<string?[]?>, IEnumerable<string?>
@@ -1528,7 +1528,7 @@ public class OrderedFromStringNullableReadOnlySpanAddAllSimpleOrderedCollectionS
     public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringListAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<IReadOnlyList<string?>?>, IEnumerable<string?>
 {
@@ -1553,7 +1553,7 @@ public class OrderedFromStringListAddAllSimpleOrderedCollectionStringBearer : IS
     public IEnumerator<string?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsString |
                   SupportsValueFormatString)]
 public class OrderedFromStringEnumerableAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<IEnumerable<string?>?>, IEnumerable<string?>
@@ -1579,7 +1579,7 @@ public class OrderedFromStringEnumerableAddAllSimpleOrderedCollectionStringBeare
     public IEnumerator<string?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsString |
                   SupportsValueFormatString)]
 public class OrderedFromStringEnumeratorAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<IEnumerator<string?>?>, IEnumerable<string?>
@@ -1605,7 +1605,7 @@ public class OrderedFromStringEnumeratorAddAllSimpleOrderedCollectionStringBeare
     public IEnumerator<string?> GetEnumerator() => Value!;
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceArrayAddAllSimpleOrderedCollectionStringBearer<TCharSeq> : ISupportsValueFormatString
   , IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
@@ -1630,7 +1630,7 @@ public class OrderedFromCharSequenceArrayAddAllSimpleOrderedCollectionStringBear
     public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceSpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> : ISupportsValueFormatString
   , IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq> where TCharSeq : ICharSequence
 {
@@ -1655,7 +1655,7 @@ public class OrderedFromCharSequenceSpanAddAllSimpleOrderedCollectionStringBeare
     public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceNullableSpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> : ISupportsValueFormatString
   , IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
@@ -1680,7 +1680,7 @@ public class OrderedFromCharSequenceNullableSpanAddAllSimpleOrderedCollectionStr
     public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> : ISupportsValueFormatString
   , IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq> where TCharSeq : ICharSequence
 {
@@ -1705,7 +1705,7 @@ public class OrderedFromCharSequenceReadOnlySpanAddAllSimpleOrderedCollectionStr
     public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsChars |
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsCharSequence |
                   SupportsValueFormatString)]
 public class OrderedFromCharSequenceNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
     : ISupportsValueFormatString, IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
@@ -1731,7 +1731,7 @@ public class OrderedFromCharSequenceNullableReadOnlySpanAddAllSimpleOrderedColle
     public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceListAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
     : ISupportsValueFormatString, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>, IEnumerable<TCharSeq?> where TCharSeq : ICharSequence
 {
@@ -1756,7 +1756,7 @@ public class OrderedFromCharSequenceListAddAllSimpleOrderedCollectionStringBeare
     public IEnumerator<TCharSeq?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence |
                   SupportsValueFormatString)]
 public class OrderedFromCharSequenceEnumerableAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
     : ISupportsValueFormatString, IMoldSupportedValue<IEnumerable<TCharSeq?>?>, IEnumerable<TCharSeq?>
@@ -1783,7 +1783,7 @@ public class OrderedFromCharSequenceEnumerableAddAllSimpleOrderedCollectionStrin
     public IEnumerator<TCharSeq?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence |
                   SupportsValueFormatString)]
 public class OrderedFromCharSequenceEnumeratorAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
     : ISupportsValueFormatString, IMoldSupportedValue<IEnumerator<TCharSeq?>?>, IEnumerable<TCharSeq?>
@@ -1810,7 +1810,7 @@ public class OrderedFromCharSequenceEnumeratorAddAllSimpleOrderedCollectionStrin
     public IEnumerator<TCharSeq?> GetEnumerator() => Value!;
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderArrayAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
@@ -1835,7 +1835,7 @@ public class OrderedFromStringBuilderArrayAddAllSimpleOrderedCollectionStringBea
     public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderSpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
@@ -1860,7 +1860,7 @@ public class OrderedFromStringBuilderSpanAddAllSimpleOrderedCollectionStringBear
     public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderNullableSpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
@@ -1885,7 +1885,7 @@ public class OrderedFromStringBuilderNullableSpanAddAllSimpleOrderedCollectionSt
     public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
@@ -1910,7 +1910,7 @@ public class OrderedFromStringBuilderReadOnlySpanAddAllSimpleOrderedCollectionSt
     public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsChars |
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsStringBuilder |
                   SupportsValueFormatString)]
 public class OrderedFromStringBuilderNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
@@ -1936,7 +1936,7 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddAllSimpleOrderedColl
     public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderListAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
@@ -1961,7 +1961,7 @@ public class OrderedFromStringBuilderListAddAllSimpleOrderedCollectionStringBear
     public IEnumerator<StringBuilder?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder |
                   SupportsValueFormatString)]
 public class OrderedFromStringBuilderEnumerableAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<IEnumerable<StringBuilder?>?>, IEnumerable<StringBuilder?>
@@ -1987,7 +1987,7 @@ public class OrderedFromStringBuilderEnumerableAddAllSimpleOrderedCollectionStri
     public IEnumerator<StringBuilder?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsChars |
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder |
                   SupportsValueFormatString)]
 public class OrderedFromStringBuilderEnumeratorAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<IEnumerator<StringBuilder?>?>, IEnumerable<StringBuilder?>
@@ -2013,7 +2013,7 @@ public class OrderedFromStringBuilderEnumeratorAddAllSimpleOrderedCollectionStri
     public IEnumerator<StringBuilder?> GetEnumerator() => Value!;
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchArrayAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString, IMoldSupportedValue<TAny?[]?>
   , IEnumerable<TAny?>
 {
@@ -2039,7 +2039,8 @@ public class OrderedFromMatchArrayAddAllSimpleOrderedCollectionStringBearer<TAny
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsStruct | AcceptsClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder | AcceptsSpanFormattable 
+                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
 public class OrderedFromMatchSpanAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString, IMoldSupportedValue<TAny[]?>
   , IEnumerable<TAny>
@@ -2066,7 +2067,8 @@ public class OrderedFromMatchSpanAddAllSimpleOrderedCollectionStringBearer<TAny>
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableStruct | AcceptsNullableClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
 public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString, IMoldSupportedValue<TAny?[]?>
   , IEnumerable<TAny?>
@@ -2093,7 +2095,8 @@ public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBear
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsStruct | AcceptsClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
 public class OrderedFromMatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString, IMoldSupportedValue<TAny[]?>
   , IEnumerable<TAny>
@@ -2120,7 +2123,8 @@ public class OrderedFromMatchReadOnlySpanAddAllSimpleOrderedCollectionStringBear
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct | AcceptsNullableClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
 public class OrderedFromMatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString
   , IMoldSupportedValue<TAny?[]?>, IEnumerable<TAny?>
@@ -2146,7 +2150,7 @@ public class OrderedFromMatchNullableReadOnlySpanAddAllSimpleOrderedCollectionSt
     public IEnumerator<TAny?> GetEnumerator() => (IEnumerator<TAny?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchListAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString
   , IMoldSupportedValue<IReadOnlyList<TAny?>?>, IEnumerable<TAny?>
 {
@@ -2171,7 +2175,7 @@ public class OrderedFromMatchListAddAllSimpleOrderedCollectionStringBearer<TAny>
     public IEnumerator<TAny?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchEnumerableAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString
   , IMoldSupportedValue<IEnumerable<TAny?>?>, IEnumerable<TAny?>
 {
@@ -2196,7 +2200,7 @@ public class OrderedFromMatchEnumerableAddAllSimpleOrderedCollectionStringBearer
     public IEnumerator<TAny?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchEnumeratorAddAllSimpleOrderedCollectionStringBearer<TAny> : ISupportsValueFormatString
   , IMoldSupportedValue<IEnumerator<TAny?>?>, IEnumerable<TAny?>
 {
@@ -2221,7 +2225,7 @@ public class OrderedFromMatchEnumeratorAddAllSimpleOrderedCollectionStringBearer
     public IEnumerator<TAny?> GetEnumerator() => Value!;
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromObjectArrayAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString, IMoldSupportedValue<object?[]?>
   , IEnumerable<object?>
 {
@@ -2247,7 +2251,8 @@ public class OrderedFromObjectArrayAddAllSimpleOrderedCollectionStringBearer : I
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsStruct | AcceptsClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder
+                | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
 public class OrderedFromObjectSpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString, IMoldSupportedValue<object[]?>
   , IEnumerable<object>
@@ -2274,7 +2279,8 @@ public class OrderedFromObjectSpanAddAllSimpleOrderedCollectionStringBearer : IS
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | AcceptsNullableStruct | AcceptsNullableClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
 public class OrderedFromObjectNullableSpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString, IMoldSupportedValue<object?[]?>
   , IEnumerable<object?>
@@ -2301,7 +2307,8 @@ public class OrderedFromObjectNullableSpanAddAllSimpleOrderedCollectionStringBea
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsStruct | AcceptsClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
 public class OrderedFromObjectReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString, IMoldSupportedValue<object[]?>
   , IEnumerable<object>
@@ -2328,7 +2335,8 @@ public class OrderedFromObjectReadOnlySpanAddAllSimpleOrderedCollectionStringBea
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct | AcceptsNullableClass
-                | AcceptsChars | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+                | AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder
+                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | AcceptsArray | AcceptsList | AcceptsDictionary | AcceptsEnumerable | AcceptsEnumerator | SupportsValueFormatString)]
 public class OrderedFromObjectNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<object?[]?>, IEnumerable<object?>
@@ -2354,7 +2362,7 @@ public class OrderedFromObjectNullableReadOnlySpanAddAllSimpleOrderedCollectionS
     public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromObjectListAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<IReadOnlyList<object?>?>, IEnumerable<object?>
 {
@@ -2379,7 +2387,7 @@ public class OrderedFromObjectListAddAllSimpleOrderedCollectionStringBearer : IS
     public IEnumerator<object?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromObjectEnumerableAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<IEnumerable<object?>?>, IEnumerable<object?>
 {
@@ -2404,7 +2412,7 @@ public class OrderedFromObjectEnumerableAddAllSimpleOrderedCollectionStringBeare
     public IEnumerator<object?> GetEnumerator() => Value!.GetEnumerator();
 }
 
-[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromObjectEnumeratorAddAllSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , IMoldSupportedValue<IEnumerator<object?>?>, IEnumerable<object?>
 {

@@ -977,12 +977,12 @@ public static class CharSpanExtensions
     public static bool SequenceMatches(this ReadOnlySpan<char> toCheck, string matchWith, int fromIndex = 0)
     {
         var matchLength = matchWith.Length;
-        var matchIndex  = 0;
-        for (var i = fromIndex; i < toCheck.Length && matchIndex < matchLength; i++)
+        if (matchLength != toCheck.Length) return false;
+        for (var i = 0; i < matchLength; i++)
         {
-            if (toCheck[i] != matchWith[matchIndex++]) return false;
+            if (toCheck[i+fromIndex] != matchWith[i]) return false;
         }
-        return matchIndex == matchLength;
+        return true;
     }
 
     public static bool SequenceMatches(this Span<char> toCheck, string matchWith, int fromIndex = 0)

@@ -188,7 +188,7 @@ public class JsonSingleFieldSerializationTests
 
         jsonMatchOneStringSerializerOptions.WriteIndented          = true;
 
-        singlePropertyFieldClass.TestFieldRevealMode = TestFieldRevealMode.WhenNonDefault;
+        singlePropertyFieldClass.TestFieldRevealMode = TestFieldRevealMode.AlwaysAll;
         
         var textJsonStringify =
             JsonSerializer.Serialize

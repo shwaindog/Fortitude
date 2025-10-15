@@ -215,5 +215,5 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
-            : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString ?? "").AddGoToNext();
+            : stb.FieldNameJoin(fieldName).AppendMatchFormattedOrNull(value, formatString ?? "").AddGoToNext();
 }

@@ -261,6 +261,7 @@ public static class TypeExtensions
           , "Single"  => "float"
           , "Double"  => "double"
           , "Decimal" => "decimal"
+          , "String" => "string"
           , _         => type.Name
         };
 

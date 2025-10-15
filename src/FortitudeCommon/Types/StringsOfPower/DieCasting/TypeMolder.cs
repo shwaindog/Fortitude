@@ -41,7 +41,6 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
       , int existingRefId)
     {
         PortableState.TypeBeingBuilt      = typeBeingBuilt;
-        PortableState.TypeBeingBuilt      = typeBeingBuilt;
         PortableState.Master      = master;
         PortableState.TypeName            = typeName;
         PortableState.RemainingGraphDepth = remainingGraphDepth;
@@ -252,19 +251,18 @@ public static class StyledTypeBuilderExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue, bool isKeyName = false)
         where TExt : TypeMolder
     {
-        var sb = stb.Sb;
-        if (value.Length == 0)
+        var sb         = stb.Sb;
+        var cappedFrom = Math.Clamp(fromIndex, 0,  value.Length);
+        var cappedLength   = Math.Clamp(length, 0, value.Length - cappedFrom);
+        if (cappedLength == 0)
         {
             sb.Append(stb.Settings.NullStyle);
             return stb;
         }
-        var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
-        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
-        var len        = cappedTo - cappedFrom;
         if (isKeyName)
-            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, length);
         else
-            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, length);
         return stb;
     }
 
@@ -297,12 +295,10 @@ public static class StyledTypeBuilderExtensions
             return stb;
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
-        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
-        var len        = cappedTo - cappedFrom;
         if (isKeyName)
-            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, length);
         else
-            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, length);
         return stb;
     }
 
@@ -373,12 +369,10 @@ public static class StyledTypeBuilderExtensions
             return stb;
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
-        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
-        var len        = cappedTo - cappedFrom;
         if (isKeyName)
-            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, length);
         else
-            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString , len);
+            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString , length);
         return stb;
     }
 
@@ -449,12 +443,10 @@ public static class StyledTypeBuilderExtensions
             return stb;
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
-        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
-        var len        = cappedTo - cappedFrom;
         if (isKeyName)
-            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, length);
         else
-            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, length);
         return stb;
     }
 
@@ -596,7 +588,7 @@ public static class StyledTypeBuilderExtensions
                 case Guid valueGuid:           stb.AppendFormattedCollectionItem(valueGuid, retrieveCount, formatString); break;
                 case IPNetwork valueIpNetwork: stb.AppendFormattedCollectionItem(valueIpNetwork, retrieveCount, formatString); break;
                 case char[] valueCharArray:    stb.AppendFormattedCollectionItemOrNull(valueCharArray, retrieveCount, formatString); break;
-                case string valueString:       stb.AppendFormattedCollectionItemOrNull(valueString, retrieveCount, formatString); break;
+                case string valueString:       stb.AppendFormattedCollectionItemOrNull(valueString, retrieveCount,  formatString); break;
                 case Version valueVersion:     stb.AppendFormattedCollectionItem(valueVersion, retrieveCount, formatString); break;
                 case IPAddress valueIpAddress: stb.AppendFormattedCollectionItem(valueIpAddress, retrieveCount, formatString); break;
                 case Uri valueUri:             stb.AppendFormattedCollectionItem(valueUri, retrieveCount, formatString); break;
@@ -710,8 +702,8 @@ public static class StyledTypeBuilderExtensions
                 case Rune valueRune:           stb.AppendFormatted(valueRune, formatString, isKeyName); break;
                 case Guid valueGuid:           stb.AppendFormatted(valueGuid, formatString, isKeyName); break;
                 case IPNetwork valueIpNetwork: stb.AppendFormatted(valueIpNetwork, formatString, isKeyName); break;
-                case char[] valueCharArray:    stb.AppendFormattedOrNull(valueCharArray, formatString, isKeyName); break;
-                case string valueString:       stb.AppendFormattedOrNull(valueString, formatString, isKeyName); break;
+                case char[] valueCharArray:    stb.AppendFormattedOrNull(valueCharArray, formatString, isKeyName: isKeyName); break;
+                case string valueString:       stb.AppendFormattedOrNull(valueString, formatString, isKeyName: isKeyName); break;
                 case Version valueVersion:     stb.AppendFormatted(valueVersion, formatString, isKeyName); break;
                 case IPAddress valueIpAddress: stb.AppendFormatted(valueIpAddress, formatString, isKeyName); break;
                 case Uri valueUri:             stb.AppendFormatted(valueUri, formatString, isKeyName); break;
@@ -760,8 +752,8 @@ public static class StyledTypeBuilderExtensions
                     }
                     break;
 
-                case ICharSequence valueCharSequence: stb.AppendFormattedOrNull(valueCharSequence, formatString); break;
-                case StringBuilder valueSb:           stb.AppendFormattedOrNull(valueSb, formatString); break;
+                case ICharSequence valueCharSequence: stb.AppendFormattedOrNull(valueCharSequence, formatString, isKeyName: isKeyName); break;
+                case StringBuilder valueSb:           stb.AppendFormattedOrNull(valueSb, formatString, isKeyName: isKeyName); break;
 
                 case IStringBearer styledToStringObj: stb.AppendRevealBearerOrNull(styledToStringObj, isKeyName); break;
                 case IEnumerator:

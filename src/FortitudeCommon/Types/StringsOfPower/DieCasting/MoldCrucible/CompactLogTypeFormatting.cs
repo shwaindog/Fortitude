@@ -238,18 +238,13 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source
       , string? formatString = null) =>
-        formatString.IsNotNullOrEmpty()
-            ? sb.AppendFormat(this, formatString, source)
-            : sb.Append(source);
+        sb.AppendFormat(this, formatString ?? "{0}", source);
 
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, bool source
-      , string? formatString = null)  => sb.Append(source ? Options.True : Options.False);
+      , string? formatString = null)  => Format(source, sb, formatString).ToStringBuilder(sb);
 
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, bool? source
-      , string? formatString = null)  =>
-        (source != null
-            ? sb.Append(source.Value ? Options.True : Options.False)
-            : sb.Append(StyleOptions.NullStyle));
+      , string? formatString = null)  => Format(source, sb, formatString).ToStringBuilder(sb);
 
     public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null)
         where TFmt : ISpanFormattable => 

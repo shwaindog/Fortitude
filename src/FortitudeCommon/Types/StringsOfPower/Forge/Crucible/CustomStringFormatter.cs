@@ -101,6 +101,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString
       , int maxTransferCount = int.MaxValue)
     {
+        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
@@ -109,10 +110,11 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += sb.Append(prefix).ReturnCharCount(prefix.Length); // prefix and suffix intentional will not be escaped;
+        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
+                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
-        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
-        source       =  source[sourceFrom..];
+        source       =  source[sourceFrom..(sourceFrom + cappedLength)];
 
         extendLengthRange = extendLengthRange.BoundRangeToLength(cappedLength);
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
@@ -189,12 +191,13 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
             return Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
 
         sourceFrom = Math.Clamp(sourceFrom, 0, source.Length);
-        return Format(source[sourceFrom..], 0, sb, formatString, cappedLength);
+        return Format(((ReadOnlySpan<char>)source)[sourceFrom..], 0, sb, formatString, maxTransferCount);
     }
 
     public virtual int Format(StringBuilder source, int sourceFrom, IStringBuilder sb
       , ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue)
     {
+        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return Options.EncodingTransfer.Transfer(this, source, sb);
@@ -203,9 +206,10 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += sb.Append(prefix).ReturnCharCount(prefix.Length); // prefix and suffix intentional will not be escaped;
+        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
+                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
-        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
         var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
@@ -305,6 +309,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format(ICharSequence source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString
       , int maxTransferCount = int.MaxValue)
     {
+        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
@@ -313,9 +318,10 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += sb.Append(prefix).ReturnCharCount(prefix.Length); // prefix and suffix intentional will not be escaped;
+        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
+                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
-        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
         var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
@@ -425,6 +431,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += destCharSpan.OverWriteAt(destStartIndex, prefix); // prefix and suffix intentional will not be escaped;
+        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
+                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
@@ -523,6 +531,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += destCharSpan.OverWriteAt(destStartIndex, prefix); // prefix and suffix intentional will not be escaped;
+        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
+                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
@@ -635,6 +645,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += destCharSpan.OverWriteAt(destStartIndex, prefix); // prefix and suffix intentional will not be escaped;
+        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
+                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
@@ -967,6 +979,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public int TryFormat<TAny>(TAny source, IStringBuilder sb, string formatString)
     {
         if (source == null) return 0;
+        if (source is bool boolSource) { return Format(boolSource, sb, formatString); }
         if (source is ISpanFormattable formattable) { return Format(formattable, sb, formatString); }
         var type                     = source.GetType();
         var maybeIterableElementType = type.GetIterableElementType();

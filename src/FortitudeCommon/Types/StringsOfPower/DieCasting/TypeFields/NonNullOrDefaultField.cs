@@ -122,14 +122,14 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
       , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAdd(fieldName, value, formatString)
+            ? AlwaysAdd(fieldName, value, startIndex, length, formatString)
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAddAs(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
       , string defaultValue = "", FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAdd(fieldName, value, formatString)
+            ? AlwaysAdd(fieldName, value, startIndex, length, formatString)
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, char[]? value, string defaultValue = ""

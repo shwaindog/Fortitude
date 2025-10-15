@@ -127,7 +127,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
             return end;
         }
         Span<Range> splitRanges    = stackalloc Range[16];
-        var         numberOfRanges = original.Split(splitRanges, splitSpan, StringSplitOptions.TrimEntries);
+        var         numberOfRanges = original.Split(splitRanges, splitSpan);
         splitRanges = splitRanges[..numberOfRanges];
         var boundRange = splitElementsRange.BoundRangeToLength(splitRanges.Length);
         splitRanges = splitRanges[boundRange];
