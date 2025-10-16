@@ -188,4 +188,15 @@ public static class StringExtensions
         return toTruncate.Substring(0, indexOfTerminator);
     }
 
+    public static bool SequenceMatches(this string toCheck, string matchWith)
+    {
+        var cappedLength = Math.Min(matchWith.Length, toCheck.Length);
+        if (matchWith.Length != cappedLength || toCheck.Length != cappedLength) return false;
+        for (var i = 0; i < cappedLength; i++)
+        {
+            if (toCheck[i] != matchWith[i]) return false;
+        }
+        return true;
+    }
+
 }

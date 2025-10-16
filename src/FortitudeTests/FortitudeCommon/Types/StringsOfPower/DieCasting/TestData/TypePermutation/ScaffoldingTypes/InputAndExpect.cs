@@ -2,10 +2,10 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Collections;
-using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
@@ -75,19 +75,28 @@ public record FieldExpect<T>
         get
         {
             {
-                var result =  Input == null 
-                    ? $"{InputType.ShortNameInCSharpFormat()}=null" 
-                    : $"{InputType.ShortNameInCSharpFormat()}({AsStringDelimiter}{Input}{AsStringDelimiter})_{FormatString}";
+                var result = new MutableString();
+                result.Append(InputType.ShortNameInCSharpFormat());
+                if (Input == null)
+                {
+                    result.Append("=null");
+                }
+                else
+                {
+                    result.Append(AsStringDelimiter)
+                          .AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, "{0}", Input)
+                          .Append(AsStringDelimiter).Append("_").Append(FormatString);
+                }
                 if (HasDefault)
                 {
                     var defaultString = DefaultValue?.ToString() ?? (!InputType.IsValueType ? "null" : "");
                     if (defaultString.IsNotEmpty())
                     {
-                        result += $"_{defaultString}";
+                        result.Append($"_{defaultString}");
                     }
                 }
 
-                return result;
+                return result.ToString();
             }
         }
     }
@@ -116,22 +125,7 @@ public record FieldExpect<T>
 
     public IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry)
     {
-        IStringBearer createdStringBearer;
-        if (InputType.IsString())
-        {
-            if (scaffoldEntry.ScaffoldingType.IsGenericType
-             && scaffoldEntry.ValueType.ImplementsInterface<ICharSequence>())
-            {
-                createdStringBearer = scaffoldEntry.CreateStringBearerFunc(typeof(MutableString))();
-            }
-            else if (scaffoldEntry.ValueType == typeof(char[])) { createdStringBearer = scaffoldEntry.CreateStringBearerFunc(typeof(char[]))(); }
-            else if (scaffoldEntry.ValueType == typeof(StringBuilder))
-            {
-                createdStringBearer = scaffoldEntry.CreateStringBearerFunc(typeof(StringBuilder))();
-            }
-            else { createdStringBearer = scaffoldEntry.CreateStringBearerFunc(InputType)(); }
-        }
-        else { createdStringBearer = scaffoldEntry.CreateStringBearerFunc(InputType)(); }
+        var createdStringBearer = scaffoldEntry.CreateStringBearerFunc(InputType)();
         if (InputType == typeof(string) && createdStringBearer is ISupportsSettingValueFromString supportsSettingValueFromString)
             supportsSettingValueFromString.StringValue = (string?)(object?)Input;
         else if (createdStringBearer is IMoldSupportedValue<object?> isObjectMold)
@@ -149,6 +143,8 @@ public record FieldExpect<T>
             supportsObjectDefaultValue.DefaultValue = DefaultValue;
         if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<T?> supportsDefaultValue)
             supportsDefaultValue.DefaultValue = DefaultValue;
+        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
+            supportsStringDefaultValue.DefaultValue = new MutableString().Append(DefaultValue).ToString();
         return createdStringBearer;
     }
 
@@ -192,20 +188,23 @@ public record FieldExpect<T>
 
     public override string ToString()
     {
-        var sb = new StringBuilder();
-        sb.Append($"{nameof(InputType)}: {InputType}, {nameof(Input)}: {AsStringDelimiter}{Input}{AsStringDelimiter}, ");
-        sb.Append($"{nameof(FormatString)}: {(FormatString != null ? $"\"{FormatString}\"" : "null")}");
+        var sb = new MutableString();
+        sb.Append(nameof(InputType)).Append(": ").Append(InputType).Append(", ");
+        sb.Append(nameof(Input)).Append(": ").Append(AsStringDelimiter).Append(Input).Append(AsStringDelimiter).Append(", ");
+        sb.Append(nameof(FormatString)).Append(": ").Append(FormatString != null ? $"\"{FormatString}\"" : "null");
         if (HasDefault)
         {
+            sb.Append(", ").Append(nameof(DefaultValue)).Append(": ");
             if (InputType.IsChar() || InputType.IsString() || InputType.IsCharSequence() || InputType.IsStringBuilder())
             {
-                sb.Append($", {nameof(DefaultValue)}: \"{DefaultValue}\"");
+                sb.Append('"').Append(DefaultValue).Append('"');
             }
-            else { sb.Append($", {nameof(DefaultValue)}: {DefaultValue}"); }
+            else { sb.Append(DefaultValue); }
         }
         if (FromIndex != 0 || Length != int.MaxValue)
         {
-            sb.Append($", {nameof(FromIndex)}: {FromIndex}, {nameof(Length)}: {Length}");
+            sb.Append(", ").Append(nameof(FromIndex)).Append(": ").Append(FromIndex).Append(", ");
+            sb.Append(nameof(Length)).Append(": ").Append(Length);
         }
         return sb.ToString();
     }
@@ -229,24 +228,31 @@ public record NullableStructFieldExpect<T>(T? Input, string? FormatString = null
         get
         {
             {
-                var result =  Input == null 
-                    ? $"{InputType.ShortNameInCSharpFormat()}=null" 
-                    : $"{InputType.ShortNameInCSharpFormat()}({AsStringDelimiter}{Input}{AsStringDelimiter})_{FormatString}";
+                var result = new MutableString();
+                result.Append(InputType.ShortNameInCSharpFormat());
+                if (Input == null)
+                {
+                    result.Append("=null");
+                }
+                else
+                {
+                    result.Append(AsStringDelimiter)
+                          .AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, "{0}", Input)
+                          .Append(AsStringDelimiter).Append("_").Append(FormatString);
+                }
                 if (HasDefault)
                 {
                     var defaultString = DefaultValue.ToString()!;
                     if (defaultString.IsNotEmpty())
                     {
-                        result += $"_{defaultString}";
+                        result.Append($"_{defaultString}");
                     }
                 }
 
-                return result;
+                return result.ToString();
             }
         }
     }
-
-    public bool HasIndexRangeLimiting => false;
 
     private string AsStringDelimiter =>
         InputType.Name switch
@@ -257,6 +263,8 @@ public record NullableStructFieldExpect<T>(T? Input, string? FormatString = null
           , "Char"          => "'"
           , _               => ""
         };
+
+    public bool HasIndexRangeLimiting => false;
 
     public string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
     {
@@ -329,12 +337,18 @@ public record NullableStructFieldExpect<T>(T? Input, string? FormatString = null
 
     public override string ToString()
     {
-        var sb = new StringBuilder();
-        sb.Append($"{nameof(InputType)}: {InputType}, {nameof(Input)}: {AsStringDelimiter}{Input}{AsStringDelimiter}, ");
-        sb.Append($"{nameof(FormatString)}: {(FormatString != null ? $"\"{FormatString}\"" : "null")}");
-        if (HasDefault && !Equals(DefaultValue, default(T)))
+        var sb = new MutableString();
+        sb.Append(nameof(InputType)).Append(": ").Append(InputType).Append(", ");
+        sb.Append(nameof(Input)).Append(": ").Append(AsStringDelimiter).Append(Input).Append(AsStringDelimiter).Append(", ");
+        sb.Append(nameof(FormatString)).Append(": ").Append(FormatString != null ? $"\"{FormatString}\"" : "null");
+        if (HasDefault)
         {
-            sb.Append($", {nameof(DefaultValue)}: {DefaultValue}");
+            sb.Append(", ").Append(nameof(DefaultValue)).Append(": ");
+            if (InputType.IsChar() || InputType.IsString() || InputType.IsCharSequence() || InputType.IsStringBuilder())
+            {
+                sb.Append('"').Append(DefaultValue).Append('"');
+            }
+            else { sb.Append(DefaultValue); }
         }
         return sb.ToString();
     }

@@ -245,25 +245,35 @@ public static class TypeExtensions
     public static bool IsNullableSpanFormattableArray(this Type check) =>
         check.IsArray() && check.IfArrayGetElementType()!.IsNullableSpanFormattable();
 
-    public static string AsCSharpKeywordOrName(this Type type) =>
-        type.Name switch
+    public static string AsCSharpKeywordOrName(this Type type)
+    {
+        var foundName =  type.Name switch
+               {
+                   "Boolean" => "bool"
+                 , "Byte"    => "byte"
+                 , "SByte"   => "sbyte"
+                 , "Char"    => "char"
+                 , "Int16"   => "short"
+                 , "UInt16"  => "ushort"
+                 , "Int32"   => "int"
+                 , "UInt32"  => "uint"
+                 , "Int64"   => "long"
+                 , "UInt64"  => "ulong"
+                 , "Single"  => "float"
+                 , "Double"  => "double"
+                 , "Decimal" => "decimal"
+                 , "String"  => "string"
+                 , _         => null
+               };
+        if(foundName != null) return foundName;
+        if (type.IsArray)
         {
-            "Boolean" => "bool"
-          , "Byte"    => "byte"
-          , "SByte"   => "sbyte"
-          , "Char"    => "char"
-          , "Int16"   => "short"
-          , "UInt16"  => "ushort"
-          , "Int32"   => "int"
-          , "UInt32"  => "uint"
-          , "Int64"   => "long"
-          , "UInt64"  => "ulong"
-          , "Single"  => "float"
-          , "Double"  => "double"
-          , "Decimal" => "decimal"
-          , "String" => "string"
-          , _         => type.Name
-        };
+            type = type.GetElementType()!;
+            var elementType = type.AsCSharpKeywordOrName();
+            return elementType + "[]";
+        }
+        return type.Name;
+    }
 
 
     public static string ShortNameInCSharpFormat(this Type typeNameToFriendlify) =>

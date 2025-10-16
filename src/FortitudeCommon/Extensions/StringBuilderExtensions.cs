@@ -163,9 +163,10 @@ public static class StringBuilderExtensions
     
     public static bool SequenceMatches(this StringBuilder search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
     {
-        var cappedLength = Math.Min(count, checkIsSame.Length - fromIndex);
-        if(checkIsSame.Length == cappedLength) return false;
-        for (int i = 0; i < search.Length; i++)
+        fromIndex = Math.Clamp(fromIndex, 0, checkIsSame.Length);
+        var cappedLength = Math.Clamp(count, 0, search.Length - fromIndex);
+        if(checkIsSame.Length != cappedLength) return false;
+        for (int i = 0; i < cappedLength; i++)
         {
             var checkChar   = search[fromIndex + i];
             var compareChar = checkIsSame[i];
@@ -173,6 +174,23 @@ public static class StringBuilderExtensions
         }
         return true;
     }
+    
+    public static bool SequenceMatches(this StringBuilder search, StringBuilder checkIsSame)
+    {
+        var fromIndex    = search.Length;
+        var cappedLength = Math.Min(fromIndex, checkIsSame.Length);
+        if(checkIsSame.Length != cappedLength) return false;
+        for (int i = 0; i < cappedLength; i++)
+        {
+            var checkChar   = search[fromIndex + i];
+            var compareChar = checkIsSame[i];
+            if (checkChar != compareChar) return false;
+        }
+        return true;
+    }
+
+    public static bool IsStringBuilder(this object? checkIsStringBuilder) =>
+        checkIsStringBuilder is StringBuilder;
 
     public static IEnumerator<char> RecycledEnumerator(this StringBuilder sb, IRecycler recycler) =>
          Recycler.ThreadStaticRecycler.Borrow<RecyclingStringBuilderEnumerator>().Initialize(sb);

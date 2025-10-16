@@ -13,8 +13,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 public partial class SelectTypeField<TExt> where TExt : TypeMolder
 {
     public TExt WhenNonNullOrDefaultAdd
-        (ReadOnlySpan<char> fieldName, bool? value, bool? defaultValue = false
-        , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+    (ReadOnlySpan<char> fieldName, bool? value, bool? defaultValue = false
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value, TFmt? defaultValue = default(TFmt)
@@ -119,18 +119,34 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null && value != defaultValue ? AlwaysAddAs(fieldName, value, flags, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
-      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAdd(fieldName, value, startIndex, length, formatString)
+    public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int count = int.MaxValue
+      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
+        var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
+        var cappedEnd    = cappedStart + cappedLength;
+        return !stb.SkipFields && value != null
+                               && ((cappedLength == 0 && defaultValue.Length > 0)
+                                || (cappedStart < value.Length
+                                 && !((ReadOnlySpan<char>)value)[cappedStart..cappedEnd].SequenceMatches(defaultValue)))
+            ? AlwaysAdd(fieldName, value, startIndex, count, formatString)
             : stb.StyleTypeBuilder;
+    }
 
-    public TExt WhenNonNullOrDefaultAddAs(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
+    public TExt WhenNonNullOrDefaultAddAs(ReadOnlySpan<char> fieldName, string? value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", FieldContentHandling flags = FieldContentHandling.DefaultForValueType
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAdd(fieldName, value, startIndex, length, formatString)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
+        var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
+        var cappedEnd    = cappedStart + cappedLength;
+        return !stb.SkipFields && value != null
+                               && ((cappedLength == 0 && defaultValue.Length > 0)
+                                || (cappedStart < value.Length
+                                 && !((ReadOnlySpan<char>)value)[cappedStart..cappedEnd].SequenceMatches(defaultValue)))
+            ? AlwaysAdd(fieldName, value, startIndex, count, formatString)
             : stb.StyleTypeBuilder;
+    }
 
     public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, char[]? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
@@ -145,19 +161,35 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             ? AlwaysAddAs(fieldName, value, flags, formatString)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int length = int.MaxValue
-      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAdd(fieldName, value, formatString)
+    public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int count = int.MaxValue
+      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
+        var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
+        var cappedEnd    = cappedStart + cappedLength;
+        return !stb.SkipFields && value != null
+                               && ((cappedLength == 0 && defaultValue.Length > 0)
+                                || (cappedStart < value.Length
+                                 && !((ReadOnlySpan<char>)value)[cappedStart..cappedEnd].SequenceMatches(defaultValue)))
+            ? AlwaysAdd(fieldName, value, startIndex, count, formatString)
             : stb.StyleTypeBuilder;
+    }
 
-    public TExt WhenNonNullOrDefaultAddAs(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int length = int.MaxValue
+    public TExt WhenNonNullOrDefaultAddAs(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", FieldContentHandling flags = FieldContentHandling.DefaultForValueType,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
-        string? formatString = null) =>
-        !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAdd(fieldName, value, formatString)
+        string? formatString = null)
+    {
+        var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
+        var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
+        var cappedEnd    = cappedStart + cappedLength;
+        return !stb.SkipFields && value != null
+                               && ((cappedLength == 0 && defaultValue.Length > 0)
+                                || (cappedStart < value.Length
+                                 && !((ReadOnlySpan<char>)value)[cappedStart..cappedEnd].SequenceMatches(defaultValue)))
+            ? AlwaysAdd(fieldName, value, startIndex, count, formatString)
             : stb.StyleTypeBuilder;
+    }
 
     public TExt WhenNonNullOrDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
@@ -172,18 +204,32 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             ? AlwaysAddCharSeqAs(fieldName, value, flags, formatString)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int length = int.MaxValue
-      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
-        !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAddCharSeq(fieldName, value, formatString)
+    public TExt WhenNonNullOrDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int count = int.MaxValue
+      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence
+    {
+        var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
+        var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
+        return !stb.SkipFields && value != null
+                               && ((cappedLength == 0 && defaultValue.Length > 0)
+                                || (cappedStart < value.Length
+                                 && !value.SequenceMatches(defaultValue, cappedStart, cappedLength)))
+            ? AlwaysAddCharSeq(fieldName, value, startIndex, count, formatString)
             : stb.StyleTypeBuilder;
+    }
 
-    public TExt WhenNonNullOrDefaultAddCharSeqAs<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int length = int.MaxValue
+    public TExt WhenNonNullOrDefaultAddCharSeqAs<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", FieldContentHandling flags = FieldContentHandling.DefaultForValueType
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence =>
-        !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAddCharSeqAs(fieldName, value, flags, formatString)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TCharSeq : ICharSequence
+    {
+        var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
+        var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
+        return !stb.SkipFields && value != null
+                               && ((cappedLength == 0 && defaultValue.Length > 0)
+                                || (cappedStart < value.Length
+                                 && !value.SequenceMatches(defaultValue, cappedStart, cappedLength)))
+            ? AlwaysAddCharSeqAs(fieldName, value, startIndex, count, flags, formatString)
             : stb.StyleTypeBuilder;
+    }
 
     public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
@@ -196,25 +242,42 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             ? AlwaysAddAs(fieldName, value, flags, formatString)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue
-      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAdd(fieldName, value, formatString)
+    public TExt WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue
+      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
+        var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
+        return !stb.SkipFields && value != null
+                               && ((cappedLength == 0 && defaultValue.Length > 0)
+                                || (cappedStart < value.Length
+                                 && !value.SequenceMatches(defaultValue, cappedStart, cappedLength)))
+            ? AlwaysAdd(fieldName, value, startIndex, count, formatString)
             : stb.StyleTypeBuilder;
+    }
 
-    public TExt WhenNonNullOrDefaultAddAs(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue
+    public TExt WhenNonNullOrDefaultAddAs(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", FieldContentHandling flags = FieldContentHandling.DefaultForValueType
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        !stb.SkipFields && value != null && !value.SequenceMatches(defaultValue, startIndex, length)
-            ? AlwaysAddAs(fieldName, value, flags, formatString)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
+        var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
+        return !stb.SkipFields && value != null
+                               && ((cappedLength == 0 && defaultValue.Length > 0)
+                                || (cappedStart < value.Length
+                                 && !value.SequenceMatches(defaultValue, cappedStart, cappedLength)))
+            ? AlwaysAddAs(fieldName, value, startIndex, count, flags, formatString)
             : stb.StyleTypeBuilder;
+    }
 
     public TExt WhenNonNullOrDefaultAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value, TAny? defaultValue = default
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields
      && value != null
      && (typeof(TAny).IsNullable() && !Equals(value, defaultValue ?? typeof(TAny).GetDefaultForUnderlyingNullableOrThis())
-      || typeof(TAny).IsNotNullable() && !Equals(value, defaultValue ?? default(TAny)!))
+      || typeof(TAny).IsNotNullable()
+      && (!Equals(value, defaultValue ?? default(TAny))
+       & !(defaultValue != null && value != null && value.IsStringBuilder() && defaultValue.IsStringBuilder()
+        && value.UnknownSequenceMatches(defaultValue))))
             ? AlwaysAddMatch(fieldName, value, formatString)
             : stb.StyleTypeBuilder;
 
@@ -222,10 +285,13 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullOrDefaultAddObject(ReadOnlySpan<char> fieldName, object? value, object? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields
-     && value != null 
-      && ((value.GetType().IsValueType 
+     && value != null
+     && ((value.GetType().IsValueType
        && !Equals(value, defaultValue ?? value.GetType().GetDefaultForUnderlyingNullableOrThis()))
-      || (!value.GetType().IsValueType && !Equals(value, defaultValue)))
+      || (!value.GetType().IsValueType &&
+          (!Equals(value, defaultValue) 
+        && !(defaultValue != null && value != null && value.IsStringBuilder() && defaultValue.IsStringBuilder() 
+          && value.UnknownSequenceMatches(defaultValue)))))
             ? AlwaysAddObject(fieldName, value, formatString)
             : stb.StyleTypeBuilder;
 }

@@ -44,4 +44,17 @@ public static class CharArrayExtensions
         return true;
     }
     
+    public static bool SequenceMatches(this char[] search, char[] checkIsSame)
+    {
+        var cappedLength = Math.Min(checkIsSame.Length, search.Length);
+        if(checkIsSame.Length != cappedLength) return false;
+        for (int i = 0; i < search.Length; i++)
+        {
+            var checkChar   = search[i];
+            var compareChar = checkIsSame[i];
+            if (checkChar != compareChar) return false;
+        }
+        return true;
+    }
+    
 }

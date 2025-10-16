@@ -659,8 +659,8 @@ public class FieldCharArrayWithHandlingWhenNonDefaultStringBearer : IMoldSupport
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonEmptyWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
-public class FieldCharArrayRangeWhenNonDefaultStringBearer : IMoldSupportedValue<char[]>, ISupportsValueFormatString
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+public class FieldCharArrayRangeWhenNonDefaultStringBearer : IMoldSupportedValue<char[]>, IMoldSupportedDefaultValue<string>
+  , ISupportsValueFormatString , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharArrayRange
     {
@@ -693,8 +693,8 @@ public class FieldCharArrayRangeWhenNonDefaultStringBearer : IMoldSupportedValue
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonEmptyWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
-public class FieldCharArrayRangeWithHandlingWhenNonDefaultStringBearer : IMoldSupportedValue<char[]>, ISupportsValueFormatString
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
+public class FieldCharArrayRangeWithHandlingWhenNonDefaultStringBearer : IMoldSupportedValue<char[]>, IMoldSupportedDefaultValue<string>
+  , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharArrayRangeAs
     {
