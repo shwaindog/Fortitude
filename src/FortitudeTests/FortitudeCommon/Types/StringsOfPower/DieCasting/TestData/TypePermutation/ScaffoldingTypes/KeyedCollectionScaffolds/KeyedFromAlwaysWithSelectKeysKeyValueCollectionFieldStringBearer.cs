@@ -1,4 +1,5 @@
-﻿using FortitudeCommon.Types.StringsOfPower;
+﻿using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
@@ -38,6 +39,8 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysArrayStringBea
                (AddWithSelectKeysFromArrayBothFormatStrings
               , DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
@@ -72,6 +75,8 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysSpanStringBear
                (AddWithSelectKeysFromSpanBothFormatStrings
               , DisplayKeys.ToArray().AsSpan(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites
@@ -106,6 +111,8 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysReadOnlySpanSt
                (AddWithSelectKeysFromReadOnlySpanBothFormatStrings
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AlwaysWrites
@@ -140,6 +147,8 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysListStringBear
                (AddWithSelectKeysFromListBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | AlwaysWrites
@@ -174,6 +183,8 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysEnumerableStri
                (AddWithSelectKeysFromEnumerableBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
@@ -208,6 +219,8 @@ public class KeyedFromDictionaryBothFormatStringsAddWithSelectKeysEnumeratorStri
                (AddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings
               , DisplayKeys.GetEnumerator(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
@@ -231,6 +244,12 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysArrayStringBearer<
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -243,6 +262,8 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysArrayStringBearer<
                (AddWithSelectKeysFromArrayValueRevealerKeyFormatString
               , DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
@@ -266,6 +287,12 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysSpanStringBearer<T
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -278,6 +305,8 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysSpanStringBearer<T
                (AddWithSelectKeysFromSpanValueRevealerKeyFormatString
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites
@@ -301,6 +330,12 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysReadOnlySpanString
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -313,6 +348,8 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysReadOnlySpanString
                (AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AlwaysWrites
@@ -336,6 +373,12 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysListStringBearer<T
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -348,6 +391,8 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysListStringBearer<T
                (AddWithSelectKeysFromListValueRevealerKeyFormatString
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | AlwaysWrites
@@ -371,6 +416,12 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumerableStringBe
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -383,6 +434,8 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumerableStringBe
                (AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
@@ -406,6 +459,12 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumeratorStringBe
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -418,6 +477,8 @@ public class KeyedFromDictionaryValueRevealerAddWithSelectKeysEnumeratorStringBe
                (AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
@@ -440,7 +501,19 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysArrayStringBearer<
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -454,6 +527,8 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysArrayStringBearer<
                (AddWithSelectKeysFromArrayBothRevealers
               , DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
@@ -476,7 +551,19 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysSpanStringBearer<T
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -490,6 +577,8 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysSpanStringBearer<T
                (AddWithSelectKeysFromSpanBothRevealers
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites 
@@ -512,7 +601,19 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysReadOnlySpanString
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -526,6 +627,8 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysReadOnlySpanString
                (AddWithSelectKeysFromReadOnlySpanBothRevealers
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AlwaysWrites
@@ -548,7 +651,19 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysListStringBearer<T
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -562,6 +677,8 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysListStringBearer<T
                (AddWithSelectKeysFromListBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | AlwaysWrites
@@ -584,7 +701,19 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysEnumerableStringBe
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -598,6 +727,8 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysEnumerableStringBe
                (AddWithSelectKeysKeyValuePairEnumerableBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | SimpleType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
@@ -620,7 +751,19 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysEnumeratorStringBe
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -634,4 +777,6 @@ public class KeyedFromDictionaryBothRevealersAddWithSelectKeysEnumeratorStringBe
                (AddWithSelectKeysKeyValuePairEnumeratorBothRevealers
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

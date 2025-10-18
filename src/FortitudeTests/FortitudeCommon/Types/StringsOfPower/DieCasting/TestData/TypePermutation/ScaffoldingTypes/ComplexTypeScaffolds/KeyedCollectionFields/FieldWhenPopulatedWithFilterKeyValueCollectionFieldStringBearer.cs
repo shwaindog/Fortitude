@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
@@ -40,6 +41,8 @@ public class FieldKeyValueDictionaryFormatStringsWhenPopulatedWithFilterStringBe
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -71,6 +74,8 @@ public class FieldKeyValuePairArrayBothFormatStringsWhenPopulatedWithFilterStrin
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -102,6 +107,8 @@ public class FieldKeyValuePairListBothFormatStringsWhenPopulatedWithFilterString
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -133,6 +140,8 @@ public class FieldKeyValuePairEnumerableBothFormatStringsWhenPopulatedWithFilter
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -164,6 +173,8 @@ public class FieldKeyValuePairEnumeratorBothFormatStringsWhenPopulatedWithFilter
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -185,6 +196,12 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsWhenPopulatedWi
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
@@ -195,6 +212,8 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsWhenPopulatedWi
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -216,6 +235,12 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsWhenPopulatedWit
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
@@ -226,6 +251,8 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsWhenPopulatedWit
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -247,6 +274,12 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsWhenPopulatedWith
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
@@ -257,6 +290,8 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsWhenPopulatedWith
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -278,6 +313,12 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsWhenPopulat
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
@@ -288,6 +329,8 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsWhenPopulat
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -309,6 +352,12 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenPopulat
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
@@ -319,6 +368,8 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenPopulat
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -339,7 +390,19 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithFilterStringBe
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -351,6 +414,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithFilterStringBe
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -371,7 +436,19 @@ public class FieldKeyValuePairArrayBothRevealersWhenPopulatedWithFilterStringBea
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -383,6 +460,8 @@ public class FieldKeyValuePairArrayBothRevealersWhenPopulatedWithFilterStringBea
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -403,7 +482,19 @@ public class FieldKeyValuePairListBothRevealersWhenPopulatedWithFilterStringBear
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -415,6 +506,8 @@ public class FieldKeyValuePairListBothRevealersWhenPopulatedWithFilterStringBear
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -435,7 +528,19 @@ public class FieldKeyValuePairEnumerableBothRevealersWhenPopulatedWithFilterStri
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -447,6 +552,8 @@ public class FieldKeyValuePairEnumerableBothRevealersWhenPopulatedWithFilterStri
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -467,7 +574,19 @@ public class FieldKeyValuePairEnumeratorBothRevealersWhenPopulatedWithFilterStri
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -479,4 +598,6 @@ public class FieldKeyValuePairEnumeratorBothRevealersWhenPopulatedWithFilterStri
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

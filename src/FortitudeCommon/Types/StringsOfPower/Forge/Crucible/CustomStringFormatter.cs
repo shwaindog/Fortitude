@@ -101,8 +101,9 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString
       , int maxTransferCount = int.MaxValue)
     {
-        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
-        var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
+        sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        var cappedLength = Math.Clamp(maxTransferCount,0, source.Length - sourceFrom);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
 
@@ -186,21 +187,22 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
     public virtual int Format(char[] source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue)
     {
-        var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
+        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
+        var cappedLength = Math.Clamp(maxTransferCount,0, source.Length - sourceFrom);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
 
-        sourceFrom = Math.Clamp(sourceFrom, 0, source.Length);
         return Format(((ReadOnlySpan<char>)source)[sourceFrom..], 0, sb, formatString, maxTransferCount);
     }
 
     public virtual int Format(StringBuilder source, int sourceFrom, IStringBuilder sb
       , ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue)
     {
-        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
-        var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
+        sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        var cappedLength = Math.Clamp(maxTransferCount,0, source.Length - sourceFrom);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
-            return Options.EncodingTransfer.Transfer(this, source, sb);
+            return Options.EncodingTransfer.Transfer(this,  source, sourceFrom, sb, sb.Length, cappedLength);
 
         var charsAdded = 0;
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
@@ -210,41 +212,40 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                                 ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
-        var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
-        var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
-        var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
+        var rawSourceTo     = Math.Clamp(sourceFrom + cappedLength, 0, source.Length);
+        var rawCappedLength = Math.Min(cappedLength, rawSourceTo - sourceFrom);
         if (!extendLengthRange.IsAllRange())
         {
-            extendLengthRange = extendLengthRange.BoundRangeToLength(source.Length - rawSourceFrom);
+            extendLengthRange = extendLengthRange.BoundRangeToLength(source.Length - sourceFrom);
             var start = extendLengthRange.Start;
             if (start.IsFromEnd || start.Value > 0)
             {
-                rawSourceFrom = start.IsFromEnd
-                    ? Math.Max(rawSourceFrom, source.Length - start.Value)
-                    : Math.Min(source.Length, rawSourceFrom + start.Value);
+                sourceFrom = start.IsFromEnd
+                    ? Math.Max(sourceFrom, source.Length - start.Value)
+                    : Math.Min(source.Length, sourceFrom + start.Value);
             }
             var end = extendLengthRange.End;
             if (!end.IsFromEnd || end.Value > 0)
             {
-                rawSourceTo = start.IsFromEnd
-                    ? Math.Max(rawSourceFrom, source.Length - end.Value)
-                    : Math.Min(source.Length, rawSourceFrom + end.Value);
+                rawSourceTo = end.IsFromEnd
+                    ? Math.Max(sourceFrom, rawSourceTo - end.Value)
+                    : Math.Min(source.Length, sourceFrom + end.Value);
             }
-            rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
+            rawCappedLength = Math.Min(cappedLength, rawSourceTo - sourceFrom);
         }
 
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
         {
-            charsAdded += Options.EncodingTransfer.Transfer(this, source, rawSourceFrom, sb, maxTransferCount: rawCappedLength);
+            charsAdded += Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: rawCappedLength);
             if (suffix.Length > 0)
                 charsAdded += sb.Append(suffix).ReturnCharCount(suffix.Length); // prefix and suffix intentional will not be escaped;
             return charsAdded;
         }
-        var alignedLength = cappedLength.CalculatePaddedAlignedLength(layout) + 256;
+        var alignedLength = rawCappedLength.CalculatePaddedAlignedLength(layout) + 256;
         if (alignedLength < 4096)
         {
-            var sourceInSpan = stackalloc char[cappedLength].ResetMemory();
-            sourceInSpan.Append(source, sourceFrom, cappedLength);
+            var sourceInSpan = stackalloc char[rawCappedLength].ResetMemory();
+            sourceInSpan.Append(source, sourceFrom, rawCappedLength);
             Span<char> padSpan = stackalloc char[alignedLength];
             int        padSize;
             if (!splitJoinRange.IsNoSplitJoin)
@@ -271,8 +272,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         }
         else
         {
-            var sourceBuffer = cappedLength.SourceRecyclingCharArray();
-            sourceBuffer.Add(source, sourceFrom, cappedLength);
+            var sourceBuffer = rawCappedLength.SourceRecyclingCharArray();
+            sourceBuffer.Add(source, sourceFrom, rawCappedLength);
             var sourceInSpan   = sourceBuffer.WrittenAsSpan();
             var padAlignBuffer = (alignedLength).SourceRecyclingCharArray();
             var padSpan        = padAlignBuffer.RemainingAsSpan();
@@ -309,8 +310,9 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format(ICharSequence source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString
       , int maxTransferCount = int.MaxValue)
     {
-        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
-        var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
+        sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        var cappedLength = Math.Clamp(maxTransferCount,0, source.Length - sourceFrom);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return Options.EncodingTransfer.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
 
@@ -324,7 +326,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         cappedLength -= suffix.Length;
         var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
-        var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
+        var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom);
         if (!extendLengthRange.IsAllRange())
         {
             extendLengthRange = extendLengthRange.BoundRangeToLength(source.Length - rawSourceFrom);
@@ -338,11 +340,11 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
             var end = extendLengthRange.End;
             if (!end.IsFromEnd || end.Value > 0)
             {
-                rawSourceTo = start.IsFromEnd
-                    ? Math.Max(rawSourceFrom, source.Length - end.Value)
+                rawSourceTo = end.IsFromEnd
+                    ? Math.Max(rawSourceFrom, rawSourceTo - end.Value)
                     : Math.Min(source.Length, rawSourceFrom + end.Value);
             }
-            rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
+            rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom);
         }
 
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
@@ -419,9 +421,10 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     }
 
     public virtual int Format(ReadOnlySpan<char> source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString
-      , int destStartIndex = 0
-      , int maxTransferCount = int.MaxValue)
+      , int destStartIndex = 0 , int maxTransferCount = int.MaxValue)
     {
+        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
         if (source.Length == 0) return 0;
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
@@ -435,7 +438,6 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                                 ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
-        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         source       =  source[sourceFrom..];
 
         extendLengthRange = extendLengthRange.BoundRangeToLength(cappedLength);
@@ -510,6 +512,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format(char[] source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex = 0
       , int maxTransferCount = int.MaxValue)
     {
+        sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
@@ -522,6 +526,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format(StringBuilder source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex = 0
       , int maxTransferCount = int.MaxValue)
     {
+        sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
@@ -535,7 +541,6 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                                 ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
-        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
         var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
@@ -636,6 +641,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format(ICharSequence source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex = 0
       , int maxTransferCount = int.MaxValue)
     {
+        sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
@@ -649,7 +656,6 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                                 ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
         cappedLength -= prefix.Length;
         cappedLength -= suffix.Length;
-        sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
         var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
@@ -978,21 +984,23 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
     public int TryFormat<TAny>(TAny source, IStringBuilder sb, string formatString)
     {
+        int NeverZero(int check) => check == 0 ? -1 : check;
+        
         if (source == null) return 0;
-        if (source is bool boolSource) { return Format(boolSource, sb, formatString); }
-        if (source is ISpanFormattable formattable) { return Format(formattable, sb, formatString); }
+        if (source is bool boolSource) { return NeverZero(Format(boolSource, sb, formatString)); }
+        if (source is ISpanFormattable formattable) { return NeverZero(Format(formattable, sb, formatString)); }
         var type                     = source.GetType();
         var maybeIterableElementType = type.GetIterableElementType();
         if (maybeIterableElementType == null) return 0;
         if (!((maybeIterableElementType.IsSpanFormattable()) || (maybeIterableElementType.IsNullableSpanFormattable()))) return 0;
-        if (source is String stringSource) { return Format(stringSource, 0, sb, formatString); }
-        if (source is char[] charArraySource) { return Format(charArraySource, 0, sb, formatString); }
-        if (source is StringBuilder stringBuilderSource) { return Format(stringBuilderSource, 0, sb, formatString); }
-        if (source is ICharSequence charSeqSource) { return Format(charSeqSource, 0, sb, formatString); }
-        if (type.IsArray) { return CheckIsKnownSpanFormattableArray(source, sb, formatString, type); }
-        if (type.IsReadOnlyList()) { return CheckIsKnownSpanFormattableList(source, sb, formatString, type); }
-        if (type.IsEnumerable()) { return CheckIsKnownSpanFormattableEnumerable(source, sb, formatString, type); }
-        if (type.IsEnumerator()) { return CheckIsKnownSpanFormattableEnumerator(source, sb, formatString, type); }
+        if (source is String stringSource) { return NeverZero(Format(stringSource, 0, sb, formatString)); }
+        if (source is char[] charArraySource) { return NeverZero(Format(charArraySource, 0, sb, formatString)); }
+        if (source is StringBuilder stringBuilderSource) { return NeverZero(Format(stringBuilderSource, 0, sb, formatString)); }
+        if (source is ICharSequence charSeqSource) { return NeverZero(Format(charSeqSource, 0, sb, formatString)); }
+        if (type.IsArray) { return NeverZero(CheckIsKnownSpanFormattableArray(source, sb, formatString, type)); }
+        if (type.IsReadOnlyList()) { return NeverZero(CheckIsKnownSpanFormattableList(source, sb, formatString, type)); }
+        if (type.IsEnumerable()) { return NeverZero(CheckIsKnownSpanFormattableEnumerable(source, sb, formatString, type)); }
+        if (type.IsEnumerator()) { return NeverZero(CheckIsKnownSpanFormattableEnumerator(source, sb, formatString, type)); }
         return 0;
     }
 

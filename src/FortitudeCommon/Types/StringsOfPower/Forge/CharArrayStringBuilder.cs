@@ -596,6 +596,8 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     public CharArrayStringBuilder Append(object? value)
     {
         if (value == null) return this;
+        var wasSuccessful = ICustomStringFormatter.DefaultBufferFormatter.TryFormat(value, this, "");
+        if (wasSuccessful != 0) return this;
         var objString = value.ToString();
         if (objString == null) return this;
         CharArray(objString.Length).Add(objString);
@@ -909,7 +911,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     public CharArrayStringBuilder AppendFormat(ICustomStringFormatter customStringFormatter, string format, object? arg0)
     {
         var wasSuccessfull = customStringFormatter.TryFormat(arg0, this, format);
-        if (wasSuccessfull > 0) return this;
+        if (wasSuccessfull != 0) return this;
 
         var preAppendLen = Length;
          AppendFormatHelper(null, format, new ReadOnlySpan<object?>(in arg0));

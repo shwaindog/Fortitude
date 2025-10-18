@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Text;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
@@ -34,6 +35,8 @@ public class OrderedFromBoolArrayAddFilteredSimpleOrderedCollectionStringBearer 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool> GetEnumerator() => (IEnumerator<bool>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct)]
@@ -59,6 +62,8 @@ public class OrderedFromNullableBoolArrayAddFilteredSimpleOrderedCollectionStrin
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool?> GetEnumerator() => (IEnumerator<bool?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct)]
@@ -84,6 +89,8 @@ public class OrderedFromBoolSpanAddFilteredSimpleOrderedCollectionStringBearer :
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool> GetEnumerator() => (IEnumerator<bool>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct)]
@@ -109,6 +116,8 @@ public class OrderedFromNullableBoolSpanAddFilteredSimpleOrderedCollectionString
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool?> GetEnumerator() => (IEnumerator<bool?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct)]
@@ -134,6 +143,8 @@ public class OrderedFromBoolReadOnlySpanAddFilteredSimpleOrderedCollectionString
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool> GetEnumerator() => (IEnumerator<bool>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct)]
@@ -159,6 +170,8 @@ public class OrderedFromNullableBoolReadOnlySpanAddFilteredSimpleOrderedCollecti
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool?> GetEnumerator() => (IEnumerator<bool?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct)]
@@ -184,6 +197,8 @@ public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer :
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct)]
@@ -209,6 +224,8 @@ public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionString
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct)]
@@ -234,6 +251,8 @@ public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBe
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct)]
@@ -259,6 +278,8 @@ public class OrderedFromNullableBoolEnumerableAddFilteredSimpleOrderedCollection
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct)]
@@ -284,6 +305,8 @@ public class OrderedFromBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBe
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct)]
@@ -309,6 +332,8 @@ public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollection
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<bool?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -337,6 +362,8 @@ public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionSt
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct
@@ -367,6 +394,8 @@ public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedColl
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
@@ -395,6 +424,8 @@ public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStr
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass
@@ -423,6 +454,8 @@ public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedColle
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmt?> GetEnumerator() => (IEnumerator<TFmt?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct
@@ -453,6 +486,8 @@ public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedColle
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
@@ -481,6 +516,8 @@ public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedColle
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmt> GetEnumerator() => (IEnumerator<TFmt>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass
@@ -509,6 +546,8 @@ public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrde
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmt?> GetEnumerator() => (IEnumerator<TFmt?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct
@@ -539,6 +578,8 @@ public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrde
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmtStruct?> GetEnumerator() => (IEnumerator<TFmtStruct?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -567,6 +608,8 @@ public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStr
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmt?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct
@@ -597,6 +640,8 @@ public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedColle
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmtStruct?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -625,6 +670,8 @@ public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollect
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmt?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
@@ -655,6 +702,8 @@ public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrdere
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmtStruct?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -683,6 +732,8 @@ public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollect
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmt?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
@@ -713,6 +764,8 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrdere
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TFmtStruct?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -741,9 +794,18 @@ public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionS
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct
@@ -772,17 +834,26 @@ public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCol
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : 
-  ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
-  , IEnumerable<TCloaked> where TCloaked : TCloakedBase, TCloakedFilterBase
+public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
+  ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
+  , IEnumerable<TCloaked> where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
     public TCloaked[]? OrderedCollectionRevealFilteredCloakedBearerSpan
     {
@@ -802,10 +873,19 @@ public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionSt
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
-    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+    public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsNullableClass
@@ -834,9 +914,18 @@ public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedColl
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
@@ -865,9 +954,18 @@ public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedColl
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
@@ -896,9 +994,18 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsNullableClass
@@ -927,9 +1034,18 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrd
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct
@@ -958,9 +1074,18 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrd
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -989,9 +1114,18 @@ public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionSt
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct
@@ -1020,9 +1154,18 @@ public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedColl
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -1051,9 +1194,18 @@ public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollec
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
@@ -1082,9 +1234,18 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrder
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -1113,9 +1274,18 @@ public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollec
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
@@ -1144,9 +1314,18 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrder
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -1174,6 +1353,8 @@ public class OrderedFromStringBearerArrayRevealFilteredSimpleOrderedCollectionSt
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
@@ -1201,6 +1382,8 @@ public class OrderedFromNullableStringBearerArrayRevealFilteredSimpleOrderedColl
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
@@ -1227,6 +1410,8 @@ public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStr
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -1254,6 +1439,8 @@ public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedColle
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
@@ -1281,6 +1468,8 @@ public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedColle
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
@@ -1307,6 +1496,8 @@ public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedColle
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsNullableClass |
@@ -1335,6 +1526,8 @@ public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrde
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate  | AcceptsNullableStruct | AcceptsStringBearer)]
@@ -1362,6 +1555,8 @@ public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrde
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearerStruct?> GetEnumerator() => (IEnumerator<TBearerStruct?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate  | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -1389,6 +1584,8 @@ public class OrderedFromStringBearerListRevealFilteredSimpleOrderedCollectionStr
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
@@ -1416,6 +1613,8 @@ public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedColle
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearerStruct?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -1443,6 +1642,8 @@ public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollect
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearer> GetEnumerator() => (IEnumerator<TBearer>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
@@ -1470,6 +1671,8 @@ public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrdere
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearerStruct?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -1497,6 +1700,8 @@ public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollect
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearer> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
@@ -1524,6 +1729,8 @@ public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrdere
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TBearerStruct?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
@@ -1551,6 +1758,8 @@ public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBeare
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsString | SupportsValueFormatString)]
@@ -1578,6 +1787,8 @@ public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
@@ -1605,6 +1816,8 @@ public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStri
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsString | SupportsValueFormatString)]
@@ -1632,6 +1845,8 @@ public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStri
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<string> GetEnumerator() => (IEnumerator<string>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsString |
@@ -1660,6 +1875,8 @@ public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollec
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<string?> GetEnumerator() => (IEnumerator<string?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
@@ -1687,6 +1904,8 @@ public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<string?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsString |
@@ -1715,6 +1934,8 @@ public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionString
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<string?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsString |
@@ -1743,6 +1964,8 @@ public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionString
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<string?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
@@ -1772,6 +1995,8 @@ public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStrin
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsCharSequence | SupportsValueFormatString)]
@@ -1801,6 +2026,8 @@ public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionString
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
@@ -1830,6 +2057,8 @@ public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollecti
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsCharSequence | SupportsValueFormatString)]
@@ -1859,6 +2088,8 @@ public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollecti
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCharSeq> GetEnumerator() => (IEnumerator<TCharSeq>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsCharSequence |
@@ -1889,6 +2120,8 @@ public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrdered
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCharSeq?> GetEnumerator() => (IEnumerator<TCharSeq?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
@@ -1918,6 +2151,8 @@ public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionString
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCharSeq?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence |
@@ -1948,6 +2183,8 @@ public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollection
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCharSeq?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence |
@@ -1978,6 +2215,8 @@ public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollection
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCharSeq?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder | SupportsValueFormatString)]
@@ -2006,6 +2245,8 @@ public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStri
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsStringBuilder | SupportsValueFormatString)]
@@ -2034,6 +2275,8 @@ public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStrin
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsStringBuilder | SupportsValueFormatString)]
@@ -2062,6 +2305,8 @@ public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollect
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsStringBuilder | SupportsValueFormatString)]
@@ -2090,6 +2335,8 @@ public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollect
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<StringBuilder> GetEnumerator() => (IEnumerator<StringBuilder>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsStringBuilder |
@@ -2119,6 +2366,8 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrdere
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<StringBuilder?> GetEnumerator() => (IEnumerator<StringBuilder?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder | SupportsValueFormatString)]
@@ -2147,6 +2396,8 @@ public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStrin
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<StringBuilder?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder |
@@ -2176,6 +2427,8 @@ public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectio
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<StringBuilder?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder |
@@ -2205,6 +2458,8 @@ public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectio
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<StringBuilder?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2232,6 +2487,8 @@ public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TAny?> GetEnumerator() => (IEnumerator<TAny?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
@@ -2262,6 +2519,8 @@ public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TAny> GetEnumerator() => (IEnumerator<TAny>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
@@ -2292,6 +2551,8 @@ public class OrderedFromMatchNullableSpanAddFilteredSimpleOrderedCollectionStrin
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TAny?> GetEnumerator() => (IEnumerator<TAny?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
@@ -2322,6 +2583,8 @@ public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStrin
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TAny> GetEnumerator() => (IEnumerator<TAny>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
@@ -2352,6 +2615,8 @@ public class OrderedFromMatchNullableReadOnlySpanAddFilteredSimpleOrderedCollect
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TAny?> GetEnumerator() => (IEnumerator<TAny?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2379,6 +2644,8 @@ public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TAny?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2406,6 +2673,8 @@ public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringB
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TAny?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2433,6 +2702,8 @@ public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringB
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TAny?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2460,6 +2731,8 @@ public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBeare
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
@@ -2490,6 +2763,8 @@ public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<object> GetEnumerator() => (IEnumerator<object>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
@@ -2520,6 +2795,8 @@ public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStri
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
@@ -2550,6 +2827,8 @@ public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStri
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<object> GetEnumerator() => (IEnumerator<object>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct | AcceptsNullableClass
@@ -2580,6 +2859,8 @@ public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollec
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<object?> GetEnumerator() => (IEnumerator<object?>)Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2607,6 +2888,8 @@ public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<object?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerable | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2634,6 +2917,8 @@ public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionString
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<object?> GetEnumerator() => Value!.GetEnumerator();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsEnumerator | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2661,4 +2946,6 @@ public class OrderedFromObjectEnumeratorAddFilteredSimpleOrderedCollectionString
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<object?> GetEnumerator() => Value!;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

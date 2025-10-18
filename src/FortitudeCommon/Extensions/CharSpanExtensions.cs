@@ -976,9 +976,9 @@ public static class CharSpanExtensions
 
     public static bool SequenceMatches(this ReadOnlySpan<char> toCheck, string matchWith, int fromIndex = 0)
     {
-        var matchLength = matchWith.Length;
-        if (matchLength != toCheck.Length) return false;
-        for (var i = 0; i < matchLength; i++)
+        var cappedLength = Math.Max(0, toCheck.Length - fromIndex);
+        if (matchWith.Length != cappedLength) return false;
+        for (var i = 0; i < cappedLength; i++)
         {
             if (toCheck[i+fromIndex] != matchWith[i]) return false;
         }
@@ -987,13 +987,13 @@ public static class CharSpanExtensions
 
     public static bool SequenceMatches(this Span<char> toCheck, string matchWith, int fromIndex = 0)
     {
-        var matchLength = matchWith.Length;
-        var matchIndex  = 0;
-        for (var i = fromIndex; i < toCheck.Length && matchIndex < matchLength; i++)
+        var cappedLength = Math.Max(0, toCheck.Length - fromIndex);
+        if (matchWith.Length != cappedLength) return false;
+        for (var i = 0; i < cappedLength; i++)
         {
-            if (toCheck[i] != matchWith[matchIndex++]) return false;
+            if (toCheck[i + fromIndex] != matchWith[i]) return false;
         }
-        return matchIndex == matchLength;
+        return true;
     }
 
     public static bool SequenceMatches(this ReadOnlySpan<char> toCheck, ReadOnlySpan<char> matchWith, int fromIndex = 0)

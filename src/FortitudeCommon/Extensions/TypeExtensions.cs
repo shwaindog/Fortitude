@@ -224,10 +224,23 @@ public static class TypeExtensions
 
     public static bool IsNotNullable(this Type type) => !type.IsNullable();
 
+    public static Type IfNullableGetUnderlyingTypeOrThis(this Type type) =>
+        type.IsNullable()
+            ? type.GenericTypeArguments[0]
+            : type;
+
     public static object? GetDefaultForUnderlyingNullableOrThis(this Type type) =>
         type.IsNullable()
             ? type.GenericTypeArguments[0].GetDefaultConstructorInstance()
             : type.GetDefaultConstructorInstance();
+
+    public static T IfNullableGetNonNullableUnderlyingDefault<T>(this T? maybeNullable) =>
+        maybeNullable ?? (typeof(T).IsNullable()
+            ? (T)typeof(T).GenericTypeArguments[0].GetDefaultConstructorInstance()!
+            : maybeNullable)!;
+
+    public static T IfNullableGetNonNullableUnderlyingDefault<T>(this T? maybeNullable) where T : struct =>
+        maybeNullable ?? default(T);
 
     public static object? GetDefaultConstructorInstance(this Type type) => Activator.CreateInstance(type);
 
@@ -245,29 +258,39 @@ public static class TypeExtensions
     public static bool IsNullableSpanFormattableArray(this Type check) =>
         check.IsArray() && check.IfArrayGetElementType()!.IsNullableSpanFormattable();
 
-    public static string AsCSharpKeywordOrName(this Type type) =>
-        type.Name switch
+    public static string AsCSharpKeywordOrName(this Type type)
+    {
+        var foundName =  type.Name switch
+               {
+                   "Boolean" => "bool"
+                 , "Byte"    => "byte"
+                 , "SByte"   => "sbyte"
+                 , "Char"    => "char"
+                 , "Int16"   => "short"
+                 , "UInt16"  => "ushort"
+                 , "Int32"   => "int"
+                 , "UInt32"  => "uint"
+                 , "Int64"   => "long"
+                 , "UInt64"  => "ulong"
+                 , "Single"  => "float"
+                 , "Double"  => "double"
+                 , "Decimal" => "decimal"
+                 , "String"  => "string"
+                 , _         => null
+               };
+        if(foundName != null) return foundName;
+        if (type.IsArray)
         {
-            "Boolean" => "bool"
-          , "Byte"    => "byte"
-          , "SByte"   => "sbyte"
-          , "Char"    => "char"
-          , "Int16"   => "short"
-          , "UInt16"  => "ushort"
-          , "Int32"   => "int"
-          , "UInt32"  => "uint"
-          , "Int64"   => "long"
-          , "UInt64"  => "ulong"
-          , "Single"  => "float"
-          , "Double"  => "double"
-          , "Decimal" => "decimal"
-          , "String" => "string"
-          , _         => type.Name
-        };
+            type = type.GetElementType()!;
+            var elementType = type.AsCSharpKeywordOrName();
+            return elementType + "[]";
+        }
+        return type.Name;
+    }
 
 
-    public static string ShortNameInCSharpFormat(this Type typeNameToFriendlify) =>
-        typeNameToFriendlify.AppendShortNameInCSharpFormat(new MutableString()).ToString();
+    public static string ShortNameInCSharpFormat(this Type typeNameToFriendlify, bool includeParamConstraints = true) =>
+        typeNameToFriendlify.AppendShortNameInCSharpFormat(new MutableString(), includeParamConstraints).ToString();
 
     public static IStringBuilder AppendShortNameInCSharpFormat(this Type nameToPrint, IStringBuilder sb, bool includeParamConstraints = true)
     {

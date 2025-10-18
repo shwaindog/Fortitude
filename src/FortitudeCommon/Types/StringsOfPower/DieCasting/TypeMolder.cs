@@ -404,13 +404,11 @@ public static class StyledTypeBuilderExtensions
             sb.Append(stb.Settings.NullStyle);
             return stb;
         }
-        var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
-        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
-        var len        = cappedTo - cappedFrom;
+        var cappedFrom = Math.Clamp(fromIndex, 0, value.Length);
         if (isKeyName)
-            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, length);
         else
-            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, len);
+            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, length);
         return stb;
     }
 
