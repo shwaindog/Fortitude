@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -25,6 +26,8 @@ public class FieldBoolEnumerableAlwaysAddAllStringBearer : IMoldSupportedValue<I
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct)]
@@ -45,6 +48,8 @@ public class FieldNullableBoolEnumerableAlwaysAddAllStringBearer : IMoldSupporte
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
@@ -69,6 +74,8 @@ public class FieldSpanFormattableEnumerableAlwaysAddAllStringBearer<TFmt> : IMol
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -93,6 +100,8 @@ public class FieldNullableSpanFormattableEnumerableAlwaysAddAllStringBearer<TFmt
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -113,12 +122,20 @@ public class FieldCloakedBearerEnumerableAlwaysAddAllStringBearer<TCloaked, TClo
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable, ValueRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct
@@ -139,12 +156,20 @@ public class FieldNullableCloakedBearerEnumerableAlwaysAddAllStringBearer<TCloak
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerable, ValueRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -166,6 +191,8 @@ public class FieldStringBearerEnumerableAlwaysAddAllStringBearer<TBearer> : IMol
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
@@ -187,6 +214,8 @@ public class FieldNullableStringBearerEnumerableAlwaysAddAllStringBearer<TBearer
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerable)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
@@ -209,6 +238,8 @@ public class FieldStringEnumerableAlwaysAddAllStringBearer : IMoldSupportedValue
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
@@ -233,6 +264,8 @@ public class FieldCharSequenceEnumerableAlwaysAddAllStringBearer<TCharSeq> : IMo
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
@@ -256,6 +289,8 @@ public class FieldStringBuilderEnumerableAlwaysAddAllStringBearer : IMoldSupport
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -278,6 +313,8 @@ public class FieldMatchEnumerableAlwaysAddAllStringBearer<TAny> : IMoldSupported
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -300,6 +337,8 @@ public class FieldObjectEnumerableAlwaysAddAllStringBearer : IMoldSupportedValue
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsStruct)]
@@ -320,6 +359,8 @@ public class FieldBoolEnumeratorAlwaysAddAllStringBearer : IMoldSupportedValue<I
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct)]
@@ -340,6 +381,8 @@ public class FieldNullableBoolEnumeratorAlwaysAddAllStringBearer : IMoldSupporte
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
@@ -364,6 +407,8 @@ public class FieldSpanFormattableEnumeratorAlwaysAddAllStringBearer<TFmt> : IMol
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -388,6 +433,8 @@ public class FieldNullableSpanFormattableEnumeratorAlwaysAddAllStringBearer<TStr
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -407,12 +454,20 @@ public class FieldCloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloaked, TClo
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerator, ValueRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct
@@ -433,12 +488,20 @@ public class FieldNullableCloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloak
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator, ValueRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -460,6 +523,8 @@ public class FieldStringBearerEnumeratorAlwaysAddAllStringBearer<TBearer> : IMol
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
@@ -481,6 +546,8 @@ public class FieldNullableStringBearerEnumeratorAlwaysAddAllStringBearer<TBearer
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerator)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
@@ -503,6 +570,8 @@ public class FieldStringEnumeratorAlwaysAddAllStringBearer : IMoldSupportedValue
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
@@ -526,6 +595,8 @@ public class FieldCharSequenceEnumeratorAlwaysAddAllStringBearer<TCharSeq> : IMo
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
@@ -549,6 +620,8 @@ public class FieldStringBuilderEnumeratorAlwaysAddAllStringBearer : IMoldSupport
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -571,6 +644,8 @@ public class FieldMatchEnumeratorAlwaysAddAllStringBearer<TAny> : IMoldSupported
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -594,4 +669,6 @@ public class FieldObjectEnumeratorAlwaysAddAllStringBearer<T> : IMoldSupportedVa
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

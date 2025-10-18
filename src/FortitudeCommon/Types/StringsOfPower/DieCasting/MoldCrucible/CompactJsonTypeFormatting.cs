@@ -266,7 +266,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue)
     {
+        sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
+        sb.Append(DblQt);
         return sb;
     }
 
@@ -463,7 +465,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             return sb.Append(StyleOptions.NullStyle);
         }
+        sb.Append(DblQt);
         Format(item, 0, sb, formatString ?? "");
+        sb.Append(DblQt);
         return sb;
     }
 

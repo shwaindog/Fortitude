@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
@@ -30,6 +31,8 @@ public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> :
         tos.StartKeyedCollectionType(this)
            .AddAll (KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothFormatStrings , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | AcceptsClass | AcceptsNullableClass
@@ -55,6 +58,8 @@ public class KeyedFromPairArrayBothFormatStringsAddAllStringBearer<TKey, TValue>
                (KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | AcceptsClass | AcceptsNullableClass
@@ -81,6 +86,8 @@ public class KeyedFromPairListBothFormatStringsAddAllStringBearer<TKey, TValue> 
                (KeyedCollectionTypeKeyedCollectionFieldAddAllListBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
@@ -107,6 +114,8 @@ public class KeyedFromPairEnumerableBothFormatStringsAddAllStringBearer<TKey, TV
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
@@ -133,6 +142,8 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddAllStringBearer<TKey, TV
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
@@ -154,6 +165,12 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
@@ -161,6 +178,8 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<
                (KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | AcceptsClass | AcceptsNullableClass
@@ -181,12 +200,20 @@ public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddAllStringBearer<T
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllArrayValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | AcceptsClass | AcceptsNullableClass
@@ -208,12 +235,20 @@ public class KeyedFromPairListValueRevealerKeyFormatStringsAddAllStringBearer<TK
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllListValueRevealerKeyFormatStrings
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
@@ -235,12 +270,20 @@ public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddAllStringBea
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAllEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
@@ -262,12 +305,20 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBea
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAllEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
@@ -287,7 +338,19 @@ public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TK
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
@@ -295,6 +358,8 @@ public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TK
                (KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | AcceptsClass | AcceptsNullableClass
@@ -314,7 +379,19 @@ public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKR
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
@@ -322,6 +399,8 @@ public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKR
                (KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | AcceptsClass | AcceptsNullableClass
@@ -341,7 +420,19 @@ public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRe
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
@@ -349,6 +440,8 @@ public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRe
                (KeyedCollectionTypeKeyedCollectionFieldAddAllListBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
@@ -368,12 +461,26 @@ public class KeyedFromPairEnumerableBothRevealersAddAllStringBearer<TKey, TValue
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAllEnumerate(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
@@ -393,7 +500,19 @@ public class KeyedFromPairEnumeratorBothRevealersAddAllStringBearer<TKey, TValue
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
@@ -401,4 +520,6 @@ public class KeyedFromPairEnumeratorBothRevealersAddAllStringBearer<TKey, TValue
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

@@ -710,6 +710,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
                 customStringFormatter.Format(value, startIndex, this, formatString);
             return this;
         }
+        startIndex = Math.Clamp(startIndex, 0, value.Length);
+        length     = Math.Clamp(length,0, value.Length - startIndex);
         if (formatString == null) { sb.Append(value, startIndex, length); }
         else
         {
@@ -801,6 +803,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
                 customStringFormatter.Format(value, startIndex, this, formatString);
             return this;
         }
+        startIndex = Math.Clamp(startIndex, 0, value.Length);
+        length     = Math.Clamp(length, 0, value.Length - startIndex);
         if (formatString == null) { sb.Append(value, startIndex, length); }
         else
         {
@@ -832,6 +836,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     public MutableString Append(object? value)
     {
         if (IsFrozen) return ShouldThrow();
+        
+        var wasSuccessful = ICustomStringFormatter.DefaultBufferFormatter.TryFormat(value, this, "");
+        if (wasSuccessful != 0) return this;
         sb.Append(value);
         return this;
     }
@@ -1085,7 +1092,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         if (IsFrozen) return ShouldThrow();
         var wasSuccessfull = customStringFormatter.TryFormat(arg0, this, format);
-        if (wasSuccessfull > 0) return this;
+        if (wasSuccessfull != 0) return this;
         var preAppendLen = sb.Length;
         sb.AppendFormat(format, arg0);
         if(preAppendLen < sb.Length) customStringFormatter.ProcessAppendedRange(this, preAppendLen);

@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Runtime.InteropServices.ComTypes;
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
@@ -21,6 +20,17 @@ public interface ISinglePropertyTestStringBearer : IStringBearer
 public interface IMoldSupportedValue<TValue> : ISinglePropertyTestStringBearer
 {
     [JsonIgnore] TValue Value { get; set; }
+}
+public interface IUnknownPalantirRevealerFactory : ISinglePropertyTestStringBearer
+{   
+    [JsonIgnore] Delegate CreateRevealerDelegate { get; }
+}
+
+public interface IPalantirRevealerFactory<TValue> : IUnknownPalantirRevealerFactory
+{
+    [JsonIgnore] PalantírReveal<TValue> CreateRevealer { get; }
+    
+    
 }
 
 public interface IMoldSupportedDefaultValue<TValue>
@@ -56,12 +66,23 @@ public interface ISupportsKeyedCollectionPredicate<TKey, TValue>
     [JsonIgnore] KeyValuePredicate<TKey, TValue> KeyValuePredicate { get; set; }
 }
 
-public interface ISupportsValueRevealer<TRevealerType>
+public interface ISupportsUnknownValueRevealer
+{
+    [JsonIgnore] Delegate ValueRevealerDelegate { get; set; }
+}
+
+
+public interface ISupportsValueRevealer<TRevealerType> : ISupportsUnknownValueRevealer
 {
     [JsonIgnore] PalantírReveal<TRevealerType> ValueRevealer { get; set; }
 }
 
-public interface ISupportsKeyRevealer<TCloaked>
+public interface ISupportsUnknownKeyRevealer
+{
+    [JsonIgnore] Delegate KeyRevealerDelegate { get; set; }
+}
+
+public interface ISupportsKeyRevealer<TCloaked> : ISupportsUnknownKeyRevealer
 {
     [JsonIgnore] PalantírReveal<TCloaked> KeyRevealer { get; set; }
 }
