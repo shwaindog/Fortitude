@@ -200,7 +200,7 @@ public class FieldStringBearerEnumerableWhenNonNullAddFilteredStringBearer<TBear
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate)]
 public class FieldNullableStringBearerEnumerableWhenNonNullAddFilteredStringBearer<TBearerStruct>
     : IMoldSupportedValue<IEnumerable<TBearerStruct?>?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
@@ -225,7 +225,7 @@ public class FieldNullableStringBearerEnumerableWhenNonNullAddFilteredStringBear
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringEnumerableWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<IEnumerable<string?>?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
@@ -251,7 +251,7 @@ public class FieldStringEnumerableWhenNonNullAddFilteredStringBearer : IMoldSupp
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<IEnumerable<TCharSeq?>?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>
       , ISupportsValueFormatString
@@ -280,7 +280,7 @@ public class FieldCharSequenceEnumerableWhenNonNullAddFilteredStringBearer<TChar
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderEnumerableWhenNonNullAddFilteredStringBearer
     : IMoldSupportedValue<IEnumerable<StringBuilder?>?>, ISupportsOrderedCollectionPredicate<StringBuilder>, ISupportsValueFormatString
 {
@@ -307,7 +307,7 @@ public class FieldStringBuilderEnumerableWhenNonNullAddFilteredStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchEnumerableWhenNonNullAddFilteredStringBearer<TAny, TAnyBase>
     : IMoldSupportedValue<IEnumerable<TAny>?>, ISupportsOrderedCollectionPredicate<TAnyBase>, ISupportsValueFormatString
     where TAny : TAnyBase
@@ -550,7 +550,7 @@ public class FieldStringBearerEnumeratorWhenNonNullAddFilteredStringBearer<TBear
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate)]
 public class FieldNullableStringBearerEnumeratorWhenNonNullAddFilteredStringBearer<TBearerStruct>
     : IMoldSupportedValue<IEnumerator<TBearerStruct?>?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
@@ -575,7 +575,7 @@ public class FieldNullableStringBearerEnumeratorWhenNonNullAddFilteredStringBear
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringEnumeratorWhenNonNullAddFilteredStringBearer : IMoldSupportedValue<IEnumerator<string?>?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
@@ -601,7 +601,7 @@ public class FieldStringEnumeratorWhenNonNullAddFilteredStringBearer : IMoldSupp
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceEnumeratorWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<IEnumerator<TCharSeq?>?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>
       , ISupportsValueFormatString
@@ -630,7 +630,7 @@ public class FieldCharSequenceEnumeratorWhenNonNullAddFilteredStringBearer<TChar
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderEnumeratorWhenNonNullAddFilteredStringBearer
     : IMoldSupportedValue<IEnumerator<StringBuilder?>?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
@@ -657,7 +657,7 @@ public class FieldStringBuilderEnumeratorWhenNonNullAddFilteredStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchEnumeratorWhenNonNullAddFilteredStringBearer<TAny, TAnyBase>
     : IMoldSupportedValue<IEnumerator<TAny>?>, ISupportsOrderedCollectionPredicate<TAnyBase>, ISupportsValueFormatString
     where TAny : TAnyBase

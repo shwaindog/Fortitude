@@ -462,13 +462,20 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
 
     public virtual int Transfer(ICustomStringFormatter stringFormatter, StringBuilder source, IStringBuilder destSb, int destStartIndex = int.MaxValue)
     {
-        return JsEscapingTransfer(source, 0, destSb, destStartIndex);
+        var preAppendLength = destSb.Length;
+        stringFormatter.StringValueDelimiter(destSb);
+        JsEscapingTransfer(source, 0, destSb, destStartIndex);
+        stringFormatter.StringValueDelimiter(destSb);
+        return destSb.Length - preAppendLength;
     }
 
     public virtual int Transfer(ICustomStringFormatter stringFormatter, StringBuilder source, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue)
     {
-        return JsEscapingTransfer(source, 0, destSpan, destStartIndex, maxTransferCount);
+        var charsAdded = stringFormatter.StringValueDelimiter(destSpan, destStartIndex);
+        charsAdded += JsEscapingTransfer(source, 0, destSpan, destStartIndex + charsAdded, maxTransferCount);
+        charsAdded += stringFormatter.StringValueDelimiter(destSpan, destStartIndex + charsAdded);
+        return charsAdded;
     }
 
     public virtual int Transfer(ICustomStringFormatter stringFormatter, StringBuilder source, int sourceFrom, IStringBuilder destSb
@@ -590,6 +597,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         var preTransferLen = destSb.Length;
         if (!parentJsonOptions.CharArrayWritesString)
         {
+            stringFormatter.CollectionStart(typeof(ICharSequence), destSb, source.Length > 0); 
             var  cappedEnd    = Math.Clamp(maxTransferCount, 0, source.Length);
             int  j            = Math.Clamp(sourceFrom, 0, source.Length);
             int  lastAdded    = 0;
@@ -603,17 +611,22 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                     : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSb, "");
                 previousChar =  lastAdded == 0 ? item : '\0';
             }
+            stringFormatter.CollectionEnd(typeof(ICharSequence), destSb, j);
             return destSb.Length - preTransferLen;
         }
-        return JsEscapingTransfer(source, sourceFrom, destSb, destStartIndex, maxTransferCount);
+        stringFormatter.StringValueDelimiter(destSb);
+        JsEscapingTransfer(source, sourceFrom, destSb, destStartIndex, maxTransferCount);
+        stringFormatter.StringValueDelimiter(destSb);
+        return  destSb.Length - preTransferLen;
     }
 
     public virtual int Transfer(ICustomStringFormatter stringFormatter, ICharSequence source, int sourceFrom, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue)
     {
+        var  charsAdded   = 0;
         if (!parentJsonOptions.CharArrayWritesString)
         {
-            var  charsAdded   = 0;
+            charsAdded += stringFormatter.CollectionStart(typeof(ICharSequence), destSpan, destStartIndex, source.Length > 0); 
             var  cappedEnd    = Math.Clamp(maxTransferCount, 0, source.Length);
             int  j            = Math.Clamp(sourceFrom, 0, source.Length);
             int  lastAdded    = 0;
@@ -630,9 +643,13 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                 previousChar =  lastAdded == 0 ? item : '\0';
                 charsAdded   += lastAdded;
             }
-            return j;
+            stringFormatter.CollectionEnd(typeof(ICharSequence), destSpan, destStartIndex + charsAdded, j);
+            return charsAdded;
         }
-        return JsEscapingTransfer(source, sourceFrom, destSpan, destStartIndex, maxTransferCount);
+        charsAdded =  stringFormatter.StringValueDelimiter(destSpan, destStartIndex);
+        charsAdded += JsEscapingTransfer(source, sourceFrom, destSpan, destStartIndex, maxTransferCount);
+        charsAdded +=  stringFormatter.StringValueDelimiter(destSpan, destStartIndex);
+        return charsAdded;
     }
 
     protected int JsEscapingTransfer(ICharSequence source, int sourceFrom, IStringBuilder sb, int destStartIndex = int.MaxValue

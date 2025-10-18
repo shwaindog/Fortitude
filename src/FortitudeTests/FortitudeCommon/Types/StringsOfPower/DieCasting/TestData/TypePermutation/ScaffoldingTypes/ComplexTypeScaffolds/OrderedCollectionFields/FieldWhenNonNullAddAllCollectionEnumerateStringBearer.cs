@@ -191,7 +191,7 @@ public class FieldNullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TB
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<string?>?>, ISupportsValueFormatString
 {
     public IEnumerable<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable
@@ -213,7 +213,7 @@ public class FieldStringEnumerableWhenNonNullAddAllStringBearer : IMoldSupported
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<IEnumerable<TCharSeq?>?>
   , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
@@ -236,7 +236,7 @@ public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<StringBuilder?>?>
   , ISupportsValueFormatString
 {
@@ -259,18 +259,18 @@ public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer : IMoldSu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<IEnumerable<T>?>
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerable<TAny>?>
   , ISupportsValueFormatString
 {
-    public IEnumerable<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable
+    public IEnumerable<TAny>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable);
-    public IEnumerable<T>? Value { get; set; }
+    public IEnumerable<TAny>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -282,7 +282,7 @@ public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<T> : IMoldSupport
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldObjectEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<object?>?>
   , ISupportsValueFormatString
 {
@@ -485,7 +485,7 @@ public class FieldNullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TB
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<string?>?>, ISupportsValueFormatString
 {
     public IEnumerator<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator
@@ -507,7 +507,7 @@ public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : IMoldSupported
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<IEnumerator<TCharSeq?>?>
   , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
@@ -530,7 +530,7 @@ public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<StringBuilder?>?>
   , ISupportsValueFormatString
 {
@@ -553,17 +553,17 @@ public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer : IMoldSu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<T> : IMoldSupportedValue<IEnumerator<T>?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerator<TAny>?>, ISupportsValueFormatString
 {
-    public IEnumerator<T>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator
+    public IEnumerator<TAny>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator);
-    public IEnumerator<T>? Value { get; set; }
+    public IEnumerator<TAny>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -575,7 +575,7 @@ public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<T> : IMoldSupport
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldObjectEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<object?>?>, ISupportsValueFormatString
 {
     public IEnumerator<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator

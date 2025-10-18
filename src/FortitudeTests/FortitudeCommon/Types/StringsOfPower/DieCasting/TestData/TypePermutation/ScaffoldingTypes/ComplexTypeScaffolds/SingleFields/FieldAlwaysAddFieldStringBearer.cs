@@ -13,8 +13,8 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct)]
-public class FieldBoolAlwaysAddStringBearer : IMoldSupportedValue<bool>
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | SupportsValueFormatString)]
+public class FieldBoolAlwaysAddStringBearer : IMoldSupportedValue<bool>, ISupportsValueFormatString
 {
     public bool ComplexTypeFieldAlwaysAddBool
     {
@@ -27,12 +27,14 @@ public class FieldBoolAlwaysAddStringBearer : IMoldSupportedValue<bool>
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(ComplexTypeFieldAlwaysAddBool), ComplexTypeFieldAlwaysAddBool)
+           .Field.AlwaysAdd(nameof(ComplexTypeFieldAlwaysAddBool), ComplexTypeFieldAlwaysAddBool, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsNullableStruct)]
-public class FieldNullableBoolAlwaysAddStringBearer : IMoldSupportedValue<bool?>
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | SupportsValueFormatString)]
+public class FieldNullableBoolAlwaysAddStringBearer : IMoldSupportedValue<bool?>, ISupportsValueFormatString
 {
     public bool? ComplexTypeFieldAlwaysAddNullableBool
     {
@@ -45,8 +47,10 @@ public class FieldNullableBoolAlwaysAddStringBearer : IMoldSupportedValue<bool?>
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(ComplexTypeFieldAlwaysAddNullableBool), ComplexTypeFieldAlwaysAddNullableBool)
+           .Field.AlwaysAdd(nameof(ComplexTypeFieldAlwaysAddNullableBool), ComplexTypeFieldAlwaysAddNullableBool, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
@@ -334,7 +338,7 @@ public class FieldNullableStringBearerWithHandlingAlwaysAddStringBearer<TBearerS
     public FieldContentHandling FieldContentHandling { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString)]
 public class FieldCharSpanAlwaysAddStringBearer : IMoldSupportedValue<char[]>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -361,7 +365,7 @@ public class FieldCharSpanAlwaysAddStringBearer : IMoldSupportedValue<char[]>, I
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharSpanWithHandlingAlwaysAddStringBearer : IMoldSupportedValue<char[]>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -393,7 +397,7 @@ public class FieldCharSpanWithHandlingAlwaysAddStringBearer : IMoldSupportedValu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldCharReadOnlySpanAlwaysAddStringBearer : IMoldSupportedValue<string>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -420,7 +424,7 @@ public class FieldCharReadOnlySpanAlwaysAddStringBearer : IMoldSupportedValue<st
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldCharReadOnlySpanWithHandlingAlwaysAddStringBearer : IMoldSupportedValue<string>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
@@ -453,7 +457,7 @@ public class FieldCharReadOnlySpanWithHandlingAlwaysAddStringBearer : IMoldSuppo
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -480,7 +484,7 @@ public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, IS
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldStringWithHandlingAlwaysAddStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -510,7 +514,7 @@ public class FieldStringWithHandlingAlwaysAddStringBearer : IMoldSupportedValue<
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldStringRangeAlwaysAddStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -542,7 +546,7 @@ public class FieldStringRangeAlwaysAddStringBearer : IMoldSupportedValue<string?
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldStringRangeWithHandlingAlwaysAddStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
@@ -578,7 +582,7 @@ public class FieldStringRangeWithHandlingAlwaysAddStringBearer : IMoldSupportedV
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString)]
 public class FieldCharArrayAlwaysAddStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -605,7 +609,7 @@ public class FieldCharArrayAlwaysAddStringBearer : IMoldSupportedValue<char[]?>,
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharArrayWithHandlingAlwaysAddStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -636,7 +640,7 @@ public class FieldCharArrayWithHandlingAlwaysAddStringBearer : IMoldSupportedVal
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldCharArrayRangeAlwaysAddStringBearer
     : IMoldSupportedValue<char[]?>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -669,7 +673,7 @@ public class FieldCharArrayRangeAlwaysAddStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldCharArrayRangeWithHandlingAlwaysAddStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
@@ -705,7 +709,7 @@ public class FieldCharArrayRangeWithHandlingAlwaysAddStringBearer : IMoldSupport
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceAlwaysAddStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString where TCharSeq : ICharSequence
 {
@@ -740,7 +744,7 @@ public class FieldCharSequenceAlwaysAddStringBearer<TCharSeq> : IMoldSupportedVa
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharSequenceWithHandlingAlwaysAddStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling where TCharSeq : ICharSequence
 {
@@ -779,7 +783,7 @@ public class FieldCharSequenceWithHandlingAlwaysAddStringBearer<TCharSeq> : IMol
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldCharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -820,7 +824,7 @@ public class FieldCharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IMoldSuppor
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldCharSequenceRangeWithHandlingAlwaysAddStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
@@ -865,7 +869,7 @@ public class FieldCharSequenceRangeWithHandlingAlwaysAddStringBearer<TCharSeq> :
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderAlwaysAddStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -892,7 +896,7 @@ public class FieldStringBuilderAlwaysAddStringBearer : IMoldSupportedValue<Strin
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldStringBuilderWithHandlingAlwaysAddStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -923,7 +927,7 @@ public class FieldStringBuilderWithHandlingAlwaysAddStringBearer : IMoldSupporte
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldStringBuilderRangeAlwaysAddStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -956,7 +960,7 @@ public class FieldStringBuilderRangeAlwaysAddStringBearer : IMoldSupportedValue<
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldStringBuilderRangeWithHandlingAlwaysAddStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
@@ -992,17 +996,17 @@ public class FieldStringBuilderRangeWithHandlingAlwaysAddStringBearer : IMoldSup
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchAlwaysAddStringBearer<T> : IMoldSupportedValue<T?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchAlwaysAddStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString
 {
-    public T? ComplexTypeFieldAlwaysAddMatch
+    public TAny? ComplexTypeFieldAlwaysAddMatch
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeFieldAlwaysAddMatch);
-    public T? Value { get; set; }
+    public TAny? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -1012,7 +1016,7 @@ public class FieldMatchAlwaysAddStringBearer<T> : IMoldSupportedValue<T?>, ISupp
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldObjectAlwaysAddStringBearer : IMoldSupportedValue<object?>, ISupportsValueFormatString
 {
     public object? ComplexTypeFieldAlwaysAddObject

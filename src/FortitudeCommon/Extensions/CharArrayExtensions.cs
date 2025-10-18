@@ -33,7 +33,7 @@ public static class CharArrayExtensions
     
     public static bool SequenceMatches(this char[] search, string checkIsSame, int fromIndex = 0, int count = int.MaxValue)
     {
-        var cappedLength = Math.Min(count, checkIsSame.Length - fromIndex);
+        var cappedLength = Math.Min(count, search.Length - fromIndex);
         if(checkIsSame.Length != cappedLength) return false;
         for (int i = 0; i < search.Length; i++)
         {

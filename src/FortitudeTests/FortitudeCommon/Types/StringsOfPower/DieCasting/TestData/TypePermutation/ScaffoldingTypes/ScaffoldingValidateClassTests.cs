@@ -1277,7 +1277,7 @@ public class ScaffoldingValidateClassTests
             {
                 Assert.IsTrue(checkImplementsSettingValueFormatString
                               .ScaffoldingFlags
-                              .HasAllOf(SupportsValueFormatString));
+                              .HasAllOf(SupportsValueFormatString), $"{checkImplementsSettingValueFormatString.Name} does not have \"SupportsValueFormatString\" flag");
             }
             catch (Exception)
             {

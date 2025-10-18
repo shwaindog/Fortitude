@@ -35,13 +35,13 @@ public partial class KeyValueCollectionMold : MultiValueTypeMolder<KeyValueColle
     public override void AppendOpening()
     {
         var keyValueTypes = CompAccess.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        CompAccess.StyleFormatter.AppendKeyedCollectionStart(CompAccess, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
+        CompAccess.StyleFormatter.AppendKeyedCollectionStart(CompAccess.Sb, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
     }
     
     public override void AppendClosing()
     {
         var keyValueTypes = CompAccess.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        CompAccess.StyleFormatter.AppendKeyedCollectionEnd(CompAccess, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount);
+        CompAccess.StyleFormatter.AppendKeyedCollectionEnd(CompAccess.Sb, CompAccess.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount);
     }
 
     protected override void InheritedStateReset()

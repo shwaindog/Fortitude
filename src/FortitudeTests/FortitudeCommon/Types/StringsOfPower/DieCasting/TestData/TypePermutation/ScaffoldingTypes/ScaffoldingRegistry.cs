@@ -218,7 +218,7 @@ public static class ScaffoldingRegistry
 
     public static IEnumerable<ScaffoldingPartEntry> NoEnumerableOrEnumerator(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsEnumerable | AcceptsEnumerator) ||
-                            (spe.ScaffoldingFlags.HasAllOf(AcceptsAny)
+                            (spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric)
                           && !(spe.Name.Contains("MatchEnumerable")
                             || spe.Name.Contains("MatchEnumerator")
                             || spe.Name.Contains("ObjectEnumerable") 
@@ -234,11 +234,13 @@ public static class ScaffoldingRegistry
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.NonNullAndPopulatedWrites));
 
     public static IEnumerable<ScaffoldingPartEntry> PopulatedWrites(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(OnlyPopulatedWrites));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(NonEmptyWrites));
 
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsChars(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsChars));
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsString));
     
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsValueFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsValueFormatString));
@@ -261,24 +263,31 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> HasSpanFormattable(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsSpanFormattable));
     
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsOnlyBoolean(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsStruct | AcceptsNullableStruct) 
+     && spe.ScaffoldingFlags.HasNoneOf(AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable | SupportsValueRevealer | AcceptsStringBearer));
+    
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableClass | AcceptsNullableStruct));
+    
+    public static IEnumerable<ScaffoldingPartEntry> OnlyAcceptsNullableStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableStruct));
     
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct));
     
     public static IEnumerable<ScaffoldingPartEntry> NoExplicitAcceptsNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass | AcceptsNullableStruct) || spe.ScaffoldingFlags.HasAllOf(AcceptsAny));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass | AcceptsNullableStruct) || spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
     
     public static IEnumerable<ScaffoldingPartEntry> NoExplicitAcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsClass | AcceptsStruct) || spe.ScaffoldingFlags.HasAllOf(AcceptsAny));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsClass | AcceptsStruct) || spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
 
 
     public static IEnumerable<ScaffoldingPartEntry> HasAcceptsAny(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsAny));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
 
     public static IEnumerable<ScaffoldingPartEntry> NotHasAcceptsAny(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => !spe.ScaffoldingFlags.HasAllOf(AcceptsAny));
+        subSet.Where(spe => !spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
 
 
     public static IEnumerable<ScaffoldingPartEntry> HasAcceptsStringBearer(this IEnumerable<ScaffoldingPartEntry> subSet) =>

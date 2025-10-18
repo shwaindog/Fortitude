@@ -12,11 +12,13 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 public partial class SelectTypeField<TExt> where TExt : TypeMolder
 {
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, bool value) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, bool value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormatted(value, formatString).AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, bool? value) =>
-        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext();
+    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, bool? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+        stb.SkipFields ? stb.StyleTypeBuilder : stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext();
 
     public TExt AlwaysAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
@@ -202,21 +204,16 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                 ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString, startIndex, length).AddGoToNext()
                 : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext());
 
-    public TExt AlwaysAddMatch<T>(ReadOnlySpan<char> fieldName, T? value
+    public TExt AlwaysAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
-            : (formatString.IsNotNullOrEmpty()
-                ? stb.FieldNameJoin(fieldName).AppendMatchFormattedOrNull(value, formatString).AddGoToNext()
-                : stb.FieldNameJoin(fieldName).AppendMatchOrNull(value).AddGoToNext());
+            : stb.FieldNameJoin(fieldName).AppendMatchFormattedOrNull(value, formatString ?? "").AddGoToNext();
 
     [CallsObjectToString]
     public TExt AlwaysAddObject(ReadOnlySpan<char> fieldName, object? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
-            : (formatString.IsNotNullOrEmpty() 
-                ? stb.FieldNameJoin(fieldName).AppendFormattedOrNull(value, formatString).AddGoToNext()
-                : stb.FieldNameJoin(fieldName).AppendMatchOrNull(value).AddGoToNext()
-                );
+            : stb.FieldNameJoin(fieldName).AppendMatchFormattedOrNull(value, formatString ?? "").AddGoToNext();
 }

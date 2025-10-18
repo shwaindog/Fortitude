@@ -24,46 +24,26 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return this;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendValueTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , Type valueType, string? alternativeName = null) where TB : TypeMolder =>
-        typeBuilder;
+    public virtual IStringBuilder AppendValueTypeOpening(IStringBuilder sb, Type valueType, string? alternativeName = null) => sb;
 
-    public virtual ITypeMolderDieCast<TB> AppendValueTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder, Type valueType) where TB : TypeMolder
-    {
-        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        return typeBuilder;
-    }
+    public virtual IStringBuilder AppendValueTypeClosing(IStringBuilder sb, Type valueType) => sb.RemoveLastWhiteSpacedCommaIfFound();
 
-    public virtual ITypeMolderDieCast<TB> AppendComplexTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder, Type complexType
-      , string? alternativeName = null)
-        where TB : TypeMolder =>
-        typeBuilder.Sb.Append(BrcOpn).ToInternalTypeBuilder(typeBuilder);
+    public virtual IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complexType, string? alternativeName = null)  =>
+        sb.Append(BrcOpn);
 
-    public virtual ITypeMolderDieCast<TB> AppendFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, ReadOnlySpan<char> fieldName)
-        where TB : TypeMolder =>
-        typeBuilder.Sb.Append(DblQt).Append(fieldName).Append(DblQt).ToInternalTypeBuilder(typeBuilder);
+    public virtual IStringBuilder AppendFieldValueSeparator(IStringBuilder sb) => sb.Append(Cln);
 
-    public virtual ITypeMolderDieCast<TB> AppendFieldValueSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder)
-        where TB : TypeMolder =>
-        typeBuilder.Sb.Append(Cln).ToInternalTypeBuilder(typeBuilder);
+    public virtual IStringBuilder AddNextFieldSeparator(IStringBuilder sb)  => sb.Append(Cma);
 
-    public virtual ITypeMolderDieCast<TB> AddNextFieldSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder)
-        where TB : TypeMolder =>
-        typeBuilder.Sb.Append(Cma).ToInternalTypeBuilder(typeBuilder);
+    public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) => 
+        sb.InsertAt(Cma, atIndex).ReturnCharCount(1);
 
-    public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel)
-    {
-        return sb.InsertAt(Cma, atIndex).ReturnCharCount(1);
-    }
+    public virtual IStringBuilder AppendTypeClosing(IStringBuilder sb) => sb.RemoveLastWhiteSpacedCommaIfFound().Append(BrcCls);
 
-    public virtual ITypeMolderDieCast<TB> AppendTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder)
-        where TB : TypeMolder
-    {
-        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        return typeBuilder.Sb.Append(BrcCls).ToInternalTypeBuilder(typeBuilder);
-    }
+    public virtual IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName) =>
+        sb.Append(DblQt).Append(fieldName).Append(DblQt);
 
-    public virtual IStringBuilder FormatFieldNameMatch<T>(IStringBuilder sb, T source, string? formatString = null)
+    public virtual IStringBuilder FormatFieldNameMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null)
     {
         if (formatString.IsNotNullOrEmpty())
             sb.Append(DblQt).AppendFormat(this, formatString, source).Append(DblQt);
@@ -73,119 +53,88 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
-      , string? formatString = null) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(DblQt).Append(source ? Options.True : Options.False).Append(DblQt).ToInternalTypeBuilder(typeBuilder);
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool source, string? formatString = null) => 
+        Format(source, sb, formatString).ToStringBuilder(sb);
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
-      , string? formatString = null) where TB : TypeMolder =>
-        (source != null
-            ? typeBuilder.Sb.Append(DblQt).Append(source.Value ? Options.True : Options.False).Append(DblQt)
-            : typeBuilder.Sb.Append(DblQt).Append(typeBuilder.Settings.NullStyle).Append(DblQt)).ToInternalTypeBuilder(typeBuilder);
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null) => 
+        Format(source, sb, formatString).ToStringBuilder(sb);
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
-      , string? formatString = null)
-        where TB : TypeMolder where TFmt : ISpanFormattable
+    public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null) where TFmt : ISpanFormattable
     {
-        var sb                 = typeBuilder.Sb;
         var origValuesInQuotes = StyleOptions.WrapValuesInQuotes;
         StyleOptions.WrapValuesInQuotes = true;
         base.Format(source, sb, formatString);
         StyleOptions.WrapValuesInQuotes = origValuesInQuotes;
-        return typeBuilder;
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
-      , string? formatString = null)
-        where TB : TypeMolder where TFmt : struct, ISpanFormattable
+    public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null)
+        where TFmt : struct, ISpanFormattable
     {
-        var sb      = typeBuilder.Sb;
         if (!source.HasValue)
         {
-            sb.Append(typeBuilder.Settings.NullStyle);
-            return typeBuilder;
+            return sb.Append(StyleOptions.NullStyle);
         }
-        return FormatFieldName(typeBuilder, source.Value, formatString);
+        return FormatFieldName(sb, source.Value, formatString);
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , ReadOnlySpan<char> source, int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TB : TypeMolder
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
-        var sb = typeBuilder.Sb;
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
-        sb.Append(DblQt);
-        return typeBuilder;
+        return sb.Append(DblQt);
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, char[] source
-      , int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TB : TypeMolder
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, char[] source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
-        var sb = typeBuilder.Sb;
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
-        sb.Append(DblQt);
-        return typeBuilder;
+        return sb.Append(DblQt);
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, ICharSequence source
-      , int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TB : TypeMolder
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, ICharSequence source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
-        var sb = typeBuilder.Sb;
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
-        sb.Append(DblQt);
-        return typeBuilder;
+        return sb.Append(DblQt);
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, StringBuilder source
-      , int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TB : TypeMolder
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
-        var sb = typeBuilder.Sb;
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
-        sb.Append(DblQt);
-        return typeBuilder;
+        return sb.Append(DblQt);
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle
-      , PalantírReveal<TBase> styler)
-        where TB : TypeMolder where T : TBase
+    public virtual IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler) 
+        where TCloaked : TCloakedBase
     {
-        var sb           = typeBuilder.Sb;
+        var sb           = tos.WriteBuffer;
         var preAppendLen = sb.Length;
-        styler(toStyle, typeBuilder.Master);
-        if (sb.Length == preAppendLen) return typeBuilder;
+        styler(toStyle, tos);
+        if (sb.Length == preAppendLen) return tos.WriteBuffer;
         ProcessAppendedRange(sb, preAppendLen);
-        if (sb[preAppendLen] == DblQtChar) return typeBuilder;
+        if (sb[preAppendLen] == DblQtChar) return tos.WriteBuffer;
         sb.Insert(preAppendLen, DblQt);
-        sb.Append(DblQt);
-        return typeBuilder;
+        return sb.Append(DblQt);
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, IStringBearer styledObj)
-        where TB : TypeMolder
+    public virtual IStringBuilder FormatFieldName(ITheOneString tos, IStringBearer styledObj)
     {
-        var sb           = typeBuilder.Sb;
-        var preAppendLen = sb.Length;
-        styledObj.RevealState(typeBuilder.Master);
-        if (sb.Length == preAppendLen) return typeBuilder;
-        ProcessAppendedRange(sb, preAppendLen);
-        if (sb[preAppendLen] == DblQtChar) return typeBuilder;
-        sb.Insert(preAppendLen, DblQt);
-        sb.Append(DblQt);
-        return typeBuilder;
+        var preAppendLen = tos.WriteBuffer.Length;
+        styledObj.RevealState(tos);
+        if (tos.WriteBuffer.Length == preAppendLen) return tos.WriteBuffer;
+        ProcessAppendedRange(tos.WriteBuffer, preAppendLen);
+        if (tos.WriteBuffer[preAppendLen] == DblQtChar) return tos.WriteBuffer;
+        tos.WriteBuffer.Insert(preAppendLen, DblQt);
+        return tos.WriteBuffer.Append(DblQt);
     }
 
-    public virtual IStringBuilder FormatFieldContentsMatch<T>(IStringBuilder sb, T source, string? formatString = null)
+    public virtual IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null)
     {
         if (source == null) return sb;
         string rawValue;
@@ -197,81 +146,57 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             rawValue = source.ToString() ?? "";
         }
-        if (formatString.IsNotNullOrEmpty())
-            sb.AppendFormat(this, formatString, rawValue);
-        else
-            sb.Append(rawValue);
+        sb.AppendFormat(this, formatString ?? "{0}", rawValue);
         return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, bool source
       , string? formatString = null)
-        where TB : TypeMolder
     {
-        var sb = typeBuilder.Sb;
         if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
-        typeBuilder.Sb.Append(source ? Options.True : Options.False);
+        sb.Append(source ? Options.True : Options.False);
         if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
-        return typeBuilder;
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, bool? source
       , string? formatString = null)
-        where TB : TypeMolder
     {
-        var sb = typeBuilder.Sb;
         if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         if (source != null)
-            typeBuilder.Sb.Append(source.Value ? Options.True : Options.False);
+            sb.Append(source.Value ? Options.True : Options.False);
         else
-            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
+            sb.Append(StyleOptions.NullStyle);
         if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
-        return typeBuilder;
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
-      , string? formatString = null)
-        where TB : TypeMolder where TFmt : ISpanFormattable
-    {
-        var sb            = typeBuilder.Sb;
+    public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null) 
+        where TFmt : ISpanFormattable =>
+        base.Format(source, sb, formatString ?? "").ToStringBuilder(sb);
 
-        base.Format(source, sb, formatString ?? "");
-        
-        return typeBuilder;
-    }
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
-      , string? formatString = null)
-        where TB : TypeMolder where TFmt : struct, ISpanFormattable
+    public virtual IStringBuilder FormatFieldContents<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null) 
+        where TFmtStruct : struct, ISpanFormattable
     {
-        var sb      = typeBuilder.Sb;
         if (!source.HasValue)
         {
-            sb.Append(typeBuilder.Settings.NullStyle);
-            return typeBuilder;
+            return sb.Append(StyleOptions.NullStyle);
         }
-        return FormatFieldContents(typeBuilder, source.Value, formatString);
+        return FormatFieldContents(sb, source.Value, formatString);
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , ReadOnlySpan<char> source, int sourceFrom = 0
-      , string? formatString = null
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue)
-        where TB : TypeMolder
     {
-        var sb = typeBuilder.Sb;
         sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
         sb.Append(DblQt);
-        return typeBuilder;
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, char[] source
-      , int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TB : TypeMolder
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, char[] source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
-        var sb = typeBuilder.Sb;
         if (JsonOptions.CharArrayWritesString)
         {
             sb.Append(DblQt);
@@ -282,14 +207,15 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             var cappedFrom   = Math.Clamp(sourceFrom, 0, sb.Length);
             var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
+            var cappedEnd = cappedFrom + cappedLength;
             var charType     = typeof(char);
-            FormatCollectionStart(typeBuilder, charType, cappedLength > 0, source.GetType());
+            base.CollectionStart(charType, sb, cappedLength > 0);
 
             var lastAdded    = 0;
             var previousChar = '\0';
-            for (int i = cappedFrom; i < cappedLength; i++)
+            for (int i = cappedFrom; i < cappedEnd; i++)
             {
-                if (i > 0) AddCollectionElementSeparator(typeBuilder, charType, i);
+                if (i > 0) AddCollectionElementSeparator(charType, sb, i);
 
                 var nextChar = source[cappedFrom + i];
                 lastAdded = lastAdded == 0 && i > 0
@@ -297,17 +223,15 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
                     : CollectionNextItem(nextChar, i, sb);
                 previousChar = lastAdded == 0 ? nextChar : '\0'; 
             }
-            FormatCollectionEnd(typeBuilder, charType, cappedLength);
+            sb.RemoveLastWhiteSpacedCommaIfFound();
+            base.CollectionEnd(charType, sb, cappedLength);
         }
-        return typeBuilder;
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, ICharSequence source
-      , int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TB : TypeMolder
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ICharSequence source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
-        var sb = typeBuilder.Sb;
         if (JsonOptions.CharArrayWritesString)
         {
             sb.Append(DblQt);
@@ -320,13 +244,13 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
 
             var charType = typeof(char);
-            FormatCollectionStart(typeBuilder, charType, cappedLength > 0, source.GetType());
+            CollectionStart(charType, sb, cappedLength > 0);
 
             var lastAdded    = 0;
             var previousChar = '\0';
             for (int i = cappedFrom; i < cappedLength; i++)
             {
-                if (i > 0  && lastAdded > 0) AddCollectionElementSeparator(typeBuilder, charType, i);
+                if (i > 0  && lastAdded > 0) AddCollectionElementSeparator(charType, sb, i);
 
                 var nextChar = source[cappedFrom + i];
                 lastAdded = lastAdded == 0 && i > 0
@@ -334,51 +258,40 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
                     : CollectionNextItemFormat(nextChar, i, sb, formatString ?? "");
                 previousChar = lastAdded == 0 ? nextChar : '\0'; 
             }
-            FormatCollectionEnd(typeBuilder, charType, cappedLength);
+            CollectionEnd(charType, sb, cappedLength);
         }
-        return typeBuilder;
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, StringBuilder source
-      , int sourceFrom = 0
-      , string? formatString = null
-      , int maxTransferCount = int.MaxValue) where TB : TypeMolder
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)
     {
-        var sb = typeBuilder.Sb;
-        sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
-        sb.Append(DblQt);
-        return typeBuilder;
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle
-      , PalantírReveal<TBase> styler)
-        where TB : TypeMolder where T : TBase
+    public virtual IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
+      , PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase
     {
-        var sb           = typeBuilder.Sb;
+        var preAppendLen = tos.WriteBuffer.Length;
+        styler(toStyle, tos);
+        if (tos.WriteBuffer.Length != preAppendLen) ProcessAppendedRange(tos.WriteBuffer, preAppendLen);
+        return tos.WriteBuffer;
+    }
+
+    public virtual IStringBuilder FormatFieldContents(ITheOneString tos, IStringBearer styledObj)
+    {
+        var sb           = tos.WriteBuffer;
         var preAppendLen = sb.Length;
-        styler(toStyle, typeBuilder.Master);
+        styledObj.RevealState(tos);
         if (sb.Length != preAppendLen) ProcessAppendedRange(sb, preAppendLen);
-        return typeBuilder;
-    }
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , IStringBearer styledObj)
-        where TB : TypeMolder
-    {
-        var sb           = typeBuilder.Sb;
-        var preAppendLen = sb.Length;
-        styledObj.RevealState(typeBuilder.Master);
-        if (sb.Length != preAppendLen) ProcessAppendedRange(sb, preAppendLen);
-        return typeBuilder;
+        return sb;
     }
 
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyedCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, Type keyType, Type valueType) where TB : TypeMolder
+    public virtual IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType) 
     {
-        var sb = typeBuilder.Sb;
-        if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
+        if (StyleOptions.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
              keyedCollectionType.IsReadOnlyList()))
         {
@@ -386,16 +299,15 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         }
         else
         {
-            sb.Append(BrcOpn).ToInternalTypeBuilder(typeBuilder);
+            sb.Append(BrcOpn);
         }
-        return typeBuilder;
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyedCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount) where TB : TypeMolder
+    public virtual IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
+      , int totalItemCount) 
     {
-        var sb = typeBuilder.Sb;
-        if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
+        if (StyleOptions.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
              keyedCollectionType.IsReadOnlyList()))
         {
@@ -403,103 +315,88 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         }
         else
         {
-            sb.Append(BrcCls).ToInternalTypeBuilder(typeBuilder);
+            sb.Append(BrcCls);
         }
-        return typeBuilder;
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue>(ITypeMolderDieCast<TB> typeBuilder
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold
       , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null)
-        where TB : TypeMolder
+        where TMold : TypeMolder
     {
-        if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
+        if (typeMold.Settings.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
              keyedCollectionType.IsReadOnlyList()))
         {
-            AppendComplexTypeOpening(typeBuilder, keyedCollectionType);
-            AppendFieldName(typeBuilder, "Key").FieldEnd();
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? typeBuilder.AppendMatchFormattedOrNull(key, keyFormatString, true)
-                : typeBuilder.AppendMatchOrNull(key, true);
-            AddNextFieldSeparator(typeBuilder);
-            AppendFieldName(typeBuilder, "Value").FieldEnd();
-            _ = valueFormatString.IsNotNullOrEmpty()
-                ? typeBuilder.AppendMatchFormattedOrNull(value, valueFormatString)
-                : typeBuilder.AppendMatchOrNull(value);
-            AppendTypeClosing(typeBuilder);
+            AppendComplexTypeOpening(typeMold.Sb, keyedCollectionType);
+            AppendFieldName(typeMold.Sb, "Key").FieldEnd(this);
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true);
+            AddNextFieldSeparator(typeMold.Sb);
+            AppendFieldName(typeMold.Sb, "Value").FieldEnd(this);
+            typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "");
+            AppendTypeClosing(typeMold.Sb);
         }
         else
         {
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? typeBuilder.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                : typeBuilder.AppendMatchOrNull(key, true).FieldEnd();
-            _ = valueFormatString.IsNotNullOrEmpty()
-                ? typeBuilder.AppendMatchFormattedOrNull(value, valueFormatString)
-                : typeBuilder.AppendMatchOrNull(value);
+
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true).FieldEnd();
+            typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "");
         }
-        return typeBuilder;
+        return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TVBase>(ITypeMolderDieCast<TB> typeBuilder
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVBase>(ITypeMolderDieCast<TMold> typeMold
       , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null)
-        where TB : TypeMolder where TValue : TVBase
+        where TMold : TypeMolder where TValue : TVBase
     {
-        if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
+        if (typeMold.Settings.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
              keyedCollectionType.IsReadOnlyList()))
         {
-            AppendComplexTypeOpening(typeBuilder, keyedCollectionType);
-            AppendFieldName(typeBuilder, "Key").FieldEnd();
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? typeBuilder.AppendMatchFormattedOrNull(key, keyFormatString, true)
-                : typeBuilder.AppendMatchOrNull(key, true);
-            AddNextFieldSeparator(typeBuilder);
-            AppendFieldName(typeBuilder, "Value").FieldEnd();
-            valueStyler(value, typeBuilder.Master);
-            AppendTypeClosing(typeBuilder);
+            AppendComplexTypeOpening(typeMold.Sb, keyedCollectionType);
+            AppendFieldName(typeMold.Sb, "Key").FieldEnd(this);
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true);
+            AddNextFieldSeparator(typeMold.Sb);
+            AppendFieldName(typeMold.Sb, "Value").FieldEnd(this);
+            valueStyler(value, typeMold.Master);
+            AppendTypeClosing(typeMold.Sb);
         }
         else
         {
-            _ = keyFormatString.IsNotNullOrEmpty()
-                ? typeBuilder.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-                : typeBuilder.AppendMatchOrNull(key, true).FieldEnd();
-            valueStyler(value, typeBuilder.Master);
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true).FieldEnd();
+            valueStyler(value, typeMold.Master);
         }
-        return typeBuilder;
+        return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TB> typeBuilder
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TMold> typeMold
       , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler
       , PalantírReveal<TKBase> keyStyler)
-        where TB : TypeMolder where TKey : TKBase where TValue : TVBase
+        where TMold : TypeMolder where TKey : TKBase where TValue : TVBase
     {
-        if (typeBuilder.Settings.WriteKeyValuePairsAsCollection
+        if (typeMold.Settings.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
              keyedCollectionType.IsReadOnlyList()))
         {
-            AppendComplexTypeOpening(typeBuilder, keyedCollectionType);
-            AppendFieldName(typeBuilder, "Key").FieldEnd();
-            keyStyler(key, typeBuilder.Master);
-            AddNextFieldSeparator(typeBuilder);
-            AppendFieldName(typeBuilder, "Value").FieldEnd();
-            valueStyler(value, typeBuilder.Master);
-            AppendTypeClosing(typeBuilder);
+            AppendComplexTypeOpening(typeMold.Sb, keyedCollectionType);
+            AppendFieldName(typeMold.Sb, "Key").FieldEnd(this);
+            keyStyler(key, typeMold.Master);
+            AddNextFieldSeparator(typeMold.Sb);
+            AppendFieldName(typeMold.Sb, "Value").FieldEnd(this);
+            valueStyler(value, typeMold.Master);
+            AppendTypeClosing(typeMold.Sb);
         }
         else
         {
-            keyStyler(key, typeBuilder.Master);
-            typeBuilder.FieldEnd();
-            valueStyler(value, typeBuilder.Master);
+            keyStyler(key, typeMold.Master);
+            typeMold.FieldEnd();
+            valueStyler(value, typeMold.Master);
         }
-        return typeBuilder;
+        return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyedCollectionNextItem<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , Type keyedCollectionType, Type keyType, Type valueType, int previousItemCount) where TB : TypeMolder
-    {
-        typeBuilder.Sb.Append(Cma).ToInternalTypeBuilder(typeBuilder);
-        return typeBuilder;
-    }
+    public virtual IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb
+      , Type keyedCollectionType, Type keyType, Type valueType, int previousItemCount) => sb.Append(Cma);
 
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems)
     {
@@ -515,93 +412,84 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , Type itemElementType, bool hasItems, Type collectionType) where TB : TypeMolder
+    public virtual IStringBuilder FormatCollectionStart(IStringBuilder sb
+      , Type itemElementType, bool hasItems, Type collectionType) => base.CollectionStart(itemElementType, sb, hasItems).ToStringBuilder(sb);
+
+    public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
+      , TCloaked item, int retrieveCount, PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase
     {
-        base.CollectionStart(itemElementType, typeBuilder.Sb, hasItems);
-        return typeBuilder;
+        styler(item, tos);
+        return tos.WriteBuffer;
     }
 
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB, TCustStyle, TCustBase>(ITypeMolderDieCast<TB> typeBuilder
-      , TCustStyle item
-      , int retrieveCount, PalantírReveal<TCustBase> styler) where TB : TypeMolder where TCustStyle : TCustBase
-    {
-        styler(item, typeBuilder.Master);
-        return typeBuilder;
-    }
-
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB>(ITypeMolderDieCast<TB> typeBuilder, string? item
-      , int retrieveCount
-      , string? formatString = null) where TB : TypeMolder
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount, string? formatString = null)
     {
         if (item == null)
         {
-            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
-            return typeBuilder;
+            return sb.Append(StyleOptions.NullStyle);
         }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            typeBuilder.Sb.AppendFormat(this, formatString, item);
-        else
-            typeBuilder.Sb.Append(item, this);
-        return typeBuilder;
+        
+        sb.Append(DblQt);
+        Format(item, 0, sb, formatString ?? "");
+        sb.Append(DblQt);
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB, TCharSeq>(ITypeMolderDieCast<TB> typeBuilder, TCharSeq? item
-      , int retrieveCount, string? formatString = null) where TB : TypeMolder where TCharSeq : ICharSequence
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount, string? formatString = null)
     {
         if (item == null)
         {
-            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
-            return typeBuilder;
+            return sb.Append(StyleOptions.NullStyle);
         }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            typeBuilder.Sb.Append(item, 0, item.Length, formatString, this);
-        else
-            typeBuilder.Sb.Append(item, this);
-        return typeBuilder;
+        Format(item, 0, sb, formatString ?? "");
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB>(ITypeMolderDieCast<TB> typeBuilder, StringBuilder? item
-      , int retrieveCount, string? formatString = null) where TB : TypeMolder
+    public virtual IStringBuilder CollectionNextItemFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount
+      , string? formatString = null) where TCharSeq : ICharSequence
     {
         if (item == null)
         {
-            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
-            return typeBuilder;
+            return sb.Append(StyleOptions.NullStyle);
         }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            typeBuilder.Sb.Append(item, 0, item.Length, formatString, this);
-        else
-            typeBuilder.Sb.Append(item, this);
-        return typeBuilder;
+        Format(item, 0, sb, formatString ?? "");
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , IStringBearer? item
-      , int retrieveCount) where TB : TypeMolder
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item
+      , int retrieveCount, string? formatString = null) 
     {
         if (item == null)
         {
-            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
-            return typeBuilder;
+            return sb.Append(StyleOptions.NullStyle);
         }
-        item.RevealState(typeBuilder.Master);
-        return typeBuilder;
+        Format(item, 0, sb, formatString ?? "");
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> AddCollectionElementSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder
+    public virtual IStringBuilder CollectionNextItemFormat(ITheOneString tos
+      , IStringBearer? item, int retrieveCount)
+    {
+        if (item == null)
+        {
+            return tos.WriteBuffer.Append(StyleOptions.NullStyle);
+        }
+        item.RevealState(tos);
+        return tos.WriteBuffer;
+    }
+
+    public virtual IStringBuilder AddCollectionElementSeparator(IStringBuilder sb
       , Type elementType, int nextItemNumber)
-        where TB : TypeMolder
     {
-        base.AddCollectionElementSeparator(elementType, typeBuilder.Sb, nextItemNumber);
-        return typeBuilder;
+        base.AddCollectionElementSeparator(elementType, sb, nextItemNumber);
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType
-      , int totalItemCount) where TB : TypeMolder
+    public virtual IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType
+      , int totalItemCount) 
     {
-        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        base.CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount);
-        return typeBuilder;
+        sb.RemoveLastWhiteSpacedCommaIfFound();
+        base.CollectionEnd(itemElementType, sb, totalItemCount);
+        return sb;
     }
 }

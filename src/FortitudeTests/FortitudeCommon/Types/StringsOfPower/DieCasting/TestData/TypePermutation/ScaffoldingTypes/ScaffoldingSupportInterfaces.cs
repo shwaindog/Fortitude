@@ -14,9 +14,12 @@ public class TypeGeneratePartAttribute(ScaffoldingStringBuilderInvokeFlags flags
     public ScaffoldingStringBuilderInvokeFlags ScaffoldingFlags { get; } = flags;
 }
 
-public interface IMoldSupportedValue<TValue> : IStringBearer
+public interface ISinglePropertyTestStringBearer : IStringBearer
 {
     [JsonIgnore] string PropertyName { get; }
+}
+public interface IMoldSupportedValue<TValue> : ISinglePropertyTestStringBearer
+{
     [JsonIgnore] TValue Value { get; set; }
 }
 

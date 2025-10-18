@@ -14,8 +14,6 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     private byte previousByteUnusedBits;
     private byte previousByteBitCount;
 
-    protected const string DblQt      = "\"";
-    protected const char   DblQtChar  = '"';
     protected const string BrcOpn     = "{";
     protected const char   BrcOpnChar = '{';
     protected const string BrcCls     = "}";

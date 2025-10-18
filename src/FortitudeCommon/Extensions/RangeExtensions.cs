@@ -32,7 +32,7 @@ public static class RangeExtensions
                         formatRange.Start.IsFromEnd
                             ? Index.FromEnd(Math.Clamp(formatRange.Start.Value, 0, length))
                             : Index.FromStart(Math.Clamp(formatRange.Start.Value, 0, length))
-                      , formatRange.Start.IsFromEnd
+                      , formatRange.End.IsFromEnd
                             ? Index.FromEnd(Math.Clamp(formatRange.End.Value, 0, length))
                             : Index.FromStart(Math.Clamp(formatRange.End.Value, 0, length)));
     }

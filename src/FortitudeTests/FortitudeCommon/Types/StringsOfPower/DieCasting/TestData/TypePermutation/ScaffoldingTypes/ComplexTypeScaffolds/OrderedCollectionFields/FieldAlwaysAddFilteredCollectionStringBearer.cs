@@ -303,7 +303,7 @@ public class FieldNullableStringBearerSpanAlwaysAddFilteredStringBearer<TBearerS
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<string[]?>, ISupportsOrderedCollectionPredicate<string?>
   , ISupportsValueFormatString
 {
@@ -329,7 +329,7 @@ public class FieldStringSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringNullableSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<string?[]?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
@@ -356,7 +356,7 @@ public class FieldStringNullableSpanAlwaysAddFilteredStringBearer : IMoldSupport
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -384,7 +384,7 @@ public class FieldCharSequenceSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharS
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceNullableSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -412,7 +412,7 @@ public class FieldCharSequenceNullableSpanAlwaysAddFilteredStringBearer<TCharSeq
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<StringBuilder[]?>
   , ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
@@ -439,7 +439,7 @@ public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : IMoldSupporte
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderNullableSpanAlwaysAddFilteredStringBearer
     : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
@@ -466,22 +466,22 @@ public class FieldStringBuilderNullableSpanAlwaysAddFilteredStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
-public class FieldMatchSpanAlwaysAddFilteredStringBearer<T, TFilterBase>
-    : IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
-    where T : TFilterBase
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchSpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
+    : IMoldSupportedValue<TAny[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    where TAny : TAnyFilterBase
 {
-    public T[]? ComplexTypeCollectionFieldAlwaysAddFilteredMatchSpan
+    public TAny[]? ComplexTypeCollectionFieldAlwaysAddFilteredMatchSpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchSpan);
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
-    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -494,22 +494,22 @@ public class FieldMatchSpanAlwaysAddFilteredStringBearer<T, TFilterBase>
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchNullableSpanAlwaysAddFilteredStringBearer<T, TFilterBase>
-    : IMoldSupportedValue<T?[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
-    where T : TFilterBase
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchNullableSpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
+    : IMoldSupportedValue<TAny?[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    where TAny : TAnyFilterBase
 {
-    public T?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchSpan
+    public TAny?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchSpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchSpan);
-    public T?[]? Value { get; set; }
+    public TAny?[]? Value { get; set; }
 
-    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -875,7 +875,7 @@ public class FieldNullableStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<string[]?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
@@ -901,7 +901,7 @@ public class FieldStringReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupport
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringNullableReadOnlySpanAlwaysAddFilteredStringBearer
     : IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
@@ -927,7 +927,7 @@ public class FieldStringNullableReadOnlySpanAlwaysAddFilteredStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -955,7 +955,7 @@ public class FieldCharSequenceReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceNullableReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -983,7 +983,7 @@ public class FieldCharSequenceNullableReadOnlySpanAlwaysAddFilteredStringBearer<
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderReadOnlySpanAlwaysAddFilteredStringBearer
     : IMoldSupportedValue<StringBuilder[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
@@ -1010,7 +1010,7 @@ public class FieldStringBuilderReadOnlySpanAlwaysAddFilteredStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderNullableReadOnlySpanAlwaysAddFilteredStringBearer
     : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
@@ -1037,56 +1037,56 @@ public class FieldStringBuilderNullableReadOnlySpanAlwaysAddFilteredStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
-public class FieldMatchReadOnlySpanAlwaysAddFilteredStringBearer<T, TFilterBase>
-    : IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
-    where T : TFilterBase
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchReadOnlySpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
+    : IMoldSupportedValue<TAny[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    where TAny : TAnyFilterBase
 {
-    public T[]? ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan
+    public TAny[]? ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan);
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
-    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan)
-              , (ReadOnlySpan<T>)ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan
+              , (ReadOnlySpan<TAny>)ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan
               , ElementPredicate, ValueFormatString)
            .Complete();
 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchNullableReadOnlySpanAlwaysAddFilteredStringBearer<T, TFilterBase>
-    : IMoldSupportedValue<T?[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
-    where T : TFilterBase
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchNullableReadOnlySpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
+    : IMoldSupportedValue<TAny?[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    where TAny : TAnyFilterBase
 {
-    public T?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan
+    public TAny?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan);
-    public T?[]? Value { get; set; }
+    public TAny?[]? Value { get; set; }
 
-    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatchNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan)
-              , (ReadOnlySpan<T?>)ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan
+              , (ReadOnlySpan<TAny?>)ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan
               , ElementPredicate, ValueFormatString)
            .Complete();
 
@@ -1357,7 +1357,7 @@ public class FieldNullableStringBearerArrayAlwaysAddFilteredStringBearer<TBearer
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringArrayAlwaysAddFilteredStringBearer : IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>
   , ISupportsValueFormatString
 {
@@ -1383,7 +1383,7 @@ public class FieldStringArrayAlwaysAddFilteredStringBearer : IMoldSupportedValue
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceArrayAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -1411,7 +1411,7 @@ public class FieldCharSequenceArrayAlwaysAddFilteredStringBearer<TCharSeq, TChar
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderArrayAlwaysAddFilteredStringBearer
     : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
@@ -1439,22 +1439,22 @@ public class FieldStringBuilderArrayAlwaysAddFilteredStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchArrayAlwaysAddFilteredStringBearer<T, TFilterBase>
-    : IMoldSupportedValue<T[]?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
-    where T : TFilterBase
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchArrayAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
+    : IMoldSupportedValue<TAny[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    where TAny : TAnyFilterBase
 {
-    public T[]? ComplexTypeCollectionFieldAlwaysAddFilteredMatchArray
+    public TAny[]? ComplexTypeCollectionFieldAlwaysAddFilteredMatchArray
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchArray);
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
-    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -1468,7 +1468,7 @@ public class FieldMatchArrayAlwaysAddFilteredStringBearer<T, TFilterBase>
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAny)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric)]
 public class FieldObjectArrayAlwaysAddFilteredStringBearer
     : IMoldSupportedValue<object?[]?>, ISupportsOrderedCollectionPredicate<object>
 {
@@ -1679,7 +1679,7 @@ public class FieldStringBearerListAlwaysAddFilteredStringBearer<TBearer, TBearer
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsChars)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate)]
 public class FieldNullableStringBearerListAlwaysAddFilteredStringBearer<TBearerStruct>
     : IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
@@ -1704,7 +1704,7 @@ public class FieldNullableStringBearerListAlwaysAddFilteredStringBearer<TBearerS
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringListAlwaysAddFilteredStringBearer : IMoldSupportedValue<IReadOnlyList<string?>?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
@@ -1730,7 +1730,7 @@ public class FieldStringListAlwaysAddFilteredStringBearer : IMoldSupportedValue<
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceListAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>
       , ISupportsValueFormatString
@@ -1759,7 +1759,7 @@ public class FieldCharSequenceListAlwaysAddFilteredStringBearer<TCharSeq, TCharS
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderListAlwaysAddFilteredStringBearer
     : IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
@@ -1786,22 +1786,22 @@ public class FieldStringBuilderListAlwaysAddFilteredStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchListAlwaysAddFilteredStringBearer<T, TFilterBase>
-    : IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsOrderedCollectionPredicate<TFilterBase>, ISupportsValueFormatString
-    where T : TFilterBase
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchListAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
+    : IMoldSupportedValue<IReadOnlyList<TAny>?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    where TAny : TAnyFilterBase
 {
-    public IReadOnlyList<T>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
+    public IReadOnlyList<TAny>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList);
-    public IReadOnlyList<T>? Value { get; set; }
+    public IReadOnlyList<TAny>? Value { get; set; }
 
-    public OrderedCollectionPredicate<TFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
+        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

@@ -259,7 +259,7 @@ public class FieldNullableStringBearerSpanAlwaysAddAllStringBearer<TBearerStruct
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringSpanAlwaysAddAllStringBearer : IMoldSupportedValue<string[]?>, ISupportsValueFormatString
 {
     public string[]? ComplexTypeCollectionFieldAlwaysAddAllStringSpan
@@ -281,7 +281,7 @@ public class FieldStringSpanAlwaysAddAllStringBearer : IMoldSupportedValue<strin
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringNullableSpanAlwaysAddAllStringBearer : IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldAlwaysAddAllStringSpan
@@ -303,7 +303,7 @@ public class FieldStringNullableSpanAlwaysAddAllStringBearer : IMoldSupportedVal
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceSpanAlwaysAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq[]?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence
 {
@@ -326,7 +326,7 @@ public class FieldCharSequenceSpanAlwaysAddAllStringBearer<TCharSeq> : IMoldSupp
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceNullableSpanAlwaysAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?[]?>
   , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
@@ -349,7 +349,7 @@ public class FieldCharSequenceNullableSpanAlwaysAddAllStringBearer<TCharSeq> : I
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderSpanAlwaysAddAllStringBearer : IMoldSupportedValue<StringBuilder[]>, ISupportsValueFormatString
 {
     public StringBuilder[] ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan
@@ -371,7 +371,7 @@ public class FieldStringBuilderSpanAlwaysAddAllStringBearer : IMoldSupportedValu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderNullableSpanAlwaysAddAllStringBearer : IMoldSupportedValue<StringBuilder?[]>, ISupportsValueFormatString
 {
     public StringBuilder?[] ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan
@@ -393,17 +393,17 @@ public class FieldStringBuilderNullableSpanAlwaysAddAllStringBearer : IMoldSuppo
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchSpanAlwaysAddAllStringBearer<T> : IMoldSupportedValue<T[]?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchSpanAlwaysAddAllStringBearer<TAny> : IMoldSupportedValue<TAny[]?>, ISupportsValueFormatString
 {
-    public T[]? ComplexTypeCollectionFieldAlwaysAddAllMatchSpan
+    public TAny[]? ComplexTypeCollectionFieldAlwaysAddAllMatchSpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchSpan);
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -415,17 +415,17 @@ public class FieldMatchSpanAlwaysAddAllStringBearer<T> : IMoldSupportedValue<T[]
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchNullableSpanAlwaysAddAllStringBearer<T> : IMoldSupportedValue<T?[]?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchNullableSpanAlwaysAddAllStringBearer<TAny> : IMoldSupportedValue<TAny?[]?>, ISupportsValueFormatString
 {
-    public T?[]? ComplexTypeCollectionFieldAlwaysAddAllMatchNullableSpan
+    public TAny?[]? ComplexTypeCollectionFieldAlwaysAddAllMatchNullableSpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchNullableSpan);
-    public T?[]? Value { get; set; }
+    public TAny?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -736,7 +736,7 @@ public class FieldNullableStringBearerReadOnlySpanAlwaysAddAllStringBearer<TBear
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringReadOnlySpanAlwaysAddAllStringBearer : IMoldSupportedValue<string[]?>, ISupportsValueFormatString
 {
     public string[]? ComplexTypeCollectionFieldAlwaysAddAllStringReadOnlySpan
@@ -759,7 +759,7 @@ public class FieldStringReadOnlySpanAlwaysAddAllStringBearer : IMoldSupportedVal
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringNullableReadOnlySpanAlwaysAddAllStringBearer : IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldAlwaysAddAllStringNullableReadOnlySpan
@@ -782,7 +782,7 @@ public class FieldStringNullableReadOnlySpanAlwaysAddAllStringBearer : IMoldSupp
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq[]?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence
 {
@@ -806,7 +806,7 @@ public class FieldCharSequenceReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : I
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceNullableReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?[]?>
   , ISupportsValueFormatString
     where TCharSeq : ICharSequence
@@ -831,7 +831,7 @@ public class FieldCharSequenceNullableReadOnlySpanAlwaysAddAllStringBearer<TChar
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderReadOnlySpanAlwaysAddAllStringBearer : IMoldSupportedValue<StringBuilder[]>, ISupportsValueFormatString
 {
     public StringBuilder[] ComplexTypeCollectionFieldAlwaysAddAllStringBuilderReadOnlySpan
@@ -854,7 +854,7 @@ public class FieldStringBuilderReadOnlySpanAlwaysAddAllStringBearer : IMoldSuppo
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderNullableReadOnlySpanAlwaysAddAllStringBearer : IMoldSupportedValue<StringBuilder?[]>
   , ISupportsValueFormatString
 {
@@ -880,22 +880,22 @@ public class FieldStringBuilderNullableReadOnlySpanAlwaysAddAllStringBearer : IM
 
 [TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsClass | AcceptsStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueFormatString)]
-public class FieldMatchReadOnlySpanAlwaysAddAllStringBearer<T> : IMoldSupportedValue<T[]?>, ISupportsValueFormatString
+public class FieldMatchReadOnlySpanAlwaysAddAllStringBearer<TAny> : IMoldSupportedValue<TAny[]?>, ISupportsValueFormatString
 {
-    public T[]? ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan
+    public TAny[]? ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan);
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan)
-              , (ReadOnlySpan<T>)ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan
+              , (ReadOnlySpan<TAny>)ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan
               , ValueFormatString)
            .Complete();
 
@@ -904,22 +904,22 @@ public class FieldMatchReadOnlySpanAlwaysAddAllStringBearer<T> : IMoldSupportedV
 
 [TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsNullableClass | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueFormatString)]
-public class FieldMatchNullableReadOnlySpanAlwaysAddAllStringBearer<T> : IMoldSupportedValue<T?[]?>, ISupportsValueFormatString
+public class FieldMatchNullableReadOnlySpanAlwaysAddAllStringBearer<TAny> : IMoldSupportedValue<TAny?[]?>, ISupportsValueFormatString
 {
-    public T?[]? ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan
+    public TAny?[]? ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan);
-    public T?[]? Value { get; set; }
+    public TAny?[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan)
-              , (ReadOnlySpan<T?>)ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan
+              , (ReadOnlySpan<TAny?>)ComplexTypeCollectionFieldAlwaysAddAllMatchNullableReadOnlySpan
               , ValueFormatString)
            .Complete();
 
@@ -1157,7 +1157,7 @@ public class FieldNullableStringBearerArrayAlwaysAddAllStringBearer<TBearerStruc
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringArrayAlwaysAddAllStringBearer : IMoldSupportedValue<string?[]?>, ISupportsValueFormatString
 {
     public string?[]? ComplexTypeCollectionFieldAlwaysAddAllStringArray
@@ -1180,7 +1180,7 @@ public class FieldStringArrayAlwaysAddAllStringBearer : IMoldSupportedValue<stri
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceArrayAlwaysAddAllStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?[]?>, ISupportsValueFormatString
     where TCharSeq : ICharSequence
 {
@@ -1203,7 +1203,7 @@ public class FieldCharSequenceArrayAlwaysAddAllStringBearer<TCharSeq> : IMoldSup
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderArrayAlwaysAddAllStringBearer : IMoldSupportedValue<StringBuilder?[]?>, ISupportsValueFormatString
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldAlwaysAddAllStringBuilderArray
@@ -1226,17 +1226,17 @@ public class FieldStringBuilderArrayAlwaysAddAllStringBearer : IMoldSupportedVal
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchArrayAlwaysAddAllStringBearer<T> : IMoldSupportedValue<T[]?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchArrayAlwaysAddAllStringBearer<TAny> : IMoldSupportedValue<TAny[]?>, ISupportsValueFormatString
 {
-    public T[]? ComplexTypeCollectionFieldAlwaysAddAllMatchArray
+    public TAny[]? ComplexTypeCollectionFieldAlwaysAddAllMatchArray
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchArray);
-    public T[]? Value { get; set; }
+    public TAny[]? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -1249,7 +1249,7 @@ public class FieldMatchArrayAlwaysAddAllStringBearer<T> : IMoldSupportedValue<T[
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType |  AcceptsCollection | AcceptsArray | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldObjectArrayAlwaysAddAllStringBearer : IMoldSupportedValue<object?[]?>, ISupportsValueFormatString
 {
     public object?[]? ComplexTypeCollectionFieldAlwaysAddAllNullableObjectArray
@@ -1456,7 +1456,7 @@ public class FieldNullableStringBearerListAlwaysAddAllStringBearer<TBearerStruct
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringListAlwaysAddAllStringBearer : IMoldSupportedValue<IReadOnlyList<string?>?>, ISupportsValueFormatString
 {
     public IReadOnlyList<string?>? ComplexTypeCollectionFieldAlwaysAddAllStringList
@@ -1479,7 +1479,7 @@ public class FieldStringListAlwaysAddAllStringBearer : IMoldSupportedValue<IRead
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceListAlwaysAddAllStringBearer<TCharSeq> : IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>
   , ISupportsValueFormatString
     where TCharSeq : ICharSequence
@@ -1504,7 +1504,7 @@ public class FieldCharSequenceListAlwaysAddAllStringBearer<TCharSeq> : IMoldSupp
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderListAlwaysAddAllStringBearer : IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>
   , ISupportsValueFormatString
 {
@@ -1528,17 +1528,17 @@ public class FieldStringBuilderListAlwaysAddAllStringBearer : IMoldSupportedValu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchListAlwaysAddAllStringBearer<T> : IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchListAlwaysAddAllStringBearer<TAny> : IMoldSupportedValue<IReadOnlyList<TAny>?>, ISupportsValueFormatString
 {
-    public IReadOnlyList<T>? ComplexTypeCollectionFieldAlwaysAddAllMatchList
+    public IReadOnlyList<TAny>? ComplexTypeCollectionFieldAlwaysAddAllMatchList
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchList);
-    public IReadOnlyList<T>? Value { get; set; }
+    public IReadOnlyList<TAny>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -1551,7 +1551,7 @@ public class FieldMatchListAlwaysAddAllStringBearer<T> : IMoldSupportedValue<IRe
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldObjectListAlwaysAddAllStringBearer<T> : IMoldSupportedValue<IReadOnlyList<T>?>, ISupportsValueFormatString
     where T : class
 {

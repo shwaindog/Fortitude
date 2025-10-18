@@ -33,12 +33,12 @@ public class ComplexTypeMold : MultiValueTypeMolder<ComplexTypeMold>
 
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess, CompAccess.TypeBeingBuilt);
+        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt);
     }
     
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess.Sb);
     }
 
     public SelectTypeKeyValueCollectionField<ComplexTypeMold> KeyedCollectionField

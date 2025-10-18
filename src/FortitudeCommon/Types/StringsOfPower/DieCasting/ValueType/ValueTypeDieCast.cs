@@ -26,9 +26,9 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
 
     public bool NotJson => Style.IsNotJson();
 
-    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, bool? value)
+    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string? formatString = null)
     {
-        (NotJson && nonJsonfieldName.Length > 0 ? this.FieldNameJoin(nonJsonfieldName) : this).AppendOrNull(value);
+        (NotJson && nonJsonfieldName.Length > 0 ? this.FieldNameJoin(nonJsonfieldName) : this).AppendFormattedOrNull(value, formatString);
         return ConditionalValueTypeSuffix();
     }
 
@@ -324,11 +324,11 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, bool? value) 
+    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string? formatString = null) 
     {
         if (NotJson && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
-        this.AppendOrNull(value);
+        this.AppendFormattedOrNull(value, formatString);
         Sb.Append("\"");
         return ConditionalValueTypeSuffix();
     }

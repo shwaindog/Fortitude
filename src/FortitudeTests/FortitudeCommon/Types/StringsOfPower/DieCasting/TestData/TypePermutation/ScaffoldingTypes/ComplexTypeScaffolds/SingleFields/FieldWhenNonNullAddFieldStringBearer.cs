@@ -8,8 +8,8 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsNullableStruct)]
-public class FieldNullableBoolWhenNonNullStringBearer : IMoldSupportedValue<bool?>
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsNullableStruct | SupportsValueFormatString)]
+public class FieldNullableBoolWhenNonNullStringBearer : IMoldSupportedValue<bool?>, ISupportsValueFormatString
 {
     public bool? ComplexTypeFieldWhenNonNullAddNullableBool
     {
@@ -24,8 +24,10 @@ public class FieldNullableBoolWhenNonNullStringBearer : IMoldSupportedValue<bool
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddNullableBool)
-              , ComplexTypeFieldWhenNonNullAddNullableBool)
+              , ComplexTypeFieldWhenNonNullAddNullableBool, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
@@ -337,17 +339,17 @@ public class FieldNullableStringBearerWithHandlingWhenNonNullStringBearer<TBeare
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | NonNullWrites | AcceptsCharArray | SupportsValueFormatString)]
 public class FieldCharSpanWhenNonNullStringBearer : IMoldSupportedValue<char[]>, IMoldSupportedDefaultValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
-    public char[] ComplexTypeFieldAlwaysAddCharSpan
+    public char[] ComplexTypeFieldWhenNonNullAddCharSpan
     {
         get => Value;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharSpan);
+    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharSpan);
     public string DefaultValue { get; set; } = "";
 
     public char[] Value { get; set; } = null!;
@@ -355,8 +357,8 @@ public class FieldCharSpanWhenNonNullStringBearer : IMoldSupportedValue<char[]>,
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
-               (nameof(ComplexTypeFieldAlwaysAddCharSpan)
-              , ComplexTypeFieldAlwaysAddCharSpan.AsSpan()
+               (nameof(ComplexTypeFieldWhenNonNullAddCharSpan)
+              , ComplexTypeFieldWhenNonNullAddCharSpan.AsSpan()
               , ValueFormatString)
            .Complete();
 
@@ -369,18 +371,18 @@ public class FieldCharSpanWhenNonNullStringBearer : IMoldSupportedValue<char[]>,
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | NonNullWrites | AcceptsChars | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | NonNullWrites | AcceptsCharArray | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldCharSpanWithHandlingWhenNonNullStringBearer : IMoldSupportedValue<char[]>
   , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
-    public char[] ComplexTypeFieldAlwaysAddCharSpanAs
+    public char[] ComplexTypeFieldWhenNonNullAddCharSpanAs
     {
         get => Value;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharSpanAs);
+    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharSpanAs);
     public string DefaultValue { get; set; } = "";
 
     public char[] Value { get; set; } = null!;
@@ -388,8 +390,8 @@ public class FieldCharSpanWithHandlingWhenNonNullStringBearer : IMoldSupportedVa
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddAs
-               (nameof(ComplexTypeFieldAlwaysAddCharSpanAs)
-              , ComplexTypeFieldAlwaysAddCharSpanAs.AsSpan()
+               (nameof(ComplexTypeFieldWhenNonNullAddCharSpanAs)
+              , ComplexTypeFieldWhenNonNullAddCharSpanAs.AsSpan()
               , FieldContentHandling, ValueFormatString)
            .Complete();
 
@@ -404,17 +406,17 @@ public class FieldCharSpanWithHandlingWhenNonNullStringBearer : IMoldSupportedVa
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | NonNullWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldCharReadOnlySpanWhenNonNullStringBearer : IMoldSupportedValue<string>
   , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString
 {
-    public string ComplexTypeFieldAlwaysAddReadOnlyCharSpan
+    public string ComplexTypeFieldWhenNonNullAddReadOnlyCharSpan
     {
         get => Value;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpan);
+    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddReadOnlyCharSpan);
     public string DefaultValue { get; set; } = "";
 
     public string Value { get; set; } = null!;
@@ -422,8 +424,8 @@ public class FieldCharReadOnlySpanWhenNonNullStringBearer : IMoldSupportedValue<
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
-               (nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpan)
-              , ComplexTypeFieldAlwaysAddReadOnlyCharSpan.AsSpan()
+               (nameof(ComplexTypeFieldWhenNonNullAddReadOnlyCharSpan)
+              , ComplexTypeFieldWhenNonNullAddReadOnlyCharSpan.AsSpan()
               , ValueFormatString)
            .Complete();
 
@@ -436,19 +438,19 @@ public class FieldCharReadOnlySpanWhenNonNullStringBearer : IMoldSupportedValue<
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | NonNullWrites | AcceptsChars | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | NonNullWrites | AcceptsString | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldCharReadOnlySpanWithHandlingWhenNonNullStringBearer : IMoldSupportedValue<string>
   , IMoldSupportedDefaultValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
-    public string ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs
+    public string ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs
     {
         get => Value;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs);
+    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs);
     public string DefaultValue { get; set; } = "";
 
     public string Value { get; set; } = null!;
@@ -456,8 +458,8 @@ public class FieldCharReadOnlySpanWithHandlingWhenNonNullStringBearer : IMoldSup
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddAs
-               (nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs)
-              , ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs.AsSpan()
+               (nameof(ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs)
+              , ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs.AsSpan()
               , FieldContentHandling, ValueFormatString)
            .Complete();
 
@@ -472,7 +474,7 @@ public class FieldCharReadOnlySpanWithHandlingWhenNonNullStringBearer : IMoldSup
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringWhenNonNullStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -502,7 +504,7 @@ public class FieldStringWhenNonNullStringBearer : IMoldSupportedValue<string?>, 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsString | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldStringWithHandlingWhenNonNullStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -534,7 +536,7 @@ public class FieldStringWithHandlingWhenNonNullStringBearer : IMoldSupportedValu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldStringRangeWhenNonNullStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -568,7 +570,7 @@ public class FieldStringRangeWhenNonNullStringBearer : IMoldSupportedValue<strin
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldStringRangeWithHandlingWhenNonNullStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
@@ -605,7 +607,7 @@ public class FieldStringRangeWithHandlingWhenNonNullStringBearer : IMoldSupporte
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsCharArray | SupportsValueFormatString)]
 public class FieldCharArrayWhenNonNullStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -639,7 +641,7 @@ public class FieldCharArrayWhenNonNullStringBearer : IMoldSupportedValue<char[]?
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsArray | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharArrayWithHandlingWhenNonNullStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -671,7 +673,7 @@ public class FieldCharArrayWithHandlingWhenNonNullStringBearer : IMoldSupportedV
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsArray | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldCharArrayRangeWhenNonNullStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -705,7 +707,7 @@ public class FieldCharArrayRangeWhenNonNullStringBearer : IMoldSupportedValue<ch
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldCharArrayRangeWithHandlingWhenNonNullStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
@@ -742,7 +744,7 @@ public class FieldCharArrayRangeWithHandlingWhenNonNullStringBearer : IMoldSuppo
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceWhenNonNullStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString where TCharSeq : ICharSequence
 {
@@ -778,7 +780,7 @@ public class FieldCharSequenceWhenNonNullStringBearer<TCharSeq> : IMoldSupported
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharSequenceWithHandlingWhenNonNullStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling where TCharSeq : ICharSequence
@@ -817,7 +819,7 @@ public class FieldCharSequenceWithHandlingWhenNonNullStringBearer<TCharSeq> : IM
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldCharSequenceRangeWhenNonNullStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -857,7 +859,7 @@ public class FieldCharSequenceRangeWhenNonNullStringBearer<TCharSeq> : IMoldSupp
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldCharSequenceRangeWithHandlingWhenNonNullStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>
   , ISupportsValueFormatString
@@ -901,7 +903,7 @@ public class FieldCharSequenceRangeWithHandlingWhenNonNullStringBearer<TCharSeq>
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderWhenNonNullStringBearer : IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
@@ -931,7 +933,7 @@ public class FieldStringBuilderWhenNonNullStringBearer : IMoldSupportedValue<Str
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldStringBuilderWithHandlingWhenNonNullStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -963,7 +965,7 @@ public class FieldStringBuilderWithHandlingWhenNonNullStringBearer : IMoldSuppor
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldStringBuilderRangeWhenNonNullStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -997,7 +999,7 @@ public class FieldStringBuilderRangeWhenNonNullStringBearer : IMoldSupportedValu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldStringBuilderRangeWithHandlingWhenNonNullStringBearer : IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
@@ -1035,17 +1037,17 @@ public class FieldStringBuilderRangeWithHandlingWhenNonNullStringBearer : IMoldS
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
-public class FieldMatchWhenNonNullStringBearer<T> : IMoldSupportedValue<T?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchWhenNonNullStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString
 {
-    public T? ComplexTypeFieldWhenNonNullAddMatch
+    public TAny? ComplexTypeFieldWhenNonNullAddMatch
     {
         get => Value;
         set => Value = value;
     }
 
     public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddMatch);
-    public T? Value { get; set; }
+    public TAny? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -1058,7 +1060,7 @@ public class FieldMatchWhenNonNullStringBearer<T> : IMoldSupportedValue<T?>, ISu
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldObjectWhenNonNullStringBearer : IMoldSupportedValue<object?>, ISupportsValueFormatString
 {
     public object? ComplexTypeFieldWhenNonNullAddObject

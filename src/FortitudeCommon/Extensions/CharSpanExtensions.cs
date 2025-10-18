@@ -787,6 +787,12 @@ public static class CharSpanExtensions
         return toUpdate;
     }
 
+    public static int AppendReturnAddCount(this Span<char> toUpdate, bool toAppend, int startIndex = 0, int count = int.MaxValue) => 
+        toUpdate.AppendReturnAddCount(toAppend ? "true" : "false", startIndex, count);
+
+    public static int AppendReturnAddCount(this Span<char> toUpdate, bool? toAppend, int startIndex = 0, int count = int.MaxValue) => 
+        toUpdate.AppendReturnAddCount(toAppend == null ? "null" : (toAppend.Value ? "true" : "false"), startIndex, count);
+
     public static Span<char> Append(this Span<char> toUpdate, string toAppend, int startIndex = 0, int count = int.MaxValue)
     {
         var cappedLength = Math.Clamp(count, 0, toAppend.Length - startIndex);
@@ -971,12 +977,12 @@ public static class CharSpanExtensions
     public static bool SequenceMatches(this ReadOnlySpan<char> toCheck, string matchWith, int fromIndex = 0)
     {
         var matchLength = matchWith.Length;
-        var matchIndex  = 0;
-        for (var i = fromIndex; i < toCheck.Length && matchIndex < matchLength; i++)
+        if (matchLength != toCheck.Length) return false;
+        for (var i = 0; i < matchLength; i++)
         {
-            if (toCheck[i] != matchWith[matchIndex++]) return false;
+            if (toCheck[i+fromIndex] != matchWith[i]) return false;
         }
-        return matchIndex == matchLength;
+        return true;
     }
 
     public static bool SequenceMatches(this Span<char> toCheck, string matchWith, int fromIndex = 0)

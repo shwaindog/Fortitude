@@ -19,7 +19,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     protected const string ClnSpc    = ": ";
     protected const string BrcOpnSpc = "{ ";
     protected const string SpcBrcCls = " }";
-    public virtual string Name => nameof(CompactLogTypeFormatting);
 
     public virtual CompactLogTypeFormatting Initialize(StyleOptions styleOptions)
     {
@@ -28,321 +27,268 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return this;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendValueTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , Type valueType, string? alternativeName) where TB : TypeMolder
+    public virtual string Name => nameof(CompactLogTypeFormatting);
+    public StyleOptions StyleOptions => (StyleOptions)Options;
+
+    public virtual IStringBuilder AppendValueTypeOpening(IStringBuilder sb, Type valueType, string? alternativeName)
     {
-        var sb = typeBuilder.Sb;
         if (alternativeName != null)
-        {
             sb.Append(alternativeName);
-        }
         else
-        {
             valueType.AppendShortNameInCSharpFormat(sb);
-        }
         if (valueType.IsEnum)
         {
-            sb.Append(Dot);
-            return typeBuilder;
+            return sb.Append(Dot);
         }
-        return sb.Append(Spc).Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
+        return sb.Append(Spc).Append(BrcOpnSpc);
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendValueTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder, Type valueType) where TB : TypeMolder
+    public virtual IStringBuilder AppendValueTypeClosing(IStringBuilder sb, Type valueType)
     {
-        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        if (valueType.IsEnum)
-        {
-            return typeBuilder;
-        }
-        return typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
+        sb.RemoveLastWhiteSpacedCommaIfFound();
+        if (valueType.IsEnum) return sb;
+        return sb.Append(SpcBrcCls);
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendComplexTypeOpening<TB>(ITypeMolderDieCast<TB> typeBuilder, Type complexType
-      , string? alternativeName = null)
-        where TB : TypeMolder
+    public virtual IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complexType, string? alternativeName = null)
     {
-        var sb = typeBuilder.Sb;
         if (alternativeName != null)
-        {
             sb.Append(alternativeName);
-        }
         else
-        {
             complexType.AppendShortNameInCSharpFormat(sb);
-        }
         sb.Append(Spc);
-        return typeBuilder.Sb.Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
+        return sb.Append(BrcOpnSpc);
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, ReadOnlySpan<char> fieldName)
-        where TB : TypeMolder =>
-        typeBuilder.Sb.Append(fieldName).ToInternalTypeBuilder(typeBuilder);
+    public virtual IStringBuilder AppendFieldValueSeparator(IStringBuilder sb) => sb.Append(ClnSpc);
 
-    public virtual ITypeMolderDieCast<TB> AppendFieldValueSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder)
-        where TB : TypeMolder =>
-        typeBuilder.Sb.Append(ClnSpc).ToInternalTypeBuilder(typeBuilder);
+    public virtual IStringBuilder AddNextFieldSeparator(IStringBuilder sb) => sb.Append(CmaSpc);
 
-    public virtual ITypeMolderDieCast<TB> AddNextFieldSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder)
-        where TB : TypeMolder =>
-        typeBuilder.Sb.Append(CmaSpc).ToInternalTypeBuilder(typeBuilder);
+    public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) =>
+        sb.InsertAt(CmaSpc, atIndex).ReturnCharCount(2);
 
-    public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) 
+    public virtual IStringBuilder AppendTypeClosing(IStringBuilder sb)
     {
-        return sb.InsertAt(CmaSpc, atIndex).ReturnCharCount(2);
+        sb.RemoveLastWhiteSpacedCommaIfFound();
+        return sb.Append(SpcBrcCls);
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendTypeClosing<TB>(ITypeMolderDieCast<TB> typeBuilder)
-        where TB : TypeMolder
+    public virtual IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
+      , Type keyType, Type valueType) 
     {
-        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        return typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
-    }
-
-
-    public virtual ITypeMolderDieCast<TB> AppendKeyedCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType, Type keyType
-      , Type valueType) where TB : TypeMolder
-    {
-        var sb = typeBuilder.Sb;
         keyedCollectionType.AppendShortNameInCSharpFormat(sb);
         sb.Append(Spc);
-        return typeBuilder.Sb.Append(BrcOpnSpc).ToInternalTypeBuilder(typeBuilder);
+        return sb.Append(BrcOpnSpc).ToStringBuilder(sb);
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyedCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType, Type keyType
-      , Type valueType, int totalItemCount) where TB : TypeMolder
+    public virtual IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
+      , Type keyType , Type valueType, int totalItemCount) => sb.Append(SpcBrcCls);
+
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
+      , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null) where TMold : TypeMolder
     {
-        return typeBuilder.Sb.Append(SpcBrcCls).ToInternalTypeBuilder(typeBuilder);
+        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true).FieldEnd();
+        typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "");
+        return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType, TKey key
-      , TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null) where TB : TypeMolder
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVBase>(ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null)
+        where TMold : TypeMolder where TValue : TVBase
     {
-        _ = keyFormatString.IsNotNullOrEmpty()
-            ? typeBuilder.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-            : typeBuilder.AppendMatchOrNull(key, true).FieldEnd();
-        _ = valueFormatString.IsNotNullOrEmpty()
-            ? typeBuilder.AppendMatchFormattedOrNull(value, valueFormatString)
-            : typeBuilder.AppendMatchOrNull(value);
-        return typeBuilder;
+        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", true).FieldEnd();
+        valueStyler(value, typeMold.Master);
+        return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TVBase>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType, TKey key
-      , TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null) where TB : TypeMolder where TValue : TVBase
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler)
+        where TMold : TypeMolder where TKey : TKBase where TValue : TVBase
     {
-        _ = keyFormatString.IsNotNullOrEmpty()
-            ? typeBuilder.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd()
-            : typeBuilder.AppendMatchOrNull(key, true).FieldEnd();
-        valueStyler(value, typeBuilder.Master);
-        return typeBuilder;
+        keyStyler(key, typeMold.Master);
+        typeMold.FieldEnd();
+        valueStyler(value, typeMold.Master);
+        return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyValuePair<TB, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType
-      , TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) where TB : TypeMolder where TKey : TKBase where TValue : TVBase
-    {
-        keyStyler(key, typeBuilder.Master);
-        typeBuilder.FieldEnd();
-        valueStyler(value, typeBuilder.Master);
-        return typeBuilder;
-    }
+    public virtual IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
+      , Type keyType, Type valueType, int previousItemNumber) => sb.Append(CmaSpc);
 
-    public virtual ITypeMolderDieCast<TB> AppendKeyedCollectionNextItem<TB>(ITypeMolderDieCast<TB> typeBuilder, Type keyedCollectionType, Type keyType
-      , Type valueType, int previousItemNumber) where TB : TypeMolder
-    {
-        typeBuilder.Sb.Append(CmaSpc).ToInternalTypeBuilder(typeBuilder);
-        return typeBuilder;
-    }
-
-    public virtual ITypeMolderDieCast<TB> FormatCollectionStart<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , Type itemElementType, bool hasItems, Type collectionType) where TB : TypeMolder
+    public virtual IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType, bool hasItems, Type collectionType)
     {
         if (!(collectionType.FullName?.StartsWith("System") ?? true))
         {
-            var sb = typeBuilder.Sb;
             collectionType.AppendShortNameInCSharpFormat(sb);
             sb.Append(Spc);
         }
-        return base.CollectionStart(itemElementType, typeBuilder.Sb, hasItems).ToInternalTypeBuilder(typeBuilder);
+        return base.CollectionStart(itemElementType, sb, hasItems).ToStringBuilder(sb);
     }
 
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB, TCustStyle, TCustBase>(ITypeMolderDieCast<TB> typeBuilder
-      , TCustStyle item
-      , int retrieveCount, PalantírReveal<TCustBase> styler) where TB : TypeMolder where TCustStyle : TCustBase
+    public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
+      , TCloaked item, int retrieveCount, PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase
     {
-        styler(item, typeBuilder.Master);
-        return typeBuilder;
+        styler(item, tos);
+        return tos.WriteBuffer;
     }
 
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB>(ITypeMolderDieCast<TB> typeBuilder, string? item, int retrieveCount
-      , string? formatString = null) where TB : TypeMolder
-    {
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            typeBuilder.Sb.AppendFormat(this, formatString, item);
-        else
-            typeBuilder.Sb.Append(item, this);
-        return typeBuilder;
-    }
-
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB, TCharSeq>(ITypeMolderDieCast<TB> typeBuilder, TCharSeq? item
-      , int retrieveCount
-      , string? formatString = null) where TB : TypeMolder where TCharSeq : ICharSequence
-    {
-        if (item == null)
-        {
-            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
-            return typeBuilder;
-        }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            typeBuilder.Sb.Append(item, 0, item.Length, formatString, this);
-        else
-            typeBuilder.Sb.Append(item, this);
-        return typeBuilder;
-    }
-
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB>(ITypeMolderDieCast<TB> typeBuilder, StringBuilder? item
-      , int retrieveCount
-      , string? formatString = null) where TB : TypeMolder
-    {
-        if (item == null)
-        {
-            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
-            return typeBuilder;
-        }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            typeBuilder.Sb.Append(item, 0, item.Length, formatString, this);
-        else
-            typeBuilder.Sb.Append(item, this);
-        return typeBuilder;
-    }
-
-    public virtual ITypeMolderDieCast<TB> CollectionNextItemFormat<TB>(ITypeMolderDieCast<TB> typeBuilder, IStringBearer? item
-      , int retrieveCount) where TB : TypeMolder
-    {
-        if (item == null)
-        {
-            typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle);
-            return typeBuilder;
-        }
-        item.RevealState(typeBuilder.Master);
-        return typeBuilder;
-    }
-
-    public virtual IStringBuilder FormatFieldNameMatch<T>(IStringBuilder sb, T source
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount
       , string? formatString = null)
     {
-        return (formatString.IsNotNullOrEmpty()
-            ? sb.AppendFormat(this, formatString, source)
-            : sb.Append(source));
+        if (item == null)
+        {
+            return sb.Append(StyleOptions.NullStyle);
+        }
+        sb.AppendFormat(this, formatString ?? "", item);
+        return sb;
     }
 
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
-      , string? formatString = null) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(source ? Options.True : Options.False).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
-      , string? formatString = null) where TB : TypeMolder =>
-        (source != null
-            ? typeBuilder.Sb.Append(source.Value ? Options.True : Options.False)
-            : typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle)).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
-      , string? formatString = null) where TB : TypeMolder where TFmt : ISpanFormattable =>
-        base.Format(source, typeBuilder.Sb, formatString).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
-      , string? formatString = null) where TB : TypeMolder where TFmt : struct, ISpanFormattable =>
-        base.Format(source, typeBuilder.Sb, formatString).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null, int maxTransferCount = Int32.MaxValue)
-        where TB : TypeMolder =>
-        base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, char[] source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = Int32.MaxValue) where TB : TypeMolder =>
-        base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, ICharSequence source
-      , int sourceFrom = 0, string? formatString = null
-      , int maxTransferCount = Int32.MaxValue) where TB : TypeMolder =>
-        base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, StringBuilder source
-      , int sourceFrom = 0, string? formatString = null
-      , int maxTransferCount = Int32.MaxValue) where TB : TypeMolder =>
-        base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle
-      , PalantírReveal<TBase> styler) where TB : TypeMolder where T : TBase =>
-        styler(toStyle, typeBuilder.Master).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldName<TB>(ITypeMolderDieCast<TB> typeBuilder, IStringBearer styledObj)
-        where TB : TypeMolder =>
-        styledObj.RevealState(typeBuilder.Master).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual IStringBuilder FormatFieldContentsMatch<T>(IStringBuilder sb, T source
-      , string? formatString = null) =>
-        (formatString.IsNotNullOrEmpty()
-            ? sb.AppendFormat(this, formatString, source)
-            : sb.Append(source));
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, bool source
-      , string? formatString = null) where TB : TypeMolder =>
-        typeBuilder.Sb.Append(source ? Options.True : Options.False).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, bool? source
-      , string? formatString = null) where TB : TypeMolder =>
-        (source != null
-            ? typeBuilder.Sb.Append(source.Value ? Options.True : Options.False)
-            : typeBuilder.Sb.Append(typeBuilder.Settings.NullStyle)).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
-      , string? formatString = null) where TB : TypeMolder where TFmt : ISpanFormattable =>
-        base.Format(source, typeBuilder.Sb, formatString).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, TFmt>(ITypeMolderDieCast<TB> typeBuilder, TFmt? source
-      , string? formatString = null) where TB : TypeMolder where TFmt : struct, ISpanFormattable =>
-        base.Format(source, typeBuilder.Sb, formatString).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null, int maxTransferCount = Int32.MaxValue)
-        where TB : TypeMolder =>
-        base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, char[] source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = Int32.MaxValue) where TB : TypeMolder =>
-        base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, ICharSequence source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = Int32.MaxValue) where TB : TypeMolder =>
-        base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder, StringBuilder source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = Int32.MaxValue) where TB : TypeMolder =>
-        base.Format(source, sourceFrom, typeBuilder.Sb, formatString, maxTransferCount).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB, T, TBase>(ITypeMolderDieCast<TB> typeBuilder, T toStyle
-      , PalantírReveal<TBase> styler) where TB : TypeMolder where T : TBase =>
-        styler(toStyle, typeBuilder.Master).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatFieldContents<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , IStringBearer styledObj) where TB : TypeMolder =>
-        styledObj.RevealState(typeBuilder.Master).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatCollectionNext<TB, TItem>(ITypeMolderDieCast<TB> typeBuilder
-      , TItem toFormat, int itemAt, string? formatString = null) where TB : TypeMolder where TItem : ISpanFormattable =>
-        base.CollectionNextItem(toFormat, itemAt, typeBuilder.Sb).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> AddCollectionElementSeparator<TB>(ITypeMolderDieCast<TB> typeBuilder
-      , Type elementType, int nextItemNumber) where TB : TypeMolder =>
-        (elementType == typeof(byte)
-            ? typeBuilder.Sb.Append(nextItemNumber % 4 == 0 ? Spc : "")
-            : typeBuilder.Sb.Append(CmaSpc)).ToInternalTypeBuilder(typeBuilder);
-
-    public virtual ITypeMolderDieCast<TB> FormatCollectionEnd<TB>(ITypeMolderDieCast<TB> typeBuilder, Type itemElementType
-      , int totalItemCount) where TB : TypeMolder
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount
+      , string? formatString = null)
     {
-        typeBuilder.Sb.RemoveLastWhiteSpacedCommaIfFound();
-        return base.CollectionEnd(itemElementType, typeBuilder.Sb, totalItemCount).ToInternalTypeBuilder(typeBuilder);
+        if (item == null)
+        {
+            return sb.Append(StyleOptions.NullStyle);
+        }
+        sb.AppendFormat(this, formatString ?? "", item);
+        return sb;
     }
+
+    public virtual IStringBuilder CollectionNextItemFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item
+      , int retrieveCount, string? formatString = null) where TCharSeq : ICharSequence
+    {
+        if (item == null)
+        {
+            return sb.Append(StyleOptions.NullStyle);
+        }
+        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
+            sb.Append(item, 0, item.Length, formatString, this);
+        else
+            sb.Append(item, this);
+        return sb;
+    }
+
+    public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item
+      , int retrieveCount, string? formatString = null)
+    {
+        if (item == null)
+        {
+            return sb.Append(StyleOptions.NullStyle);
+        }
+        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
+            sb.Append(item, 0, item.Length, formatString, this);
+        else
+            sb.Append(item, this);
+        return sb;
+    }
+
+    public virtual IStringBuilder CollectionNextItemFormat(ITheOneString tos, IStringBearer? item, int retrieveCount) 
+    {
+        if (item == null)
+        {
+            return tos.WriteBuffer.Append(StyleOptions.NullStyle);
+        }
+        item.RevealState(tos);
+        return tos.WriteBuffer;
+    }
+    
+    public virtual IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName)=> sb.Append(fieldName);
+    
+    public virtual IStringBuilder FormatFieldNameMatch<TAny>(IStringBuilder sb, TAny source
+      , string? formatString = null) =>
+        formatString.IsNotNullOrEmpty()
+            ? sb.AppendFormat(this, formatString, source)
+            : sb.Append(source);
+
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool source, string? formatString = null)  => 
+        Format(source, sb, formatString).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null)  =>
+        (source != null
+            ? Format(source, sb, formatString)
+            : base.Format(StyleOptions.NullStyle, 0, sb, formatString)).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null) where TFmt : ISpanFormattable =>
+        base.Format(source, sb, formatString).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null) 
+        where TFmt : struct, ISpanFormattable => base.Format(source, sb, formatString).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb
+      , ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue) =>
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, char[] source
+      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue) =>
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, ICharSequence source
+      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue) =>
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldName(IStringBuilder sb, StringBuilder source
+      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue) =>
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
+      , PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase =>
+        styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
+
+    public virtual IStringBuilder FormatFieldName(ITheOneString tos, IStringBearer styledObj) =>
+        styledObj.RevealState(tos).ToStringBuilder(tos.WriteBuffer);
+
+    public virtual IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source
+      , string? formatString = null) =>
+        sb.AppendFormat(this, formatString ?? "{0}", source);
+
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, bool source
+      , string? formatString = null)  => Format(source, sb, formatString).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, bool? source
+      , string? formatString = null)  => Format(source, sb, formatString).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null)
+        where TFmt : ISpanFormattable => 
+        base.Format(source, sb, formatString).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null)
+        where TFmt : struct, ISpanFormattable =>
+        base.Format(source, sb, formatString).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue)  => base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, char[] source, int sourceFrom = 0, string? formatString = null
+      , int maxTransferCount = int.MaxValue) =>
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ICharSequence source
+      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)  =>
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, StringBuilder source
+      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)  =>
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+
+    public virtual IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
+      , PalantírReveal<TCloakedBase> styler)  where TCloaked : TCloakedBase =>
+        styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
+
+    public virtual IStringBuilder FormatFieldContents(ITheOneString tos, IStringBearer styledObj)  =>
+        styledObj.RevealState(tos).ToStringBuilder(tos.WriteBuffer);
+
+    public virtual IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber)  =>
+        (elementType == typeof(byte)
+            ? sb.Append(nextItemNumber % 4 == 0 ? Spc : "")
+            : sb.Append(CmaSpc));
+
+    public virtual IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType
+      , int totalItemCount) 
+    {
+        sb.RemoveLastWhiteSpacedCommaIfFound();
+        return base.CollectionEnd(itemElementType, sb, totalItemCount).ToStringBuilder(sb);
+    }
+
+    public virtual ITypeMolderDieCast<TMold> FormatCollectionNext<TMold, TItem>(ITypeMolderDieCast<TMold> typeMold
+      , TItem toFormat, int itemAt, string? formatString = null) where TMold : TypeMolder where TItem : ISpanFormattable =>
+        base.CollectionNextItem(toFormat, itemAt, typeMold.Sb).ToInternalTypeBuilder(typeMold);
 }

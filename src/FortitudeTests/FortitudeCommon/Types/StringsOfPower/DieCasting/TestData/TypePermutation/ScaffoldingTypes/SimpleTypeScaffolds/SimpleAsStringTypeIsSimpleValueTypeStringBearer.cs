@@ -690,7 +690,7 @@ public class SimpleAsStringNullableStringBearerWithDefaultNoFieldSimpleValueType
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString |
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString |
                   SupportsSettingDefaultValue)]
 public class SimpleAsStringCharSpanWithDefaultWithFieldAsSpanSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString
@@ -725,7 +725,7 @@ public class SimpleAsStringCharSpanWithDefaultWithFieldAsSpanSimpleValueTypeStri
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString)]
 public class SimpleAsStringCharSpanWithFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString
@@ -756,7 +756,7 @@ public class SimpleAsStringCharSpanWithFieldOrDefaultSimpleValueTypeStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString)]
 public class SimpleAsStringCharSpanWithFieldSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString
@@ -787,7 +787,7 @@ public class SimpleAsStringCharSpanWithFieldSimpleValueTypeStringBearer : IMoldS
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray)]
 public class SimpleAsStringCharSpanWithNoFieldAsSpanSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
 {
     public char[] SimpleTypeAsStringCharSpan
@@ -811,7 +811,7 @@ public class SimpleAsStringCharSpanWithNoFieldAsSpanSimpleValueTypeStringBearer 
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class SimpleAsStringCharReadOnlySpanWithFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
@@ -841,7 +841,7 @@ public class SimpleAsStringCharReadOnlySpanWithFieldOrDefaultSimpleValueTypeStri
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString |
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString |
                   SupportsSettingDefaultValue)]
 public class SimpleAsStringCharReadOnlySpanWithDefaultWithFieldSimpleValueTypeStringBearer : IMoldSupportedValue<string>
   , ISupportsValueFormatString
@@ -875,7 +875,7 @@ public class SimpleAsStringCharReadOnlySpanWithDefaultWithFieldSimpleValueTypeSt
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class SimpleAsStringCharReadOnlySpanWithFieldOrNullSimpleValueTypeStringBearer : IMoldSupportedValue<string>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString
@@ -906,7 +906,7 @@ public class SimpleAsStringCharReadOnlySpanWithFieldOrNullSimpleValueTypeStringB
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString)]
 public class SimpleAsStringCharReadOnlySpanWithNoFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<string>
 {
     public string SimpleTypeAsStringCharReadOnlySpan
@@ -930,7 +930,7 @@ public class SimpleAsStringCharReadOnlySpanWithNoFieldOrDefaultSimpleValueTypeSt
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsChars)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray)]
 public class SimpleAsStringCharSpanWithNoFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
 {
     public char[] SimpleTypeAsStringCharSpanOrDefault
@@ -954,7 +954,7 @@ public class SimpleAsStringCharSpanWithNoFieldOrDefaultSimpleValueTypeStringBear
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString)]
 public class SimpleAsStringCharReadOnlySpanWithNoFieldOrDefaultFieldSimpleValueTypeStringBearer : IMoldSupportedValue<string>
 {
     public string SimpleTypeAsStringCharReadOnlySpanOrDefault
@@ -978,7 +978,7 @@ public class SimpleAsStringCharReadOnlySpanWithNoFieldOrDefaultFieldSimpleValueT
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString)]
 public class SimpleAsStringStringWithNoFieldOrDefaultFieldSimpleValueTypeStringBearer : IMoldSupportedValue<string>
 {
     public string SimpleTypeAsStringStringOrDefaultNoFormatting
@@ -1002,7 +1002,7 @@ public class SimpleAsStringStringWithNoFieldOrDefaultFieldSimpleValueTypeStringB
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class SimpleAsStringStringWithFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<string>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString
@@ -1033,7 +1033,7 @@ public class SimpleAsStringStringWithFieldOrDefaultSimpleValueTypeStringBearer :
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class SimpleAsStringStringWithFieldSimpleValueTypeStringBearer : IMoldSupportedValue<string>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
 {
@@ -1063,7 +1063,7 @@ public class SimpleAsStringStringWithFieldSimpleValueTypeStringBearer : IMoldSup
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringStringRangeOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -1096,7 +1096,7 @@ public class SimpleAsStringStringRangeOrDefaultSimpleValueTypeStringBearer : IMo
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringStringRangeSimpleValueTypeStringBearer : IMoldSupportedValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -1129,7 +1129,7 @@ public class SimpleAsStringStringRangeSimpleValueTypeStringBearer : IMoldSupport
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringStringRangeWithDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
@@ -1164,7 +1164,7 @@ public class SimpleAsStringStringRangeWithDefaultSimpleValueTypeStringBearer : I
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString)]
 public class SimpleAsStringCharArrayWithFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString
@@ -1194,7 +1194,7 @@ public class SimpleAsStringCharArrayWithFieldOrDefaultSimpleValueTypeStringBeare
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharArrayRangeWithFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -1227,7 +1227,7 @@ public class SimpleAsStringCharArrayRangeWithFieldOrDefaultSimpleValueTypeString
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharArrayRangeNoFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -1259,7 +1259,7 @@ public class SimpleAsStringCharArrayRangeNoFieldOrDefaultSimpleValueTypeStringBe
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharArrayRangeWithFieldSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -1292,7 +1292,7 @@ public class SimpleAsStringCharArrayRangeWithFieldSimpleValueTypeStringBearer : 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharArrayRangeNoFieldSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -1324,7 +1324,7 @@ public class SimpleAsStringCharArrayRangeNoFieldSimpleValueTypeStringBearer : IM
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharArrayRangeWithFieldWithDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
@@ -1359,7 +1359,7 @@ public class SimpleAsStringCharArrayRangeWithFieldWithDefaultSimpleValueTypeStri
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharArrayRangeNoFieldWithDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
@@ -1393,7 +1393,7 @@ public class SimpleAsStringCharArrayRangeNoFieldWithDefaultSimpleValueTypeString
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class SimpleAsStringCharSequenceWithFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString where TCharSeq : ICharSequence
 {
@@ -1430,7 +1430,7 @@ public class SimpleAsStringCharSequenceWithFieldOrDefaultSimpleValueTypeStringBe
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class SimpleAsStringCharSequenceNoFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString
   , ISupportsSettingValueFromString where TCharSeq : ICharSequence
@@ -1467,7 +1467,7 @@ public class SimpleAsStringCharSequenceNoFieldOrDefaultSimpleValueTypeStringBear
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharSequenceRangeWithFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -1507,7 +1507,7 @@ public class SimpleAsStringCharSequenceRangeWithFieldOrDefaultSimpleValueTypeStr
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharSequenceRangeNoFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -1546,7 +1546,7 @@ public class SimpleAsStringCharSequenceRangeNoFieldOrDefaultSimpleValueTypeStrin
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharSequenceRangeWithFieldSimpleValueTypeStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -1586,7 +1586,7 @@ public class SimpleAsStringCharSequenceRangeWithFieldSimpleValueTypeStringBearer
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharSequenceRangeNoFieldSimpleValueTypeStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -1625,7 +1625,7 @@ public class SimpleAsStringCharSequenceRangeNoFieldSimpleValueTypeStringBearer<T
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharSequenceRangeWithFieldWithDefaultSimpleValueTypeStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -1667,7 +1667,7 @@ public class SimpleAsStringCharSequenceRangeWithFieldWithDefaultSimpleValueTypeS
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
@@ -1707,7 +1707,7 @@ public class SimpleAsStringCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStr
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class SimpleAsStringStringBuilderWithFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<StringBuilder>
   , ISupportsValueFormatString, ISupportsSettingValueFromString 
 {
@@ -1737,7 +1737,7 @@ public class SimpleAsStringStringBuilderWithFieldOrDefaultSimpleValueTypeStringB
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class SimpleAsStringStringBuilderNoFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<StringBuilder>
   , ISupportsValueFormatString, ISupportsSettingValueFromString 
 {
@@ -1766,7 +1766,7 @@ public class SimpleAsStringStringBuilderNoFieldOrDefaultSimpleValueTypeStringBea
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringStringBuilderRangeWithFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<StringBuilder>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting 
 {
@@ -1800,7 +1800,7 @@ public class SimpleAsStringStringBuilderRangeWithFieldOrDefaultSimpleValueTypeSt
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringStringBuilderRangeNoFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<StringBuilder>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting 
 {
@@ -1833,7 +1833,7 @@ public class SimpleAsStringStringBuilderRangeNoFieldOrDefaultSimpleValueTypeStri
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringStringBuilderRangeWithFieldSimpleValueTypeStringBearer : IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
@@ -1867,7 +1867,7 @@ public class SimpleAsStringStringBuilderRangeWithFieldSimpleValueTypeStringBeare
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringStringBuilderRangeNoFieldSimpleValueTypeStringBearer : IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting 
 {
@@ -1900,7 +1900,7 @@ public class SimpleAsStringStringBuilderRangeNoFieldSimpleValueTypeStringBearer 
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringStringBuilderRangeWithFieldWithDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting 
 {
@@ -1936,7 +1936,7 @@ public class SimpleAsStringStringBuilderRangeWithFieldWithDefaultSimpleValueType
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsChars | SupportsValueFormatString | SupportsIndexSubRanges)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class SimpleAsStringStringBuilderRangeNoFieldWithDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<StringBuilder?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting 
 {
@@ -1970,7 +1970,7 @@ public class SimpleAsStringStringBuilderRangeNoFieldWithDefaultSimpleValueTypeSt
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class SimpleAsStringMatchOrDefaultSimpleValueTypeStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString
 {
     public TAny? SimpleTypeAsStringMatchOrDefault
@@ -1990,7 +1990,7 @@ public class SimpleAsStringMatchOrDefaultSimpleValueTypeStringBearer<TAny> : IMo
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class SimpleAsStringMatchSimpleValueTypeStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString
 {
     public TAny? SimpleTypeAsStringMatch
@@ -2012,7 +2012,7 @@ public class SimpleAsStringMatchSimpleValueTypeStringBearer<TAny> : IMoldSupport
     public string? ValueFormatString { get; set; }
 }
 
-[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAny | SupportsValueFormatString)]
+[TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class SimpleAsStringMatchWithDefaultSimpleValueTypeStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString
   , IMoldSupportedDefaultValue<string>
 {
