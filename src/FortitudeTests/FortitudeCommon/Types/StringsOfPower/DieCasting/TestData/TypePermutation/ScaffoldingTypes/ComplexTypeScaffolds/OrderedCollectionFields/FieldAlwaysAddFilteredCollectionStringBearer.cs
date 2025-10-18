@@ -157,6 +157,12 @@ public class FieldCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloaked, TCloa
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
+
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
@@ -184,6 +190,12 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddFilteredStringBearer<TC
     public TCloaked?[]? Value { get; set; }
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
@@ -213,6 +225,12 @@ public class FieldNullableCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloake
     public TCloakedStruct?[]? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
@@ -724,6 +742,12 @@ public class FieldCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloake
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
+
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
@@ -755,6 +779,12 @@ public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddFilteredStringB
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
+
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
@@ -784,6 +814,12 @@ public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer
     public TCloakedStruct?[]? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
@@ -1261,6 +1297,12 @@ public class FieldCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloaked, TClo
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
+
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
@@ -1292,6 +1334,12 @@ public class FieldNullableCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloak
 
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
@@ -1612,6 +1660,12 @@ public class FieldCloakedBearerListAlwaysAddFilteredStringBearer<TCloaked, TCloa
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
+
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
@@ -1640,6 +1694,12 @@ public class FieldNullableCloakedBearerListAlwaysAddFilteredStringBearer<TCloake
 
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;

@@ -2,10 +2,13 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Collections;
+using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
@@ -24,9 +27,9 @@ public interface IFormatExpectation
     string? FormatString { get; }
 
     bool HasDefault { get; }
-    
+
     string ShortTestName { get; }
-    
+
     bool HasIndexRangeLimiting { get; }
 
     string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition);
@@ -34,9 +37,98 @@ public interface IFormatExpectation
     IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry);
 }
 
-public static class FormatExpectationExtensions
+public interface IComplexFieldFormatExpectation : IFormatExpectation
 {
-    public static bool IsMatchingScenario(this ScaffoldingStringBuilderInvokeFlags check, ScaffoldingStringBuilderInvokeFlags condition)
+    BuildExpectedOutput WhenValueExpectedOutput { get; set; }
+}
+
+public interface ITypedFormatExpectation<out T> : IFormatExpectation
+{
+    T? Input { get; }
+
+    void ClearExpectations();
+
+    void Add(ScaffoldingStringBuilderInvokeFlags key, string value);
+    void Add(KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string> newExpectedResult);
+}
+
+public abstract class FieldExpectBase<T> : ITypedFormatExpectation<T>, IEnumerable<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>>
+{
+    protected readonly List<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> ExpectedResults = new();
+    
+    protected FieldExpectBase(T? input, string? formatString = null, bool hasDefault = false, T? defaultValue = default)
+    {
+        Input        = input;
+        FormatString = formatString;
+        HasDefault   = hasDefault;
+        DefaultValue = defaultValue.IfNullableGetNonNullableUnderlyingDefault();
+    }
+    
+    public virtual Type InputType => typeof(T);
+    
+    public virtual Type CoreType => InputType.IfNullableGetUnderlyingTypeOrThis();
+
+    public T? Input { get; init; }
+
+    public string? FormatString { get; init; }
+
+    public bool HasDefault { get; init; }
+
+    public T? DefaultValue { get; init; }
+
+    public virtual bool IsNullable => InputType.IsNullable() || Input == null;
+
+    public bool IsStruct => InputType.IsValueType;
+
+    public virtual bool HasIndexRangeLimiting => false;
+
+    public virtual string ShortTestName
+    {
+        get
+        {
+            {
+                var result = new MutableString();
+                result.Append(InputType.ShortNameInCSharpFormat());
+                if (Input == null) { result.Append("=null"); }
+                else
+                {
+                    result.Append(AsStringDelimiter)
+                          .AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, "{0}", Input)
+                          .Append(AsStringDelimiter).Append("_").Append(FormatString);
+                }
+                if (HasDefault)
+                {
+                    var defaultString = DefaultValue?.ToString() ?? "null";
+                    if (defaultString.IsNotEmpty()) { result.Append($"_{defaultString}"); }
+                }
+
+                return result.ToString();
+            }
+        }
+    }
+
+    protected string AsStringDelimiter =>
+        InputType.Name switch
+        {
+            "String"        => "\""
+          , "MutableString" => "\""
+          , "StringBuilder" => "\""
+          , "Char"          => "'"
+          , _               => ""
+        };
+
+    public virtual string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
+    {
+        for (var i = 0; i < ExpectedResults.Count; i++)
+        {
+            var existing = ExpectedResults[i];
+            if (!IsMatchingScenario(existing.Key, condition)) continue;
+            return existing.Value;
+        }
+        return IFormatExpectation.NoResultExpectedValue;
+    }
+
+    protected bool IsMatchingScenario(ScaffoldingStringBuilderInvokeFlags check, ScaffoldingStringBuilderInvokeFlags condition)
     {
         var meetsWriteCondition            = (check & OutputConditionMask & condition) > 0;
         var hasMatchingInputType           = (check & AcceptsAnyGeneric & condition).HasAnyOf(check & AcceptsAnyGeneric);
@@ -48,39 +140,94 @@ public static class FormatExpectationExtensions
         var meetSubSpanCallType        = (conditionIsSubSpanOnlyCallType && checkIsSubSpanOnlyCallType && isSameSubSpanCalType);
         return meetsWriteCondition && (meetsInputTypeCondition || (meetSubSpanCallType));
     }
+
+    public void Add(ScaffoldingStringBuilderInvokeFlags key, string value)
+    {
+        for (var i = 0; i < ExpectedResults.Count; i++)
+        {
+            var existing    = ExpectedResults[i];
+            var existingKey = existing.Key;
+            if (!IsMatchingScenario(existing.Key, key)) continue;
+            existingKey &= ~key;
+            if (existingKey == None)
+                ExpectedResults.RemoveAt(i);
+            else
+                ExpectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
+            break;
+        }
+        ExpectedResults.Add(new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(key, value));
+    }
+
+    public void Add(KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string> newExpectedResult)
+    {
+        for (var i = 0; i < ExpectedResults.Count; i++)
+        {
+            var existing    = ExpectedResults[i];
+            var existingKey = existing.Key;
+            if (!IsMatchingScenario(existing.Key, newExpectedResult.Key)) continue;
+            existingKey &= ~newExpectedResult.Key;
+            if (existingKey == None)
+                ExpectedResults.RemoveAt(i);
+            else
+                ExpectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
+            break;
+        }
+        ExpectedResults.Add(newExpectedResult);
+    }
+
+    public void ClearExpectations()
+    {
+        ExpectedResults.Clear();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> GetEnumerator() => ExpectedResults.GetEnumerator();
+
+    public abstract IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry);
+    public abstract IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry);
+
+    public override string ToString()
+    {
+        var sb = new MutableString();
+        sb.Append(nameof(InputType)).Append(": ").Append(InputType).Append(", ");
+        sb.Append(nameof(Input)).Append(": ").Append(AsStringDelimiter).Append(Input).Append(AsStringDelimiter).Append(", ");
+        sb.Append(nameof(FormatString)).Append(": ").Append(FormatString != null ? $"\"{FormatString}\"" : "null");
+        if (HasDefault)
+        {
+            sb.Append(", ").Append(nameof(DefaultValue)).Append(": ");
+            if (InputType.IsChar() || InputType.IsString() || InputType.IsCharSequence() || InputType.IsStringBuilder())
+            {
+                sb.Append('"').Append(DefaultValue).Append('"');
+            }
+            else { sb.Append(DefaultValue); }
+        }
+        return sb.ToString();
+    }
 }
 
-public interface ITypedFormatExpectation<out T> : IFormatExpectation
+public class FieldExpect<T> : FieldExpectBase<T>
 {
-    T Input { get; }
-}
+    public int FromIndex { get; init; }
+    public int Length { get; init; }
 
-public record FieldExpect<T>
-    (T? Input, string? FormatString = null, bool HasDefault = false, T? DefaultValue = default, int FromIndex = 0, int Length = int.MaxValue)
-    : ITypedFormatExpectation<T?>, IEnumerable<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>>
-{
-    private readonly List<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> expectedResults = new();
-
-
-    public Type InputType => typeof(T);
-    public Type CoreType => typeof(T);
-    public bool IsNullable => !IsStruct && Input == null;
-
-    public bool IsStruct => InputType.IsValueType;
+    public override bool HasIndexRangeLimiting => FromIndex != 0 || Length != int.MaxValue;
     
-    public bool HasIndexRangeLimiting => FromIndex != 0 || Length != int.MaxValue;
-
-    public string ShortTestName
+    public FieldExpect(T? input, string? formatString = null, bool hasDefault = false
+      , T? defaultValue = default, int fromIndex = 0, int length = int.MaxValue) : base(input, formatString, hasDefault, defaultValue)
+    {
+        FromIndex = fromIndex;
+        Length = length;
+    }
+    
+    public override string ShortTestName
     {
         get
         {
             {
                 var result = new MutableString();
                 result.Append(InputType.ShortNameInCSharpFormat());
-                if (Input == null)
-                {
-                    result.Append("=null");
-                }
+                if (Input == null) { result.Append("=null"); }
                 else
                 {
                     result.Append(AsStringDelimiter)
@@ -89,11 +236,23 @@ public record FieldExpect<T>
                 }
                 if (HasDefault)
                 {
-                    var defaultString = DefaultValue?.ToString() ?? (!InputType.IsValueType ? "null" : "");
-                    if (defaultString.IsNotEmpty())
+                    if (DefaultValue is string defaultString)
                     {
-                        result.Append($"_{defaultString}");
+                        if (defaultString.Length > 0) { result.Append("_").Append(DefaultValue); }
                     }
+                    else if (DefaultValue is char[] defaultCharArray)
+                    {
+                        if (defaultCharArray.Length > 0) { result.Append("_").Append(DefaultValue); }
+                    }
+                    else if (DefaultValue is ICharSequence defaultCharSeq)
+                    {
+                        if (defaultCharSeq.Length > 0) { result.Append("_").Append(DefaultValue); }
+                    }
+                    else if (DefaultValue is StringBuilder defaultSb)
+                    {
+                        if (defaultSb.Length > 0) { result.Append("_").Append(DefaultValue); }
+                    }
+                    else { result.Append("_").Append(DefaultValue); }
                 }
 
                 return result.ToString();
@@ -101,31 +260,16 @@ public record FieldExpect<T>
         }
     }
 
-    private string AsStringDelimiter =>
-        InputType.Name switch
-        {
-            "String"        => "\""
-          , "MutableString" => "\""
-          , "StringBuilder" => "\""
-          , "Char"          => "'"
-          , _               => ""
-        };
-
-
-    public string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
+    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
-        for (var i = 0; i < expectedResults.Count; i++)
-        {
-            var existing = expectedResults[i];
-            if (!existing.Key.IsMatchingScenario(condition)) continue;
-            return existing.Value;
-        }
-        return IFormatExpectation.NoResultExpectedValue;
+        return scaffoldEntry.ScaffoldingFlags.IsNullableSpanFormattableOnly()
+            ? scaffoldEntry.CreateStringBearerFunc(CoreType)()
+            : scaffoldEntry.CreateStringBearerFunc(InputType)();
     }
 
-    public IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry)
+    public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry)
     {
-        var createdStringBearer = scaffoldEntry.CreateStringBearerFunc(InputType)();
+        var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
         if (InputType == typeof(string) && createdStringBearer is ISupportsSettingValueFromString supportsSettingValueFromString)
             supportsSettingValueFromString.StringValue = (string?)(object?)Input;
         else if (createdStringBearer is IMoldSupportedValue<object?> isObjectMold)
@@ -141,66 +285,16 @@ public record FieldExpect<T>
         }
         if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<object?> supportsObjectDefaultValue)
             supportsObjectDefaultValue.DefaultValue = DefaultValue;
-        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<T?> supportsDefaultValue)
-            supportsDefaultValue.DefaultValue = DefaultValue;
+        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<T> supportsDefaultValue)
+            supportsDefaultValue.DefaultValue = DefaultValue ?? default(T)!;
         if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
             supportsStringDefaultValue.DefaultValue = new MutableString().Append(DefaultValue).ToString();
         return createdStringBearer;
     }
 
-    public void Add(ScaffoldingStringBuilderInvokeFlags key, string value)
-    {
-        for (var i = 0; i < expectedResults.Count; i++)
-        {
-            var existing    = expectedResults[i];
-            var existingKey = existing.Key;
-            if (!existing.Key.IsMatchingScenario(key)) continue;
-            existingKey &= ~key;
-            if (existingKey == None)
-                expectedResults.RemoveAt(i);
-            else
-                expectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
-            break;
-        }
-        expectedResults.Add(new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(key, value));
-    }
-
-    public void Add(KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string> newExpectedResult)
-    {
-        for (var i = 0; i < expectedResults.Count; i++)
-        {
-            var existing    = expectedResults[i];
-            var existingKey = existing.Key;
-            if (!existing.Key.IsMatchingScenario(newExpectedResult.Key)) continue;
-            existingKey &= ~newExpectedResult.Key;
-            if (existingKey == None)
-                expectedResults.RemoveAt(i);
-            else
-                expectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
-            break;
-        }
-        expectedResults.Add(newExpectedResult);
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> GetEnumerator() => expectedResults.GetEnumerator();
-
     public override string ToString()
     {
-        var sb = new MutableString();
-        sb.Append(nameof(InputType)).Append(": ").Append(InputType).Append(", ");
-        sb.Append(nameof(Input)).Append(": ").Append(AsStringDelimiter).Append(Input).Append(AsStringDelimiter).Append(", ");
-        sb.Append(nameof(FormatString)).Append(": ").Append(FormatString != null ? $"\"{FormatString}\"" : "null");
-        if (HasDefault)
-        {
-            sb.Append(", ").Append(nameof(DefaultValue)).Append(": ");
-            if (InputType.IsChar() || InputType.IsString() || InputType.IsCharSequence() || InputType.IsStringBuilder())
-            {
-                sb.Append('"').Append(DefaultValue).Append('"');
-            }
-            else { sb.Append(DefaultValue); }
-        }
+        var sb = new MutableString(base.ToString());
         if (FromIndex != 0 || Length != int.MaxValue)
         {
             sb.Append(", ").Append(nameof(FromIndex)).Append(": ").Append(FromIndex).Append(", ");
@@ -210,146 +304,76 @@ public record FieldExpect<T>
     }
 };
 
-public record NullableStructFieldExpect<T>(T? Input, string? FormatString = null, bool HasDefault = false, T DefaultValue = default)
-    : ITypedFormatExpectation<T?>, IEnumerable<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>>
-    where T : struct
+public delegate ITypedFormatExpectation<T?> CreateFieldExpectation<T>(T? input, string? formatString = null
+  , bool hasDefault = false, T? defaultValue = default);
+
+public delegate string BuildExpectedOutput(string className, string propertyName, ScaffoldingStringBuilderInvokeFlags condition
+  , IFormatExpectation expectation);
+
+public class CloakedBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpectation
 {
-    private readonly List<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> expectedResults = new();
-
-    public Type InputType => typeof(T?);
-    public Type CoreType => typeof(T);
-
-    public bool IsNullable => true;
-
-    public bool IsStruct => true;
-
-    public string ShortTestName
-    {
-        get
-        {
-            {
-                var result = new MutableString();
-                result.Append(InputType.ShortNameInCSharpFormat());
-                if (Input == null)
-                {
-                    result.Append("=null");
-                }
-                else
-                {
-                    result.Append(AsStringDelimiter)
-                          .AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, "{0}", Input)
-                          .Append(AsStringDelimiter).Append("_").Append(FormatString);
-                }
-                if (HasDefault)
-                {
-                    var defaultString = DefaultValue.ToString()!;
-                    if (defaultString.IsNotEmpty())
-                    {
-                        result.Append($"_{defaultString}");
-                    }
-                }
-
-                return result.ToString();
-            }
-        }
-    }
-
-    private string AsStringDelimiter =>
-        InputType.Name switch
-        {
-            "String"        => "\""
-          , "MutableString" => "\""
-          , "StringBuilder" => "\""
-          , "Char"          => "'"
-          , _               => ""
-        };
-
-    public bool HasIndexRangeLimiting => false;
-
-    public string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
-    {
-        for (var i = 0; i < expectedResults.Count; i++)
-        {
-            var existing = expectedResults[i];
-            if (!existing.Key.IsMatchingScenario(condition)) continue;
-            return existing.Value;
-        }
-        return IFormatExpectation.NoResultExpectedValue;
-    }
-
-    public IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry)
-    {
-        var createdStringBearer = scaffoldEntry.ScaffoldingFlags.IsNullableSpanFormattableOnly()
-            ? scaffoldEntry.CreateStringBearerFunc(CoreType)()
-            : scaffoldEntry.CreateStringBearerFunc(InputType)();
-        if (createdStringBearer is IMoldSupportedValue<object?> isObjectMold)
-            isObjectMold.Value = Input;
-        else
-            ((IMoldSupportedValue<T?>)createdStringBearer).Value = Input;
-        if (FormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
-            supportsValueFormatString.ValueFormatString = FormatString;
-        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<object?> supportsObjectDefaultValue)
-            supportsObjectDefaultValue.DefaultValue = DefaultValue;
-        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<T?> supportsNullableDefaultValue)
-            supportsNullableDefaultValue.DefaultValue = DefaultValue;
-        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<T> supportsDefaultValue) supportsDefaultValue.DefaultValue = DefaultValue;
-        return createdStringBearer;
-    }
-
-    public void Add(ScaffoldingStringBuilderInvokeFlags key, string value)
-    {
-        for (var i = 0; i < expectedResults.Count; i++)
-        {
-            var existing    = expectedResults[i];
-            var existingKey = existing.Key;
-            if (!existing.Key.IsMatchingScenario(key)) continue;
-            existingKey &= ~key;
-            if (existingKey == None)
-                expectedResults.RemoveAt(i);
-            else
-                expectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
-            break;
-        }
-        expectedResults.Add(new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(key, value));
-    }
-
-    public void Add(KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string> newExpectedResult)
-    {
-        for (var i = 0; i < expectedResults.Count; i++)
-        {
-            var existing    = expectedResults[i];
-            var existingKey = existing.Key;
-            if (!existing.Key.IsMatchingScenario(newExpectedResult.Key)) continue;
-            existingKey &= ~newExpectedResult.Key;
-            if (existingKey == None)
-                expectedResults.RemoveAt(i);
-            else
-                expectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
-            break;
-        }
-        expectedResults.Add(newExpectedResult);
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> GetEnumerator() => expectedResults.GetEnumerator();
+    private readonly Type                      scaffoldType;
     
+    private          ScaffoldingPartEntry? calledScaffoldingPart;
 
-    public override string ToString()
+    public CloakedBearerExpect(T? input, Type scaffoldType, string? formatString = null
+      , bool hasDefault = false, T? defaultValue = default) : base(input, formatString, hasDefault, defaultValue)
     {
-        var sb = new MutableString();
-        sb.Append(nameof(InputType)).Append(": ").Append(InputType).Append(", ");
-        sb.Append(nameof(Input)).Append(": ").Append(AsStringDelimiter).Append(Input).Append(AsStringDelimiter).Append(", ");
-        sb.Append(nameof(FormatString)).Append(": ").Append(FormatString != null ? $"\"{FormatString}\"" : "null");
-        if (HasDefault)
+        this.scaffoldType     = scaffoldType;
+        FieldValueExpectation = new FieldExpect<T>(Input, FormatString, HasDefault, DefaultValue); 
+    }
+
+    public ITypedFormatExpectation<T> FieldValueExpectation { get; }
+    
+    public virtual bool IsNullable => InputType.IsNullable();
+
+    public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
+
+    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
+    {
+        FieldValueExpectation.ClearExpectations();
+        foreach (var expectedResult in ExpectedResults)
         {
-            sb.Append(", ").Append(nameof(DefaultValue)).Append(": ");
-            if (InputType.IsChar() || InputType.IsString() || InputType.IsCharSequence() || InputType.IsStringBuilder())
-            {
-                sb.Append('"').Append(DefaultValue).Append('"');
-            }
-            else { sb.Append(DefaultValue); }
+            FieldValueExpectation.Add(expectedResult);
         }
-        return sb.ToString();
+        if (Input is string || Input is char[] || Input is ICharSequence || Input is StringBuilder)
+        {
+            condition |= AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder;
+        }
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition);
+        if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
+        {
+            var calledBearer = (ISinglePropertyTestStringBearer)FieldValueExpectation
+                .CreateStringBearerWithValueFor(calledScaffoldingPart!);
+            expectValue = WhenValueExpectedOutput
+                (Input.GetType().ShortNameInCSharpFormat(), $"CloakedRevealer{calledBearer.PropertyName}", condition, FieldValueExpectation);
+        }
+        return expectValue;
+    }
+
+    private static readonly PalantírReveal<T> NoOp = (_, _) => new StateExtractStringRange();
+
+    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    {
+        return scaffoldEntry.ScaffoldingFlags.IsNullableSpanFormattableOnly()
+            ? scaffoldEntry.CreateStringBearerFunc(CoreType)()
+            : scaffoldEntry.CreateStringBearerFunc(InputType, CoreType)();
+    }
+
+    public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry)
+    {
+        var createdStringBearer = base.CreateStringBearerWithValueFor(scaffoldEntry);
+        if (createdStringBearer is ISupportsUnknownValueRevealer supportsValueRevealer)
+        {
+            calledScaffoldingPart = new ScaffoldingPartEntry(scaffoldType, scaffoldEntry.ScaffoldingFlags);
+
+            var calledBearer = FieldValueExpectation.CreateStringBearerWithValueFor(calledScaffoldingPart);
+
+            supportsValueRevealer.ValueRevealerDelegate =
+                calledBearer is IUnknownPalantirRevealerFactory unknownPalantirRevealerFactory
+                    ? unknownPalantirRevealerFactory.CreateRevealerDelegate
+                    : NoOp;
+        }
+        return createdStringBearer;
     }
 }

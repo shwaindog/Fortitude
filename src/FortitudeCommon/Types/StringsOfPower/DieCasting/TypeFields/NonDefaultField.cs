@@ -64,14 +64,14 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
       , PalantírReveal<TCloakedStruct> palantírReveal
       , TCloakedStruct? defaultValue = null)
         where TCloakedStruct : struct =>
-        !stb.SkipFields && !Equals(value, defaultValue)
+        !stb.SkipFields && !Equals(value, defaultValue ?? default(TCloakedStruct))
             ? AlwaysReveal(fieldName, value, palantírReveal)
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultRevealAs<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, TCloakedStruct? defaultValue = null
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType) where TCloakedStruct : struct =>
-        !stb.SkipFields && !Equals(value, defaultValue)
+        !stb.SkipFields && !Equals(value, defaultValue ?? default(TCloakedStruct))
             ? AlwaysRevealAs(fieldName, value, palantírReveal, flags)
             : stb.StyleTypeBuilder;
 
@@ -231,7 +231,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
         return !stb.SkipFields && value == null! 
             || (cappedLength == 0 && defaultValue.Length > 0)
             || (cappedStart < value!.Length 
-             && !value!.SequenceMatches(defaultValue, cappedStart, cappedLength))
+             && !value.SequenceMatches(defaultValue, cappedStart, cappedLength))
             ? AlwaysAddCharSeq(fieldName, value, startIndex, count, formatString)
             : stb.StyleTypeBuilder;
     }
@@ -246,7 +246,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
         return !stb.SkipFields && value == null! 
             || (cappedLength == 0 && defaultValue.Length > 0)
             || (cappedStart < value!.Length 
-             && !value!.SequenceMatches(defaultValue, cappedStart, cappedLength))
+             && !value.SequenceMatches(defaultValue, cappedStart, cappedLength))
             ? AlwaysAddCharSeqAs(fieldName, value, startIndex, count, flags, formatString)
             : stb.StyleTypeBuilder;
     }
@@ -272,7 +272,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
       return !stb.SkipFields && value == null! 
           || (cappedLength == 0 && defaultValue.Length > 0)
           || (cappedStart < value!.Length 
-           && !value!.SequenceMatches(defaultValue, cappedStart, cappedLength))
+           && !value.SequenceMatches(defaultValue, cappedStart, cappedLength))
         ? AlwaysAdd(fieldName, value, startIndex, count, formatString)
         : stb.StyleTypeBuilder;
     }
@@ -286,7 +286,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
       return !stb.SkipFields && value == null! 
           || (cappedLength == 0 && defaultValue.Length > 0)
           || (cappedStart < value!.Length 
-           && !value!.SequenceMatches(defaultValue, cappedStart, cappedLength))
+           && !value.SequenceMatches(defaultValue, cappedStart, cappedLength))
         ? AlwaysAddAs(fieldName, value, startIndex, count, flags, formatString)
         : stb.StyleTypeBuilder;
     }

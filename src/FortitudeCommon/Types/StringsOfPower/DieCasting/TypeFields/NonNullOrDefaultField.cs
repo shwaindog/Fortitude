@@ -13,7 +13,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 public partial class SelectTypeField<TExt> where TExt : TypeMolder
 {
     public TExt WhenNonNullOrDefaultAdd
-    (ReadOnlySpan<char> fieldName, bool? value, bool? defaultValue = false
+    (ReadOnlySpan<char> fieldName, bool? value, bool defaultValue = false
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         !stb.SkipFields && value != null && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
@@ -26,14 +26,14 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmt : ISpanFormattable =>
         !stb.SkipFields && value != null && !Equals(value, defaultValue) ? AlwaysAddAs(fieldName, value, flags, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value, TFmtStruct defaultValue = default(TFmtStruct)
+    public TExt WhenNonNullOrDefaultAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
-        !stb.SkipFields && value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && value != null && !Equals(value, defaultValue ?? default(TFmtStruct)) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAddAs<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value, TFmtStruct defaultValue = default(TFmtStruct)
+    public TExt WhenNonNullOrDefaultAddAs<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
-        !stb.SkipFields && value != null && !Equals(value, defaultValue) ? AlwaysAddAs(fieldName, value, flags, formatString) : stb.StyleTypeBuilder;
+        !stb.SkipFields && value != null && !Equals(value, defaultValue ?? default(TFmtStruct)) ? AlwaysAddAs(fieldName, value, flags, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal, TCloaked? defaultValue = default(TCloaked)) where TCloaked : TCloakedBase =>
@@ -49,13 +49,13 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullOrDefaultReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, TCloakedStruct? defaultValue = null) where TCloakedStruct : struct =>
-        !stb.SkipFields && value != null && !Equals(value, defaultValue) ? AlwaysReveal(fieldName, value, palantírReveal) : stb.StyleTypeBuilder;
+        !stb.SkipFields && value != null && !Equals(value, defaultValue ?? default(TCloakedStruct)) ? AlwaysReveal(fieldName, value, palantírReveal) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultRevealAs<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, TCloakedStruct? defaultValue = null
       , FieldContentHandling flags = FieldContentHandling.DefaultForValueType)
         where TCloakedStruct : struct =>
-        !stb.SkipFields && value != null && !Equals(value, defaultValue)
+        !stb.SkipFields && value != null && !Equals(value, defaultValue ?? default(TCloakedStruct))
             ? AlwaysRevealAs(fieldName, value, palantírReveal, flags)
             : stb.StyleTypeBuilder;
 

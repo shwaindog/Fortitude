@@ -237,6 +237,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysArrayString
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -272,6 +278,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysSpanStringB
     public string? KeyFormatString { get; set; }
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -309,6 +321,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysReadOnlySpa
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -344,6 +362,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysListStringB
     public string? KeyFormatString { get; set; }
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -381,6 +405,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysEnumerableS
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -417,6 +447,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysEnumeratorS
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
         get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
@@ -452,7 +488,19 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysArrayString
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -489,7 +537,19 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysSpanStringB
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -526,7 +586,19 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysReadOnlySpa
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -563,7 +635,19 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysListStringB
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -600,7 +684,19 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysEnumerableS
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
@@ -637,7 +733,19 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysEnumeratorS
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {

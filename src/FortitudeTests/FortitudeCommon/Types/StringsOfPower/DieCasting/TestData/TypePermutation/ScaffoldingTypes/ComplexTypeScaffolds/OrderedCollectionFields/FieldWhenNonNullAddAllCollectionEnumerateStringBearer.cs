@@ -116,6 +116,12 @@ public class FieldCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked,
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate
@@ -139,6 +145,12 @@ public class FieldNullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<T
     public IEnumerable<TCloakedStruct?>? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -410,6 +422,12 @@ public class FieldCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked,
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate
@@ -435,6 +453,12 @@ public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<T
     public IEnumerator<TCloakedStruct?>? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

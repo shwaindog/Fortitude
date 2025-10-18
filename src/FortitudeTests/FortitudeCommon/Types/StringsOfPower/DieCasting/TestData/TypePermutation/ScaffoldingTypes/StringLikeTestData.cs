@@ -69,7 +69,7 @@ public class StringLikeTestData
             }
         }
       , new FieldExpect<string>("Seven to the Cobol-Lords, eventually great Bitcoin miners and great cardigan wearers of the mainframe halls."
-                              , "{0,30}", FromIndex: -1, Length: 26)
+                              , "{0,30}", fromIndex: -1, length: 26)
         {
             {
                 AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -79,7 +79,7 @@ public class StringLikeTestData
       , new
             FieldExpect<string>("And nine, nine strings were gifted to the race of C++ coders, " +
                                 "who above all else desired unchecked memory access power. ", "***\"{0[1..^1]}\"***"
-                              , FromIndex: 9, Length: 41)
+                              , fromIndex: 9, length: 41)
             {
                 {
                     AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -103,7 +103,7 @@ public class StringLikeTestData
         }
       , new FieldExpect<string>("Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master " +
                                 "String, and into this string he poured his unambiguity, his immutability desires and his will to replace all " +
-                                "languages with.", "{0,/,/!/[1..3]}", FromIndex: 16, Length: 100)
+                                "languages with.", "{0,/,/!/[1..3]}", fromIndex: 16, length: 100)
         {
             {
                 AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -176,7 +176,7 @@ public class StringLikeTestData
             }
         }
       , new FieldExpect<char[]>("Seven to the Cobol-Lords, eventually great Bitcoin miners and great cardigan wearers of the mainframe halls."
-                                    .ToCharArray(), "{0,30}", FromIndex: -1, Length: 26)
+                                    .ToCharArray(), "{0,30}", fromIndex: -1, length: 26)
         {
             {
                 AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -186,7 +186,7 @@ public class StringLikeTestData
       , new
             FieldExpect<char[]>(("And nine, nine strings were gifted to the race of C++ coders, " +
                                  "who above all else desired unchecked memory access power. ").ToCharArray(), "***\"{0[1..^1]}\"***"
-                              , FromIndex: 9, Length: 41)
+                              , fromIndex: 9, length: 41)
             {
                 {
                     AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -210,7 +210,7 @@ public class StringLikeTestData
         }
       , new FieldExpect<char[]>(("Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master " +
                                  "String, and into this string he poured his unambiguity, his immutability desires and his will to replace all " +
-                                 "languages with.").ToCharArray(), "{0,/,/!/[1..3]}", FromIndex: 16, Length: 100)
+                                 "languages with.").ToCharArray(), "{0,/,/!/[1..3]}", fromIndex: 16, length: 100)
         {
             {
                 AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -287,7 +287,7 @@ public class StringLikeTestData
       , new
             FieldExpect<CharArrayStringBuilder>
             (new CharArrayStringBuilder("Seven to the Cobol-Lords, eventually great Bitcoin miners and great cardigan wearers of the mainframe halls.")
-           , "{0,30}", FromIndex: -1, Length: 26)
+           , "{0,30}", fromIndex: -1, length: 26)
             {
                 {
                     AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -299,7 +299,7 @@ public class StringLikeTestData
             (new MutableString
                  ("And nine, nine strings were gifted to the race of C++ coders, " +
                   "who above all else desired unchecked memory access power. "), "***\"{0[1..^1]}\"***"
-           , FromIndex: 9, Length: 41)
+           , fromIndex: 9, length: 41)
             {
                 {
                     AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -327,7 +327,7 @@ public class StringLikeTestData
       , new FieldExpect<CharArrayStringBuilder>
             (new CharArrayStringBuilder("Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master " +
                                         "String, and into this string he poured his unambiguity, his immutability desires and his will to replace all " +
-                                        "languages with."), "{0,/,/!/[1..3]}", FromIndex: 16, Length: 100)
+                                        "languages with."), "{0,/,/!/[1..3]}", fromIndex: 16, length: 100)
             {
                 {
                     AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -405,7 +405,7 @@ public class StringLikeTestData
       , new
             FieldExpect<StringBuilder>
             (new StringBuilder("Seven to the Cobol-Lords, eventually great Bitcoin miners and great cardigan wearers of the mainframe halls.")
-           , "{0,30}", FromIndex: -1, Length: 26)
+           , "{0,30}", fromIndex: -1, length: 26)
             {
                 {
                     AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -417,7 +417,7 @@ public class StringLikeTestData
             (new StringBuilder
                  ("And nine, nine strings were gifted to the race of C++ coders, " +
                   "who above all else desired unchecked memory access power. "), "***\"{0[1..^1]}\"***"
-           , FromIndex: 9, Length: 41)
+           , fromIndex: 9, length: 41)
             {
                 {
                     AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -445,7 +445,7 @@ public class StringLikeTestData
       , new FieldExpect<StringBuilder>
             (new StringBuilder("Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master " +
                                "String, and into this string he poured his unambiguity, his immutability desires and his will to replace all " +
-                               "languages with."), "{0,/,/!/[1..3]}", FromIndex: 16, Length: 100)
+                               "languages with."), "{0,/,/!/[1..3]}", fromIndex: 16, length: 100)
             {
                 {
                     AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites

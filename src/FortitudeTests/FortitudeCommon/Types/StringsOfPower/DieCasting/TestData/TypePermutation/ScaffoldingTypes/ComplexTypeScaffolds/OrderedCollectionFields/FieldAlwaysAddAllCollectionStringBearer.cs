@@ -136,6 +136,12 @@ public class FieldCloakedBearerSpanAlwaysAddAllStringBearer<TCloaked, TCloakedBa
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
@@ -160,6 +166,12 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddAllStringBearer<TCloake
     public TCloaked?[] Value { get; set; } = null!;
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -187,6 +199,12 @@ public class FieldNullableCloakedBearerSpanAlwaysAddAllStringBearer<TCloakedStru
 
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -612,6 +630,12 @@ public class FieldCloakedBearerReadOnlySpanAlwaysAddAllStringBearer<TCloaked, TC
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
@@ -638,6 +662,12 @@ public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddAllStringBearer
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllNullable
@@ -661,6 +691,12 @@ public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddAllStringBearer<TClo
 
     public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerReadOnlySpan);
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public TCloakedStruct?[]? Value { get; set; }
 
@@ -1080,6 +1116,12 @@ public class FieldCloakedBearerArrayAlwaysAddAllStringBearer<TCloaked, TCloakedB
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
@@ -1105,6 +1147,12 @@ public class FieldNullableCloakedBearerArrayAlwaysAddAllStringBearer<TCloakedStr
     public TCloakedStruct?[]? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -1380,6 +1428,12 @@ public class FieldCloakedBearerListAlwaysAddAllStringBearer<TCloaked, TCloakedBa
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
@@ -1404,6 +1458,12 @@ public class FieldNullableCloakedBearerListAlwaysAddAllStringBearer<TCloakedStru
     public IReadOnlyList<TCloakedStruct?>? Value { get; set; }
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

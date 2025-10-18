@@ -131,6 +131,12 @@ public class FieldCloakedBearerEnumerableAlwaysAddFilteredStringBearer<TCloaked,
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
+
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
@@ -159,6 +165,12 @@ public class FieldNullableCloakedBearerEnumerableAlwaysAddFilteredStringBearer<T
     public IEnumerable<TCloakedStruct?>? Value { get; set; }
     
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
@@ -479,6 +491,12 @@ public class FieldCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<TCloaked,
 
     public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
+    }
+
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
 
@@ -508,6 +526,12 @@ public class FieldNullableCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<T
 
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
 
     public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
         = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;

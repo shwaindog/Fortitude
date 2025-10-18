@@ -185,6 +185,12 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsWhenPopulatedWi
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
@@ -215,6 +221,12 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsWhenPopulatedWit
     public string? KeyFormatString { get; set; }
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -247,6 +259,12 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsWhenPopulatedWith
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
@@ -277,6 +295,12 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsWhenPopulat
     public string? KeyFormatString { get; set; }
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -309,6 +333,12 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenPopulat
 
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
+
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 
@@ -339,7 +369,19 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithFilterStringBe
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -371,7 +413,19 @@ public class FieldKeyValuePairArrayBothRevealersWhenPopulatedWithFilterStringBea
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -403,7 +457,19 @@ public class FieldKeyValuePairListBothRevealersWhenPopulatedWithFilterStringBear
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -435,7 +501,19 @@ public class FieldKeyValuePairEnumerableBothRevealersWhenPopulatedWithFilterStri
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -467,7 +545,19 @@ public class FieldKeyValuePairEnumeratorBothRevealersWhenPopulatedWithFilterStri
 
     public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
 
+    public Delegate KeyRevealerDelegate
+    {
+        get => KeyRevealer;
+        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
+    }
+
     public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
+    }
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;

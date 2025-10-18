@@ -22,37 +22,48 @@ public static class SpanFormattableTestData
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"77                  \"" }
         }
+      , new FieldExpect<byte>(32, "", true, 32)
+        {
+            { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "32" }
+        }
       , new FieldExpect<byte>(255, "{0[..1]}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "2" } }
       , new FieldExpect<byte>(255, "{0[1..2]}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "5" } }
       , new FieldExpect<byte>(255, "{0[1..]}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "55" } }
-
+      
         // byte?
-      , new NullableStructFieldExpect<byte>(0, "{0}") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<byte>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<byte>(255)
+      , new FieldExpect<byte?>(0, "{0}") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<byte?>(null, "null", true)
+        {
+            { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" }
+        }
+      , new FieldExpect<byte?>(255)
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "255" } }
-      , new NullableStructFieldExpect<byte>(128, "C2")
+      , new FieldExpect<byte?>(128, "C2")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "$128.00" }
         }
-      , new NullableStructFieldExpect<byte>(144, "\"{0,20}\"")
+      , new FieldExpect<byte?>(144, "\"{0,20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                 144\"" }
         }
-      , new NullableStructFieldExpect<byte>(255, "{0[..1]}")
+      , new FieldExpect<byte?>(64, "", true, 64)
+        {
+            { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "64" }
+        }
+      , new FieldExpect<byte?>(255, "{0[..1]}")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "2" }
         }
-      , new NullableStructFieldExpect<byte>(255, "{0[1..2]}")
+      , new FieldExpect<byte?>(255, "{0[1..2]}")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "5" }
         }
-      , new NullableStructFieldExpect<byte>(255, "{0[1..]}")
+      , new FieldExpect<byte?>(255, "{0[1..]}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "55" } }
-
+      
         // char
       , new FieldExpect<char>('\0', "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "\0" } }
       , new FieldExpect<char>('A') { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "A" } }
@@ -62,19 +73,19 @@ public static class SpanFormattableTestData
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"z                   \"" }
         }
-
+      
         // char?
-      , new NullableStructFieldExpect<char>('\0', "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "\0" } }
-      , new NullableStructFieldExpect<char>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<char>('A')
+      , new FieldExpect<char?>('\0', "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "\0" } }
+      , new FieldExpect<char?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<char?>('A')
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "A" } }
-      , new NullableStructFieldExpect<char>(' ', "'{0}'")
+      , new FieldExpect<char?>(' ', "'{0}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "' '" } }
-      , new NullableStructFieldExpect<char>('z', "\"{0,20}\"")
+      , new FieldExpect<char?>('z', "\"{0,20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                   z\"" }
         }
-
+      
         // short
       , new FieldExpect<short>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
       , new FieldExpect<short>(32000, "N2")
@@ -86,20 +97,23 @@ public static class SpanFormattableTestData
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"55                  \"" }
         }
-
+      
         // short?
-      , new NullableStructFieldExpect<short>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<short>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<short>(32000, "N2")
+      , new FieldExpect<short?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<short?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<short?>(32000, "N2")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "32,000.00" } }
-      , new NullableStructFieldExpect<short>(32, "C0", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32" } }
-      , new NullableStructFieldExpect<short>(-16328, "'{0}'")
+      , new FieldExpect<short?>(32, "C0", true, 32)
+        {
+            { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32" }
+        }
+      , new FieldExpect<short?>(-16328, "'{0}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'-16328'" } }
-      , new NullableStructFieldExpect<short>(55, "\"{0,20}\"")
+      , new FieldExpect<short?>(55, "\"{0,20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                  55\"" }
         }
-
+      
         // ushort
       , new FieldExpect<ushort>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
       , new FieldExpect<ushort>(32000, "N2")
@@ -111,16 +125,19 @@ public static class SpanFormattableTestData
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"55                  \"" }
         }
-
+      
         // ushort?
-      , new NullableStructFieldExpect<ushort>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<ushort>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<ushort>(32000, "N2")
+      , new FieldExpect<ushort?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<ushort?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<ushort?>(32000, "N2")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "32,000.00" } }
-      , new NullableStructFieldExpect<ushort>(32, "C8", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" } }
-      , new NullableStructFieldExpect<ushort>(ushort.MaxValue, "'{0:B16}'")
+      , new FieldExpect<ushort?>(32, "C8", true, 32)
+        {
+            { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" }
+        }
+      , new FieldExpect<ushort?>(ushort.MaxValue, "'{0:B16}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'1111111111111111'" } }
-      , new NullableStructFieldExpect<ushort>(55, "\"{0,20}\"")
+      , new FieldExpect<ushort?>(55, "\"{0,20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                  55\"" }
         }
@@ -149,25 +166,25 @@ public static class SpanFormattableTestData
         }
 
         // Half?
-      , new NullableStructFieldExpect<Half>(Half.Zero) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<Half>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<Half>(Half.MinValue / (Half)2.0, "R")
+      , new FieldExpect<Half?>(Half.Zero) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<Half?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<Half?>(Half.MinValue / (Half)2.0, "R")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "-32750" }
         }
-      , new NullableStructFieldExpect<Half>(Half.One, "", true, Half.One) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "1" } }
-      , new NullableStructFieldExpect<Half>(Half.NaN, "", true, Half.NaN) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "NaN" } }
-      , new NullableStructFieldExpect<Half>(Half.NaN, "\"{0}\"")
+      , new FieldExpect<Half?>(Half.One, "", true, Half.One) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "1" } }
+      , new FieldExpect<Half?>(Half.NaN, "", true, Half.NaN) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "NaN" } }
+      , new FieldExpect<Half?>(Half.NaN, "\"{0}\"")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"NaN\"" } }
-      , new NullableStructFieldExpect<Half>(Half.MaxValue, "'{0:G}'")
+      , new FieldExpect<Half?>(Half.MaxValue, "'{0:G}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'65500'" } }
-      , new NullableStructFieldExpect<Half>(Half.MinValue, "'{0:c}'")
+      , new FieldExpect<Half?>(Half.MinValue, "'{0:c}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'-$65,504.00'" } }
-      , new NullableStructFieldExpect<Half>((Half)(Math.E * 10.0), "N0")
+      , new FieldExpect<Half?>((Half)(Math.E * 10.0), "N0")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "27" }
         }
-      , new NullableStructFieldExpect<float>((float)Math.PI, "\"{0,-20}\"")
+      , new FieldExpect<float?>((float)Math.PI, "\"{0,-20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"3.1415927           \"" }
         }
@@ -187,16 +204,16 @@ public static class SpanFormattableTestData
         }
 
         // int?
-      , new NullableStructFieldExpect<int>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<int>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<int>(32000, "0x{0:X}")
+      , new FieldExpect<int?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<int?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<int?>(32000, "0x{0:X}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "0x7D00" } }
-      , new NullableStructFieldExpect<int>(32, "C8", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" } }
-      , new NullableStructFieldExpect<int>(int.MaxValue, "'{0:X8}'")
+      , new FieldExpect<int?>(32, "C8", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" } }
+      , new FieldExpect<int?>(int.MaxValue, "'{0:X8}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'7FFFFFFF'" } }
-      , new NullableStructFieldExpect<int>(int.MinValue, "'{0:X9}'")
+      , new FieldExpect<int?>(int.MinValue, "'{0:X9}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'080000000'" } }
-      , new NullableStructFieldExpect<int>(55, "\"{0,20}\"")
+      , new FieldExpect<int?>(55, "\"{0,20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                  55\"" }
         }
@@ -216,16 +233,16 @@ public static class SpanFormattableTestData
         }
 
         // uint?
-      , new NullableStructFieldExpect<uint>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<uint>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<uint>(32000, "0x{0:X}")
+      , new FieldExpect<uint?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<uint?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<uint?>(32000, "0x{0:X}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "0x7D00" } }
-      , new NullableStructFieldExpect<uint>(32, "C8", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" } }
-      , new NullableStructFieldExpect<uint>(uint.MaxValue, "'{0:X8}'")
+      , new FieldExpect<uint?>(32, "C8", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" } }
+      , new FieldExpect<uint?>(uint.MaxValue, "'{0:X8}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'FFFFFFFF'" } }
-      , new NullableStructFieldExpect<uint>(uint.MinValue, "'{0:X9}'", true, 100)
+      , new FieldExpect<uint?>(uint.MinValue, "'{0:X9}'", true, 100)
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'000000000'" } }
-      , new NullableStructFieldExpect<uint>(55, "\"{0,20}\"")
+      , new FieldExpect<uint?>(55, "\"{0,20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                  55\"" }
         }
@@ -257,28 +274,28 @@ public static class SpanFormattableTestData
         }
 
         // float?
-      , new NullableStructFieldExpect<float>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<float>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<float>(1 - float.MinValue, "R")
+      , new FieldExpect<float?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<float?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<float?>(1 - float.MinValue, "R")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "3.4028235E+38" } }
-      , new NullableStructFieldExpect<float>(1, "", true, 1) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "1" } }
-      , new NullableStructFieldExpect<float>(float.NaN, "", true, float.NaN) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "NaN" } }
-      , new NullableStructFieldExpect<float>(float.NaN, "\"{0}\"")
+      , new FieldExpect<float?>(1, "", true, 1) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "1" } }
+      , new FieldExpect<float?>(float.NaN, "", true, float.NaN) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "NaN" } }
+      , new FieldExpect<float?>(float.NaN, "\"{0}\"")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"NaN\"" } }
-      , new NullableStructFieldExpect<float>(float.MaxValue, "'{0:G}'")
+      , new FieldExpect<float?>(float.MaxValue, "'{0:G}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'3.4028235E+38'" } }
-      , new NullableStructFieldExpect<float>(float.MinValue, "'{0:c}'")
+      , new FieldExpect<float?>(float.MinValue, "'{0:c}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'-$340,282,346,638,528,859,811,704,183,484,516,925,440.00'"
             }
         }
-      , new NullableStructFieldExpect<float>((float)Math.E * 1_000_000, "N0")
+      , new FieldExpect<float?>((float)Math.E * 1_000_000, "N0")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "2,718,282" }
         }
-      , new NullableStructFieldExpect<float>((float)Math.PI, "\"{0,-20}\"")
+      , new FieldExpect<float?>((float)Math.PI, "\"{0,-20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"3.1415927           \"" }
         }
@@ -298,16 +315,16 @@ public static class SpanFormattableTestData
         }
 
         // long?
-      , new NullableStructFieldExpect<long>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<long>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<long>(32000, "0x{0:X}")
+      , new FieldExpect<long?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<long?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<long?>(32000, "0x{0:X}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "0x7D00" } }
-      , new NullableStructFieldExpect<long>(32, "C8", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" } }
-      , new NullableStructFieldExpect<long>(long.MaxValue, "'{0:X16}'")
+      , new FieldExpect<long?>(32, "C8", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" } }
+      , new FieldExpect<long?>(long.MaxValue, "'{0:X16}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'7FFFFFFFFFFFFFFF'" } }
-      , new NullableStructFieldExpect<long>(long.MinValue, "'{0:X17}'")
+      , new FieldExpect<long?>(long.MinValue, "'{0:X17}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'08000000000000000'" } }
-      , new NullableStructFieldExpect<long>(55, "\"{0,20}\"")
+      , new FieldExpect<long?>(55, "\"{0,20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                  55\"" }
         }
@@ -327,16 +344,16 @@ public static class SpanFormattableTestData
         }
 
         // ulong?
-      , new NullableStructFieldExpect<ulong>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<ulong>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<ulong>(32000, "0x{0:X}")
+      , new FieldExpect<ulong?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<ulong?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<ulong?>(32000, "0x{0:X}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "0x7D00" } }
-      , new NullableStructFieldExpect<ulong>(32, "C8", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" } }
-      , new NullableStructFieldExpect<ulong>(ulong.MaxValue, "'{0:X16}'")
+      , new FieldExpect<ulong?>(32, "C8", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32.00000000" } }
+      , new FieldExpect<ulong?>(ulong.MaxValue, "'{0:X16}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'FFFFFFFFFFFFFFFF'" } }
-      , new NullableStructFieldExpect<ulong>(ulong.MinValue, "'{0:X17}'", true, 100)
+      , new FieldExpect<ulong?>(ulong.MinValue, "'{0:X17}'", true, 100)
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'00000000000000000'" } }
-      , new NullableStructFieldExpect<ulong>(55, "\"{0,20}\"")
+      , new FieldExpect<ulong?>(55, "\"{0,20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                  55\"" }
         }
@@ -368,28 +385,28 @@ public static class SpanFormattableTestData
         }
 
         // double?
-      , new NullableStructFieldExpect<double>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<double>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<double>(1 - double.MinValue, "R")
+      , new FieldExpect<double?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<double?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<double?>(1 - double.MinValue, "R")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "1.7976931348623157E+308" } }
-      , new NullableStructFieldExpect<double>(1, "", true, 1) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "1" } }
-      , new NullableStructFieldExpect<double>(double.NaN, "", true, double.NaN) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "NaN" } }
-      , new NullableStructFieldExpect<double>(double.NaN, "\"{0}\"")
+      , new FieldExpect<double?>(1, "", true, 1) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "1" } }
+      , new FieldExpect<double?>(double.NaN, "", true, double.NaN) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "NaN" } }
+      , new FieldExpect<double?>(double.NaN, "\"{0}\"")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"NaN\"" } }
-      , new NullableStructFieldExpect<double>(double.MaxValue, "'{0:G}'")
+      , new FieldExpect<double?>(double.MaxValue, "'{0:G}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'1.7976931348623157E+308'" } }
-      , new NullableStructFieldExpect<double>(double.MinValue, "'{0:c}'")
+      , new FieldExpect<double?>(double.MinValue, "'{0:c}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'-$179,769,313,486,231,570,814,527,423,731,704,356,798,070,567,525,844,996,598,917,476,803,157,260,780,028,538,760,589,558,632,766,878,171,540,458,953,514,382,464,234,321,326,889,464,182,768,467,546,703,537,516,986,049,910,576,551,282,076,245,490,090,389,328,944,075,868,508,455,133,942,304,583,236,903,222,948,165,808,559,332,123,348,274,797,826,204,144,723,168,738,177,180,919,299,881,250,404,026,184,124,858,368.00'"
             }
         }
-      , new NullableStructFieldExpect<double>(Math.E * 1_000_000, "N0")
+      , new FieldExpect<double?>(Math.E * 1_000_000, "N0")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "2,718,282" }
         }
-      , new NullableStructFieldExpect<double>(Math.PI, "\"{0,-20}\"")
+      , new FieldExpect<double?>(Math.PI, "\"{0,-20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"3.141592653589793   \"" }
         }
@@ -422,29 +439,29 @@ public static class SpanFormattableTestData
         }
 
         // decimal?
-      , new NullableStructFieldExpect<decimal>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<decimal>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<decimal>(decimal.MinValue, "R")
+      , new FieldExpect<decimal?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<decimal?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<decimal?>(decimal.MinValue, "R")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "-79228162514264337593543950335" }
         }
-      , new NullableStructFieldExpect<decimal>(1, "", true, 1) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "1" } }
-      , new NullableStructFieldExpect<decimal>(decimal.MaxValue, "'{0:G}'")
+      , new FieldExpect<decimal?>(1, "", true, 1) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "1" } }
+      , new FieldExpect<decimal?>(decimal.MaxValue, "'{0:G}'")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'79228162514264337593543950335'" }
         }
-      , new NullableStructFieldExpect<decimal>(decimal.MinValue, "'{0:c}'")
+      , new FieldExpect<decimal?>(decimal.MinValue, "'{0:c}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'-$79,228,162,514,264,337,593,543,950,335.00'"
             }
         }
-      , new NullableStructFieldExpect<decimal>((decimal)Math.E * 1_000_000, "N0")
+      , new FieldExpect<decimal?>((decimal)Math.E * 1_000_000, "N0")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "2,718,282" }
         }
-      , new NullableStructFieldExpect<decimal>((decimal)Math.PI, "\"{0,-20}\"")
+      , new FieldExpect<decimal?>((decimal)Math.PI, "\"{0,-20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"3.14159265358979    \"" }
         }
@@ -477,26 +494,26 @@ public static class SpanFormattableTestData
         }
 
         // Int128?
-      , new NullableStructFieldExpect<Int128>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<Int128>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<Int128>(32000, "0x{0:X}")
+      , new FieldExpect<Int128?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<Int128?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<Int128?>(32000, "0x{0:X}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "0x7D00" } }
-      , new NullableStructFieldExpect<Int128>(32, "C0", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32" } }
-      , new NullableStructFieldExpect<Int128>(Int128.MaxValue, "'{0:X32}'")
+      , new FieldExpect<Int128?>(32, "C0", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32" } }
+      , new FieldExpect<Int128?>(Int128.MaxValue, "'{0:X32}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'"
             }
         }
-      , new NullableStructFieldExpect<Int128>(Int128.MinValue, "'{0:X33}'")
+      , new FieldExpect<Int128?>(Int128.MinValue, "'{0:X33}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'080000000000000000000000000000000'"
             }
         }
-      , new NullableStructFieldExpect<Int128>(Int128.MaxValue, "\"{0,-52:N0}\"")
+      , new FieldExpect<Int128?>(Int128.MaxValue, "\"{0,-52:N0}\"")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -532,26 +549,26 @@ public static class SpanFormattableTestData
         }
 
         // UInt128?
-      , new NullableStructFieldExpect<UInt128>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<UInt128>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<UInt128>(32000, "0x{0:X}")
+      , new FieldExpect<UInt128?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<UInt128?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<UInt128?>(32000, "0x{0:X}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "0x7D00" } }
-      , new NullableStructFieldExpect<UInt128>(32, "C0", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32" } }
-      , new NullableStructFieldExpect<UInt128>(UInt128.MaxValue, "'{0:X32}'")
+      , new FieldExpect<UInt128?>(32, "C0", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32" } }
+      , new FieldExpect<UInt128?>(UInt128.MaxValue, "'{0:X32}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'"
             }
         }
-      , new NullableStructFieldExpect<UInt128>(UInt128.MinValue, "'{0:X33}'", true, (UInt128)100)
+      , new FieldExpect<UInt128?>(UInt128.MinValue, "'{0:X33}'", true, (UInt128)100)
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'000000000000000000000000000000000'"
             }
         }
-      , new NullableStructFieldExpect<UInt128>(UInt128.MaxValue, "\"{0,-52:N0}\"")
+      , new FieldExpect<UInt128?>(UInt128.MaxValue, "\"{0,-52:N0}\"")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -587,26 +604,26 @@ public static class SpanFormattableTestData
         }
 
         // BigInteger?
-      , new NullableStructFieldExpect<BigInteger>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
-      , new NullableStructFieldExpect<BigInteger>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<BigInteger>(32000, "0x{0:X}")
+      , new FieldExpect<BigInteger?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0" } }
+      , new FieldExpect<BigInteger?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<BigInteger?>(32000, "0x{0:X}")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "0x7D00" } }
-      , new NullableStructFieldExpect<BigInteger>(32, "C0", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32" } }
-      , new NullableStructFieldExpect<BigInteger>(UInt128.MaxValue * (BigInteger)50, "'{0:X32}'")
+      , new FieldExpect<BigInteger?>(32, "C0", true, 32) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "$32" } }
+      , new FieldExpect<BigInteger?>(UInt128.MaxValue * (BigInteger)50, "'{0:X32}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'31FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCE'"
             }
         }
-      , new NullableStructFieldExpect<BigInteger>(Int128.MinValue * (BigInteger)50, "'{0:X33}'")
+      , new FieldExpect<BigInteger?>(Int128.MinValue * (BigInteger)50, "'{0:X33}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'E700000000000000000000000000000000'"
             }
         }
-      , new NullableStructFieldExpect<BigInteger>(UInt128.MaxValue * (BigInteger)100, "\"{0,-56:N0}\"")
+      , new FieldExpect<BigInteger?>(UInt128.MaxValue * (BigInteger)100, "\"{0,-56:N0}\"")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -650,21 +667,21 @@ public static class SpanFormattableTestData
         }
 
         // Complex?
-      , new NullableStructFieldExpect<Complex>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "<0; 0>" } }
-      , new NullableStructFieldExpect<Complex>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<Complex>(32000, "{0:N0}")
+      , new FieldExpect<Complex?>(0, "") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "<0; 0>" } }
+      , new FieldExpect<Complex?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<Complex?>(32000, "{0:N0}")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "<32,000; 0>" }
         }
-      , new NullableStructFieldExpect<Complex>(new Complex(32.0d, 1), "N0", true, new Complex(32.0d, 1))
+      , new FieldExpect<Complex?>(new Complex(32.0d, 1), "N0", true, new Complex(32.0d, 1))
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "<32; 1>" }
         }
-      , new NullableStructFieldExpect<Complex>(new Complex(999999.999, 999999.999), "'{0:N2}'")
+      , new FieldExpect<Complex?>(new Complex(999999.999, 999999.999), "'{0:N2}'")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'<1,000,000.00; 1,000,000.00>'" }
         }
-      , new NullableStructFieldExpect<Complex>(new Complex(double.MinValue, double.MinValue), "'{0:N9}'")
+      , new FieldExpect<Complex?>(new Complex(double.MinValue, double.MinValue), "'{0:N9}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -677,7 +694,7 @@ public static class SpanFormattableTestData
                 ",826,204,144,723,168,738,177,180,919,299,881,250,404,026,184,124,858,368.000000000>'"
             }
         }
-      , new NullableStructFieldExpect<Complex>(new Complex(Math.PI, Math.E), "\"{0-20}\"")
+      , new FieldExpect<Complex?>(new Complex(Math.PI, Math.E), "\"{0-20}\"")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -716,29 +733,29 @@ public static class SpanFormattableTestData
         }
 
         // DateTime?
-      , new NullableStructFieldExpect<DateTime>(DateTime.MinValue, "O")
+      , new FieldExpect<DateTime?>(DateTime.MinValue, "O")
             { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0001-01-01T00:00:00.0000000" } }
-      , new NullableStructFieldExpect<DateTime>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<DateTime>(new DateTime(2000, 1, 1, 1, 1, 1).AddTicks(1111111), "o")
+      , new FieldExpect<DateTime?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<DateTime?>(new DateTime(2000, 1, 1, 1, 1, 1).AddTicks(1111111), "o")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "2000-01-01T01:01:01.1111111" } }
-      , new NullableStructFieldExpect<DateTime>(new DateTime(2020, 2, 2)
+      , new FieldExpect<DateTime?>(new DateTime(2020, 2, 2)
                                                     .AddTicks(2222222), "s", true
                                               , new DateTime(2020, 2, 2).AddTicks(2222222))
             { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "2020-02-02T00:00:00" } }
-      , new NullableStructFieldExpect<DateTime>(DateTime.MaxValue, "'{0:u}'")
+      , new FieldExpect<DateTime?>(DateTime.MaxValue, "'{0:u}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'9999-12-31 23:59:59Z'" } }
-      , new NullableStructFieldExpect<DateTime>(DateTime.MinValue, "\"{0,30:u}\"", true, new DateTime(2020, 1, 1))
+      , new FieldExpect<DateTime?>(DateTime.MinValue, "\"{0,30:u}\"", true, new DateTime(2020, 1, 1))
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "\"          0001-01-01 00:00:00Z\""
             }
         }
-      , new NullableStructFieldExpect<DateTime>(new DateTime(1980, 7, 31, 11, 48, 13), "'{0:yyyy-MM-dd HH:mm:ss}'")
+      , new FieldExpect<DateTime?>(new DateTime(1980, 7, 31, 11, 48, 13), "'{0:yyyy-MM-dd HH:mm:ss}'")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'1980-07-31 11:48:13'" }
         }
-      , new NullableStructFieldExpect<DateTime>(new DateTime(2009, 11, 12, 19, 49, 0), "\"{0,-30:O}\"")
+      , new FieldExpect<DateTime?>(new DateTime(2009, 11, 12, 19, 49, 0), "\"{0,-30:O}\"")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -776,28 +793,28 @@ public static class SpanFormattableTestData
         }
 
         // TimeSpan?
-      , new NullableStructFieldExpect<TimeSpan>(TimeSpan.Zero, "g") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0:00:00" } }
-      , new NullableStructFieldExpect<TimeSpan>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<TimeSpan>(new TimeSpan(1, 1, 1, 1, 111, 111), "c")
+      , new FieldExpect<TimeSpan?>(TimeSpan.Zero, "g") { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0:00:00" } }
+      , new FieldExpect<TimeSpan?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<TimeSpan?>(new TimeSpan(1, 1, 1, 1, 111, 111), "c")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "1.01:01:01.1111110" } }
-      , new NullableStructFieldExpect<TimeSpan>(new TimeSpan(-2, -22, -22, -22, -222, -222), "G", true
+      , new FieldExpect<TimeSpan?>(new TimeSpan(-2, -22, -22, -22, -222, -222), "G", true
                                               , new TimeSpan(-2, -22, -22, -22, -222, -222))
             { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "-2:22:22:22.2222220" } }
-      , new NullableStructFieldExpect<TimeSpan>(TimeSpan.MaxValue, "'{0:G}'")
+      , new FieldExpect<TimeSpan?>(TimeSpan.MaxValue, "'{0:G}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'10675199:02:48:05.4775807'" } }
-      , new NullableStructFieldExpect<TimeSpan>(TimeSpan.MinValue, "\"{0,30:c}\"", true, TimeSpan.Zero)
+      , new FieldExpect<TimeSpan?>(TimeSpan.MinValue, "\"{0,30:c}\"", true, TimeSpan.Zero)
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "\"    -10675199.02:48:05.4775808\""
             }
         }
-      , new NullableStructFieldExpect<TimeSpan>(new TimeSpan(3, 3, 33, 33, 333, 333),
+      , new FieldExpect<TimeSpan?>(new TimeSpan(3, 3, 33, 33, 333, 333),
                                                 "'{0:dd\\-hh\\-mm\\-ss\\.fff}'")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'03-03-33-33.333'" }
         }
-      , new NullableStructFieldExpect<TimeSpan>(new TimeSpan(-4, -4, -44, -44, -444, -444)
+      , new FieldExpect<TimeSpan?>(new TimeSpan(-4, -4, -44, -44, -444, -444)
                                               , "\"{0,-30:G}\"")
         {
             {
@@ -837,28 +854,28 @@ public static class SpanFormattableTestData
         }
 
         // DateOnly?
-      , new NullableStructFieldExpect<DateOnly>(DateOnly.MinValue, "o")
+      , new FieldExpect<DateOnly?>(DateOnly.MinValue, "o")
             { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0001-01-01" } }
-      , new NullableStructFieldExpect<DateOnly>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<DateOnly>(new DateOnly(2000, 1, 1), "o")
+      , new FieldExpect<DateOnly?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<DateOnly?>(new DateOnly(2000, 1, 1), "o")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "2000-01-01" } }
-      , new NullableStructFieldExpect<DateOnly>(new DateOnly(2020, 2, 2), "o", true
+      , new FieldExpect<DateOnly?>(new DateOnly(2020, 2, 2), "o", true
                                               , new DateOnly(2020, 2, 2))
             { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "2020-02-02" } }
-      , new NullableStructFieldExpect<DateOnly>(DateOnly.MaxValue, "'{0:o}'")
+      , new FieldExpect<DateOnly?>(DateOnly.MaxValue, "'{0:o}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'9999-12-31'" } }
-      , new NullableStructFieldExpect<DateOnly>(DateOnly.MinValue, "\"{0,30:o}\"", true, new DateOnly(2020, 1, 1))
+      , new FieldExpect<DateOnly?>(DateOnly.MinValue, "\"{0,30:o}\"", true, new DateOnly(2020, 1, 1))
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "\"                    0001-01-01\""
             }
         }
-      , new NullableStructFieldExpect<DateOnly>(new DateOnly(1980, 7, 31), "'{0:yyyy\\\\MM\\\\dd}'")
+      , new FieldExpect<DateOnly?>(new DateOnly(1980, 7, 31), "'{0:yyyy\\\\MM\\\\dd}'")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'1980\\07\\31'" }
         }
-      , new NullableStructFieldExpect<DateOnly>(new DateOnly(2009, 11, 12), "\"{0,-30:o}\"")
+      , new FieldExpect<DateOnly?>(new DateOnly(2009, 11, 12), "\"{0,-30:o}\"")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -897,19 +914,19 @@ public static class SpanFormattableTestData
         }
 
         // TimeOnly?
-      , new NullableStructFieldExpect<TimeOnly>(TimeOnly.FromTimeSpan(TimeSpan.Zero), "r")
+      , new FieldExpect<TimeOnly?>(TimeOnly.FromTimeSpan(TimeSpan.Zero), "r")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "00:00:00" }
         }
-      , new NullableStructFieldExpect<TimeOnly>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<TimeOnly>(new TimeOnly(1, 1, 1, 111, 111), "o")
+      , new FieldExpect<TimeOnly?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<TimeOnly?>(new TimeOnly(1, 1, 1, 111, 111), "o")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "01:01:01.1111110" } }
-      , new NullableStructFieldExpect<TimeOnly>(new TimeOnly(22, 22, 22, 222, 222), "O", true
+      , new FieldExpect<TimeOnly?>(new TimeOnly(22, 22, 22, 222, 222), "O", true
                                               , new TimeOnly(22, 22, 22, 222, 222))
             { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "22:22:22.2222220" } }
-      , new NullableStructFieldExpect<TimeOnly>(TimeOnly.MaxValue, "'{0:o}'")
+      , new FieldExpect<TimeOnly?>(TimeOnly.MaxValue, "'{0:o}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'23:59:59.9999999'" } }
-      , new NullableStructFieldExpect<TimeOnly>(TimeOnly.MinValue, "\"{0,30:r}\"", true
+      , new FieldExpect<TimeOnly?>(TimeOnly.MinValue, "\"{0,30:r}\"", true
                                               , TimeOnly.FromTimeSpan(TimeSpan.FromHours(1)))
         {
             {
@@ -917,12 +934,12 @@ public static class SpanFormattableTestData
               , "\"                      00:00:00\""
             }
         }
-      , new NullableStructFieldExpect<TimeOnly>(new TimeOnly(3, 33, 33, 333, 333),
+      , new FieldExpect<TimeOnly?>(new TimeOnly(3, 33, 33, 333, 333),
                                                 "'{0:hh\\-mm\\-ss\\.fff}'")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'03-33-33.333'" }
         }
-      , new NullableStructFieldExpect<TimeOnly>(new TimeOnly(4, 44, 44, 444, 444), "\"{0,-30:O}\"")
+      , new FieldExpect<TimeOnly?>(new TimeOnly(4, 44, 44, 444, 444), "\"{0,-30:O}\"")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -946,17 +963,17 @@ public static class SpanFormattableTestData
         }
 
         // Rune?
-      , new NullableStructFieldExpect<Rune>(Rune.GetRuneAt("\0", 0)) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "\0" } }
-      , new NullableStructFieldExpect<Rune>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<Rune>(Rune.GetRuneAt("𝄞", 0))
+      , new FieldExpect<Rune?>(Rune.GetRuneAt("\0", 0)) { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "\0" } }
+      , new FieldExpect<Rune?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<Rune?>(Rune.GetRuneAt("𝄞", 0))
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "𝄞" }
         }
-      , new NullableStructFieldExpect<Rune>(Rune.GetRuneAt("𝄢", 0), "'{0}'")
+      , new FieldExpect<Rune?>(Rune.GetRuneAt("𝄢", 0), "'{0}'")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'𝄢'" }
         }
-      , new NullableStructFieldExpect<Rune>(Rune.GetRuneAt("𝅘𝅥𝅮", 0), "\"{0,-20}\"")
+      , new FieldExpect<Rune?>(Rune.GetRuneAt("𝅘𝅥𝅮", 0), "\"{0,-20}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"𝅘𝅥𝅮                  \"" }
         }
@@ -986,24 +1003,24 @@ public static class SpanFormattableTestData
         }
 
         // Guid?
-      , new NullableStructFieldExpect<Guid>(Guid.Empty)
+      , new FieldExpect<Guid?>(Guid.Empty)
             { { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "00000000-0000-0000-0000-000000000000" } }
-      , new NullableStructFieldExpect<Guid>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<Guid>(Guid.ParseExact("BEEFCA4E-BEEF-CA4E-BEEF-C0FFEEBABE51", "D"))
+      , new FieldExpect<Guid?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<Guid?>(Guid.ParseExact("BEEFCA4E-BEEF-CA4E-BEEF-C0FFEEBABE51", "D"))
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "beefca4e-beef-ca4e-beef-c0ffeebabe51"
             }
         }
-      , new NullableStructFieldExpect<Guid>(Guid.ParseExact("C0FFEEFE-BEEF-CA4E-BEEF-C0FFEEBABE51", "D"), "'{0}'")
+      , new FieldExpect<Guid?>(Guid.ParseExact("C0FFEEFE-BEEF-CA4E-BEEF-C0FFEEBABE51", "D"), "'{0}'")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
               , "'c0ffeefe-beef-ca4e-beef-c0ffeebabe51'"
             }
         }
-      , new NullableStructFieldExpect<Guid>(Guid.ParseExact("BEEEEEEF-BEEF-BEEF-BEEF-CAAAAAAAAA4E", "D"), "\"{0,40}\"")
+      , new FieldExpect<Guid?>(Guid.ParseExact("BEEEEEEF-BEEF-BEEF-BEEF-CAAAAAAAAA4E", "D"), "\"{0,40}\"")
         {
             {
                 AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -1028,18 +1045,18 @@ public static class SpanFormattableTestData
         }
 
         // IPNetwork?
-      , new NullableStructFieldExpect<IPNetwork>(new IPNetwork())
+      , new FieldExpect<IPNetwork?>(new IPNetwork())
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, "0.0.0.0/0" }
         }
-      , new NullableStructFieldExpect<IPNetwork>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
-      , new NullableStructFieldExpect<IPNetwork>(new IPNetwork(IPAddress.Loopback, 32))
+      , new FieldExpect<IPNetwork?>(null, "null", true) { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites, "null" } }
+      , new FieldExpect<IPNetwork?>(new IPNetwork(IPAddress.Loopback, 32))
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "127.0.0.1/32" }
         }
-      , new NullableStructFieldExpect<IPNetwork>(IPNetwork.Parse("255.255.255.254/31"), "'{0}'")
+      , new FieldExpect<IPNetwork?>(IPNetwork.Parse("255.255.255.254/31"), "'{0}'")
             { { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "'255.255.255.254/31'" } }
-      , new NullableStructFieldExpect<IPNetwork>(IPNetwork.Parse("255.255.0.0/16"), "\"{0,17}\"")
+      , new FieldExpect<IPNetwork?>(IPNetwork.Parse("255.255.0.0/16"), "\"{0,17}\"")
         {
             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"   255.255.0.0/16\"" }
         }

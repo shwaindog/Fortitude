@@ -21,7 +21,6 @@ public class SelectTypeFieldTests
 
 
     private static IVersatileFLogger logger     = null!;
-    private const  string            BulletList = "    * ";
 
     [ClassInitialize]
     public static void AllTestsInClassStaticSetup(TestContext testContext)
@@ -161,6 +160,38 @@ public class SelectTypeFieldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
+    private static IEnumerable<object[]> NonNullCloakedBearerExpect =>
+        from fe in CloakedBearerTestData.AllCloakedBearerExpectations
+        where !fe.IsNullable
+        from scaffoldToCall in
+            scafReg.IsComplexType().ProcessesSingleValue().AcceptsNonNullables().HasSupportsValueRevealer()
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)    
+        select new object[] { fe, scaffoldToCall };
+
+
+    [TestMethod]
+    [DynamicData(nameof(NonNullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void WithCompactLogNonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> NullCloakedBearerExpect =>
+        from fe in CloakedBearerTestData.AllCloakedBearerExpectations
+        where fe.IsNullable
+        from scaffoldToCall in
+            scafReg.IsComplexType().ProcessesSingleValue().OnlyAcceptsNullableStructs().HasSupportsValueRevealer()
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)    
+        select new object[] { fe, scaffoldToCall };
+
+
+    [TestMethod]
+    [DynamicData(nameof(NullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void WithCompactLogNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         logger.InfoAppend("Complex Type Single Value Field  Scaffolding Class - ")?
@@ -171,24 +202,35 @@ public class SelectTypeFieldTests
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
 
-        string BuildExpectedOutput(ISinglePropertyTestStringBearer testStringBearer, ScaffoldingPartEntry entry, IFormatExpectation expectation)
+        string BuildExpectedOutput(string className, string propertyName
+          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
             const string compactLogTemplate = "{0} {{ {1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(entry.ScaffoldingFlags);
+            var expectValue = expectation.GetExpectedOutputFor(condition);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
-                expectValue = testStringBearer.PropertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
+                expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
             }
             else { expectValue = ""; }
-            return string.Format(compactLogTemplate, testStringBearer.GetType().ShortNameInCSharpFormat(), expectValue);
+            return string.Format(compactLogTemplate, className, expectValue);
+        }
+
+        if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
+        {
+            complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedOutput;
         }
 
         var tos = new TheOneString().Initialize(StringStyle.Compact | StringStyle.Log);
         tos.Clear();
         var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall);
         stringBearer.RevealState(tos);
-        var buildExpectedOutput = BuildExpectedOutput((ISinglePropertyTestStringBearer)stringBearer, scaffoldingToCall, formatExpectation);
+        var buildExpectedOutput = 
+            BuildExpectedOutput
+                (stringBearer.GetType().ShortNameInCSharpFormat()
+               , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
+               , scaffoldingToCall.ScaffoldingFlags
+               , formatExpectation);
         var result              = tos.WriteBuffer.ToString();
         if (buildExpectedOutput != result)
         {

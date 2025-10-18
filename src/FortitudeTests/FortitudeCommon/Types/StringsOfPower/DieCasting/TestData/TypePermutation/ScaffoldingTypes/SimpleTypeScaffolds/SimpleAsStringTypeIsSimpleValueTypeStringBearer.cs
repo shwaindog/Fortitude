@@ -434,6 +434,12 @@ public class SimpleAsStringCloakedBearerWithFieldSimpleValueTypeStringBearer<TCl
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .RevealAsString
@@ -460,6 +466,12 @@ public class SimpleAsStringCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloa
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .RevealAsString(SimpleTypeAsStringCloakedBearer, ValueRevealer)
@@ -482,6 +494,12 @@ public class SimpleAsStringNullableCloakedBearerWithFieldSimpleValueTypeStringBe
     public TCloaked? Value { get; set; }
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
@@ -509,6 +527,12 @@ public class SimpleAsStringNullableCloakedBearerNoFieldSimpleValueTypeStringBear
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .RevealAsStringOrNull(SimpleTypeAsStringCloakedBearer, ValueRevealer)
@@ -531,6 +555,12 @@ public class SimpleAsStringNullableCloakedBearerWithDefaultWithFieldSimpleValueT
     public TCloaked? Value { get; set; }
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
 
     public string DefaultValue { get; set; } = "";
 
@@ -561,6 +591,12 @@ public class SimpleAsStringNullableCloakedBearerWithDefaultNoFieldSimpleValueTyp
     public string DefaultValue { get; set; } = "";
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)

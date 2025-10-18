@@ -689,6 +689,12 @@ public class OrderedFromCloakedBearerArrayRevealAllSimpleOrderedCollectionString
            .Complete();
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
@@ -717,6 +723,13 @@ public class OrderedFromNullableCloakedBearerArrayRevealAllSimpleOrderedCollecti
            .Complete();
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+    
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)Value!.GetEnumerator();
@@ -745,6 +758,13 @@ public class OrderedFromCloakedBearerSpanRevealAllSimpleOrderedCollectionStringB
            .Complete();
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+    
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
@@ -773,6 +793,12 @@ public class OrderedFromCloakedBearerNullableSpanRevealAllSimpleOrderedCollectio
            .Complete();
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
@@ -801,6 +827,13 @@ public class OrderedFromNullableCloakedBearerSpanRevealAllSimpleOrderedCollectio
            .Complete();
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+    
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)Value!.GetEnumerator();
@@ -829,6 +862,13 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealAllSimpleOrderedCollectio
            .Complete();
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+    
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
@@ -857,6 +897,13 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealAllSimpleOrderedC
            .Complete();
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => (IEnumerator<TCloaked>)Value!.GetEnumerator();
@@ -885,6 +932,13 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealAllSimpleOrderedC
            .Complete();
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+    
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => (IEnumerator<TCloakedStruct?>)Value!.GetEnumerator();
@@ -913,6 +967,13 @@ public class OrderedFromCloakedBearerListRevealAllSimpleOrderedCollectionStringB
            .Complete();
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+    
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked?> GetEnumerator() => Value!.GetEnumerator();
@@ -941,6 +1002,13 @@ public class OrderedFromNullableCloakedBearerListRevealAllSimpleOrderedCollectio
            .Complete();
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => Value!.GetEnumerator();
@@ -969,6 +1037,13 @@ public class OrderedFromCloakedBearerEnumerableRevealAllSimpleOrderedCollectionS
            .Complete();
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked?> GetEnumerator() => Value!.GetEnumerator();
@@ -991,6 +1066,12 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealAllSimpleOrderedCol
 
     public IEnumerable<TCloakedStruct?>? Value { get; set; }
 
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+    
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealAllEnumerate(OrderedCollectionRevealAllNullableCloakedBearerEnumerable, ValueRevealer)
@@ -1025,6 +1106,13 @@ public class OrderedFromCloakedBearerEnumeratorRevealAllSimpleOrderedCollectionS
            .Complete();
 
     public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked?> GetEnumerator() => Value!;
@@ -1053,6 +1141,13 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealAllSimpleOrderedCol
            .Complete();
 
     public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloakedStruct?> GetEnumerator() => Value!;
