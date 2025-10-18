@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -28,6 +29,8 @@ public class SimpleAsValueBoolWithFieldSimpleValueTypeStringBearer : IMoldSuppor
                (nameof(SimpleTypeAsValueBool)
               , SimpleTypeAsValueBool)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct)]
@@ -44,6 +47,8 @@ public class SimpleAsValueBoolNoFieldSimpleValueTypeStringBearer : IMoldSupporte
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsValue(SimpleTypeAsValueBool).Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsNullableStruct)]
@@ -63,6 +68,8 @@ public class SimpleAsValueNullableBoolWithFieldSimpleValueTypeStringBearer : IMo
                (nameof(SimpleTypeAsValueNullableBool)
               , SimpleTypeAsValueNullableBool)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsNullableStruct)]
@@ -79,6 +86,8 @@ public class SimpleAsValueNullableBoolNoFieldSimpleValueTypeStringBearer : IMold
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsValueOrNull(SimpleTypeAsValueNullableBool).Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
@@ -102,6 +111,8 @@ public class SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<TF
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
@@ -123,6 +134,8 @@ public class SimpleAsValueSpanFormattableNoFieldSimpleValueTypeStringBearer<TFmt
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -146,6 +159,8 @@ public class SimpleAsValueNullableSpanFormattableClassWithFieldSimpleValueTypeSt
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -167,6 +182,8 @@ public class SimpleAsValueNullableSpanFormattableClassNoFieldSimpleValueTypeStri
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -193,6 +210,8 @@ public class SimpleAsValueNullableSpanFormattableClassWithDefaultWithFieldSimple
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -219,6 +238,8 @@ public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithField
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -244,6 +265,8 @@ public class SimpleAsValueNullableSpanFormattableClassWithDefaultNoFieldSimpleVa
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -269,6 +292,8 @@ public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultNoFieldSi
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -292,6 +317,8 @@ public class SimpleAsValueNullableSpanFormattableStructWithFieldSimpleValueTypeS
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -313,6 +340,8 @@ public class SimpleAsValueNullableSpanFormattableStructNoFieldSimpleValueTypeStr
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -339,6 +368,8 @@ public class SimpleAsValueNullableSpanFormattableStructWithDefaultWithFieldSimpl
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -365,6 +396,8 @@ public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFiel
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -390,6 +423,8 @@ public class SimpleAsValueNullableSpanFormattableStructWithDefaultNoFieldSimpleV
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
@@ -415,6 +450,8 @@ public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultNoFieldS
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -447,6 +484,8 @@ public class SimpleAsValueCloakedBearerWithFieldSimpleValueTypeStringBearer<TClo
               , SimpleTypeAsValueCloakedBearer
               , ValueRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -476,6 +515,8 @@ public class SimpleAsValueCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloak
         tos.StartSimpleValueType(this)
            .RevealAsValue(SimpleTypeAsValueCloakedBearer, ValueRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -508,6 +549,8 @@ public class SimpleAsValueNullableCloakedBearerWithFieldSimpleValueTypeStringBea
               , SimpleTypeAsValueCloakedBearer
               , ValueRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -537,6 +580,8 @@ public class SimpleAsValueNullableCloakedBearerNoFieldSimpleValueTypeStringBeare
         tos.StartSimpleValueType(this)
            .RevealAsValueOrNull(SimpleTypeAsValueCloakedBearer, ValueRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -571,6 +616,8 @@ public class SimpleAsValueNullableCloakedBearerWithDefaultWithFieldSimpleValueTy
               , SimpleTypeAsValueCloakedBearer
               , ValueRevealer, DefaultValue)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
@@ -602,6 +649,8 @@ public class SimpleAsValueNullableCloakedBearerWithDefaultNoFieldSimpleValueType
         tos.StartSimpleValueType(this)
            .RevealAsValueOrDefault(SimpleTypeAsValueCloakedBearer, ValueRevealer, DefaultValue)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -621,6 +670,8 @@ public class SimpleAsValueStringBearerWithFieldSimpleValueTypeStringBearer<TBear
         tos.StartSimpleValueType(this)
            .RevealAsValue(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -640,6 +691,8 @@ public class SimpleAsValueStringBearerNoFieldSimpleValueTypeStringBearer<TBearer
         tos.StartSimpleValueType(this)
            .RevealAsValue(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -660,6 +713,8 @@ public class SimpleAsValueNullableStringBearerWithFieldSimpleValueTypeStringBear
         tos.StartSimpleValueType(this)
            .RevealAsValueOrNull(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -680,6 +735,8 @@ public class SimpleAsValueNullableStringBearerNoFieldSimpleValueTypeStringBearer
         tos.StartSimpleValueType(this)
            .RevealAsValueOrNull(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -702,6 +759,8 @@ public class SimpleAsValueNullableStringBearerWithDefaultWithFieldSimpleValueTyp
         tos.StartSimpleValueType(this)
            .RevealAsValueOrDefault(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer, DefaultValue)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
@@ -724,6 +783,8 @@ public class SimpleAsValueNullableStringBearerWithDefaultNoFieldSimpleValueTypeS
         tos.StartSimpleValueType(this)
            .RevealAsValueOrDefault(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer, DefaultValue)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString |
@@ -756,6 +817,8 @@ public class SimpleAsValueCharSpanWithFieldOrDefaultSimpleValueTypeStringBearer 
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString |
@@ -791,6 +854,8 @@ public class SimpleAsValueCharSpanWithDefaultWithFieldAsSpanSimpleValueTypeStrin
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString)]
@@ -822,6 +887,8 @@ public class SimpleAsValueCharSpanWithFieldSimpleValueTypeStringBearer : IMoldSu
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray)]
@@ -846,6 +913,8 @@ public class SimpleAsValueCharSpanWithNoFieldAsSpanSimpleValueTypeStringBearer :
         tos.StartSimpleValueType(this)
            .AsValueOrZero(SimpleTypeAsValueCharSpan.AsSpan())
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString |
@@ -877,6 +946,8 @@ public class SimpleAsValueCharReadOnlySpanWithFieldOrDefaultSimpleValueTypeStrin
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString |
@@ -910,6 +981,8 @@ public class SimpleAsValueCharReadOnlySpanWithDefaultWithFieldSimpleValueTypeStr
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
@@ -940,6 +1013,8 @@ public class SimpleAsValueCharReadOnlySpanWithFieldOrNullSimpleValueTypeStringBe
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString)]
@@ -964,6 +1039,8 @@ public class SimpleAsValueCharReadOnlySpanWithNoFieldOrDefaultSimpleValueTypeStr
         tos.StartSimpleValueType(this)
            .AsValueOrZero((ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpan)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharArray)]
@@ -988,6 +1065,8 @@ public class SimpleAsValueCharSpanWithNoFieldOrDefaultSimpleValueTypeStringBeare
         tos.StartSimpleValueType(this)
            .AsValue(SimpleTypeAsValueCharSpanOrDefault.AsSpan())
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString)]
@@ -1012,6 +1091,8 @@ public class SimpleAsValueCharReadOnlySpanWithNoFieldOrDefaultFieldSimpleValueTy
         tos.StartSimpleValueType(this)
            .AsValue((ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpanOrDefault)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString)]
@@ -1036,6 +1117,8 @@ public class SimpleAsValueStringWithNoFieldOrDefaultFieldSimpleValueTypeStringBe
         tos.StartSimpleValueType(this)
            .AsValue(SimpleTypeAsValueStringOrDefaultNoFormatting)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
@@ -1067,6 +1150,8 @@ public class SimpleAsValueStringWithFieldOrDefaultSimpleValueTypeStringBearer : 
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
@@ -1097,6 +1182,8 @@ public class SimpleAsValueStringWithFieldSimpleValueTypeStringBearer : IMoldSupp
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1130,6 +1217,8 @@ public class SimpleAsValueStringRangeOrDefaultSimpleValueTypeStringBearer : IMol
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1163,6 +1252,8 @@ public class SimpleAsValueStringRangeSimpleValueTypeStringBearer : IMoldSupporte
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1198,6 +1289,8 @@ public class SimpleAsValueStringRangeWithDefaultSimpleValueTypeStringBearer : IM
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString)]
@@ -1228,6 +1321,8 @@ public class SimpleAsValueCharArrayWithFieldOrDefaultSimpleValueTypeStringBearer
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1261,6 +1356,8 @@ public class SimpleAsValueCharArrayRangeWithFieldOrDefaultSimpleValueTypeStringB
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1293,6 +1390,8 @@ public class SimpleAsValueCharArrayRangeNoFieldOrDefaultSimpleValueTypeStringBea
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1326,6 +1425,8 @@ public class SimpleAsValueCharArrayRangeWithFieldSimpleValueTypeStringBearer : I
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1358,6 +1459,8 @@ public class SimpleAsValueCharArrayRangeNoFieldSimpleValueTypeStringBearer : IMo
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1393,6 +1496,8 @@ public class SimpleAsValueCharArrayRangeWithFieldWithDefaultSimpleValueTypeStrin
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1427,6 +1532,8 @@ public class SimpleAsValueCharArrayRangeNoFieldWithDefaultSimpleValueTypeStringB
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
@@ -1464,6 +1571,8 @@ public class SimpleAsValueCharSequenceWithFieldOrDefaultSimpleValueTypeStringBea
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
@@ -1501,6 +1610,8 @@ public class SimpleAsValueCharSequenceNoFieldOrDefaultSimpleValueTypeStringBeare
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1541,6 +1652,8 @@ public class SimpleAsValueCharSequenceRangeWithFieldOrDefaultSimpleValueTypeStri
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1580,6 +1693,8 @@ public class SimpleAsValueCharSequenceRangeNoFieldOrDefaultSimpleValueTypeString
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1620,6 +1735,8 @@ public class SimpleAsValueCharSequenceRangeWithFieldSimpleValueTypeStringBearer<
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1659,6 +1776,8 @@ public class SimpleAsValueCharSequenceRangeNoFieldSimpleValueTypeStringBearer<TC
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1701,6 +1820,8 @@ public class SimpleAsValueCharSequenceRangeWithFieldWithDefaultSimpleValueTypeSt
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1741,6 +1862,8 @@ public class SimpleAsValueCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStri
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
@@ -1771,6 +1894,8 @@ public class SimpleAsValueStringBuilderWithFieldOrDefaultSimpleValueTypeStringBe
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
@@ -1800,6 +1925,8 @@ public class SimpleAsValueStringBuilderNoFieldOrDefaultSimpleValueTypeStringBear
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1834,6 +1961,8 @@ public class SimpleAsValueStringBuilderRangeWithFieldOrDefaultSimpleValueTypeStr
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1867,6 +1996,8 @@ public class SimpleAsValueStringBuilderRangeNoFieldOrDefaultSimpleValueTypeStrin
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1901,6 +2032,8 @@ public class SimpleAsValueStringBuilderRangeWithFieldSimpleValueTypeStringBearer
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1934,6 +2067,8 @@ public class SimpleAsValueStringBuilderRangeNoFieldSimpleValueTypeStringBearer :
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -1970,6 +2105,8 @@ public class SimpleAsValueStringBuilderRangeWithFieldWithDefaultSimpleValueTypeS
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges)]
@@ -2004,6 +2141,8 @@ public class SimpleAsValueStringBuilderRangeNoFieldWithDefaultSimpleValueTypeStr
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2024,6 +2163,8 @@ public class SimpleAsValueMatchOrDefaultSimpleValueTypeStringBearer<TAny> : IMol
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2046,6 +2187,8 @@ public class SimpleAsValueMatchSimpleValueTypeStringBearer<TAny> : IMoldSupporte
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
@@ -2069,4 +2212,6 @@ public class SimpleAsValueMatchWithDefaultSimpleValueTypeStringBearer<TAny> : IM
            .Complete();
 
     public string? ValueFormatString { get; set; }
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

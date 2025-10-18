@@ -10,7 +10,9 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
+    ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
@@ -20,7 +22,7 @@ public class SelectTypeFieldTests
     private static IReadOnlyList<ScaffoldingPartEntry> scafReg = ScaffoldingRegistry.AllScaffoldingTypes;
 
 
-    private static IVersatileFLogger logger     = null!;
+    private static IVersatileFLogger logger = null!;
 
     [ClassInitialize]
     public static void AllTestsInClassStaticSetup(TestContext testContext)
@@ -101,7 +103,7 @@ public class SelectTypeFieldTests
         where fe.InputType.IsString()
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsString().NotHasSupportsValueRevealer()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)    
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
 
@@ -117,7 +119,7 @@ public class SelectTypeFieldTests
         where fe.InputType.IsCharArray()
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsCharArray().NotHasSupportsValueRevealer()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)    
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
 
@@ -133,7 +135,7 @@ public class SelectTypeFieldTests
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)    
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
 
@@ -149,7 +151,7 @@ public class SelectTypeFieldTests
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)    
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
 
@@ -165,7 +167,7 @@ public class SelectTypeFieldTests
         where !fe.IsNullable
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsNonNullables().HasSupportsValueRevealer()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)    
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
 
@@ -181,7 +183,7 @@ public class SelectTypeFieldTests
         where fe.IsNullable
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().OnlyAcceptsNullableStructs().HasSupportsValueRevealer()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)    
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
 
@@ -192,12 +194,44 @@ public class SelectTypeFieldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
+    private static IEnumerable<object[]> NonNullStringBearerExpect =>
+        from fe in StringBearerTestData.AllStringBearerExpectations
+        where !fe.IsNullable
+        from scaffoldToCall in
+            scafReg.IsComplexType().ProcessesSingleValue().AcceptsNonNullables()
+                   .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
+        select new object[] { fe, scaffoldToCall };
+
+
+    [TestMethod]
+    [DynamicData(nameof(NonNullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void WithCompactLogNonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    [TestMethod]
+    public void WithCompactLogSingleTest()
+    {
+        SharedCompactLog(new StringBearerExpect<FieldNullableSpanFormattableAlwaysAddStringBearer<byte>>(new FieldNullableSpanFormattableAlwaysAddStringBearer<byte>
+                         {
+                             Value = 144
+                         }, "\"{0,20}\"")
+                         {
+                             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                 144\"" }
+                         }, new ScaffoldingPartEntry
+                             (typeof(FieldStringBearerAlwaysAddStringBearer<>)
+                            , ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass 
+                            | AcceptsNullableClass | AcceptsStringBearer));
+    }
+
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         logger.InfoAppend("Complex Type Single Value Field  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
               .FinalAppend("");
-        
+
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
@@ -225,13 +259,13 @@ public class SelectTypeFieldTests
         tos.Clear();
         var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall);
         stringBearer.RevealState(tos);
-        var buildExpectedOutput = 
+        var buildExpectedOutput =
             BuildExpectedOutput
                 (stringBearer.GetType().ShortNameInCSharpFormat()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
                , formatExpectation);
-        var result              = tos.WriteBuffer.ToString();
+        var result = tos.WriteBuffer.ToString();
         if (buildExpectedOutput != result)
         {
             logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()

@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
@@ -33,6 +34,8 @@ public class FieldKeyValueDictionaryFormatStringsAlwaysAddAllStringBearer<TKey, 
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -59,6 +62,8 @@ public class FieldKeyValuePairArrayBothFormatStringsAlwaysAddAllStringBearer<TKe
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -86,6 +91,8 @@ public class FieldKeyValuePairListBothFormatStringsAlwaysAddAllStringBearer<TKey
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -113,6 +120,8 @@ public class FieldKeyValuePairEnumerableBothFormatStringsAlwaysAddAllStringBeare
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -140,6 +149,8 @@ public class FieldKeyValuePairEnumeratorBothFormatStringsAlwaysAddAllStringBeare
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -175,6 +186,8 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsAlwaysAddAllStr
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -208,6 +221,8 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsAlwaysAddAllStri
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -242,6 +257,8 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsAlwaysAddAllStrin
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllListValueRevealerKeyFormatStrings
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -276,6 +293,8 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsAlwaysAddAl
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -310,6 +329,8 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsAlwaysAddAl
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -350,6 +371,8 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysAddAllStringBearer<TKey, 
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -390,6 +413,8 @@ public class FieldKeyValuePairArrayBothRevealersAlwaysAddAllStringBearer<TKey, T
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -430,6 +455,8 @@ public class FieldKeyValuePairListBothRevealersAlwaysAddAllStringBearer<TKey, TV
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -470,6 +497,8 @@ public class FieldKeyValuePairEnumerableBothRevealersAlwaysAddAllStringBearer<TK
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
@@ -510,4 +539,6 @@ public class FieldKeyValuePairEnumeratorBothRevealersAlwaysAddAllStringBearer<TK
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

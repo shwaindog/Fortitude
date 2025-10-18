@@ -1,4 +1,5 @@
-﻿using FortitudeCommon.Types.StringsOfPower;
+﻿using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
@@ -39,6 +40,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKey
               , WhenNonNullAddWithSelectKeysFromArrayBothFormatStrings
               , DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | NonNullWrites | SubsetListFilter
@@ -74,6 +77,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKey
               , WhenNonNullAddWithSelectKeysFromSpanBothFormatStrings
               , DisplayKeys.ToArray().AsSpan(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | NonNullWrites
@@ -109,6 +114,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKey
               , WhenNonNullAddWithSelectKeysFromReadOnlySpanBothFormatStrings
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | NonNullWrites
@@ -144,6 +151,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKey
               , WhenNonNullAddWithSelectKeysFromListBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | NonNullWrites
@@ -179,6 +188,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKey
               , WhenNonNullAddWithSelectKeysFromEnumerableBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | NonNullWrites
@@ -214,6 +225,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenNonNullAddWithSelectKey
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings
               , DisplayKeys.GetEnumerator(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | NonNullWrites | SubsetListFilter
@@ -256,6 +269,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysArr
               , WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString
               , DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | NonNullWrites | SubsetListFilter
@@ -298,6 +313,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysSpa
               , WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | NonNullWrites
@@ -340,6 +357,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysRea
               , WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | NonNullWrites
@@ -382,6 +401,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysLis
               , WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | NonNullWrites
@@ -424,6 +445,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysEnu
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | NonNullWrites
@@ -466,6 +489,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenNonNullAddWithSelectKeysEnu
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | NonNullWrites | SubsetListFilter
@@ -514,6 +539,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysArr
               , WhenNonNullAddWithSelectKeysFromArrayBothRevealers
               , DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | NonNullWrites | SubsetListFilter
@@ -562,6 +589,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysSpa
               , WhenNonNullAddWithSelectKeysFromSpanBothRevealers
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | NonNullWrites 
@@ -610,6 +639,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysRea
               , WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | NonNullWrites
@@ -658,6 +689,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysLis
               , WhenNonNullAddWithSelectKeysFromListBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | NonNullWrites
@@ -706,6 +739,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysEnu
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | NonNullWrites
@@ -753,4 +788,6 @@ public class FieldKeyValueDictionaryBothRevealersWhenNonNullAddWithSelectKeysEnu
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers), WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

@@ -1,4 +1,5 @@
-﻿using FortitudeCommon.Types.StringsOfPower;
+﻿using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
@@ -39,6 +40,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
               , WhenPopulatedWithSelectKeysFromArrayBothFormatStrings
               , DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | NonEmptyWrites | SubsetListFilter
@@ -74,6 +77,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
               , WhenPopulatedWithSelectKeysFromSpanBothFormatStrings
               , DisplayKeys.ToArray().AsSpan(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | NonEmptyWrites
@@ -109,6 +114,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
               , WhenPopulatedWithSelectKeysFromReadOnlySpanBothFormatStrings
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | NonEmptyWrites
@@ -144,6 +151,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
               , WhenPopulatedWithSelectKeysFromListBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | NonEmptyWrites
@@ -179,6 +188,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
               , WhenPopulatedWithSelectKeysFromEnumerableBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | NonEmptyWrites
@@ -214,6 +225,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
               , WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothFormatStrings
               , DisplayKeys.GetEnumerator(), ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | NonEmptyWrites | SubsetListFilter
@@ -256,6 +269,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysArra
               , WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString
               , DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | NonEmptyWrites | SubsetListFilter
@@ -298,6 +313,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysSpan
               , WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | NonEmptyWrites
@@ -340,6 +357,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysRead
               , WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | NonEmptyWrites
@@ -382,6 +401,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysList
               , WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | NonEmptyWrites
@@ -424,6 +445,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysEnum
               , WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | NonEmptyWrites
@@ -466,6 +489,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysEnum
               , WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsArray | NonEmptyWrites | SubsetListFilter
@@ -515,6 +540,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysArra
               , WhenPopulatedWithSelectKeysFromArrayBothRevealers
               , DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsSpan | NonEmptyWrites | SubsetListFilter
@@ -564,6 +591,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysSpan
               , WhenPopulatedWithSelectKeysFromSpanBothRevealers
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | NonEmptyWrites 
@@ -613,6 +642,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysRead
               , WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | NonEmptyWrites
@@ -662,6 +693,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysList
               , WhenPopulatedWithSelectKeysFromListBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerable | NonEmptyWrites
@@ -711,6 +744,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysEnum
               , WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | AcceptsList | AcceptsEnumerator | NonEmptyWrites
@@ -759,4 +794,6 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysEnum
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers), WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

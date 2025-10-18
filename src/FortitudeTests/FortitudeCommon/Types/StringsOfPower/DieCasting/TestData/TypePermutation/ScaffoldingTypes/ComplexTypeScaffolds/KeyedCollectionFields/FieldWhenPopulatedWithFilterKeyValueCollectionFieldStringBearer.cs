@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
@@ -40,6 +41,8 @@ public class FieldKeyValueDictionaryFormatStringsWhenPopulatedWithFilterStringBe
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -71,6 +74,8 @@ public class FieldKeyValuePairArrayBothFormatStringsWhenPopulatedWithFilterStrin
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -102,6 +107,8 @@ public class FieldKeyValuePairListBothFormatStringsWhenPopulatedWithFilterString
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -133,6 +140,8 @@ public class FieldKeyValuePairEnumerableBothFormatStringsWhenPopulatedWithFilter
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -164,6 +173,8 @@ public class FieldKeyValuePairEnumeratorBothFormatStringsWhenPopulatedWithFilter
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothFormatStrings
               , KeyValuePredicate, ValueFormatString, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -201,6 +212,8 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsWhenPopulatedWi
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -238,6 +251,8 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsWhenPopulatedWit
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -275,6 +290,8 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsWhenPopulatedWith
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -312,6 +329,8 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsWhenPopulat
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -349,6 +368,8 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenPopulat
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorValueRevealerKeyFormatString
               , KeyValuePredicate, ValueRevealer, KeyFormatString)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -393,6 +414,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithFilterStringBe
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -437,6 +460,8 @@ public class FieldKeyValuePairArrayBothRevealersWhenPopulatedWithFilterStringBea
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -481,6 +506,8 @@ public class FieldKeyValuePairListBothRevealersWhenPopulatedWithFilterStringBear
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -525,6 +552,8 @@ public class FieldKeyValuePairEnumerableBothRevealersWhenPopulatedWithFilterStri
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonEmptyWrites | FilterPredicate | AcceptsClass
@@ -569,4 +598,6 @@ public class FieldKeyValuePairEnumeratorBothRevealersWhenPopulatedWithFilterStri
               , ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
