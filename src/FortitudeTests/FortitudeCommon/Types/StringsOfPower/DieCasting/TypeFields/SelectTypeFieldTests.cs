@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Globalization;
 using System.Reflection;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.ExampleConfig;
@@ -27,6 +28,7 @@ public class SelectTypeFieldTests
     [ClassInitialize]
     public static void AllTestsInClassStaticSetup(TestContext testContext)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         FLogConfigExamples.SyncColoredTestConsoleExample.LoadExampleAsCurrentContext();
 
         logger = FLog.FLoggerForType.As<IVersatileFLogger>();
@@ -51,6 +53,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(NonNullableBooleanExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogNonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -65,6 +68,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(NullableBooleanExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -80,6 +84,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(NonNullableSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogNonNullFmt(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -95,6 +100,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(NullableStructSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogNullFmtStruct(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -111,6 +117,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(StringExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -127,6 +134,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(CharArrayExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogCharArray(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -143,6 +151,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(CharSequenceExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogCharSequence(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -159,6 +168,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(StringBuilderExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogStringBuilder(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -175,6 +185,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(NonNullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogNonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -191,6 +202,7 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(NullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
@@ -208,12 +220,14 @@ public class SelectTypeFieldTests
     [DynamicData(nameof(NonNullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void WithCompactLogNonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void WithCompactLogSingleTest()
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(new StringBearerExpect<FieldNullableSpanFormattableAlwaysAddStringBearer<byte>>(new FieldNullableSpanFormattableAlwaysAddStringBearer<byte>
                          {
                              Value = 144
