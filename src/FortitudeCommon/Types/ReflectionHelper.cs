@@ -115,6 +115,15 @@ public static class ReflectionHelper
         return Expression.Lambda<Func<TReturnType>>(Expression.New(constructorInfo)).Compile();
     }
 
+    public static Func<TReturnType> GenericTypeDefaultCtorBinder<TReturnType>()
+    {
+        var typedToConstruct = typeof(TReturnType);
+
+        var constructorInfo = typedToConstruct.GetConstructor([])!;
+
+        return Expression.Lambda<Func<TReturnType>>(Expression.New(constructorInfo)).Compile();
+    }
+
     /// <summary>
     ///     Gets a member from an object
     ///     The member name can be composed of other member name (such as "Statistics.Decile.Value")

@@ -64,6 +64,15 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
         }
         return ReflectionHelper.DefaultCtorFunc<IStringBearer>(ScaffoldingType);
     }
+
+    public Func<TScaffold> CreateTypedStringBearerFunc<TScaffold>()
+    {
+        if (ScaffoldingType.IsGenericType)
+        {
+            return ReflectionHelper.GenericTypeDefaultCtorBinder<TScaffold>();
+        }
+        return ReflectionHelper.DefaultCtorFunc<TScaffold>();
+    }
 };
 
 public static class ScaffoldingRegistry

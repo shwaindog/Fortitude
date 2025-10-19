@@ -309,22 +309,22 @@ public delegate ITypedFormatExpectation<T?> CreateFieldExpectation<T>(T? input, 
 public delegate string BuildExpectedOutput(string className, string propertyName, ScaffoldingStringBuilderInvokeFlags condition
   , IFormatExpectation expectation);
 
-public class CloakedBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpectation
+public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpect<TChildScaffoldType>, IComplexFieldFormatExpectation
+where TChildScaffold : ISinglePropertyTestStringBearer, IUnknownPalantirRevealerFactory
 {
-    private readonly Type scaffoldType;
-
     private ScaffoldingPartEntry? calledScaffoldingPart;
 
-    public CloakedBearerExpect(T? input, Type scaffoldType, string? formatString = null
-      , bool hasDefault = false, T? defaultValue = default) : base(input, formatString, hasDefault, defaultValue)
+    public CloakedBearerExpect(TChildScaffoldType? input, string? formatString = null
+      , bool hasDefault = false, TChildScaffoldType? defaultValue = default) : base(input, formatString, hasDefault, defaultValue)
     {
-        this.scaffoldType     = scaffoldType;
-        FieldValueExpectation = new FieldExpect<T>(Input, FormatString, HasDefault, DefaultValue);
+        FieldValueExpectation = new FieldExpect<TChildScaffoldType>(Input, FormatString, HasDefault, DefaultValue);
     }
 
-    public ITypedFormatExpectation<T> FieldValueExpectation { get; }
+    public ITypedFormatExpectation<TChildScaffoldType> FieldValueExpectation { get; }
 
     public virtual bool IsNullable => InputType.IsNullable();
+    
+    public TChildScaffold RevealerScaffold { get; set; }
 
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
@@ -339,15 +339,11 @@ public class CloakedBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpecta
         var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition);
         if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
         {
-            var calledBearer = (ISinglePropertyTestStringBearer)FieldValueExpectation
-                .CreateStringBearerWithValueFor(calledScaffoldingPart!);
             expectValue = WhenValueExpectedOutput
-                (Input.GetType().ShortNameInCSharpFormat(), $"CloakedRevealer{calledBearer.PropertyName}", condition, FieldValueExpectation);
+                (Input.GetType().ShortNameInCSharpFormat(), $"CloakedRevealer{RevealerScaffold.PropertyName}", condition, FieldValueExpectation);
         }
         return expectValue;
     }
-
-    private static readonly PalantírReveal<T> NoOp = (_, _) => new StateExtractStringRange();
 
     public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
@@ -358,17 +354,26 @@ public class CloakedBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpecta
 
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry)
     {
-        var createdStringBearer = base.CreateStringBearerWithValueFor(scaffoldEntry);
+        calledScaffoldingPart = new ScaffoldingPartEntry(typeof(TChildScaffold), scaffoldEntry.ScaffoldingFlags);
+        RevealerScaffold        = calledScaffoldingPart.CreateTypedStringBearerFunc<TChildScaffold>()();
+        var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
+        if (InputType == typeof(string) && createdStringBearer is ISupportsSettingValueFromString supportsSettingValueFromString)
+            supportsSettingValueFromString.StringValue = (string?)(object?)Input;
+        else if (createdStringBearer is IMoldSupportedValue<object?> isObjectMold)
+            isObjectMold.Value = Input;
+        else
+            ((IMoldSupportedValue<TChildScaffoldType?>)createdStringBearer).Value = Input;
+        if (FormatString != null && RevealerScaffold is ISupportsValueFormatString supportsValueFormatString)
+            supportsValueFormatString.ValueFormatString = FormatString;
+        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<object?> supportsObjectDefaultValue)
+            supportsObjectDefaultValue.DefaultValue = DefaultValue;
+        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<TChildScaffoldType> supportsDefaultValue)
+            supportsDefaultValue.DefaultValue = DefaultValue ?? default(TChildScaffoldType)!;
+        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
+            supportsStringDefaultValue.DefaultValue = new MutableString().Append(DefaultValue).ToString();
         if (createdStringBearer is ISupportsUnknownValueRevealer supportsValueRevealer)
         {
-            calledScaffoldingPart = new ScaffoldingPartEntry(scaffoldType, scaffoldEntry.ScaffoldingFlags);
-
-            var calledBearer = FieldValueExpectation.CreateStringBearerWithValueFor(calledScaffoldingPart);
-
-            supportsValueRevealer.ValueRevealerDelegate =
-                calledBearer is IUnknownPalantirRevealerFactory unknownPalantirRevealerFactory
-                    ? unknownPalantirRevealerFactory.CreateRevealerDelegate
-                    : NoOp;
+            supportsValueRevealer.ValueRevealerDelegate = RevealerScaffold.CreateRevealerDelegate;
         }
         return createdStringBearer;
     }
@@ -377,10 +382,6 @@ public class CloakedBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpecta
 public class StringBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpectation
     where T : IStringBearer
 {
-    private readonly Type scaffoldType;
-
-    private ScaffoldingPartEntry? calledScaffoldingPart;
-
     public StringBearerExpect(T? input, string? formatString = null
       , bool hasDefault = false, T? defaultValue = default) : base(input, formatString, hasDefault, defaultValue)
     {

@@ -117,6 +117,58 @@ public class FieldSpanFormattableAlwaysAddStringBearer<TFmt> : IMoldSupportedVal
 }
 
 [TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+public class FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSupportedValue<TFmt>, ISupportsValueFormatString
+  , IPalantirRevealerFactory<TFmt> where TFmt : ISpanFormattable
+{
+    public TFmt ComplexTypeFieldAlwaysAddSpanFormattableFromStruct
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddSpanFormattableFromStruct);
+    public TFmt Value { get; set; } = default!;
+
+    public PalantírReveal<TFmt> CreateRevealer => (cloaked, tos) =>
+        tos.StartComplexType(cloaked)
+           .Field.AlwaysAdd
+               ($"CloakedRevealer{nameof(ComplexTypeFieldAlwaysAddSpanFormattableFromStruct)}"
+              , cloaked, ValueFormatString)
+           .Complete();
+
+    public Delegate CreateRevealerDelegate => CreateRevealer;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddSpanFormattableFromStruct)
+              , ComplexTypeFieldAlwaysAddSpanFormattableFromStruct
+              , ValueFormatString)
+           .Complete();
+
+    public string? ValueFormatString { get; set; }
+
+    protected bool Equals(FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> other) => 
+        EqualityComparer<TFmt>.Default.Equals(Value, other.Value);
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((FieldSpanFormattableAlwaysAddStructStringBearer<TFmt>)obj);
+    }
+
+    // ReSharper disable once NonReadonlyMemberInGetHashCode
+    #pragma warning disable CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
+    public override int GetHashCode() => EqualityComparer<TFmt>.Default.GetHashCode(Value);
+    #pragma warning restore CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+}
+
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldSpanFormattableWithHandlingAlwaysAddStringBearer<TFmt> : IMoldSupportedValue<TFmt>, ISupportsValueFormatString
   , ISupportsFieldHandling where TFmt : ISpanFormattable
@@ -188,6 +240,58 @@ public class FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : IMo
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
         return Equals((FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct>)obj);
+    }
+
+    // ReSharper disable once NonReadonlyMemberInGetHashCode
+    #pragma warning disable CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
+    public override int GetHashCode() => EqualityComparer<TFmtStruct?>.Default.GetHashCode(Value);
+    #pragma warning restore CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+}
+
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+public class FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct> : IMoldSupportedValue<TFmtStruct?>
+  , IPalantirRevealerFactory<TFmtStruct>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
+{
+    public TFmtStruct? ComplexTypeFieldAlwaysAddNullableSpanFormattableFromStruct
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddNullableSpanFormattableFromStruct);
+    public TFmtStruct? Value { get; set; }
+
+    public PalantírReveal<TFmtStruct> CreateRevealer => (cloaked, tos) =>
+        tos.StartComplexType(cloaked)
+           .Field.AlwaysAdd
+               ($"CloakedRevealer{nameof(ComplexTypeFieldAlwaysAddNullableSpanFormattableFromStruct)}"
+              , cloaked, ValueFormatString)
+           .Complete();
+
+    public Delegate CreateRevealerDelegate => CreateRevealer;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddNullableSpanFormattableFromStruct)
+              , ComplexTypeFieldAlwaysAddNullableSpanFormattableFromStruct
+              , ValueFormatString)
+           .Complete();
+
+    public string? ValueFormatString { get; set; }
+
+    protected bool Equals(FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct> other) => 
+        EqualityComparer<TFmtStruct?>.Default.Equals(Value, other.Value);
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct>)obj);
     }
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode
@@ -635,6 +739,59 @@ public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, IS
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddString)
               , ComplexTypeFieldAlwaysAddString
+              , ValueFormatString)
+           .Complete();
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public string? ValueFormatString { get; set; }
+    protected bool Equals(FieldStringAlwaysAddStringBearer other) => Value == other.Value;
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((FieldStringAlwaysAddStringBearer)obj);
+    }
+
+    // ReSharper disable once NonReadonlyMemberInGetHashCode
+    public override int GetHashCode() => Value?.GetHashCode() ?? 0;
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+}
+
+[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
+public class FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
+  , IPalantirRevealerFactory<string> , ISupportsSettingValueFromString
+{
+    public string? ComplexTypeFieldAlwaysAddStringFromStruct
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringFromStruct);
+    public string? Value { get; set; }
+
+    public PalantírReveal<string> CreateRevealer => (cloaked, tos) =>
+        tos.StartComplexType(cloaked)
+           .Field.AlwaysAdd
+               ($"CloakedRevealer{nameof(ComplexTypeFieldAlwaysAddStringFromStruct)}"
+              , cloaked, ValueFormatString)
+           .Complete();
+
+    public Delegate CreateRevealerDelegate => CreateRevealer;
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddStringFromStruct)
+              , ComplexTypeFieldAlwaysAddStringFromStruct
               , ValueFormatString)
            .Complete();
 

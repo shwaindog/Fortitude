@@ -1,16 +1,1 @@
-{
-  "c0b1d083-2764-4ab7-a5cc-366812c7e8cd": {
-    "userId": 1,
-    "public": "c0b1d083-2764-4ab7-a5cc-366812c7e8cd",
-    "secret": "eac1d4dd-1fc5-4d54-801d-540349c5269a",
-    "repository": {
-      "server": "github.com",
-      "owner": "shwaindog",
-      "name": "Fortitude"
-    },
-    "connection": {
-      "id": "PROJECT_EXT_2",
-      "projectExternalId": "Fortitude"
-    }
-  }
-}
+{}
