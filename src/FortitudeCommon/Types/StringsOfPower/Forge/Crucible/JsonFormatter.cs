@@ -27,6 +27,15 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         set => FormatOptions = value;
     }
 
+    public JsonFormatter(IJsonFormattingOptions jsonFormattingOptions)
+    {
+        JsonOptions = jsonFormattingOptions;
+    }
+
+    public JsonFormatter()
+    {
+    }
+
     protected virtual int NextBase64Chars(byte source, IStringBuilder sb)
     {
         var b = source;
@@ -232,12 +241,12 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             return (Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length));
         }
-        var originalLength = sb.Length;
-        var fmtType        = typeof(TFmt);
+        var originalLength  = sb.Length;
+        var fmtType         = typeof(TFmt);
+        var hasFormatQuotes = formatString.Length > 0 && formatString[0] == '\"' && formatString[^1] == '\"';
+        var wrapInQuotes    = JsonOptions.WrapValuesInQuotes;
         if (fmtType.IsValueType && fmtType.IsNumericType())
         {
-            var hasFormatQuotes = formatString.Length > 0 && formatString[0] == '\"' && formatString[^1] == '\"';
-            var wrapInQuotes = JsonOptions.WrapValuesInQuotes;
             if (!wrapInQuotes)
             {
                 switch (source)
@@ -257,9 +266,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (JsonOptions.DateTimeIsNumber)
             {
                 var converted = JsonOptions.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
-                if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
+                if (wrapInQuotes) sb.Append(DblQt);
                 base.Format(converted, sb, formatString);
-                if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
+                if (wrapInQuotes) sb.Append(DblQt);
             }
             else
             {
@@ -267,9 +276,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     formatString = JsonOptions.DateTimeAsStringFormatString;
                 }
-                sb.Append(DblQt);
+                if(!hasFormatQuotes) sb.Append(DblQt);
                 base.Format(source, sb, formatString);
-                sb.Append(DblQt);
+                if(!hasFormatQuotes) sb.Append(DblQt);
             }
         }
         else if (source is DateOnly dateTimeOnly)
@@ -278,9 +287,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 formatString = JsonOptions.DateOnlyAsStringFormatString;
             }
-            sb.Append(DblQt);
+            if(!hasFormatQuotes) sb.Append(DblQt);
             base.Format(dateTimeOnly, sb, formatString);
-            sb.Append(DblQt);
+            if(!hasFormatQuotes) sb.Append(DblQt);
         }
         else if (source is TimeOnly sourceTimeOnly)
         {
@@ -292,9 +301,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                     formatString = "HH:mm:ss";
                 }
             }
-            sb.Append(DblQt);
+            if(!hasFormatQuotes) sb.Append(DblQt);
             base.Format(source, sb, formatString);
-            sb.Append(DblQt);
+            if(!hasFormatQuotes) sb.Append(DblQt);
         }
         else if (source is Enum)
         {
@@ -314,9 +323,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         else
         {
-            sb.Append(DblQt);
+            if(!hasFormatQuotes) sb.Append(DblQt);
             base.Format(source, sb, formatString);
-            sb.Append(DblQt);
+            if(!hasFormatQuotes) sb.Append(DblQt);
         }
         return sb.Length - originalLength;
     }

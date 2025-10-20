@@ -9,16 +9,16 @@ using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
+using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 [TestClass]
-public class SelectTypeFieldTests
+public partial class SelectTypeFieldTests
 {
     private static IReadOnlyList<ScaffoldingPartEntry> scafReg = ScaffoldingRegistry.AllScaffoldingTypes;
 
@@ -51,7 +51,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(NonNullableBooleanExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogNonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogNonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -66,7 +66,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(NullableBooleanExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -82,7 +82,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(NonNullableSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogNonNullFmt(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogNonNullFmt(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -98,7 +98,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(NullableStructSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogNullFmtStruct(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogNullFmtStruct(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -115,7 +115,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(StringExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -132,7 +132,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(CharArrayExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogCharArray(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogCharArray(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -149,7 +149,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(CharSequenceExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogCharSequence(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogCharSequence(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -166,7 +166,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(StringBuilderExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogStringBuilder(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogStringBuilder(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -183,7 +183,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(NonNullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogNonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogNonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -200,7 +200,7 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(NullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -218,26 +218,23 @@ public class SelectTypeFieldTests
 
     [TestMethod]
     [DynamicData(nameof(NonNullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void WithCompactLogNonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void CompactLogNonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
-    public void WithCompactLogSingleTest()
+    [TestMethod]
+    public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactLog(new StringBearerExpect<FieldNullableSpanFormattableAlwaysAddStringBearer<byte>>(new FieldNullableSpanFormattableAlwaysAddStringBearer<byte>
-                         {
-                             Value = 144
-                         }, "\"{0,20}\"")
-                         {
-                             { AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, "\"                 144\"" }
-                         }, new ScaffoldingPartEntry
-                             (typeof(FieldStringBearerAlwaysAddStringBearer<>)
-                            , ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass 
-                            | AcceptsNullableClass | AcceptsStringBearer));
+        SharedCompactLog(new FieldExpect<CharArrayStringBuilder>(new CharArrayStringBuilder("the"), "{0}", true, [], -1, -10)
+        {
+            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
+          , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "[]" }
+        }, new ScaffoldingPartEntry
+            (typeof(FieldCharSequenceRangeAlwaysAddStringBearer<>)
+           , ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges));
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -250,12 +247,15 @@ public class SelectTypeFieldTests
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
 
+
+        var tos = new TheOneString().Initialize(Compact | Log);
+
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
             const string compactLogTemplate = "{0} {{ {1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
@@ -268,8 +268,6 @@ public class SelectTypeFieldTests
         {
             complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedOutput;
         }
-
-        var tos = new TheOneString().Initialize(StringStyle.Compact | StringStyle.Log);
         tos.Clear();
         var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall);
         stringBearer.RevealState(tos);

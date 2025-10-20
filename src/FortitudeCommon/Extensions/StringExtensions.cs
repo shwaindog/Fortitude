@@ -198,5 +198,10 @@ public static class StringExtensions
         }
         return true;
     }
+    
+    public static string RemoveLineEndings(this string input)
+    {
+        return input.Replace("\n", "").Replace("\r", "");
+    }
 
 }

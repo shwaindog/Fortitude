@@ -190,6 +190,24 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
 
     public bool ByteArrayWritesBase64String { get; set; } = true;
 
+    public JsonFormattingOptions(IJsonFormattingOptions toClone) : base(toClone)
+    {
+        CharArrayWritesString            = toClone.CharArrayWritesString;
+        ByteArrayWritesBase64String      = toClone.ByteArrayWritesBase64String;
+        DateTimeIsNumber                 = toClone.DateTimeIsNumber;
+        DateTimeIsString                 = toClone.DateTimeIsString;
+        DateTimeAsStringFormatString     = toClone.DateTimeAsStringFormatString;
+        DateOnlyAsStringFormatString     = toClone.DateOnlyAsStringFormatString;
+        TimeAsStringFormatString         = toClone.TimeAsStringFormatString;
+        WrapValuesInQuotes               = toClone.WrapValuesInQuotes;
+        JsonEncodingTransferType         = toClone.JsonEncodingTransferType;
+        CachedMappingFactoryRanges       = toClone.CachedMappingFactoryRanges;
+        ExemptEscapingRanges             = toClone.ExemptEscapingRanges;
+        UnicodeEscapingRanges            = toClone.UnicodeEscapingRanges;
+        SourceEncodingTransfer           = toClone.SourceEncodingTransfer;
+        
+    }
+
     public JsonFormattingOptions()
     {
         CurrentEncodingTransfer = SourceEncodingTransfer(this);
@@ -374,8 +392,6 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
             };
         }
     }
-
-    public Func<Rune, string> AsciiRangeBackSlashEscapeMapping { get; set; } = DefaultAsciiBackSlashEscapeMapping;
 
     public static string DefaultAsciiBackSlashEscapeMapping(Rune inputChar)
     {

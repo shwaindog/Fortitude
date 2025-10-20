@@ -250,5 +250,23 @@ public static class CharExtensions
     public static bool IsMinus(this char check) => check == '-';
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsPlus(this char check) => check == '+';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsNumberSign(this char check) => check.IsMinus() || check.IsPlus();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsComma(this char check) => check == ',';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsFullStop(this char check) => check == '.';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsCommaOrStop(this char check) => check.IsComma() || check.IsFullStop();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsExponentSymbol(this char check) => check is 'E' or 'e';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsThousandsSeparator(this char check) => check == ThousandsSeparatorChar;
 }

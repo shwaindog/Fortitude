@@ -40,6 +40,24 @@ public class FormattingOptions : IFormattingOptions
     protected const char TokenClose = '}';
     protected const char TokenOpen  = '{';
 
+    public FormattingOptions()
+    {
+        
+    }
+    
+    public FormattingOptions(IFormattingOptions toClone)
+    {
+        ItemSeparator             = toClone.ItemSeparator;
+        NullWritesNullString      = toClone.NullWritesNullString;
+        EmptyCollectionWritesNull = toClone.EmptyCollectionWritesNull;
+        IgnoreEmptyCollection     = toClone.IgnoreEmptyCollection;
+        NullString                = toClone.NullString;
+        True                      = toClone.True;
+        False                     = toClone.False;
+        EncodingTransfer          = toClone.EncodingTransfer;
+        Formatter                 = toClone.Formatter;
+    }
+
     public string ItemSeparator { get; set; } = IFormattingOptions.DefaultItemSeparator;
 
     public bool NullWritesNothing
