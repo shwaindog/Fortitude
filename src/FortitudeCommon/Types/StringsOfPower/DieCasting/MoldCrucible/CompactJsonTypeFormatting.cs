@@ -3,6 +3,7 @@
 
 using System.Text;
 using System.Text.Json.Nodes;
+using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
@@ -154,7 +155,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , string? formatString = null)
     {
         if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
-        sb.Append(source ? Options.True : Options.False);
+        Format(source, sb, formatString);
         if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         return sb;
     }
@@ -162,12 +163,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, bool? source
       , string? formatString = null)
     {
-        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         if (source != null)
-            sb.Append(source.Value ? Options.True : Options.False);
+            FormatFieldContents(sb, source.Value, formatString);
         else
             sb.Append(StyleOptions.NullStyle);
-        if (JsonOptions.WrapValuesInQuotes) sb.Append(DblQt);
         return sb;
     }
 
@@ -207,24 +206,38 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             var cappedFrom   = Math.Clamp(sourceFrom, 0, sb.Length);
             var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
-            var cappedEnd = cappedFrom + cappedLength;
-            var charType     = typeof(char);
-            base.CollectionStart(charType, sb, cappedLength > 0);
+            
+            var                 formattedLength = cappedLength + 256;
+            Span<char>          sourceInSpan  =  stackalloc char[Math.Min(4096,  formattedLength)];
+            RecyclingCharArray? largeBuffer   = null;
+            if (formattedLength < 4096)
+            {
+                cappedLength = ICustomStringFormatter.DefaultBufferFormatter.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
+            }
+            else
+            {
+                largeBuffer  = (formattedLength).SourceRecyclingCharArray();
+                sourceInSpan = largeBuffer.RemainingAsSpan();
+                cappedLength = ICustomStringFormatter.DefaultBufferFormatter.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
+            }
+
+            var charType = typeof(char);
+            CollectionStart(charType, sb, cappedLength > 0);
 
             var lastAdded    = 0;
             var previousChar = '\0';
-            for (int i = cappedFrom; i < cappedEnd; i++)
+            for (int i = 0; i < cappedLength; i++)
             {
-                if (i > 0) AddCollectionElementSeparator(charType, sb, i);
+                if (i > 0  && lastAdded > 0) AddCollectionElementSeparator(charType, sb, i);
 
-                var nextChar = source[cappedFrom + i];
+                var nextChar = sourceInSpan[i];
                 lastAdded = lastAdded == 0 && i > 0
-                    ? CollectionNextItem(new Rune(previousChar, nextChar), i, sb)
-                    : CollectionNextItem(nextChar, i, sb);
+                    ? CollectionNextItemFormat(new Rune(previousChar, nextChar), i, sb, "")
+                    : CollectionNextItemFormat(nextChar, i, sb, "");
                 previousChar = lastAdded == 0 ? nextChar : '\0'; 
             }
-            sb.RemoveLastWhiteSpacedCommaIfFound();
-            base.CollectionEnd(charType, sb, cappedLength);
+            largeBuffer?.DecrementRefCount();
+            CollectionEnd(charType, sb, cappedLength);
         }
         return sb;
     }
@@ -242,22 +255,37 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             var cappedFrom   = Math.Clamp(sourceFrom, 0, sb.Length);
             var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
+            
+            var                 formattedLength = cappedLength + 256;
+            Span<char>          sourceInSpan    =  stackalloc char[Math.Min(4096,  formattedLength)];
+            RecyclingCharArray? largeBuffer     = null;
+            if (formattedLength < 4096)
+            {
+                cappedLength = ICustomStringFormatter.DefaultBufferFormatter.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
+            }
+            else
+            {
+                largeBuffer  = (formattedLength).SourceRecyclingCharArray();
+                sourceInSpan = largeBuffer.RemainingAsSpan();
+                cappedLength = ICustomStringFormatter.DefaultBufferFormatter.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
+            }
 
             var charType = typeof(char);
             CollectionStart(charType, sb, cappedLength > 0);
 
             var lastAdded    = 0;
             var previousChar = '\0';
-            for (int i = cappedFrom; i < cappedLength; i++)
+            for (int i = 0; i < cappedLength; i++)
             {
                 if (i > 0  && lastAdded > 0) AddCollectionElementSeparator(charType, sb, i);
 
-                var nextChar = source[cappedFrom + i];
+                var nextChar = sourceInSpan[i];
                 lastAdded = lastAdded == 0 && i > 0
-                    ? CollectionNextItemFormat(new Rune(previousChar, nextChar), i, sb, formatString ?? "")
-                    : CollectionNextItemFormat(nextChar, i, sb, formatString ?? "");
+                    ? CollectionNextItemFormat(new Rune(previousChar, nextChar), i, sb, "")
+                    : CollectionNextItemFormat(nextChar, i, sb, "");
                 previousChar = lastAdded == 0 ? nextChar : '\0'; 
             }
+            largeBuffer?.DecrementRefCount();
             CollectionEnd(charType, sb, cappedLength);
         }
         return sb;
@@ -454,7 +482,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             return sb.Append(StyleOptions.NullStyle);
         }
-        Format(item, 0, sb, formatString ?? "");
+        FormatFieldContents(sb, item, 0, formatString ?? "");
         return sb;
     }
 

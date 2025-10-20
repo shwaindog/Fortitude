@@ -37,10 +37,26 @@ public class ScaffoldingValidateClassTests
       , KeyedCollectionScaffoldNameKeyValueStripOut
       , KeyedCollectionScaffoldNameStringBearerStripOut
     ];
+    
 
-    private readonly string[] complexFieldAllowedNonDefaultExemptions       = ["NullableBool"];
-    private readonly string[] complexFieldAllowedNonNullExemptions          = ["Bool"];
-    private readonly string[] complexFieldAllowedNonNullOrDefaultExemptions = ["Bool"];
+    private readonly string[] complexFieldAllowedNonDefaultExemptions       = [
+        "NullableBool"
+      , "NullableSpanFormattableAlwaysAddStructStringBearer"
+      , "SpanFormattableAlwaysAddStructStringBearer"
+      , "StringAlwaysAddStructStringBearer"
+    ];
+    private readonly string[] complexFieldAllowedNonNullExemptions          = [
+        "Bool"
+      , "NullableSpanFormattableAlwaysAddStructStringBearer"
+      , "SpanFormattableAlwaysAddStructStringBearer"
+      , "StringAlwaysAddStructStringBearer"
+    ];
+    private readonly string[] complexFieldAllowedNonNullOrDefaultExemptions = [
+        "Bool"
+      , "NullableSpanFormattableAlwaysAddStructStringBearer"
+      , "SpanFormattableAlwaysAddStructStringBearer"
+      , "StringAlwaysAddStructStringBearer"
+    ];
 
     private const string BulletList = "    * ";
 

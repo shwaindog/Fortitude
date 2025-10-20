@@ -5,9 +5,10 @@ using System.Collections;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
+using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
@@ -31,9 +32,55 @@ public interface IFormatExpectation
 
     bool HasIndexRangeLimiting { get; }
 
-    string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition);
+    string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null);
 
     IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry);
+}
+
+// Expect Key shortened to reduce obscuring declarative expect definition
+public class EK : IEquatable<EK>
+{
+    private readonly ScaffoldingStringBuilderInvokeFlags matchScaff;
+    private readonly StringStyle                         matchStyle;
+    
+    public EK(ScaffoldingStringBuilderInvokeFlags matchScaff
+      , StringStyle matchStyle = StringStyle.Compact | StringStyle.Json | StringStyle.Log | StringStyle.Pretty)
+    {
+        this.matchScaff = matchScaff;
+        this.matchStyle      = matchStyle;
+    }
+    
+    public ScaffoldingStringBuilderInvokeFlags MatchScaff
+    {
+        get => matchScaff;
+        init => matchScaff = value;
+    }
+    
+    public StringStyle MatchStyle
+    {
+        get => matchStyle;
+        init => matchStyle = value;
+    }
+
+    public bool IsMatchingScenario(ScaffoldingStringBuilderInvokeFlags condition, StringStyle style)
+    {
+        var styleIsMatched                 = (style & MatchStyle) == style;
+        var meetsWriteCondition            = (MatchScaff & OutputConditionMask & condition) > 0;
+        var hasMatchingInputType           = (MatchScaff & AcceptsAnyGeneric & condition).HasAnyOf(MatchScaff & AcceptsAnyGeneric);
+        var conditionIsSubSpanOnlyCallType = (condition & SubSpanCallMask) > 0;
+        var meetsInputTypeCondition        = (hasMatchingInputType && !conditionIsSubSpanOnlyCallType);
+        var isSameSubSpanCalType =
+            ((condition & SubSpanCallMask) & (MatchScaff & SubSpanCallMask)) == (condition & SubSpanCallMask);
+        var checkIsSubSpanOnlyCallType = (MatchScaff & SubSpanCallMask) > 0;
+        var meetSubSpanCallType        = (conditionIsSubSpanOnlyCallType && checkIsSubSpanOnlyCallType && isSameSubSpanCalType);
+        return styleIsMatched && meetsWriteCondition && (meetsInputTypeCondition || (meetSubSpanCallType));
+    }
+
+    public bool Equals(EK? other) => matchScaff == other?.matchScaff && matchStyle == other.matchStyle;
+
+    public override bool Equals(object? obj) => obj is EK other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(matchScaff, (int)matchStyle);
 }
 
 public interface IComplexFieldFormatExpectation : IFormatExpectation
@@ -47,13 +94,13 @@ public interface ITypedFormatExpectation<out T> : IFormatExpectation
 
     void ClearExpectations();
 
-    void Add(ScaffoldingStringBuilderInvokeFlags key, string value);
-    void Add(KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string> newExpectedResult);
+    void Add(EK key, string value);
+    void Add(KeyValuePair<EK, string> newExpectedResult);
 }
 
-public abstract class FieldExpectBase<T> : ITypedFormatExpectation<T>, IEnumerable<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>>
+public abstract class FieldExpectBase<T> : ITypedFormatExpectation<T>, IEnumerable<KeyValuePair<EK, string>>
 {
-    protected readonly List<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> ExpectedResults = new();
+    protected readonly List<KeyValuePair<EK, string>> ExpectedResults = new();
 
     protected FieldExpectBase(T? input, string? formatString = null, bool hasDefault = false, T? defaultValue = default)
     {
@@ -116,62 +163,38 @@ public abstract class FieldExpectBase<T> : ITypedFormatExpectation<T>, IEnumerab
           , _               => ""
         };
 
-    public virtual string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
+    public virtual string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null)
     {
         for (var i = 0; i < ExpectedResults.Count; i++)
         {
             var existing = ExpectedResults[i];
-            if (!IsMatchingScenario(existing.Key, condition)) continue;
-            return existing.Value;
+            if (!existing.Key.IsMatchingScenario(condition, stringStyle.Style)) continue;
+            var  rawInternal = existing.Value;
+            return rawInternal;
         }
         return IFormatExpectation.NoResultExpectedValue;
     }
 
-    protected bool IsMatchingScenario(ScaffoldingStringBuilderInvokeFlags check, ScaffoldingStringBuilderInvokeFlags condition)
-    {
-        var meetsWriteCondition            = (check & OutputConditionMask & condition) > 0;
-        var hasMatchingInputType           = (check & AcceptsAnyGeneric & condition).HasAnyOf(check & AcceptsAnyGeneric);
-        var conditionIsSubSpanOnlyCallType = (condition & SubSpanCallMask) > 0;
-        var meetsInputTypeCondition        = (hasMatchingInputType && !conditionIsSubSpanOnlyCallType);
-        var isSameSubSpanCalType =
-            ((condition & SubSpanCallMask) & (check & SubSpanCallMask)) == (condition & SubSpanCallMask);
-        var checkIsSubSpanOnlyCallType = (check & SubSpanCallMask) > 0;
-        var meetSubSpanCallType        = (conditionIsSubSpanOnlyCallType && checkIsSubSpanOnlyCallType && isSameSubSpanCalType);
-        return meetsWriteCondition && (meetsInputTypeCondition || (meetSubSpanCallType));
-    }
-
-    public void Add(ScaffoldingStringBuilderInvokeFlags key, string value)
+    public void Add(EK key, string value)
     {
         for (var i = 0; i < ExpectedResults.Count; i++)
         {
             var existing    = ExpectedResults[i];
-            var existingKey = existing.Key;
-            if (!IsMatchingScenario(existing.Key, key)) continue;
-            existingKey &= ~key;
+            var existingKey = existing.Key.MatchScaff;
+            if (!existing.Key.IsMatchingScenario(key.MatchScaff, key.MatchStyle)) continue;
+            existingKey &= ~(key.MatchScaff);
             if (existingKey == None)
                 ExpectedResults.RemoveAt(i);
             else
-                ExpectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
+                ExpectedResults[i] = new KeyValuePair< EK, string>(new EK(existingKey, key.MatchStyle), existing.Value);
             break;
         }
-        ExpectedResults.Add(new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(key, value));
+        ExpectedResults.Add(new KeyValuePair<EK, string>(key, value));
     }
 
-    public void Add(KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string> newExpectedResult)
+    public void Add(KeyValuePair<EK, string> newExpectedResult)
     {
-        for (var i = 0; i < ExpectedResults.Count; i++)
-        {
-            var existing    = ExpectedResults[i];
-            var existingKey = existing.Key;
-            if (!IsMatchingScenario(existing.Key, newExpectedResult.Key)) continue;
-            existingKey &= ~newExpectedResult.Key;
-            if (existingKey == None)
-                ExpectedResults.RemoveAt(i);
-            else
-                ExpectedResults[i] = new KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>(existingKey, existing.Value);
-            break;
-        }
-        ExpectedResults.Add(newExpectedResult);
+        Add(newExpectedResult.Key, newExpectedResult.Value);
     }
 
     public void ClearExpectations()
@@ -181,7 +204,7 @@ public abstract class FieldExpectBase<T> : ITypedFormatExpectation<T>, IEnumerab
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<KeyValuePair<ScaffoldingStringBuilderInvokeFlags, string>> GetEnumerator() => ExpectedResults.GetEnumerator();
+    public IEnumerator<KeyValuePair<EK, string>> GetEnumerator() => ExpectedResults.GetEnumerator();
 
     public abstract IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry);
     public abstract IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry);
@@ -309,26 +332,26 @@ public delegate ITypedFormatExpectation<T?> CreateFieldExpectation<T>(T? input, 
 public delegate string BuildExpectedOutput(string className, string propertyName, ScaffoldingStringBuilderInvokeFlags condition
   , IFormatExpectation expectation);
 
-public class CloakedBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpectation
+public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpect<TChildScaffoldType>, IComplexFieldFormatExpectation
+    where TChildScaffold : ISinglePropertyTestStringBearer, IUnknownPalantirRevealerFactory
 {
-    private readonly Type scaffoldType;
-
     private ScaffoldingPartEntry? calledScaffoldingPart;
 
-    public CloakedBearerExpect(T? input, Type scaffoldType, string? formatString = null
-      , bool hasDefault = false, T? defaultValue = default) : base(input, formatString, hasDefault, defaultValue)
+    public CloakedBearerExpect(TChildScaffoldType? input, string? formatString = null
+      , bool hasDefault = false, TChildScaffoldType? defaultValue = default) : base(input, formatString, hasDefault, defaultValue)
     {
-        this.scaffoldType     = scaffoldType;
-        FieldValueExpectation = new FieldExpect<T>(Input, FormatString, HasDefault, DefaultValue);
+        FieldValueExpectation = new FieldExpect<TChildScaffoldType>(Input, FormatString, HasDefault, DefaultValue);
     }
 
-    public ITypedFormatExpectation<T> FieldValueExpectation { get; }
+    public ITypedFormatExpectation<TChildScaffoldType> FieldValueExpectation { get; }
 
-    public virtual bool IsNullable => InputType.IsNullable();
+    public override bool IsNullable => InputType.IsNullable();
+
+    public TChildScaffold RevealerScaffold { get; set; } = default!;
 
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
-    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
+    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null)
     {
         FieldValueExpectation.ClearExpectations();
         foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
@@ -336,18 +359,14 @@ public class CloakedBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpecta
         {
             condition |= AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder;
         }
-        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition);
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, stringStyle, formatString);
         if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
         {
-            var calledBearer = (ISinglePropertyTestStringBearer)FieldValueExpectation
-                .CreateStringBearerWithValueFor(calledScaffoldingPart!);
             expectValue = WhenValueExpectedOutput
-                (Input.GetType().ShortNameInCSharpFormat(), $"CloakedRevealer{calledBearer.PropertyName}", condition, FieldValueExpectation);
+                (Input.GetType().ShortNameInCSharpFormat(), $"CloakedRevealer{RevealerScaffold.PropertyName}", condition, FieldValueExpectation);
         }
         return expectValue;
     }
-
-    private static readonly PalantírReveal<T> NoOp = (_, _) => new StateExtractStringRange();
 
     public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
@@ -358,17 +377,26 @@ public class CloakedBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpecta
 
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry)
     {
-        var createdStringBearer = base.CreateStringBearerWithValueFor(scaffoldEntry);
+        calledScaffoldingPart = new ScaffoldingPartEntry(typeof(TChildScaffold), scaffoldEntry.ScaffoldingFlags);
+        RevealerScaffold      = calledScaffoldingPart.CreateTypedStringBearerFunc<TChildScaffold>()();
+        var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
+        if (InputType == typeof(string) && createdStringBearer is ISupportsSettingValueFromString supportsSettingValueFromString)
+            supportsSettingValueFromString.StringValue = (string?)(object?)Input;
+        else if (createdStringBearer is IMoldSupportedValue<object?> isObjectMold)
+            isObjectMold.Value = Input;
+        else
+            ((IMoldSupportedValue<TChildScaffoldType?>)createdStringBearer).Value = Input;
+        if (FormatString != null && RevealerScaffold is ISupportsValueFormatString supportsValueFormatString)
+            supportsValueFormatString.ValueFormatString = FormatString;
+        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<object?> supportsObjectDefaultValue)
+            supportsObjectDefaultValue.DefaultValue = DefaultValue;
+        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<TChildScaffoldType> supportsDefaultValue)
+            supportsDefaultValue.DefaultValue = DefaultValue ?? default(TChildScaffoldType)!;
+        if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
+            supportsStringDefaultValue.DefaultValue = new MutableString().Append(DefaultValue).ToString();
         if (createdStringBearer is ISupportsUnknownValueRevealer supportsValueRevealer)
         {
-            calledScaffoldingPart = new ScaffoldingPartEntry(scaffoldType, scaffoldEntry.ScaffoldingFlags);
-
-            var calledBearer = FieldValueExpectation.CreateStringBearerWithValueFor(calledScaffoldingPart);
-
-            supportsValueRevealer.ValueRevealerDelegate =
-                calledBearer is IUnknownPalantirRevealerFactory unknownPalantirRevealerFactory
-                    ? unknownPalantirRevealerFactory.CreateRevealerDelegate
-                    : NoOp;
+            supportsValueRevealer.ValueRevealerDelegate = RevealerScaffold.CreateRevealerDelegate;
         }
         return createdStringBearer;
     }
@@ -377,10 +405,6 @@ public class CloakedBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpecta
 public class StringBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpectation
     where T : IStringBearer
 {
-    private readonly Type scaffoldType;
-
-    private ScaffoldingPartEntry? calledScaffoldingPart;
-
     public StringBearerExpect(T? input, string? formatString = null
       , bool hasDefault = false, T? defaultValue = default) : base(input, formatString, hasDefault, defaultValue)
     {
@@ -390,16 +414,16 @@ public class StringBearerExpect<T> : FieldExpect<T>, IComplexFieldFormatExpectat
 
     public ITypedFormatExpectation<T> FieldValueExpectation { get; }
 
-    public virtual bool IsNullable => InputType.IsNullable();
+    public override bool IsNullable => InputType.IsNullable();
 
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
-    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition)
+    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null)
     {
         FieldValueExpectation.ClearExpectations();
         foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
         condition |= AcceptsSpanFormattable | AcceptsChars | AcceptsString;
-        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition);
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, stringStyle, formatString);
         if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
         {
             expectValue = WhenValueExpectedOutput
