@@ -207,18 +207,18 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             var cappedFrom   = Math.Clamp(sourceFrom, 0, sb.Length);
             var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
             
-            var                 formattedLength = cappedLength * 3 + 256;
+            var                 formattedLength = cappedLength + 256;
             Span<char>          sourceInSpan  =  stackalloc char[Math.Min(4096,  formattedLength)];
             RecyclingCharArray? largeBuffer   = null;
             if (formattedLength < 4096)
             {
-                cappedLength = base.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
+                cappedLength = ICustomStringFormatter.DefaultBufferFormatter.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
             }
             else
             {
                 largeBuffer  = (formattedLength).SourceRecyclingCharArray();
                 sourceInSpan = largeBuffer.RemainingAsSpan();
-                cappedLength = base.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
+                cappedLength = ICustomStringFormatter.DefaultBufferFormatter.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
             }
 
             var charType = typeof(char);
@@ -256,18 +256,18 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             var cappedFrom   = Math.Clamp(sourceFrom, 0, sb.Length);
             var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
             
-            var                 formattedLength = cappedLength * 3 + 256;
+            var                 formattedLength = cappedLength + 256;
             Span<char>          sourceInSpan    =  stackalloc char[Math.Min(4096,  formattedLength)];
             RecyclingCharArray? largeBuffer     = null;
             if (formattedLength < 4096)
             {
-                cappedLength = base.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
+                cappedLength = ICustomStringFormatter.DefaultBufferFormatter.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
             }
             else
             {
                 largeBuffer  = (formattedLength).SourceRecyclingCharArray();
                 sourceInSpan = largeBuffer.RemainingAsSpan();
-                cappedLength = base.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
+                cappedLength = ICustomStringFormatter.DefaultBufferFormatter.Format(source, cappedFrom, sourceInSpan, formatString, 0, cappedLength);
             }
 
             var charType = typeof(char);
@@ -482,7 +482,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             return sb.Append(StyleOptions.NullStyle);
         }
-        Format(item, 0, sb, formatString ?? "");
+        FormatFieldContents(sb, item, 0, formatString ?? "");
         return sb;
     }
 

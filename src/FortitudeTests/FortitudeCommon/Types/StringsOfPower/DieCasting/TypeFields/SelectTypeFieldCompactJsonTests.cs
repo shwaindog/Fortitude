@@ -76,7 +76,7 @@ public partial class SelectTypeFieldTests
     public void CompactJsonStringBuilder(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactLog(formatExpectation, scaffoldingToCall);
+        SharedCompactJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
