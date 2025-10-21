@@ -526,14 +526,7 @@ public static class CloakedBearerTestData
             ("It began with the forging of the Great Strings.", "[{0}]")
             {
                 {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                           , Log  | Compact | Pretty)
-                  , "[It began with the forging of the Great Strings.]"
-                }
-                ,
-                {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                           , Json  | Compact | Pretty)
+                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
                   , "\"[It began with the forging of the Great Strings.]\""
                 }
             }
@@ -542,14 +535,7 @@ public static class CloakedBearerTestData
             ("It began with the forging of the Great Strings.", "[{0}]")
             {
                 {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log  | Compact | Pretty)
-                  , "[It began with the forging of the Great Strings.]"
-                }
-               ,
-                {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json  | Compact | Pretty)
+                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
                   , "\"[It began with the forging of the Great Strings.]\""
                 }
             }
