@@ -27,7 +27,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
     public virtual IStringBuilder AppendValueTypeOpening(IStringBuilder sb, Type valueType, string? alternativeName = null) => sb;
 
-    public virtual IStringBuilder AppendValueTypeClosing(IStringBuilder sb, Type valueType) => sb.RemoveLastWhiteSpacedCommaIfFound();
+    public virtual IStringBuilder AppendValueTypeClosing(IStringBuilder sb, Type valueType) => 
+        sb.RemoveLastWhiteSpacedCommaIfFound().ToStringBuilder(sb);
 
     public virtual IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complexType, string? alternativeName = null)  =>
         sb.Append(BrcOpn);
@@ -39,7 +40,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) => 
         sb.InsertAt(Cma, atIndex).ReturnCharCount(1);
 
-    public virtual IStringBuilder AppendTypeClosing(IStringBuilder sb) => sb.RemoveLastWhiteSpacedCommaIfFound().Append(BrcCls);
+    public virtual IStringBuilder AppendTypeClosing(IStringBuilder sb) => 
+        sb.RemoveLastWhiteSpacedCommaIfFound().ToStringBuilder(sb).Append(BrcCls);
 
     public virtual IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName) =>
         sb.Append(DblQt).Append(fieldName).Append(DblQt);

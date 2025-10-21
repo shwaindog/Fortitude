@@ -130,13 +130,13 @@ public static class StyleTypeFormattingExtensions
     public static IStringBuilder FieldEnd(this IStringBuilder sb, IStyledTypeFormatting stf) => stf.AppendFieldValueSeparator(sb);
 
 
-    public static IStringBuilder RemoveLastWhiteSpacedCommaIfFound(this IStringBuilder sb)
+    public static char RemoveLastWhiteSpacedCommaIfFound(this IStringBuilder sb)
     {
-        if (sb.Length < 2) return sb;
+        if (sb.Length < 2) return sb.Length > 0 ? sb[0] : '\0';
         if (sb[^1] == ',')
         {
             sb.Length -= 1;
-            return sb;
+            return sb[^1];
         }
         if (sb[^2] == ',' && sb[^1] == ' ') sb.Length -= 2;
         var i                                         = sb.Length - 1;
@@ -144,10 +144,10 @@ public static class StyleTypeFormattingExtensions
             if (sb[i] == ',')
             {
                 sb.Length = i;
-                return sb;
+                return sb[^1];
             }
         sb.Length = i + 1;
-        return sb;
+        return sb[^1];
     }
 
     public static int RemoveLastWhiteSpacedCommaIfFound(this Span<char> destSpan, int destStartIndex)

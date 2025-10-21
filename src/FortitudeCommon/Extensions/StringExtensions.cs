@@ -203,5 +203,32 @@ public static class StringExtensions
     {
         return input.Replace("\n", "").Replace("\r", "");
     }
+    
+    public static string Dos2Unix(this string input)
+    {
+        return input.Replace("\r\n", "\n");
+    }
+    
+    public static string IndentAll(this string input, string indentChars = "  ")
+    {
+        return indentChars + input.IndentSubsequentLines();
+    }
+    
+    public static string IndentAll(this string input, int indentMultiple, char indentChar = ' ')
+    {
+        var sb = new StringBuilder().Append(indentChar, indentMultiple);
+        sb.Append(input.IndentSubsequentLines(sb.ToString()));
+        return sb.ToString();
+    }
+    
+    public static string IndentSubsequentLines(this string input, string indentChars = "  ")
+    {
+        return input.Replace("\n", "\n" + indentChars);
+    }
+    
+    public static string IndentSubsequentLines(this string input, int indentMultiple, char indentChar = ' ')
+    {
+        return input.IndentSubsequentLines(new StringBuilder().Append(indentChar, indentMultiple).ToString());
+    }
 
 }

@@ -17,98 +17,98 @@ public partial class SelectTypeFieldTests
 {
     [TestMethod]
     [DynamicData(nameof(NonNullableBooleanExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonNonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(NullableBooleanExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(NonNullableSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNonNullFmt(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonNonNullFmt(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(NullableStructSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNullFmtStruct(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonNullFmtStruct(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(StringExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(CharArrayExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonCharArray(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonCharArray(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(CharSequenceExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonCharSequence(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonCharSequence(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(StringBuilderExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonStringBuilder(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonStringBuilder(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(NonNullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonNonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(NullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     [TestMethod]
     [DynamicData(nameof(NonNullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void PrettyJsonNonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
     // [TestMethod]
-    public void CompactJsonSingleTest()
+    public void PrettyJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson
-            ( new FieldExpect<MutableString>
+        SharedPrettyJson
+            (new FieldExpect<MutableString>
                  (new MutableString
                       ("And nine, nine strings were gifted to the race of C++ coders, " +
                        "who above all else desired unchecked memory access power. "), "***\"{0[1..^1]}\"***"
@@ -122,7 +122,7 @@ public partial class SelectTypeFieldTests
                     ,
                      {
                          new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                                NonNullAndPopulatedWrites, Json | Compact | Pretty)
+                                NonNullAndPopulatedWrites, Json | Pretty | Pretty)
                        , """
                          ["*","*","*","\u0022","n","i","n","e"," ","s","t","r","i","n","g","s"," ","w","e","r","e"," ","g","i","f","t","e","d",
                          " ","t","o"," ","t","h","e"," ","r","a","c","e"," ","o","f","\u0022","*","*","*"]
@@ -133,7 +133,7 @@ public partial class SelectTypeFieldTests
                 , ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges));
     }
 
-    private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    private void SharedPrettyJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         logger.InfoAppend("Complex Type Single Value Field  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
@@ -142,37 +142,61 @@ public partial class SelectTypeFieldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
-
-
-        var tos          = new TheOneString().Initialize(Compact | Json);
         
+        var tos = new TheOneString().Initialize(Pretty | Json);
+        tos.Settings.NewLineStyle = "\n";
+
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactJsonTemplate = "{{{0}}}";
+            const string compactJsonTemplate = "{{{0}{1}{2}{0}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var maybeNewLine = "";
+            var maybeIndent = "";
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
-                expectValue = "\"" + propertyName + "\":" + expectValue;
+                maybeNewLine = "\n";
+                maybeIndent = "  ";
+                expectValue  = "\"" + propertyName + "\": " + expectValue;
             }
+
             else { expectValue = ""; }
-            return string.Format(compactJsonTemplate, expectValue);
+
+            return string.Format(compactJsonTemplate, maybeNewLine, maybeIndent, expectValue);
+        }
+
+        string BuildChildExpectedOutput(string className, string propertyName
+          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
+        {
+            const string compactJsonTemplate = "{{{0}{1}{1}{2}{0}{1}}}";
+
+            var maybeNewLine = "";
+            var maybeIndent = "";
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            {
+                maybeNewLine = "\n";
+                maybeIndent = "  ";
+                expectValue  = "\"" + propertyName + "\": " + expectValue.IndentSubsequentLines();
+            }
+
+            else { expectValue = ""; }
+
+            return string.Format(compactJsonTemplate, maybeNewLine, maybeIndent, expectValue);
         }
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
         {
-            complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedOutput;
+            complexFieldExpectation.WhenValueExpectedOutput = BuildChildExpectedOutput;
         }
         tos.Clear();
         var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall);
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
-            BuildExpectedOutput
-                (stringBearer.GetType().ShortNameInCSharpFormat()
+            BuildExpectedOutput(stringBearer.GetType().ShortNameInCSharpFormat()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
-               , scaffoldingToCall.ScaffoldingFlags
-               , formatExpectation);
+               , scaffoldingToCall.ScaffoldingFlags, formatExpectation);
         var result = tos.WriteBuffer.ToString();
         if (buildExpectedOutput != result)
         {

@@ -58,12 +58,14 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
     public override IStringBuilder AppendTypeClosing(IStringBuilder sb)
     {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
+        var lastNonWhiteSpace = sb.RemoveLastWhiteSpacedCommaIfFound();
         StyleOptions.IndentLevel--;
-        return sb.Append(StyleOptions.NewLineStyle)
+        return lastNonWhiteSpace != BrcOpnChar 
+            ? sb.Append(StyleOptions.NewLineStyle)
                  .Append(StyleOptions.IndentChar
                        , StyleOptions.IndentRepeat(StyleOptions.IndentLevel))
-                 .Append(BrcCls);
+                 .Append(BrcCls)
+            : sb.Append(BrcCls);
     }
 
 
