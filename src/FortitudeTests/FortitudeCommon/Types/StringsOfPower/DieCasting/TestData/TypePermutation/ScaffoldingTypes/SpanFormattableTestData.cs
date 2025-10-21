@@ -1607,13 +1607,13 @@ public static class SpanFormattableTestData
         {
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Log)
+                     , Log | Compact | Pretty)
               , "\"<3.141592653589793; 2.718281828459045>\""
             }
            ,
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Log)
+                     , Json | Compact | Pretty)
               , """
                 "\u003c3.141592653589793; 2.718281828459045\u003e"
                 """
@@ -1637,13 +1637,13 @@ public static class SpanFormattableTestData
         {
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Log)
+                     , Log | Compact | Pretty)
               , "2000-01-01T01:01:01.1111111"
             }
            ,
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Log)
+                     , Json | Compact | Pretty)
               , "\"2000-01-01T01:01:01.1111111\""
             }
         }

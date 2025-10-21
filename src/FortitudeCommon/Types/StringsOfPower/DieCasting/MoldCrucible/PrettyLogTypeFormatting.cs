@@ -63,12 +63,14 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
     public override IStringBuilder AppendTypeClosing(IStringBuilder sb)
     {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
+        var lastNonWhiteSpace = sb.RemoveLastWhiteSpacedCommaIfFound();
         StyleOptions.IndentLevel--;
-        return sb.Append(StyleOptions.NewLineStyle)
-                 .Append(StyleOptions.IndentChar
-                       , StyleOptions.IndentRepeat(StyleOptions.IndentLevel))
-                 .Append(BrcCls);
+        return lastNonWhiteSpace != BrcOpnChar 
+            ? sb.Append(StyleOptions.NewLineStyle)
+                .Append(StyleOptions.IndentChar
+                      , StyleOptions.IndentRepeat(StyleOptions.IndentLevel))
+                .Append(BrcCls)
+            : sb.Append(BrcCls);
     }
 
 
