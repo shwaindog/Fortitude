@@ -18,10 +18,8 @@ public class StringLikeTestData
         // string
         new FieldExpect<string>("", "", true, "")
         {
-            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
-          , { new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites, Log | Compact | Pretty), "" }
-          , { new EK(AcceptsChars |  AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"\"" }
-          , { new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites, Json | Compact | Pretty), "\"\"" }
+            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites), "\"\"" }
+          , { new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites), "\"\"" }
         }
       , new FieldExpect<string>(null, "", true, "")
         {
@@ -40,35 +38,42 @@ public class StringLikeTestData
         }
       , new FieldExpect<string>("It", "[{0}]", false, "", 3, 2)
         {
-            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "[]" }
-          , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty)
+            {
+                new EK(AcceptsChars | AlwaysWrites | NonNullWrites)
               , """
                 "[]"
                 """
             }
-          , { new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites), "[]" },
+           ,
+            {
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites)
+              , """
+                "[]"
+                """
+            }
+           ,
         }
       , new FieldExpect<string>("began", "[{0[8..10]}]", false, "", 10, 5)
         {
-            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "[]" }
-          ,  { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty)
-               , """
-                 "[]"
-                 """ 
+            {
+                new EK(AcceptsChars | AlwaysWrites | NonNullWrites)
+              , """
+                "[]"
+                """
             }
-          , { new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites), "[]" },
+           ,
+            {
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites)
+              , """
+                "[]"
+                """
+            }
+           ,
         }
       , new FieldExpect<string>("with", "\"{0[8..10]}\"")
         {
             {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Pretty)
-              , "\"\""
-            }
-            ,
-            {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , """""
                 """"
                 """""
@@ -76,26 +81,17 @@ public class StringLikeTestData
         }
       , new FieldExpect<string>("the", "{0}", true, "", -1, -10)
         {
-            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
-          ,  { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"\"" }
-          , { new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites), "" },
+            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites), "\"\"" }
+          , { new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites), "\"\"" },
         }
       , new FieldExpect<string>("forging", "{0,10}", true, "orging", 1)
         {
-            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "    orging" }
-           , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"    orging\"" },
+            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites), "\"    orging\"" },
         }
       , new FieldExpect<string>("It began with the forging of the Great Strings.", "[{0}]")
         {
             {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Pretty)
-              , "[It began with the forging of the Great Strings.]"
-            }
-            ,
-            {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , "\"[It began with the forging of the Great Strings.]\""
             }
         }
@@ -103,14 +99,7 @@ public class StringLikeTestData
                               , "3{0[5..]}")
         {
             {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Pretty)
-              , "3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings."
-            }
-            ,
-            {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , "\"3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.\""
             }
         }
@@ -118,14 +107,7 @@ public class StringLikeTestData
                               , "'{0,30}'", fromIndex: -1, length: 24)
         {
             {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Pretty)
-              , "'      Seven to the Cobol-Lords'"
-            }
-            ,
-            {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , "\"'      Seven to the Cobol-Lords'\""
             }
         }
@@ -135,14 +117,7 @@ public class StringLikeTestData
                               , fromIndex: 9, length: 41)
             {
                 {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log | Compact | Pretty)
-                  , "***\"nine strings were gifted to the race of\"***"
-                }
-                ,
-                {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
+                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
                   , "\"***\"nine strings were gifted to the race of\"***\""
                 }
             }
@@ -152,9 +127,9 @@ public class StringLikeTestData
             {
                 new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
                      , Log | Compact | Pretty)
-              , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
+              , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
             }
-            ,
+           ,
             {
                 new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
                      , Json | Compact | Pretty)
@@ -167,14 +142,7 @@ public class StringLikeTestData
       , new FieldExpect<string>("But they were all of them deceived, for another string was made.", "{0,0/,//[1..]}")
         {
             {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Pretty)
-              , " for another string was made."
-            }
-            ,
-            {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , "\" for another string was made.\""
             }
         }
@@ -184,14 +152,7 @@ public class StringLikeTestData
              "languages with.", "{0,/,/!/[1..3]}", fromIndex: 16, length: 100)
             {
                 {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log | Compact | Pretty)
-                  , " after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String"
-                }
-                ,
-                {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
+                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
                   , "\" after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String\""
                 }
             }
@@ -200,14 +161,7 @@ public class StringLikeTestData
              "time confine them", "{0[^40..^0]}")
             {
                 {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log | Compact | Pretty)
-                  , "and in the dustbins of time confine them"
-                }
-                ,
-                {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
+                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
                   , "\"and in the dustbins of time confine them\""
                 }
             }
@@ -215,20 +169,14 @@ public class StringLikeTestData
         // char[]
       , new FieldExpect<char[]>("".ToCharArray(), "", true, [])
         {
-            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
-          , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites, Log | Compact | Pretty), "" }
+            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "[]" }
+          , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites, Log | Compact | Pretty), "\"\"" }
           , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "[]" }
-           ,
-            {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites, Json | Compact | Pretty)
-              , """
-                ""
-                """
-            }
+          , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites, Json | Compact | Pretty), "\"\"" }
         }
       , new FieldExpect<char[]>(null, "", true, [])
         {
-            { new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites), "null" }
+            { new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonEmptyWrites), "null" }
           , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites), "null" },
         }
       , new FieldExpect<char[]>(null, "", true, [], 10, 50)
@@ -243,7 +191,7 @@ public class StringLikeTestData
         }
       , new FieldExpect<char[]>("It".ToCharArray(), "\"{0}\"", false, [], 3, 2)
         {
-            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\"\"" }
+            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "[\"\"]" }
           , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites, Log | Compact | Pretty), "\"\"" }
            ,
             {
@@ -252,7 +200,7 @@ public class StringLikeTestData
             }
            ,
             {
-                new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json  | Pretty)
+                new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Pretty)
               , """
                 [
                     "\u0022",
@@ -270,11 +218,11 @@ public class StringLikeTestData
         }
       , new FieldExpect<char[]>("began".ToCharArray(), "'{0[8..10]}'", false, [], 10, 5)
         {
-            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "''" }
+            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "['']" }
            ,
             {
                 new EK(AcceptsChars | CallsAsSpan | AlwaysWrites, Log | Compact | Pretty)
-              , "''"
+              , "\"''\""
             }
            ,
             {
@@ -302,14 +250,13 @@ public class StringLikeTestData
       , new FieldExpect<char[]>("with".ToCharArray(), "\"{0[8..10]}\"")
         {
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites, Log | Compact | Pretty)
-              , "\"\""
+                new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
+                     , Log | Compact | Pretty), "[\"\"]"
             }
            ,
             {
                 new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact)
-              , """["\u0022","\u0022"]"""
+                     , Json | Compact), """["\u0022","\u0022"]"""
             }
            ,
             {
@@ -324,8 +271,7 @@ public class StringLikeTestData
             }
            ,
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , """""
                 """"
                 """""
@@ -333,14 +279,20 @@ public class StringLikeTestData
         }
       , new FieldExpect<char[]>("the".ToCharArray(), "{0}", true, [], -1, -10)
         {
-            { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
+            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "[]" }
+          , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\"\"" }
           , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "[]" }
           , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites, Json | Compact | Pretty), "\"\"" }
         }
       , new FieldExpect<char[]>("forging".ToCharArray(), "[{0,10}]"
                               , true, "orging".ToCharArray(), 1)
         {
-            { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "[    orging]" }
+            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "[[    orging]]" }
+           , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonNullWrites, Log | Compact | Pretty)
+              , """
+                "[    orging]"
+                """ 
+            }
            ,
             {
                 new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact)
@@ -377,11 +329,11 @@ public class StringLikeTestData
       , new FieldExpect<char[]>("It began with the forging of the Great Strings.".ToCharArray(), "[{0}]")
         {
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
+                new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
                      , Log | Compact | Pretty)
-              , "[It began with the forging of the Great Strings.]"
+              , "[[It began with the forging of the Great Strings.]]"
             }
-           ,
+            ,
             {
                 new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
                      , Json | Compact)
@@ -450,8 +402,7 @@ public class StringLikeTestData
             }
            ,
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , "\"[It began with the forging of the Great Strings.]\""
             }
         }
@@ -459,9 +410,9 @@ public class StringLikeTestData
                               , "3{0[5..]}")
         {
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
+                new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
                      , Log | Compact | Pretty)
-              , "3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings."
+              , "[3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.]"
             }
            ,
             {
@@ -575,8 +526,7 @@ public class StringLikeTestData
             }
            ,
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , "\"3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.\""
             }
         }
@@ -584,9 +534,9 @@ public class StringLikeTestData
                                     .ToCharArray(), "'{0,30}'", fromIndex: -1, length: 24)
         {
             {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
+                new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
                      , Log | Compact | Pretty)
-              , "'      Seven to the Cobol-Lords'"
+              , "['      Seven to the Cobol-Lords']"
             }
            ,
             {
@@ -637,8 +587,7 @@ public class StringLikeTestData
             }
            ,
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , "\"'    Seven to the Cobol-Lords'\""
             }
         }
@@ -649,9 +598,9 @@ public class StringLikeTestData
            , fromIndex: 9, length: 41)
             {
                 {
-                    new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                    new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "***\"nine strings were gifted to the race of\"***"
+                  , "[***\"nine strings were gifted to the race of\"***]"
                 }
                ,
                 {
@@ -721,7 +670,7 @@ public class StringLikeTestData
                ,
                 {
                     new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Compact | Pretty)
+                           NonNullAndPopulatedWrites)
                   , "***\"nine strings were gifted to the race of\"***"
                 }
                ,
@@ -731,9 +680,15 @@ public class StringLikeTestData
                  .ToCharArray(), "{0,0/ /\n/[1..^1]}")
             {
                 {
+                    new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                           NonNullAndPopulatedWrites, Log | Compact | Pretty)
+                  , "[within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach]"
+                }
+               ,
+                {
                     new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
+                  , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
                 }
                ,
                 {
@@ -860,11 +815,11 @@ public class StringLikeTestData
                               , "{0,0/,//[1..]}")
         {
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                        NonNullAndPopulatedWrites, Log | Compact | Pretty)
-              , " for another string was made."
+              , "[ for another string was made.]"
             }
-           ,
+            ,
             {
                 new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                        NonNullAndPopulatedWrites, Json | Compact)
@@ -911,7 +866,7 @@ public class StringLikeTestData
            ,
             {
                 new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                       NonNullAndPopulatedWrites, Json | Compact | Pretty)
+                       NonNullAndPopulatedWrites)
               , "\" for another string was made.\""
             }
         }
@@ -921,13 +876,13 @@ public class StringLikeTestData
               "languages with.").ToCharArray(), "{0,/,/!/[1..3]}", fromIndex: 16, length: 100)
             {
                 {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                    new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , " after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String"
+                  , "[ after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String]"
                 }
                ,
                 {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                    new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Json | Compact)
                   , """
                     [" ","a","f","t","e","r"," ","m","a","n","y"," ","M","o","o","n","s"," ","o","f"," ","p","l","a","y","i","n","g"," ",
@@ -937,7 +892,7 @@ public class StringLikeTestData
                 }
                ,
                 {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                    new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Json | Pretty)
                   , """
                     [
@@ -1027,15 +982,21 @@ public class StringLikeTestData
                       ]
                     """.Dos2Unix()
                 }
+               ,
+                {
+                    new EK(AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                           NonNullAndPopulatedWrites)
+                  , "\" after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String\""
+                }
             }
       , new FieldExpect<char[]>
             (("One string to use in all, one string to find text in, One string to replace them all and in the dustbins of " +
               "time confine them").ToCharArray(), "{0[^40..^0]}")
             {
                 {
-                    new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                    new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "and in the dustbins of time confine them"
+                  , "[and in the dustbins of time confine them]"
                 }
                ,
                 {
@@ -1098,7 +1059,7 @@ public class StringLikeTestData
                ,
                 {
                     new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Compact | Pretty)
+                           NonNullAndPopulatedWrites)
                   , "\"and in the dustbins of time confine them\""
                 }
             }
@@ -1106,7 +1067,7 @@ public class StringLikeTestData
         // ICharSequence
       , new FieldExpect<MutableString>(new MutableString(""), "", true, [])
         {
-            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
+            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\"\"" }
           , { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "[]" }
         }
       , new FieldExpect<CharArrayStringBuilder>(null, "", true, [])
@@ -1123,7 +1084,11 @@ public class StringLikeTestData
         }
       , new FieldExpect<MutableString>(new MutableString("It"), "\"{0}\"", false, [], 3, 2)
         {
-            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\"\"" }
+            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty)
+              , """""
+                """"
+                """""
+            }
            ,
             {
                 new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Json | Compact)
@@ -1131,7 +1096,7 @@ public class StringLikeTestData
             }
            ,
             {
-                new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Json  | Pretty)
+                new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Json | Pretty)
               , """
                 [
                     "\u0022",
@@ -1143,7 +1108,7 @@ public class StringLikeTestData
       , new FieldExpect<CharArrayStringBuilder>(new CharArrayStringBuilder("began"), "'{0[8..10]}'"
                                               , false, [], 10, 5)
         {
-            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "''" }
+            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\"''\"" }
            ,
             {
                 new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Json | Compact)
@@ -1164,7 +1129,10 @@ public class StringLikeTestData
         {
             {
                 new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Pretty) , "\"\""
+                     , Log | Compact | Pretty)
+              , """""
+                """"
+                """""
             }
            ,
             {
@@ -1186,12 +1154,12 @@ public class StringLikeTestData
         }
       , new FieldExpect<CharArrayStringBuilder>(new CharArrayStringBuilder("the"), "{0}", true, [], -1, -10)
         {
-            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
+            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\"\"" }
           , { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "[]" }
         }
       , new FieldExpect<MutableString>(new MutableString("forging"), "[{0,10}]", true, new MutableString("orging"), 1)
         {
-            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "[    orging]" }
+            { new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\"[    orging]\"" }
            ,
             {
                 new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Json | Compact)
@@ -1222,9 +1190,9 @@ public class StringLikeTestData
             (new CharArrayStringBuilder("It began with the forging of the Great Strings."), "[{0}]")
             {
                 {
-                    new EK(AcceptsChars |  AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "[It began with the forging of the Great Strings.]"
+                  , "\"[It began with the forging of the Great Strings.]\""
                 }
                ,
                 {
@@ -1301,7 +1269,7 @@ public class StringLikeTestData
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings."
+                  , "\"3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.\""
                 }
                ,
                 {
@@ -1313,106 +1281,106 @@ public class StringLikeTestData
                     ," ","a","n","d"," ","h","a","i","r","i","e","s","t"," ","o","f"," ","a","l","l"," ","b","e","i","n","g","s","."]
                     """.RemoveLineEndings()
                 }
-           ,
-            {
-                new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Pretty)
-              , """
-                [
-                    "3",
-                    " ",
-                    "w",
-                    "e",
-                    "r",
-                    "e",
-                    " ",
-                    "g",
-                    "i",
-                    "v",
-                    "e",
-                    "n",
-                    " ",
-                    "t",
-                    "o",
-                    " ",
-                    "t",
-                    "h",
-                    "e",
-                    " ",
-                    "A",
-                    "s",
-                    "s",
-                    "e",
-                    "m",
-                    "b",
-                    "l",
-                    "y",
-                    " ",
-                    "P",
-                    "r",
-                    "o",
-                    "g",
-                    "r",
-                    "a",
-                    "m",
-                    "m",
-                    "e",
-                    "r",
-                    "s",
-                    ",",
-                    " ",
-                    "i",
-                    "m",
-                    "p",
-                    "r",
-                    "a",
-                    "c",
-                    "t",
-                    "i",
-                    "c",
-                    "a",
-                    "l",
-                    ",",
-                    " ",
-                    "w",
-                    "a",
-                    "c",
-                    "k",
-                    "i",
-                    "e",
-                    "s",
-                    "t",
-                    " ",
-                    "a",
-                    "n",
-                    "d",
-                    " ",
-                    "h",
-                    "a",
-                    "i",
-                    "r",
-                    "i",
-                    "e",
-                    "s",
-                    "t",
-                    " ",
-                    "o",
-                    "f",
-                    " ",
-                    "a",
-                    "l",
-                    "l",
-                    " ",
-                    "b",
-                    "e",
-                    "i",
-                    "n",
-                    "g",
-                    "s",
-                    "."
-                  ]
-                """.Dos2Unix()
-            }
+               ,
+                {
+                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
+                         , Json | Pretty)
+                  , """
+                    [
+                        "3",
+                        " ",
+                        "w",
+                        "e",
+                        "r",
+                        "e",
+                        " ",
+                        "g",
+                        "i",
+                        "v",
+                        "e",
+                        "n",
+                        " ",
+                        "t",
+                        "o",
+                        " ",
+                        "t",
+                        "h",
+                        "e",
+                        " ",
+                        "A",
+                        "s",
+                        "s",
+                        "e",
+                        "m",
+                        "b",
+                        "l",
+                        "y",
+                        " ",
+                        "P",
+                        "r",
+                        "o",
+                        "g",
+                        "r",
+                        "a",
+                        "m",
+                        "m",
+                        "e",
+                        "r",
+                        "s",
+                        ",",
+                        " ",
+                        "i",
+                        "m",
+                        "p",
+                        "r",
+                        "a",
+                        "c",
+                        "t",
+                        "i",
+                        "c",
+                        "a",
+                        "l",
+                        ",",
+                        " ",
+                        "w",
+                        "a",
+                        "c",
+                        "k",
+                        "i",
+                        "e",
+                        "s",
+                        "t",
+                        " ",
+                        "a",
+                        "n",
+                        "d",
+                        " ",
+                        "h",
+                        "a",
+                        "i",
+                        "r",
+                        "i",
+                        "e",
+                        "s",
+                        "t",
+                        " ",
+                        "o",
+                        "f",
+                        " ",
+                        "a",
+                        "l",
+                        "l",
+                        " ",
+                        "b",
+                        "e",
+                        "i",
+                        "n",
+                        "g",
+                        "s",
+                        "."
+                      ]
+                    """.Dos2Unix()
+                }
             }
       , new FieldExpect<CharArrayStringBuilder>
             (new
@@ -1420,9 +1388,9 @@ public class StringLikeTestData
            , "'{0,30}'", fromIndex: -1, length: 24)
             {
                 {
-                    new EK(AcceptsChars | AcceptsCharSequence  | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "'      Seven to the Cobol-Lords'"
+                  , "\"'      Seven to the Cobol-Lords'\""
                 }
                ,
                 {
@@ -1481,7 +1449,7 @@ public class StringLikeTestData
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "***\"nine strings were gifted to the race of\"***"
+                  , "\"***\"nine strings were gifted to the race of\"***\""
                 }
                ,
                 {
@@ -1557,7 +1525,7 @@ public class StringLikeTestData
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
+                  , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
                 }
                ,
                 {
@@ -1677,7 +1645,7 @@ public class StringLikeTestData
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , " for another string was made."
+                  , "\" for another string was made.\""
                 }
                ,
                 {
@@ -1733,7 +1701,7 @@ public class StringLikeTestData
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , " after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String"
+                  , "\" after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String\""
                 }
                ,
                 {
@@ -1846,7 +1814,7 @@ public class StringLikeTestData
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "and in the dustbins of time confine them"
+                  , "\"and in the dustbins of time confine them\""
                 }
                ,
                 {
@@ -1911,8 +1879,7 @@ public class StringLikeTestData
         // StringBuilder
       , new FieldExpect<StringBuilder>(new StringBuilder(""), "", true, new StringBuilder())
         {
-            { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
-            , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"\"" }
+            { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites), "\"\"" }
         }
       , new FieldExpect<StringBuilder>(null, "", true, new StringBuilder())
         {
@@ -1928,55 +1895,42 @@ public class StringLikeTestData
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("It"), "\"{0}\"", false, new StringBuilder(), 3, 2)
         {
-            { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\"\"" }
-          , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty)
+            {
+                new EK(AcceptsChars | AlwaysWrites | NonNullWrites)
               , """""
                 """"
-                """"" 
+                """""
             }
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("began"), "'{0[8..10]}'", false, new StringBuilder(), 10, 5)
         {
-            { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "''" }
-            , { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"''\"" }
+          { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites), "\"''\"" }
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("with"), "\"{0[8..10]}\"")
         {
             {
-                new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                       , Log | Compact | Pretty)
-              , "\"\""
-            }
-          , { new EK(AcceptsChars | AcceptsStringBuilder |  AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                   , Json | Compact | Pretty)
+                new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , """""
                 """"
-                """"" 
+                """""
             }
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("the"), "{0}", true, new StringBuilder(), -1, -10)
         {
-            { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
-            , { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"\"" }
+          { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites), "\"\"" }
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("forging"), "[{0,10}]", true, new StringBuilder("orging"), 1)
         {
-            { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites, Log | Compact | Pretty)
-              , "[    orging]" }
-           , { new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites, Json | Compact | Pretty)
-               , "\"[    orging]\"" },
+            {
+                new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonNullWrites)
+              , "\"[    orging]\""
+            }
+           ,
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("It began with the forging of the Great Strings."), "[{0}]")
         {
             {
-                new EK(AcceptsChars | AcceptsStringBuilder  | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Pretty)
-              , "[It began with the forging of the Great Strings.]"
-            }
-            ,
-            {
-                new EK(AcceptsChars | AcceptsStringBuilder  | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact | Pretty)
+                new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , "\"[It began with the forging of the Great Strings.]\""
             }
         }
@@ -1986,14 +1940,8 @@ public class StringLikeTestData
            , "3{0[5..]}")
             {
                 {
-                    new EK(AcceptsChars |  AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings."
-                }
-                ,
-                {
-                    new EK(AcceptsChars |  AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Compact | Pretty)
+                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                           NonNullAndPopulatedWrites)
                   , "\"3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.\""
                 }
             }
@@ -2004,13 +1952,7 @@ public class StringLikeTestData
             {
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "'      Seven to the Cobol-Lords'"
-                }
-                ,
-                {
-                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Compact | Pretty)
+                           NonNullAndPopulatedWrites)
                   , "\"'      Seven to the Cobol-Lords'\""
                 }
             }
@@ -2023,13 +1965,7 @@ public class StringLikeTestData
             {
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "***\"nine strings were gifted to the race of\"***"
-                }
-                ,
-                {
-                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Compact | Pretty)
+                           NonNullAndPopulatedWrites)
                   , "\"***\"nine strings were gifted to the race of\"***\""
                 }
             }
@@ -2041,11 +1977,11 @@ public class StringLikeTestData
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
+                  , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
                 }
                ,
                 {
-                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites | 
+                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Json | Compact | Pretty)
                   , """
                     "within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe\u000a
@@ -2058,14 +1994,10 @@ public class StringLikeTestData
             {
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , " for another string was made."
-                }
-                ,
-                {
-                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Compact | Pretty)
-                  , "\" for another string was made.\""
+                           NonNullAndPopulatedWrites)
+                  , """
+                    " for another string was made."
+                    """
                 }
             }
       , new FieldExpect<StringBuilder>
@@ -2076,13 +2008,7 @@ public class StringLikeTestData
             {
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , " after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String"
-                }
-                ,
-                {
-                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Compact | Pretty)
+                           NonNullAndPopulatedWrites)
                   , "\" after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String\""
                 }
             }
@@ -2093,13 +2019,7 @@ public class StringLikeTestData
             {
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "and in the dustbins of time confine them"
-                }
-                ,
-                {
-                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Compact | Pretty)
+                           NonNullAndPopulatedWrites)
                   , "\"and in the dustbins of time confine them\""
                 }
             }

@@ -255,19 +255,36 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         base.Format(source, sb, formatString).ToStringBuilder(sb);
 
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
-      , int maxTransferCount = int.MaxValue)  => base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+      , int maxTransferCount = int.MaxValue)
+    {
+        sb.Append(DblQt);
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
+        return sb.Append(DblQt);
+    }
 
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, char[] source, int sourceFrom = 0, string? formatString = null
-      , int maxTransferCount = int.MaxValue) =>
-        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+      , int maxTransferCount = int.MaxValue)
+    {
+        sb.Append(SqBrktOpnChar);
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
+        return sb.Append(SqBrktClsChar);
+    }
 
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, ICharSequence source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)  =>
-        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)
+    {
+        sb.Append(DblQt);
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
+        return sb.Append(DblQt);
+    }
 
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, StringBuilder source
-      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)  =>
-        base.Format(source, sourceFrom, sb, formatString, maxTransferCount).ToStringBuilder(sb);
+      , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue)
+    {
+        sb.Append(DblQt);
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
+        return sb.Append(DblQt);
+    }
 
     public virtual IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
       , PalantírReveal<TCloakedBase> styler)  where TCloaked : TCloakedBase =>
