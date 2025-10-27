@@ -6,15 +6,16 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
-public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeMolder
+public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold : TypeMolder
 {
-    public bool ValueInComplexType { get; private set; }
+    protected bool ValueInComplexType { get; private set; }
 
-    public ValueTypeDieCast<TExt> InitializeValueBuilderCompAccess
-        (TExt externalTypeBuilder, TypeMolder.StyleTypeBuilderPortableState typeBuilderPortableState, bool isComplex)
+    public ValueTypeDieCast<TVMold> InitializeValueBuilderCompAccess
+        (TVMold externalTypeBuilder, TypeMolder.StyleTypeBuilderPortableState typeBuilderPortableState, bool isComplex)
     {
         Initialize(externalTypeBuilder, typeBuilderPortableState);
 
@@ -26,56 +27,68 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
 
     private Action<IScopeDelimitedStringBuilder>? OnFinishedWithStringBuilder { get; set; }
 
-    public bool NotJson => Style.IsNotJson();
+    protected bool NotJson => Style.IsNotJson();
 
-    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string? formatString = null)
+    public IScopeDelimitedStringBuilder StartDelimitedStringBuilder()
     {
-        (ValueInComplexType && nonJsonfieldName.Length > 0 ? this.FieldNameJoin(nonJsonfieldName) : this).AppendFormattedOrNull(value, formatString);
+        if (Style.IsJson()) Sb.Append("\"");
+        var scopedSb = (IScopeDelimitedStringBuilder)Sb;
+        scopedSb.OnScopeEndedAction = OnFinishedWithStringBuilder;
+        return scopedSb;
+    }
+
+    public TVMold FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
+        , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        (ValueInComplexType && nonJsonfieldName.Length > 0 ? this.FieldNameJoin(nonJsonfieldName) : this)
+            .AppendFormattedOrNull(value, formatString);
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldFmtValueOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string? formatString = null) 
+    public TVMold FieldFmtValueOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TFmt : ISpanFormattable
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        this.AppendFormatted(value, formatString ?? "");
+        this.AppendFormatted(value, formatString);
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldFmtValueOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string? formatString = null) 
+    public TVMold FieldFmtValueOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TFmt : struct, ISpanFormattable
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        this.AppendNullableFormattedOrNull(value, formatString ?? "" );
+        this.AppendNullableFormattedOrNull(value, formatString);
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, ReadOnlySpan<char> defaultValue
-      , string? formatString = null) where TFmt : ISpanFormattable
+    public TVMold FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, ReadOnlySpan<char> defaultValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+        if (value == null) { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         else
         {
-            this.AppendFormatted(value, formatString ?? "");
+            this.AppendFormatted(value, formatString);
         }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, ReadOnlySpan<char> defaultValue
-      , string? formatString = null) where TFmt : struct, ISpanFormattable
+    public TVMold FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, ReadOnlySpan<char> defaultValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : struct, ISpanFormattable
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+        if (value == null) { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         else
         {
-            this.AppendNullableFormattedOrNull(value, formatString ?? "");
+            this.AppendNullableFormattedOrNull(value, formatString);
         }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value, PalantírReveal<TCloakedBase> palantírReveal)
-        where TCloaked : TCloakedBase
+    public TVMold FieldValueNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value == null) { Sb.Append(Settings.NullStyle); }
@@ -83,8 +96,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal)
+    public TVMold FieldValueOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -93,8 +106,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrNullNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal)
+    public TVMold FieldValueOrNullNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -103,8 +116,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, ReadOnlySpan<char> defaultValue)
+    public TVMold FieldValueOrDefaultNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -113,8 +126,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue)
+    public TVMold FieldValueOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -123,7 +136,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = "")
+    public TVMold FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TBearer : IStringBearer
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -132,7 +146,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = "")
+    public TVMold FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TBearer : struct, IStringBearer
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -141,7 +156,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value)
+    public TVMold FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer
     {
         if (NotJson && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -153,7 +169,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value)
+    public TVMold FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : struct, IStringBearer
     {
         if (NotJson && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -165,23 +182,24 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, ReadOnlySpan<char> fallbackValue
-      , string? formatString = null)
+    public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, ReadOnlySpan<char> fallbackValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         StyleFormatter.Format(value.Length != 0 ? value : fallbackValue, 0, Sb, formatString);
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
-      , string? formatString = null)
+    public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         StyleFormatter.Format(value.Length != 0 ? value : fallbackValue, 0, Sb, formatString);
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string? formatString = null)
+    public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value.Length != 0) { StyleFormatter.Format(value, 0, Sb, formatString); }
@@ -189,27 +207,27 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
-      , ReadOnlySpan<char> defaultValue, string? formatString = null)
+    public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, value.Length - capStart);
-            if (caplength > 0) 
-            { StyleFormatter.Format(value, capStart, Sb, formatString, caplength); }
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) 
+            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
-                StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? "");
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
             }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
-      , string? formatString = null)
+    public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -219,7 +237,7 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
             if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
-                if (formatString?.Length > 0)
+                if (formatString.Length > 0)
                 {
                     ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
                                                                                        , out _, out _, out _, out var suffix);
@@ -236,48 +254,49 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0, int length = int.MaxValue, string? formatString = null)
+    public TVMold FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0, int length = int.MaxValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, value.Length - capStart);
-            this.AppendFormattedOrNull(value, formatString, capStart, caplength);
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            this.AppendFormattedOrNull(value, formatString, capStart, capLength);
         }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = ""
-      , string? formatString = null)
+    public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = ""
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, value.Length - capStart);
-            if (caplength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, caplength); }
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
-                StyleFormatter.Format(defaultValue,0, Sb, formatString ?? "");
+                StyleFormatter.Format(defaultValue,0, Sb, formatString);
             }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
-      , string? formatString = null)
+    public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, value.Length - capStart);
-            if (caplength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, caplength); }
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
-                if (formatString?.Length > 0)
+                if (formatString.Length > 0)
                 {
                     ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
                                                                                        , out _, out _, out _, out var suffix);
@@ -294,18 +313,18 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
-      , string defaultValue = "", string? formatString = null)
+    public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, value.Length - capStart);
-            if (caplength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, caplength); }
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
-                if (formatString?.Length > 0)
+                if (formatString.Length > 0)
                 {
                     ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
                                                                                        , out _, out _, out _, out var suffix);
@@ -315,25 +334,25 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
                         return ConditionalValueTypeSuffix();
                     }
                 }
-                StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? "");
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
             }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
-      , string? formatString = null)
+    public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, value.Length - capStart);
-            if (caplength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, caplength); }
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
-                if (formatString?.Length > 0)
+                if (formatString.Length > 0)
                 {
                     ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
                                                                                        , out _, out _, out _, out var suffix);
@@ -351,21 +370,21 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
-      , string defaultValue = "", string? formatString = null)
+    public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, value.Length - capStart);
-            if (caplength > 0)
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0)
             {
-                StyleFormatter.Format(value, capStart, Sb, formatString, caplength);
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
             }
             else
             {
-                if (formatString?.Length > 0)
+                if (formatString.Length > 0)
                 {
                     ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
                                                                                        , out _, out _, out _, out var suffix);
@@ -376,25 +395,25 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
                         return ConditionalValueTypeSuffix();
                     }
                 }
-                StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? "");
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
             }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
-      , string? formatString = null)
+    public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, value.Length - capStart);
-            if (caplength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, caplength); }
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
-                if (formatString?.Length > 0)
+                if (formatString.Length > 0)
                 {
                     ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
                                                                                        , out _, out _, out _, out var suffix);
@@ -412,32 +431,35 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt ValueMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string? formatString = null)
+    public TVMold ValueMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (SkipBody) return StyleTypeBuilder;
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null) { this.AppendMatchFormattedOrNull(value, formatString ?? "", FieldContentHandling.DisableAutoDelimiting); }
+        if (value != null) { this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting); }
         else { Sb.Append(Settings.NullStyle); }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt ValueMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = "", string? formatString = null)
+    public TVMold ValueMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (SkipBody) return StyleTypeBuilder;
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             
-            this.AppendMatchFormattedOrNull(value, formatString ?? "", FieldContentHandling.DisableAutoDelimiting);
+            this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting);
         }
         else
         {
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); 
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString); 
         }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string? formatString = null) 
+    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value == null)
@@ -453,10 +475,10 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string? formatString = null) where TFmt : ISpanFormattable
+    public TVMold FieldStringOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        formatString ??= StyledTypeBuilderExtensions.NoFormattingFormatString;
         if (value == null)
         {
             Sb.Append(Settings.NullStyle);
@@ -470,10 +492,10 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue = "", string? formatString = null) where TFmt : ISpanFormattable
+    public TVMold FieldStringOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue = ""
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        formatString ??= "";
         Sb.Append("\"");
         if (value != null) { this.AppendFormattedOrNull(value, formatString); }
         else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
@@ -481,10 +503,10 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string? formatString = null) where TFmtStruct : struct, ISpanFormattable
+    public TVMold FieldStringOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        formatString ??= StyledTypeBuilderExtensions.NoFormattingFormatString;
         if (value == null)
         {
             Sb.Append(Settings.NullStyle);
@@ -498,11 +520,10 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrDefaultNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string defaultValue = ""
-      , string? formatString = null) where TFmtStruct : struct, ISpanFormattable
+    public TVMold FieldStringOrDefaultNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string defaultValue = ""
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        formatString ??= "";
         Sb.Append("\"");
         if (value != null) { this.AppendFormattedOrNull(value, formatString); }
         else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
@@ -510,8 +531,9 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
     
-    public TExt FieldStringRevealOrDefaultNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "") where TCloaked : TCloakedBase
+    public TVMold FieldStringRevealOrDefaultNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedBase
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -521,8 +543,9 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
     
-    public TExt FieldStringRevealOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "") where TCloakedStruct : struct
+    public TVMold FieldStringRevealOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloakedStruct : struct
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -532,8 +555,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringRevealOrNullNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal)
+    public TVMold FieldStringRevealOrNullNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -547,8 +570,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringRevealOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+    public TVMold FieldStringRevealOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value == null) { Sb.Append(Settings.NullStyle); }
@@ -561,7 +584,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
     
-    public TExt FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = "")
+    public TVMold FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -572,7 +596,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
     
-    public TExt FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = "")
+    public TVMold FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : struct, IStringBearer
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -583,7 +608,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value)
+    public TVMold FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -597,8 +623,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value)
-        where TBearer : struct, IStringBearer
+    public TVMold FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : struct, IStringBearer
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -611,7 +637,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string? formatString = null)
+    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -620,7 +647,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value)
+    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -629,7 +657,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string defaultValue = "", string? formatString = null)
+    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string defaultValue = ""
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -639,13 +668,14 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         }
         else
         {
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? "");
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
         }
         Sb.Append("\"");
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string? formatString = null)
+    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value.Length == 0)
@@ -661,22 +691,23 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length, string? formatString = null)
+    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (caplength > 0)
+            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
+            if (capLength > 0)
             {
                 Sb.Append("\"");
-                StyleFormatter.Format(value, capStart, Sb, formatString, caplength);
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
                 Sb.Append("\"");
             }
             else
             {
-                if (formatString?.Length > 0)
+                if (formatString.Length > 0)
                 {
                     ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
                                                                                        , out _, out _, out _, out var suffix);
@@ -695,8 +726,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
-      , string defaultValue = "", string? formatString = null)
+    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -715,12 +746,13 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
                 return ConditionalValueTypeSuffix();
             }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         Sb.Append("\"");
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex, int length, string? formatString = null)
+    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -734,7 +766,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = "", string? formatString = null)
+    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -743,14 +776,15 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
             if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
-            else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+            else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
             Sb.Append("\"");
         }
         else { Sb.Append(Settings.NullStyle); }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string? formatString = null)
+    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -768,20 +802,13 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public IScopeDelimitedStringBuilder StartDelimitedStringBuilder()
-    {
-        if (Style.IsJson()) Sb.Append("\"");
-        var scopedSb = (IScopeDelimitedStringBuilder)Sb;
-        scopedSb.OnScopeEndedAction = OnFinishedWithStringBuilder;
-        return scopedSb;
-    }
-
     private void FinishUsingStringBuilder(IScopeDelimitedStringBuilder finishedBuilding)
     {
         if (Style.IsJson()) finishedBuilding.Append("\"");
     }
 
-    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, string? formatString = null)
+    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -790,30 +817,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, string defaultValue, string? formatString = null)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null) { this.AppendFormattedOrNull(value, formatString); }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, string? formatString = null)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            Sb.Append("\"");
-            this.AppendFormattedOrNull(value, formatString);
-            Sb.Append("\"");
-        }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex, int length, string? formatString = null)
+    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -827,8 +832,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
-      , string defaultValue = "", string? formatString = null)
+    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -837,14 +842,15 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
             if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
-            else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+            else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         Sb.Append("\"");
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length, string? formatString = null)
+    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length, string formatString = ""
+        , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
@@ -859,7 +865,8 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex, int length, string? formatString = null)
+    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex, int length, string formatString = ""
+        , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
@@ -873,39 +880,41 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
-      , string defaultValue = "", string? formatString = null)
+    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (caplength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, caplength); }
-            else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
+            if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
+            else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); }
+        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
         Sb.Append("\"");
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length, string? formatString = null)
+    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (value != null)
         {
             Sb.Append("\"");
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var caplength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (caplength > 0) { this.AppendFormattedOrNull(value, formatString); }
+            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
+            if (capLength > 0) { this.AppendFormattedOrNull(value, formatString); }
             Sb.Append("\"");
         }
         else { Sb.Append(Settings.NullStyle); }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt StringMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string? formatString = null)
+    public TVMold StringMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (SkipBody) return StyleTypeBuilder;
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -913,14 +922,15 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         {
             var isStringLike = typeof(TAny).IsAnyTypeHoldingChars();
             if(!isStringLike) Sb.Append("\"");
-            this.AppendMatchFormattedOrNull(value, formatString ?? "");
+            this.AppendMatchFormattedOrNull(value, formatString);
             if(!isStringLike) Sb.Append("\"");
         }
         else { Sb.Append(Settings.NullStyle); }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt StringMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = "", string? formatString = null)
+    public TVMold StringMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (SkipBody) return StyleTypeBuilder;
         if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
@@ -928,19 +938,19 @@ public class ValueTypeDieCast<TExt> : TypeMolderDieCast<TExt> where TExt : TypeM
         {
             var isStringLike = typeof(TAny).IsAnyTypeHoldingChars();
             if(!isStringLike) Sb.Append("\"");
-            this.AppendMatchFormattedOrNull(value, formatString ?? "");
+            this.AppendMatchFormattedOrNull(value, formatString);
             if(!isStringLike) Sb.Append("\"");
         }
         else
         {
             Sb.Append("\"");
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString ?? ""); 
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString); 
             Sb.Append("\"");
         }
         return ConditionalValueTypeSuffix();
     }
 
-    public TExt ConditionalValueTypeSuffix()
+    public TVMold ConditionalValueTypeSuffix()
     {
         if (ValueInComplexType) { this.AddGoToNext(); }
         return StyleTypeBuilder;

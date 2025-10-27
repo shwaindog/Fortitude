@@ -3,12 +3,12 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 
-public partial class OrderedCollectionMold<TExt> : KnownTypeMolder<TExt>
-    where TExt : TypeMolder
+public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
+    where TOCMold : TypeMolder
 {
-    private CollectionBuilderCompAccess<TExt> stb = null!;
+    private CollectionBuilderCompAccess<TOCMold> stb = null!;
 
-    public OrderedCollectionMold<TExt> InitializeOrderedCollectionBuilder(
+    public OrderedCollectionMold<TOCMold> InitializeOrderedCollectionBuilder(
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
@@ -53,7 +53,7 @@ public partial class OrderedCollectionMold<TExt> : KnownTypeMolder<TExt>
         }
     }
 
-    protected CollectionBuilderCompAccess<TExt> CompAsOrderedCollection => (CollectionBuilderCompAccess<TExt>)CompAccess;
+    protected CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection => (CollectionBuilderCompAccess<TOCMold>)CompAccess;
 }
 
 public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCollectionMold>

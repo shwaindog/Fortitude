@@ -15,7 +15,7 @@ using static FortitudeCommon.Types.StringsOfPower.Options.TimeStyleFormat;
 
 namespace FortitudeCommon.Types.StringsOfPower.Options;
 
-public struct StyleOptionsValue : IJsonFormattingOptions
+public struct StyleOptionsValue :  IJsonFormattingOptions
 {
     private StyleOptions? fallbackOptions;
 
@@ -558,7 +558,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     }
 }
 
-public class StyleOptions : IJsonFormattingOptions
+public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
 {
     private StyleOptionsValue values;
 

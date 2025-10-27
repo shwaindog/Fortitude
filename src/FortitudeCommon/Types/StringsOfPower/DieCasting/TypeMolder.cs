@@ -14,8 +14,6 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
-using static FortitudeCommon.Types.StringsOfPower.Forge.FormattingHandlingFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -70,8 +68,6 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
     public abstract bool IsComplexType { get; }
 
     public abstract StateExtractStringRange Complete();
-
-    public StyleOptions StyleSettings => PortableState.Master.Settings;
 
     public void Dispose()
     {
@@ -165,7 +161,7 @@ public static class StyledTypeBuilderExtensions
       , bool isKeyName = false) where TExt : TypeMolder 
     {
         var formatFlags = 
-            stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, FieldContentHandling.DefaultCallerTypeFlags, formatString ?? "", isKeyName);
+            stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, FieldContentHandling.DefaultCallerTypeFlags, formatString, isKeyName);
         if (isKeyName)
             stb.StyleFormatter.FormatFieldName(stb.Sb, value, formatString, formatFlags);
         else
@@ -176,7 +172,7 @@ public static class StyledTypeBuilderExtensions
     public static ITypeMolderDieCast<TExt> AppendFormatted<TExt>(this ITypeMolderDieCast<TExt> stb, bool value, string formatString
         , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false) where TExt : TypeMolder 
     {
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, formatString ?? "", isKeyName);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, formatString, isKeyName);
         if (isKeyName)
             stb.StyleFormatter.FormatFieldName(stb.Sb, value, formatString, formatFlags);
         else
@@ -198,7 +194,7 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
-    public static IStringBuilder DynamicReceiveAppendValue<TFmt>(IStringBuilder sb, IStyledTypeFormatting stf, TFmt value, string? formatString, bool isKeyName = false)
+    public static IStringBuilder DynamicReceiveAppendValue<TFmt>(IStringBuilder sb, IStyledTypeFormatting stf, TFmt value, string formatString = "", bool isKeyName = false)
         where TFmt : ISpanFormattable
     {
         if (isKeyName)
@@ -209,7 +205,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static ITypeMolderDieCast<TExt> AppendNullableFormattedOrNull<TExt, TStructFmt>
-    (this ITypeMolderDieCast<TExt> stb, TStructFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    (this ITypeMolderDieCast<TExt> stb, TStructFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false)
         where TExt : TypeMolder where TStructFmt : struct, ISpanFormattable
     {
@@ -229,13 +225,12 @@ public static class StyledTypeBuilderExtensions
 
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNullOnZeroLength<TExt>
     (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags
       , bool isKeyName = false) where TExt : TypeMolder
     {
         var sb         = stb.Sb;
         var cappedFrom = Math.Clamp(fromIndex, 0,  value.Length);
-        formatString ??= "";
         if (value.Length == 0)
         {
             sb.Append(stb.Settings.NullStyle);
@@ -251,7 +246,7 @@ public static class StyledTypeBuilderExtensions
 
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> stb, string? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags
       , bool isKeyName = false) where TExt : TypeMolder
     {
@@ -289,7 +284,7 @@ public static class StyledTypeBuilderExtensions
 
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , bool isKeyName = false)
         where TExt : TypeMolder
     {
@@ -335,7 +330,7 @@ public static class StyledTypeBuilderExtensions
 
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> stb, StringBuilder? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false)
         where TExt : TypeMolder
     {
@@ -357,7 +352,7 @@ public static class StyledTypeBuilderExtensions
 
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> stb, char[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, int fromIndex = 0, int length = int.MaxValue
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false)
         where TExt : TypeMolder
     {
@@ -379,7 +374,7 @@ public static class StyledTypeBuilderExtensions
 
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> stb, object? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, bool isKeyName = false)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", bool isKeyName = false)
         where TExt : TypeMolder
     {
         if (value != null)
@@ -776,10 +771,10 @@ public static class StyledTypeBuilderExtensions
         stb.StyleFormatter.CollectionNextItemFormat(value, retrieveCount, stb.Sb, formatString).AnyToCompAccess(stb);
     
     public static IStringBuilder DynamicReceiveAppendFormattedCollectionItem<TFmt>(IStringBuilder sb, IStyledTypeFormatting stf, TFmt? value
-      , int retrieveCount, string? formatString)
+      , int retrieveCount, string formatString = "")
         where TFmt : ISpanFormattable
     {
-        stf.CollectionNextItemFormat(value, retrieveCount, sb, formatString ?? "");
+        stf.CollectionNextItemFormat(value, retrieveCount, sb, formatString);
         return sb;
     }
 
@@ -820,8 +815,8 @@ public static class StyledTypeBuilderExtensions
         stb.StyleFormatter.AppendTypeClosing(stb.Sb);
     }
     
-    private delegate IStringBuilder SpanFmtStructContentHandler<in TFmt>(IStringBuilder sb, IStyledTypeFormatting stf, TFmt fmt, string? formatString
-      , bool isFieldName);
+    private delegate IStringBuilder SpanFmtStructContentHandler<in TFmt>(IStringBuilder sb, IStyledTypeFormatting stf, TFmt fmt, string formatString = ""
+      , bool isFieldName = false);
     
     // Invokes DynamicReceiveAppendValue without boxing to ISpanFormattable if the type receive already supports ISpanFormattable
     private static SpanFmtStructContentHandler<T> CreateSpanFormattableContentInvoker<T>() 
@@ -855,7 +850,7 @@ public static class StyledTypeBuilderExtensions
     }
     
     private delegate IStringBuilder SpanFmtStructCollectionElementHandler<in TFmt>(IStringBuilder sb, IStyledTypeFormatting stf
-      , TFmt fmt, int retrievalCount, string? formatString);
+      , TFmt fmt, int retrievalCount, string formatString = "");
     
     // Invokes DynamicReceiveAppendFormattedCollectionItem without boxing to ISpanFormattable if the type receive already supports ISpanFormattable
     private static SpanFmtStructCollectionElementHandler<T> CreateSpanFormattableCollectionElementInvoker<T>()

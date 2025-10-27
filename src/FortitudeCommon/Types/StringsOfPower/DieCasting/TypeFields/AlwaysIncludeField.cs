@@ -10,9 +10,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldCon
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
-public partial class SelectTypeField<TExt> where TExt : TypeMolder
+public partial class SelectTypeField<TMold> where TMold : TypeMolder
 {
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, bool value
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, bool value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields 
           ? stb.StyleTypeBuilder 
@@ -20,7 +20,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                .AppendFormatted(value, formatString ?? "")
                .AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, bool? value
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, bool? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         stb.SkipFields 
           ? stb.StyleTypeBuilder 
@@ -28,7 +28,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                .AppendFormattedOrNull(value, formatString ?? "")
                .AddGoToNext();
 
-    public TExt AlwaysAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value
+    public TMold AlwaysAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
         stb.SkipFields
@@ -37,7 +37,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                  .AppendFormatted(value, formatString ?? "", formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value
+    public TMold AlwaysAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
         stb.SkipFields
@@ -46,7 +46,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                  .AppendNullableFormattedOrNull(value, formatString ?? "", formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value
+    public TMold AlwaysReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase =>
         stb.SkipFields 
@@ -55,7 +55,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                .AppendOrNull(value, palantírReveal, formatFlags)
                .AddGoToNext();
 
-    public TExt AlwaysReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
+    public TMold AlwaysReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         stb.SkipFields 
           ? stb.StyleTypeBuilder 
@@ -63,7 +63,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                .AppendOrNull(value, palantírReveal, formatFlags)
                .AddGoToNext();
 
-    public TExt AlwaysReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value
+    public TMold AlwaysReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
         stb.SkipFields 
           ? stb.StyleTypeBuilder 
@@ -71,7 +71,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                .AppendRevealBearerOrNull(value, formatFlags)
                .AddGoToNext();
 
-    public TExt AlwaysReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value
+    public TMold AlwaysReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
         stb.SkipFields 
@@ -80,7 +80,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                .AppendRevealBearerOrNull(value, formatFlags)
                .AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, Span<char> value
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, Span<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields
@@ -89,7 +89,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                  .AppendFormattedOrNullOnZeroLength(value, formatString ?? "", formatFlags: formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields
@@ -98,7 +98,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                  .AppendFormattedOrNullOnZeroLength(value, formatString ?? "", formatFlags: formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, string? value
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields
@@ -107,33 +107,33 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                  .AppendFormattedOrNull(value, formatString ?? "", formatFlags: formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : stb.FieldNameJoin(fieldName)
-                 .AppendFormattedOrNull(value, formatString, startIndex, length, formatFlags)
+                 .AppendFormattedOrNull(value, formatString ?? "", startIndex, length, formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, char[]? value
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : stb.FieldNameJoin(fieldName)
-                 .AppendFormattedOrNull(value, formatString, formatFlags: formatFlags)
+                 .AppendFormattedOrNull(value, formatString ?? "", formatFlags: formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int length = int.MaxValue
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int length = int.MaxValue
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
             : stb.FieldNameJoin(fieldName)
-                 .AppendFormattedOrNull(value, formatString, startIndex, length, formatFlags)
+                 .AppendFormattedOrNull(value, formatString ?? "", startIndex, length, formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value
+    public TMold AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
         stb.SkipFields
@@ -142,7 +142,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                  .AppendFormattedOrNull(value, formatString ?? "", formatFlags: formatFlags)
                  .AddGoToNext();
     
-    public TExt AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int length = int.MaxValue
+    public TMold AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
         stb.SkipFields
@@ -151,7 +151,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                  .AppendFormattedOrNull(value, formatString ?? "", startIndex, length, formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, StringBuilder? value
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields 
@@ -160,7 +160,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                .AppendFormattedOrNull(value, formatString ?? "", formatFlags: formatFlags)
                .AddGoToNext();
 
-    public TExt AlwaysAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue
+    public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields
             ? stb.StyleTypeBuilder
@@ -168,7 +168,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                  .AppendFormattedOrNull(value, formatString ?? "", startIndex, length, formatFlags)
                  .AddGoToNext();
 
-    public TExt AlwaysAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value
+    public TMold AlwaysAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields
@@ -178,7 +178,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
                  .AddGoToNext();
 
     [CallsObjectToString]
-    public TExt AlwaysAddObject(ReadOnlySpan<char> fieldName, object? value
+    public TMold AlwaysAddObject(ReadOnlySpan<char> fieldName, object? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipFields

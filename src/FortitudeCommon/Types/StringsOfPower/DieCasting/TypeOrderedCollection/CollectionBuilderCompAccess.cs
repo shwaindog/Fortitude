@@ -5,12 +5,12 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 
-public class CollectionBuilderCompAccess<TExt> : TypeMolderDieCast<TExt> where TExt : TypeMolder
+public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> where TOCMold : TypeMolder
 {
     public bool CollectionInComplexType { get; private set; }
 
-    public CollectionBuilderCompAccess<TExt> InitializeOrderCollectionComponentAccess
-        (TExt externalTypeBuilder, TypeMolder.StyleTypeBuilderPortableState typeBuilderPortableState, bool isComplex)
+    public CollectionBuilderCompAccess<TOCMold> InitializeOrderCollectionComponentAccess
+        (TOCMold externalTypeBuilder, TypeMolder.StyleTypeBuilderPortableState typeBuilderPortableState, bool isComplex)
     {
         Initialize(externalTypeBuilder, typeBuilderPortableState);
 

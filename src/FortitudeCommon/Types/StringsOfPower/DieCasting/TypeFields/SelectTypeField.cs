@@ -2,12 +2,12 @@
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
-public partial class SelectTypeField<TExt> : RecyclableObject
-    where TExt : TypeMolder
+public partial class SelectTypeField<TMold> : RecyclableObject
+    where TMold : TypeMolder
 {
-    private ITypeMolderDieCast<TExt> stb = null!;
+    private ITypeMolderDieCast<TMold> stb = null!;
 
-    public SelectTypeField<TExt> Initialize(ITypeMolderDieCast<TExt> molderDieCast)
+    public SelectTypeField<TMold> Initialize(ITypeMolderDieCast<TMold> molderDieCast)
     {
         stb = molderDieCast;
 
