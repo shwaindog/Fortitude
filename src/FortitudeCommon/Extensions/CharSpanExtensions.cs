@@ -1510,4 +1510,25 @@ public static class CharSpanExtensions
         }
         return value * sign;
     }
+    
+    public static bool IsSglQtBounded(this ReadOnlySpan<char> input)  => input.Length > 1 &&  input[0] == '\'' && input[^1] == '\'';
+    public static bool IsDblQtBounded(this ReadOnlySpan<char> input)  => input.Length > 1 &&  input[0] == '\"' && input[^1] == '\"';
+    public static bool IsSqBrktBounded(this ReadOnlySpan<char> input) => input.Length > 1 &&   input[0] == '[' && input[^1] == ']';
+    public static bool IsBrcBounded(this ReadOnlySpan<char> input)    => input.Length > 1 &&   input[0] == '{' && input[^1] == '}';
+    
+    public static char LastNonWhiteChar(this ReadOnlySpan<char> sb, int fromEndIndex)
+    {
+        if (fromEndIndex <= 0) return '\0';
+        var i = fromEndIndex - 1;
+        for (; i >= 0 && sb[i].IsWhiteSpace(); i--) ; // no op
+        return sb[Math.Max(0, i)];
+    }
+    
+    public static char LastNonWhiteChar(this Span<char> sb, int fromEndIndex)
+    {
+        if (fromEndIndex <= 0) return '\0';
+        var i = fromEndIndex - 1;
+        for (; i >= 0 && sb[i].IsWhiteSpace(); i--) ; // no op
+        return sb[Math.Max(0, i)];
+    }
 }

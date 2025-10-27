@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
@@ -32,20 +33,23 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
     public override void Start()
     {
         if (PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) return;
-        if (Stb.ValueInComplexType)
+        AppendOpening();
+    }
+
+    public override void AppendOpening()
+    {
+        if (IsComplexType)
             CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
         else
             CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt);
     }
 
-    public override void AppendOpening()
-    {
-        CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt);
-    }
-
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendValueTypeClosing(CompAccess.Sb, CompAccess.TypeBeingBuilt);
+        if (IsComplexType)
+            CompAccess.StyleFormatter.AppendTypeClosing(CompAccess.Sb);
+        else
+            CompAccess.StyleFormatter.AppendValueTypeClosing(CompAccess.Sb, CompAccess.TypeBeingBuilt);
     }
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, bool value
@@ -63,39 +67,39 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueNext("", value, formatString);
 
     public TExt AsValue<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value, string? formatString = null) where TFmt : ISpanFormattable =>
-        Stb.FieldValueNext(nonJsonfieldName, value, formatString);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString);
 
     public TExt AsValue<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable =>
-        Stb.FieldValueNext("", value, formatString);
+        Stb.FieldValueOrDefaultNext("", value, "0", formatString);
 
     public TExt AsValueOrNull<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string? formatString = null)
         where TFmt : class, ISpanFormattable =>
-        Stb.FieldValueNext(nonJsonfieldName, value, formatString);
+        Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value, formatString);
 
     public TExt AsValueOrNull<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string? formatString = null)
         where TFmtStruct : struct, ISpanFormattable =>
-        Stb.FieldValueNext(nonJsonfieldName, value, formatString);
+        Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value, formatString);
 
     public TExt AsValueOrNull<TFmt>(TFmt? value, string? formatString = null) where TFmt : ISpanFormattable =>
-        Stb.FieldValueNext("", value, formatString);
+        Stb.FieldFmtValueOrNullNext("", value, formatString);
 
     public TExt AsValueOrNull<TFmt>(TFmt? value, string? formatString = null) where TFmt : struct, ISpanFormattable =>
-        Stb.FieldValueNext("", value, formatString);
+        Stb.FieldFmtValueOrNullNext("", value, formatString);
 
     public TExt AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, TFmt defaultValue, string? formatString = null)
         where TFmt : ISpanFormattable =>
-        Stb.FieldValueNext(nonJsonfieldName, value ?? defaultValue, formatString);
+        Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value ?? defaultValue, formatString);
 
     public TExt AsValueOrDefault<TFmt>(TFmt? value, TFmt defaultValue, string? formatString = null) where TFmt : ISpanFormattable =>
-        Stb.FieldValueOrDefaultNext("", value ?? defaultValue, formatString);
+        Stb.FieldFmtValueOrNullNext("", value ?? defaultValue, formatString);
 
     public TExt AsValueOrDefault<TFmtStruct>(TFmtStruct? value, TFmtStruct defaultValue, string? formatString = null)
         where TFmtStruct : struct, ISpanFormattable =>
-        Stb.FieldValueOrDefaultNext("", value ?? defaultValue, formatString);
+        Stb.FieldFmtValueOrNullNext("", value ?? defaultValue, formatString);
 
     public TExt AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, TFmtStruct defaultValue
       , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
-        Stb.FieldValueOrDefaultNext("", value ?? defaultValue, formatString);
+        Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value ?? defaultValue, formatString);
 
     public TExt AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue = "", string? formatString = null)
         where TFmt : ISpanFormattable =>
@@ -110,14 +114,14 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
 
     public TExt AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string defaultValue = ""
       , string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
-        Stb.FieldValueOrDefaultNext("", value, defaultValue, formatString);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString);
 
     public TExt RevealAsValue<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
       , PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase =>
-        Stb.FieldValueNext(nonJsonfieldName, value, palantírReveal);
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal);
 
     public TExt RevealAsValue<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase =>
-        Stb.FieldValueNext("", value, palantírReveal);
+        Stb.FieldValueOrNullNext("", value, palantírReveal);
 
     public TExt RevealAsValueOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase =>
@@ -135,14 +139,47 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , ReadOnlySpan<char> defaultValue) where TCloaked : TCloakedBase =>
         Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue);
 
+    public TExt RevealAsValue<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal);
+
+    public TExt RevealAsValue<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
+        Stb.FieldValueOrNullNext("", value, palantírReveal);
+
+    public TExt RevealAsValueOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal);
+
+    public TExt RevealAsValueOrNull<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal)
+        where TCloakedStruct : struct =>
+        Stb.FieldValueOrNullNext("", value, palantírReveal);
+
+    public TExt RevealAsValueOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue) where TCloakedStruct : struct =>
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue);
+
+    public TExt RevealAsValueOrDefault<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
+      , ReadOnlySpan<char> defaultValue) where TCloakedStruct : struct =>
+        Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue);
+
     public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value) where TBearer : IStringBearer =>
-        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value);
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value);
+
+    public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value) where TBearer : struct, IStringBearer =>
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value);
 
     public TExt RevealAsValueOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value) where TBearer : IStringBearer =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value);
 
+    public TExt RevealAsValueOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value) where TBearer : struct, IStringBearer =>
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value);
+
     public TExt RevealAsValueOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = "")
         where TBearer : IStringBearer =>
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue);
+
+    public TExt RevealAsValueOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = "")
+        where TBearer : struct, IStringBearer =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string? formatString = null) =>
@@ -189,19 +226,19 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length = int.MaxValue
-      , string defaultValue = "",
-        string? formatString = null) =>
+      , string defaultValue = "", string? formatString = null) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, char[] value, string? formatString = null) =>
-        Stb.FieldValueNext(nonJsonfieldName, value, 0, value.Length, formatString);
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, 0, value?.Length ?? 0, "0", formatString);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex = 0, int length = int.MaxValue
       , string? formatString = null) =>
-        Stb.FieldValueNext(nonJsonfieldName, value, startIndex, length, formatString);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString);
 
     public TExt AsValue(char[] value, int startIndex = 0, int length = int.MaxValue, string? formatString = null) =>
-        Stb.FieldValueNext("", value, startIndex, length, formatString);
+        Stb.FieldValueOrDefaultNext("", value, startIndex, length, "0", formatString);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0, int length = int.MaxValue
       , string? formatString = null) =>
@@ -220,18 +257,18 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue, formatString);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, string? formatString = null) =>
-        Stb.FieldValueNext(nonJsonfieldName, value, 0, int.MaxValue, formatString);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "0", formatString);
 
     public TExt AsValue(ICharSequence value, string? formatString = null) =>
-        Stb.FieldValueNext("", value, 0, int.MaxValue, formatString);
+        Stb.FieldValueOrDefaultNext("", value, 0, int.MaxValue, "0", formatString);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex = 0, int length = int.MaxValue
       , string? formatString = null) =>
-        Stb.FieldValueNext(nonJsonfieldName, value, startIndex, length, formatString);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString);
 
     public TExt AsValue(ICharSequence value, int startIndex = 0, int length = int.MaxValue
       , string? formatString = null) =>
-        Stb.FieldValueNext("", value, startIndex, length, formatString);
+        Stb.FieldValueOrDefaultNext("", value, startIndex, length, "0", formatString);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0, int length = int.MaxValue
       , string? formatString = null) =>
@@ -250,17 +287,17 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue, formatString);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, string? formatString = null) =>
-        Stb.FieldValueNext(nonJsonfieldName, value, 0, int.MaxValue, formatString);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "0", formatString);
 
     public TExt AsValue(StringBuilder value, string? formatString = null) =>
-        Stb.FieldValueNext("", value, 0, int.MaxValue, formatString);
+        Stb.FieldValueOrDefaultNext("", value, 0, int.MaxValue, "0", formatString);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex = 0, int length = int.MaxValue
       , string? formatString = null) =>
-        Stb.FieldValueNext(nonJsonfieldName, value, startIndex, length, formatString);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString);
 
     public TExt AsValue(StringBuilder value, int startIndex = 0, int length = int.MaxValue, string? formatString = null) =>
-        Stb.FieldValueNext("", value, startIndex, length, formatString);
+        Stb.FieldValueOrDefaultNext("", value, startIndex, length, "0", formatString);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0, int length = int.MaxValue
       , string? formatString = null) =>
@@ -278,14 +315,21 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue, formatString);
 
     public TExt AsValueMatch<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string? formatString = null) =>
-        Stb.ValueMatchOrDefaultNext(nonJsonfieldName, value, "0", formatString);
+        Stb.ValueMatchOrNullNext(nonJsonfieldName, value, formatString);
 
     public TExt AsValueMatchOrNull<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string? formatString = null) =>
         Stb.ValueMatchOrNullNext(nonJsonfieldName, value, formatString);
 
-    public TExt AsValueMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string defaultValue = ""
+    public TExt AsValueMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string? defaultValue
       , string? formatString = null) =>
-        Stb.ValueMatchOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString);
+        Stb.ValueMatchOrDefaultNext
+            (nonJsonfieldName
+           , value,
+             defaultValue.IsNotNullOrEmpty()
+                 ? defaultValue
+                 : ((!typeof(TAny).IsValueType || typeof(TAny).IsNullable())
+                     ? "null"
+                     : "0"), formatString);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, bool value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
@@ -316,7 +360,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
 
     public TExt AsStringOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, TFmt defaultValue, string? formatString = null)
         where TFmt : class, ISpanFormattable =>
-        Stb.FieldStringOrNullNext(nonJsonfieldName, value ?? defaultValue, formatString);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value ?? defaultValue, "", formatString);
 
     public TExt AsStringOrDefault<TFmt>(TFmt? value, TFmt defaultValue, string? formatString = null) where TFmt : class, ISpanFormattable =>
         AsStringOrDefault("", value, defaultValue, formatString);
@@ -351,40 +395,90 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable =>
         AsStringOrDefault("", value, defaultValue, formatString);
 
+    public TExt RevealAsString<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase =>
+        RevealAsString("", value, palantírReveal);
+
     public TExt RevealAsString<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
       , PalantírReveal<TCloakedBase> palantírReveal)
         where TCloaked : TCloakedBase =>
         Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal);
 
-    public TExt RevealAsString<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase =>
-        RevealAsString("", value, palantírReveal);
+    public TExt RevealAsStringOrNull<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal)
+        where TCloaked : TCloakedBase =>
+        RevealAsStringOrNull("", value, palantírReveal);
 
-    public TExt RevealAsStringOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal
-      , string defaultValue = "") where TCloaked : TCloakedBase =>
-        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue);
+    public TExt RevealAsStringOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal) where TCloaked : TCloakedBase =>
+        Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal);
 
     public TExt RevealAsStringOrDefault<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
       , string defaultValue = "") where TCloaked : TCloakedBase =>
         RevealAsStringOrDefault("", value, palantírReveal, defaultValue);
 
-    public TExt RevealAsStringOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal
-      , string defaultValue = "") where TCloaked : TCloakedBase =>
+    public TExt RevealAsStringOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "") where TCloaked : TCloakedBase =>
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue);
+
+    public TExt RevealAsString<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
+        RevealAsString("", value, palantírReveal);
+
+    public TExt RevealAsString<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal)
+        where TCloakedStruct : struct =>
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal);
+
+    public TExt RevealAsStringOrNull<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal)
+        where TCloakedStruct : struct =>
+        RevealAsStringOrNull("", value, palantírReveal);
+
+    public TExt RevealAsStringOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct =>
         Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal);
 
-    public TExt RevealAsStringOrNull<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal)
-        where TCloaked : TCloakedBase =>
-        RevealAsStringOrNull("", value, palantírReveal);
+    public TExt RevealAsStringOrDefault<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
+      , string defaultValue = "") where TCloakedStruct : struct =>
+        RevealAsStringOrDefault("", value, palantírReveal, defaultValue);
+
+    public TExt RevealAsStringOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "") where TCloakedStruct : struct =>
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue);
+
+    public TExt RevealAsString<TBearer>(TBearer value) where TBearer : IStringBearer =>
+        Stb.FieldStringRevealOrDefaultNext("", value);
 
     public TExt RevealAsString<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value) where TBearer : IStringBearer =>
         Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value);
+
+    public TExt RevealAsStringOrNull<TBearer>(TBearer? value) where TBearer : IStringBearer =>
+        Stb.FieldStringRevealOrNullNext("", value);
 
     public TExt RevealAsStringOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value) where TBearer : IStringBearer =>
         Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value);
 
     public TExt RevealAsStringOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = "")
         where TBearer : IStringBearer => Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue);
+
+    public TExt RevealAsStringOrDefault<TBearer>(TBearer? value, string defaultValue = "")
+        where TBearer : IStringBearer => Stb.FieldStringRevealOrDefaultNext("", value, defaultValue);
+
+    public TExt RevealAsString<TBearerStruct>(TBearerStruct? value) where TBearerStruct : struct, IStringBearer =>
+        Stb.FieldStringRevealOrDefaultNext("", value);
+
+    public TExt RevealAsString<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value) where TBearerStruct : struct, IStringBearer =>
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value);
+
+    public TExt RevealAsStringOrNull<TBearerStruct>(TBearerStruct? value) where TBearerStruct : struct, IStringBearer =>
+        Stb.FieldStringRevealOrNullNext("", value);
+
+    public TExt RevealAsStringOrNull<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value) where TBearerStruct : struct, IStringBearer =>
+        Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value);
+
+    public TExt RevealAsStringOrDefault<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value, string defaultValue = "")
+        where TBearerStruct : struct, IStringBearer => 
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue);
+
+    public TExt RevealAsStringOrDefault<TBearerStruct>(TBearerStruct? value, string defaultValue = "")
+        where TBearerStruct : struct, IStringBearer => 
+        Stb.FieldStringRevealOrDefaultNext("", value, defaultValue);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string? formatString = null) =>
         Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, "", formatString);
@@ -408,7 +502,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldStringOrNullNext(nonJsonfieldName, value, formatString);
 
     public TExt AsStringOrNull(ReadOnlySpan<char> value) =>
-        Stb.FieldStringNext("", value);
+        Stb.FieldStringOrNullNext("", value, "");
 
     public TExt AsString(Span<char> value) =>
         Stb.FieldStringOrDefaultNext("", value);
@@ -426,7 +520,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldStringOrNullNext(nonJsonfieldName, value, formatString);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, string value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
-        Stb.FieldStringOrNullNext(nonJsonfieldName, value, startIndex, length, formatString);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "",  formatString);
 
     public TExt AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length = int.MaxValue
       , string? formatString = null) =>
@@ -518,14 +612,14 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldStringOrDefaultNext("", value, startIndex, length, fallbackValue, formatString);
 
     public TExt AsStringMatch<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string? formatString = null) =>
-        Stb.ValueMatchOrDefaultNext(nonJsonfieldName, value, "", formatString);
+        Stb.StringMatchOrNullNext(nonJsonfieldName, value, formatString);
 
     public TExt AsStringMatchOrNull<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string? formatString = null) =>
-        Stb.ValueMatchOrNullNext(nonJsonfieldName, value, formatString);
+        Stb.StringMatchOrNullNext(nonJsonfieldName, value, formatString);
 
     public TExt AsStringMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string defaultValue = ""
       , string? formatString = null) =>
-        Stb.ValueMatchOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString);
+        Stb.StringMatchOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString);
 
     public IScopeDelimitedStringBuilder StartDelimitedStringBuilder() => Stb.StartDelimitedStringBuilder();
 }

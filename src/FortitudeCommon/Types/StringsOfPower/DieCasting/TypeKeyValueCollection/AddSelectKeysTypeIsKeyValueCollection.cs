@@ -3,6 +3,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 
@@ -11,7 +13,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived>
         (IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+          , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -25,8 +28,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -36,7 +39,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived>
     (IReadOnlyDictionary<TKey, TValue>? value, Span<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -50,8 +54,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -61,7 +65,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived>
     (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -75,8 +80,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -86,7 +91,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived>
     (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -100,8 +106,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -111,7 +117,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived>
     (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)  
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)  
         where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -124,8 +131,8 @@ public partial class KeyValueCollectionMold
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(keyValue, valueFormatString, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -135,7 +142,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived>
         (IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)   
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+          , FieldContentHandling valueFlags = DefaultCallerTypeFlags)   
         where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -152,8 +160,8 @@ public partial class KeyValueCollectionMold
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-            stb.AppendMatchFormattedOrNull(keyValue, valueFormatString);
+            stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+            stb.AppendMatchFormattedOrNull(keyValue, valueFormatString, valueFlags);
             stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             hasValue = selectKeys.MoveNext();
         } 
@@ -163,7 +171,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
       , PalantírReveal<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKDerived : TKey where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -175,8 +184,8 @@ public partial class KeyValueCollectionMold
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -186,7 +195,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
         (IReadOnlyDictionary<TKey, TValue>? value, Span<TKDerived> selectKeys
           , PalantírReveal<TVBase> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+          , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKDerived : TKey  where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -199,8 +209,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -210,7 +220,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
         (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
           , PalantírReveal<TVBase> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+          , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKDerived : TKey  where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -223,8 +234,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -234,7 +245,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
       , PalantírReveal<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)  
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)  
         where TKDerived : TKey  where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -247,8 +259,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -257,7 +269,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys, PalantírReveal<TVBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)   
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)   
         where TKDerived : TKey  where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -269,8 +282,8 @@ public partial class KeyValueCollectionMold
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -279,7 +292,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
       , IEnumerator<TKDerived> selectKeys, PalantírReveal<TVBase> valueStyler 
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)    
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)    
         where TKDerived : TKey  where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -295,8 +309,8 @@ public partial class KeyValueCollectionMold
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            stb.AppendMatchFormattedOrNull(key, keyFormatString, true).FieldEnd();
-            stb.AppendOrNull(keyValue, valueStyler);
+            stb.AppendMatchFormattedOrNull(key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+            stb.AppendOrNull(keyValue, valueStyler, valueFlags);
             stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             hasValue = selectKeys.MoveNext();
         } 
@@ -305,7 +319,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, TKDerived[] selectKeys
-      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) 
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -317,8 +332,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendOrNull(key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -327,7 +342,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, Span<TKDerived> selectKeys
-      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler)
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -339,8 +355,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendOrNull(key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -349,7 +365,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKDerived> selectKeys
-      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler)
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -361,8 +378,8 @@ public partial class KeyValueCollectionMold
             {
                 var key = selectKeys[i];
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendOrNull(key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -371,7 +388,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKDerived, TKBase, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKDerived> selectKeys
-      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) 
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -382,8 +400,8 @@ public partial class KeyValueCollectionMold
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendOrNull(key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -392,7 +410,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
         (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKDerived> selectKeys
-          , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) 
+          , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
+          , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -403,8 +422,8 @@ public partial class KeyValueCollectionMold
             foreach (var key in selectKeys)
             {
                 if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(keyValue, valueStyler);
+                stb.AppendOrNull(key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(keyValue, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -413,7 +432,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKDerived, TKBase, TVBase>
     (IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKDerived> selectKeys
-      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler) 
+      , PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKey : TKBase where TValue : TVBase where TKDerived : TKey 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -428,8 +448,8 @@ public partial class KeyValueCollectionMold
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            stb.AppendOrNull(key, keyStyler, true).FieldEnd();
-            stb.AppendOrNull(keyValue, valueStyler);
+            stb.AppendOrNull(key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+            stb.AppendOrNull(keyValue, valueStyler, valueFlags);
             stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             hasValue = selectKeys.MoveNext();
         } 

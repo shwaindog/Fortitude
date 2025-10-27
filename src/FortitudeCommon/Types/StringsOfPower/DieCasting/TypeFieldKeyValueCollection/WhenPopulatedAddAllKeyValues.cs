@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueCollection;
 
@@ -52,7 +53,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", FieldContentHandling.DefaultCallerTypeFlags, true).FieldEnd();
                 stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString ?? "");
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
@@ -112,7 +113,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", FieldContentHandling.DefaultCallerTypeFlags, true).FieldEnd();
                 stb.AppendOrNull(kvp.Value, valueRevealer);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
@@ -167,7 +168,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendOrNull(kvp.Key, keyRevealer, true);
+                stb.AppendOrNull(kvp.Key, keyRevealer, FieldContentHandling.DefaultCallerTypeFlags, true);
                 stb.AppendOrNull(kvp.Value, valueRevealer);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);

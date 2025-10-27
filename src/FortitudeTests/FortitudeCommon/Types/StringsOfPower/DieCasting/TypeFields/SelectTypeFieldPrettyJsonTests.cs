@@ -103,6 +103,14 @@ public partial class SelectTypeFieldTests
         SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
+    [TestMethod]
+    [DynamicData(nameof(NullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void PrettyJsonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedPrettyJson(formatExpectation, scaffoldingToCall);
+    }
+
     // [TestMethod]
     public void PrettyJsonSingleTest()
     {
@@ -115,13 +123,13 @@ public partial class SelectTypeFieldTests
                 , fromIndex: 9, length: 41)
                  {
                      {
-                         new EK(AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                         new EK(AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites |
                                 NonNullAndPopulatedWrites)
                        , "***\"nine strings were gifted to the race of\"***"
                      }
                     ,
                      {
-                         new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
+                         new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | NonNullWrites |
                                 NonNullAndPopulatedWrites, Json | Pretty | Pretty)
                        , """
                          ["*","*","*","\u0022","n","i","n","e"," ","s","t","r","i","n","g","s"," ","w","e","r","e"," ","g","i","f","t","e","d",
@@ -137,7 +145,10 @@ public partial class SelectTypeFieldTests
     {
         logger.InfoAppend("Complex Type Single Value Field  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
-              .FinalAppend("");
+              .AppendLine()
+              .AppendLine("Scaffolding Flags -")
+              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F"))
+              .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
@@ -191,7 +202,7 @@ public partial class SelectTypeFieldTests
             complexFieldExpectation.WhenValueExpectedOutput = BuildChildExpectedOutput;
         }
         tos.Clear();
-        var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall);
+        var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
             BuildExpectedOutput(stringBearer.GetType().ShortNameInCSharpFormat()

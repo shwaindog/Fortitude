@@ -220,7 +220,8 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
                 if(timeElapsed > TimeSpan.FromSeconds(2))
                 {
                     Console.Out.WriteLine("Thread {{Name: {0} Id: {1} has had the format writer for {2} ms"
-                                        , currentFormatWriterOwnerThread!.Name, currentFormatWriterOwnerThread.ManagedThreadId, timeElapsed.TotalMilliseconds);
+                                        , currentFormatWriterOwnerThread?.Name ?? "None", currentFormatWriterOwnerThread?.ManagedThreadId ?? -1
+                                        , timeElapsed.TotalMilliseconds);
                 }
             }
         }

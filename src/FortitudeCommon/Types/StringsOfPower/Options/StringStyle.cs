@@ -12,7 +12,7 @@ public enum StringStyle
   , Compact   = 0x01
   , Pretty    = 0x02
   , Log       = 0x04
-  , Default   = 0x04
+  , Default   = 0x05
   , Json      = 0x08
 }
 
