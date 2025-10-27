@@ -12,8 +12,6 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 {
-    protected const string DblQt      = "\"";
-    protected const char   DblQtChar  = '"';
     protected const string BrcOpn     = "{";
     protected const char   BrcOpnChar = '{';
     protected const string BrcCls     = "}";
@@ -33,6 +31,11 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     public override IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complextType
       , string? alternativeName = null)
     {
+        if (alternativeName != null)
+            sb.Append(alternativeName);
+        else
+            complextType.AppendShortNameInCSharpFormat(sb);
+        sb.Append(Spc);
         StyleOptions.IndentLevel++;
         return sb.Append(BrcOpn)
                  .Append(StyleOptions.NewLineStyle)
