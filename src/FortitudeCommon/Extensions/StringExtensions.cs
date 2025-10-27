@@ -230,5 +230,10 @@ public static class StringExtensions
     {
         return input.IndentSubsequentLines(new StringBuilder().Append(indentChar, indentMultiple).ToString());
     }
+    
+    public static bool IsSglQtBounded(this string input)  => input.Length > 1 &&  input[0] == '\'' && input[^1] == '\'';
+    public static bool IsDblQtBounded(this string input)  => input.Length > 1 &&  input[0] == '\"' && input[^1] == '\"';
+    public static bool IsSqBrktBounded(this string input) => input.Length > 1 &&  input[0] == '[' && input[^1] == ']';
+    public static bool IsBrcBounded(this string input)    => input.Length > 1 &&  input[0] == '{' && input[^1] == '}';
 
 }

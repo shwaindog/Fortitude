@@ -2,8 +2,10 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Diagnostics.CodeAnalysis;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
@@ -13,14 +15,16 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase, TVBase>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKBase, TVBase> filterPredicate 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKey : TKBase where TValue : TVBase =>
-        AddFilteredEnumerate(value, filterPredicate, valueFormatString, keyFormatString);
+        AddFilteredEnumerate(value, filterPredicate, valueFormatString, keyFormatString, valueFlags);
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase, TVBase>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKBase, TVBase> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKey : TKBase where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -44,8 +48,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -57,7 +61,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase, TVBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase, TVBase> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags) 
         where TKey : TKBase where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -80,8 +85,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -93,7 +98,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase, TVBase> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -118,8 +124,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -131,7 +137,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase, TVBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase, TVBase> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase where TValue : TVBase 
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -163,8 +170,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -176,13 +183,15 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate 
       , PalantírReveal<TVBase2> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase where TValue : TVBase1, TVBase2 =>
-        AddFilteredEnumerate(value, filterPredicate, valueStyler, keyFormatString);
+        AddFilteredEnumerate(value, filterPredicate, valueStyler, keyFormatString, valueFlags);
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -204,8 +213,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -217,7 +226,8 @@ public partial class KeyValueCollectionMold
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase, TVBase1, TVBase2>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
           , KeyValuePredicate<TKBase, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+          , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -239,8 +249,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -251,7 +261,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2> (IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , PalantírReveal<TVBase2> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , PalantírReveal<TVBase2> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -276,8 +287,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -288,7 +299,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase, TVBase1, TVBase2>(IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase, TVBase1> filterPredicate,  PalantírReveal<TVBase2> valueStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -319,8 +331,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler);
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -332,13 +344,15 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate 
-      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
+      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2 =>
-        AddFilteredEnumerate(value, filterPredicate, valueStyler, keyStyler);
+        AddFilteredEnumerate(value, filterPredicate, valueStyler, keyStyler, valueFlags);
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
+      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -359,8 +373,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -371,7 +385,8 @@ public partial class KeyValueCollectionMold
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKBase1, TVBase1> filterPredicate 
-          , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
+          , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -392,8 +407,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -403,7 +418,8 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -427,8 +443,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -438,7 +454,8 @@ public partial class KeyValueCollectionMold
     }
 
     public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler)
+      , KeyValuePredicate<TKBase1, TVBase1> filterPredicate, PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -468,8 +485,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendOrNull(kvp.Key, keyStyler, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;

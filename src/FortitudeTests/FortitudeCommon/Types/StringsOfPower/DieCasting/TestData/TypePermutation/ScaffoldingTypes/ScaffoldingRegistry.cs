@@ -10,7 +10,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
-public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilderInvokeFlags ScaffoldingFlags)
+public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilderInvokeFlags ScaffoldingFlags) : IComparable<ScaffoldingPartEntry>
 {
     private static readonly Type MoldSupportedDefaultValueType          = typeof(IMoldSupportedDefaultValue<>);
     private static readonly Type SupportsSubsetDisplayKeysType          = typeof(ISupportsSubsetDisplayKeys<>);
@@ -73,6 +73,8 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
         }
         return ReflectionHelper.DefaultCtorFunc<TScaffold>();
     }
+
+    public int CompareTo(ScaffoldingPartEntry? other) => String.Compare(Name, other?.Name ?? "none", StringComparison.InvariantCulture);
 };
 
 public static class ScaffoldingRegistry
@@ -198,6 +200,7 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> IsComplexType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ComplexType));
 
+
     public static IEnumerable<ScaffoldingPartEntry> IsOrderedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(OrderedCollectionType));
 
@@ -243,7 +246,7 @@ public static class ScaffoldingRegistry
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.NonNullAndPopulatedWrites));
 
     public static IEnumerable<ScaffoldingPartEntry> PopulatedWrites(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(NonEmptyWrites));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(NonDefaultWrites));
 
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsChars(this IEnumerable<ScaffoldingPartEntry> subSet) =>
@@ -263,6 +266,9 @@ public static class ScaffoldingRegistry
     
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsValueFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsValueFormatString));
+    
+    public static IEnumerable<ScaffoldingPartEntry> HasNotSupportsValueFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(SupportsValueFormatString));
     
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsKeyFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsKeyFormatString));
@@ -295,6 +301,12 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct));
     
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsStruct));
+    
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsNullableClass));
+    
     public static IEnumerable<ScaffoldingPartEntry> NoExplicitAcceptsNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass | AcceptsNullableStruct) || spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
     
@@ -311,6 +323,13 @@ public static class ScaffoldingRegistry
 
     public static IEnumerable<ScaffoldingPartEntry> HasAcceptsStringBearer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsStringBearer));
+    
+    public static IEnumerable<ScaffoldingPartEntry> HasTreatedAsValueOut(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(DefaultTreatedAsValueOut));
+    
+    public static IEnumerable<ScaffoldingPartEntry> HasTreatedAsStringOut(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(DefaultTreatedAsStringOut));
+    
 
     
 

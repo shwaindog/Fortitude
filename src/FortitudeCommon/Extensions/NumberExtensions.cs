@@ -83,7 +83,7 @@ public static class NumberExtensions
     public static LongComparer   LongComparer   = new();
     public static ULongComparer  ULongComparer  = new();
 
-    public static Type[] NumberTypes =
+    public static Type[] AllNumberTypes =
     [
         typeof(byte)
       , typeof(sbyte)
@@ -104,9 +104,10 @@ public static class NumberExtensions
       , typeof(Int128)
       , typeof(UInt128)
       , typeof(BigInteger)
+      , typeof(Complex)
     ];
 
-    public static Type[] NullableNumberTypes =
+    public static Type[] AllNullableNumberTypes =
     [
         typeof(byte?)
       , typeof(sbyte?)
@@ -127,22 +128,86 @@ public static class NumberExtensions
       , typeof(Int128?)
       , typeof(UInt128?)
       , typeof(BigInteger?)
+      , typeof(Complex?)
     ];
+
+    public static Type[] UniversalNumberTypes =
+    [
+        typeof(byte)
+      , typeof(char)
+      , typeof(int)
+      , typeof(float)
+      , typeof(long)
+      , typeof(double)
+    ];
+
+    public static Type[] UniversalNullableNumberTypes =
+    [
+        typeof(byte?)
+      , typeof(char?)
+      , typeof(int?)
+      , typeof(float?)
+      , typeof(long?)
+      , typeof(double?)
+    ];
+
+    public static Type[] UniversalStringExemptNumberTypes =
+    [
+        typeof(byte)
+      , typeof(sbyte)
+      , typeof(char)
+      , typeof(short)
+      , typeof(ushort)
+      , typeof(int)
+      , typeof(uint)
+      , typeof(nint)
+      , typeof(float)
+      , typeof(long)
+      , typeof(ulong)
+      , typeof(double)
+      , typeof(decimal)
+      , typeof(nint)
+      , typeof(nuint)
+      , typeof(Half)
+    ];
+
+    public static Type[] UniversalStringExemptNullableNumberTypes =
+    [
+        typeof(byte?)
+      , typeof(sbyte?)
+      , typeof(char?)
+      , typeof(short?)
+      , typeof(ushort?)
+      , typeof(int?)
+      , typeof(uint?)
+      , typeof(nint?)
+      , typeof(float?)
+      , typeof(long?)
+      , typeof(ulong?)
+      , typeof(double?)
+      , typeof(decimal?)
+      , typeof(nint?)
+      , typeof(nuint?)
+      , typeof(Half?)
+    ];
+    
+    public static bool IsUniversalStringExemptNumberType(this Type checkType) => 
+        UniversalStringExemptNumberTypes.Contains(checkType) || UniversalStringExemptNullableNumberTypes.Contains(checkType);
 
     public static bool IsNumericType(this Type toCheck)
     {
-        for (int i = 0; i < NumberTypes.Length; i++)
+        for (int i = 0; i < AllNumberTypes.Length; i++)
         {
-            if (toCheck == NumberTypes[i]) return true;
+            if (toCheck == AllNumberTypes[i]) return true;
         }
         return false;
     }
 
     public static bool IsNullableNumericType(this Type toCheck)
     {
-        for (int i = 0; i < NullableNumberTypes.Length; i++)
+        for (int i = 0; i < AllNullableNumberTypes.Length; i++)
         {
-            if (toCheck == NullableNumberTypes[i]) return true;
+            if (toCheck == AllNullableNumberTypes[i]) return true;
         }
         return false;
     }

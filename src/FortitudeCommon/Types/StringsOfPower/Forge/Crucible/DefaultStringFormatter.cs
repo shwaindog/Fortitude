@@ -3,6 +3,7 @@
 
 using System.Text;
 using FortitudeCommon.Extensions;
+using static FortitudeCommon.Types.StringsOfPower.Forge.FormattingHandlingFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
@@ -13,7 +14,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
 
     public override int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length) => 0;
 
-    public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : default
+    public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : default
     {
         var preAppendLen = sb.Length;
         if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -48,8 +50,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
-        where TFmt : default
+    public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : default
     {
         var addedChars = 0;
         if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -84,7 +86,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null) 
+    public override int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) 
     {
         var preAppendLen = sb.Length;
         if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -119,7 +122,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex
+      , string? formatString = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
     {
         var addedChars = 0;
         if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -154,7 +158,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int FormatArray<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null) where TFmt : default
+    public override int FormatArray<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : default
     {
         var preAppendLen = sb.Length;
         if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -189,7 +194,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatArray<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null) where TFmt : default
+    public override int FormatArray<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : default
     {
         var addedChars = 0;
         if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -224,7 +230,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, IStringBuilder sb, string? formatString = null) 
+    public override int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) 
     {
         var preAppendLen = sb.Length;
         if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -259,7 +266,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
     {
         var addedChars = 0;
         if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -294,7 +302,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : default
+    public override int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : default
     {
         var preAppendLen = sb.Length;
         if (arg0.Count == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -329,7 +338,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmt : default
     {
         var addedChars = 0;
@@ -365,7 +375,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
     {
         var preAppendLen = sb.Length;
         if (arg0.Count == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -400,7 +411,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex
+      , string? formatString = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
     {
         var addedChars = 0;
         if (arg0.Count == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
@@ -435,7 +447,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmt : default
     {
         var preAppendLen         = sb.Length;
@@ -492,8 +505,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
-        where TFmt : default
+    public override int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : default
     {
         var addedChars           = 0;
         var hasStartedCollection = false;
@@ -549,7 +562,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
     {
         var preAppendLen         = sb.Length;
         var hasStartedCollection = false;
@@ -605,7 +619,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex
+      , string? formatString = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
     {
         var addedChars           = 0;
         var hasStartedCollection = false;
@@ -661,7 +676,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmt : default
     {
         var preAppendLen = sb.Length;
@@ -706,7 +722,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
     where TFmt : default
     {
         var addedChars = 0;
@@ -751,7 +768,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null)
+    public override int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
     {
         var preAppendLen = sb.Length;
         var hasNext      = arg0.MoveNext();
@@ -795,7 +813,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    public override int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex
+      , string? formatString = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
     {
         var addedChars = 0;
         var hasNext    = arg0.MoveNext();
@@ -847,7 +866,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
-    public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString)
+    public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmt : default =>
         nextItem == null 
             ?  (Options.NullWritesNothing 
@@ -856,7 +876,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
              : Format(nextItem, sb, formatString);
 
     public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
-      , string formatString) where TFmt : default
+      , string formatString, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : default
         => 
             nextItem == null 
                 ?  (Options.NullWritesNothing 
@@ -864,11 +884,12 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
                     : destCharSpan.AppendReturnAddCount(Options.NullString))
                 : Format(nextItem, destCharSpan, destStartIndex, formatString);
 
-    public override int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, IStringBuilder sb, string formatString)  =>
-        Format(nextItem, sb, formatString);
+    public override int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, IStringBuilder sb, string formatString
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)  => Format(nextItem, sb, formatString);
 
     public override int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
-      , string formatString) => Format(nextItem, destCharSpan, destStartIndex, formatString);
+      , string formatString, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) => 
+        Format(nextItem, destCharSpan, destStartIndex, formatString);
 
     public override int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb)
     {

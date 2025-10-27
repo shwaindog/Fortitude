@@ -224,24 +224,46 @@ public partial class SelectTypeFieldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    private static IEnumerable<object[]> NullStringBearerExpect =>
+        from fe in StringBearerTestData.AllStringBearerExpectations
+        where fe.IsNullable
+        from scaffoldToCall in
+            scafReg.IsComplexType().ProcessesSingleValue().OnlyAcceptsNullableStructs()
+                   .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
+        select new object[] { fe, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(NullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactLogNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    [TestMethod]
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactLog(new FieldExpect<CharArrayStringBuilder>(new CharArrayStringBuilder("the"), "{0}", true, [], -1, -10)
-        {
-            { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "" }
-          , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "[]" }
-        }, new ScaffoldingPartEntry
-            (typeof(FieldCharSequenceRangeAlwaysAddStringBearer<>)
-           , ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges));
+        SharedCompactLog
+            (new FieldExpect<string>("forging", "{0,10}", true, "orging", 1)
+            {
+                { new EK(AcceptsChars | CallsAsReadOnlySpan |  DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesNull), "    orging" }
+              , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites |  DefaultTreatedAsStringOut 
+                       | DefaultBecomesZero | DefaultBecomesNull), "\"    orging\"" }
+            }, new ScaffoldingPartEntry
+                 (typeof(FieldStringRangeWhenNonDefaultStringBearer)
+                , ComplexType | AcceptsSingleValue | NonDefaultWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
+                  SupportsCustomHandling));
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         logger.InfoAppend("Complex Type Single Value Field  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
-              .FinalAppend("");
+              .AppendLine()
+              .AppendLine("Scaffolding Flags -")
+              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F"))
+              .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
@@ -269,7 +291,7 @@ public partial class SelectTypeFieldTests
             complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedOutput;
         }
         tos.Clear();
-        var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall);
+        var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
             BuildExpectedOutput

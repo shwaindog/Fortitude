@@ -34,6 +34,10 @@ public static class TypeExtensions
     public static bool ImplementsGenericTypeInterface(this Type type, Type genericTypeDef) =>
         type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericTypeDef);
 
+    public static bool ExtendsGenericBaseType(this Type type, Type genericTypeDef) =>
+        ((type.BaseType?.IsGenericType ?? false) && type.BaseType.GetGenericTypeDefinition() == genericTypeDef) || 
+        type.BaseType != null && type.BaseType != typeof(object) && type.BaseType.ExtendsGenericBaseType(genericTypeDef);
+
     public static bool IsCollection(this Type type) =>
         type.GetInterfaces().Any(i => i == CollectionType || i.IsGenericType && i.GetGenericTypeDefinition() == CollectionTypeDef);
 
@@ -217,7 +221,8 @@ public static class TypeExtensions
         type.GetIndexedCollectionElementType() ??
         type.IfEnumerableGetElementType() ?? type.IfEnumeratorGetElementType();
 
-    public static bool IsSpanFormattable(this Type type) => type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType);
+    public static bool IsSpanFormattable(this Type type) => 
+        type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType);
 
     public static bool IsNullable(this Type type) =>
         type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef;
@@ -600,7 +605,7 @@ public static class TypeExtensions
     public static bool IsNotStringBuilderList(this Type check) => !check.IsStringBuilderList();
 
     public static bool IsAnyTypeHoldingChars(this Type check) =>
-        check.IsString() || check.IsStringArray() || check.IsStringList()
+        check.IsString() || check.IsStringArray() || check.IsStringList() || check.IsCharArray()
      || check.IsCharSequence() || check.IsCharSequenceSupportArray() || check.IsCharSequenceSupportingList()
      || check.IsStringBuilder() || check.IsStringBuilderArray() || check.IsStringBuilderList();
 

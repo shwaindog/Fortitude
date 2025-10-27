@@ -4,6 +4,7 @@
 using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
+using static FortitudeCommon.Types.StringsOfPower.Forge.FormattingHandlingFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
@@ -14,94 +15,131 @@ public interface ICustomStringFormatter : IRecyclableObject
     int AddCollectionElementSeparator(Type collectionType, Span<char> destSpan, int atSpanOffset, int nextItemNumber);
 
     IFormattingOptions Options { get; set; }
+    
+    FormattingHandlingFlags ResolveStringFormattingFlags<T>(char lastNonWhiteSpace, T input, FormattingHandlingFlags callerFormattingFlags
+      , string formatString = "");
 
     int ProcessAppendedRange(IStringBuilder sb, int fromIndex);
     int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length);
 
-    int Format(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue);
-    int Format(char[] source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue);
-    int Format(StringBuilder source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue);
+    int Format(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast);
+    
+    int Format(char[] source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast);
+    
+    int Format(StringBuilder source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast);
 
-    int Format(ICharSequence source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue);
+    int Format(ICharSequence source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast);
 
     int Format(ReadOnlySpan<char> source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex
-      , int maxTransferCount = int.MaxValue);
+      , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast);
 
     int Format(char[] source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex
-      , int maxTransferCount = int.MaxValue);
+      , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast);
 
     int Format(StringBuilder source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex
-      , int maxTransferCount = int.MaxValue);
+      , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast);
 
     int Format(ICharSequence source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex
-      , int maxTransferCount = int.MaxValue);
+      , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast);
 
-    int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
-    int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) where TFmt : ISpanFormattable;
+    int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable;
+    
+    int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable;
 
-    int Format(bool source, IStringBuilder sb, ReadOnlySpan<char> formatString);
+    int Format(bool source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
-    int Format(bool source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString);
+    int Format(bool source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
+      , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
-    int Format(bool? source, IStringBuilder sb, ReadOnlySpan<char> formatString);
+    int Format(bool? source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
-    int Format(bool? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString);
+    int Format(bool? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
+      , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
 
-    int Format<TFmtStruct>(TFmtStruct? source, IStringBuilder sb, ReadOnlySpan<char> formatString) where TFmtStruct : struct, ISpanFormattable;
+    int Format<TFmtStruct>(TFmtStruct? source, IStringBuilder sb, ReadOnlySpan<char> formatString
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmtStruct : struct, ISpanFormattable;
 
-    int Format<TFmtStruct>(TFmtStruct? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString) where TFmtStruct : struct, ISpanFormattable;
+    int Format<TFmtStruct>(TFmtStruct? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmtStruct : struct, ISpanFormattable;
 
-    int TryFormat<TAny>(TAny source, IStringBuilder sb, string formatString);
+    int TryFormat<TAny>(TAny source, IStringBuilder sb, string formatString
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast);
 
-    int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
+    int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable;
 
-    int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmt : ISpanFormattable;
 
-    int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmtStruct : struct, ISpanFormattable;
 
-    int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatReadOnlySpan<TFmtStruct>(ReadOnlySpan<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmtStruct : struct, ISpanFormattable;
 
-    int FormatArray<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
+    int FormatArray<TFmt>(TFmt?[] arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable;
 
-    int FormatArray<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatArray<TFmt>(TFmt?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmt : ISpanFormattable;
 
-    int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, IStringBuilder sb, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmtStruct : struct, ISpanFormattable;
 
-    int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatArray<TFmtStruct>(TFmtStruct?[] arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmtStruct : struct, ISpanFormattable;
 
-    int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
+    int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, IStringBuilder sb, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable;
 
-    int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatList<TFmt>(IReadOnlyList<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmt : ISpanFormattable;
 
-    int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmtStruct : struct, ISpanFormattable;
 
-    int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatList<TFmtStruct>(IReadOnlyList<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmtStruct : struct, ISpanFormattable;
 
-    int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
+    int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, IStringBuilder sb, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable;
 
-    int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatEnumerable<TFmt>(IEnumerable<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmt : ISpanFormattable;
 
-    int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmtStruct : struct, ISpanFormattable;
 
-    int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatEnumerable<TFmtStruct>(IEnumerable<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmtStruct : struct, ISpanFormattable;
 
-    int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, IStringBuilder sb, string? formatString = null) where TFmt : ISpanFormattable;
+    int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, IStringBuilder sb, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable;
 
-    int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatEnumerator<TFmt>(IEnumerator<TFmt?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmt : ISpanFormattable;
 
-    int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
+    int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, IStringBuilder sb, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmtStruct : struct, ISpanFormattable;
 
-    int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null)
+    int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
         where TFmtStruct : struct, ISpanFormattable;
 
 
@@ -114,26 +152,33 @@ public interface ICustomStringFormatter : IRecyclableObject
     int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems);
     int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems);
 
-    int CollectionNextItemFormat(bool nextItem, int retrieveCount, IStringBuilder sb, string formatString);
+    int CollectionNextItemFormat(bool nextItem, int retrieveCount, IStringBuilder sb, string formatString
+    , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
-    int CollectionNextItemFormat(bool nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString);
+    int CollectionNextItemFormat(bool nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString
+    , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
     
-    int CollectionNextItemFormat(bool? nextItem, int retrieveCount, IStringBuilder sb, string formatString);
+    int CollectionNextItemFormat(bool? nextItem, int retrieveCount, IStringBuilder sb, string formatString
+      , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
-    int CollectionNextItemFormat(bool? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString);
+    int CollectionNextItemFormat(bool? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString
+    , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
-    int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString) where TFmt : ISpanFormattable;
+    int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable;
 
-    int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString)
-        where TFmt : ISpanFormattable;
+    int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable;
 
-    int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, IStringBuilder sb, string formatString)
-        where TFmtStruct : struct, ISpanFormattable;
+    int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, IStringBuilder sb, string formatString
+    , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmtStruct : struct, ISpanFormattable;
 
-    int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString)
+    int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, Span<char> destination, int destStartIndex
+      , string formatString, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) 
         where TFmtStruct : struct, ISpanFormattable;
 
     int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb);
+    
     int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex);
 
 
@@ -143,6 +188,24 @@ public interface ICustomStringFormatter : IRecyclableObject
 
 
     public static ICustomStringFormatter DefaultBufferFormatter { get; set; } =
+        new DefaultStringFormatter
+        {
+            Options = new FormattingOptions.FormattingOptions()
+        };
+    
+    public static ICustomStringFormatter DefaultPassThroughFormatter { get; set; } =
+        new DefaultStringFormatter
+        {
+            Options = new FormattingOptions.FormattingOptions()
+        };
+    
+    public static ICustomStringFormatter DefaultAsciiEscapeFormatter { get; set; } =
+        new DefaultStringFormatter
+        {
+            Options = new FormattingOptions.FormattingOptions()
+        };
+    
+    public static ICustomStringFormatter DefaultJsonEncodingFormatter { get; set; } =
         new DefaultStringFormatter
         {
             Options = new FormattingOptions.FormattingOptions()

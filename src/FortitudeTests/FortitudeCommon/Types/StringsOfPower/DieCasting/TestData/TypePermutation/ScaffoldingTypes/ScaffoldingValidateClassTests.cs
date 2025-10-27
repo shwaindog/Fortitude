@@ -41,21 +41,21 @@ public class ScaffoldingValidateClassTests
 
     private readonly string[] complexFieldAllowedNonDefaultExemptions       = [
         "NullableBool"
-      , "NullableSpanFormattableAlwaysAddStructStringBearer"
-      , "SpanFormattableAlwaysAddStructStringBearer"
-      , "StringAlwaysAddStructStringBearer"
+      // , "NullableSpanFormattable"
+      // , "SpanFormattable"
+      // , "String"
     ];
     private readonly string[] complexFieldAllowedNonNullExemptions          = [
         "Bool"
-      , "NullableSpanFormattableAlwaysAddStructStringBearer"
-      , "SpanFormattableAlwaysAddStructStringBearer"
-      , "StringAlwaysAddStructStringBearer"
+      // , "NullableSpanFormattable"
+      // , "SpanFormattable"
+      // , "String"
     ];
     private readonly string[] complexFieldAllowedNonNullOrDefaultExemptions = [
         "Bool"
-      , "NullableSpanFormattableAlwaysAddStructStringBearer"
-      , "SpanFormattableAlwaysAddStructStringBearer"
-      , "StringAlwaysAddStructStringBearer"
+      // , "NullableSpanFormattable"
+      // , "SpanFormattable"
+      // , "String"
     ];
 
     private const string BulletList = "    * ";
@@ -112,36 +112,43 @@ public class ScaffoldingValidateClassTests
     public void ComplexFieldAlwaysAddFieldCloseToWhenNonDefaultScaffoldingTypes()
     {
         var alwaysAddInvokers       = scafReg.ComplexTypeFieldAlwaysAddFilter().ToList();
+        alwaysAddInvokers.Sort();
         var alwaysAddUniqueNamePart = new List<string>();
 
-        var le = logger.InfoAppend("Complex Type Single Value Field -  Always Add Scaffolding Classes - ")?.AppendLine();
+        var le    = logger.InfoAppend("Complex Type Single Value Field -  Always Add Scaffolding Classes - ")?.AppendLine();
+        var count = 0;
         foreach (var alwaysAddInvoker in alwaysAddInvokers)
         {
             var uniquePart = alwaysAddInvoker
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
-            le = le?.Append(BulletList).Append(alwaysAddInvoker.Name).Append(" - ").AppendLine(countExisting);
-            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(count, "{0,2}").Append(". ").Append(alwaysAddInvoker.Name).Append(" - ").Append(countExisting).Append("\n");
+            le = le?.Append(count++, "{0,2}").Append(". ").Append(uniquePart).Append(" - ").Append(countExisting).Append("\n");
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddInvokers.Count).FinalAppend("");
 
         var nonDefaultInvokers       = scafReg.ComplexTypeFieldWhenNonDefaultAddFilter().ToList();
+        nonDefaultInvokers.Sort();
         var nonDefaultUniqueNamePart = new List<string>();
 
-        le = logger.WarnAppend("Complex Type Single Value Field -  When Non Default Scaffolding Classes - ")?.AppendLine();
+        count = 0;
+        le    = logger.WarnAppend("Complex Type Single Value Field -  When Non Default Scaffolding Classes - ")?.AppendLine();
         foreach (var nonDefaultInvoker in nonDefaultInvokers)
         {
             var uniquePart = nonDefaultInvoker
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonDefaultSuffix, "").TruncateAt('<');
             var countExisting = nonDefaultUniqueNamePart.Count(s => s == uniquePart);
-            le = le?.Append(BulletList).Append(nonDefaultInvoker.Name).Append(" - ").AppendLine(countExisting);
-            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(count, "{0,2}").Append(". ").Append(nonDefaultInvoker.Name).Append(" - ").Append(countExisting).Append("\n");
+            le = le?.Append(count++, "{0,2}").Append(". ").Append(uniquePart).Append(" - ").Append(countExisting).Append("\n");
             nonDefaultUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(nonDefaultInvokers.Count).FinalAppend("");
 
-        var inAlwaysAddButNotNonNullOrDefault = alwaysAddUniqueNamePart.Except(nonDefaultUniqueNamePart);
+        var inAlwaysAddButNotNonNullOrDefault = 
+            alwaysAddUniqueNamePart
+                .Except(nonDefaultUniqueNamePart)
+                .Except(complexFieldAllowedNonDefaultExemptions).ToList();
 
         var counter = 0;
         le = logger.ErrorAppend("Complex Type Single Value Field -  Found in Always Add but not Non Default - ")?.AppendLine();
@@ -152,8 +159,8 @@ public class ScaffoldingValidateClassTests
         }
         le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
 
-        Assert.AreEqual(alwaysAddInvokers.Count - complexFieldAllowedNonDefaultExemptions.Length, nonDefaultInvokers.Count);
-        Assert.AreEqual(0, inAlwaysAddButNotNonNullOrDefault.Except(complexFieldAllowedNonDefaultExemptions).Count());
+        Assert.AreEqual(alwaysAddInvokers.Count - complexFieldAllowedNonDefaultExemptions.Length , nonDefaultInvokers.Count);
+        Assert.AreEqual(0, inAlwaysAddButNotNonNullOrDefault.Count);
     }
 
 
@@ -161,31 +168,35 @@ public class ScaffoldingValidateClassTests
     public void ComplexFieldAlwaysAddFieldCloseToWhenNonNullScaffoldingTypes()
     {
         var alwaysAddInvokers       = scafReg.ComplexTypeFieldAlwaysAddFilter().ToList();
+        alwaysAddInvokers.Sort();
         var alwaysAddUniqueNamePart = new List<string>();
 
-        var le = logger.InfoAppend("Complex Type Single Value Field -  AlwaysAdd Scaffolding Classes - ")?.AppendLine();
+        var count = 0;
+        var le    = logger.InfoAppend("Complex Type Single Value Field -  AlwaysAdd Scaffolding Classes - ")?.AppendLine();
         foreach (var alwaysAddInvoker in alwaysAddInvokers)
         {
             var uniquePart = alwaysAddInvoker
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
-            le = le?.Append(BulletList).Append(alwaysAddInvoker.Name).Append(" - ").AppendLine(countExisting);
-            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(count, "{0,2}").Append(". ").Append(alwaysAddInvoker.Name).Append(" - ").Append(countExisting).Append("\n");
+            le = le?.Append(count++, "{0,2}").Append(". ").Append(uniquePart).Append(" - ").Append(countExisting).Append("\n");
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddInvokers.Count).FinalAppend("");
 
         var nonNullInvokers       = scafReg.ComplexTypeFieldWhenNonNullAddFilter().ToList();
+        nonNullInvokers.Sort();
         var nonNullUniqueNamePart = new List<string>();
-
-        le = logger.WarnAppend("Complex Type Single Value Field -  WhenNonNull Scaffolding Classes - ")?.AppendLine();
+        
+        count = 0;
+        le    = logger.WarnAppend("Complex Type Single Value Field -  WhenNonNull Scaffolding Classes - ")?.AppendLine();
         foreach (var nonNullInvoker in nonNullInvokers)
         {
             var uniquePart = nonNullInvoker
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonNullSuffix, "").TruncateAt('<');
             var countExisting = nonNullUniqueNamePart.Count(s => s == uniquePart);
-            le = le?.Append(BulletList).Append(nonNullInvoker.Name).Append(" - ").AppendLine(countExisting);
-            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(count, "{0,2}").Append(". ").Append(nonNullInvoker.Name).Append(" - ").Append(countExisting).Append("\n");
+            le = le?.Append(count, "{0,2}").Append(". ").Append(uniquePart).Append(" - ").Append(countExisting).Append("\n");
             nonNullUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(nonNullInvokers.Count).FinalAppend("");
@@ -202,7 +213,9 @@ public class ScaffoldingValidateClassTests
         le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
         Assert.AreEqual(alwaysAddInvokers.Count - complexFieldAllowedNonNullExemptions.Length, nonNullInvokers.Count);
 
-        var inNonNullAddButNotInAlwaysAdd = nonNullUniqueNamePart.Except(alwaysAddUniqueNamePart);
+        var inNonNullAddButNotInAlwaysAdd = nonNullUniqueNamePart
+            .Except(alwaysAddUniqueNamePart)
+            .Except(complexFieldAllowedNonNullExemptions).ToList();
 
         counter = 0;
         le      = logger.WarnAppend("Complex Type Single Value Field -  Found in NonNull but not AlwaysAdd - ")?.AppendLine();
@@ -214,7 +227,8 @@ public class ScaffoldingValidateClassTests
         le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
 
 
-        Assert.AreEqual(0, inAlwaysAddButNotNonNull.Except(complexFieldAllowedNonNullExemptions).Count());
+        Assert.AreEqual(alwaysAddInvokers.Count - complexFieldAllowedNonNullExemptions.Length , nonNullInvokers.Count);
+        Assert.AreEqual(0, inNonNullAddButNotInAlwaysAdd.Count);
     }
 
     [TestMethod]
@@ -223,29 +237,31 @@ public class ScaffoldingValidateClassTests
         var alwaysAddInvokers       = scafReg.ComplexTypeFieldAlwaysAddFilter().ToList();
         var alwaysAddUniqueNamePart = new List<string>();
 
-        var le = logger.InfoAppend("Complex Type Single Value Field -  AlwaysAdd Scaffolding Classes - ")?.AppendLine();
+        var count = 0;
+        var le    = logger.InfoAppend("Complex Type Single Value Field -  AlwaysAdd Scaffolding Classes - ")?.AppendLine();
         foreach (var alwaysAddInvoker in alwaysAddInvokers)
         {
             var uniquePart = alwaysAddInvoker
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldAlwaysAddSuffix, "").TruncateAt('<');
             var countExisting = alwaysAddUniqueNamePart.Count(s => s == uniquePart);
-            le = le?.Append(BulletList).Append(alwaysAddInvoker.Name).Append(" - ").AppendLine(countExisting);
-            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(count, "{0,2}").Append(". ").Append(alwaysAddInvoker.Name).Append(" - ").Append(countExisting).Append("\n");
+            le = le?.Append(count++, "{0,2}").Append(". ").Append(uniquePart).Append(" - ").Append(countExisting).Append("\n");
             alwaysAddUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(alwaysAddInvokers.Count).FinalAppend("");
 
         var nonNullOrDefaultInvokers       = scafReg.ComplexTypeFieldWhenNonNullOrDefaultAddFilter().ToList();
         var nonNullOrDefaultUniqueNamePart = new List<string>();
-
-        le = logger.WarnAppend("Complex Type Single Value Field -  WhenNonNullOrDefault Scaffolding Classes - ")?.AppendLine();
+        
+        count = 0;
+        le    = logger.WarnAppend("Complex Type Single Value Field -  WhenNonNullOrDefault Scaffolding Classes - ")?.AppendLine();
         foreach (var nonNullOrDefaultInvoker in nonNullOrDefaultInvokers)
         {
             var uniquePart = nonNullOrDefaultInvoker
                              .Name.RemoveAll(ClassNameCleanup).Replace(ComplexFieldWhenNonNullOrDefaultSuffix, "").TruncateAt('<');
             var countExisting = nonNullOrDefaultUniqueNamePart.Count(s => s == uniquePart);
-            le = le?.Append(BulletList).Append(nonNullOrDefaultInvoker.Name).Append(" - ").AppendLine(countExisting);
-            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").AppendLine(countExisting);
+            le = le?.Append(BulletList).Append(nonNullOrDefaultInvoker.Name).Append(" - ").Append(countExisting).Append("\n");
+            le = le?.Append(BulletList).Append(uniquePart).Append(" - ").Append(countExisting).Append("\n");
             nonNullOrDefaultUniqueNamePart.Add(uniquePart);
         }
         le?.AppendLine().Append("Total ").AppendLine(nonNullOrDefaultInvokers.Count).FinalAppend("");
@@ -263,7 +279,9 @@ public class ScaffoldingValidateClassTests
 
         Assert.AreEqual(0, inAlwaysAddButNotNonNullOrDefault.Except(complexFieldAllowedNonNullOrDefaultExemptions).Count());
 
-        var inNonNullOrDefaultAddButNotInAlwaysAdd = nonNullOrDefaultUniqueNamePart.Except(alwaysAddUniqueNamePart);
+        var inNonNullOrDefaultAddButNotInAlwaysAdd = nonNullOrDefaultUniqueNamePart
+            .Except(alwaysAddUniqueNamePart)
+            .Except(complexFieldAllowedNonNullOrDefaultExemptions).ToList();
 
         counter = 0;
         le      = logger.WarnAppend("Complex Type Single Value Field -  Found in NonNullOrDefault but not AlwaysAdd - ")?.AppendLine();
@@ -275,6 +293,7 @@ public class ScaffoldingValidateClassTests
         le?.AppendLine().Append("Total ").AppendLine(counter).FinalAppend("");
 
         Assert.AreEqual(alwaysAddInvokers.Count - complexFieldAllowedNonNullOrDefaultExemptions.Length, nonNullOrDefaultInvokers.Count);
+        Assert.AreEqual(0, inNonNullOrDefaultAddButNotInAlwaysAdd.Count);
     }
 
     [TestMethod]

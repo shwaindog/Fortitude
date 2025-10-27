@@ -103,41 +103,42 @@ public partial class SelectTypeFieldTests
         SharedCompactJson(formatExpectation, scaffoldingToCall);
     }
 
+    [TestMethod]
+    [DynamicData(nameof(NullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactJson(formatExpectation, scaffoldingToCall);
+    }
+
     // [TestMethod]
     public void CompactJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJson
-            ( new FieldExpect<MutableString>
-                 (new MutableString
-                      ("And nine, nine strings were gifted to the race of C++ coders, " +
-                       "who above all else desired unchecked memory access power. "), "***\"{0[1..^1]}\"***"
-                , fromIndex: 9, length: 41)
-                 {
-                     {
-                         new EK(AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                                NonNullAndPopulatedWrites)
-                       , "***\"nine strings were gifted to the race of\"***"
-                     }
-                    ,
-                     {
-                         new EK(AcceptsChars | AlwaysWrites | NonEmptyWrites | NonNullWrites |
-                                NonNullAndPopulatedWrites, Json | Compact | Pretty)
-                       , """
-                         ["*","*","*","\u0022","n","i","n","e"," ","s","t","r","i","n","g","s"," ","w","e","r","e"," ","g","i","f","t","e","d",
-                         " ","t","o"," ","t","h","e"," ","r","a","c","e"," ","o","f","\u0022","*","*","*"]
-                         """.RemoveLineEndings()
-                     }
-                 }, new ScaffoldingPartEntry
-                 (typeof(FieldCharSequenceRangeAlwaysAddStringBearer<>)
-                , ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges));
+            ( new FieldExpect<char[]>("".ToCharArray(), "", true, ['0'])
+            {
+                { new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites,
+                         Log | Compact | Pretty), "\"\"" }
+              , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites,
+                         Log | Compact | Pretty), "null" }
+              , { new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites
+                       , Json |  Compact | Pretty) , "[]" }
+              , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites
+                       , Json |  Compact | Pretty) , "null" }
+            }, new ScaffoldingPartEntry
+                 (typeof(FieldCharSpanWhenNonNullStringBearer)
+                , ComplexType | AcceptsSingleValue | CallsAsSpan | NonNullWrites | AcceptsCharArray | SupportsValueFormatString));
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         logger.InfoAppend("Complex Type Single Value Field  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
-              .FinalAppend("");
+              .AppendLine()
+              .AppendLine("Scaffolding Flags -")
+              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F"))
+              .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
@@ -165,7 +166,7 @@ public partial class SelectTypeFieldTests
             complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedOutput;
         }
         tos.Clear();
-        var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall);
+        var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
             BuildExpectedOutput
