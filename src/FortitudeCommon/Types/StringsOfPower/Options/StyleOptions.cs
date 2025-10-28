@@ -2,12 +2,14 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 using static FortitudeCommon.Types.StringsOfPower.Options.DateTimeStyleFormat;
 using static FortitudeCommon.Types.StringsOfPower.Options.TimeStyleFormat;
 
@@ -15,7 +17,7 @@ using static FortitudeCommon.Types.StringsOfPower.Options.TimeStyleFormat;
 
 namespace FortitudeCommon.Types.StringsOfPower.Options;
 
-public struct StyleOptionsValue :  IJsonFormattingOptions
+public struct StyleOptionsValue : IJsonFormattingOptions
 {
     private StyleOptions? fallbackOptions;
 
@@ -35,7 +37,7 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
     public StyleOptionsValue(StringStyle style) => this.style = style;
     public StyleOptionsValue(StyleOptions defaultOptions) => fallbackOptions = defaultOptions;
 
-    public StyleOptionsValue(StringStyle style = StringStyle.Default, int indentSize = 2, char indentChar = ' '
+    public StyleOptionsValue(StringStyle style, int indentSize = 2, char indentChar = ' '
       , bool byteSequenceToBase64 = true, bool disableCircularRefCheck = false, bool charSArraysAsString = false)
     {
         this.style                   = style;
@@ -62,11 +64,9 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
     private bool explicitlySetEncodingTransfer;
 
     private Func<IJsonFormattingOptions, IEncodingTransfer>? sourceEncodingTransferResolver;
-    private Func<StyleOptionsValue, ICustomStringFormatter>? sourceFormatterResolver;
 
     private char?    indentChar;
     private int?     indentSize;
-    private int      indentLevel;
     private bool?    byteSequenceToBase64;
     private bool?    disableCircularRefCheck;
     private bool?    charSArraysAsString;
@@ -89,6 +89,7 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
     private Range[]? unicodeEscapingRanges;
     private Range[]? exemptEscapingRanges;
 
+    private FieldContentHandling contextContentHandlingFlags;
     private StringStyle?         style;
     private DateTimeStyleFormat? dateTimeFormat;
     private TimeStyleFormat?     timeFormat;
@@ -98,27 +99,32 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
 
     private (Range, JsonEscapeType, Func<Rune, string>)[]? cachedMappingFactoryRanges;
 
-    private ICustomStringFormatter? formatter;
-
     public StyleOptions? MyObjInstance
     {
         get => myOptionsObj;
         set => myOptionsObj = value;
     }
 
-    public StyleOptions MyObjInstanceOrCreate => myOptionsObj ??= new StyleOptions(this);
+    public StyleOptions MyObjInstanceOrCreate(IRecycler recycler) =>
+        myOptionsObj ??= recycler.Borrow<StyleOptions>().Initialize(this);
 
     public StringStyle Style
     {
-        readonly get => style ?? fallbackOptions?.Values.Style ?? StringStyle.Default;
-        set
-        {
-            if (value == style) return;
-            style = value;
-            formatter?.DecrementRefCount();
-            formatter = null!;
-        }
+        readonly get => style ?? fallbackOptions?.Values.Style ?? StringStyle.CompactLog;
+        set => style = value;
     }
+
+    public FieldContentHandling CurrentContextContentHandling
+    {
+        get => contextContentHandlingFlags;
+        set => contextContentHandlingFlags = value;
+    }
+
+    public bool IsSame(FieldContentHandling callerRequestedHandling) =>
+        ((callerRequestedHandling & EncodingMask) == 0
+      || (contextContentHandlingFlags & EncodingMask) == (callerRequestedHandling & EncodingMask))
+     && ((callerRequestedHandling & FormattingMask) == 0
+      || (contextContentHandlingFlags & FormattingMask) == (callerRequestedHandling & FormattingMask));
 
     public char IndentChar
     {
@@ -132,13 +138,9 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
         set => indentSize = value;
     }
 
-    public int IndentLevel
-    {
-        get => indentLevel;
-        set => indentLevel = value;
-    }
+    public int IndentLevel { get; set; }
 
-    public int IndentRepeat(int indentLevel) => indentLevel * IndentSize;
+    public int IndentRepeat(int level) => level * IndentSize;
 
     public string ItemSeparator
     {
@@ -152,7 +154,7 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
         set => onNullWriteNullString = !value;
     }
 
-    public bool NullWritesNullString 
+    public bool NullWritesNullString
     {
         readonly get => onNullWriteNullString ?? fallbackOptions?.Values.NullWritesNothing ?? false;
         set => onNullWriteNullString = value;
@@ -225,10 +227,7 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
         {
             sourceEncodingTransferResolver = value;
             if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
             encodingTransfer = SourceEncodingTransfer(this);
         }
     }
@@ -273,15 +272,9 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
                     UnicodeEscapingRanges = JsonFormattingOptions.DefaultJsUnicodeEscapeRange[encodingTypeLookup];
                 }
             }
-            else
-            {
-                UnicodeEscapingRanges = [];
-            }
+            else { UnicodeEscapingRanges = []; }
             if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
             encodingTransfer = SourceEncodingTransfer(this);
         }
     }
@@ -291,26 +284,28 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
         readonly get
         {
             var checkMappingFactoryRanges = cachedMappingFactoryRanges ?? fallbackOptions?.Values.CachedMappingFactoryRanges;
-            if (checkMappingFactoryRanges != null)
-            {
-                return checkMappingFactoryRanges;
-            }
+            if (checkMappingFactoryRanges != null) { return checkMappingFactoryRanges; }
             switch (jsonEncodingTransferType)
             {
                 case JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly:
-                    return [(new Range(Index.Start, new Index(128)), JsonEscapeType.BackSlashEscape, JsonFormattingOptions.DefaultAsciiBackSlashEscapeMapping)];
+                    return
+                    [
+                        (new Range(Index.Start, new Index(128)), JsonEscapeType.AsciiEscape
+                       , JsonFormattingOptions.DefaultAsciiBackSlashEscapeMapping)
+                    ];
                 default:
-                    return [(new Range(Index.Start, new Index(128)), JsonEscapeType.UnicodeEscape, JsonFormattingOptions.DefaultAsciiBackSlashEscapeMapping)];
+                    return
+                    [
+                        (new Range(Index.Start, new Index(128)), JsonEscapeType.UnicodeEscape
+                       , JsonFormattingOptions.DefaultAsciiBackSlashEscapeMapping)
+                    ];
             }
         }
         set
         {
             cachedMappingFactoryRanges = value;
             if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
             encodingTransfer = SourceEncodingTransfer(this);
         }
     }
@@ -323,10 +318,7 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
             if (exemptEscapingRanges != null && value.SequenceEqual(exemptEscapingRanges)) return;
             exemptEscapingRanges = value;
             if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
             encodingTransfer = SourceEncodingTransfer(this);
         }
     }
@@ -341,37 +333,9 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
             if (unicodeEscapingRanges != null && value.SequenceEqual(unicodeEscapingRanges)) return;
             unicodeEscapingRanges = value;
             if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
+            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
             encodingTransfer = SourceEncodingTransfer(this);
         }
-    }
-
-    public ICustomStringFormatter Formatter
-    {
-        get => formatter ??= SourceFormatter(this);
-        set => formatter = value;
-    }
-
-    public IStyledTypeFormatting StyledTypeFormatter => (IStyledTypeFormatting)Formatter;
-
-    public Func<StyleOptionsValue, ICustomStringFormatter> SourceFormatter
-    {
-        get => sourceFormatterResolver ??= DefaultSourceFormatter;
-        set => sourceFormatterResolver = value;
-    }
-
-    public IStyledTypeFormatting DefaultSourceFormatter(StyleOptionsValue styleOptionsValue)
-    {
-        return styleOptionsValue.Style switch
-               {
-                   StringStyle.Json | StringStyle.Compact => Recycler.ThreadStaticRecycler.Borrow<CompactJsonTypeFormatting>().Initialize(MyObjInstanceOrCreate)
-                 , StringStyle.Json | StringStyle.Pretty  => Recycler.ThreadStaticRecycler.Borrow<PrettyJsonTypeFormatting>().Initialize(MyObjInstanceOrCreate)
-                 , StringStyle.Log | StringStyle.Pretty   => Recycler.ThreadStaticRecycler.Borrow<PrettyLogTypeFormatting>().Initialize(MyObjInstanceOrCreate)
-                 , _                                      => Recycler.ThreadStaticRecycler.Borrow<CompactLogTypeFormatting>().Initialize(MyObjInstanceOrCreate)
-               };
     }
 
     public string NewLineStyle
@@ -396,10 +360,7 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
     {
         get
         {
-            if (customTimeFormatString.IsNotNullOrEmpty())
-            {
-                return customTimeFormatString;
-            }
+            if (customTimeFormatString.IsNotNullOrEmpty()) { return customTimeFormatString; }
             return TimeFormat switch
                    {
                        TimeStyleFormat.Default => DefaultTimeFormat
@@ -460,10 +421,7 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
     {
         get
         {
-            if (customDateTimeFormatString != null)
-            {
-                return customDateTimeFormatString;
-            }
+            if (customDateTimeFormatString != null) { return customDateTimeFormatString; }
             if (fallbackOptions?.Values.DateTimeAsStringFormatString != null && fallbackOptions?.Values.DateTimeFormat == DateTimeFormat)
             {
                 return fallbackOptions!.Values.DateTimeAsStringFormatString;
@@ -478,7 +436,7 @@ public struct StyleOptionsValue :  IJsonFormattingOptions
         }
         set => customDateTimeFormatString = value;
     }
-    
+
     public string DateOnlyAsStringFormatString
     {
         readonly get => dateOnlyAsStringFormatString ?? fallbackOptions?.Values.DateOnlyAsStringFormatString ?? DefaultYyyyMMddOnly;
@@ -562,6 +520,8 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
 {
     private StyleOptionsValue values;
 
+    private ICustomStringFormatter? formatter;
+
     public StyleOptions() : this(new StyleOptionsValue()) { }
 
     public StyleOptions(StringStyle style)
@@ -570,6 +530,12 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         {
             Style = style, MyObjInstance = this
         };
+    }
+
+    public StyleOptions Initialize(StyleOptionsValue styleOptions)
+    {
+        values = styleOptions;
+        return this;
     }
 
     public StyleOptions(StyleOptionsValue initialValues)
@@ -594,6 +560,14 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         get => values.Style;
         set => values.Style = value;
     }
+
+    public FieldContentHandling CurrentContextContentHandling
+    {
+        get => values.CurrentContextContentHandling;
+        set => values.CurrentContextContentHandling = value;
+    }
+
+    public bool IsSame(FieldContentHandling callerRequestedHandling) => values.IsSame(callerRequestedHandling);
 
     public char IndentChar
     {
@@ -624,7 +598,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
             IndentSize = value.Length;
         }
     }
-    
+
     public int IndentLevel
     {
         get => values.IndentLevel;
@@ -644,13 +618,13 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         get => values.NullWritesNothing;
         set => values.NullWritesNothing = value;
     }
-    
-    public bool NullWritesNullString 
+
+    public bool NullWritesNullString
     {
         get => values.NullWritesNullString;
         set => values.NullWritesNullString = value;
     }
-    
+
     public bool EmptyCollectionWritesNull
     {
         get => values.EmptyCollectionWritesNull;
@@ -737,17 +711,18 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
 
     public ICustomStringFormatter Formatter
     {
-        get => values.Formatter;
-        set => values.Formatter = value;
+        get => formatter ??=  (Recycler.ThreadStaticRecycler).ResolveStyleFormatter(this);
+        set
+        {
+            formatter?.DecrementRefCount();
+            formatter = value;
+            formatter?.IncrementRefCount();
+        }
     }
 
-    public IStyledTypeFormatting StyledTypeFormatter => values.StyledTypeFormatter;
+    public void IfExistsIncrementFormatterRefCount() => formatter?.IncrementRefCount();
 
-    public Func<StyleOptionsValue, ICustomStringFormatter> SourceFormatter
-    {
-        get => values.SourceFormatter;
-        set => values.SourceFormatter = value;
-    }
+    public IStyledTypeFormatting StyledTypeFormatter => (IStyledTypeFormatting)Formatter;
 
     public string NewLineStyle
     {
@@ -767,7 +742,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         set => values.TimeFormat = value;
     }
 
-    public string TimeAsStringFormatString 
+    public string TimeAsStringFormatString
     {
         get => values.TimeAsStringFormatString;
         set => values.TimeAsStringFormatString = value;
@@ -891,5 +866,11 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
     {
         get => values.DefaultGraphMaxDepth;
         set => values.DefaultGraphMaxDepth = value;
+    }
+
+    protected override void InheritedStateReset()
+    {
+        formatter?.DecrementRefCount();
+        base.InheritedStateReset();
     }
 }

@@ -12,7 +12,7 @@ using FortitudeBusRules.Config;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Monitoring.Logging;
 using static FortitudeBusRules.BusMessaging.Pipelines.MessageQueueType;
 

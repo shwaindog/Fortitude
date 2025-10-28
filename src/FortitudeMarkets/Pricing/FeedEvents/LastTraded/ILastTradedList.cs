@@ -2,7 +2,7 @@
 // Copyright Alexis Sawenko 2024 all rights reserved
 
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 

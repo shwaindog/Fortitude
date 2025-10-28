@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 
 #endregion
 

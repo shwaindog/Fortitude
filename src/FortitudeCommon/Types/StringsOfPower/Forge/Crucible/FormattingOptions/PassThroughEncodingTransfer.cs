@@ -6,6 +6,8 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 public class PassThroughEncodingTransfer : IEncodingTransfer
 {
     public string EncodingTransferConfigKey { get; private set; } = "PassThrough";
+    
+    public static PassThroughEncodingTransfer Instance { get; } = new ();
 
     public int Transfer(Rune? source, IStringBuilder destSb)
     {

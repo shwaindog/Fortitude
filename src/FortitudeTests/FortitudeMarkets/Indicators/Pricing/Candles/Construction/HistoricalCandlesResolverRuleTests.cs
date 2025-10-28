@@ -8,7 +8,7 @@ using FortitudeBusRules.BusMessaging.Routing.Response;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Storage.TimeSeries.FileSystem;

@@ -1,7 +1,7 @@
 ﻿#region
 
 using System.Text;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 
 #endregion

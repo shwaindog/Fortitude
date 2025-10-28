@@ -4,7 +4,6 @@
 using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower;
 
@@ -21,7 +20,7 @@ public class TargetStringBearerRevealStateTests
           , BuildType             = FLogBuildTypeProfile.ReleaseBuild
         };
 
-        var stsa = new TheOneString().Initialize(StringStyle.PlainText);
+        var stsa = new TheOneString().Initialize();
         
         
         TargetStringBearerRevealState.CallBaseStyledToString<FLoggerActivationConfig, FLogBuildTypeAndDeployEnvConfig>(baseHasStyledToString, stsa);
@@ -51,7 +50,7 @@ public class TargetStringBearerRevealStateTests
           , BuildType             = FLogBuildTypeProfile.ReleaseBuild
         };
 
-        var stsa = new TheOneString().Initialize(StringStyle.PlainText);
+        var stsa = new TheOneString().Initialize();
         
         
         TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(baseHasStyledToString, stsa);

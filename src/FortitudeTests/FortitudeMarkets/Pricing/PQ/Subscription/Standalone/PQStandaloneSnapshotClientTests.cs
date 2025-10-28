@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;

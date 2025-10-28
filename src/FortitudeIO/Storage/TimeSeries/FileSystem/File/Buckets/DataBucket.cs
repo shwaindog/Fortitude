@@ -5,10 +5,10 @@
 
 using System.Runtime.InteropServices;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
-using FortitudeCommon.DataStructures.Memory.Compression.Lzma;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeCommon.DataStructures.MemoryPools.Compression.Lzma;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;

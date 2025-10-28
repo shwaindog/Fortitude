@@ -5,7 +5,7 @@ using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Core.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
-using RecyclableObject = FortitudeCommon.DataStructures.Memory.RecyclableObject;
+using RecyclableObject = FortitudeCommon.DataStructures.MemoryPools.RecyclableObject;
 
 namespace FortitudeCommon.Logging.Core.Appending;
 
@@ -160,13 +160,13 @@ public class NullAppender(INullAppenderConfig appenderDefinitionConfig)
             }
 
         var notifyOnThreshold =
-            DataStructures.Memory.Recycler.ThreadStaticRecycler
+            DataStructures.MemoryPools.Recycler.ThreadStaticRecycler
                           .Borrow<NotifyWhenEntriesCountReaches>()
                           .Initialize(countType, reaches, callback, this);
         lock (notificationSyncLock)
         {
             registeredCountNotifications
-                ??= DataStructures.Memory.Recycler.ThreadStaticRecycler.Borrow<ReusableList<NotifyWhenEntriesCountReaches>>();
+                ??= DataStructures.MemoryPools.Recycler.ThreadStaticRecycler.Borrow<ReusableList<NotifyWhenEntriesCountReaches>>();
             registeredCountNotifications.Add(notifyOnThreshold);
         }
     }

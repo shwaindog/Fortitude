@@ -6,7 +6,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -14,9 +14,11 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 #endregion
 
@@ -24,10 +26,6 @@ namespace FortitudeCommon.Types.StringsOfPower;
 
 public interface ITheOneString : IReusableObject<ITheOneString>
 {
-    const string DefaultIndentString   = "  ";
-    const string WhenNullString        = "null";
-    const string DefaultString         = "";
-    const string DefaultStringAsNumber = "0";
     // ReSharper disable UnusedMemberInSuper.Global
     StringStyle Style { get; }
 
@@ -92,26 +90,19 @@ public interface ISecretStringOfPower : ITheOneString
     ITheOneString AddBaseFieldsEnd();
 }
 
-public readonly struct ChangeContextDisposable : IDisposable
+public readonly struct CallContextDisposable(bool shouldSkip, ITheOneString? stringMaster = null, StyleOptions? toRestoreOnDispose = null)
+    : IDisposable
 {
-    private readonly ITheOneString stringMaster;
-
-    private readonly StyleOptions? previousOptions;
-
-    public ChangeContextDisposable(ITheOneString stringMaster, StyleOptions? toRestoreOnDispose)
-    {
-        this.stringMaster    = stringMaster;
-        this.previousOptions = toRestoreOnDispose;
-    }
-
-    public bool HasFormatChange => previousOptions != null;
+    public bool ShouldSkip => shouldSkip;
+    
+    public bool HasFormatChange => toRestoreOnDispose != null;
 
     public void Dispose()
     {
-        if (HasFormatChange)
+        if (toRestoreOnDispose != null && stringMaster != null)
         {
-            stringMaster.Settings.Values = previousOptions!.Values;
-            ((IRecyclableObject)previousOptions).DecrementRefCount();
+            stringMaster.Settings.Values = toRestoreOnDispose.Values;
+            ((IRecyclableObject)toRestoreOnDispose).DecrementRefCount();
         }
     }
 }
@@ -124,7 +115,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     private static readonly ConcurrentDictionary<Type, IStyledTypeFormatting> TypeFormattingOverrides = new();
 
-    public static Func<IStringBuilder> BufferFactory = () => AlWaysRecycler.Borrow<MutableString>();
+    public static readonly Func<IStringBuilder> BufferFactory = () => AlWaysRecycler.Borrow<MutableString>();
 
     protected int CurrentGraphNodeIndex = -1;
 
@@ -140,7 +131,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public TheOneString()
     {
-        Settings.Style = StringStyle.Default;
+        Settings.Style = StringStyle.CompactLog;
     }
 
     public TheOneString(StringStyle withStyle)
@@ -166,21 +157,23 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         Settings.Style = toClone.Style;
     }
 
-    public ITheOneString Initialize(IStringBuilder usingStringBuilder, StringStyle buildStyle = StringStyle.Default)
+    public ITheOneString Initialize(IStringBuilder usingStringBuilder, StringStyle buildStyle = StringStyle.CompactLog)
     {
         Sb?.DecrementRefCount();
         Sb             = usingStringBuilder;
         Settings.Style = buildStyle;
+        OrderedObjectGraph.Clear();
 
         return this;
     }
 
-    public ITheOneString Initialize(StringStyle buildStyle = StringStyle.Default)
+    public ITheOneString Initialize(StringStyle buildStyle = StringStyle.CompactLog)
     {
         Sb?.DecrementRefCount();
         Sb = SourceStringBuilder();
 
         Settings.Style = buildStyle;
+        OrderedObjectGraph.Clear();
 
         return this;
     }
@@ -191,7 +184,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public bool UseEqualsForVisited
     {
-        get => UseReferenceEqualsForVisited!;
+        get => UseReferenceEqualsForVisited;
         set => UseReferenceEqualsForVisited = !value;
     }
 
@@ -491,6 +484,28 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return this;
     }
 
+    public CallContextDisposable ResolveContextForContentFlags(FieldContentHandling contentFlags)
+    {
+        if ((contentFlags & ExcludeMask) > 0)
+        {
+            var shouldSkip = false;
+            shouldSkip |= Settings.Style.IsLog() && contentFlags.HasExcludeWhenLogStyleFlag();
+            shouldSkip |= Settings.Style.IsJson() && contentFlags.HasExcludeWhenJsonStyleFlag();
+            shouldSkip |= Settings.Style.IsCompact() && contentFlags.HasExcludeWhenCompactFlag();
+            shouldSkip |= Settings.Style.IsPretty() && contentFlags.HasExcludeWhenPrettyFlag();
+            if(shouldSkip) return new CallContextDisposable(true);
+        }
+        if(Settings.IsSame(contentFlags)) return new CallContextDisposable(false);
+        Settings.IfExistsIncrementFormatterRefCount();
+        var saveCurrentOptions = Recycler.Borrow<StyleOptions>().Initialize(Settings.Values);
+        var existingOptions = new CallContextDisposable(false, this, saveCurrentOptions);
+
+        Settings.Style     = contentFlags.UpdateStringStyle(Settings.Style);
+        Settings.Formatter = Recycler.ResolveStyleFormatter(Settings);
+
+        return existingOptions;
+    }
+
     protected int NextRefId() => NextObjVisitedRefId++;
 
     protected void TypeStart<T>(T toStyle, TypeMolder newType, Type typeOfT)
@@ -503,21 +518,6 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).ComponentAccess
         };
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
-
-        StartNewVisit(newType, newVisit);
-    }
-
-    protected void ObjectStart(object toStyle, TypeMolder newType, Type toStyleType)
-    {
-        var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, toStyleType, newType.IsComplexType
-                                        , toStyle, (CurrentNode?.GraphDepth ?? -1) + 1
-                                        , IndentLevel, Sb!.Length
-                                        , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1)
-        {
-            TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).ComponentAccess
-        };
-        if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
-
 
         StartNewVisit(newType, newVisit);
     }
@@ -708,7 +708,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
       , object? StylingObjInstance
       , int GraphDepth
       , int IndentLevel
-      , int OriginalBufferTypeStart
+      , int CurrentBufferTypeStart
       , int RemainingGraphDepth
     )
     {
@@ -741,18 +741,6 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             };
         }
 
-        public GraphNodeVisit SetBufferTypeENd(int bufferIndex)
-        {
-            return this with
-            {
-                RefId = RefId
-              , TypeBuilderComponentAccess = TypeBuilderComponentAccess
-              , CurrentBufferTypeStart = CurrentBufferTypeStart
-              , CurrentBufferFirstFieldStart = CurrentBufferFirstFieldStart
-              , CurrentBufferTypeEnd = bufferIndex
-            };
-        }
-
         public GraphNodeVisit ClearComponentAccess()
         {
             return this with
@@ -776,8 +764,6 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
               , CurrentBufferTypeEnd = CurrentBufferTypeEnd != -1 ? CurrentBufferTypeEnd + amountToShift : -1
             };
         }
-
-        public int CurrentBufferTypeStart { get; init; } = OriginalBufferTypeStart;
 
         public int CurrentBufferTypeEnd { get; init; } = -1;
 

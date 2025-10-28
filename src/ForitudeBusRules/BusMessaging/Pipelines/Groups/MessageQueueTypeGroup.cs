@@ -10,7 +10,7 @@ using FortitudeBusRules.Connectivity.Network.Dispatcher;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeIO.Transports.Network.Receiving;
 
 #endregion

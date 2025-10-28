@@ -4,7 +4,7 @@
 #region
 
 using FortitudeBusRules.BusMessaging.Pipelines;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Types.Mutable;
 using static FortitudeBusRules.BusMessaging.Messages.MarshallerType;

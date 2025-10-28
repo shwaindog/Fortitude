@@ -2,8 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Runtime.InteropServices;
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.Buffers;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 
 namespace FortitudeCommon.EventProcessing.Disruption.Sequences;
 

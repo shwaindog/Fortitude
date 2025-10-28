@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
@@ -596,26 +596,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
       , int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
     {
         var preTransferLen = destSb.Length;
-        // if (!parentJsonOptions.CharArrayWritesString)
-        // {
-        //     var  cappedEnd    = Math.Clamp(maxTransferCount, 0, source.Length);
-        //     int  j            = Math.Clamp(sourceFrom, 0, source.Length);
-        //     int  lastAdded    = 0;
-        //     char previousChar = '\0';
-        //     for (; j < cappedEnd; j++)
-        //     {
-        //         var item = source[j];
-        //         if (j > 0) stringFormatter.AddCollectionElementSeparator(typeof(char), destSb, j);
-        //         lastAdded    = lastAdded > 0 || j == sourceFrom
-        //             ?  stringFormatter.CollectionNextItemFormat(item, j, destSb, "")
-        //             : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSb, "");
-        //         previousChar =  lastAdded == 0 ? item : '\0';
-        //     }
-        //     return destSb.Length - preTransferLen;
-        // }
-        // stringFormatter.StringValueDelimiter(destSb);
         JsEscapingTransfer(source, sourceFrom, destSb, destStartIndex, maxTransferCount);
-        // stringFormatter.StringValueDelimiter(destSb);
         return  destSb.Length - preTransferLen;
     }
 
@@ -623,29 +604,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
       , int maxTransferCount = int.MaxValue)
     {
         var  charsAdded   = 0;
-        // if (!parentJsonOptions.CharArrayWritesString)
-        // {
-        //     var  cappedEnd    = Math.Clamp(maxTransferCount, 0, source.Length);
-        //     int  j            = Math.Clamp(sourceFrom, 0, source.Length);
-        //     int  lastAdded    = 0;
-        //     char previousChar = '\0';
-        //     for (; j < cappedEnd; j++)
-        //     {
-        //         var item = source[j];
-        //
-        //         if (j > 0 && lastAdded > 0) charsAdded += stringFormatter.AddCollectionElementSeparator(typeof(char), destSpan, destStartIndex + charsAdded, j);
-        //         
-        //         lastAdded    = lastAdded > 0 || j == sourceFrom
-        //             ?  stringFormatter.CollectionNextItemFormat(item, j, destSpan, destStartIndex + charsAdded, "")
-        //             : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSpan, destStartIndex + charsAdded, "");
-        //         previousChar =  lastAdded == 0 ? item : '\0';
-        //         charsAdded   += lastAdded;
-        //     }
-        //     return charsAdded;
-        // }
-        // charsAdded =  stringFormatter.StringValueDelimiter(destSpan, destStartIndex);
         charsAdded += JsEscapingTransfer(source, sourceFrom, destSpan, destStartIndex, maxTransferCount);
-        // charsAdded +=  stringFormatter.StringValueDelimiter(destSpan, destStartIndex);
         return charsAdded;
     }
 

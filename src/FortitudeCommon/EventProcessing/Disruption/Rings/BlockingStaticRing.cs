@@ -2,8 +2,8 @@
 
 using System.Runtime.CompilerServices;
 using FortitudeCommon.DataStructures.Collections;
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.Buffers;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.OSWrapper.AsyncWrappers;

@@ -2,7 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text.Json.Serialization;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;

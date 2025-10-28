@@ -4,7 +4,7 @@
 #region
 
 using System.Collections;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 #endregion
 

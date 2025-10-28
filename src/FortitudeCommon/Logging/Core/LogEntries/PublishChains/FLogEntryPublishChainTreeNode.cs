@@ -2,7 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.AsyncProcessing;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains.Visitors;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains;

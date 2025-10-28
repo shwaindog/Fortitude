@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarkets.Config.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;

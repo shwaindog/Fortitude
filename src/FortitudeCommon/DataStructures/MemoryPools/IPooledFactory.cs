@@ -1,0 +1,15 @@
+﻿namespace FortitudeCommon.DataStructures.MemoryPools;
+
+public interface IPooledFactory
+{
+    void ReturnBorrowed(object item);
+    object Borrow();
+    
+    int Count { get; }
+}
+
+public interface IPooledFactory<T> : IPooledFactory
+{
+    void ReturnBorrowed(T item);
+    new T Borrow();
+}

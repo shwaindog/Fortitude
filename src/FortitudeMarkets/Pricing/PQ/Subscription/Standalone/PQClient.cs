@@ -4,7 +4,7 @@
 #region
 
 using System.Reactive.Disposables;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Monitoring.Logging;

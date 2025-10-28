@@ -5,7 +5,7 @@
 
 using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Storage.TimeSeries;

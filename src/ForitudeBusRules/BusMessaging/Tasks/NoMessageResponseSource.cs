@@ -6,7 +6,7 @@
 using System.Threading.Tasks.Sources;
 using FortitudeBusRules.Messages;
 using FortitudeCommon.AsyncProcessing.Tasks;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 
 #endregion

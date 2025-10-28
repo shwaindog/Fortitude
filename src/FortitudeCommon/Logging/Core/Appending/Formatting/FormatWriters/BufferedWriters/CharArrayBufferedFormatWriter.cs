@@ -2,7 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
-using FortitudeCommon.DataStructures.Memory.Buffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;

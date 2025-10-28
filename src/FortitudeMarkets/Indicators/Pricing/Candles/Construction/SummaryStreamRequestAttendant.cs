@@ -7,7 +7,7 @@ using FortitudeBusRules.BusMessaging.Routing.Channel;
 using FortitudeBusRules.BusMessaging.Routing.Response;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Storage.TimeSeries;

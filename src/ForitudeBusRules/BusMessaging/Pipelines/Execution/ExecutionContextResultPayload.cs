@@ -5,7 +5,7 @@
 
 using FortitudeBusRules.BusMessaging.Tasks;
 using FortitudeCommon.AsyncProcessing.Tasks;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 #endregion
 

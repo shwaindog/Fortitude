@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks.Sources;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Collections;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 

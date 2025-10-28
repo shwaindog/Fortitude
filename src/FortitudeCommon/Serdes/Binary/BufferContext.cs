@@ -1,4 +1,4 @@
-﻿using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+﻿using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 
 namespace FortitudeCommon.Serdes.Binary;
 

@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Config;
 using FortitudeMarkets.Config.PricingConfig;

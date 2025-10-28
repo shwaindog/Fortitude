@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 

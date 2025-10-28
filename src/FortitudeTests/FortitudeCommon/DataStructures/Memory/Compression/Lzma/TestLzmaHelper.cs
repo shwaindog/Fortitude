@@ -4,11 +4,11 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.Buffers;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
-using FortitudeCommon.DataStructures.Memory.Compression.Lzma;
-using FortitudeCommon.DataStructures.Memory.Compression.Lzma.Common;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools.Compression.Lzma;
+using FortitudeCommon.DataStructures.MemoryPools.Compression.Lzma.Common;
 using FortitudeCommon.Types;
 
 #endregion

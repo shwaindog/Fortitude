@@ -1,6 +1,6 @@
 using System.Threading;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.EventProcessing.Disruption.Sequences;
 
 namespace FortitudeCommon.AsyncProcessing;

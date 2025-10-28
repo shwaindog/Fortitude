@@ -3,7 +3,7 @@
 using System.Collections.Concurrent;
 using System.Globalization;
 using FortitudeCommon.DataStructures;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 #endregion
 

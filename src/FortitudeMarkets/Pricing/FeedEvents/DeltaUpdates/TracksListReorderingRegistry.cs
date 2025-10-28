@@ -1,5 +1,5 @@
 ﻿using FortitudeCommon.DataStructures.Collections;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 using static FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates.ListShiftCommandType;
 

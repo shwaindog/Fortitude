@@ -3,7 +3,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 

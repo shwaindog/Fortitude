@@ -1,7 +1,7 @@
-﻿using FortitudeCommon.DataStructures.Memory.Buffers;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
+﻿using FortitudeCommon.DataStructures.MemoryPools.Buffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers.UnmanagedMemory;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
 
 namespace FortitudeCommon.OSWrapper.Memory;
 

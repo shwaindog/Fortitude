@@ -5,7 +5,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Text;
-using FortitudeCommon.DataStructures.Memory.Buffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
@@ -137,7 +137,7 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
             return null;
         }
         var tempStsa = Temp;
-        tempStsa.ClearAndReinitialize(new StyleOptionsValue(StringStyle.Default));
+        tempStsa.ClearAndReinitialize(new StyleOptionsValue(StringStyle.CompactLog));
         return tempStsa;
     }
 
