@@ -2601,8 +2601,12 @@ public static class StringLikeTestData
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("It"), "\"{0}\"", false, new StringBuilder(), 3, 2)
         {
-            { new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "\"\"" }
-          , { new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesFallback), "\"\"0\"\"" }
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesZero ), "\"0\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesZero ), "\"\"0\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder |DefaultTreatedAsValueOut | DefaultBecomesZero), "\"0\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut | DefaultBecomesZero), "\"\"0\"\"" }
+          , { new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "\"\"" }
+          , { new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesFallback), "\"\"\"\"" }
            ,{
                 new EK(AcceptsChars | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut )
               , """""

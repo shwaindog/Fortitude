@@ -170,7 +170,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb.Append(DblQt);
     }
 
-    public virtual IStringBuilder FormatFieldName(ITheOneString tos, IStringBearer styledObj)
+    public virtual IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer
     {
         var preAppendLen = tos.WriteBuffer.Length;
         styledObj.RevealState(tos);
@@ -363,7 +363,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return tos.WriteBuffer;
     }
 
-    public virtual IStringBuilder FormatFieldContents(ITheOneString tos, IStringBearer styledObj)
+    public virtual IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer
     {
         var sb           = tos.WriteBuffer;
         var preAppendLen = sb.Length;
@@ -557,7 +557,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat(ITheOneString tos, IStringBearer? item, int retrieveCount)
+    public virtual IStringBuilder CollectionNextItemFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount)
+        where TBearer : IStringBearer
     {
         if (item == null)
         {

@@ -625,7 +625,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -649,7 +649,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -672,7 +672,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -695,7 +695,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -718,7 +718,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -741,7 +741,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -764,7 +764,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -787,7 +787,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -810,7 +810,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -833,7 +833,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -855,7 +855,7 @@ public partial class OrderedCollectionMold<TOCMold>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -877,7 +877,7 @@ public partial class OrderedCollectionMold<TOCMold>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -901,7 +901,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
                 var item = value!.Current;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount);
             }
@@ -926,7 +926,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
                 var item = value!.Current;
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount);
             }
@@ -950,7 +950,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -973,7 +973,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -995,7 +995,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1017,7 +1017,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1040,7 +1040,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1062,7 +1062,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1084,7 +1084,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1107,7 +1107,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1130,7 +1130,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1153,7 +1153,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1175,7 +1175,7 @@ public partial class OrderedCollectionMold<TOCMold>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1197,7 +1197,7 @@ public partial class OrderedCollectionMold<TOCMold>
             {
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
@@ -1222,7 +1222,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1248,7 +1248,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }

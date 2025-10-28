@@ -15,7 +15,8 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 {
     public TMold WhenNonNullOrDefaultAdd
     (ReadOnlySpan<char> fieldName, bool? value, bool defaultValue = false
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TMold WhenNonNullOrDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value, TFmt? defaultValue = default(TFmt)

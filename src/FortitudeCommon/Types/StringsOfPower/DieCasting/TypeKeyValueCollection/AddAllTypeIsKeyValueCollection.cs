@@ -130,7 +130,7 @@ public partial class KeyValueCollectionMold
             {
                 var kvp = value[i];
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
@@ -154,7 +154,7 @@ public partial class KeyValueCollectionMold
             {
                 var kvp = value[i];
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
@@ -176,7 +176,7 @@ public partial class KeyValueCollectionMold
             foreach (var kvp in value)
             {
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -200,7 +200,7 @@ public partial class KeyValueCollectionMold
             {
                 var kvp = value!.Current;
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -224,8 +224,8 @@ public partial class KeyValueCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
@@ -244,8 +244,8 @@ public partial class KeyValueCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
@@ -264,8 +264,8 @@ public partial class KeyValueCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -285,8 +285,8 @@ public partial class KeyValueCollectionMold
             while(hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }

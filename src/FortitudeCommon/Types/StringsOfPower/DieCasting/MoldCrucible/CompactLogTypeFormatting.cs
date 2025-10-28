@@ -210,7 +210,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat(ITheOneString tos, IStringBearer? item, int retrieveCount) 
+    public virtual IStringBuilder CollectionNextItemFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer 
     {
         if (item == null)
         {
@@ -270,7 +270,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase =>
         styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
 
-    public virtual IStringBuilder FormatFieldName(ITheOneString tos, IStringBearer styledObj) =>
+    public virtual IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer =>
         styledObj.RevealState(tos).ToStringBuilder(tos.WriteBuffer);
 
     public virtual IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
@@ -334,7 +334,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , PalantírReveal<TCloakedBase> styler)  where TCloaked : TCloakedBase =>
         styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
 
-    public virtual IStringBuilder FormatFieldContents(ITheOneString tos, IStringBearer styledObj)  =>
+    public virtual IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer  =>
         styledObj.RevealState(tos).ToStringBuilder(tos.WriteBuffer);
 
     public virtual IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber)  =>

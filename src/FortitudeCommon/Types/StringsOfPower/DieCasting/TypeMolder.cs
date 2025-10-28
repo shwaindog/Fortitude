@@ -14,6 +14,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -123,7 +124,6 @@ public interface ITypeBuilderComponentSource<out T> : ITypeBuilderComponentSourc
 public static class StyledTypeBuilderExtensions
 {
     internal const string Null                     = "null";
-    internal const string NoFormattingFormatString = "{0}";
     
     private static readonly ConcurrentDictionary<(Type,Type), Delegate> DynamicSpanFmtContentInvokers           = new();
     private static readonly ConcurrentDictionary<(Type,Type), Delegate> DynamicSpanFmtCollectionElementInvokers = new();
@@ -133,8 +133,7 @@ public static class StyledTypeBuilderExtensions
     {
         return stb.StyleFormatter.AddNextFieldSeparator(stb.Sb).ToTypeBuilder(stb);
     }
-
-
+    
     public static TExt ToTypeBuilder<TExt, T>(this T _, ITypeMolderDieCast<TExt> typeBuilder)
         where TExt : TypeMolder =>
         typeBuilder.StyleTypeBuilder;
@@ -151,26 +150,27 @@ public static class StyledTypeBuilderExtensions
         where TExt : TypeMolder =>
         typeBuilder;
 
-    public static IStringBuilder Qt(this IStringBuilder sb, bool writeQuote) => writeQuote ? sb.Append("\"") : sb;
-
-    public static ITypeMolderDieCast<TExt> Qt<TExt>(this ITypeMolderDieCast<TExt> stb, bool writeQuote)
-        where TExt : TypeMolder =>
-        writeQuote ? stb.Sb.Append("\"").AnyToCompAccess(stb) : stb;
-
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>(this ITypeMolderDieCast<TExt> stb, bool? value, string formatString
-      , bool isKeyName = false) where TExt : TypeMolder 
+    public static ITypeMolderDieCast<TExt> AppendNullableBooleanField<TExt>(this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, bool? value
+      , string formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) 
+        where TExt : TypeMolder
     {
-        var formatFlags = 
-            stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, FieldContentHandling.DefaultCallerTypeFlags, formatString, isKeyName);
-        if (isKeyName)
-            stb.StyleFormatter.FormatFieldName(stb.Sb, value, formatString, formatFlags);
-        else
-            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, formatString, formatFlags);
-        return stb;
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (value == null)
+        {
+            var sb = stb.Sb;
+            sb.Append(stb.Settings.NullStyle);
+            return stb;
+        }
+        if (!callContext.HasFormatChange) return stb.AppendFormattedOrNull(value, formatString, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendFormattedOrNull(value, formatString, formatFlags, isKeyName); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormatted<TExt>(this ITypeMolderDieCast<TExt> stb, bool value, string formatString
-        , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false) where TExt : TypeMolder 
+    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>(this ITypeMolderDieCast<TExt> stb, bool? value, string formatString
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) where TExt : TypeMolder 
     {
         formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, formatString, isKeyName);
         if (isKeyName)
@@ -180,9 +180,47 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
+    public static ITypeMolderDieCast<TExt> AppendBooleanField<TExt>(this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, bool value
+      , string formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) 
+        where TExt : TypeMolder 
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendFormatted(value, formatString, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendFormatted(value, formatString, formatFlags, isKeyName); }
+    }
+
+    public static ITypeMolderDieCast<TExt> AppendFormatted<TExt>(this ITypeMolderDieCast<TExt> stb, bool value, string formatString
+        , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) where TExt : TypeMolder 
+    {
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, formatString, isKeyName);
+        if (isKeyName)
+            stb.StyleFormatter.FormatFieldName(stb.Sb, value, formatString, formatFlags);
+        else
+            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, formatString, formatFlags);
+        return stb;
+    }
+
+    public static ITypeMolderDieCast<TExt> AppendFormattableField<TExt, TFmt>
+    (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
+        where TExt : TypeMolder where TFmt : ISpanFormattable
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendFormatted(value, formatString, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendFormatted(value, formatString, formatFlags, isKeyName); }
+    }
+
     public static ITypeMolderDieCast<TExt> AppendFormatted<TExt, TFmt>
     (this ITypeMolderDieCast<TExt> stb, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
         where TExt : TypeMolder where TFmt : ISpanFormattable
     {
         
@@ -194,8 +232,8 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
-    public static IStringBuilder DynamicReceiveAppendValue<TFmt>(IStringBuilder sb, IStyledTypeFormatting stf, TFmt value, string formatString = "", bool isKeyName = false)
-        where TFmt : ISpanFormattable
+    public static IStringBuilder DynamicReceiveAppendValue<TFmt>(IStringBuilder sb, IStyledTypeFormatting stf, TFmt value, string formatString = ""
+      , bool isKeyName = false) where TFmt : ISpanFormattable
     {
         if (isKeyName)
             stf.FormatFieldName(sb, value, formatString);
@@ -204,9 +242,23 @@ public static class StyledTypeBuilderExtensions
         return sb;
     }
 
+    public static ITypeMolderDieCast<TExt> AppendFormattableField<TExt, TStructFmt>
+    (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, TStructFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
+        where TExt : TypeMolder where TStructFmt : struct, ISpanFormattable
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendNullableFormattedOrNull(value, formatString, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendNullableFormattedOrNull(value, formatString, formatFlags, isKeyName); }
+    }
+    
     public static ITypeMolderDieCast<TExt> AppendNullableFormattedOrNull<TExt, TStructFmt>
     (this ITypeMolderDieCast<TExt> stb, TStructFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
         where TExt : TypeMolder where TStructFmt : struct, ISpanFormattable
     {
         if (value == null)
@@ -223,10 +275,164 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
+    public static ITypeMolderDieCast<TExt> RevealCloakedBearerField<TCloaked, TCloakedBase, TExt>(this ITypeMolderDieCast<TExt> stb
+      , ReadOnlySpan<char> fieldName, TCloaked? value, PalantírReveal<TCloakedBase> cloakedRevealer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) 
+        where TCloaked : TCloakedBase where TExt : TypeMolder
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.RevealCloakedBearerOrNull(value, cloakedRevealer, formatFlags, isKeyName);
+        using (callContext) { return stb.RevealCloakedBearerOrNull(value, cloakedRevealer, formatFlags, isKeyName); }
+    }
+
+    public static ITypeMolderDieCast<TExt> RevealCloakedBearerOrNull<TCloaked, TCloakedBase, TExt>(this ITypeMolderDieCast<TExt> stb
+      , TCloaked? toStyle, PalantírReveal<TCloakedBase> styler, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool isKeyName = false) where TCloaked : TCloakedBase where TExt : TypeMolder
+    {
+        var sb = stb.Sb;
+        if (toStyle != null)
+        {
+            if (isKeyName)
+                stb.StyleFormatter.FormatFieldName(stb.Master, toStyle, styler);
+            else
+                stb.StyleFormatter.FormatFieldContents(stb.Master, toStyle, styler);
+
+            if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloaked).IsValueType)
+            {
+                stb.Master.EnsureRegisteredVisited(toStyle);
+            }
+        }
+        else
+        {
+            sb.Append(Null);
+        }
+        return stb;
+    }
+
+    public static ITypeMolderDieCast<TExt> RevealNullableCloakedBearerField<TCloakedStruct, TExt>(this ITypeMolderDieCast<TExt> stb
+      , ReadOnlySpan<char> fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> cloakedRevealer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) 
+        where TCloakedStruct : struct where TExt : TypeMolder
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.RevealNullableCloakedBearerOrNull(value, cloakedRevealer, formatFlags, isKeyName);
+        using (callContext) { return stb.RevealNullableCloakedBearerOrNull(value, cloakedRevealer, formatFlags, isKeyName); }
+    }
+
+    public static ITypeMolderDieCast<TExt> RevealNullableCloakedBearerOrNull<TCloakedStruct, TExt>(this ITypeMolderDieCast<TExt> stb
+      , TCloakedStruct? toStyle, PalantírReveal<TCloakedStruct> styler, FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) 
+        where TCloakedStruct : struct where TExt : TypeMolder
+    {
+        var sb = stb.Sb;
+        if (toStyle != null)
+        {
+            if (isKeyName)
+                stb.StyleFormatter.FormatFieldName(stb.Master, toStyle.Value, styler);
+            else
+                stb.StyleFormatter.FormatFieldContents(stb.Master, toStyle.Value, styler);
+
+            if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloakedStruct).IsValueType)
+            {
+                stb.Master.EnsureRegisteredVisited(toStyle);
+            }
+        }
+        else
+        {
+            sb.Append(Null);
+        }
+        return stb;
+    }
+
+    public static ITypeMolderDieCast<TExt> RevealStringBearerField<TExt, TBearer>(this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName
+      , TBearer? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) 
+        where TExt : TypeMolder where TBearer : IStringBearer
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.RevealStringBearerOrNull(value, isKeyName);
+        using (callContext) { return stb.RevealStringBearerOrNull(value, isKeyName); }
+    }
+
+    public static ITypeMolderDieCast<TExt> RevealStringBearerOrNull<TExt, TBearer>(this ITypeMolderDieCast<TExt> stb
+      , TBearer? value, bool isKeyName = false) where TExt : TypeMolder
+    where TBearer : IStringBearer
+    {
+        var sb = stb.Sb;
+        if (value != null)
+        {
+            if (isKeyName)
+                stb.StyleFormatter.FormatFieldName(stb.Master, value);
+            else
+                stb.StyleFormatter.FormatFieldContents(stb.Master, value);
+        }
+        else
+        {
+            sb.Append(Null);
+        }
+        return stb;
+    }
+
+    public static ITypeMolderDieCast<TExt> RevealNullableStringBearerField<TExt, TBearerStruct>(this ITypeMolderDieCast<TExt> stb
+      , ReadOnlySpan<char> fieldName, TBearerStruct? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) 
+        where TExt : TypeMolder where TBearerStruct : struct, IStringBearer
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.RevealNullableStringBearerOrNull(value, formatFlags, isKeyName);
+        using (callContext) { return stb.RevealNullableStringBearerOrNull(value, formatFlags, isKeyName); }
+    }
+    
+    public static ITypeMolderDieCast<TExt> RevealNullableStringBearerOrNull<TExt, TBearerStruct>(this ITypeMolderDieCast<TExt> stb
+      , TBearerStruct? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
+        where TExt : TypeMolder where TBearerStruct : struct, IStringBearer
+    {
+        var sb = stb.Sb;
+        
+        if (value == null)
+        {
+            sb.Append(stb.Settings.NullStyle);
+            return stb;
+        }
+        if (isKeyName)
+            stb.StyleFormatter.FormatFieldName(stb.Master, value.Value);
+        else
+            stb.StyleFormatter.FormatFieldContents(stb.Master, value.Value);
+        return stb;
+    }
+
+    public static ITypeMolderDieCast<TExt> AppendReadOnlySpanField<TExt>
+    (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
+      , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool isKeyName = false) where TExt : TypeMolder
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendFormattedOrNullOnZeroLength(value, formatString, fromIndex, length, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendFormattedOrNullOnZeroLength(value, formatString, fromIndex, length, formatFlags, isKeyName); }
+    }
+
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNullOnZeroLength<TExt>
     (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
-      , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags
+      , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool isKeyName = false) where TExt : TypeMolder
     {
         var sb         = stb.Sb;
@@ -244,10 +450,25 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
+    public static ITypeMolderDieCast<TExt> AppendStringField<TExt>
+    (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, string? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
+      , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool isKeyName = false) where TExt : TypeMolder
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags, isKeyName); }
+    }
+
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> stb, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
-      , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags
+      , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool isKeyName = false) where TExt : TypeMolder
     {
         var sb = stb.Sb;
@@ -265,27 +486,25 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
-    public static ITypeMolderDieCast<TExt> AppendOrNull<TExt>(this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> value
-      , bool isKeyName = false)
-        where TExt : TypeMolder
+    public static ITypeMolderDieCast<TExt> AppendCharArrayField<TExt>
+    (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, char[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
+      , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool isKeyName = false) where TExt : TypeMolder
     {
-        var sb = stb.Sb;
-        if (value == null)
-        {
-            sb.Append(stb.Settings.NullStyle);
-            return stb;
-        }
-        if (isKeyName)
-            stb.StyleFormatter.FormatFieldName(stb.Sb, value);
-        else
-            stb.StyleFormatter.FormatFieldContents(stb.Sb, value);
-        return stb;
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags, isKeyName); }
     }
 
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> value
+    (this ITypeMolderDieCast<TExt> stb, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
-      , bool isKeyName = false)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
         where TExt : TypeMolder
     {
         var sb = stb.Sb;
@@ -295,21 +514,34 @@ public static class StyledTypeBuilderExtensions
             return stb;
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
-        var cappedTo   = Math.Min(length, (value.Length - cappedFrom));
-        var len        = cappedTo - cappedFrom;
-        var formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, "InputIsCharSpan"
-                                                                   , FieldContentHandling.DefaultCallerTypeFlags, formatString, isKeyName);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value
+                                                                     , formatFlags, formatString, isKeyName);
         if (isKeyName)
-            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, len, formatFlags);
+            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, length, formatFlags);
         else
-            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, len, formatFlags);
+            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, length, formatFlags);
         return stb;
+    }
+
+    public static ITypeMolderDieCast<TExt> AppendCharSequenceField<TExt>
+    (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, ICharSequence? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
+        where TExt : TypeMolder
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags, isKeyName); }
     }
 
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> stb, ICharSequence? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
         where TExt : TypeMolder
     {
         var sb = stb.Sb;
@@ -328,10 +560,25 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
+    public static ITypeMolderDieCast<TExt> AppendStringBuilderField<TExt>
+    (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, StringBuilder? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
+        where TExt : TypeMolder
+    {
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags, isKeyName); }
+    }
+
     public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> stb, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
         where TExt : TypeMolder
     {
         var sb = stb.Sb;
@@ -350,135 +597,151 @@ public static class StyledTypeBuilderExtensions
         return stb;
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> stb, char[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false)
-        where TExt : TypeMolder
+    public static ITypeMolderDieCast<TExt> AppendObjectField<TExt>(this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, object? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) where TExt : TypeMolder
     {
-        var sb = stb.Sb;
-        if (value == null)
-        {
-            sb.Append(stb.Settings.NullStyle);
-            return stb;
-        }
-        var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value
-                                                               , formatFlags, formatString, isKeyName);
-        if (isKeyName)
-            stb.StyleFormatter.FormatFieldName(stb.Sb, value, cappedFrom, formatString, length, formatFlags);
-        else
-            stb.StyleFormatter.FormatFieldContents(stb.Sb, value, cappedFrom, formatString, length, formatFlags);
-        return stb;
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendMatchFormattedOrNull(value, formatString, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendMatchFormattedOrNull(value, formatString, formatFlags, isKeyName); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> stb, object? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", bool isKeyName = false)
-        where TExt : TypeMolder
+    public static ITypeMolderDieCast<TExt> AppendMatchField<TValue, TExt>(this ITypeMolderDieCast<TExt> stb
+      , ReadOnlySpan<char> fieldName, TValue value, string formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool isKeyName = false) where TExt : TypeMolder
     {
-        if (value != null)
-            if (isKeyName)
-                stb.StyleFormatter.FormatFieldNameMatch(stb.Sb, value, formatString);
-            else
-            {
-                var unknownType = value.GetType();
-                if (unknownType.IsValueType)
-                {
-                    var formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value
-                                                                               , FieldContentHandling.DefaultCallerTypeFlags, formatString, isKeyName);
-                    stb.StyleFormatter.FormatFieldContentsMatch(stb.Sb, value, formatString, formatFlags);
-                }
-                else
-                    stb.Master.RegisterVisitedInstanceAndConvert(value, isKeyName, formatString);
-            }
-        else
-            stb.Sb.Append(Null);
-        return stb;
+        if (stb.SkipField(fieldName, formatFlags)) return stb;
+        var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return stb;
+        
+        stb.FieldNameJoin(fieldName);
+        if (!callContext.HasFormatChange) return stb.AppendMatchFormattedOrNull(value, formatString, formatFlags, isKeyName);
+        using (callContext) { return stb.AppendMatchFormattedOrNull(value, formatString, formatFlags, isKeyName); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendRevealBearerOrNull<TExt>(this ITypeMolderDieCast<TExt> stb
-      , IStringBearer? value, FieldContentHandling flags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false) where TExt : TypeMolder
+    public static ITypeMolderDieCast<TExt> AppendMatchFormattedOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> stb
+      , TValue value, string formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) where TExt : TypeMolder
     {
         var sb = stb.Sb;
         if (value != null)
-        {
-            if (isKeyName)
-                stb.StyleFormatter.FormatFieldName(stb.Master, value);
-            else
-                stb.StyleFormatter.FormatFieldContents(stb.Master, value);
-        }
-        else
-        {
-            sb.Append(Null);
-        }
-        return stb;
-    }
-    
-    public static ITypeMolderDieCast<TExt> AppendRevealBearerOrNull<TExt, TBearer>(this ITypeMolderDieCast<TExt> stb
-      , TBearer? value, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false)
-        where TExt : TypeMolder where TBearer : struct, IStringBearer
-    {
-        var sb = stb.Sb;
-        if (value != null)
-        {
-            if (isKeyName)
-                stb.StyleFormatter.FormatFieldName(stb.Master, value);
-            else
-                stb.StyleFormatter.FormatFieldContents(stb.Master, value);
-        }
-        else
-        {
-            sb.Append(Null);
-        }
-        return stb;
-    }
-
-    public static ITypeMolderDieCast<TExt> AppendOrNull<TToStyle, TStylerType, TExt>(this ITypeMolderDieCast<TExt> stb
-      , TToStyle? toStyle, PalantírReveal<TStylerType> styler, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags
-      , bool isKeyName = false) where TToStyle : TStylerType where TExt : TypeMolder
-    {
-        var sb = stb.Sb;
-        if (toStyle != null)
-        {
-            if (isKeyName)
-                stb.StyleFormatter.FormatFieldName(stb.Master, toStyle, styler);
-            else
-                stb.StyleFormatter.FormatFieldContents(stb.Master, toStyle, styler);
-
-            if (!stb.Settings.DisableCircularRefCheck && !typeof(TToStyle).IsValueType)
+            switch (value)
             {
-                stb.Master.EnsureRegisteredVisited(toStyle);
-            }
-        }
-        else
-        {
-            sb.Append(Null);
-        }
-        return stb;
-    }
+                case bool valueBool:           stb.AppendFormatted(valueBool, formatString, formatFlags, isKeyName); break;
+                case byte valueByte:           stb.AppendFormatted(valueByte, formatString, formatFlags, isKeyName); break;
+                case sbyte valueSByte:         stb.AppendFormatted(valueSByte, formatString, formatFlags, isKeyName); break;
+                case char valueChar:           stb.AppendFormatted(valueChar, formatString, formatFlags, isKeyName); break;
+                case short valueShort:         stb.AppendFormatted(valueShort, formatString, formatFlags, isKeyName); break;
+                case ushort valueUShort:       stb.AppendFormatted(valueUShort, formatString, formatFlags, isKeyName); break;
+                case Half valueHalfFloat:      stb.AppendFormatted(valueHalfFloat, formatString, formatFlags, isKeyName); break;
+                case int valueInt:             stb.AppendFormatted(valueInt, formatString, formatFlags, isKeyName); break;
+                case uint valueUInt:           stb.AppendFormatted(valueUInt, formatString, formatFlags, isKeyName); break;
+                case nint valueUInt:           stb.AppendFormatted(valueUInt, formatString, formatFlags, isKeyName); break;
+                case float valueFloat:         stb.AppendFormatted(valueFloat, formatString, formatFlags, isKeyName); break;
+                case long valueLong:           stb.AppendFormatted(valueLong, formatString, formatFlags, isKeyName); break;
+                case ulong valueULong:         stb.AppendFormatted(valueULong, formatString, formatFlags, isKeyName); break;
+                case double valueDouble:       stb.AppendFormatted(valueDouble, formatString, formatFlags, isKeyName); break;
+                case decimal valueDecimal:     stb.AppendFormatted(valueDecimal, formatString, formatFlags, isKeyName); break;
+                case Int128 veryLongInt:       stb.AppendFormatted(veryLongInt, formatString, formatFlags, isKeyName); break;
+                case UInt128 veryLongUInt:     stb.AppendFormatted(veryLongUInt, formatString, formatFlags, isKeyName); break;
+                case BigInteger veryLongInt:   stb.AppendFormatted(veryLongInt, formatString, formatFlags, isKeyName); break;
+                case Complex veryLongInt:      stb.AppendFormatted(veryLongInt, formatString, formatFlags, isKeyName); break;
+                case DateTime valueDateTime:   stb.AppendFormatted(valueDateTime, formatString, formatFlags, isKeyName); break;
+                case DateOnly valueDateOnly:   stb.AppendFormatted(valueDateOnly, formatString, formatFlags, isKeyName); break;
+                case TimeSpan valueTimeSpan:   stb.AppendFormatted(valueTimeSpan, formatString, formatFlags, isKeyName); break;
+                case TimeOnly valueTimeOnly:   stb.AppendFormatted(valueTimeOnly, formatString, formatFlags, isKeyName); break;
+                case Rune valueRune:           stb.AppendFormatted(valueRune, formatString, formatFlags, isKeyName); break;
+                case Guid valueGuid:           stb.AppendFormatted(valueGuid, formatString, formatFlags, isKeyName); break;
+                case IPNetwork valueIpNetwork: stb.AppendFormatted(valueIpNetwork, formatString, formatFlags, isKeyName); break;
+                case char[] valueCharArray:    stb.AppendFormattedOrNull(valueCharArray, formatString, formatFlags: formatFlags, isKeyName: isKeyName); break;
+                case string valueString:       stb.AppendFormattedOrNull(valueString, formatString, formatFlags: formatFlags, isKeyName: isKeyName); break;
+                case Version valueVersion:     stb.AppendFormatted(valueVersion, formatString, formatFlags, isKeyName); break;
+                case IPAddress valueIpAddress: stb.AppendFormatted(valueIpAddress, formatString, formatFlags, isKeyName); break;
+                case Uri valueUri:             stb.AppendFormatted(valueUri, formatString, formatFlags, isKeyName); break;
+                case Enum:
+                case ISpanFormattable:
+                    var actualValueType = value.GetType();
+                    var typeOfTValue    = typeof(TValue);
+                    var delegateKey     = (typeOfTValue, actualValueType);
+                    // ReSharper disable once InconsistentlySynchronizedField
+                    if(!DynamicSpanFmtContentInvokers.TryGetValue(delegateKey, out var invoker))
+                    {
+                        lock (DynamicSpanFmtContentInvokers)
+                        {
+                            if (!DynamicSpanFmtContentInvokers.TryGetValue(delegateKey, out invoker))
+                            {
+                                if (typeOfTValue.ImplementsInterface(typeof(ISpanFormattable)))
+                                {
+                                    invoker = CreateSpanFormattableContentInvoker<TValue>();
+                                }
+                                else if (value is Enum)
+                                {
+                                    invoker = CreateSpanFormattableContentInvoker<Enum>();
+                                }
+                                else 
+                                {
+                                    invoker = CreateSpanFormattableContentInvoker<ISpanFormattable>();
+                                }
+                                DynamicSpanFmtContentInvokers.TryAdd(delegateKey, invoker);
+                            }
+                        }
+                    }
+                    if (typeOfTValue.ImplementsInterface(typeof(ISpanFormattable)))
+                    {
+                        var castInvoker = (SpanFmtStructContentHandler<TValue>) invoker;
+                        castInvoker(stb.Sb, stb.StyleFormatter, value, formatString, isKeyName);
+                    }
+                    else if (value is Enum valueEnum)
+                    {
+                        var castInvoker = (SpanFmtStructContentHandler<Enum>) invoker;
+                        castInvoker(stb.Sb, stb.StyleFormatter, valueEnum, formatString, isKeyName);
+                    }
+                    else
+                    {
+                        var castInvoker = (SpanFmtStructContentHandler<ISpanFormattable>)invoker;
+                        castInvoker(stb.Sb, stb.StyleFormatter, (ISpanFormattable)value, formatString, isKeyName);
+                    }
+                    break;
 
-    public static ITypeMolderDieCast<TExt> AppendOrNull<TToStyle, TStylerType, TExt>(this ITypeMolderDieCast<TExt> stb
-      , TToStyle? toStyle, PalantírReveal<TStylerType> styler, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false) 
-        where TToStyle : struct, TStylerType where TExt : TypeMolder
-    {
-        var sb = stb.Sb;
-        if (toStyle != null)
-        {
-            if (isKeyName)
-                stb.StyleFormatter.FormatFieldName(stb.Master, toStyle.Value, styler);
-            else
-                stb.StyleFormatter.FormatFieldContents(stb.Master, toStyle.Value, styler);
+                case ICharSequence valueCharSequence: 
+                    stb.AppendFormattedOrNull(valueCharSequence, formatString, formatFlags: formatFlags, isKeyName: isKeyName); break;
+                case StringBuilder valueSb:           
+                    stb.AppendFormattedOrNull(valueSb, formatString, formatFlags: formatFlags, isKeyName: isKeyName); break;
 
-            if (!stb.Settings.DisableCircularRefCheck && !typeof(TToStyle).IsValueType)
-            {
-                stb.Master.EnsureRegisteredVisited(toStyle);
+                case IStringBearer styledToStringObj: stb.RevealStringBearerOrNull(styledToStringObj, isKeyName); break;
+                case IEnumerator:
+                case IEnumerable:
+                    var type = typeof(TValue);
+                    if (type.IsGenericType && type.IsKeyedCollection())
+                    {
+                        var keyedCollectionBuilder = stb.Master.StartKeyedCollectionType(value, "");
+                        KeyedCollectionGenericAddAllInvoker.CallAddAll<TValue>(keyedCollectionBuilder, value, formatString);
+                        keyedCollectionBuilder.Complete();
+                        break;
+                    }
+                    var orderedCollectionBuilder = stb.Master.StartSimpleCollectionType(value, "");
+                    SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll<TValue>(orderedCollectionBuilder, value, formatString);
+                    orderedCollectionBuilder.Complete();
+                    break;
+
+                default:
+                    var unknownType = value.GetType();
+                    if (isKeyName)
+                        stb.StyleFormatter.FormatFieldNameMatch(stb.Sb, value, formatString);
+                    else
+                    {
+                        if (unknownType.IsValueType || stb.Master.IsLastVisitedObject(value))
+                            stb.StyleFormatter.FormatFieldContentsMatch(stb.Sb, value, formatString);
+                        else
+                            stb.Master.RegisterVisitedInstanceAndConvert(value, isKeyName, formatString);
+                    }
+                    break;
             }
-        }
         else
-        {
             sb.Append(Null);
-        }
         return stb;
     }
 
@@ -568,7 +831,7 @@ public static class StyledTypeBuilderExtensions
                 case ICharSequence valueCharSequence:   stb.AppendFormattedCollectionItemOrNull(valueCharSequence, retrieveCount, formatString); break;
                 case StringBuilder valueSb:             stb.AppendFormattedCollectionItemOrNull(valueSb, retrieveCount, formatString); break;
 
-                case IStringBearer styledToStringObj: stb.AppendRevealBearerOrNull(styledToStringObj); break;
+                case IStringBearer styledToStringObj: stb.RevealStringBearerOrNull(styledToStringObj); break;
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
@@ -597,127 +860,6 @@ public static class StyledTypeBuilderExtensions
         return sb;
     }
 
-    public static ITypeMolderDieCast<TExt> AppendMatchFormattedOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> stb
-      , TValue value, string formatString, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags, bool isKeyName = false) where TExt : TypeMolder
-    {
-        var sb = stb.Sb;
-        if (value != null)
-            switch (value)
-            {
-                case bool valueBool:           stb.AppendFormatted(valueBool, formatString, formatFlags, isKeyName); break;
-                case byte valueByte:           stb.AppendFormatted(valueByte, formatString, formatFlags, isKeyName); break;
-                case sbyte valueSByte:         stb.AppendFormatted(valueSByte, formatString, formatFlags, isKeyName); break;
-                case char valueChar:           stb.AppendFormatted(valueChar, formatString, formatFlags, isKeyName); break;
-                case short valueShort:         stb.AppendFormatted(valueShort, formatString, formatFlags, isKeyName); break;
-                case ushort valueUShort:       stb.AppendFormatted(valueUShort, formatString, formatFlags, isKeyName); break;
-                case Half valueHalfFloat:      stb.AppendFormatted(valueHalfFloat, formatString, formatFlags, isKeyName); break;
-                case int valueInt:             stb.AppendFormatted(valueInt, formatString, formatFlags, isKeyName); break;
-                case uint valueUInt:           stb.AppendFormatted(valueUInt, formatString, formatFlags, isKeyName); break;
-                case nint valueUInt:           stb.AppendFormatted(valueUInt, formatString, formatFlags, isKeyName); break;
-                case float valueFloat:         stb.AppendFormatted(valueFloat, formatString, formatFlags, isKeyName); break;
-                case long valueLong:           stb.AppendFormatted(valueLong, formatString, formatFlags, isKeyName); break;
-                case ulong valueULong:         stb.AppendFormatted(valueULong, formatString, formatFlags, isKeyName); break;
-                case double valueDouble:       stb.AppendFormatted(valueDouble, formatString, formatFlags, isKeyName); break;
-                case decimal valueDecimal:     stb.AppendFormatted(valueDecimal, formatString, formatFlags, isKeyName); break;
-                case Int128 veryLongInt:       stb.AppendFormatted(veryLongInt, formatString, formatFlags, isKeyName); break;
-                case UInt128 veryLongUInt:     stb.AppendFormatted(veryLongUInt, formatString, formatFlags, isKeyName); break;
-                case BigInteger veryLongInt:   stb.AppendFormatted(veryLongInt, formatString, formatFlags, isKeyName); break;
-                case Complex veryLongInt:      stb.AppendFormatted(veryLongInt, formatString, formatFlags, isKeyName); break;
-                case DateTime valueDateTime:   stb.AppendFormatted(valueDateTime, formatString, formatFlags, isKeyName); break;
-                case DateOnly valueDateOnly:   stb.AppendFormatted(valueDateOnly, formatString, formatFlags, isKeyName); break;
-                case TimeSpan valueTimeSpan:   stb.AppendFormatted(valueTimeSpan, formatString, formatFlags, isKeyName); break;
-                case TimeOnly valueTimeOnly:   stb.AppendFormatted(valueTimeOnly, formatString, formatFlags, isKeyName); break;
-                case Rune valueRune:           stb.AppendFormatted(valueRune, formatString, formatFlags, isKeyName); break;
-                case Guid valueGuid:           stb.AppendFormatted(valueGuid, formatString, formatFlags, isKeyName); break;
-                case IPNetwork valueIpNetwork: stb.AppendFormatted(valueIpNetwork, formatString, formatFlags, isKeyName); break;
-                case char[] valueCharArray:    stb.AppendFormattedOrNull(valueCharArray, formatString, formatFlags: formatFlags, isKeyName: isKeyName); break;
-                case string valueString:       stb.AppendFormattedOrNull(valueString, formatString, formatFlags: formatFlags, isKeyName: isKeyName); break;
-                case Version valueVersion:     stb.AppendFormatted(valueVersion, formatString, formatFlags, isKeyName); break;
-                case IPAddress valueIpAddress: stb.AppendFormatted(valueIpAddress, formatString, formatFlags, isKeyName); break;
-                case Uri valueUri:             stb.AppendFormatted(valueUri, formatString, formatFlags, isKeyName); break;
-                case Enum:
-                case ISpanFormattable:
-                    var actualValueType = value.GetType();
-                    var typeOfTValue    = typeof(TValue);
-                    var delegateKey     = (typeOfTValue, actualValueType);
-                    // ReSharper disable once InconsistentlySynchronizedField
-                    if(!DynamicSpanFmtContentInvokers.TryGetValue(delegateKey, out var invoker))
-                    {
-                        lock (DynamicSpanFmtContentInvokers)
-                        {
-                            if (!DynamicSpanFmtContentInvokers.TryGetValue(delegateKey, out invoker))
-                            {
-                                if (typeOfTValue.ImplementsInterface(typeof(ISpanFormattable)))
-                                {
-                                    invoker = CreateSpanFormattableContentInvoker<TValue>();
-                                }
-                                else if (value is Enum)
-                                {
-                                    invoker = CreateSpanFormattableContentInvoker<Enum>();
-                                }
-                                else 
-                                {
-                                    invoker = CreateSpanFormattableContentInvoker<ISpanFormattable>();
-                                }
-                                DynamicSpanFmtContentInvokers.TryAdd(delegateKey, invoker);
-                            }
-                        }
-                    }
-                    if (typeOfTValue.ImplementsInterface(typeof(ISpanFormattable)))
-                    {
-                        var castInvoker = (SpanFmtStructContentHandler<TValue>) invoker;
-                        castInvoker(stb.Sb, stb.StyleFormatter, value, formatString, isKeyName);
-                    }
-                    else if (value is Enum valueEnum)
-                    {
-                        var castInvoker = (SpanFmtStructContentHandler<Enum>) invoker;
-                        castInvoker(stb.Sb, stb.StyleFormatter, valueEnum, formatString, isKeyName);
-                    }
-                    else
-                    {
-                        var castInvoker = (SpanFmtStructContentHandler<ISpanFormattable>)invoker;
-                        castInvoker(stb.Sb, stb.StyleFormatter, (ISpanFormattable)value, formatString, isKeyName);
-                    }
-                    break;
-
-                case ICharSequence valueCharSequence: 
-                    stb.AppendFormattedOrNull(valueCharSequence, formatString, formatFlags: formatFlags, isKeyName: isKeyName); break;
-                case StringBuilder valueSb:           
-                    stb.AppendFormattedOrNull(valueSb, formatString, formatFlags: formatFlags, isKeyName: isKeyName); break;
-
-                case IStringBearer styledToStringObj: stb.AppendRevealBearerOrNull(styledToStringObj, formatFlags, isKeyName); break;
-                case IEnumerator:
-                case IEnumerable:
-                    var type = typeof(TValue);
-                    if (type.IsGenericType && type.IsKeyedCollection())
-                    {
-                        var keyedCollectionBuilder = stb.Master.StartKeyedCollectionType(value, "");
-                        KeyedCollectionGenericAddAllInvoker.CallAddAll<TValue>(keyedCollectionBuilder, value, formatString);
-                        keyedCollectionBuilder.Complete();
-                        break;
-                    }
-                    var orderedCollectionBuilder = stb.Master.StartSimpleCollectionType(value, "");
-                    SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll<TValue>(orderedCollectionBuilder, value, formatString);
-                    orderedCollectionBuilder.Complete();
-                    break;
-
-                default:
-                    var unknownType = value.GetType();
-                    if (isKeyName)
-                        stb.StyleFormatter.FormatFieldNameMatch(stb.Sb, value, formatString);
-                    else
-                    {
-                        if (unknownType.IsValueType)
-                            stb.StyleFormatter.FormatFieldContentsMatch(stb.Sb, value, formatString);
-                        else
-                            stb.Master.RegisterVisitedInstanceAndConvert(value, isKeyName, formatString);
-                    }
-                    break;
-            }
-        else
-            sb.Append(Null);
-        return stb;
-    }
 
     public static ITypeMolderDieCast<TExt> FieldNameJoin<TExt>(this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName)
         where TExt : TypeMolder

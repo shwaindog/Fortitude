@@ -62,6 +62,10 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     ComplexValueTypeMold StartComplexValueType<T>(T toStyle, string? overrideName = null);
 
+    CallContextDisposable ResolveContextForCallerFlags(FieldContentHandling contentFlags);
+
+    bool IsLastVisitedObject<TVisited>(TVisited checkIsLastVisited);
+
     // IStyleTypeBuilder AutoType<T>();
 
 
@@ -484,7 +488,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return this;
     }
 
-    public CallContextDisposable ResolveContextForContentFlags(FieldContentHandling contentFlags)
+    public CallContextDisposable ResolveContextForCallerFlags(FieldContentHandling contentFlags)
     {
         if ((contentFlags & ExcludeMask) > 0)
         {
@@ -604,6 +608,13 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var hasVisited             = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
         if (hasVisited) hasVisited = !IsCallingAsBaseType(objToStyle, objAsType, checkExisting);
         return hasVisited;
+    }
+
+    public bool IsLastVisitedObject<TVisited>(TVisited checkIsLastVisited)
+    {
+        if (OrderedObjectGraph.Count == 0 || checkIsLastVisited == null) return false;
+        var graphNodeVisit = OrderedObjectGraph[^1];
+        return HasVisited(checkIsLastVisited, typeof(TVisited), graphNodeVisit);
     }
 
     protected void InsertRefId(GraphNodeVisit forThisNode, int graphNodeIndex)

@@ -25,6 +25,11 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return this;
     }
 
+    private void FinishUsingStringBuilder(IScopeDelimitedStringBuilder finishedBuilding)
+    {
+        if (Style.IsJson()) finishedBuilding.Append("\"");
+    }
+
     private Action<IScopeDelimitedStringBuilder>? OnFinishedWithStringBuilder { get; set; }
 
     protected bool NotJson => Style.IsNotJson();
@@ -40,177 +45,564 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     public TVMold FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
         , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        (ValueInComplexType && nonJsonfieldName.Length > 0 ? this.FieldNameJoin(nonJsonfieldName) : this)
-            .AppendFormattedOrNull(value, formatString);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin(bool? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue(bool? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, ReadOnlySpan<char> defaultValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinWithDefaultValue<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldFmtValueOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string formatString = ""
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TFmt : ISpanFormattable
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        this.AppendFormatted(value, formatString);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
     }
-
-    public TVMold FieldFmtValueOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TFmt : struct, ISpanFormattable
+    
+    public TVMold JoinValueJoin<TFmt>(TFmt? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TFmt : ISpanFormattable
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        this.AppendNullableFormattedOrNull(value, formatString);
-        return ConditionalValueTypeSuffix();
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, formatString, formatFlags);
     }
-
-    public TVMold FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, ReadOnlySpan<char> defaultValue
-      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+    
+    public TVMold VettedJoinValue<TFmt>(TFmt? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TFmt : ISpanFormattable
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        else
-        {
-            this.AppendFormatted(value, formatString);
-        }
-        return ConditionalValueTypeSuffix();
+        StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, ReadOnlySpan<char> defaultValue
       , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : struct, ISpanFormattable
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        else
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : struct, ISpanFormattable
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinWithDefaultValue<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : struct, ISpanFormattable
+    {
+        if (value == null)
         {
-            this.AppendNullableFormattedOrNull(value, formatString);
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
+            return StyleTypeBuilder;
         }
-        return ConditionalValueTypeSuffix();
+        StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
+        return StyleTypeBuilder;
     }
 
-    public TVMold FieldValueNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase
+    public TVMold FieldFmtValueOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TFmtStruct : struct, ISpanFormattable
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { Sb.Append(Settings.NullStyle); }
-        else { palantírReveal(value, Master); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
     }
-
-    public TVMold FieldValueOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloakedStruct : struct
+    
+    public TVMold JoinValueJoin<TFmtStruct>(TFmtStruct? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TFmtStruct : struct, ISpanFormattable
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { Sb.Append(Settings.NullStyle); }
-        else { palantírReveal(value.Value, Master); }
-        return ConditionalValueTypeSuffix();
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue<TFmtStruct>(TFmtStruct? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrNullNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { Sb.Append(Settings.NullStyle); }
-        else { palantírReveal(value, Master); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        JoinValueJoin(value, palantírReveal, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin<TCloaked, TCloakedBase>(TCloaked? value , PalantírReveal<TCloakedBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloaked : TCloakedBase
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, palantírReveal, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue<TCloaked, TCloakedBase>(TCloaked? value , PalantírReveal<TCloakedBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloaked : TCloakedBase
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Master, value, palantírReveal); 
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldValueOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloakedStruct : struct
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        JoinValueJoin(value, palantírReveal, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin<TCloakedStruct>(TCloakedStruct? value , PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloakedStruct : struct
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, palantírReveal, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue<TCloakedStruct>(TCloakedStruct? value , PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloakedStruct : struct
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Master, value.Value, palantírReveal); 
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { StyleFormatter.Format(defaultValue, 0, Sb, ""); }
-        else { palantírReveal(value, Master); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin<TCloaked, TCloakedBase>(TCloaked? value , PalantírReveal<TCloakedBase> palantírReveal
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags);
+    }
+    
+    public TVMold VettedJoinWithDefaultValue<TCloaked, TCloakedBase>(TCloaked? value , PalantírReveal<TCloakedBase> palantírReveal
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedBase
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Master, value, palantírReveal);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { StyleFormatter.Format(defaultValue, 0, Sb, ""); }
-        else { palantírReveal(value.Value, Master); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin<TCloakedStruct>(TCloakedStruct? value , PalantírReveal<TCloakedStruct> palantírReveal
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags);
+    }
+    
+    public TVMold VettedJoinWithDefaultValue<TCloakedStruct>(TCloakedStruct? value , PalantírReveal<TCloakedStruct> palantírReveal
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloakedStruct : struct
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Master, value.Value, palantírReveal);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TBearer : IStringBearer
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null) { value.RevealState(Master); }
-        else { Sb.Append(defaultValue); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, defaultValue, formatFlags);
         return ConditionalValueTypeSuffix();
     }
-
-    public TVMold FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    where TBearer : struct, IStringBearer
+    
+    public TVMold JoinValueWithDefaultJoin<TBearer>(TBearer? value
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null) { value.Value.RevealState(Master); }
-        else { Sb.Append(defaultValue); }
-        return ConditionalValueTypeSuffix();
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinWithDefaultValue(value, defaultValue, formatFlags);
     }
-
-    public TVMold FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    
+    public TVMold VettedJoinWithDefaultValue<TBearer>(TBearer? value
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TBearer : IStringBearer
     {
-        if (NotJson && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
+        if (value == null)
         {
-            value.RevealState(Master);
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            return StyleTypeBuilder;
         }
-        else { Sb.Append(Settings.NullStyle); }
+        StyleFormatter.FormatFieldContents(Master, value);
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldValueOrDefaultNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    where TBearerStruct : struct, IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, defaultValue, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin<TBearerStruct>(TBearerStruct? value
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinWithDefaultValue(value, defaultValue, formatFlags);
+    }
+    
+    public TVMold VettedJoinWithDefaultValue<TBearerStruct>(TBearerStruct? value
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Master, value.Value);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TBearer : struct, IStringBearer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer
     {
-        if (NotJson && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            value.Value.RevealState(Master);
-        }
-        else { Sb.Append(Settings.NullStyle); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin<TBearer>(TBearer? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue<TBearer>(TBearer? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TBearer : IStringBearer
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Master, value);
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldValueOrNullNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TBearerStruct : struct, IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TBearerStruct : struct, IStringBearer
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.FormatFieldContents(Master, value.Value);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, ReadOnlySpan<char> fallbackValue
       , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        StyleFormatter.Format(value.Length != 0 ? value : fallbackValue, 0, Sb, formatString);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin(Span<char> value, ReadOnlySpan<char> fallbackValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags);
+        return VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinWithDefaultValue(Span<char> value, ReadOnlySpan<char> fallbackValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if (value.Length == 0)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(fallbackValue, 0, Sb, formatString);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.Format(value, 0, Sb, formatString);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
       , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        StyleFormatter.Format(value.Length != 0 ? value : fallbackValue, 0, Sb, formatString);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin(ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        return VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinWithDefaultValue(ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if (value.Length == 0)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(fallbackValue, 0, Sb, formatString);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.Format(value, 0, Sb, formatString);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string formatString = ""
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value.Length != 0) { StyleFormatter.Format(value, 0, Sb, formatString); }
-        else { Sb.Append(Settings.NullStyle); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin(ReadOnlySpan<char> value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        return VettedJoinValue(value, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue(ReadOnlySpan<char> value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if (value.Length == 0)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        StyleFormatter.Format(value, 0, Sb, formatString);
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin(string? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinValueWithDefault(string? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -219,17 +611,41 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
                 StyleFormatter.Format(defaultValue, 0, Sb, formatString);
             }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        return ConditionalValueTypeSuffix();
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+        }
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
       , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, startIndex, length, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin(string? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, startIndex, length, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue(string? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -247,30 +663,41 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                         return ConditionalValueTypeSuffix();
                     }
                 }
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
                 Sb.Append(Settings.NullStyle);
             }
         }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0, int length = int.MaxValue
-      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
+        else
         {
-            var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, value.Length - capStart);
-            this.AppendFormattedOrNull(value, formatString, capStart, capLength);
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
         }
-        return ConditionalValueTypeSuffix();
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = ""
       , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin(char[]? value, int startIndex, int length, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinValueWithDefault(char[]? value, int startIndex, int length, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -278,73 +705,136 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
-                StyleFormatter.Format(defaultValue,0, Sb, formatString);
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+                StyleFormatter.Format(defaultValue,0, Sb, formatString,  formatFlags: (FormattingHandlingFlags)formatFlags);
             }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        return ConditionalValueTypeSuffix();
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue,0, Sb, formatString,  formatFlags: (FormattingHandlingFlags)formatFlags);
+        }
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
       , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, startIndex, length, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin(char[]? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, startIndex, length, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue(char[]? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
-            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength
+                                                    ,  formatFlags: (FormattingHandlingFlags)formatFlags); }
             else
             {
                 if (formatString.Length > 0)
                 {
-                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
-                                                                                       , out _, out _, out _, out var suffix);
+                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages
+                        (out var prefix, out _, out _ , out _, out _, out _, out var suffix);
                     if (prefix.Length > 0 || suffix.Length > 0)
                     {
-                        StyleFormatter.Format("", 0, Sb, formatString);
+                        StyleFormatter.Format( "",0, Sb, formatString,  formatFlags: (FormattingHandlingFlags)formatFlags);
                         return ConditionalValueTypeSuffix();
                     }
                 }
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
                 Sb.Append(Settings.NullStyle);
             }
         }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+        }
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
       , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin(ICharSequence? value, int startIndex, int length, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinWithDefaultValue(ICharSequence? value, int startIndex, int length, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
-            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength,  formatFlags: (FormattingHandlingFlags)formatFlags); }
             else
             {
-                if (formatString.Length > 0)
-                {
-                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
-                                                                                       , out _, out _, out _, out var suffix);
-                    if (prefix.Length > 0 || suffix.Length > 0)
-                    {
-                        StyleFormatter.Format(defaultValue, 0, Sb, formatString);
-                        return ConditionalValueTypeSuffix();
-                    }
-                }
-                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+                StyleFormatter.Format(defaultValue,0, Sb, formatString,  formatFlags: (FormattingHandlingFlags)formatFlags);
             }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        return ConditionalValueTypeSuffix();
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue,0, Sb, formatString,  formatFlags: (FormattingHandlingFlags)formatFlags);
+        }
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
       , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, startIndex, length, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin(ICharSequence? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, startIndex, length, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue(ICharSequence? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -354,58 +844,91 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             {
                 if (formatString.Length > 0)
                 {
-                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
-                                                                                       , out _, out _, out _, out var suffix);
+                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages
+                        (out var prefix, out _, out _ , out _, out _, out _, out var suffix);
                     if (prefix.Length > 0 || suffix.Length > 0)
                     {
-                        Sb.Append(prefix);
-                        Sb.Append(suffix);
+                        StyleFormatter.Format( "",0, Sb, formatString);
                         return ConditionalValueTypeSuffix();
                     }
                 }
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
                 Sb.Append(Settings.NullStyle);
             }
         }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+        }
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
       , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueWithDefaultJoin(StringBuilder? value, int startIndex, int length, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinWithDefaultValue(StringBuilder? value, int startIndex, int length, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
-            if (capLength > 0)
-            {
-                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
-            }
+            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
-                if (formatString.Length > 0)
-                {
-                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
-                                                                                       , out _, out _, out _, out var suffix);
-                    if (prefix.Length > 0 || suffix.Length > 0)
-                    {
-                        Sb.Append(prefix);
-                        Sb.Append(suffix);
-                        return ConditionalValueTypeSuffix();
-                    }
-                }
-                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+                StyleFormatter.Format(defaultValue,0, Sb, formatString);
             }
         }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        return ConditionalValueTypeSuffix();
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue,0, Sb, formatString);
+        }
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
       , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValue(value, startIndex, length, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueJoin(StringBuilder? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinValue(value, startIndex, length, formatString, formatFlags);
+    }
+    
+    public TVMold VettedJoinValue(StringBuilder? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -415,539 +938,1348 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             {
                 if (formatString.Length > 0)
                 {
-                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
-                                                                                       , out _, out _, out _, out var suffix);
+                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages
+                        (out var prefix, out _, out _ , out _, out _, out _, out var suffix);
                     if (prefix.Length > 0 || suffix.Length > 0)
                     {
-                        Sb.Append(prefix);
-                        Sb.Append(suffix);
+                        StyleFormatter.Format( "",0, Sb, formatString);
                         return ConditionalValueTypeSuffix();
                     }
                 }
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
                 Sb.Append(Settings.NullStyle);
             }
         }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+        }
+        return StyleTypeBuilder;
     }
 
     public TVMold ValueMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (SkipBody) return StyleTypeBuilder;
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null) { this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting); }
-        else { Sb.Append(Settings.NullStyle); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedValueMatchJoinValue(value, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueMatchJoin<TAny>(TAny? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        return VettedValueMatchJoinValue(value, formatString, formatFlags);
+    }
+    
+    public TVMold VettedValueMatchJoinValue<TAny>(TAny? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | formatFlags);
+        return StyleTypeBuilder;
     }
 
     public TVMold ValueMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = "", string formatString = ""
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (SkipBody) return StyleTypeBuilder;
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinValueMatchWithDefaultJoin<TAny>(TAny? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        return VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags );
+    }
+    
+    public TVMold VettedJoinValueMatchWithDefaultValue<TAny>(TAny? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    {
         if (value != null)
         {
-            
-            this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting);
+            this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | formatFlags);
         }
         else
         {
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString); 
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
         }
-        return ConditionalValueTypeSuffix();
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true) 
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null)
-        {
-            Sb.Append(Settings.NullStyle);
-        }
-        else
-        {
-            Sb.Append("\"");
-            this.AppendFormattedOrNull(value, formatString);
-            Sb.Append("\"");
-        }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
     }
-
-    public TVMold FieldStringOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+    
+    public TVMold JoinStringJoin(bool? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString(bool? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+        , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
         if (value == null)
         {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
             Sb.Append(Settings.NullStyle);
         }
         else
         {
-            Sb.Append("\"");
-            this.AppendFormattedOrNull(value, formatString);
-            Sb.Append("\"");
+            if(addStartDblQt) Sb.Append("\"");
+            this.AppendFormattedOrNull(value, formatString, formatFlags);
+            if(addEndDblQt) Sb.Append("\"");
         }
-        return ConditionalValueTypeSuffix();
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue = ""
-      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true) 
+        where TFmt : ISpanFormattable
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null) { this.AppendFormattedOrNull(value, formatString); }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        Sb.Append("\"");
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
     }
-
-    public TVMold FieldStringOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
+    
+    public TVMold JoinStringWithDefaultJoin<TFmt>(TFmt? value, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TFmt : ISpanFormattable
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault<TFmt>(TFmt? value, string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TFmt : ISpanFormattable
+    {
+        if(addStartDblQt) Sb.Append("\"");
         if (value == null)
         {
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
+            }
+        }
+        else { this.AppendMatchFormattedOrNull(value, formatString, formatFlags); }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldStringOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true) 
+        where TFmt : ISpanFormattable
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin<TFmt>(TFmt? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TFmt : ISpanFormattable
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString<TFmt>(TFmt? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TFmt : ISpanFormattable
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
             Sb.Append(Settings.NullStyle);
         }
         else
         {
-            Sb.Append("\"");
-            this.AppendFormattedOrNull(value, formatString);
-            Sb.Append("\"");
+            if(addStartDblQt) Sb.Append("\"");
+            this.AppendMatchFormattedOrNull(value, formatString, formatFlags);
+            if(addEndDblQt) Sb.Append("\"");
         }
-        return ConditionalValueTypeSuffix();
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringOrDefaultNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string defaultValue = ""
-      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true) 
+        where TFmtStruct : struct, ISpanFormattable
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null) { this.AppendFormattedOrNull(value, formatString); }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        Sb.Append("\"");
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringWithDefaultJoin<TFmtStruct>(TFmtStruct? value, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault<TFmtStruct>(TFmtStruct? value, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value == null)
+        {
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
+            }
+        }
+        else
+        {
+            this.AppendMatchFormattedOrNull(value, formatString, formatFlags);
+        }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldStringOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true) 
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin<TFmtStruct>(TFmtStruct? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString<TFmtStruct>(TFmtStruct? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
+            Sb.Append(Settings.NullStyle);
+        }
+        else
+        {
+            if(addStartDblQt) Sb.Append("\"");
+            this.AppendMatchFormattedOrNull(value, formatString, formatFlags);
+            if(addEndDblQt) Sb.Append("\"");
+        }
+        return StyleTypeBuilder;
     }
     
     public TVMold FieldStringRevealOrDefaultNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = true, bool addEndDblQt = true) 
         where TCloaked : TCloakedBase
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null) { palantírReveal(value, Master); }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, ""); }
-        Sb.Append("\"");
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
     }
     
-    public TVMold FieldStringRevealOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloakedStruct : struct
+    public TVMold JoinStringWithDefaultJoin<TCloaked, TCloakedBase>(TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+        where TCloaked : TCloakedBase
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null) { palantírReveal(value.Value, Master); }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, ""); }
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault<TCloaked, TCloakedBase>(TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TCloaked : TCloakedBase
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value == null)
+        {
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            }
+        }
+        else
+        {
+            StyleFormatter.FormatFieldContents(Master,  value, palantírReveal);
+        }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringRevealOrNullNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = true, bool addEndDblQt = true)
         where TCloaked : TCloakedBase
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { Sb.Append(Settings.NullStyle); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, palantírReveal, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin<TCloaked, TCloakedBase>(TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TCloaked : TCloakedBase
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, palantírReveal, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString<TCloaked, TCloakedBase>(TCloaked? value
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TCloaked : TCloakedBase
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
+            Sb.Append(Settings.NullStyle);
+        }
         else
         {
-            Sb.Append("\"");
-            palantírReveal(value, Master);
-            Sb.Append("\"");
+            if(addStartDblQt) Sb.Append("\"");
+            StyleFormatter.FormatFieldContents(Master,  value, palantírReveal);
+            if(addEndDblQt) Sb.Append("\"");
         }
+        return StyleTypeBuilder;
+    }
+    
+    public TVMold FieldStringRevealOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = true, bool addEndDblQt = true) 
+        where TCloakedStruct : struct
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringWithDefaultJoin<TCloakedStruct>(TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+        where TCloakedStruct : struct
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault<TCloakedStruct>(TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TCloakedStruct : struct
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value == null)
+        {
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            }
+        }
+        else
+        {
+            StyleFormatter.FormatFieldContents(Master,  value.Value, palantírReveal);
+        }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringRevealOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
+      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = true, bool addEndDblQt = true) where TCloakedStruct : struct
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value == null) { Sb.Append(Settings.NullStyle); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, palantírReveal, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin<TCloakedStruct>(TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TCloakedStruct : struct
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, palantírReveal, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString<TCloakedStruct>(TCloakedStruct? value
+      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TCloakedStruct : struct
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
+            Sb.Append(Settings.NullStyle);
+        }
         else
         {
-            Sb.Append("\"");
-            palantírReveal(value.Value, Master);
-            Sb.Append("\"");
+            if(addStartDblQt) Sb.Append("\"");
+            StyleFormatter.FormatFieldContents(Master, value.Value, palantírReveal);
+            if(addEndDblQt) Sb.Append("\"");
         }
-        return ConditionalValueTypeSuffix();
+        return StyleTypeBuilder;
     }
     
     public TVMold FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
         where TBearer : IStringBearer
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null) { value.RevealState(Master); }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, ""); }
-        Sb.Append("\"");
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, defaultValue, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
     }
     
-    public TVMold FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TBearer : struct, IStringBearer
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null) { value.Value.RevealState(Master); }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, ""); }
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public TVMold JoinStringWithDefaultJoin<TBearer>(TBearer? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearer : IStringBearer
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, defaultValue, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault<TBearer>(TBearer? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+        where TBearer : IStringBearer
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value == null)
         {
-            Sb.Append("\"");
-            value.RevealState(Master);
-            Sb.Append("\"");
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            }
         }
-        else { Sb.Append(Settings.NullStyle); }
+        else
+        {
+            StyleFormatter.FormatFieldContents(Master,  value);
+        }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
+    }
+    
+    public TVMold FieldStringRevealOrDefaultNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
+        where TBearerStruct : struct, IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, defaultValue, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringWithDefaultJoin<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+        where TBearerStruct : struct, IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, defaultValue, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+        where TBearerStruct : struct, IStringBearer
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value == null)
+        {
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            }
+        }
+        else
+        {
+            StyleFormatter.FormatFieldContents(Master,  value.Value);
+        }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : struct, IStringBearer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
+        where TBearer : IStringBearer
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            Sb.Append("\"");
-            value.Value.RevealState(Master);
-            Sb.Append("\"");
-        }
-        else { Sb.Append(Settings.NullStyle); }
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin<TBearer>(TBearer? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TBearer : IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString<TBearer>(TBearer? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false) where TBearer : IStringBearer
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
+            Sb.Append(Settings.NullStyle);
+        }
+        else
+        {
+            if(addStartDblQt) Sb.Append("\"");
+            StyleFormatter.FormatFieldContents(Master, value);
+            if(addEndDblQt) Sb.Append("\"");
+        }
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldStringRevealOrNullNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true) 
+        where TBearerStruct : struct, IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+        where TBearerStruct : struct, IStringBearer
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false) where TBearerStruct : struct, IStringBearer
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
+            Sb.Append(Settings.NullStyle);
+        }
+        else
+        {
+            if(addStartDblQt) Sb.Append("\"");
+            StyleFormatter.FormatFieldContents(Master, value.Value);
+            if(addEndDblQt) Sb.Append("\"");
+        }
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        this.AppendFormattedOrNull(value, formatString);
-        Sb.Append("\"");
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin(Span<char> value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags);
+        return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString(Span<char> value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if (value.Length == 0)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        if(addStartDblQt) Sb.Append("\"");
+        StyleFormatter.Format(value, 0, Sb, formatString);
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        this.AppendOrNull(value);
-        Sb.Append("\"");
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin(ReadOnlySpan<char> value, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        return VettedJoinString(value, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString(ReadOnlySpan<char> value, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if (value.Length == 0)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        if(addStartDblQt) Sb.Append("\"");
+        StyleFormatter.Format(value, 0, Sb, "");
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string defaultValue = ""
-      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value.Length > 0)
-        {
-            StyleFormatter.Format(value, 0, Sb, formatString, value.Length);
-        }
-        else
-        {
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
-        }
-        Sb.Append("\"");
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringWithDefaultJoin(ReadOnlySpan<char> value, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags);
+        return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault(ReadOnlySpan<char> value, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value.Length == 0)
+        {
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
+            }
+        }
+        StyleFormatter.Format(value, 0, Sb, formatString);
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin(ReadOnlySpan<char> value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString(ReadOnlySpan<char> value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
         if (value.Length == 0)
         {
-            Sb.Append(Settings.NullStyle); 
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
         }
-        else
-        {
-            Sb.Append("\"");
-            StyleFormatter.Format(value, 0, Sb, formatString, value.Length);
-            Sb.Append("\"");
-        }
-        return ConditionalValueTypeSuffix();
+        if(addStartDblQt) Sb.Append("\"");
+        StyleFormatter.Format(value, 0, Sb, formatString);
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin(string? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString(string? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0)
             {
-                Sb.Append("\"");
+                if(addStartDblQt) Sb.Append("\"");
                 StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
-                Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
             }
             else
             {
                 if (formatString.Length > 0)
                 {
-                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages(out var prefix, out _, out _
-                                                                                       , out _, out _, out _, out var suffix);
+                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages
+                        (out var prefix, out _, out _ , out _, out _, out _, out var suffix);
                     if (prefix.Length > 0 || suffix.Length > 0)
                     {
-                        Sb.Append("\"");
-                        StyleFormatter.Format("", 0, Sb, formatString);
-                        Sb.Append("\"");
+                        if(addStartDblQt) Sb.Append("\"");
+                        StyleFormatter.Format( "",0, Sb, formatString);
+                        if(addEndDblQt) Sb.Append("\"");
                         return ConditionalValueTypeSuffix();
                     }
                 }
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
                 Sb.Append(Settings.NullStyle);
             }
         }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+        }
+        return StyleTypeBuilder;
     }
 
     public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
-      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringWithDefaultJoin(string? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault(string? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if(addStartDblQt) Sb.Append("\"");
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (capLength > 0)
-            {
-                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
-            }
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) 
+            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
             else
             {
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
                 StyleFormatter.Format(defaultValue, 0, Sb, formatString);
-                Sb.Append("\"");
-                return ConditionalValueTypeSuffix();
             }
-        }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex, int length, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null!)
-        {
-            var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            this.AppendFormattedOrNull(value, formatString, capStart, capLength);
-        }
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
-      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            Sb.Append("\"");
-            var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
-            else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-            Sb.Append("\"");
-        }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            Sb.Append("\"");
-            if (value != null!)
-            {
-                var capStart  = Math.Clamp(startIndex, 0, value.Length);
-                var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-                if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
-            }
-            Sb.Append("\"");
-        }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
-    }
-
-    private void FinishUsingStringBuilder(IScopeDelimitedStringBuilder finishedBuilding)
-    {
-        if (Style.IsJson()) finishedBuilding.Append("\"");
-    }
-
-    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        this.AppendFormattedOrNull(value, formatString);
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex, int length, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null!)
-        {
-            var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
-        }
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
-      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null)
-        {
-            var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
-            else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length, string formatString = ""
-        , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            Sb.Append("\"");
-            var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
-            Sb.Append("\"");
-        }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex, int length, string formatString = ""
-        , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null!)
-        {
-            var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
-        }
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
-      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        Sb.Append("\"");
-        if (value != null)
-        {
-            var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (capLength > 0) { this.AppendFormattedOrNull(value, formatString, capStart, capLength); }
-            else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        }
-        else { StyleFormatter.Format(defaultValue, 0, Sb, formatString); }
-        Sb.Append("\"");
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            Sb.Append("\"");
-            var capStart  = Math.Clamp(startIndex, 0, value.Length);
-            var capLength = Math.Clamp(length, 0, Math.Max(0, value.Length - capStart));
-            if (capLength > 0) { this.AppendFormattedOrNull(value, formatString); }
-            Sb.Append("\"");
-        }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold StringMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (SkipBody) return StyleTypeBuilder;
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            var isStringLike = typeof(TAny).IsAnyTypeHoldingChars();
-            if(!isStringLike) Sb.Append("\"");
-            this.AppendMatchFormattedOrNull(value, formatString);
-            if(!isStringLike) Sb.Append("\"");
-        }
-        else { Sb.Append(Settings.NullStyle); }
-        return ConditionalValueTypeSuffix();
-    }
-
-    public TVMold StringMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = "", string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (SkipBody) return StyleTypeBuilder;
-        if (ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        if (value != null)
-        {
-            var isStringLike = typeof(TAny).IsAnyTypeHoldingChars();
-            if(!isStringLike) Sb.Append("\"");
-            this.AppendMatchFormattedOrNull(value, formatString);
-            if(!isStringLike) Sb.Append("\"");
         }
         else
         {
-            Sb.Append("\"");
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString); 
-            Sb.Append("\"");
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
         }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin(char[]? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString(char[]? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if (value != null)
+        {
+            var capStart  = Math.Clamp(startIndex, 0, value.Length);
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0)
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
+                if(addEndDblQt) Sb.Append("\"");
+            }
+            else
+            {
+                if (formatString.Length > 0)
+                {
+                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages
+                        (out var prefix, out _, out _ , out _, out _, out _, out var suffix);
+                    if (prefix.Length > 0 || suffix.Length > 0)
+                    {
+                        if(addStartDblQt) Sb.Append("\"");
+                        StyleFormatter.Format( "",0, Sb, formatString);
+                        if(addEndDblQt) Sb.Append("\"");
+                        return ConditionalValueTypeSuffix();
+                    }
+                }
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+                Sb.Append(Settings.NullStyle);
+            }
+        }
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+        }
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringWithDefaultJoin(char[]? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault(char[]? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value != null)
+        {
+            var capStart  = Math.Clamp(startIndex, 0, value.Length);
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) 
+            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            else
+            {
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+            }
+        }
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+        }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringWithDefaultJoin(ICharSequence? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault(ICharSequence? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value != null)
+        {
+            var capStart  = Math.Clamp(startIndex, 0, value.Length);
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) 
+            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            else
+            {
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+            }
+        }
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+        }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin(ICharSequence? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString(ICharSequence? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if (value != null)
+        {
+            var capStart  = Math.Clamp(startIndex, 0, value.Length);
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0)
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
+                if(addEndDblQt) Sb.Append("\"");
+            }
+            else
+            {
+                if (formatString.Length > 0)
+                {
+                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages
+                        (out var prefix, out _, out _ , out _, out _, out _, out var suffix);
+                    if (prefix.Length > 0 || suffix.Length > 0)
+                    {
+                        if(addStartDblQt) Sb.Append("\"");
+                        StyleFormatter.Format( "",0, Sb, formatString);
+                        if(addEndDblQt) Sb.Append("\"");
+                        return ConditionalValueTypeSuffix();
+                    }
+                }
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+                Sb.Append(Settings.NullStyle);
+            }
+        }
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+        }
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length
+      , string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringWithDefaultJoin(StringBuilder? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringWithDefault(StringBuilder? value, int startIndex, int length
+      , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value != null)
+        {
+            var capStart  = Math.Clamp(startIndex, 0, value.Length);
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0) 
+            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            else
+            {
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+            }
+        }
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+        }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
+    }
+
+    public TVMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringJoin(StringBuilder? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinString(StringBuilder? value, int startIndex, int length, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if (value != null)
+        {
+            var capStart  = Math.Clamp(startIndex, 0, value.Length);
+            var capLength = Math.Clamp(length, 0, value.Length - capStart);
+            if (capLength > 0)
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
+                if(addEndDblQt) Sb.Append("\"");
+            }
+            else
+            {
+                if (formatString.Length > 0)
+                {
+                    ((ReadOnlySpan<char>)formatString).ExtractExtendedStringFormatStages
+                        (out var prefix, out _, out _ , out _, out _, out _, out var suffix);
+                    if (prefix.Length > 0 || suffix.Length > 0)
+                    {
+                        if(addStartDblQt) Sb.Append("\"");
+                        StyleFormatter.Format( "",0, Sb, formatString);
+                        if(addEndDblQt) Sb.Append("\"");
+                        return ConditionalValueTypeSuffix();
+                    }
+                }
+                if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+                Sb.Append(Settings.NullStyle);
+            }
+        }
+        else
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            Sb.Append(Settings.NullStyle);
+        }
+        return StyleTypeBuilder;
+    }
+
+    public TVMold StringMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringMatchJoin<TAny>(TAny? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        return VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
+    }
+    
+    public TVMold VettedJoinStringMatchJoin<TAny>(TAny? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
+    {
+        if (value == null)
+        {
+            if (formatFlags.HasNullBecomesEmptyFlag())
+            {
+                if(addStartDblQt) Sb.Append("\"");
+                if(addEndDblQt) Sb.Append("\"");
+                return StyleTypeBuilder;
+            }
+            Sb.Append(Settings.NullStyle);
+            return StyleTypeBuilder;
+        }
+        if(addStartDblQt) Sb.Append("\"");
+        this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | formatFlags);
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
+    }
+
+    public TVMold StringMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+        return ConditionalValueTypeSuffix();
+    }
+    
+    public TVMold JoinStringMatchWithDefaultJoin<TAny>(TAny? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags , bool addStartDblQt = false, bool addEndDblQt = false) 
+    {
+        var callContext = Master.ResolveContextForCallerFlags(formatFlags);
+        if (callContext.ShouldSkip) return StyleTypeBuilder;
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        return VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt );
+    }
+    
+    public TVMold VettedJoinStringMatchWithDefault<TAny>(TAny? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false) 
+    {
+        if(addStartDblQt) Sb.Append("\"");
+        if (value != null)
+        {
+            this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | formatFlags);
+        }
+        else
+        {
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
+            }
+        }
+        if(addEndDblQt) Sb.Append("\"");
+        return StyleTypeBuilder;
     }
 
     public TVMold ConditionalValueTypeSuffix()

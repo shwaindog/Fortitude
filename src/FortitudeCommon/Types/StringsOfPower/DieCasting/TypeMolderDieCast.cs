@@ -4,6 +4,7 @@
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
@@ -31,6 +32,8 @@ public interface ITypeMolderDieCast
 
     bool SkipBody { get; set; }
     bool SkipFields { get; set; }
+    
+    bool SkipField(ReadOnlySpan<char> fieldName, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags);
     
     IStyledTypeFormatting StyleFormatter { get; }
     
@@ -112,6 +115,11 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     }
 
     public StyleOptions Settings => typeBuilderState.Master.Settings;
+
+    public bool SkipField(ReadOnlySpan<char> fieldName, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
+    {
+        return SkipFields;
+    }
 
     public int DecrementIndent()
     {

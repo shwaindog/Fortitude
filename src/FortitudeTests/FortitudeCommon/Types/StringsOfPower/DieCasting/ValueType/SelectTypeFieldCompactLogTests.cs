@@ -460,23 +460,72 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLogAsValue
-            (new NullableStringBearerExpect<FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>>
-                 (null, "", true
-                , new FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>
-                  {
-                      Value = TimeSpan.FromSeconds(1)
-                  })
-                 {
-                     { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback)
-                       , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>(00:00:01)" }
-                   , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty)
-                       , "" }
-                   , { new EK( AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
-                 }
+            (new FieldExpect<char[]>("But they were all of them deceived, for another string was made.".ToCharArray()
+                              , "{0,0/,//[1..]}")
+        {
+            { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), " for another string was made." }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut), "\" for another string was made.\"" }
+           ,
+            {
+                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites |
+                       NonNullAndPopulatedWrites, Log | Compact | Pretty)
+              , "[ for another string was made.]"
+            }
+           ,
+            {
+                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites |
+                       NonNullAndPopulatedWrites, Json | Compact)
+              , """[" ","f","o","r"," ","a","n","o","t","h","e","r"," ","s","t","r","i","n","g"," ","w","a","s"," ","m","a","d","e","."]"""
+            }
+           ,
+            {
+                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites |
+                       NonNullAndPopulatedWrites, Json | Pretty)
+              , """
+                [
+                    " ",
+                    "f",
+                    "o",
+                    "r",
+                    " ",
+                    "a",
+                    "n",
+                    "o",
+                    "t",
+                    "h",
+                    "e",
+                    "r",
+                    " ",
+                    "s",
+                    "t",
+                    "r",
+                    "i",
+                    "n",
+                    "g",
+                    " ",
+                    "w",
+                    "a",
+                    "s",
+                    " ",
+                    "m",
+                    "a",
+                    "d",
+                    "e",
+                    "."
+                  ]
+                """.Dos2Unix()
+            }
+           ,
+            {
+                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites |
+                       NonNullAndPopulatedWrites)
+              , "\" for another string was made.\""
+            }
+        }
            , new ScaffoldingPartEntry
-                 (typeof(SimpleAsValueMatchWithDefaultSimpleValueTypeStringBearer<>)
-                , SimpleType | AcceptsSingleValue  | AcceptsAnyGeneric | SupportsValueFormatString
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback));
+                 (typeof(SimpleAsValueMatchOrDefaultSimpleValueTypeStringBearer<>)
+                , SimpleType | AcceptsSingleValue  | AcceptsAnyGeneric | SupportsValueFormatString 
+                | DefaultTreatedAsValueOut | DefaultBecomesNull));
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

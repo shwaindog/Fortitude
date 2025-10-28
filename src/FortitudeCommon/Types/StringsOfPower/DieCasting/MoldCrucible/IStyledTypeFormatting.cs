@@ -70,7 +70,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder CollectionNextItemFormat(ITheOneString tos, IStringBearer? item, int retrieveCount);
+    IStringBuilder CollectionNextItemFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer;
 
     IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount);
 
@@ -109,7 +109,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
         where TCloaked : TCloakedBase;
 
-    IStringBuilder FormatFieldName(ITheOneString tos, IStringBearer styledObj);
+    IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer;
 
     IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
@@ -141,7 +141,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
         where TCloaked : TCloakedBase;
 
-    IStringBuilder FormatFieldContents(ITheOneString tos, IStringBearer styledObj);
+    IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer;
 }
 
 public static class StyleTypeFormattingExtensions

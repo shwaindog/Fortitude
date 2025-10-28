@@ -214,7 +214,7 @@ public partial class KeyValueCollectionMold
                     break;
                 }
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -250,7 +250,7 @@ public partial class KeyValueCollectionMold
                     break;
                 }
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -288,7 +288,7 @@ public partial class KeyValueCollectionMold
                     break;
                 }
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -332,7 +332,7 @@ public partial class KeyValueCollectionMold
                     break;
                 }
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -373,8 +373,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -407,8 +407,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -443,8 +443,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -485,8 +485,8 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.AppendOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueStyler, valueFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, valueFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;

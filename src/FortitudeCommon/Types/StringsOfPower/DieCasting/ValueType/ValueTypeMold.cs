@@ -307,14 +307,14 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrNullNext("", value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0, int length = int.MaxValue
-      , string defaultValue = "" , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , string? defaultValue = null , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
-    public TExt AsValueOrDefault(char[]? value, int startIndex = 0, int length = int.MaxValue, string defaultValue = ""
+    public TExt AsValueOrDefault(char[]? value, int startIndex = 0, int length = int.MaxValue, string? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
+        Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -346,14 +346,14 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrNullNext("", value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0, int length = int.MaxValue
-      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
-    public TExt AsValueOrDefault(ICharSequence? value, int startIndex = 0, int length = int.MaxValue, string defaultValue = ""
+    public TExt AsValueOrDefault(ICharSequence? value, int startIndex = 0, int length = int.MaxValue, string? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
+        Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -385,14 +385,14 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrNullNext("", value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0, int length = int.MaxValue
-      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
-    public TExt AsValueOrDefault(StringBuilder? value, int startIndex = 0, int length = int.MaxValue, string defaultValue = ""
+    public TExt AsValueOrDefault(StringBuilder? value, int startIndex = 0, int length = int.MaxValue, string? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
+        Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
     public TExt AsValueMatch<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -673,23 +673,23 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldStringOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length = int.MaxValue
-      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "", formatString ?? "", formatFlags);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext(nonJsonfieldName, value, 0, int.MaxValue, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "", formatString ?? "", formatFlags);
 
     public TExt AsString(char[] value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext("", value, startIndex, length, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext("", value, startIndex, length, "", formatString ?? "", formatFlags);
 
     public TExt AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
@@ -713,21 +713,21 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext(nonJsonfieldName, value, 0, int.MaxValue, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
 
     public TExt AsString(ICharSequence value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext("", value, 0, int.MaxValue, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext("", value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "", formatString ?? "", formatFlags);
 
     public TExt AsString(ICharSequence value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext("", value, startIndex, length, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext("", value, startIndex, length, "", formatString ?? "", formatFlags);
 
     public TExt AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
@@ -751,20 +751,20 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext(nonJsonfieldName, value, 0, int.MaxValue, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "",  formatString ?? "", formatFlags);
 
     public TExt AsString(StringBuilder value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext("", value, 0, int.MaxValue, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext("", value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "", formatString ?? "", formatFlags);
 
     public TExt AsString(StringBuilder value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.FieldStringNext("", value, startIndex, length, formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext("", value, startIndex, length, "", formatString ?? "", formatFlags);
 
     public TExt AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

@@ -13,7 +13,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 public partial class SelectTypeField<TMold> where TMold : TypeMolder
 {
     public TMold WhenNonNullAdd (ReadOnlySpan<char> fieldName, bool? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;
