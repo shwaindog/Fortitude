@@ -53,15 +53,15 @@ public interface ICustomStringFormatter : IRecyclableObject
     int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable;
 
-    int Format(bool source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
+    int Format(bool source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerType);
 
     int Format(bool source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
-      , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
+      , FormattingHandlingFlags formatFlags = DefaultCallerType);
 
-    int Format(bool? source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
+    int Format(bool? source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerType);
 
     int Format(bool? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
-      , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
+      , FormattingHandlingFlags formatFlags = DefaultCallerType);
 
 
     int Format<TFmtStruct>(TFmtStruct? source, IStringBuilder sb, ReadOnlySpan<char> formatString
@@ -154,16 +154,16 @@ public interface ICustomStringFormatter : IRecyclableObject
     int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems);
 
     int CollectionNextItemFormat(bool nextItem, int retrieveCount, IStringBuilder sb, string formatString
-    , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
+    , FormattingHandlingFlags formatFlags = DefaultCallerType);
 
     int CollectionNextItemFormat(bool nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString
-    , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
+    , FormattingHandlingFlags formatFlags = DefaultCallerType);
     
     int CollectionNextItemFormat(bool? nextItem, int retrieveCount, IStringBuilder sb, string formatString
-      , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
+      , FormattingHandlingFlags formatFlags = DefaultCallerType);
 
     int CollectionNextItemFormat(bool? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString
-    , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
+    , FormattingHandlingFlags formatFlags = DefaultCallerType);
 
     int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString
     , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable;

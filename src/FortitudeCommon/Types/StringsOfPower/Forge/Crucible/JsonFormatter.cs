@@ -54,7 +54,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         char lastNonWhiteSpace, T input, FormattingHandlingFlags callerFormattingFlags
       , string formatString = "")
     {
-        if (callerFormattingFlags.HasNoAutoAddCallerTypeFlags())
+        if (callerFormattingFlags.HasNoAutoAddCallerTypeFlag())
         {
             return callerFormattingFlags;
         }
@@ -1515,7 +1515,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
 
     public override int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb)
     {
-        var formatFlags = ResolveStringFormattingFlags(sb.LastNonWhiteChar(), nextItem, DefaultCallerTypeFlags);
+        var formatFlags = ResolveStringFormattingFlags(sb.LastNonWhiteChar(), nextItem, DefaultCallerType);
         var preAppendLen = sb.Length;
         if (nextItem == null) { return sb.Append(JsonOptions.NullStyle).ReturnCharCount(JsonOptions.NullStyle.Length); }
         switch (nextItem)
@@ -1553,7 +1553,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
 
     public override int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex)
     {
-        var formatFlags = ResolveStringFormattingFlags(destCharSpan.LastNonWhiteChar(destStartIndex), nextItem, DefaultCallerTypeFlags);
+        var formatFlags = ResolveStringFormattingFlags(destCharSpan.LastNonWhiteChar(destStartIndex), nextItem, DefaultCallerType);
         var charsAdded  = 0;
         switch (nextItem)
         {

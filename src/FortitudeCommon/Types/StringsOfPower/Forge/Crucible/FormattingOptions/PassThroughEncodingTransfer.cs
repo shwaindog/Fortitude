@@ -23,6 +23,18 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
         return written;
     }
 
+    public int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, IStringBuilder destSb) => 
+        destSb.Append(source).ReturnCharCount(source.Length);
+
+    public int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex) =>
+        destSpan.OverWriteAt(destStartIndex, source);
+
+    public int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeLast) =>  
+        destSb.Append(source).ReturnCharCount(source.Length);
+
+    public int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeLast) => 
+        destSpan.OverWriteAt(destStartIndex, source);
+
     public virtual int Transfer(ICustomStringFormatter stringFormatter, ReadOnlySpan<char> source, IStringBuilder destSb
       , int destStartIndex = int.MaxValue)
     {

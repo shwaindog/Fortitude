@@ -1643,7 +1643,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             return StyleTypeBuilder;
         }
         if(addStartDblQt) Sb.Append("\"");
-        StyleFormatter.Format(value, 0, Sb, formatString);
+        StyleFormatter.Format(value, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
     }
@@ -1684,7 +1684,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             return StyleTypeBuilder;
         }
         if(addStartDblQt) Sb.Append("\"");
-        StyleFormatter.Format(value, 0, Sb, "");
+        StyleFormatter.Format(value, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
     }
@@ -1762,7 +1762,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             return StyleTypeBuilder;
         }
         if(addStartDblQt) Sb.Append("\"");
-        StyleFormatter.Format(value, 0, Sb, formatString);
+        StyleFormatter.Format(value, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
     }
@@ -1798,7 +1798,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (capLength > 0)
             {
                 if(addStartDblQt) Sb.Append("\"");
-                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength, formatFlags: (FormattingHandlingFlags)formatFlags);
                 if(addEndDblQt) Sb.Append("\"");
             }
             else
@@ -1810,7 +1810,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     if (prefix.Length > 0 || suffix.Length > 0)
                     {
                         if(addStartDblQt) Sb.Append("\"");
-                        StyleFormatter.Format( "",0, Sb, formatString);
+                        StyleFormatter.Format( "",0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
                         if(addEndDblQt) Sb.Append("\"");
                         return ConditionalValueTypeSuffix();
                     }
@@ -1860,17 +1860,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0) 
-            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength, formatFlags: (FormattingHandlingFlags)formatFlags); }
             else
             {
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
             }
         }
         else
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
         }
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
@@ -1907,7 +1907,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (capLength > 0)
             {
                 if(addStartDblQt) Sb.Append("\"");
-                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength, formatFlags: (FormattingHandlingFlags)formatFlags);
                 if(addEndDblQt) Sb.Append("\"");
             }
             else
@@ -1919,7 +1919,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     if (prefix.Length > 0 || suffix.Length > 0)
                     {
                         if(addStartDblQt) Sb.Append("\"");
-                        StyleFormatter.Format( "",0, Sb, formatString);
+                        StyleFormatter.Format( "",0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
                         if(addEndDblQt) Sb.Append("\"");
                         return ConditionalValueTypeSuffix();
                     }
@@ -1969,17 +1969,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0) 
-            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength, formatFlags: (FormattingHandlingFlags)formatFlags); }
             else
             {
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
             }
         }
         else
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
         }
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
@@ -2018,17 +2018,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0) 
-            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength, formatFlags: (FormattingHandlingFlags)formatFlags); }
             else
             {
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
             }
         }
         else
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
         }
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
@@ -2065,7 +2065,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (capLength > 0)
             {
                 if(addStartDblQt) Sb.Append("\"");
-                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength, formatFlags: (FormattingHandlingFlags)formatFlags);
                 if(addEndDblQt) Sb.Append("\"");
             }
             else
@@ -2077,7 +2077,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     if (prefix.Length > 0 || suffix.Length > 0)
                     {
                         if(addStartDblQt) Sb.Append("\"");
-                        StyleFormatter.Format( "",0, Sb, formatString);
+                        StyleFormatter.Format( "",0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
                         if(addEndDblQt) Sb.Append("\"");
                         return ConditionalValueTypeSuffix();
                     }
@@ -2127,17 +2127,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0) 
-            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            { StyleFormatter.Format(value, capStart, Sb, formatString, capLength, formatFlags: (FormattingHandlingFlags)formatFlags); }
             else
             {
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-                StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+                StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
             }
         }
         else
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString);
+            StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
         }
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
@@ -2174,7 +2174,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (capLength > 0)
             {
                 if(addStartDblQt) Sb.Append("\"");
-                StyleFormatter.Format(value, capStart, Sb, formatString, capLength);
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength, formatFlags: (FormattingHandlingFlags)formatFlags);
                 if(addEndDblQt) Sb.Append("\"");
             }
             else
@@ -2186,7 +2186,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     if (prefix.Length > 0 || suffix.Length > 0)
                     {
                         if(addStartDblQt) Sb.Append("\"");
-                        StyleFormatter.Format( "",0, Sb, formatString);
+                        StyleFormatter.Format( "",0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
                         if(addEndDblQt) Sb.Append("\"");
                         return ConditionalValueTypeSuffix();
                     }

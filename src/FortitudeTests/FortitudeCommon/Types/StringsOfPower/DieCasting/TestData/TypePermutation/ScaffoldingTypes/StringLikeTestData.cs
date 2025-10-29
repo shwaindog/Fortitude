@@ -232,18 +232,28 @@ public static class StringLikeTestData
         }
       , new
             FieldExpect<string>("And nine, nine strings were gifted to the race of C++ coders, " +
-                                "who above all else desired unchecked memory access power. ", "***\"{0[1..^1]}\"***"
+                                "who above all else desired unchecked memory access power. ", "***\"{0[1..^1]}\"###"
                               , fromIndex: 9, length: 41)
             {
                 {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut)
-                  , "***\"nine strings were gifted to the race of\"***"
+                    new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut, Log | Compact | Pretty )
+                  , "***\"nine strings were gifted to the race of\"###"
+                }
+              , {
+                    new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut, Json | Compact | Pretty )
+                  , "***\\u0022nine strings were gifted to the race of\\u0022###"
                 }
                ,
                 {
                     new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         | DefaultTreatedAsStringOut)
-                  , "\"***\"nine strings were gifted to the race of\"***\""
+                         | DefaultTreatedAsStringOut, Log | Compact | Pretty )
+                  , "\"***\"nine strings were gifted to the race of\"###\""
+                }
+               ,
+                {
+                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
+                         | DefaultTreatedAsStringOut, Json | Compact | Pretty )
+                  , "\"***\\u0022nine strings were gifted to the race of\\u0022###\""
                 }
             }
       , new FieldExpect<string>("For within these strings was bound the flexibility, mutability and the operators to govern each language"
@@ -921,23 +931,33 @@ public static class StringLikeTestData
       , new
             FieldExpect<char[]>
             (("And nine, nine strings were gifted to the race of C++ coders, " +
-              "who above all else desired unchecked memory access power. ").ToCharArray(), "***\"{0[1..^1]}\"***"
+              "who above all else desired unchecked memory access power. ").ToCharArray(), "***\"{0[1..^1]}\"###"
            , fromIndex: 9, length: 41)
             {
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsValueOut)
-                  , "***\"nine strings were gifted to the race of\"***"
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsValueOut, Log | Compact | Pretty)
+                  , "***\"nine strings were gifted to the race of\"###"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsStringOut)
-                  , "\"***\"nine strings were gifted to the race of\"***\""
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsStringOut, Log | Compact | Pretty)
+                  , "\"***\"nine strings were gifted to the race of\"###\""
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsValueOut, Json | Compact | Pretty)
+                  , "***\\u0022nine strings were gifted to the race of\\u0022###"
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsStringOut, Json | Compact | Pretty)
+                  , "\"***\\u0022nine strings were gifted to the race of\\u0022###\""
                 }
                ,
                 {
                     new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "[***\"nine strings were gifted to the race of\"***]"
+                  , "[***\"nine strings were gifted to the race of\"###]"
                 }
                ,
                 {
@@ -945,7 +965,7 @@ public static class StringLikeTestData
                            NonNullAndPopulatedWrites, Json | Compact)
                   , """
                     ["*","*","*","\u0022","n","i","n","e"," ","s","t","r","i","n","g","s"," ","w","e","r","e"," ","g","i","f","t","e","d",
-                    " ","t","o"," ","t","h","e"," ","r","a","c","e"," ","o","f","\u0022","*","*","*"]
+                    " ","t","o"," ","t","h","e"," ","r","a","c","e"," ","o","f","\u0022","#","#","#"]
                     """.RemoveLineEndings()
                 }
                ,
@@ -998,16 +1018,16 @@ public static class StringLikeTestData
                         "o",
                         "f",
                         "\u0022",
-                        "*",
-                        "*",
-                        "*"
+                        "#",
+                        "#",
+                        "#"
                       ]
                     """.Dos2Unix()
                 }
                ,
                 {
                     new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites) , "***\"nine strings were gifted to the race of\"***"
+                           NonNullAndPopulatedWrites) , "***\"nine strings were gifted to the race of\"###"
                 }
                ,
             }
@@ -2705,14 +2725,24 @@ public static class StringLikeTestData
            , fromIndex: 9, length: 41)
             {
                 {
-                    new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut)
+                    new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "***\"nine strings were gifted to the race of\"***"
                 }
                ,
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites | DefaultTreatedAsStringOut )
+                           NonNullAndPopulatedWrites | DefaultTreatedAsStringOut, Log | Compact | Pretty )
                   , "\"***\"nine strings were gifted to the race of\"***\""
+                }
+              , {
+                    new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut, Json | Compact | Pretty)
+                  , "***\\u0022nine strings were gifted to the race of\\u0022***"
+                }
+               ,
+                {
+                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites | NonNullWrites |
+                           NonNullAndPopulatedWrites | DefaultTreatedAsStringOut, Json | Compact | Pretty )
+                  , "\"***\\u0022nine strings were gifted to the race of\\u0022***\""
                 }
             }
       , new FieldExpect<StringBuilder>
