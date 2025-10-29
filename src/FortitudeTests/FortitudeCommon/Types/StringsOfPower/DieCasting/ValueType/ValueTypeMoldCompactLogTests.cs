@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Globalization;
-using System.Net;
 using System.Reflection;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.ExampleConfig;
@@ -11,7 +10,6 @@ using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.SimpleTypeScaffolds;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
@@ -33,6 +31,7 @@ public partial class ValueTypeMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         FLogConfigExamples.SyncColoredTestConsoleExample.LoadExampleAsCurrentContext();
 
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         logger ??= FLog.FLoggerForType.As<IVersatileFLogger>();
     }
 
@@ -348,6 +347,52 @@ public partial class ValueTypeMoldTests
         SharedCompactLogAsValue(formatExpectation, scaffoldingToCall);
     }
 
+    private static IEnumerable<object[]> CharArrayExpectAsString
+    {
+        get
+        {
+            var acceptsFormatString = from fe in StringLikeTestData.AllStringLikeExpectations
+                where fe.InputType.IsCharArray()
+                from scaffoldToCall in
+                    scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharArray().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
+                           .HasTreatedAsStringOut()
+                where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
+                select new object[] { fe, scaffoldToCall };
+
+            var noFormatStringFiltering =
+                StringLikeTestData
+                    .AllStringLikeExpectations
+                    .Where(fe =>
+                    {
+                        var noFormatStringModifications = fe.FormatString.IsNullOrEmpty();
+                        if (!noFormatStringModifications) { noFormatStringModifications = fe.FormatString is "" or "{0}"; }
+                        return fe.InputType.IsCharArray() && noFormatStringModifications;
+                    })
+                    .SelectMany(_ =>
+                                    scafReg
+                                        .IsSimpleType()
+                                        .ProcessesSingleValue()
+                                        .AcceptsCharArray()
+                                        .HasNotSupportsValueFormatString()
+                                        .NotHasSupportsValueRevealer()
+                                        .HasTreatedAsStringOut()
+                              , (fe, scaffoldToCall) => new { fe, scaffoldToCall })
+                    .Where(join => !join.fe.HasIndexRangeLimiting ||
+                                   join.scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges))
+                    .Select(join => new object[] { join.fe, join.scaffoldToCall });
+
+            return acceptsFormatString.Concat(noFormatStringFiltering);
+        }
+    }
+    
+    [TestMethod]
+    [DynamicData(nameof(CharArrayExpectAsString), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactLogCharArrayAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLogAsString(formatExpectation, scaffoldingToCall);
+    }
+
     private static IEnumerable<object[]> CharSequenceExpectAsValue =>
         from fe in StringLikeTestData.AllStringLikeExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
@@ -366,6 +411,24 @@ public partial class ValueTypeMoldTests
         SharedCompactLogAsValue(formatExpectation, scaffoldingToCall);
     }
 
+    private static IEnumerable<object[]> CharSequenceExpectAsString =>
+        from fe in StringLikeTestData.AllStringLikeExpectations
+        where fe.InputType.ImplementsInterface<ICharSequence>()
+        from scaffoldToCall in
+            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
+                   .HasTreatedAsStringOut()
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
+        select new object[] { fe, scaffoldToCall };
+
+
+    [TestMethod]
+    [DynamicData(nameof(CharSequenceExpectAsString), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactLogCharSequenceAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLogAsString(formatExpectation, scaffoldingToCall);
+    }
+
     private static IEnumerable<object[]> StringBuilderExpectAsValue =>
         from fe in StringLikeTestData.AllStringLikeExpectations
         where fe.InputType.IsStringBuilder()
@@ -382,6 +445,24 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLogAsValue(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> StringBuilderExpectAsString =>
+        from fe in StringLikeTestData.AllStringLikeExpectations
+        where fe.InputType.IsStringBuilder()
+        from scaffoldToCall in
+            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
+                   .HasTreatedAsStringOut()
+        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
+        select new object[] { fe, scaffoldToCall };
+
+
+    [TestMethod]
+    [DynamicData(nameof(StringBuilderExpectAsString), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactLogStringBuilderAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLogAsString(formatExpectation, scaffoldingToCall);
     }
 
     private static IEnumerable<object[]> NonNullCloakedBearerExpectAsValue =>
@@ -460,68 +541,18 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLogAsValue
-            (new FieldExpect<char[]>("But they were all of them deceived, for another string was made.".ToCharArray()
-                              , "{0,0/,//[1..]}")
-        {
-            { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), " for another string was made." }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut), "\" for another string was made.\"" }
-           ,
-            {
-                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                       NonNullAndPopulatedWrites, Log | Compact | Pretty)
-              , "[ for another string was made.]"
-            }
-           ,
-            {
-                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                       NonNullAndPopulatedWrites, Json | Compact)
-              , """[" ","f","o","r"," ","a","n","o","t","h","e","r"," ","s","t","r","i","n","g"," ","w","a","s"," ","m","a","d","e","."]"""
-            }
-           ,
-            {
-                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                       NonNullAndPopulatedWrites, Json | Pretty)
-              , """
-                [
-                    " ",
-                    "f",
-                    "o",
-                    "r",
-                    " ",
-                    "a",
-                    "n",
-                    "o",
-                    "t",
-                    "h",
-                    "e",
-                    "r",
-                    " ",
-                    "s",
-                    "t",
-                    "r",
-                    "i",
-                    "n",
-                    "g",
-                    " ",
-                    "w",
-                    "a",
-                    "s",
-                    " ",
-                    "m",
-                    "a",
-                    "d",
-                    "e",
-                    "."
-                  ]
-                """.Dos2Unix()
-            }
-           ,
-            {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                       NonNullAndPopulatedWrites)
-              , "\" for another string was made.\""
-            }
-        }
+            (new FieldExpect<string>("with", "\"{0[8..10]}\"")
+             {
+                 { new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }
+                ,
+                 {
+                     new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
+                          | DefaultTreatedAsStringOut)
+                   , """""
+                     """"
+                     """""
+                 }
+             }
            , new ScaffoldingPartEntry
                  (typeof(SimpleAsValueMatchOrDefaultSimpleValueTypeStringBearer<>)
                 , SimpleType | AcceptsSingleValue  | AcceptsAnyGeneric | SupportsValueFormatString 
@@ -541,6 +572,7 @@ public partial class ValueTypeMoldTests
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
 
+        // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Compact | Log);
 
         string BuildExpectedOutput(string className, string propertyName
@@ -554,37 +586,6 @@ public partial class ValueTypeMoldTests
 
             var maybeSpace  = "";
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            // if (expectValue != IFormatExpectation.NoResultExpectedValue
-            //  && !expectation.IsStringLike
-            //  && (className.Contains("WithDefault") ||
-            //      className.Contains("WithStringDefault"))
-            //  && expectation.InputIsNull &&
-            //     formatExpectation.DefaultAsString(tos.Settings.StyledTypeFormatter) !=
-            //     null) { expectValue = formatExpectation.DefaultAsString(tos.Settings.StyledTypeFormatter); }
-            // if ((expectValue is "null" or "\"\"" or "[]")
-            //  && expectation.IsStringLike
-            //  && (expectation.InputIsNull
-            //   || (expectation.InputIsEmpty
-            //    && condition.HasAnyOf(CallsAsSpan | CallsAsReadOnlySpan | SupportsIndexSubRanges | DefaultBecomesZero)
-            //    && condition.HasNoneOf(DefaultBecomesNull)))
-            //  && condition.HasAnyOf(SupportsSettingDefaultValue | DefaultBecomesZero)
-            //  && formatExpectation.DefaultAsString(tos.Settings.StyledTypeFormatter) == "0") { expectValue = "0"; }
-            // if ((expectValue is "\"\"" or "[]")
-            //  && expectation.IsStringLike
-            //  && (expectation.InputIsNull
-            //   || (expectation.InputIsEmpty
-            //    && condition.HasAnyOf(CallsAsSpan | CallsAsReadOnlySpan | SupportsIndexSubRanges | DefaultBecomesNull)
-            //    && condition.HasNoneOf(DefaultBecomesZero)))
-            //  && condition.HasAnyOf(SupportsSettingDefaultValue | DefaultBecomesNull)) { expectValue = "null"; }
-            // if (condition.HasAllOf(SupportsValueRevealer | DefaultBecomesNull)
-            //  && expectation.InputIsNull) { expectValue = "null"; }
-            // if (!condition.HasAllOf(AcceptsAnyGeneric)
-            //  && expectation.IsStringLike
-            //  && ((expectValue.Length > 2 && expectValue[0] == '"' && expectValue[^1] == '"')
-            //   || (expectValue.Length > 2 && expectValue[0] == '[' && expectValue[^1] == ']')))
-            // {
-            //     expectValue = expectValue.Substring(1, expectValue.Length - 2);
-            // }
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 maybeSpace = expectValue.Trim().Length > 0 ? " " : "";
@@ -603,7 +604,6 @@ public partial class ValueTypeMoldTests
             const string compactLogTemplate = "{0} {{ {1}}}";
 
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            // if (expectation.InputIsNull && expectValue == "null") return "null";
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
@@ -656,7 +656,9 @@ public partial class ValueTypeMoldTests
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
 
+        // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Compact | Log);
+        tos.Settings.NewLineStyle = "\n";
 
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
@@ -669,37 +671,6 @@ public partial class ValueTypeMoldTests
 
             var maybeSpace  = "";
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            // if (expectValue == "null")
-            // {
-            //     if (!expectation.IsStringLike
-            //      && (className.Contains("WithDefault") ||
-            //          className.Contains("WithStringDefault"))
-            //      && expectation.InputIsNull &&
-            //         formatExpectation.DefaultAsString(tos.Settings.StyledTypeFormatter) !=
-            //         null) { expectValue = formatExpectation.DefaultAsString(tos.Settings.StyledTypeFormatter); }
-            //     if (expectValue == "null" && expectation is { InputIsNull: true } or { InputIsEmpty: true }
-            //           && condition.HasNoneOf(DefaultBecomesNull)) { expectValue = ""; }
-            //     else if (expectValue == "null" && (condition.IsAcceptsAnyGeneric()) || condition.HasAnyOf(DefaultBecomesNull))
-            //     {
-            //         compactLogTemplate = compactLogTemplate.Replace("\"", "");
-            //     }
-            // }
-            // if ((expectValue is "\"\"" )
-            //  && expectation.IsStringLike
-            //  && (expectation.InputIsNull
-            //   || (expectation.InputIsEmpty
-            //    && condition.HasAnyOf(CallsAsSpan | CallsAsReadOnlySpan | AcceptsChars | SupportsIndexSubRanges)
-            //       && (condition.HasNoneOf(DefaultBecomesNull) || condition.HasAllOf(AcceptsAnyGeneric))))) 
-            // { expectValue = ""; }
-            // if ((expectValue is "\"\"" or "[]")
-            //  && expectation.IsStringLike
-            //  && (expectation.InputIsNull
-            //   || (expectation.InputIsEmpty
-            //    && condition.HasAnyOf(CallsAsSpan | CallsAsReadOnlySpan | SupportsIndexSubRanges | DefaultBecomesZero)
-            //    && condition.HasNoneOf(DefaultBecomesNull)))
-            //  && condition.HasAnyOf(SupportsSettingDefaultValue | DefaultBecomesNull)) { expectValue = ""; }
-            // if (condition.HasAllOf(SupportsValueRevealer | DefaultBecomesNull)
-            //  && expectation.InputIsNull) { expectValue = "null"; }
             
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
@@ -719,7 +690,6 @@ public partial class ValueTypeMoldTests
             const string compactLogTemplate = "{0} {{ {1}}}";
 
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            // if (expectation.InputIsNull && expectValue == "null") return "null";
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");

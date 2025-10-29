@@ -386,7 +386,7 @@ public static class StringLikeTestData
         }
       , new FieldExpect<char[]>(null, "", true, [])
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "[]" }
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
           , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
            ,
             {
@@ -406,7 +406,8 @@ public static class StringLikeTestData
         }
       , new FieldExpect<char[]>(null, "", false, [], 10, 50)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut), "null" }
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut), "null" }
            ,
             {
                 new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites
@@ -429,7 +430,7 @@ public static class StringLikeTestData
                      | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull)
               , "null"
             }
-          , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut | DefaultBecomesFallback), "[0]" }
+          , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
           , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
           , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut), "0" }
           , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut), "\"\"" }
@@ -441,8 +442,13 @@ public static class StringLikeTestData
           , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback ), "\"\"0\"\"" }
           , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut), "null" }
           , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "\"\"" }
           , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesFallback), "\"\"0\"\"" }
+          , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsStringOut )
+              , """""
+                """"
+                """""
+            }
            ,
             {
                 new EK( AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -518,7 +524,16 @@ public static class StringLikeTestData
       , new FieldExpect<char[]>("with".ToCharArray(), "\"{0[8..10]}\"")
         {
             { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut, Log | Compact | Pretty),
+                """""
+                """"
+                """""
+            }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut, Json | Compact | Pretty),
+                """""
+                "\u0022\u0022"
+                """""
+            }
            ,
             {
                 new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -642,7 +657,7 @@ public static class StringLikeTestData
            ,
             {
                 new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut)
-              , "\"It began with the forging of the Great Strings.\""
+              , "\"[It began with the forging of the Great Strings.]\""
             }
            ,
             {
@@ -1682,7 +1697,16 @@ public static class StringLikeTestData
       , new FieldExpect<MutableString>(new MutableString("with"), "\"{0[8..10]}\"")
         {
             { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "\"\"" }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut, Log | Compact | Pretty)
+              , """""
+                """"
+                """"" 
+            }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut, Json | Compact | Pretty)
+              , """""
+                "\u0022\u0022"
+                """"" 
+            }
            ,{
                 new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      , Log | Compact | Pretty)
@@ -1777,7 +1801,7 @@ public static class StringLikeTestData
                ,
                 {
                     new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
-                  , "\"It began with the forging of the Great Strings.\""
+                  , "\"[It began with the forging of the Great Strings.]\""
                 }
                ,
                 {
@@ -2052,23 +2076,23 @@ public static class StringLikeTestData
       , new FieldExpect<MutableString>
             (new MutableString
                  ("And nine, nine strings were gifted to the race of C++ coders, " +
-                  "who above all else desired unchecked memory access power. "), "***\"{0[1..^1]}\"***"
+                  "who above all else desired unchecked memory access power. "), "***\"{0[1..^1]}\"###"
            , fromIndex: 9, length: 41)
             {
                 {
                     new EK(SimpleType | AcceptsCharSequence | DefaultTreatedAsValueOut)
-                  , "***\"nine strings were gifted to the race of\"***"
+                  , "***\"nine strings were gifted to the race of\"###"
                 }
                ,
                 {
                     new EK(SimpleType | AcceptsCharSequence | DefaultTreatedAsStringOut)
-                  , "\"***\"nine strings were gifted to the race of\"***\""
+                  , "\"***\"nine strings were gifted to the race of\"###\""
                 }
                ,
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites |
                            NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "\"***\"nine strings were gifted to the race of\"***\""
+                  , "\"***\"nine strings were gifted to the race of\"###\""
                 }
                ,
                 {
@@ -2076,7 +2100,7 @@ public static class StringLikeTestData
                            NonNullAndPopulatedWrites, Json | Compact)
                   , """
                     ["*","*","*","\u0022","n","i","n","e"," ","s","t","r","i","n","g","s"," ","w","e","r","e"," ","g","i","f","t","e","d",
-                    " ","t","o"," ","t","h","e"," ","r","a","c","e"," ","o","f","\u0022","*","*","*"]
+                    " ","t","o"," ","t","h","e"," ","r","a","c","e"," ","o","f","\u0022","#","#","#"]
                     """.RemoveLineEndings()
                 }
                ,
@@ -2129,9 +2153,9 @@ public static class StringLikeTestData
                         "o",
                         "f",
                         "\u0022",
-                        "*",
-                        "*",
-                        "*"
+                        "#",
+                        "#",
+                        "#"
                       ]
                     """.Dos2Unix()
                 }
