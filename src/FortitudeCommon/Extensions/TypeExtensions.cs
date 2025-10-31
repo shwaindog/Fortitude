@@ -224,6 +224,13 @@ public static class TypeExtensions
     public static bool IsSpanFormattable(this Type type) => 
         type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType);
 
+    public static bool IsNullableSpanFormattable(this Type type) =>
+        type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef
+                                                           && type.GenericTypeArguments[0].IsSpanFormattable();
+    
+    public static bool IsSpanFormattableOrNullable(this Type type) =>
+        type.IsSpanFormattable() || type.IsNullableSpanFormattable();
+
     public static bool IsNullable(this Type type) =>
         type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef;
 
@@ -253,10 +260,6 @@ public static class TypeExtensions
         valueType.IsValueType && type is { IsValueType: true, IsGenericType: true }
                               && type.GetGenericTypeDefinition() == NullableTypeDef
                               && type.GenericTypeArguments[0] == valueType;
-
-    public static bool IsNullableSpanFormattable(this Type type) =>
-        type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef
-                                                           && type.GenericTypeArguments[0].IsSpanFormattable();
 
     public static bool IsSpanFormattableArray(this Type check) => check.IsArray() && check.IfArrayGetElementType()!.IsSpanFormattable();
 
@@ -559,7 +562,21 @@ public static class TypeExtensions
      || check == typeof(IReadOnlyList<decimal?>);
 
     public static bool IsDateTime(this Type check)              => check == typeof(DateTime);
-    public static bool IsNullableDateTime(this Type check)      => check == typeof(DateTime?);
+    public static bool IsNullableDateTime(this Type check)              => check == typeof(DateTime?);
+    public static bool IsTimeSpan(this Type check)              => check == typeof(TimeSpan);
+    public static bool IsNullableTimeSpan(this Type check)              => check == typeof(TimeSpan?);
+    public static bool IsTimeOnly(this Type check)              => check == typeof(TimeOnly);
+    public static bool IsNullableTimeOnly(this Type check)              => check == typeof(TimeOnly?);
+    public static bool IsDateOnly(this Type check)              => check == typeof(DateOnly);
+    public static bool IsNullableDateOnly(this Type check)              => check == typeof(DateOnly?);
+    
+    public static bool IsTimeFormattableType(this Type check)              =>
+        check.IsDateTime() || check.IsTimeSpan() || check.IsTimeOnly() || check.IsDateOnly();
+    
+    public static bool IsTimeFormattableOrNullable(this Type check)              =>
+        check.IsTimeFormattableType() || 
+        check.IsNullableDateTime() || check.IsNullableTimeSpan() || check.IsNullableTimeOnly() || check.IsNullableDateOnly();
+    
     public static bool IsDateTimeArray(this Type check)         => check == typeof(DateTime[]);
     public static bool IsNullableDateTimeArray(this Type check) => check == typeof(DateTime?[]);
 
@@ -628,4 +645,6 @@ public static class TypeExtensions
             .Where(t => t.IsValueType && (!t.FullName?.Contains('<') ?? false)
                                       && (!t.FullName?.Contains('+') ?? false))
             .OrderBy(t => t.FullName);
+    
+    
 }

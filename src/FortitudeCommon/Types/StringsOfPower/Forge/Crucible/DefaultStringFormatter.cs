@@ -858,11 +858,23 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return addedChars;
     }
 
-    public override int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems) => 
-        sb.Append(SqBrktOpn).ReturnCharCount(1);
-
-    public override int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems)
+    public override int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
+        {
+            return 0;
+        }
+        return sb.Append(SqBrktOpn).ReturnCharCount(1);
+    }
+
+    public override int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
+        {
+            return 0;
+        }
         return destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
@@ -891,7 +903,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
       , string formatString, FormattingHandlingFlags formatFlags = EncodeInnerContent) => 
         Format(nextItem, destCharSpan, destStartIndex, formatString);
 
-    public override int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb)
+    public override int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (nextItem == null)
         {
@@ -915,7 +928,8 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Length - preAppendLen;
     }
 
-    public override int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex)
+    public override int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (nextItem == null)
         {
@@ -940,10 +954,23 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return destCharSpan.OverWriteAt(destStartIndex, CharSpanCollectionScratchBuffer);
     }
 
-    public override int CollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount) => sb.Append(SqBrktCls).ReturnCharCount(1);
-
-    public override int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int itemsCount)
+    public override int CollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
+        {
+            return 0;
+        }
+        return sb.Append(SqBrktCls).ReturnCharCount(1);
+    }
+
+    public override int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int itemsCount
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
+        {
+            return 0;
+        }
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
         return destSpan.OverWriteAt(index, SqBrktCls);

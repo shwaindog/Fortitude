@@ -155,7 +155,6 @@ public static class NumberExtensions
     [
         typeof(byte)
       , typeof(sbyte)
-      , typeof(char)
       , typeof(short)
       , typeof(ushort)
       , typeof(int)
@@ -175,7 +174,6 @@ public static class NumberExtensions
     [
         typeof(byte?)
       , typeof(sbyte?)
-      , typeof(char?)
       , typeof(short?)
       , typeof(ushort?)
       , typeof(int?)

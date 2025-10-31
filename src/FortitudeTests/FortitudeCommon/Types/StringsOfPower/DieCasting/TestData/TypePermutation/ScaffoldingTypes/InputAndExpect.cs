@@ -48,7 +48,8 @@ public interface IFormatExpectation
 
 // Expect Key shortened to reduce obscuring declarative expect definition
 // ReSharper disable once InconsistentNaming
-public class EK ( 
+public class EK
+(
     ScaffoldingStringBuilderInvokeFlags matchScaff
   , StringStyle matchStyle = StringStyle.Compact | StringStyle.Json | StringStyle.Log | StringStyle.Pretty)
     : IEquatable<EK>
@@ -75,14 +76,18 @@ public class EK (
         if (MatchScaff.IsAcceptsAnyGeneric()) { bothGenericOrNotScaff = condition.IsAcceptsAnyGeneric(); }
         var meetsMoldTypeCondition = (MatchScaff & MoldTypeConditionMask) == 0 || (MatchScaff & MoldTypeConditionMask & condition) > 0;
         var meetsWriteCondition    = (MatchScaff & OutputConditionMask & condition) > 0 || condition.HasAnyOf((SimpleType));
+        var conditionHasBothBecomesNullAndFallback = (condition & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallback)
+                                                  && (condition & SupportsSettingDefaultValue) > 0;
+        var scaffHasBothBecomesNullAndFallback = (MatchScaff & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallback);
         var meetsOutputType =
             ((MatchScaff.HasNoneOf(OutputTreatedMask)
            || condition.HasNoneOf(OutputTreatedMask)
            || (MatchScaff & condition).HasAnyOf(OutputTreatedMask))
            &&
-             (MatchScaff.HasNoneOf(OutputBecomesMask)
-           || condition.HasNoneOf(OutputBecomesMask)
-           || (MatchScaff & condition).HasAnyOf(OutputBecomesMask)));
+             ((!scaffHasBothBecomesNullAndFallback || conditionHasBothBecomesNullAndFallback)
+           && (MatchScaff.HasNoneOf(OutputBecomesMask)
+            || condition.HasNoneOf(OutputBecomesMask)
+            || (MatchScaff & condition).HasAnyOf(OutputBecomesMask))));
         var hasMatchingInputType           = (MatchScaff & AcceptsAnyGeneric & condition).HasAnyOf(MatchScaff & AcceptsAnyGeneric);
         var conditionIsSubSpanOnlyCallType = (condition & SubSpanCallMask) > 0;
         var meetsInputTypeCondition        = (hasMatchingInputType && !conditionIsSubSpanOnlyCallType);
@@ -130,7 +135,7 @@ public abstract class FieldExpectBase<TInput, TDefault> : ITypedFormatExpectatio
         Input        = input;
         FormatString = formatString;
         HasDefault   = hasDefault;
-        DefaultValue = !typeof(TInput).IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>() 
+        DefaultValue = !typeof(TInput).IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>()
             ? defaultValue.IfNullableGetNonNullableUnderlyingDefault()
             : defaultValue;
     }
@@ -409,12 +414,17 @@ public class FieldExpect<TInput, TDefault> : FieldExpectBase<TInput?, TDefault?>
         if (createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
         {
             var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
-            FormattedDefault                        = new MutableString().Append(expectedDefaultString).ToString();
-            supportsStringDefaultValue.DefaultValue = 
+            FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
+            supportsStringDefaultValue.DefaultValue =
                 scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
-                && !InputType.IsAnyTypeHoldingChars()
-                    ? expectedDefaultString 
+             && !InputType.IsAnyTypeHoldingChars() && !InputType.IsSpanFormattableOrNullable()
+                    ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();
+
+            if (InputType.IsTimeFormattableOrNullable())
+            {
+                supportsStringDefaultValue.DefaultValue = expectedDefaultString.Replace("\"", "").Replace("\'", "").Trim();
+            }
         }
         return createdStringBearer;
     }
@@ -502,10 +512,11 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
         if (createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
         {
             var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
-            FormattedDefault                        = new MutableString().Append(expectedDefaultString).ToString();
-            supportsStringDefaultValue.DefaultValue = 
-                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut) 
-                    ? expectedDefaultString 
+            FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
+            supportsStringDefaultValue.DefaultValue =
+                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
+             && !InputType.IsSpanFormattableOrNullable()
+                    ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();
 
             createdStringBearer = (IStringBearer)supportsStringDefaultValue;
@@ -581,10 +592,11 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
         if (createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
         {
             var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
-            FormattedDefault                        = new MutableString().Append(expectedDefaultString).ToString();
-            supportsStringDefaultValue.DefaultValue = 
-                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut) 
-                    ? expectedDefaultString 
+            FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
+            supportsStringDefaultValue.DefaultValue =
+                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
+             && !InputType.IsSpanFormattableOrNullable()
+                    ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();
 
             createdStringBearer = (IStringBearer)supportsStringDefaultValue;
@@ -603,14 +615,12 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
             nullableMoldBearer.Value = stringBearerInput;
 
             createdStringBearer = nullableMoldBearer;
-
         }
         else if (createdStringBearer is IMoldSupportedValue<TInput> moldBearer)
         {
             moldBearer.Value = stringBearerInput ?? throw new ArgumentNullException(nameof(stringBearerInput));
-            
+
             createdStringBearer = moldBearer;
-            
         }
         return createdStringBearer;
     }
@@ -619,7 +629,6 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
 public class NullableStringBearerExpect<TInput> : NullableStringBearerExpect<TInput, TInput>
     where TInput : struct, IStringBearer
 {
-    
     public NullableStringBearerExpect(TInput? input, string? formatString = null
       , bool hasDefault = false, TInput? defaultValue = null) : base(input, formatString, hasDefault, defaultValue)
     {
@@ -631,9 +640,8 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
     where TInput : struct, IStringBearer
     where TDefault : struct
 {
-
     public ITypedFormatExpectation<TInput?> FieldValueExpectation { get; protected init; }
-    
+
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
     public override bool IsNullable => InputType.IsNullable();
@@ -672,17 +680,15 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
         var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
         if (createdStringBearer is IMoldSupportedDefaultValue<object?> supportsObjectDefaultValue)
             supportsObjectDefaultValue.DefaultValue = DefaultValue;
-        if (createdStringBearer is IMoldSupportedDefaultValue<TDefault?> supportsDefaultValue)
-        {
-            supportsDefaultValue.DefaultValue = DefaultValue;
-        }
+        if (createdStringBearer is IMoldSupportedDefaultValue<TDefault?> supportsDefaultValue) { supportsDefaultValue.DefaultValue = DefaultValue; }
         if (createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
         {
             var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
-            FormattedDefault                        = new MutableString().Append(expectedDefaultString).ToString();
-            supportsStringDefaultValue.DefaultValue = 
-                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut) 
-                    ? expectedDefaultString 
+            FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
+            supportsStringDefaultValue.DefaultValue =
+                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
+             && !InputType.IsSpanFormattableOrNullable()
+                    ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();
         }
         var stringBearerInput = Input;
@@ -700,14 +706,12 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
             nullableMoldBearer.Value = stringBearerInput;
 
             createdStringBearer = nullableMoldBearer;
-
         }
         else if (createdStringBearer is IMoldSupportedValue<TInput> moldBearer)
         {
             moldBearer.Value = stringBearerInput ?? throw new ArgumentNullException(nameof(stringBearerInput));
-            
+
             createdStringBearer = moldBearer;
-            
         }
         return createdStringBearer;
     }

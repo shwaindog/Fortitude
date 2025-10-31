@@ -407,14 +407,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
     public TExt AsValueMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string? defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null 
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Stb.ValueMatchOrDefaultNext
-            (nonJsonfieldName
-           , value,
-             defaultValue.IsNotNullOrEmpty()
-                 ? defaultValue
-                 : ((!typeof(TAny).IsValueType || typeof(TAny).IsNullable())
-                     ? "null"
-                     : "0"), formatString ?? "", formatFlags);
+        Stb.ValueMatchOrDefaultNext(nonJsonfieldName, value, defaultValue ?? "", formatString ?? "", formatFlags);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, bool value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

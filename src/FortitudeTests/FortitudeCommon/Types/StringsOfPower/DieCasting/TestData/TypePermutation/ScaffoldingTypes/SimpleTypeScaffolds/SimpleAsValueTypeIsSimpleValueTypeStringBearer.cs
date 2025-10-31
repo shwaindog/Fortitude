@@ -365,7 +365,7 @@ public class SimpleAsValueNullableSpanFormattableStructNoFieldSimpleValueTypeStr
 
 [TypeGeneratePart(SimpleType | AcceptsSingleValue  | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsSettingDefaultValue | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithDefaultWithFieldSimpleValueTypeStringBearer<TFmtStruct> :
     IMoldSupportedValue<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {

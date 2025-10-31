@@ -3,10 +3,12 @@
 
 using System.Text;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.Forge.FormattingHandlingFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
@@ -79,7 +81,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToValueFlags(true));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
@@ -91,7 +93,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToValueFlags(true));
         return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
     }
     
@@ -101,7 +103,15 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            if (formatFlags.HasEnsureFormattedDelimitedFlag())
+            {
+                StyleFormatter.AppendDelimiterStart(typeof(TFmt), Sb);
+            }
             StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
+            if (formatFlags.HasEnsureFormattedDelimitedFlag())
+            {
+                StyleFormatter.AppendDelimiterEnd(typeof(TFmt), Sb);
+            }
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
@@ -114,7 +124,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToValueFlags(false) );
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinValue(value, formatString, formatFlags);
@@ -126,7 +136,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToValueFlags(false));
         return VettedJoinValue(value, formatString, formatFlags);
     }
     
@@ -137,34 +147,42 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return StyleTypeBuilder;
     }
 
-    public TVMold FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, ReadOnlySpan<char> defaultValue
-      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : struct, ISpanFormattable
+    public TVMold FieldValueOrDefaultNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, ReadOnlySpan<char> defaultValue
+      , string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags  | value.MatchToValueFlags(true));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
     }
     
-    public TVMold JoinValueWithDefaultJoin<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : struct, ISpanFormattable
+    public TVMold JoinValueWithDefaultJoin<TFmtStruct>(TFmtStruct? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToValueFlags(true));
         return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
     }
     
-    public TVMold VettedJoinWithDefaultValue<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : struct, ISpanFormattable
+    public TVMold VettedJoinWithDefaultValue<TFmtStruct>(TFmtStruct? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            if (formatFlags.HasEnsureFormattedDelimitedFlag())
+            {
+                StyleFormatter.AppendDelimiterStart(typeof(TFmtStruct), Sb);
+            }
             StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
+            if (formatFlags.HasEnsureFormattedDelimitedFlag())
+            {
+                StyleFormatter.AppendDelimiterEnd(typeof(TFmtStruct), Sb);
+            }
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
@@ -702,7 +720,10 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
-            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            if (capLength > 0)
+            {
+                StyleFormatter.Format(value, capStart, Sb, formatString, capLength,  formatFlags: (FormattingHandlingFlags)formatFlags);
+            }
             else
             {
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
@@ -963,7 +984,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToValueFlags(false));
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedValueMatchJoinValue(value, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
@@ -973,7 +994,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToValueFlags(false));
         return VettedValueMatchJoinValue(value, formatString, formatFlags);
     }
     
@@ -985,7 +1006,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             Sb.Append(Settings.NullStyle);
             return StyleTypeBuilder;
         }
-        this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | formatFlags);
+        this.AppendMatchFormattedOrNull(value, formatString, formatFlags);
         return StyleTypeBuilder;
     }
 
@@ -994,7 +1015,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToValueFlags(true));
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
@@ -1005,7 +1026,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToValueFlags(true));
         return VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags );
     }
     
@@ -1014,12 +1035,20 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         if (value != null)
         {
-            this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | formatFlags);
+            this.AppendMatchFormattedOrNull(value, formatString, formatFlags);
         }
         else
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            if (formatFlags.HasEnsureFormattedDelimitedFlag())
+            {
+                StyleFormatter.AppendDelimiterStart(typeof(TAny), Sb);
+            }
             StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
+            if (formatFlags.HasEnsureFormattedDelimitedFlag())
+            {
+                StyleFormatter.AppendDelimiterEnd(typeof(TAny), Sb);
+            }
         }
         return StyleTypeBuilder;
     }
@@ -1073,7 +1102,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(true));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1086,7 +1115,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(true));
         return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1102,7 +1131,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
             }
         }
-        else { this.AppendMatchFormattedOrNull(value, formatString, formatFlags); }
+        else { this.AppendMatchFormattedOrNull(value, formatString, formatFlags | FieldContentHandling.DisableAutoDelimiting); }
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
     }
@@ -1113,7 +1142,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(false));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1126,7 +1155,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(false));
         return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1159,7 +1188,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(true));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1172,7 +1201,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(true));
         return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1202,7 +1231,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(true));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1215,7 +1244,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(true));
         return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1721,7 +1750,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
             }
         }
-        StyleFormatter.Format(value, 0, Sb, formatString);
+        StyleFormatter.Format(value, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
     }
@@ -2208,7 +2237,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(false));
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
@@ -2219,7 +2248,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(false));
         return VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -2231,6 +2260,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
                 if(addStartDblQt) Sb.Append("\"");
+                StyleFormatter.Format( "",0, Sb, formatString
+                                    , formatFlags: (FormattingHandlingFlags)formatFlags | FormattingHandlingFlags.DisableAutoDelimiting);
                 if(addEndDblQt) Sb.Append("\"");
                 return StyleTypeBuilder;
             }
@@ -2238,7 +2269,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             return StyleTypeBuilder;
         }
         if(addStartDblQt) Sb.Append("\"");
-        this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | formatFlags);
+        this.AppendMatchFormattedOrNull(value, formatString, FieldContentHandling.DisableAutoDelimiting | formatFlags);
         if(addEndDblQt) Sb.Append("\"");
         return StyleTypeBuilder;
     }
@@ -2248,7 +2279,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(true));
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
@@ -2259,7 +2290,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | DisableAutoDelimiting);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | value.MatchToStringFlags(true));
         return VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt );
     }
     
@@ -2269,7 +2300,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if(addStartDblQt) Sb.Append("\"");
         if (value != null)
         {
-            this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | formatFlags);
+            this.AppendMatchFormattedOrNull(value, formatString, FieldContentHandling.DisableAutoDelimiting | formatFlags);
         }
         else
         {

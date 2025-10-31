@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Globalization;
+using System.Numerics;
 using System.Reflection;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.ExampleConfig;
@@ -543,9 +544,18 @@ public partial class ValueTypeMoldTests
         SharedCompactLogAsValue
             (new FieldExpect<string>("with", "\"{0[8..10]}\"")
              {
-                 { new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }
-                ,
-                 {
+                 { new EK(SimpleType | AcceptsChars | AcceptsString |  AcceptsAnyGeneric), "\"\"" }
+               , { new EK(SimpleType | AcceptsChars | AcceptsString | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsValueOut)
+                   , "\"\"" }
+               , { new EK(SimpleType | AcceptsChars | AcceptsString | AcceptsAnyGeneric | DefaultBecomesFallback) , "\"\\u0022\\u0022\"" }
+               , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan, Log | Compact | Pretty), "\"\"" }
+               , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }
+               , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan),
+                     """""
+                     "\u0022\u0022"
+                     """""
+                 }
+              ,  {
                      new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                           | DefaultTreatedAsStringOut)
                    , """""
@@ -554,9 +564,9 @@ public partial class ValueTypeMoldTests
                  }
              }
            , new ScaffoldingPartEntry
-                 (typeof(SimpleAsValueMatchOrDefaultSimpleValueTypeStringBearer<>)
-                , SimpleType | AcceptsSingleValue  | AcceptsAnyGeneric | SupportsValueFormatString 
-                | DefaultTreatedAsValueOut | DefaultBecomesNull));
+                 (typeof(SimpleAsStringMatchOrDefaultSimpleValueTypeStringBearer<>)
+                , SimpleType | AcceptsSingleValue  | AcceptsAnyGeneric | SupportsValueFormatString
+                | DefaultTreatedAsStringOut | DefaultBecomesNull));
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

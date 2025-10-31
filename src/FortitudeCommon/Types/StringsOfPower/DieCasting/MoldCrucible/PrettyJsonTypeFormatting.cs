@@ -3,9 +3,11 @@
 
 using System.Text.Json.Nodes;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -70,7 +72,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
 
     public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType)
+      , Type keyType, Type valueType, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags)
     {
         base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType);
 
@@ -82,7 +84,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     }
 
     public override IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount)
+      , Type keyType, Type valueType, int totalItemCount, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags)
     {
         sb.RemoveLastWhiteSpacedCommaIfFound();
         StyleOptions.IndentLevel--;
@@ -94,13 +96,14 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     }
 
     public override IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType
-      , bool hasItems, Type collectionType)
+      , bool hasItems, Type collectionType, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags)
     {
         if (!hasItems) return sb;
         return CollectionStart(itemElementType, sb, hasItems).ToStringBuilder(sb);
     }
 
-    public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems)
+    public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
         StyleOptions.IndentLevel++;
         if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
@@ -115,7 +118,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return sb.Length - originalLen;
     }
 
-    public override int CollectionStart(Type elementType, Span<char> destSpan, int destStartIndex, bool hasItems)
+    public override int CollectionStart(Type elementType, Span<char> destSpan, int destStartIndex, bool hasItems
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
         StyleOptions.IndentLevel++;
         if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return destSpan.OverWriteAt(destStartIndex, DblQt);
@@ -129,7 +133,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return addedChars;
     }
 
-    public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber)
+    public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
         if (collectionElementType == typeof(char) && JsonOptions.CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
@@ -154,7 +159,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return sb.Length - originalLen;
     }
 
-    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber)
+    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
         if (collectionElementType == typeof(char) && JsonOptions.CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
@@ -178,10 +184,11 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     }
 
     public override IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType
-      , int nextItemNumber) =>
+      , int nextItemNumber, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags) =>
         AddCollectionElementSeparator(elementType, sb, nextItemNumber).ToStringBuilder(sb);
 
-    public override int CollectionEnd(Type elementType, IStringBuilder sb, int itemsCount)
+    public override int CollectionEnd(Type elementType, IStringBuilder sb, int itemsCount
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
         StyleOptions.IndentLevel--;
         if (elementType == typeof(char) && JsonOptions.CharArrayWritesString) return sb.Append(DblQt).ReturnCharCount(1);
@@ -200,7 +207,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return sb.Append(SqBrktCls).ReturnCharCount(sb.Length - originalLen);
     }
 
-    public override int CollectionEnd(Type elementType, Span<char> destSpan, int index, int itemsCount)
+    public override int CollectionEnd(Type elementType, Span<char> destSpan, int index, int itemsCount
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
         StyleOptions.IndentLevel--;
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
@@ -222,6 +230,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return addedChars;
     }
 
-    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount) => 
+    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount
+      , FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags) => 
         CollectionEnd(itemElementType, sb, totalItemCount).ToStringBuilder(sb);
 }

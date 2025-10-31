@@ -18,6 +18,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 {
     protected const string DblQt         = "\"";
     protected const char   DblQtChar     = '"';
+    protected const string SglQt         = "'";
+    protected const char   SglQtChar     = '\'';
     protected const string SqBrktOpn     = "[";
     protected const char   SqBrktOpnChar = '[';
     protected const string SqBrktCls     = "]";
@@ -37,6 +39,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     ];
     protected IFormattingOptions? FormatOptions;
     protected IEncodingTransfer?  EncoderTransfer;
+    
 
     static CustomStringFormatter() { }
 
@@ -64,6 +67,60 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , FormattingHandlingFlags callerFormattingFlags, string formatString = "") =>
         callerFormattingFlags;
 
+    public virtual int AppendDelimiterStart(Type maybeDelimited, IStringBuilder sb)
+    {
+        if (maybeDelimited.IsAnyTypeHoldingChars())
+        {
+            if (maybeDelimited.IsCharArray())
+            {
+                sb.Append(SqBrktOpn);
+                return 1;
+            }
+            return StringValueDelimiter(sb);
+        }
+        return 0;
+    }
+
+    public virtual int AppendDelimiterEnd(Type maybeDelimited, IStringBuilder sb)
+    {
+        if (maybeDelimited.IsAnyTypeHoldingChars())
+        {
+            if (maybeDelimited.IsCharArray())
+            {
+                sb.Append(SqBrktCls);
+                return 1;
+            }
+            return StringValueDelimiter(sb);
+        }
+        return 0;
+    }
+
+    public virtual int AppendDelimiterStart(Type maybeDelimited, Span<char> destSpan, int fromIndex)
+    {
+        if (maybeDelimited.IsAnyTypeHoldingChars())
+        {
+            if (maybeDelimited.IsCharArray())
+            {
+                return destSpan.OverWriteAt(fromIndex, SqBrktOpn);
+            }
+            return StringValueDelimiter(destSpan, fromIndex);
+        }
+        return 0;
+    }
+
+    public virtual int AppendDelimiterEnd(Type maybeDelimited, Span<char> destSpan, int fromIndex)
+    {
+        if (maybeDelimited.IsAnyTypeHoldingChars())
+        {
+            if (maybeDelimited.IsCharArray())
+            {
+                return destSpan.OverWriteAt(fromIndex, SqBrktCls);
+            }
+            return StringValueDelimiter(destSpan, fromIndex);
+        }
+        return 0;
+    }
+
     public int StringValueDelimiter(IStringBuilder sb) => sb.Append(DblQt).ReturnCharCount(1);
 
     public int StringValueDelimiter(Span<char> destSpan, int destStartIndex) => destSpan[destStartIndex].ReturnInt(1);
@@ -73,10 +130,12 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public int StringFieldDelimiter(Span<char> destSpan, int destStartIndex) => destSpan[destStartIndex].ReturnInt(1);
 
 
-    public virtual int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber) =>
+    public virtual int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) =>
         sb.Append(Options.ItemSeparator).ReturnCharCount(Options.ItemSeparator.Length);
 
-    public virtual int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber) =>
+    public virtual int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) =>
         destSpan.OverWriteAt(atIndex, Options.ItemSeparator);
 
     protected virtual bool TryGetCachedCustomSpanFormatter<T>([NotNullWhen(true)] out StringBearerSpanFormattable<T>? maybeFormatter)
@@ -211,7 +270,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return TransferEncoder.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
 
-        return Format(((ReadOnlySpan<char>)source)[sourceFrom..], 0, sb, formatString, maxTransferCount);
+        return Format(((ReadOnlySpan<char>)source)[sourceFrom..], 0, sb, formatString, maxTransferCount, formatFlags);
     }
 
     public virtual int Format(StringBuilder source, int sourceFrom, IStringBuilder sb
@@ -551,7 +610,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
             return TransferEncoder.Transfer(this, source, sourceFrom, destCharSpan, destStartIndex, cappedLength);
 
         sourceFrom = Math.Clamp(sourceFrom, 0, source.Length);
-        return Format(((ReadOnlySpan<char>)source)[sourceFrom..], 0, destCharSpan, formatString, destStartIndex, cappedLength);
+        return Format(((ReadOnlySpan<char>)source)[sourceFrom..], 0, destCharSpan, formatString, destStartIndex
+                    , cappedLength, formatFlags);
     }
 
     public virtual int Format(StringBuilder source, int sourceFrom, Span<char> destCharSpan, ReadOnlySpan<char> formatString, int destStartIndex = 0
@@ -827,7 +887,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 if (layout.Length == 0)
                 {
                     TransferEncoder.Transfer(this, toTransfer, sb);
-                    if (suffix.Length > 0) charsAdded += sb.Append(suffix).ReturnCharCount(suffix.Length);
+                    if (suffix.Length > 0) charsAdded += TransferEncoder.TransferSuffix(suffix, sb, formatFlags.HasEncodeBoundsFlag());
                     return charsWritten + charsAdded;
                 }
                 var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
@@ -911,7 +971,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 {
                     TransferEncoder.Transfer(this, toTransfer, destCharSpan, destStartIndex + charsAdded);
                     charsAdded += charsWritten;
-                    if (suffix.Length > 0) charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, suffix);
+                    if (suffix.Length > 0) charsAdded += TransferEncoder.TransferSuffix(suffix, destCharSpan, destStartIndex + charsAdded, formatFlags.HasEncodeBoundsFlag());
                     return charsAdded;
                 }
                 var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
@@ -1426,8 +1486,11 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , string? formatString = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
         where TFmtStruct : struct, ISpanFormattable;
 
-    public abstract int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems);
-    public abstract int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems);
+    public abstract int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    public abstract int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
     public abstract int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable;
@@ -1462,10 +1525,17 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         return CollectionNextItemFormat(nextItem.Value, retrieveCount, destCharSpan, destStartIndex, formatString);
     }
 
-    public abstract int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb);
-    public abstract int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex);
-    public abstract int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount);
-    public abstract int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount);
+    public abstract int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    public abstract int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    public abstract int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    public abstract int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
 
     public override void StateReset()

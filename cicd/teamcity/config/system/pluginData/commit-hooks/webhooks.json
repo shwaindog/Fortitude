@@ -1,21 +1,4 @@
 {
   "version": 1,
-  "hooks": [
-    {
-      "url": "https://api.github.com/repos/shwaindog/Fortitude/hooks/466245979",
-      "callbackUrl": "http://14.2.52.100:8111/app/hooks/github/c0b1d083-2764-4ab7-a5cc-366812c7e8cd",
-      "status": "MISSING",
-      "lastUsed": 1760798200137,
-      "lastBranchRevisions": {
-        "refs/pull/191/merge": "a6a5cd7cdfac00c81a815b24f664eb1724236065",
-        "refs/heads/feature/ComplexFieldCloakedAndStringBearerTests": "8d743de31089df3150f4261eb112009c07e65f6e",
-        "refs/pull/191/head": "8d743de31089df3150f4261eb112009c07e65f6e"
-      }
-    },
-    {
-      "url": "https://api.github.com/repos/shwaindog/Fortitude/hooks/575976816",
-      "callbackUrl": "http://14.2.52.100:8111/app/hooks/github/d436120b-f20c-42bd-b437-4ec3ed9f4c45",
-      "status": "PAYLOAD_DELIVERY_FAILED"
-    }
-  ]
+  "hooks": []
 }

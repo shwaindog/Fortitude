@@ -24,6 +24,7 @@ public enum FormattingHandlingFlags : ushort
   , ReformatMultiLine        = 0x_10_00
   , UnsetEncodeBounds        = 0x_20_00
   , UnsetEncodeContent       = 0x_40_00
+  , AsValueContent           = 0x_80_00
 }
 
 public static class FieldContentHandlingExtensions
@@ -31,7 +32,11 @@ public static class FieldContentHandlingExtensions
     public const FormattingHandlingFlags None = 0;
 
     public static bool IsNone(this FormattingHandlingFlags flags)              => flags == FormattingHandlingFlags.DefaultCallerType;
-    public static bool HasEncodeBoundsFlag(this FormattingHandlingFlags flags) => flags == FormattingHandlingFlags.EncodeBounds;
+    
+    public static bool HasEncodeBoundsFlag(this FormattingHandlingFlags flags) => (flags & FormattingHandlingFlags.EncodeBounds) > 0;
+    
+    public static bool HaEnsureFormattedDelimitedFlag(this FormattingHandlingFlags flags) => 
+        (flags & FormattingHandlingFlags.EnsureFormattedDelimited) > 0;
 
     public static bool HasNoAutoAddCallerTypeFlag(this FormattingHandlingFlags flags) =>
         (flags & FormattingHandlingFlags.NoAutoAddCallerType) > 0;
@@ -39,6 +44,15 @@ public static class FieldContentHandlingExtensions
     public static bool HasDisableAutoDelimiting(this FormattingHandlingFlags flags) =>
         (flags & FormattingHandlingFlags.DisableAutoDelimiting) > 0;
 
+    public static bool HasAsStringContentFlag(this FormattingHandlingFlags flags) =>
+        (flags & FormattingHandlingFlags.AsStringContent) > 0;
+
+    public static bool HasAsValueContentFlag(this FormattingHandlingFlags flags) =>
+        (flags & FormattingHandlingFlags.AsValueContent) > 0;
+
     public static bool ShouldDelimit(this FormattingHandlingFlags flags) =>
         (flags & FormattingHandlingFlags.EnsureFormattedDelimited) > 0;
+    
+    public static bool TreatCharArrayAsString(this FormattingHandlingFlags flags) =>
+        flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
 }

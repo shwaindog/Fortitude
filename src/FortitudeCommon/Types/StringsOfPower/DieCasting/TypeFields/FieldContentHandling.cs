@@ -25,47 +25,52 @@ public enum FieldContentHandling : ulong
   , ReformatMultiLine        = 0x_10_00
   , UnsetEncodeBounds        = 0x_20_00
   , UnsetEncodeInnerContent  = 0x_40_00
-  , NullBecomesEmpty         = 0x_80_00
+  , AsValueContent           = 0x_80_00
 
     // Mold Additional
-  , EnsureLogFormatting         = 0x00_00_00_01_00_00
-  , EnsureJsonFormatting        = 0x00_00_00_02_00_00
-  , EnsureYamlFormatting        = 0x00_00_00_04_00_00 // Not implemented just reserving  
-  , EnsureMlFormatting          = 0x00_00_00_08_00_00 // Not implemented just reserving
-  , EnsureCompact               = 0x00_00_00_10_00_00  
-  , EnsurePretty                = 0x00_00_00_20_00_00  
-  , FormattingMask              = 0x00_00_00_2F_00_00 
-  , ExcludeWhenPretty           = 0x00_00_00_40_00_00
-  , ExcludeWhenCompact          = 0x00_00_00_80_00_00
-  , ExcludeWhenLogStyle         = 0x00_00_01_00_00_00
-  , ExcludeWhenJsonStyle        = 0x00_00_02_00_00_00
-  , ExcludeWhenYamlStyle        = 0x00_00_04_00_00_00 // Not implemented just reserving                                             
-  , ExcludeWhenXmlLStyle        = 0x00_00_08_00_00_00 // Not implemented just reserving          
-  , ExcludeMask                 = 0x00_00_0F_C0_00_00    
-  , ContentAllowAnyValueType    = 0x00_00_10_00_00_00 
-  , ContentAllowNumber          = 0x00_00_20_00_00_00 
-  , ContentAllowRawGraphNode    = 0x00_01_00_00_00_00 
-  , ContentAllowText            = 0x00_02_00_00_00_00 
-  , ValidateValueType           = 0x00_04_00_00_00_00 
-  , ValidateNumber              = 0x00_08_00_00_00_00 
-  , ValidateNotNull             = 0x00_10_00_00_00_00 
-  , ValidateNotEmpty            = 0x00_20_00_00_00_00 
-  , AsCollection                = 0x00_40_00_00_00_00 
-  , ContentMismatchViolationOn  = 0x00_80_00_00_00_00 
-  , ContentMismatchViolationOff = 0x01_00_00_00_00_00 
-  , PrettyTreatAsCompact        = 0x02_00_00_00_00_00 
-  , PrettyNewLinePerElement     = 0x04_00_00_00_00_00 
-  , PrettyElementWrapAtWidth    = 0x08_00_00_00_00_00 
-  , TempAlwaysExclude           = 0x10_00_00_00_00_00
-  , ViolationThrowsException    = 0x20_00_00_00_00_00
-  , ViolationWritesAlert        = 0x40_00_00_00_00_00
-  , ViolationDebuggerBreak      = 0x80_00_00_00_00_00
+  , EnsureLogFormatting         = 0x00_01_00_00
+  , EnsureJsonFormatting        = 0x00_02_00_00
+  , EnsureYamlFormatting        = 0x00_04_00_00 // Not implemented just reserving  
+  , EnsureMlFormatting          = 0x00_08_00_00 // Not implemented just reserving
+  , EnsureCompact               = 0x00_10_00_00  
+  , EnsurePretty                = 0x00_20_00_00  
+  , FormattingMask              = 0x00_2F_00_00 
+  , ExcludeWhenPretty           = 0x00_40_00_00
+  , ExcludeWhenCompact          = 0x00_80_00_00
+  , ExcludeWhenLogStyle         = 0x01_00_00_00
+  , ExcludeWhenJsonStyle        = 0x02_00_00_00
+  , ExcludeWhenYamlStyle        = 0x04_00_00_00 // Not implemented just reserving                                             
+  , ExcludeWhenXmlLStyle        = 0x08_00_00_00 // Not implemented just reserving          
+  , ExcludeMask                 = 0x0F_C0_00_00    
+  , ContentAllowAnyValueType    = 0x10_00_00_00
+  , NoPrettifying               = 0x20_00_00_00 
+  , NullBecomesEmpty            = 0x40_00_00_00 
+    
+  , ContentAllowNumber          = 0x01_00_00_00_00 
+  , ContentAllowRawGraphNode    = 0x02_00_00_00_00 
+  , ContentAllowText            = 0x04_00_00_00_00 
+  , ValidateValueType           = 0x08_00_00_00_00 
+  , ValidateNumber              = 0x10_00_00_00_00 
+  , ValidateNotNull             = 0x20_00_00_00_00 
+  , ValidateNotEmpty            = 0x40_00_00_00_00 
+  , AsCollection                = 0x80_00_00_00_00
+    
+  , ContentMismatchViolationOn  = 0x00_01_00_00_00_00_00 
+  , ContentMismatchViolationOff = 0x00_02_00_00_00_00_00 
+  , PrettyTreatAsCompact        = 0x00_04_00_00_00_00_00 
+  , PrettyNewLinePerElement     = 0x00_08_00_00_00_00_00 
+  , PrettyElementWrapAtWidth    = 0x00_10_00_00_00_00_00
+  , TempAlwaysExclude           = 0x00_20_00_00_00_00_00
+  , ViolationThrowsException    = 0x00_40_00_00_00_00_00
+  , ViolationWritesAlert        = 0x00_80_00_00_00_00_00
+  , ViolationDebuggerBreak      = 0x01_00_00_00_00_00_00
 }
 
 public static class FieldContentHandlingExtensions
 {
     public const FieldContentHandling None = 0;
 
+    public static bool HasEnsureFormattedDelimitedFlag(this FieldContentHandling flags)     => (flags & EnsureFormattedDelimited) > 0;
     public static bool HasNullBecomesEmptyFlag(this FieldContentHandling flags)             => (flags & NullBecomesEmpty) > 0;
     public static bool HasEnsureLogFormattingFlag(this FieldContentHandling flags)          => (flags & EnsureLogFormatting) > 0;
     public static bool HasEnsureJsonFormattingFlag(this FieldContentHandling flags)         => (flags & EnsureJsonFormatting) > 0;

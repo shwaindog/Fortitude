@@ -10,9 +10,16 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 public interface ICustomStringFormatter : IRecyclableObject
 {
-    int AddCollectionElementSeparator(Type collectionType, IStringBuilder sb, int nextItemNumber);
+    int AddCollectionElementSeparator(Type collectionType, IStringBuilder sb, int nextItemNumber
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
-    int AddCollectionElementSeparator(Type collectionType, Span<char> destSpan, int atSpanOffset, int nextItemNumber);
+    int AddCollectionElementSeparator(Type collectionType, Span<char> destSpan, int atSpanOffset, int nextItemNumber
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    int AppendDelimiterStart(Type maybeDelimited, IStringBuilder sb);
+    int AppendDelimiterEnd(Type maybeDelimited, IStringBuilder sb);
+    int AppendDelimiterStart(Type maybeDelimited, Span<char> destSpan, int fromIndex);
+    int AppendDelimiterEnd(Type maybeDelimited, Span<char> destSpan, int fromIndex);
 
     IFormattingOptions Options { get; set; }
     IEncodingTransfer TransferEncoder { get; set; }
@@ -150,8 +157,11 @@ public interface ICustomStringFormatter : IRecyclableObject
     int StringFieldDelimiter(Span<char> destSpan, int destStartIndex);
 
 
-    int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems);
-    int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems);
+    int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
     int CollectionNextItemFormat(bool nextItem, int retrieveCount, IStringBuilder sb, string formatString
     , FormattingHandlingFlags formatFlags = DefaultCallerType);
@@ -178,14 +188,18 @@ public interface ICustomStringFormatter : IRecyclableObject
       , string formatString, FormattingHandlingFlags formatFlags = EncodeInnerContent) 
         where TFmtStruct : struct, ISpanFormattable;
 
-    int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb);
+    int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
-    int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex);
+    int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
 
-    int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount);
+    int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
-    int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount);
+    int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
 
     public static ICustomStringFormatter DefaultBufferFormatter { get; set; } =

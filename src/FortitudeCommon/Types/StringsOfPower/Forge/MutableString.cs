@@ -952,9 +952,10 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
         if (formatString == null)
         {
-            var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
-            var endIndex     = startIndex + cappedLength;
-            for (int i = startIndex; i < endIndex; i++) { sb.Append(value[i]); }
+            var cappedFrom   = Math.Clamp(startIndex, 0, value.Length);
+            var cappedLength = Math.Clamp(length, 0, value.Length - cappedFrom);
+            var endIndex     = cappedFrom + cappedLength;
+            for (var i = cappedFrom; i < endIndex; i++) { sb.Append(value[i]); }
         }
         else
         {
@@ -990,14 +991,16 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         }
         if (formatString == null)
         {
-            var endIndex = Math.Min(length, value.Length - startIndex);
-            for (var i = startIndex; i < endIndex; i++) { sb.Append(value[i]); }
+            var cappedFrom = Math.Clamp(startIndex, 0, value.Length);
+            var cappedLength = Math.Clamp(length, 0, value.Length - cappedFrom);
+            var endIndex = cappedFrom + cappedLength;
+            for (var i = cappedFrom; i < endIndex; i++) { sb.Append(value[i]); }
         }
         else
         {
             var cappedLength    = Math.Clamp(length, 256, 256 + value.Length - startIndex);
-            var maxTransferSize = Math.Min(cappedLength, 512 * 1024);
-            var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
+            var maxTransferSize = Math.Min(cappedLength, 4 * 1024);
+            Span<char> rangeAsSpan     = stackalloc char[maxTransferSize];
 
             rangeAsSpan.SingleTokenFormatAt(0, formatString, value, startIndex, length);
             var size = rangeAsSpan.PopulatedLength();
@@ -1031,16 +1034,17 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
                 customStringFormatter.Format(asSpan, startIndex, this, formatString, length, formatFlags);
             return this;
         }
-        var cappedLength = Math.Clamp(length, 256, 256 + value.Length - startIndex);
-        var endIndex     = startIndex + cappedLength;
+        var cappedFrom   = Math.Clamp(startIndex, 0, value.Length);
+        var cappedLength = Math.Clamp(length, 0, value.Length - cappedFrom);
+        var endIndex     = cappedFrom + cappedLength;
         if (formatString == null)
         {
             for (int i = startIndex; i < endIndex; i++) { sb.Append(asSpan[i]); }
         }
         else
         {
-            var maxTransferSize = Math.Min(cappedLength, 512 * 1024);
-            var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
+            var maxTransferSize = Math.Min(cappedLength, 4 * 1024);
+            Span<char> rangeAsSpan     = stackalloc char[maxTransferSize + 256];
 
             var memoryAsSpan = value.Span;
 

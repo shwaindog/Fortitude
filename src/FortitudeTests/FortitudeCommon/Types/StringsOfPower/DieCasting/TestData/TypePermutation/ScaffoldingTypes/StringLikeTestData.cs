@@ -60,7 +60,8 @@ public static class StringLikeTestData
       , new FieldExpect<string>(null, "", true, "")
         {
             { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "" }
+          , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
            ,
             {
                 new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
@@ -156,9 +157,18 @@ public static class StringLikeTestData
         }
       , new FieldExpect<string>("with", "\"{0[8..10]}\"")
         {
-            { new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }
-           ,
-            {
+             { new EK(SimpleType | AcceptsChars | AcceptsString |  AcceptsAnyGeneric), "\"\"" }
+           , { new EK(SimpleType | AcceptsChars | AcceptsString | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsValueOut)
+               , "\"\"" }
+           , { new EK(SimpleType | AcceptsChars | AcceptsString | AcceptsAnyGeneric | DefaultBecomesFallback) , "\"\\u0022\\u0022\"" }
+           , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan, Log | Compact | Pretty), "\"\"" }
+           , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }
+           , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan),
+                 """""
+                 "\u0022\u0022"
+                 """""
+             }
+          ,  {
                 new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      | DefaultTreatedAsStringOut)
               , """""
@@ -259,20 +269,54 @@ public static class StringLikeTestData
       , new FieldExpect<string>("For within these strings was bound the flexibility, mutability and the operators to govern each language"
                               , "{0,0/ /\n/[1..^1]}")
         {
+            
             {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut)
+                new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsValueOut
+                     , Log | Compact | Pretty)
               , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
             }
            ,
             {
-                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     | DefaultTreatedAsStringOut, Log | Compact | Pretty)
+                new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsStringOut
+                     , Log | Compact | Pretty)
+              , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
+            }
+           ,
+            {
+                new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsValueOut)
+              , """
+                within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
+                \u000aoperators\u000ato\u000agovern\u000aeach
+                """.RemoveLineEndings()
+            }
+           ,
+            {
+                new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan)
+              , """
+                "within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
+                \u000aoperators\u000ato\u000agovern\u000aeach"
+                """.RemoveLineEndings()
+            }
+           ,
+            {
+                new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsStringOut
+                     , Log | Compact | Pretty)
+              , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
+            }
+           ,{
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AcceptsString | DefaultTreatedAsValueOut)
+              , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
+            }
+           ,
+            {
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AcceptsString | AlwaysWrites | NonDefaultWrites | NonNullWrites 
+                     | NonNullAndPopulatedWrites, Log | Compact | Pretty)
               , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
             }
            ,
             {
                 new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     | DefaultTreatedAsStringOut, Json | Compact | Pretty)
+                     , Json | Compact | Pretty)
               , """
                 "within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe\u000a
                 operators\u000ato\u000agovern\u000aeach"
@@ -328,9 +372,8 @@ public static class StringLikeTestData
       , new FieldExpect<char[]>("".ToCharArray(), "", true, ['0'])
         {
             { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut), "" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut), "\"\"" }
-           ,
-            {
+          , { new EK(SimpleType | AcceptsAnyGeneric), "\"\"" }
+          , {
                 new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut | DefaultBecomesZero
                      | DefaultBecomesFallback)
               , "0"
@@ -347,17 +390,8 @@ public static class StringLikeTestData
                      | DefaultBecomesFallback)
               , "\"0\""
             }
-           ,
-            {
-                new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut | DefaultBecomesEmpty)
-              , "\"\""
-            }
-          , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "" }
-           ,
-            {
-                new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut)
-              , "\"\""
-            }
+          , { new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut) , "" }
+          , { new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut) , "\"\"" }
            ,
             {
                 new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -386,9 +420,12 @@ public static class StringLikeTestData
         }
       , new FieldExpect<char[]>(null, "", true, [])
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
-           ,
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "" }
+          , { new EK(SimpleType | AcceptsAnyGeneric), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+          ,
             {
                 new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
                      | DefaultBecomesNull)
@@ -438,18 +475,22 @@ public static class StringLikeTestData
         }
       , new FieldExpect<char[]>("It".ToCharArray(), "\"{0}\"", false, ['0'], 3, 2)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback ), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback ), "\"\"0\"\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut), "null" }
-          , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesFallback), "\"\"0\"\"" }
-          , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "\"\"" }
-          , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsStringOut )
-              , """""
-                """"
-                """""
-            }
-           ,
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback, Log | Compact | Pretty )
+              , "\"0\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback, Json | Compact | Pretty )
+              , "\"0\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric  | DefaultTreatedAsValueOut | DefaultBecomesFallback ) 
+              , "\"0\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) , "\"\\u00220\\u0022\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultBecomesFallback | DefaultBecomesZero
+                   , Log | Compact | Pretty) , "\"0\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut | DefaultBecomesFallback 
+                   | DefaultBecomesZero) , "\"0\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultBecomesFallback | DefaultBecomesZero)
+              , "\"\\u00220\\u0022\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut), "\"\\u0022\\u0022\"" }
+          ,
             {
                 new EK( AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      | DefaultTreatedAsStringOut, Log | Compact | Pretty)
@@ -523,13 +564,12 @@ public static class StringLikeTestData
         }
       , new FieldExpect<char[]>("with".ToCharArray(), "\"{0[8..10]}\"")
         {
-            { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut, Log | Compact | Pretty),
-                """""
-                """"
-                """""
-            }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut, Json | Compact | Pretty),
+            { new EK(SimpleType | AcceptsAnyGeneric | AcceptsCharArray | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | AcceptsCharArray | DefaultBecomesFallback | DefaultTreatedAsValueOut) , "\"\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | AcceptsCharArray | DefaultBecomesFallback) , "\"\\u0022\\u0022\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan),
                 """""
                 "\u0022\u0022"
                 """""
@@ -1051,12 +1091,36 @@ public static class StringLikeTestData
                  .ToCharArray(), "{0,0/ /\n/[1..^1]}")
             {
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut
+                           , Log | Compact | Pretty)
                   , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut)
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut
+                         , Log | Compact | Pretty)
+                  , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
+                  , """
+                    within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
+                    \u000aoperators\u000ato\u000agovern\u000aeach
+                    """.RemoveLineEndings()
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan)
+                  , """
+                    "within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
+                    \u000aoperators\u000ato\u000agovern\u000aeach"
+                    """.RemoveLineEndings()
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut
+                         , Log | Compact | Pretty)
                   , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
                 }
                ,
@@ -1195,8 +1259,10 @@ public static class StringLikeTestData
       , new FieldExpect<char[]>("But they were all of them deceived, for another string was made.".ToCharArray()
                               , "{0,0/,//[1..]}")
         {
-            { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), " for another string was made." }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut), "\" for another string was made.\"" }
+            { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
+              , " for another string was made." }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan)
+              , "\" for another string was made.\"" }
            ,
             {
                 new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites |
@@ -1527,8 +1593,9 @@ public static class StringLikeTestData
         }
       , new FieldExpect<CharArrayStringBuilder>(null, "", true, new CharArrayStringBuilder(""))
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut), "null" }
            ,
             {
                 new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
@@ -1547,8 +1614,9 @@ public static class StringLikeTestData
         }
       , new FieldExpect<MutableString>(null, "", true, new MutableString(""))
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
            ,
             {
                 new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
@@ -1609,9 +1677,10 @@ public static class StringLikeTestData
         }
       , new FieldExpect<CharArrayStringBuilder>(null, "", true, new CharArrayStringBuilder("0"), -1, -10)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut), "null" }
-           ,
-            {
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut), "null" }
+          , {
                 new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites
                      | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull)
               , "null"
@@ -2596,7 +2665,8 @@ public static class StringLikeTestData
         }
       , new FieldExpect<StringBuilder>(null, "", true, new StringBuilder(""))
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut |  DefaultBecomesFallback), "" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
           , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
            ,
             {
@@ -2645,12 +2715,27 @@ public static class StringLikeTestData
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("It"), "\"{0}\"", false, new StringBuilder(), 3, 2)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesZero ), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesZero ), "\"\"0\"\"" }
-          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder |DefaultTreatedAsValueOut | DefaultBecomesZero), "\"0\"" }
-          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut | DefaultBecomesZero), "\"\"0\"\"" }
-          , { new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "\"\"" }
-          , { new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesFallback), "\"\"\"\"" }
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesZero , Log | Compact | Pretty), "\"0\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesZero ), "\"0\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesZero )
+              , """
+                "\u00220\u0022"
+                """ 
+            }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultBecomesZero , Log | Compact | Pretty), "\"0\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut | DefaultBecomesZero ), "\"0\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultBecomesZero )
+              , """
+                "\u00220\u0022"
+                """ 
+            }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder , Log | Compact | Pretty), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultBecomesZero )
+              , """
+                "\u0022\u0022"
+                """ 
+            }
            ,{
                 new EK(AcceptsChars | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut )
               , """""
@@ -2669,9 +2754,14 @@ public static class StringLikeTestData
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("with"), "\"{0[8..10]}\"")
         {
-            { new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "\"\"" }
-           ,
-            {
+            { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder , Log | Compact | Pretty), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "\"\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultBecomesZero )
+              , """
+                "\u0022\u0022"
+                """ 
+            }
+          , {
                 new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites 
                      | DefaultTreatedAsStringOut )
               , """""

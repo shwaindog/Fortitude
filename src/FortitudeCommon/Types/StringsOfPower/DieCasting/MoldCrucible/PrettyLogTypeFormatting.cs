@@ -2,9 +2,11 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -78,9 +80,9 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
 
     public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType)
+      , Type keyType, Type valueType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType);
+        base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType, formatFlags);
 
         StyleOptions.IndentLevel++;
 
@@ -90,7 +92,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount)
+      , Type keyType, Type valueType, int totalItemCount, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         sb.RemoveLastWhiteSpacedCommaIfFound();
         StyleOptions.IndentLevel--;
@@ -98,11 +100,11 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             sb.Append(StyleOptions.NewLineStyle)
               .Append(StyleOptions.IndentChar
                     , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
-        return base.AppendKeyedCollectionEnd(sb, keyedCollectionType, keyType, valueType, totalItemCount);
+        return base.AppendKeyedCollectionEnd(sb, keyedCollectionType, keyType, valueType, totalItemCount, formatFlags);
     }
 
     public override IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType
-      , bool hasItems, Type collectionType)
+      , bool hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString) return sb.Append(DblQt);
         if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return sb.Append(DblQt);
@@ -116,14 +118,16 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
                        , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
     }
 
-    public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber)
+    public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
         if (collectionElementType == typeof(char) && StyleOptions.CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return 0;
         return sb.Append(CmaSpc).ReturnCharCount(1);
     }
 
-    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber)
+    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
         if (collectionElementType == typeof(char) && StyleOptions.CharArrayWritesString) return 0;
         if (collectionElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return 0;
@@ -131,7 +135,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType
-      , int nextItemNumber)
+      , int nextItemNumber, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         base.AddCollectionElementSeparator(elementType, sb, nextItemNumber);
         if (elementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return sb;
@@ -155,7 +159,8 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return sb;
     }
 
-    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount)
+    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString)
         {
