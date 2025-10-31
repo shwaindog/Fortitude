@@ -258,8 +258,13 @@ public static class SpanFormattableTestData
         // char?
       , new FieldExpect<char?>('\0', "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "\0" }
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut, Log | Compact | Pretty), "\0" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"\0\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut), "\\u0000" }
+          , { new EK(SimpleType | AcceptsAnyGeneric), "\"\\u0000\"" }
+          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "\0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"\0\"" }
+          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\\u0000" }
           , { new EK(SimpleType | AcceptsSpanFormattable), "\"\\u0000\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\0" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"\\u0000\"" }
@@ -269,20 +274,24 @@ public static class SpanFormattableTestData
             { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty), "\0" }
           , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback, Log | Compact | Pretty), "\"\0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric), "\"\\u0000\"" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "\\u0000" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"\\u0000\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesZero
                    , Log | Compact | Pretty), "\0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback | DefaultBecomesZero 
                    , Log | Compact | Pretty), "\"\0\"" }
+          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesZero 
+                   , Json | Compact | Pretty), "\\u0000" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero
                    , Json | Compact | Pretty), "\"\\u0000\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero, Log | Compact | Pretty) 
-              , "\0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback, Log | Compact | Pretty)
-              , "\"\0\"" }
+          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero
+                   , Log | Compact | Pretty) , "\0" }
+          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback
+                   , Log | Compact | Pretty) , "\"\0\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\\u0000" }
           , { new EK(SimpleType | AcceptsSpanFormattable), "\"\\u0000\"" }
-           ,
+          ,
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
               , "null"
@@ -290,7 +299,7 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<char?>('A')
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "A" }
+            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "A" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"A\"" }
            ,
             {
@@ -307,8 +316,13 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<char?>(' ', "'{0}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultTreatedAsValueOut), "\"' '\"" }
+            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
+          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut), "' '" }
+          , { new EK(SimpleType | AcceptsAnyGeneric), "\"' '\"" }
+          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
+          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
+          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "' '" }
+          , { new EK(SimpleType | AcceptsSpanFormattable), "\"' '\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -698,9 +712,6 @@ public static class SpanFormattableTestData
                 "\u0022NaN\u0022"
                 """
             }
-          , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty)
-              , "NaN"
-            }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites), "\"NaN\"" }
         }
       , new FieldExpect<Half?>(Half.MaxValue, "'{0:G}'")
@@ -1053,7 +1064,7 @@ public static class SpanFormattableTestData
             { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "NaN" }
           , { new EK(SimpleType | AcceptsSpanFormattable), "\"NaN\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "NaN" }
-          , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"NaN\"" }
+          , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "\"NaN\"" }
         }
       , new FieldExpect<float>(float.NaN, "\"{0}\"")
         {
@@ -1063,9 +1074,6 @@ public static class SpanFormattableTestData
               , """
                 "\u0022NaN\u0022"
                 """
-            }
-          , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty)
-              , "NaN"
             }
           , {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites)
@@ -1161,17 +1169,8 @@ public static class SpanFormattableTestData
         {
             { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "NaN" }
           , { new EK(SimpleType | AcceptsSpanFormattable), "\"NaN\"" }
-          , {
-                new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites
-                     , Log | Compact | Pretty)
-              , "NaN"
-            }
-           ,
-            {
-                new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites
-                     , Json | Compact | Pretty)
-              , "\"NaN\""
-            }
+          , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty) , "NaN" }
+          , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites) , "\"NaN\"" }
         }
       , new FieldExpect<float?>(float.NaN, "\"{0}\"")
         {
@@ -1182,7 +1181,10 @@ public static class SpanFormattableTestData
                 "\u0022NaN\u0022"
                 """
             }
-          , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites), "\"NaN\"" }
+          , {
+                new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites)
+              , "\"NaN\""
+            }
         }
       , new FieldExpect<float?>(float.MaxValue, "'{0:G}'")
         {
@@ -1650,8 +1652,7 @@ public static class SpanFormattableTestData
                 "\u0022NaN\u0022"
                 """
             }
-           ,
-            {
+          , {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites)
               , "\"NaN\""
             }

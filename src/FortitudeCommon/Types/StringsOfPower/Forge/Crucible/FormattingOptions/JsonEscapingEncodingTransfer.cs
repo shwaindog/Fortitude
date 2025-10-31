@@ -735,7 +735,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     {
         var  capLen         = Math.Clamp(maxTransferCount, 0, source.Length);
         var  i              = Math.Clamp(sourceFrom, 0, source.Length);
-        var  end            = Math.Clamp(capLen, 0, source.Length);
+        var  end            = Math.Clamp(i + capLen, 0, source.Length);
         var  originalLength = sb.Length;
         bool isAppend       = false;
         if (destStartIndex == int.MaxValue || destStartIndex > sb.Length)
@@ -774,7 +774,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             }
             else if (i + 1 < end)
             {
-                var iRune = new Rune(iChar, source[++i]);
+                var iRune = new Rune(iChar, source[i + 1]);
                 int appended;
                 if (isAppend)
                 {

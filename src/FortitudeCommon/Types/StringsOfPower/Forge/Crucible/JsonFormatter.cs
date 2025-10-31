@@ -60,11 +60,13 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (!formatString.IsDblQtBounded() && typeofT.IsSpanFormattableOrNullable())
         {
             setFlags |= !callerFormattingFlags.HasDisableAutoDelimiting()
+                     && !callerFormattingFlags.HasAsValueContentFlag()
                      && JsonOptions.WrapValuesInQuotes
                 ? EnsureFormattedDelimited
                 : None;
 
             setFlags |= !callerFormattingFlags.HasDisableAutoDelimiting()
+                     && !callerFormattingFlags.HasAsValueContentFlag()
                      && (input.IsDoubleQuoteDelimitedSpanFormattable()
                       || !typeofT.IsJsonStringExemptType())
                 ? EnsureFormattedDelimited
@@ -1332,10 +1334,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         if (elementType == typeof(char) &&
             (JsonOptions.CharArrayWritesString
-          || formatFlags.TreatCharArrayAsString()))
-        {
-            return formatFlags.ShouldDelimit() ? sb.Append(DblQt).ReturnCharCount(1) : 0;
-        }
+          || formatFlags.TreatCharArrayAsString())) { return formatFlags.ShouldDelimit() ? sb.Append(DblQt).ReturnCharCount(1) : 0; }
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
         if (elementType == typeof(KeyValuePair<string, JsonNode>)) return sb.Append(BrcOpn).ReturnCharCount(1);
         return sb.Append(SqBrktOpn).ReturnCharCount(1);

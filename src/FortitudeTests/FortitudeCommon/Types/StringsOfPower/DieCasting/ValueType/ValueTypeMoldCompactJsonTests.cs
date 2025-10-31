@@ -8,6 +8,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.SimpleTypeScaffolds;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
@@ -196,55 +197,33 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJsonAsString
-            (new FieldExpect<char[]>("with".ToCharArray(), "\"{0[8..10]}\"")
-        {
-            { new EK(SimpleType | AcceptsAnyGeneric | AcceptsCharArray | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | AcceptsCharArray | DefaultBecomesFallback | DefaultTreatedAsValueOut) , "\\u0022\\u0022" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | AcceptsCharArray | DefaultBecomesFallback) , "\"\\u0022\\u0022\"" }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut, Log | Compact | Pretty),
-                "\"\""
-            }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan),
-                """""
-                "\u0022\u0022"
-                """""
-            }
-           ,
-            {
-                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Pretty)
-              , "[\"\"]"
-            }
-           ,
-            {
-                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Compact)
-              , """["\u0022","\u0022"]"""
-            }
-           ,
-            {
-                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Json | Pretty)
-              , """
-                [
-                    "\u0022",
-                    "\u0022"
-                  ]
-                """.Dos2Unix()
-            }
-           ,
-            {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites)
-              , """""
-                """"
-                """""
-            }
-        }
+            (new FieldExpect<char?>(' ', "'{0}'")
+             {
+                 { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
+               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut), "' '" }
+               , { new EK(SimpleType | AcceptsAnyGeneric), "\"' '\"" }
+               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
+               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesNull, Log | Compact | Pretty), "\"' '\"" }
+               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesNull), "' '" }
+               , { new EK(SimpleType | AcceptsSpanFormattable), "\"' '\"" }
+                ,
+                 {
+                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
+                          , Log | Compact | Pretty)
+                   , "' '"
+                 }
+                ,
+                 {
+                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
+                          , Json | Compact | Pretty)
+                   , "\"' '\""
+                 }
+             }
            , new ScaffoldingPartEntry
-                 (typeof(SimpleAsStringMatchSimpleValueTypeStringBearer<>)
-                , SimpleType | AcceptsSingleValue  | AcceptsAnyGeneric | SupportsValueFormatString
-                | DefaultTreatedAsStringOut | DefaultBecomesNull));
+                 (typeof(SimpleAsValueNullableSpanFormattableStructNoFieldSimpleValueTypeStringBearer<>)
+                , SimpleType | AcceptsSingleValue  | AcceptsNullableStruct | AcceptsSpanFormattable |
+                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull));
     }
 
     private void SharedCompactJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -284,11 +263,6 @@ public partial class ValueTypeMoldTests
             const string compactJsonTemplate = "{{\"{0}\":{1}}}";
 
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            if (expectValue != IFormatExpectation.NoResultExpectedValue)
-            {
-                expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
-            }
-            else { expectValue = ""; }
             return string.Format(compactJsonTemplate, propertyName, expectValue);
         }
 

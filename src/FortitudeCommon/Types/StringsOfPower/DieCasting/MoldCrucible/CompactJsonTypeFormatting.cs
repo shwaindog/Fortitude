@@ -287,7 +287,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , int maxTransferCount = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         var fmtHndlingFlags = (FormattingHandlingFlags)formatFlags;
-        if (JsonOptions.CharArrayWritesString)
+        if (JsonOptions.CharArrayWritesString || fmtHndlingFlags.TreatCharArrayAsString())
         {
             if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
             base.Format(source, sourceFrom, sb, formatString, maxTransferCount, fmtHndlingFlags);

@@ -43,13 +43,18 @@ public class BoolTestData
         }
       , new FieldExpect<bool>(true, "\"{0,-10}\"")
         {
-            {
+            { new EK(SimpleType | AcceptsStruct, Log | Compact | Pretty) , "\"true      \"" }
+          , { new EK(SimpleType | AcceptsStruct | DefaultTreatedAsValueOut) , "\"true      \"" }
+          , { new EK(SimpleType | AcceptsStruct) , 
+                """
+                "\u0022true      \u0022"
+                """
+            }
+          , {
                 new EK(AcceptsStruct | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      | DefaultTreatedAsValueOut)
               , "\"true      \""
             }
-           ,
-            { new EK( SimpleType | AcceptsStruct | DefaultTreatedAsStringOut) , "\"\"true      \"\"" }
         }
 
         // bool?
@@ -78,12 +83,17 @@ public class BoolTestData
         }
       , new FieldExpect<bool?>(true, "\"{0,-10}\"")
         {
-            {
+            { new EK(SimpleType | AcceptsNullableStruct, Log | Compact | Pretty) , "\"true      \"" }
+          , { new EK(SimpleType | AcceptsNullableStruct | DefaultTreatedAsValueOut) , "\"true      \"" }
+          , { new EK(SimpleType | AcceptsNullableStruct) , 
+                """
+                "\u0022true      \u0022"
+                """
+            }
+          , {
                 new EK(AcceptsNullableStruct | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      | DefaultTreatedAsValueOut) , "\"true      \""
             }
-           ,
-            { new EK(SimpleType | AcceptsNullableStruct  | DefaultTreatedAsStringOut) , "\"\"true      \"\"" }
         }
     ];
 }

@@ -179,7 +179,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
-        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, source.Length);
         var cappedLength = Math.Clamp(maxTransferCount,0, source.Length - sourceFrom);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return TransferEncoder.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
@@ -188,10 +188,6 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += TransferEncoder.TransferPrefix(formatFlags.HasEncodeBoundsFlag(), prefix, sb);
-        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
-                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
-        cappedLength -= prefix.Length;
-        cappedLength -= suffix.Length;
         source       =  source[sourceFrom..(sourceFrom + cappedLength)];
 
         extendLengthRange = extendLengthRange.BoundRangeToLength(cappedLength);
@@ -277,7 +273,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
-        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, source.Length);
         var cappedLength = Math.Clamp(maxTransferCount,0, source.Length - sourceFrom);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return TransferEncoder.Transfer(this,  source, sourceFrom, sb, sb.Length, cappedLength);
@@ -286,10 +282,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += TransferEncoder.TransferPrefix(formatFlags.HasEncodeBoundsFlag(), prefix, sb);
-        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
-                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
-        cappedLength -= prefix.Length;
-        cappedLength -= suffix.Length;
+        
         var rawSourceTo     = Math.Clamp(sourceFrom + cappedLength, 0, source.Length);
         var rawCappedLength = Math.Min(cappedLength, rawSourceTo - sourceFrom);
         if (!extendLengthRange.IsAllRange())
@@ -389,7 +382,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
-        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, source.Length);
         var cappedLength = Math.Clamp(maxTransferCount,0, source.Length - sourceFrom);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return TransferEncoder.Transfer(this, source, sourceFrom, sb, maxTransferCount: cappedLength);
@@ -398,16 +391,13 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += TransferEncoder.TransferPrefix(formatFlags.HasEncodeBoundsFlag(), prefix, sb);
-        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
-                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
-        cappedLength -= prefix.Length;
-        cappedLength -= suffix.Length;
-        var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
+        
+        var rawSourceFrom   = sourceFrom;
         var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
         var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom);
         if (!extendLengthRange.IsAllRange())
         {
-            extendLengthRange = extendLengthRange.BoundRangeToLength(source.Length - rawSourceFrom);
+            extendLengthRange = extendLengthRange.BoundRangeToLength(rawCappedLength);
             var start = extendLengthRange.Start;
             if (start.IsFromEnd || start.Value > 0)
             {
@@ -498,7 +488,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , int destStartIndex = 0 , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         sourceFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
-        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, source.Length);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return TransferEncoder.Transfer(this, source, sourceFrom, destCharSpan, destStartIndex, cappedLength);
@@ -507,10 +497,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += TransferEncoder.TransferPrefix(formatFlags.HasEncodeBoundsFlag(), prefix, destCharSpan, destStartIndex);
-        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
-                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
-        cappedLength -= prefix.Length;
-        cappedLength -= suffix.Length;
+        
         var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
         var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom);
@@ -603,7 +590,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
-        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, source.Length);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0 && formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString)) return 0;
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
@@ -618,7 +605,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
-        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, source.Length);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (cappedLength == 0) return 0;
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
@@ -628,10 +615,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += TransferEncoder.TransferPrefix(formatFlags.HasEncodeBoundsFlag(), prefix, destCharSpan, destStartIndex);
-        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
-                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
-        cappedLength -= prefix.Length;
-        cappedLength -= suffix.Length;
+        
         var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
         var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom - prefix.Length - suffix.Length);
@@ -732,7 +716,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , int maxTransferCount = int.MaxValue, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         sourceFrom       = Math.Clamp(sourceFrom, 0, source.Length);
-        maxTransferCount = Math.Clamp(maxTransferCount, 0, int.MaxValue);
+        maxTransferCount = Math.Clamp(maxTransferCount, 0, source.Length);
         var cappedLength = Math.Min(source.Length - sourceFrom, maxTransferCount);
         if (formatString.Length == 0 || formatString.SequenceMatches(NoFormatFormatString))
             return TransferEncoder.Transfer(this, source, destCharSpan, destStartIndex, maxTransferCount);
@@ -741,10 +725,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var extendLengthRange
                                                      , out var layout, out var splitJoinRange, out _, out var suffix);
         if (prefix.Length > 0) charsAdded += TransferEncoder.TransferPrefix(formatFlags.HasEncodeBoundsFlag(), prefix, destCharSpan, destStartIndex);
-        cappedLength =  Math.Clamp(cappedLength, cappedLength  + prefix.Length + suffix.Length
-                                ,  maxTransferCount != int.MaxValue ? maxTransferCount  + prefix.Length + suffix.Length : maxTransferCount);
-        cappedLength -= prefix.Length;
-        cappedLength -= suffix.Length;
+        
         var rawSourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var rawSourceTo     = Math.Clamp(rawSourceFrom + cappedLength, 0, source.Length);
         var rawCappedLength = Math.Min(cappedLength, rawSourceTo - rawSourceFrom);
@@ -1090,14 +1071,14 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) 
     {
         if (source == null) return Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
-        return Format(source.Value, sb, formatString);
+        return Format(source.Value, sb, formatString, formatFlags);
     }
 
     public int Format(bool? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) 
     {
         if (source == null) return Options.NullWritesNothing ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
-        return Format(source.Value, destCharSpan, destStartIndex, formatString);
+        return Format(source.Value, destCharSpan, destStartIndex, formatString, formatFlags);
     }
 
 
