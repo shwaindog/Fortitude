@@ -503,9 +503,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     {
         if (item == null) { return sb.Append(StyleOptions.NullStyle); }
 
-        if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
+        if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Format(item, 0, sb, formatString ?? "");
-        if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
+        if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         return sb;
     }
 
@@ -513,7 +513,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (item == null) { return sb.Append(StyleOptions.NullStyle); }
+        if (formatFlags.HasAsStringContentFlag() && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Format(item, 0, sb, formatString ?? "");
+        if (formatFlags.HasAsStringContentFlag() && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         return sb;
     }
 
@@ -521,7 +523,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence
     {
         if (item == null) { return sb.Append(StyleOptions.NullStyle); }
+        if (formatFlags.HasAsStringContentFlag()  && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         FormatFieldContents(sb, item, 0, formatString ?? "");
+        if (formatFlags.HasAsStringContentFlag()  && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         return sb;
     }
 
@@ -529,9 +533,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (item == null) { return sb.Append(StyleOptions.NullStyle); }
-        if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
+        if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Format(item, 0, sb, formatString ?? "");
-        if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
+        if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         return sb;
     }
 
