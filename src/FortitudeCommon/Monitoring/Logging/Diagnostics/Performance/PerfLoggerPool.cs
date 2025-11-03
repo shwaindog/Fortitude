@@ -2,7 +2,7 @@
 
 using System.Configuration;
 using System.Reflection;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 #endregion
 

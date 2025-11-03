@@ -6,7 +6,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion

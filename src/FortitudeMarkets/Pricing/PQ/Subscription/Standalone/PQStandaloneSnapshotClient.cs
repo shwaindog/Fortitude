@@ -6,7 +6,7 @@
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Serdes.Binary;

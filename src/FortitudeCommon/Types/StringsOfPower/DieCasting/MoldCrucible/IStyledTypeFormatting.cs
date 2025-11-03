@@ -31,10 +31,12 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     IStringBuilder AppendTypeClosing(IStringBuilder sb);
 
-    IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType);
+    IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount);
+      , Type keyType, Type valueType, int totalItemCount
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
       , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null
@@ -53,7 +55,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int previousItemNumber);
 
-    IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType, bool hasItems, Type collectionType);
+    IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType, bool hasItems, Type collectionType
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked item
       , int retrieveCount, PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase;
@@ -70,11 +73,13 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder CollectionNextItemFormat(ITheOneString tos, IStringBearer? item, int retrieveCount);
+    IStringBuilder CollectionNextItemFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer;
 
-    IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount);
+    IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber);
+    IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
     
     IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName);
     
@@ -109,7 +114,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
         where TCloaked : TCloakedBase;
 
-    IStringBuilder FormatFieldName(ITheOneString tos, IStringBearer styledObj);
+    IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer;
 
     IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
@@ -141,7 +146,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
         where TCloaked : TCloakedBase;
 
-    IStringBuilder FormatFieldContents(ITheOneString tos, IStringBearer styledObj);
+    IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer;
 }
 
 public static class StyleTypeFormattingExtensions

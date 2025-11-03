@@ -1,4 +1,4 @@
-﻿using FortitudeCommon.DataStructures.Memory;
+﻿using FortitudeCommon.DataStructures.MemoryPools;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueCollection;
 

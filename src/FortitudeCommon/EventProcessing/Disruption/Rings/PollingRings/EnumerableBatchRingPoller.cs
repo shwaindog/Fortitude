@@ -2,7 +2,7 @@
 
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 

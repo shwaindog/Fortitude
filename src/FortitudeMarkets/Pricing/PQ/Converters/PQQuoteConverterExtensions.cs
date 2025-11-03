@@ -6,7 +6,7 @@
 using FortitudeBusRules.BusMessaging.Routing.Channel;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;

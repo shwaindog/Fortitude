@@ -1,4 +1,4 @@
-﻿using FortitudeCommon.DataStructures.Memory;
+﻿using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -38,7 +38,7 @@ public static class StringBearerExtensions
     public static string DefaultToString(this IStringBearer makeString, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue( StringStyle.Default));
+        styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue( StringStyle.CompactLog));
         makeString.RevealState(styledStringBuilder);
         return styledStringBuilder.ToString();
     }
@@ -46,7 +46,7 @@ public static class StringBearerExtensions
     public static string JsonCompactString(this IStringBearer makeString, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
-        styledStringBuilder.ClearAndReinitialize( new StyleOptionsValue( StringStyle.Compact | StringStyle.Json));
+        styledStringBuilder.ClearAndReinitialize( new StyleOptionsValue( StringStyle.CompactJson));
         makeString.RevealState(styledStringBuilder);
         return styledStringBuilder.ToString();
     }
@@ -54,7 +54,7 @@ public static class StringBearerExtensions
     public static string JsonPrettyString(this IStringBearer makeString, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(  new StyleOptionsValue(StringStyle.Pretty | StringStyle.Json));
+        styledStringBuilder.ClearAndReinitialize(  new StyleOptionsValue(StringStyle.PrettyJson));
         makeString.RevealState(styledStringBuilder);
         return styledStringBuilder.ToString();
     }

@@ -258,7 +258,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -301,7 +301,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -344,7 +344,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -386,7 +386,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -428,7 +428,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -470,7 +470,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1079,7 +1079,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1122,7 +1122,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1165,7 +1165,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1207,7 +1207,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1249,7 +1249,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1291,7 +1291,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
                 }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2834,7 +2834,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TCloaked>(value);
                 }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2880,7 +2880,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value);
                 }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2926,7 +2926,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TBearer>(value);
                 }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2971,7 +2971,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TBearerStruct>(value);
                 }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3476,7 +3476,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TCloaked>(value);
                 }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3530,7 +3530,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     stb.FieldNameJoin(fieldName);
                     eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value);
                 }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3585,7 +3585,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     eocm = stb.Master.StartExplicitCollectionType<TBearer>(value);
                 }
                 
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3639,7 +3639,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     eocm = stb.Master.StartExplicitCollectionType<TBearerStruct>(value);
                 }
                 
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;

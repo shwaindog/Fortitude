@@ -7,7 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;

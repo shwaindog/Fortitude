@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types.Mutable;

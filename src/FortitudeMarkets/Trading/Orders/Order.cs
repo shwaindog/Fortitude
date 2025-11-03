@@ -5,7 +5,7 @@
 
 using System.Text;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;

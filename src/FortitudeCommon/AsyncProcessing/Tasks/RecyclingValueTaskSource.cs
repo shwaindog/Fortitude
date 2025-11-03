@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks.Sources;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types;
 
 #endregion

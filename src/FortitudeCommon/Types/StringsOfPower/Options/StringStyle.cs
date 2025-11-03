@@ -8,12 +8,15 @@ namespace FortitudeCommon.Types.StringsOfPower.Options;
 [Flags]
 public enum StringStyle
 {
-    PlainText = 0x00
-  , Compact   = 0x01
-  , Pretty    = 0x02
-  , Log       = 0x04
-  , Default   = 0x05
-  , Json      = 0x08
+    Default     = 0x00
+  , Compact     = 0x01
+  , Pretty      = 0x02
+  , Log         = 0x04
+  , CompactLog  = 0x05
+  , PrettyLog   = 0x06
+  , Json        = 0x08
+  , CompactJson = 0x09
+  , PrettyJson  = 0x0A
 }
 
 public static class StringStyleExtensions
@@ -28,7 +31,7 @@ public static class StringStyleExtensions
 
     public static bool IsJustJsonPretty(this StringStyle style) => style.IsExactly(Json | Compact);
 
-    public static bool AllowsUnstructured(this StringStyle style)  => style == PlainText || style.HasAnyOf(Log);
+    public static bool AllowsUnstructured(this StringStyle style) => style.HasAnyOf(Log);
 
     public static bool IsLog(this StringStyle style) => (style & Log) > 0;
 
@@ -41,7 +44,7 @@ public static class StringStyleExtensions
     public static bool IsJson(this StringStyle style) => (style & Json) > 0;
 
     public static bool IsPretty(this StringStyle style) => (style & Pretty) > 0;
-    
+
     public static bool IsNotPretty(this StringStyle style) => (style & Pretty) == 0;
 
     public static bool IsCompact(this StringStyle style) => (style & Compact) > 0;

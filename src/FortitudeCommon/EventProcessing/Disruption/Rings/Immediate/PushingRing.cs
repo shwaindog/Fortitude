@@ -1,7 +1,7 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.Buffers;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 using FortitudeCommon.EventProcessing.Disruption.Consuming;
 using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;

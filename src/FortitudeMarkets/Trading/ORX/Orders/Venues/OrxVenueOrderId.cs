@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeIO.Protocols.ORX.Serdes;

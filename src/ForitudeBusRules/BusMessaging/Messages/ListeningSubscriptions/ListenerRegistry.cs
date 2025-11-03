@@ -2,7 +2,7 @@
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Maps;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 namespace FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 

@@ -3,8 +3,8 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 using static FortitudeCommon.Extensions.NumberExtensions;
 
 #endregion

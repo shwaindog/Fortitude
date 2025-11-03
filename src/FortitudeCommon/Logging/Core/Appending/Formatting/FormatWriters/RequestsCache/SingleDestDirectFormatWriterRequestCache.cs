@@ -4,7 +4,7 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
 

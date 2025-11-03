@@ -7,7 +7,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;

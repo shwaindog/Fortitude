@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Text;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;

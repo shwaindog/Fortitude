@@ -5,7 +5,7 @@
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;

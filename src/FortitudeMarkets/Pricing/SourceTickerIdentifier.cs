@@ -5,7 +5,7 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower;

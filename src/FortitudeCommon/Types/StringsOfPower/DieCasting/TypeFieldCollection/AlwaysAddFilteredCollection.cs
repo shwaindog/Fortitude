@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -11,7 +13,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldCollection;
 public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, Span<bool> value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -61,7 +64,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -112,7 +116,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFiltered<TFmt>
     (ReadOnlySpan<char> fieldName, Span<TFmt> value, OrderedCollectionPredicate<TFmt> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -164,7 +169,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFilteredNullable<TFmt>
     (ReadOnlySpan<char> fieldName, Span<TFmt?> value, OrderedCollectionPredicate<TFmt> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -216,7 +222,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFiltered<TFmtStruct>
     (ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -268,7 +275,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
     (ReadOnlySpan<char> fieldName, Span<TCloaked> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -299,7 +307,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -319,7 +327,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFilteredNullable<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
     (ReadOnlySpan<char> fieldName, Span<TCloaked?> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -350,7 +359,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -370,7 +379,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFiltered<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
-      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+      , PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -401,7 +411,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -420,7 +430,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(ReadOnlySpan<char> fieldName, Span<TBearer> value
-      , OrderedCollectionPredicate<TBearerBase> filterPredicate) where TBearer : IStringBearer, TBearerBase
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -451,7 +462,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -470,7 +481,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredNullable<TBearer, TBearerBase>(ReadOnlySpan<char> fieldName, Span<TBearer?> value
-      , OrderedCollectionPredicate<TBearerBase> filterPredicate) where TBearer : class, IStringBearer, TBearerBase
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : class, IStringBearer, TBearerBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -501,7 +513,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -520,7 +532,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFiltered<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
-      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate) where TBearerStruct : struct, IStringBearer
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -551,7 +564,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -570,7 +583,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, Span<string> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -620,7 +634,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredNullable(ReadOnlySpan<char> fieldName, Span<string?> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -670,7 +685,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -721,7 +737,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredCharSeqNullable<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, Span<TCharSeq?> value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -772,7 +789,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, Span<StringBuilder> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -822,7 +840,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -872,7 +891,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -923,7 +943,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredMatchNullable<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny?> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -975,16 +996,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     [CallsObjectToString]
     public TExt AlwaysAddFilteredObject(ReadOnlySpan<char> fieldName, Span<object> value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)  =>
         AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString);
 
     [CallsObjectToString]
     public TExt AlwaysAddFilteredObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value, OrderedCollectionPredicate<object?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddFilteredMatchNullable(fieldName, value, filterPredicate, formatString);
     
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1034,7 +1058,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1085,7 +1110,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFiltered<TFmt>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value, OrderedCollectionPredicate<TFmt> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -1136,7 +1162,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredNullable<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt?> value
-      , OrderedCollectionPredicate<TFmt> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , OrderedCollectionPredicate<TFmt> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -1188,7 +1215,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFiltered<TFmtStruct>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -1240,7 +1268,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1271,7 +1300,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1291,7 +1320,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFilteredNullable<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(ReadOnlySpan<char> fieldName
       , ReadOnlySpan<TCloaked?> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : class, TCloakedFilterBase, TCloakedRevealBase
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : class, TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1322,7 +1352,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1342,7 +1372,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFiltered<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
-      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+      , PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1373,7 +1404,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendOrNull(item, palantírReveal);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1392,7 +1423,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
-      , OrderedCollectionPredicate<TBearerBase> filterPredicate) where TBearer : IStringBearer, TBearerBase
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1423,7 +1455,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1442,7 +1474,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredNullable<TBearer, TBearerBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer?> value
-      , OrderedCollectionPredicate<TBearerBase> filterPredicate) where TBearer : class, IStringBearer, TBearerBase
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : class, IStringBearer, TBearerBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1473,7 +1506,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1492,7 +1525,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFiltered<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
-      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate) where TBearerStruct : struct, IStringBearer
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1523,7 +1557,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
                 else { stb.GoToNextCollectionItemStart(elementType, matchedItems); }
-                stb.AppendRevealBearerOrNull(item);
+                stb.RevealNullableStringBearerOrNull(item);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1542,7 +1576,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1592,7 +1627,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1642,7 +1678,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -1693,7 +1730,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredCharSeqNullable<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq?> value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -1744,7 +1782,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1794,7 +1833,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1844,7 +1884,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -1895,9 +1936,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredMatchNullable<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny?> value
-      , OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TAny : TAnyBase
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1948,17 +1988,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     [CallsObjectToString]
     public TExt AlwaysAddFilteredObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString);
 
     
     [CallsObjectToString]
     public TExt AlwaysAddFilteredObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value, OrderedCollectionPredicate<object?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddFilteredMatchNullable(fieldName, value, filterPredicate, formatString);
 
     public TExt AlwaysAddFiltered(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1995,7 +2038,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2033,7 +2077,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFiltered<TFmt>
     (string fieldName, TFmt?[]? value, OrderedCollectionPredicate<TFmt> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2072,7 +2117,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFiltered<TFmtStruct>
     (string fieldName, TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2111,7 +2157,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
     (string fieldName, TCloaked?[]? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2148,7 +2195,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFiltered<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
-      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+      , PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2184,7 +2232,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(string fieldName, TBearer?[]? value
-      , OrderedCollectionPredicate<TBearerBase> filterPredicate)
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2221,7 +2270,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFiltered<TBearerStruct>(string fieldName, TBearerStruct?[]? value
-      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate) where TBearerStruct : struct, IStringBearer
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2258,7 +2308,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFiltered
     (string fieldName, string?[]? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2296,7 +2347,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>
     (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2334,7 +2386,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2371,7 +2424,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredMatch<TAny, TAnyBase>(string fieldName, TAny?[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2410,11 +2464,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     [CallsObjectToString]
     public TExt AlwaysAddFilteredObject(string fieldName, object?[]? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString);
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2451,7 +2507,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2488,7 +2545,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered<TFmt>(string fieldName, IReadOnlyList<TFmt?>? value, OrderedCollectionPredicate<TFmt> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2527,7 +2585,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFiltered<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
       , OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2566,7 +2625,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
     (string fieldName, IReadOnlyList<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2603,7 +2663,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealFiltered<TCloakedStruct>
     (string fieldName, IReadOnlyList<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
-      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+      , PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2639,7 +2700,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(string fieldName, IReadOnlyList<TBearer?>? value
-      , OrderedCollectionPredicate<TBearerBase> filterPredicate)
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2676,7 +2738,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFiltered<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
-      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate) where TBearerStruct : struct, IStringBearer
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2712,7 +2775,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2750,7 +2814,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>(string fieldName, IReadOnlyList<TCharSeq?>? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2788,7 +2853,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2825,7 +2891,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredMatch<TAny, TANyBase>(string fieldName, IReadOnlyList<TAny?>? value, OrderedCollectionPredicate<TANyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TAny : TANyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2864,11 +2931,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     [CallsObjectToString]
     public TExt AlwaysAddFilteredObject(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString);
     
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2880,7 +2949,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2892,7 +2962,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerable<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2905,7 +2976,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2918,7 +2990,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloaked, TCloakedFilterBase, TCloakedBase>
-        (string fieldName, IEnumerable<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedBase> palantírReveal)
+        (string fieldName, IEnumerable<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
+          , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase, TCloakedFilterBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2931,7 +3004,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloakedStruct>
-        (string fieldName, IEnumerable<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal)
+        (string fieldName, IEnumerable<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
+          , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2943,7 +3017,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerable<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerable<TBearer?>? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2955,7 +3030,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+    public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2968,7 +3044,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<string?>? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2980,7 +3057,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerable<TCharSeq?>? value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -2993,7 +3071,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -3005,7 +3084,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerable<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3019,7 +3099,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     [CallsObjectToString]
     public TExt AlwaysAddFilteredObjectEnumerate(string fieldName, IEnumerable<object?>? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -3031,7 +3112,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
     
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -3043,7 +3125,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -3055,7 +3138,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerator<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3068,7 +3152,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3081,7 +3166,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloaked, TCloakedFilterBase, TCloakedBase>
-        (string fieldName, IEnumerator<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedBase> palantírReveal)
+        (string fieldName, IEnumerator<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
+          , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase, TCloakedFilterBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3094,7 +3180,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloakedStruct>
-        (string fieldName, IEnumerator<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal)
+        (string fieldName, IEnumerator<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
+          , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3106,7 +3193,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerator<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerator<TBearer?>? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3118,7 +3206,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+    public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3131,7 +3220,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<string?>? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -3143,7 +3232,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerator<TCharSeq?>? value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3155,8 +3245,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<StringBuilder?>? value
+      , OrderedCollectionPredicate<StringBuilder> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -3167,8 +3258,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerator<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    public TExt AlwaysAddFilteredMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerator<TAny?>? value
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TAny : TAnyBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3182,7 +3274,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     [CallsObjectToString]
     public TExt AlwaysAddFilteredObjectEnumerate(string fieldName, IEnumerator<object?>? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);

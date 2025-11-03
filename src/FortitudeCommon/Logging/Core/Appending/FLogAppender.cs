@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Core.Appending.Forwarding;
@@ -285,13 +285,13 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
             }
 
         var notifyOnThreshold =
-            DataStructures.Memory.Recycler.ThreadStaticRecycler
+            DataStructures.MemoryPools.Recycler.ThreadStaticRecycler
                           .Borrow<NotifyWhenEntriesCountReaches>()
                           .Initialize(countType, reaches, callback, this);
         lock (notificationSyncLock)
         {
             registeredCountNotifications
-                ??= DataStructures.Memory.Recycler.ThreadStaticRecycler.Borrow<ReusableList<NotifyWhenEntriesCountReaches>>();
+                ??= DataStructures.MemoryPools.Recycler.ThreadStaticRecycler.Borrow<ReusableList<NotifyWhenEntriesCountReaches>>();
             registeredCountNotifications.Add(notifyOnThreshold);
         }
     }

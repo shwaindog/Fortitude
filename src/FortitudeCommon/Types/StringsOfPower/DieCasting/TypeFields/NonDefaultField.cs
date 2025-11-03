@@ -13,22 +13,23 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldCon
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
-public partial class SelectTypeField<TExt> where TExt : TypeMolder
+public partial class SelectTypeField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, bool value, bool defaultValue = false
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+    public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, bool value, bool defaultValue = false
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != defaultValue
             ? AlwaysAdd(fieldName, value, formatString)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value, TFmt? defaultValue = default(TFmt)
+    public TMold WhenNonDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value, TFmt? defaultValue = default(TFmt)
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
         !stb.SkipFields && !Equals(value, defaultValue ?? default(TFmt))
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
+    public TMold WhenNonDefaultAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
         !stb.SkipFields && !Equals(value, defaultValue ?? default(TFmtStruct))
@@ -36,54 +37,54 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             : stb.StyleTypeBuilder;
 
 
-    public TExt WhenNonDefaultReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value
+    public TMold WhenNonDefaultReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal, TCloaked? defaultValue = default(TCloaked)
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
         !stb.SkipFields && !Equals(value, defaultValue)
             ? AlwaysReveal(fieldName, value, palantírReveal, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
+    public TMold WhenNonDefaultReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, TCloakedStruct? defaultValue = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         !stb.SkipFields && !Equals(value, defaultValue ?? default(TCloakedStruct))
             ? AlwaysReveal(fieldName, value, palantírReveal, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value, TBearer? defaultValue = default(TBearer)
+    public TMold WhenNonDefaultReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value, TBearer? defaultValue = default(TBearer)
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
         !stb.SkipFields && !Equals(value, defaultValue)
             ? AlwaysReveal(fieldName, value, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value, TBearerStruct? defaultValue = null
+    public TMold WhenNonDefaultReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value, TBearerStruct? defaultValue = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         !stb.SkipFields && !Equals(value, defaultValue)
             ? AlwaysReveal(fieldName, value, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, Span<char> value, string defaultValue = ""
+    public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, Span<char> value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && !value.SequenceMatches(defaultValue)
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value, string defaultValue = ""
+    public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && !value.SequenceMatches(defaultValue)
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, string value, string defaultValue = ""
+    public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, string value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && (value == null! || value != defaultValue)
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, string value, int startIndex, int count = int.MaxValue, string defaultValue = ""
+    public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, string value, int startIndex, int count = int.MaxValue, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
@@ -98,14 +99,14 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             : stb.StyleTypeBuilder;
     }
 
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, char[] value, string defaultValue = ""
+    public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, char[] value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && !(value?.SequenceMatches(defaultValue) ?? false)
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, char[] value, int startIndex, int count = int.MaxValue, string defaultValue = ""
+    public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, char[] value, int startIndex, int count = int.MaxValue, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
@@ -120,14 +121,14 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
           : stb.StyleTypeBuilder;
     }
 
-    public TExt WhenNonDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value, string defaultValue = ""
+    public TMold WhenNonDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
         !stb.SkipFields && value == null! || !value.SequenceMatches(defaultValue)
             ? AlwaysAddCharSeq(fieldName, value, formatString, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value, int startIndex, int count = int.MaxValue
+    public TMold WhenNonDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
@@ -142,14 +143,14 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             : stb.StyleTypeBuilder;
     }
 
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, StringBuilder value, string defaultValue = ""
+    public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, StringBuilder value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && !(value?.SequenceMatches(defaultValue) ?? false)
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, StringBuilder value, int startIndex, int count = int.MaxValue
+    public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, StringBuilder value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
@@ -164,7 +165,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenNonDefaultAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value, TAny? defaultValue = default(TAny)
+    public TMold WhenNonDefaultAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value, TAny? defaultValue = default(TAny)
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields
@@ -178,7 +179,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             : stb.StyleTypeBuilder;
 
     [CallsObjectToString]
-    public TExt WhenNonDefaultAddObject(ReadOnlySpan<char> fieldName, object? value, object? defaultValue = null
+    public TMold WhenNonDefaultAddObject(ReadOnlySpan<char> fieldName, object? value, object? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && ((value != null || defaultValue != null)

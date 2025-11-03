@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 
 // ReSharper disable ClassNeverInstantiated.Global
@@ -22,7 +22,7 @@ public enum JsonEncodingTransferType
 public enum JsonEscapeType
 {
     None
-  , BackSlashEscape
+  , AsciiEscape
   , UnicodeEscape
   , CustomRemapping
 }
@@ -151,8 +151,6 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
 
     private string? jsonDateTImeFormat;
     private string? dateOnlyAsStringFormatString;
-    private Range[] unicodeEscapingRanges = DefaultJsUnicodeEscapeRange[0];
-    private bool    explicitlySetEncodingTransfer;
 
     //   Default = 0
     // , BkSlEscCtrlCharsDblQtAndBkSlOnly
@@ -168,14 +166,14 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Range[][] DefaultJsUnicodeEscapeRange =
         [
-        [new Range(0, 34), new Range(128, CharExtensions.UnicodeCodePoints)] // Default
-      , [new Range(0, 34), new Range(128, 161)] // BkSlEscCtrlCharsDblQtAndBkSlOnly - always unicode escape Console/ formatting Control Chars
-      , [new Range(0, 34), new Range(128, 161)] // BkSlEscCtrlCharsDblQtBkSlToEndOfLatin1 -  always unicode escape Console/ formatting Control Chars
-      , [new Range(0, 34), new Range(128, 161), new Range(0x10000, CharExtensions.UnicodeCodePoints)] // BkSlEscCtrlCharsDblQtBkSlToEndBmpChar
-      , [new Range(0, 34), new Range(128, 161)] // UniCdEscCtrlCharsDblQtOnly - always unicode escape Console/ formatting Control Chars
-      , [new Range(0, 34), new Range(128, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtAndNonAscii
-      , [new Range(0, 34), new Range(128, 161), new Range(256, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndOfLatin1
-      , [new Range(0, 34), new Range(128, 161), new Range(0x10000, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndBmpChar
+        [new Range(0, 32), new Range(128, CharExtensions.UnicodeCodePoints)] // Default
+      , [new Range(0, 32), new Range(128, 161)] // BkSlEscCtrlCharsDblQtAndBkSlOnly - always unicode escape Console/ formatting Control Chars
+      , [new Range(0, 32), new Range(128, 161)] // BkSlEscCtrlCharsDblQtBkSlToEndOfLatin1 -  always unicode escape Console/ formatting Control Chars
+      , [new Range(0, 32), new Range(128, 161), new Range(0x10000, CharExtensions.UnicodeCodePoints)] // BkSlEscCtrlCharsDblQtBkSlToEndBmpChar
+      , [new Range(0, 32), new Range(128, 161)] // UniCdEscCtrlCharsDblQtOnly - always unicode escape Console/ formatting Control Chars
+      , [new Range(0, 32), new Range(128, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtAndNonAscii
+      , [new Range(0, 32), new Range(128, 161), new Range(256, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndOfLatin1
+      , [new Range(0, 32), new Range(128, 161), new Range(0x10000, CharExtensions.UnicodeCodePoints)] // UniCdEscCtrlCharsDblQtBkSlToEndBmpChar
     ];
     #pragma warning restore CA2211
 
@@ -183,8 +181,6 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
 
     private (Range, JsonEscapeType, Func<Rune, string>)[]?   cachedMappingFactoryRanges;
     private Func<IJsonFormattingOptions, IEncodingTransfer>? buildEncodingTransfer;
-
-    private Range[] exemptEscapingRanges = [];
 
     public bool CharArrayWritesString { get; set; }
 
@@ -210,19 +206,6 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
 
     public JsonFormattingOptions()
     {
-        CurrentEncodingTransfer = SourceEncodingTransfer(this);
-    }
-
-    public override ICustomStringFormatter Formatter
-    {
-        get => Stringformatter ??= new JsonFormatter();
-        set => Stringformatter = value;
-    }
-
-    public virtual JsonFormatter JsonFormatter
-    {
-        get => (JsonFormatter)Formatter;
-        set => Stringformatter = value;
     }
 
     public bool DateTimeIsNumber { get; set; }
@@ -261,22 +244,6 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
             {
                 UnicodeEscapingRanges = DefaultJsUnicodeEscapeRange[encodingTypeLookup];
             }
-            if (explicitlySetEncodingTransfer) return;
-            if (CurrentEncodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
-            CurrentEncodingTransfer = SourceEncodingTransfer(this);
-        }
-    }
-
-    public override IEncodingTransfer EncodingTransfer
-    {
-        get => CurrentEncodingTransfer ??= SourceEncodingTransfer(this);
-        set
-        {
-            CurrentEncodingTransfer       = value;
-            explicitlySetEncodingTransfer = true;
         }
     }
 
@@ -291,65 +258,21 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
             switch (jsonEncodingTransferType)
             {
                 case JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly:
-                    return [(new Range(Index.Start, new Index(128)), JsonEscapeType.BackSlashEscape, DefaultAsciiBackSlashEscapeMapping)];
-                default: return [(new Range(Index.Start, new Index(128)), JsonEscapeType.BackSlashEscape, DefaultAsciiBackSlashEscapeMapping)];
+                    return [(new Range(Index.Start, new Index(128)), JsonEscapeType.AsciiEscape, DefaultAsciiBackSlashEscapeMapping)];
+                default: return [(new Range(Index.Start, new Index(128)), JsonEscapeType.AsciiEscape, DefaultAsciiBackSlashEscapeMapping)];
             }
         }
-        set
-        {
-            cachedMappingFactoryRanges = value;
-            if (explicitlySetEncodingTransfer) return;
-            if (CurrentEncodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
-            CurrentEncodingTransfer = SourceEncodingTransfer(this);
-        }
+        set => cachedMappingFactoryRanges = value;
     }
 
-    public Range[] ExemptEscapingRanges
-    {
-        get => exemptEscapingRanges;
-        set
-        {
-            exemptEscapingRanges = value;
-            if (explicitlySetEncodingTransfer) return;
-            if (CurrentEncodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
-            CurrentEncodingTransfer = SourceEncodingTransfer(this);
-        }
-    }
+    public Range[] ExemptEscapingRanges { get; set; } = [];
 
-    public Range[] UnicodeEscapingRanges
-    {
-        get => unicodeEscapingRanges;
-        set
-        {
-            unicodeEscapingRanges = value;
-            if (explicitlySetEncodingTransfer) return;
-            if (CurrentEncodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
-            CurrentEncodingTransfer = SourceEncodingTransfer(this);
-        }
-    }
+    public Range[] UnicodeEscapingRanges { get; set; } = DefaultJsUnicodeEscapeRange[0];
 
     public Func<IJsonFormattingOptions, IEncodingTransfer> SourceEncodingTransfer
     {
         get => buildEncodingTransfer ??= DefaultEncodingTransferSelectorFactory;
-        set
-        {
-            buildEncodingTransfer = value;
-            if (explicitlySetEncodingTransfer) return;
-            if (CurrentEncodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer)
-            {
-                jsonEscapingEncodingTransfer.DecrementRefCount();
-            }
-            CurrentEncodingTransfer = SourceEncodingTransfer(this);
-        }
+        set => buildEncodingTransfer = value;
     }
 
     public static Func<IJsonFormattingOptions, IEncodingTransfer> DefaultEncodingTransferSelectorFactory
@@ -363,14 +286,14 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
                     case JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly:
                         return Recycler.ThreadStaticRecycler.Borrow<JsonEscapingEncodingTransfer>().Initialize(jsFmtOpts, [
                             (new Range(Index.Start, new Index(128))
-                           , JsonEscapeType.BackSlashEscape
+                           , JsonEscapeType.AsciiEscape
                            , DefaultAsciiBackSlashEscapeMapping)
                         ]);
                     case JsonEncodingTransferType.BkSlEscCtrlCharsDblQtBkSlToEndBmpChar:
                     case JsonEncodingTransferType.BkSlEscCtrlCharsDblQtBkSlToEndOfLatin1:
                         return Recycler.ThreadStaticRecycler.Borrow<JsonEscapingEncodingTransfer>().Initialize(jsFmtOpts, [
                             (new Range(Index.Start, new Index(256))
-                           , JsonEscapeType.BackSlashEscape
+                           , JsonEscapeType.AsciiEscape
                            , DefaultLatin1BackSlashMapping)
                         ]);
                     case JsonEncodingTransferType.UniCdEscCtrlCharsDblQtBkSlToEndBmpChar:

@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;

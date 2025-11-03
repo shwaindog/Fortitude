@@ -5,7 +5,7 @@ using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Collections;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 #endregion
 

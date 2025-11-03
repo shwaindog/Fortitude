@@ -5,7 +5,7 @@ using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types;
 using FortitudeTests.FortitudeBusRules.Rules;
 using Moq;

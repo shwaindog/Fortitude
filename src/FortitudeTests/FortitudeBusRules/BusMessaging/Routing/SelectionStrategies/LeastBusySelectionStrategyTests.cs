@@ -11,7 +11,7 @@ using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Collections;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeTests.FortitudeBusRules.Rules;
 using Moq;
 using static FortitudeBusRules.BusMessaging.Pipelines.MessageQueueType;

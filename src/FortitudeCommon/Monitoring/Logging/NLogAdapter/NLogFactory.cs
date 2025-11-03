@@ -1,7 +1,7 @@
 ﻿#region
 
 using System.Globalization;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Monitoring.Logging.Diagnostics;
 using NLog;
 

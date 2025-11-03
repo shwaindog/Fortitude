@@ -1270,7 +1270,7 @@ public class SimpleAsStringCharSpanWithNoFieldAsSpanSimpleValueTypeStringBearer 
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringCharSpan);
+    public string PropertyName => "";
     public char[] Value { get; set; } = null!;
 
     public string? StringValue
@@ -1427,7 +1427,7 @@ public class SimpleAsStringCharSpanWithNoFieldOrDefaultSimpleValueTypeStringBear
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringCharSpanOrDefault);
+    public string PropertyName => "";
     public char[] Value { get; set; } = null!;
 
     public string? StringValue
@@ -1755,7 +1755,7 @@ public class SimpleAsStringCharArrayRangeNoFieldOrDefaultSimpleValueTypeStringBe
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringCharArrayRangeOrDefault);
+    public string PropertyName => "";
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -1826,7 +1826,7 @@ public class SimpleAsStringCharArrayRangeNoFieldSimpleValueTypeStringBearer : IM
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringCharArrayRange);
+    public string PropertyName => "";
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -1899,7 +1899,7 @@ public class SimpleAsStringCharArrayRangeNoFieldWithDefaultSimpleValueTypeString
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringCharArrayRange);
+    public string PropertyName => "";
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -1977,7 +1977,7 @@ public class SimpleAsStringCharSequenceNoFieldOrDefaultSimpleValueTypeStringBear
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringCharSequenceOrDefault);
+    public string PropertyName => "";
     public TCharSeq Value { get; set; } = default!;
 
     public string? StringValue
@@ -2059,7 +2059,7 @@ public class SimpleAsStringCharSequenceRangeNoFieldOrDefaultSimpleValueTypeStrin
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringCharSequenceRangeOrDefault);
+    public string PropertyName => "";
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -2144,7 +2144,7 @@ public class SimpleAsStringCharSequenceRangeNoFieldSimpleValueTypeStringBearer<T
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringCharSequenceRangeOrDefault);
+    public string PropertyName => "";
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -2233,7 +2233,7 @@ public class SimpleAsStringCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStr
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringCharSequenceRangeWithDefault);
+    public string PropertyName => "";
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -2309,7 +2309,7 @@ public class SimpleAsStringStringBuilderNoFieldOrDefaultSimpleValueTypeStringBea
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringStringBuilderOrDefault);
+    public string PropertyName => "";
     public StringBuilder Value { get; set; } = null!;
 
     public string? StringValue
@@ -2378,7 +2378,7 @@ public class SimpleAsStringStringBuilderRangeNoFieldOrDefaultSimpleValueTypeStri
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringStringBuilderRangeOrDefault);
+    public string PropertyName => "";
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -2451,7 +2451,7 @@ public class SimpleAsStringStringBuilderRangeNoFieldSimpleValueTypeStringBearer 
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringStringBuilderRangeOrDefault);
+    public string PropertyName => "";
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -2526,7 +2526,7 @@ public class SimpleAsStringStringBuilderRangeNoFieldWithDefaultSimpleValueTypeSt
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsStringStringBuilderRangeWithDefault);
+    public string PropertyName => "";
     public int FromIndex { get; set; }
 
     public int Length { get; set; }

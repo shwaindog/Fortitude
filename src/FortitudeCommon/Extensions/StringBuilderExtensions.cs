@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Text;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 

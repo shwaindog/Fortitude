@@ -1,7 +1,7 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types.Mutable;

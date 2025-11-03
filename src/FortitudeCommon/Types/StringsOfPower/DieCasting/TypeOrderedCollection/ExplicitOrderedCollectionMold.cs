@@ -168,7 +168,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++elementCount);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element.Value, ++elementCount);
         return AppendNextCollectionItemSeparator();
     }
 

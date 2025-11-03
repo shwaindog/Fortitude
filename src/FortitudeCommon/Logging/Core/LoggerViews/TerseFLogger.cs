@@ -7,6 +7,7 @@ using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using JetBrains.Annotations;
 using static FortitudeCommon.Logging.Core.LoggerActivationFlags;
+using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 
 // ReSharper disable ExplicitCallerInfoArgument
 
@@ -16,98 +17,98 @@ public interface ITerseFLogger : ILoggerView
 {
     [MustUseReturnValue("Use AtLvl if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? AtLvlApnd<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use AtLvl if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? AtLvlFmt(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void AtLvl<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Trc if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? TrcApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Trc if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? TrcFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Trc<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Dbg if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? DbgApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Dbg if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? DbgFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     void Dbg<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Inf if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? InfApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Inf if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? InfFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = ""
       , [CallerLineNumber] int sourceLineNumber = 0);
 
     void Inf<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Wrn if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? WrnApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Wrn if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? WrnFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = ""
       , [CallerLineNumber] int sourceLineNumber = 0);
 
     void Wrn<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Err if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? ErrApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 
     [MustUseReturnValue("Use Err if you do not plan on using the returned ISingleInvokeArgumentChain")]
     ISingleInvokeArgumentChain? ErrFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = ""
       , [CallerLineNumber] int sourceLineNumber = 0);
 
     void Err<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, [CallerMemberName] string memberName = ""
+      , StringStyle style = CompactLog, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
 }
 
 public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
 {
     public ISingleInvokeArgumentChain? AtLvlApnd<T>(FLogLevel level, T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, string memberName = "", string sourceFilePath = ""
+      , StringStyle style = CompactLog, string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -118,7 +119,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? AtLvlFmt(FLogLevel level, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = ""
       , int sourceLineNumber = 0)
     {
@@ -130,14 +131,14 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public void AtLvl<T>(FLogLevel level, T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , StringStyle style = CompactLog, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.AtLevel(level, activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.StringAppender(style).FinalMatchAppend(toLog);
     }
 
     public ISingleInvokeArgumentChain? TrcApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , StringStyle style = CompactLog, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         if (logEntry != null)
@@ -147,7 +148,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? TrcFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -157,7 +158,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
         return null;
     }
 
-    public void Trc<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+    public void Trc<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -165,7 +166,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? DbgApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , StringStyle style = CompactLog, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         if (logEntry != null)
@@ -175,7 +176,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? DbgFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -185,7 +186,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
         return null;
     }
 
-    public void Dbg<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+    public void Dbg<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -193,7 +194,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? InfApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , StringStyle style = CompactLog, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         if (logEntry != null)
@@ -203,7 +204,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? InfFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -213,7 +214,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
         return null;
     }
 
-    public void Inf<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+    public void Inf<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -221,7 +222,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? WrnApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , StringStyle style = CompactLog, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         if (logEntry != null)
@@ -231,7 +232,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? WrnFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -241,7 +242,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
         return null;
     }
 
-    public void Wrn<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+    public void Wrn<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -249,7 +250,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? ErrApnd<T>(T firstAppend, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig
-      , StringStyle style = StringStyle.Default, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
+      , StringStyle style = CompactLog, string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         if (logEntry != null)
@@ -259,7 +260,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
     }
 
     public ISingleInvokeArgumentChain? ErrFmt([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+      , LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
@@ -269,7 +270,7 @@ public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger
         return null;
     }
 
-    public void Err<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = StringStyle.Default
+    public void Err<T>(T toLog, LoggerActivationFlags activationFlags = MergeLoggerActivationConfig, StringStyle style = CompactLog
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);

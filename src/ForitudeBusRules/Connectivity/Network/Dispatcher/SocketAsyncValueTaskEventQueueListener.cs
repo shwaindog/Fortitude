@@ -9,7 +9,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Dispatcher;

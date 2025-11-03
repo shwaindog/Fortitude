@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeIO.Storage.TimeSeries.FileSystem.File;
 using FortitudeIO.Storage.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.Storage.TimeSeries.FileSystem.Session.Retrieval;

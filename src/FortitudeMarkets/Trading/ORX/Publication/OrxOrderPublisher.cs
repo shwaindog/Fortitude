@@ -1,6 +1,6 @@
 #region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeMarkets.Trading.Orders;

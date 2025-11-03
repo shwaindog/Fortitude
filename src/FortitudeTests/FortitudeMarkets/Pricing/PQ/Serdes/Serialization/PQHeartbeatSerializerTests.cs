@@ -3,8 +3,8 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;

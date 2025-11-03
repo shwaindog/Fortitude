@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;

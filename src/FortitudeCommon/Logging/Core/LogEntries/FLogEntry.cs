@@ -3,7 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Framework.Fillers;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
@@ -54,11 +54,11 @@ public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
 
     [MustUseReturnValue("Use WithOnlyParam or AndFinalParam to complete LogEntry")]
     IFLogFirstFormatterParameterEntry FormatBuilder([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formattedString
-      , StringStyle style = StringStyle.Default);
+      , StringStyle style = StringStyle.CompactLog);
 
 
     [MustUseReturnValue("Use FinalAppend to complete LogEntry")]
-    IFLogStringAppender StringAppender(StringStyle style = StringStyle.Default);
+    IFLogStringAppender StringAppender(StringStyle style = StringStyle.CompactLog);
 
     IMutableFLogEntry AddCallerContextObjFromKey(string asyncCallOrThreadKey);
     IMutableFLogEntry WithCallerContextObj(object callerContextObj);
@@ -137,7 +137,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         }
     }
 
-    public IFLogStringAppender StringAppender(StringStyle style = StringStyle.Default)
+    public IFLogStringAppender StringAppender(StringStyle style = StringStyle.CompactLog)
     {
         Thread      = Thread.CurrentThread;
         LogDateTime = TimeContext.UtcNow;
@@ -152,7 +152,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
     }
 
     public IFLogFirstFormatterParameterEntry FormatBuilder([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formattedString
-      , StringStyle style = StringStyle.Default)
+      , StringStyle style = StringStyle.CompactLog)
     {
         Thread      = Thread.CurrentThread;
         LogDateTime = TimeContext.UtcNow;
@@ -265,7 +265,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         messageBuilder!.StateReset();
         LogDateTime  = DateTime.MinValue;
         DispatchedAt = null;
-        Style        = StringStyle.Default;
+        Style        = StringStyle.CompactLog;
         LogLocation  = NotSetLocation;
         Logger       = null!;
         Thread       = null!;

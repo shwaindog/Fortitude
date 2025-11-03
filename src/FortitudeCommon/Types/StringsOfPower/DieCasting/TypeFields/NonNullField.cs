@@ -10,124 +10,125 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldCon
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
-public partial class SelectTypeField<TExt> where TExt : TypeMolder
+public partial class SelectTypeField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenNonNullAdd (ReadOnlySpan<char> fieldName, bool? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+    public TMold WhenNonNullAdd (ReadOnlySpan<char> fieldName, bool? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd<TFmt> (ReadOnlySpan<char> fieldName, TFmt? value
+    public TMold WhenNonNullAdd<TFmt> (ReadOnlySpan<char> fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd<TFmtStruct> (ReadOnlySpan<char> fieldName, TFmtStruct? value
+    public TMold WhenNonNullAdd<TFmtStruct> (ReadOnlySpan<char> fieldName, TFmtStruct? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
+    public TMold WhenNonNullReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysReveal(fieldName, value, palantírReveal, formatFlags) 
             : stb.StyleTypeBuilder;
 
 
-    public TExt WhenNonNullReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TMold WhenNonNullReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysReveal(fieldName, value, palantírReveal, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value
+    public TMold WhenNonNullReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysReveal(fieldName, value, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value
+    public TMold WhenNonNullReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         !stb.SkipFields && !Equals(value, null) 
             ? AlwaysReveal(fieldName, value, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, Span<char> value
+    public TMold WhenNonNullAdd(ReadOnlySpan<char> fieldName, Span<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value.Length > 0 
             ? AlwaysAdd(fieldName, value, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
+    public TMold WhenNonNullAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value.Length > 0 
             ? AlwaysAdd(fieldName, value, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, string? value
+    public TMold WhenNonNullAdd(ReadOnlySpan<char> fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int count = int.MaxValue
+    public TMold WhenNonNullAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int count = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, startIndex, count, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, char[]? value
+    public TMold WhenNonNullAdd(ReadOnlySpan<char> fieldName, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int count = int.MaxValue
+    public TMold WhenNonNullAdd(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int count = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, startIndex, count, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value
+    public TMold WhenNonNullAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
         !stb.SkipFields && value != null 
             ? AlwaysAddCharSeq(fieldName, value, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int count = int.MaxValue
+    public TMold WhenNonNullAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int count = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
         !stb.SkipFields && value != null 
             ? AlwaysAddCharSeq(fieldName, value, startIndex, count, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, StringBuilder? value
+    public TMold WhenNonNullAdd(ReadOnlySpan<char> fieldName, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) => 
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue
+    public TMold WhenNonNullAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) => 
         !stb.SkipFields && value != null 
             ? AlwaysAdd(fieldName, value, startIndex, count, formatString, formatFlags) 
             : stb.StyleTypeBuilder;
     
-    public TExt WhenNonNullAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value
+    public TMold WhenNonNullAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null 
@@ -135,7 +136,7 @@ public partial class SelectTypeField<TExt> where TExt : TypeMolder
             : stb.StyleTypeBuilder;
     
     [CallsObjectToString]
-    public TExt WhenNonNullAddObject(ReadOnlySpan<char> fieldName, object? value
+    public TMold WhenNonNullAddObject(ReadOnlySpan<char> fieldName, object? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null 

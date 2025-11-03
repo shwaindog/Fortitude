@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.Storage.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.Storage.TimeSeries.FileSystem.File.Session;
 using FortitudeMarkets.Pricing;

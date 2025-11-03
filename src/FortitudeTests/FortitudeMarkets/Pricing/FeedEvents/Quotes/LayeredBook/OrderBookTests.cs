@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;

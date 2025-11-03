@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;

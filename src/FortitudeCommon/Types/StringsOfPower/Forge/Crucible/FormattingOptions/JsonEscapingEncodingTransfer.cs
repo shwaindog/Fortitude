@@ -1,21 +1,21 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
 {
-    private static ConcurrentDictionary<string, ((int StartIncl, int EndExcl), string[])[]> cachedMappings = new();
+    private static readonly ConcurrentDictionary<string, ((int StartIncl, int EndExcl), string[])[]> CachedMappings = new();
 
     private IJsonFormattingOptions                     parentJsonOptions      = null!;
     private ((int StartIncl, int EndExcl), string[])[] cachedJsEscapeMappings = null!;
-    private (int StartIncl, int EndExcl)[] exemptJsEscapeRanges =
+    private readonly (int StartIncl, int EndExcl)[] exemptJsEscapeRanges =
     [
         (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0)
     ];
-    private (int StartIncl, int EndExcl)[] unicodeJsEscapeRanges =
+    private readonly (int StartIncl, int EndExcl)[] unicodeJsEscapeRanges =
     [
         (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0)
     ];
@@ -26,7 +26,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         parentJsonOptions = owningJsonOptions;
 
         var charMappingKey = IJsonFormattingOptions.CreateMappingTableKey(cacheRanges);
-        if (cachedMappings.TryGetValue(charMappingKey, out var mapping))
+        if (CachedMappings.TryGetValue(charMappingKey, out var mapping))
         {
             cachedJsEscapeMappings = mapping;
         }
@@ -40,7 +40,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                 cachedJsEscapeMappings[i]   = (range.BoundRangeToUnicodeIndexValues(), 
                                                BuildCachedEscapedCharsMapping(range, mappingFunc));
             }
-            cachedMappings.TryAdd(charMappingKey, cachedJsEscapeMappings);
+            CachedMappings.TryAdd(charMappingKey, cachedJsEscapeMappings);
         }
         var optionsExempt = owningJsonOptions.ExemptEscapingRanges;
         for (var i = 0; i < exemptJsEscapeRanges.Length; i++)
@@ -273,7 +273,120 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         if (source == null) return 0;
         return ProcessRune(source.Value, dest, destIndex);
     }
+    
+    public int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, IStringBuilder destSb)
+    {
+        if (!encodeFirst)
+        {
+            if(source.Length > 0){
+                var firstChar = source[0];
+                destSb.Append(firstChar);
+                if (source.Length > 1)
+                {
+                    if (firstChar.IsTwoCharHighSurrogate())
+                    {
+                        destSb.Append(source[1]);
+                        if (source.Length > 2)
+                        {
+                            return JsEscapingTransfer(source, 2, destSb) + 2;
+                        }
+                    }
+                    return JsEscapingTransfer(source, 1, destSb) + 1;
+                }
+                return 1;
+            }
+            return 0;
+        }
+        else { return JsEscapingTransfer(source, 0, destSb); }
+    }
 
+    public int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex) 
+    {
+        if (!encodeFirst)
+        {
+            if(source.Length > 0){
+                var firstChar = source[0];
+                destSpan.OverWriteAt(destStartIndex, firstChar);
+                if (source.Length > 1)
+                {
+                    if (firstChar.IsTwoCharHighSurrogate())
+                    {
+                        destSpan.OverWriteAt(destStartIndex + 1, source[1]);
+                        if (source.Length > 2)
+                        {
+                            return JsEscapingTransfer(source, 2, destSpan, destStartIndex + 2) + 2;
+                        }
+                    }
+                    return JsEscapingTransfer(source, 1, destSpan, destStartIndex + 1) + 1;
+                }
+                return 1;
+            }
+            return 0;
+        }
+        else { return JsEscapingTransfer(source, 0, destSpan, destStartIndex); }
+    }
+
+    public int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeLast) 
+    {
+        if (!encodeLast)
+        {
+            if(source.Length > 0){
+                var lastChar = source[^1];
+                if (source.Length > 1)
+                {
+                    var encodedCount = 0;
+                    if (lastChar.IsTwoCharLowSurrogate())
+                    {
+                        if (source.Length > 2)
+                        {
+                            encodedCount = JsEscapingTransfer(source, 0, destSb,  maxTransferCount: source.Length - 2);
+                        }
+                        destSb.Append(source[^2]);
+                        destSb.Append(lastChar);
+                        return encodedCount + 2;
+                    }
+                    encodedCount = JsEscapingTransfer(source, 0, destSb,  maxTransferCount: source.Length - 1);
+                    destSb.Append(lastChar);
+                    return encodedCount + 1;
+                }
+                destSb.Append(lastChar);
+                return 1;
+            }
+            return 0;
+        }
+        else { return JsEscapingTransfer(source, 0, destSb); }
+    }
+
+    public int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeLast) 
+    {
+        if (!encodeLast)
+        {
+            if(source.Length > 0){
+                var lastChar = source[^1];
+                if (source.Length > 1)
+                {
+                    var encodedCount = 0;
+                    if (lastChar.IsTwoCharLowSurrogate())
+                    {
+                        if (source.Length > 2)
+                        {
+                            encodedCount = JsEscapingTransfer(source, 0,  destSpan, destStartIndex,  maxTransferCount: source.Length - 2);
+                        }
+                        destSpan.OverWriteAt(destStartIndex + encodedCount, source[^2]);
+                        destSpan.OverWriteAt(destStartIndex + encodedCount + 1, lastChar);
+                        return encodedCount + 2;
+                    }
+                    encodedCount = JsEscapingTransfer(source, 0, destSpan, destStartIndex,  maxTransferCount: source.Length - 1);
+                    destSpan.OverWriteAt(destStartIndex + encodedCount, lastChar);
+                    return encodedCount + 1;
+                }
+                destSpan.OverWriteAt(destStartIndex, lastChar);
+                return 1;
+            }
+            return 0;
+        }
+        else { return JsEscapingTransfer(source, 0, destSpan, destStartIndex); }
+    }
 
     public virtual int Transfer(ICustomStringFormatter stringFormatter, ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex = int.MaxValue)
     {
@@ -301,8 +414,9 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     protected int JsEscapingTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, int destStartIndex = int.MaxValue
       , int maxTransferCount = int.MaxValue)
     {
+        var  capLen         = Math.Clamp(maxTransferCount, 0, source.Length);
         var  i              = Math.Clamp(sourceFrom, 0, source.Length);
-        var  end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var  end            = Math.Clamp(capLen + i, 0, source.Length);
         var  originalLength = sb.Length;
         bool isAppend       = false;
         if (destStartIndex == int.MaxValue || destStartIndex > sb.Length)
@@ -368,9 +482,10 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     protected int JsEscapingTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destination
       , int destStartIndex, int maxTransferCount = int.MaxValue)
     {
-        var i     = sourceFrom;
-        var desti = destStartIndex;
-        var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(capLen + i, 0, source.Length);
+        var desti  = destStartIndex;
         for (; i < end && desti < destination.Length; i++)
         {
             var iChar = source[i];
@@ -399,15 +514,16 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         return Transfer(stringFormatter, source, 0, destSpan, destStartIndex, maxTransferCount);
     }
 
-    public virtual int Transfer(ICustomStringFormatter stringFormatter, char[] source, int sourceFrom, IStringBuilder destSb, int destStartIndex = int.MaxValue
-      , int maxTransferCount = int.MaxValue)
+    public virtual int Transfer(ICustomStringFormatter stringFormatter, char[] source, int sourceFrom, IStringBuilder destSb, 
+        int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
     {
         var preTransferLen = destSb.Length;
         if (!parentJsonOptions.CharArrayWritesString)
         {
             int  j;
+            var  capLen       = Math.Clamp(maxTransferCount, 0, source.Length);
             int  cappedFrom   = j = Math.Clamp(sourceFrom, 0, source.Length);
-            var  cappedEnd    = Math.Clamp(maxTransferCount, 0, source.Length);
+            var  cappedEnd    = Math.Clamp(capLen, 0, source.Length);
             int  lastAdded    = 0;
             char previousChar = '\0';
             for (; j < cappedEnd; j++)
@@ -430,28 +546,32 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         if (!parentJsonOptions.CharArrayWritesString)
         {
             var  charsAdded   = 0;
-            var  cappedEnd    = Math.Clamp(maxTransferCount, 0, source.Length);
-            int  j            = Math.Clamp(sourceFrom, 0, source.Length);
+            var  capLen       = Math.Clamp(maxTransferCount, 0, source.Length);
+            int  i            = Math.Clamp(sourceFrom, 0, source.Length);
+            var  cappedEnd    = Math.Clamp(capLen + i, 0, source.Length);
             int  lastAdded    = 0;
             char previousChar = '\0';
-            for (; j < cappedEnd; j++)
+            for (; i < cappedEnd; i++)
             {
-                var item = source[j];
+                var item = source[i];
 
-                if (j > 0 && lastAdded > 0) charsAdded += stringFormatter.AddCollectionElementSeparator(typeof(char), destSpan, destStartIndex + charsAdded, j);
+                if (i > 0 && lastAdded > 0) charsAdded += stringFormatter.AddCollectionElementSeparator(typeof(char), destSpan, 
+                 destStartIndex + charsAdded, i);
                 
-                lastAdded    = lastAdded > 0 || j == sourceFrom
-                    ?  stringFormatter.CollectionNextItemFormat(item, j, destSpan, destStartIndex + charsAdded, "")
-                    : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSpan, destStartIndex + charsAdded, "");
+                lastAdded    = lastAdded > 0 || i == sourceFrom
+                    ?  stringFormatter.CollectionNextItemFormat(item, i, destSpan, destStartIndex + charsAdded, "")
+                    : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), i - 1, 
+                                                               destSpan, destStartIndex + charsAdded, "");
                 previousChar =  lastAdded == 0 ? item : '\0';
                 charsAdded   += lastAdded;
             }
-            return j;
+            return i;
         }
         return JsEscapingTransfer(source, 0, destSpan, destStartIndex, maxTransferCount);
     }
 
-    protected int JsEscapingTransfer(char[] source, int sourceFrom, IStringBuilder sb, int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
+    protected int JsEscapingTransfer(char[] source, int sourceFrom, IStringBuilder sb, int destStartIndex = int.MaxValue, 
+        int maxTransferCount = int.MaxValue)
     {
         return JsEscapingTransfer(source.AsSpan(), sourceFrom, sb, destStartIndex, maxTransferCount);
     }
@@ -494,8 +614,9 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     protected int JsEscapingTransfer(StringBuilder source, int sourceFrom, IStringBuilder sb, int destStartIndex = int.MaxValue
       , int maxTransferCount = int.MaxValue)
     {
+        var  capLen         = Math.Clamp(maxTransferCount, 0, source.Length);
         var  i              = Math.Clamp(sourceFrom, 0, source.Length);
-        var  end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var  end            = Math.Clamp(capLen + i, 0, source.Length);
         var  originalLength = sb.Length;
         bool isAppend       = false;
         if (destStartIndex == int.MaxValue || destStartIndex > sb.Length)
@@ -561,9 +682,10 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     protected int JsEscapingTransfer(StringBuilder source, int sourceFrom, Span<char> destination
       , int destStartIndex, int maxTransferCount = int.MaxValue)
     {
-        var i     = sourceFrom;
-        var desti = destStartIndex;
-        var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(capLen + i, 0,  source.Length);
+        var desti  = destStartIndex;
         for (; i < end && desti < destination.Length; i++)
         {
             var iChar = source[i];
@@ -596,26 +718,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
       , int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
     {
         var preTransferLen = destSb.Length;
-        // if (!parentJsonOptions.CharArrayWritesString)
-        // {
-        //     var  cappedEnd    = Math.Clamp(maxTransferCount, 0, source.Length);
-        //     int  j            = Math.Clamp(sourceFrom, 0, source.Length);
-        //     int  lastAdded    = 0;
-        //     char previousChar = '\0';
-        //     for (; j < cappedEnd; j++)
-        //     {
-        //         var item = source[j];
-        //         if (j > 0) stringFormatter.AddCollectionElementSeparator(typeof(char), destSb, j);
-        //         lastAdded    = lastAdded > 0 || j == sourceFrom
-        //             ?  stringFormatter.CollectionNextItemFormat(item, j, destSb, "")
-        //             : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSb, "");
-        //         previousChar =  lastAdded == 0 ? item : '\0';
-        //     }
-        //     return destSb.Length - preTransferLen;
-        // }
-        // stringFormatter.StringValueDelimiter(destSb);
         JsEscapingTransfer(source, sourceFrom, destSb, destStartIndex, maxTransferCount);
-        // stringFormatter.StringValueDelimiter(destSb);
         return  destSb.Length - preTransferLen;
     }
 
@@ -623,37 +726,16 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
       , int maxTransferCount = int.MaxValue)
     {
         var  charsAdded   = 0;
-        // if (!parentJsonOptions.CharArrayWritesString)
-        // {
-        //     var  cappedEnd    = Math.Clamp(maxTransferCount, 0, source.Length);
-        //     int  j            = Math.Clamp(sourceFrom, 0, source.Length);
-        //     int  lastAdded    = 0;
-        //     char previousChar = '\0';
-        //     for (; j < cappedEnd; j++)
-        //     {
-        //         var item = source[j];
-        //
-        //         if (j > 0 && lastAdded > 0) charsAdded += stringFormatter.AddCollectionElementSeparator(typeof(char), destSpan, destStartIndex + charsAdded, j);
-        //         
-        //         lastAdded    = lastAdded > 0 || j == sourceFrom
-        //             ?  stringFormatter.CollectionNextItemFormat(item, j, destSpan, destStartIndex + charsAdded, "")
-        //             : stringFormatter.CollectionNextItemFormat(new Rune(previousChar, item), j - 1, destSpan, destStartIndex + charsAdded, "");
-        //         previousChar =  lastAdded == 0 ? item : '\0';
-        //         charsAdded   += lastAdded;
-        //     }
-        //     return charsAdded;
-        // }
-        // charsAdded =  stringFormatter.StringValueDelimiter(destSpan, destStartIndex);
         charsAdded += JsEscapingTransfer(source, sourceFrom, destSpan, destStartIndex, maxTransferCount);
-        // charsAdded +=  stringFormatter.StringValueDelimiter(destSpan, destStartIndex);
         return charsAdded;
     }
 
     protected int JsEscapingTransfer(ICharSequence source, int sourceFrom, IStringBuilder sb, int destStartIndex = int.MaxValue
       , int maxTransferCount = int.MaxValue)
     {
+        var  capLen         = Math.Clamp(maxTransferCount, 0, source.Length);
         var  i              = Math.Clamp(sourceFrom, 0, source.Length);
-        var  end            = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var  end            = Math.Clamp(i + capLen, 0, source.Length);
         var  originalLength = sb.Length;
         bool isAppend       = false;
         if (destStartIndex == int.MaxValue || destStartIndex > sb.Length)
@@ -692,7 +774,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             }
             else if (i + 1 < end)
             {
-                var iRune = new Rune(iChar, source[++i]);
+                var iRune = new Rune(iChar, source[i + 1]);
                 int appended;
                 if (isAppend)
                 {
@@ -719,9 +801,10 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     protected int JsEscapingTransfer(ICharSequence source, int sourceFrom, Span<char> destination
       , int destStartIndex, int maxTransferCount = int.MaxValue)
     {
-        var i     = sourceFrom;
-        var desti = destStartIndex;
-        var end   = Math.Min(source.Length, maxTransferCount + sourceFrom);
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var desti  = Math.Clamp(capLen + i, 0, source.Length);
+        var end    = Math.Min(source.Length, maxTransferCount + sourceFrom);
         for (; i < end && desti < destination.Length; i++)
         {
             var iChar = source[i];

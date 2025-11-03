@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;

@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serdes;

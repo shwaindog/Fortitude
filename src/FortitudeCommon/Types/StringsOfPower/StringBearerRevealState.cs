@@ -1,4 +1,4 @@
-﻿using FortitudeCommon.DataStructures.Memory;
+﻿using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -30,7 +30,7 @@ public static class StringBearerRevelStateExtensions
     public static string DefaultToString<T>(this PalantírReveal<T> styler, T toStyle, IRecycler? recycler = null)
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue( StringStyle.Default));
+        styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue( StringStyle.CompactLog));
         styler(toStyle, styledStringBuilder);
         return styledStringBuilder.ToString();
     }

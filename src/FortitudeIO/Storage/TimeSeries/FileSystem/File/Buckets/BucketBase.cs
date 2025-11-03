@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Storage.TimeSeries.FileSystem.File.Session;

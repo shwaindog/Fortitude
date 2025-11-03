@@ -1,7 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.MarketEvents;

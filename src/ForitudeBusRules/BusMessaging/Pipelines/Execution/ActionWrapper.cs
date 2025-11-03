@@ -3,7 +3,7 @@
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 #endregion
 

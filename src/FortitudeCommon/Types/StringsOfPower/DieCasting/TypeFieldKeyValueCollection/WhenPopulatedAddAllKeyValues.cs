@@ -114,7 +114,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             {
                 var kvp = value!.Current;
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", FieldContentHandling.DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendOrNull(kvp.Value, valueRevealer);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }
@@ -168,8 +168,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendOrNull(kvp.Key, keyRevealer, FieldContentHandling.DefaultCallerTypeFlags, true);
-                stb.AppendOrNull(kvp.Value, valueRevealer);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyRevealer, FieldContentHandling.DefaultCallerTypeFlags, true);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, itemCount++);
             }

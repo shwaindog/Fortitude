@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.Buffers;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Framework.System;
 using FortitudeCommon.Types.Mutable;
@@ -430,7 +430,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
-            ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, 0, charArraySpan, 0, value.Length);
+            ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, 0, charArraySpan, 0, value.Length);
             return this;
         }
         CharArray(value.Length).Add(value);
@@ -438,7 +438,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder Append(char[]? value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (value == null) return this;
         var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
@@ -446,7 +446,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (formatString == null)
-                ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString, cappedLength, formatFlags);
             return this;
@@ -516,7 +516,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
-            ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, 0, charArraySpan, 0, value.Length);
+            ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, 0, charArraySpan, 0, value.Length);
             return this;
         }
 
@@ -525,7 +525,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder Append(StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (value == null) return this;
 
@@ -534,7 +534,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (formatString == null)
-                ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString, cappedLength, formatFlags);
             return this;
@@ -553,7 +553,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (value == null) return this;
 
@@ -562,7 +562,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (formatString == null)
-                ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, startIndex
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex
                                                                                    , charArraySpan, 0, cappedLength);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
@@ -589,7 +589,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
-            ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, 0, charArraySpan, 0, value.Length);
+            ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, 0, charArraySpan, 0, value.Length);
             return this;
         }
 
@@ -628,7 +628,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
-            ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, 0, charArraySpan
+            ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, 0, charArraySpan
                                                                                , 0, value.Length);
             return this;
         }
@@ -637,7 +637,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder Append(string? value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (value == null) return this;
         var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
@@ -645,7 +645,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (formatString == null)
-                ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
                                                         , cappedLength, formatFlags);
@@ -679,7 +679,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
-            ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, 0, charArraySpan, 0
+            ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, 0, charArraySpan, 0
                                                                                , value.Length);
             return this;
         }
@@ -688,14 +688,14 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder Append(Span<char> value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (formatString == null)
-                ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, length);
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, length);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
                                                         , length, formatFlags);
@@ -719,7 +719,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
-            ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, 0, charArraySpan, 0, value.Length);
+            ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, 0, charArraySpan, 0, value.Length);
             return this;
         }
         CharArray(value.Length).Add(value);
@@ -727,14 +727,14 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder Append(ReadOnlySpan<char> value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (formatString == null)
-                ca.Length += customStringFormatter.Options.EncodingTransfer.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
                                                         , cappedLength, formatFlags);
@@ -761,7 +761,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
             var asSpan        = value.Span;
             var charArraySpan = ca.RemainingAsSpan();
             ca.Length += customStringFormatter
-                         .Options.EncodingTransfer
+                         .TransferEncoder
                          .Transfer(customStringFormatter, asSpan, 0, charArraySpan , 0, asSpan.Length);
             return this;
         }
@@ -770,7 +770,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder Append(ReadOnlyMemory<char> value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
         var asSpan       = value.Span;
@@ -779,7 +779,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
             var charArraySpan = ca.RemainingAsSpan();
             if (formatString == null)
                 ca.Length += customStringFormatter
-                             .Options.EncodingTransfer
+                             .TransferEncoder
                              .Transfer(customStringFormatter, asSpan, startIndex, charArraySpan, 0, cappedLength);
             else
                 customStringFormatter.Format(asSpan, startIndex, this, formatString, cappedLength, formatFlags);
@@ -822,7 +822,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     public CharArrayStringBuilder AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0
-      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable
     {
         var charArraySpan = ca.RemainingAsSpan();
         ca.Length += customStringFormatter.Format(arg0, charArraySpan, 0, format, formatFlags);
@@ -831,7 +831,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     public CharArrayStringBuilder AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0
-      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast) where TFmt : ISpanFormattable
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable
     {
         var charArraySpan = ca.RemainingAsSpan();
         ca.Length += customStringFormatter.Format(arg0, charArraySpan, 0, format, formatFlags);
@@ -927,7 +927,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder AppendFormat(ICustomStringFormatter customStringFormatter, string format, object? arg0
-      , FormattingHandlingFlags formatFlags = EncodeAllButPrefixFirstSuffixLast)
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         var wasSuccessfull = customStringFormatter.TryFormat(arg0, this, format);
         if (wasSuccessfull != 0) return this;

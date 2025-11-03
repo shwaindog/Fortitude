@@ -3,7 +3,7 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Core.LogEntries;

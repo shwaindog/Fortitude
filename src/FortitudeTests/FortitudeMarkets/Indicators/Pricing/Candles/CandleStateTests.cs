@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeMarkets.Config;
 using FortitudeMarkets.Indicators.Pricing.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;

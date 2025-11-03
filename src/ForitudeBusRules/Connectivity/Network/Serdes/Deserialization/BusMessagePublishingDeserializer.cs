@@ -8,7 +8,7 @@ using FortitudeBusRules.BusMessaging.Pipelines.Execution;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;

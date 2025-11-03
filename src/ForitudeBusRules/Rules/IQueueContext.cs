@@ -8,7 +8,7 @@ using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Pipelines.Timers;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 

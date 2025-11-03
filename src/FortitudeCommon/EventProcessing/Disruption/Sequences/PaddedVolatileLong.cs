@@ -4,7 +4,7 @@
 #region
 
 using System.Runtime.InteropServices;
-using FortitudeCommon.DataStructures.Memory.Buffers;
+using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 
 #endregion
 

@@ -6,7 +6,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.AsyncProcessing;
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion

@@ -1,7 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.Mutable;

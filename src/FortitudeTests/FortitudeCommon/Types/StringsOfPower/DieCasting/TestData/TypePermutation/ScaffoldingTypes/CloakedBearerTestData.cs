@@ -76,13 +76,19 @@ public static class CloakedBearerTestData
             { { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "0" } }
       , new CloakedBearerExpect<byte?, FieldNullableSpanFormattableAlwaysAddStringBearer<byte>>
             (null, "null", true)
-            {
-                { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
+            { 
+                { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull ), "0" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesNull ), "null" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero ), "0" }
+              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
-      , new CloakedBearerExpect<byte?, FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>>
+      , new CloakedBearerExpect<byte?, FieldSpanFormattableAlwaysAddStringBearer<byte>>
             (null, "null", true)
             {
-                { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
+                { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull ), "0" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesNull ), "null" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero ), "0" }
+              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new CloakedBearerExpect<byte?, FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>>(255)
         {
@@ -224,11 +230,21 @@ public static class CloakedBearerTestData
                 }
             }
       , new CloakedBearerExpect<DateTime?, FieldNullableSpanFormattableAlwaysAddStringBearer<DateTime>>
-            (null, "null", true)
-            { { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" } }
-      , new CloakedBearerExpect<DateTime?, FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>>
-            (null, "null", true)
-            { { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" } }
+            (null, "yyyy-MM-ddTHH:mm:ss", true)
+            {
+                { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull ), "1/1/0001 12:00:00 AM" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesNull ), "null" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero ), "1/1/0001 12:00:00 AM" }
+              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
+            }
+      , new CloakedBearerExpect<DateTime?, FieldSpanFormattableAlwaysAddStringBearer<DateTime>>
+            (null, "yyyy-MM-ddTHH:mm:ss", true)
+            {
+                { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull ), "1/1/0001 12:00:00 AM" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesNull ), "null" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero ), "1/1/0001 12:00:00 AM" }
+              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
+            }
       , new CloakedBearerExpect<DateTime?, FieldNullableSpanFormattableAlwaysAddStringBearer<DateTime>>
             (new DateTime(2000, 1, 1, 1, 1, 1).AddTicks(1111111), "o")
             {
@@ -382,12 +398,18 @@ public static class CloakedBearerTestData
       , new CloakedBearerExpect<TimeSpan?, FieldNullableSpanFormattableAlwaysAddStringBearer<TimeSpan>>
             (null, "")
             {
-                { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
+                { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull ), "00:00:00" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesNull ), "null" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero ), "00:00:00" }
+              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new CloakedBearerExpect<TimeSpan?, FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>>
             (null, "")
             {
-                { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
+                { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull ), "00:00:00" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesNull ), "null" }
+              , { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero ), "00:00:00" }
+              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new CloakedBearerExpect<TimeSpan?, FieldNullableSpanFormattableAlwaysAddStringBearer<TimeSpan>>
             (new TimeSpan(1, 1, 1, 1, 111, 111), "c")
@@ -478,7 +500,8 @@ public static class CloakedBearerTestData
         }
       , new CloakedBearerExpect<IPAddress, FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>>(null, "")
         {
-            { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
+            { new EK( SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback), "" }
+          , { new EK( SimpleType | AcceptsSpanFormattable), "null" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
         }
       , new CloakedBearerExpect<IPAddress, FieldSpanFormattableAlwaysAddStringBearer<IPAddress>>(IPAddress.Loopback)
