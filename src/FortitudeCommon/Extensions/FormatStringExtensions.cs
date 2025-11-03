@@ -249,6 +249,55 @@ public static class ExtendedSpanFormattableExtensions
         return foundFormatStages;
     }
 
+
+    public static bool HasFormatStringPadding(this ReadOnlySpan<char> toCheck)
+    {
+        var indexOfBrcOpn = toCheck.IndexOf('{');
+        if (indexOfBrcOpn < 0) return false;
+        var remainingSpan = toCheck[indexOfBrcOpn..];
+        var indexOfBrcCls = remainingSpan.IndexOf('}');
+        if (indexOfBrcCls < 0) return false;
+        remainingSpan = toCheck[..indexOfBrcCls];
+        var expectIdentifier         = true;
+        var expectLayoutSign         = true;
+        var expectLayout        = false;
+        for (var i = 1; i < remainingSpan.Length; i++)
+        {
+            var checkChar = remainingSpan[i];
+            if (expectIdentifier)
+            {
+                if(checkChar.IsDigit()) continue;
+                if (checkChar.IsComma())
+                {
+                    expectIdentifier = false;
+                    expectLayout = true;
+                }
+                else { return false; }
+            }
+            if (expectLayout)
+            {
+                if (checkChar.IsMinus() && expectLayoutSign)
+                {
+                    expectLayoutSign = false;
+                    continue;
+                }
+                if(checkChar.IsDigit()) return true;
+                else { return false; }
+            }
+        }
+        return false;
+    }
+
+    public static int PrefixSuffixLength(this ReadOnlySpan<char> toCheck)
+    {
+        var indexOfBrcOpn = toCheck.IndexOf('{');
+        if (indexOfBrcOpn < 0) return 0;
+        var indexOfBrcCls = toCheck.IndexOf('}');
+        if (indexOfBrcCls < 0) return 0;
+        return indexOfBrcOpn + toCheck.Length - 1 - indexOfBrcCls;
+        
+    }
+
     public static FormatStringType ExtractExtendedStringFormatStages
     (this ReadOnlySpan<char> toCheck, out ReadOnlySpan<char> formatPrefix, out ReadOnlySpan<char> identifier, out Range extendedSliceLengthRange
       , out ReadOnlySpan<char> layout, out ReadOnlySpan<char> format, out ReadOnlySpan<char> formatSuffix
@@ -738,5 +787,37 @@ public static class ExtendedSpanFormattableExtensions
             return Math.Max(padding, toInsertLength - deduct);
         }
         return toInsertLength;
+    }
+
+    public static Span<char> ToLayoutOnlyFormatString(this Span<char> toBuild, ReadOnlySpan<char> toExtractLayout)
+    {
+        toBuild.Append("{0");
+        
+        toExtractLayout.ExtractExtendedStringFormatStages
+            (out _, out _, out _
+            , out var layout, out _, out _, out _);
+
+        if (layout.IsEmpty)
+        {
+            toBuild.Append("}");
+            return toBuild[..3];
+        }
+        var isLeftAligned  = layout[0].IsMinus();
+        var isStringLength = layout[0].IsDigit() || isLeftAligned;
+        int padding        = 0;
+        if (isStringLength)
+        {
+            int.TryParse(layout, out padding);
+        }
+        if (padding > 0)
+        {
+            toBuild.OverWriteAt(2, ",");
+            var insertPadSpan = toBuild[3..];
+            padding.TryFormat(insertPadSpan, out var charsWritten, "");
+            insertPadSpan.OverWriteAt(charsWritten, "}");
+            return toBuild[..(charsWritten + 4)];
+        }
+        toBuild.Append("}");
+        return toBuild[..3];
     }
 }

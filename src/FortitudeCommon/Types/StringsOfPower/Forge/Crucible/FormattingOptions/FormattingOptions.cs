@@ -9,8 +9,7 @@ public interface IFormattingOptions
     protected const string DefaultTrueString    = "true";
     protected const string DefaultFalseString   = "false";
     protected const string DefaultItemSeparator = ", ";
-
-
+    
     string ItemSeparator { get; set; }
 
     bool NullWritesNothing { get; set; }
@@ -67,9 +66,9 @@ public class FormattingOptions : ExplicitRecyclableObject, IFormattingOptions
         set => writeNullString = value;
     }
 
-    public bool EmptyCollectionWritesNull { get; set; } = false;
+    public bool EmptyCollectionWritesNull { get; set; }
 
-    public bool IgnoreEmptyCollection { get; set; } = false;
+    public bool IgnoreEmptyCollection { get; set; }
 
     public string NullString { get; set; } = IFormattingOptions.DefaultNullString;
 

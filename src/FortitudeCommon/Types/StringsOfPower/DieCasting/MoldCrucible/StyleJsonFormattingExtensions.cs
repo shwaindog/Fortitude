@@ -10,29 +10,29 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public static class StyleJsonFormattingExtensions
 {
-    public static FieldContentHandling MatchToValueFlags<T>(this T check, bool hasDefault)
-    {
-        if (check == null && !hasDefault) return DefaultCallerTypeFlags;
-        var typeOfT = typeof(T);
-        if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar())
-            return DisableAutoDelimiting | AsValueContent;
-        var isSpanFormattableOrNullable           = typeOfT.IsSpanFormattableOrNullable();
-        var isDoubleQuoteDelimitedSpanFormattable = check.IsDoubleQuoteDelimitedSpanFormattable();
-        if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable)
-            return EnsureFormattedDelimited | AsValueContent;
-        return AsValueContent;
-    }
-    
-    public static FieldContentHandling MatchToStringFlags<T>(this T check, bool hasDefault)
-    {
-        if (check == null && !hasDefault) return DefaultCallerTypeFlags;
-        var typeOfT = typeof(T);
-        if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar())
-            return DisableAutoDelimiting | AsStringContent;
-        var isSpanFormattableOrNullable           = typeOfT.IsSpanFormattableOrNullable();
-        var isDoubleQuoteDelimitedSpanFormattable = check.IsDoubleQuoteDelimitedSpanFormattable();
-        if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable)
-            return DisableAutoDelimiting | AsStringContent;
-        return AsStringContent;
-    }
+    // public static FieldContentHandling MatchToValueFlags<T>(this T check, bool hasDefault)
+    // {
+    //     if (check == null && !hasDefault) return DefaultCallerTypeFlags;
+    //     var typeOfT = typeof(T);
+    //     if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar())
+    //         return DisableAutoDelimiting | AsValueContent;
+    //     var isSpanFormattableOrNullable           = typeOfT.IsSpanFormattableOrNullable();
+    //     var isDoubleQuoteDelimitedSpanFormattable = check.IsDoubleQuoteDelimitedSpanFormattable();
+    //     if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable)
+    //         return EnsureFormattedDelimited | AsValueContent;
+    //     return AsValueContent;
+    // }
+    //
+    // public static FieldContentHandling MatchToStringFlags<T>(this T check, bool hasDefault)
+    // {
+    //     if (check == null && !hasDefault) return DefaultCallerTypeFlags;
+    //     var typeOfT = typeof(T);
+    //     if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar())
+    //         return DisableAutoDelimiting | AsStringContent;
+    //     var isSpanFormattableOrNullable           = typeOfT.IsSpanFormattableOrNullable();
+    //     var isDoubleQuoteDelimitedSpanFormattable = check.IsDoubleQuoteDelimitedSpanFormattable();
+    //     if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable)
+    //         return DisableAutoDelimiting | AsStringContent;
+    //     return AsStringContent;
+    // }
 }

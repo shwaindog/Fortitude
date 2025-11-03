@@ -140,7 +140,7 @@ public partial class SelectTypeFieldTests
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")
-              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F"))
+              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F").Replace(",", " |"))
               .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
@@ -153,7 +153,7 @@ public partial class SelectTypeFieldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactLogTemplate = "{0} {{{1}{2}{3}{1}}}";
+            const string prettyLogTemplate = "{0} {{{1}{2}{3}{1}}}";
 
             var maybeNewLine = "";
             var maybeIndent = "";
@@ -167,13 +167,13 @@ public partial class SelectTypeFieldTests
 
             else { expectValue = ""; }
 
-            return string.Format(compactLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+            return string.Format(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactLogTemplate = "{0} {{{1}{2}{2}{3}{1}{2}}}";
+            const string prettyLogTemplate = "{0} {{{1}{2}{2}{3}{1}{2}}}";
 
             var maybeNewLine = "";
             var maybeIndent = "";
@@ -187,7 +187,7 @@ public partial class SelectTypeFieldTests
 
             else { expectValue = ""; }
 
-            return string.Format(compactLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+            return string.Format(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
         }
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
@@ -200,8 +200,8 @@ public partial class SelectTypeFieldTests
         var buildExpectedOutput =
             BuildExpectedOutput(stringBearer.GetType().ShortNameInCSharpFormat()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
-               , scaffoldingToCall.ScaffoldingFlags, formatExpectation);
-        var result = tos.WriteBuffer.ToString();
+               , scaffoldingToCall.ScaffoldingFlags, formatExpectation).MakeWhiteSpaceVisible();
+        var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
         if (buildExpectedOutput != result)
         {
             logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()

@@ -157,9 +157,17 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
       , FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ICharSequence? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
+        Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append
     (StringBuilder? value, int startIndex, int length, string? formatString, ICustomStringFormatter? customStringFormatter
       , FormattingHandlingFlags formatFlags) =>
+        Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(StringBuilder? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(bool value, ICustomStringFormatter? customStringFormatter) => 
@@ -174,6 +182,10 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value) => Append(value);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value, int startIndex, int length, string? formatString
+      , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
+        Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value, int startIndex, int length, ReadOnlySpan<char> formatString
       , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 
@@ -198,6 +210,10 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value) => Append(value);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value, int startIndex, int length, string? formatString
+      , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
+        Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value, int startIndex, int length, ReadOnlySpan<char> formatString
       , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 
@@ -731,6 +747,34 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+    public MutableString Append(char[]? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (IsFrozen) return ShouldThrow();
+        if (value == null) return this;
+        if (customStringFormatter != null)
+        {
+            if (formatString == null)
+                customStringFormatter.TransferEncoder
+                    .Transfer(customStringFormatter, value, startIndex, this, length);
+            else
+                customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
+            return this;
+        }
+        startIndex = Math.Clamp(startIndex, 0, value.Length);
+        if (formatString == null)
+        {
+            length     = Math.Clamp(length, 0, value.Length - startIndex);
+            sb.Append(value, startIndex, length);
+        }
+        else
+        {
+            customStringFormatter = ICustomStringFormatter.DefaultBufferFormatter;
+            customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
+        }
+        return this;
+    }
+
     public unsafe MutableString Append(char* value, int valueCount)
     {
         if (IsFrozen) return ShouldThrow();
@@ -829,7 +873,60 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+    public MutableString Append(StringBuilder? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (value == null) return this;
+        if (IsFrozen) return ShouldThrow();
+        if (customStringFormatter != null)
+        {
+            if (formatString == null)
+                customStringFormatter
+                    .TransferEncoder
+                    .Transfer(customStringFormatter, value, startIndex, this, length);
+            else
+                customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
+            return this;
+        }
+        startIndex = Math.Clamp(startIndex, 0, value.Length);
+        if (formatString == null)
+        {
+            length     = Math.Clamp(length, 0, value.Length - startIndex);
+            sb.Append(value, startIndex, length);
+        }
+        else
+        {
+            customStringFormatter = ICustomStringFormatter.DefaultBufferFormatter;
+            customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
+        }
+        return this;
+    }
+
     public MutableString Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (value == null) return this;
+        if (IsFrozen) return ShouldThrow();
+        if (customStringFormatter != null)
+        {
+            customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+            return this;
+        }
+        startIndex = Math.Clamp(startIndex, 0, value.Length);
+        if (formatString == null)
+        {
+            length     = Math.Clamp(length, 0, value.Length - startIndex);
+            sb.AppendRange(value, startIndex, length);
+        }
+        else
+        {
+            customStringFormatter = ICustomStringFormatter.DefaultBufferFormatter;
+            customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
+        }
+        return this;
+    }
+
+    public MutableString Append(ICharSequence? value, int startIndex, int length, ReadOnlySpan<char> formatString
       , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (value == null) return this;
@@ -891,6 +988,34 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     }
 
     public MutableString Append(string? value, int startIndex, int length = int.MaxValue, string? formatString = null
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (IsFrozen) return ShouldThrow();
+        if (value == null) return this;
+        if (customStringFormatter != null)
+        {
+            if (formatString == null)
+                customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+            else
+                customStringFormatter.Format(value.AsSpan(), 0, this, formatString, length, formatFlags);
+            return this;
+        }
+        
+        startIndex = Math.Clamp(startIndex, 0, value.Length);
+        if (formatString == null)
+        {
+            length     = Math.Clamp(length, 0, value.Length - startIndex);
+            sb.Append(value, startIndex, length);
+        }
+        else
+        {
+            customStringFormatter = ICustomStringFormatter.DefaultBufferFormatter;
+            customStringFormatter.Format(value.AsSpan(), 0, this, formatString, length, formatFlags);
+        }
+        return this;
+    }
+
+    public MutableString Append(string? value, int startIndex, int length, ReadOnlySpan<char> formatString
       , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (IsFrozen) return ShouldThrow();

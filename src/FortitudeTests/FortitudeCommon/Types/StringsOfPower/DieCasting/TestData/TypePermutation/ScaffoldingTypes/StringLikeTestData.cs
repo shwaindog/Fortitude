@@ -161,15 +161,17 @@ public static class StringLikeTestData
           , { new EK(SimpleType | AcceptsAnyGeneric | AcceptsString | DefaultBecomesFallback | DefaultTreatedAsValueOut) , "\"\"" }
           , { new EK(SimpleType | AcceptsAnyGeneric | AcceptsString | DefaultBecomesFallback) , "\"\\u0022\\u0022\"" }
           , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan, Log | Compact | Pretty), "\"\"" }
-          , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }
+            
+          , { new EK(AcceptsChars | AcceptsString | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }
           , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan) 
               , "\"\\u0022\\u0022\"" }
           , {
                 new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     | DefaultTreatedAsStringOut)
-              , """""
-                """"
-                """""
+                     | DefaultTreatedAsStringOut, Log | Compact | Pretty),  "\"\""
+            }
+          , {
+                new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
+                     | DefaultTreatedAsStringOut, Json | Compact | Pretty),  "\"\\u0022\\u0022\""
             }
         }
       , new FieldExpect<string>("the", "{0}", true, "", -1, -10)
@@ -489,15 +491,9 @@ public static class StringLikeTestData
             {
                 new EK( AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      | DefaultTreatedAsStringOut, Log | Compact | Pretty)
-              , "[\"\"]"
+              , "[]"
             }
-           ,
-            {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     | DefaultTreatedAsStringOut, Log | Compact | Pretty)
-              , "\"\""
-            }
-           ,
+          , 
             {
                 new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      | DefaultTreatedAsStringOut, Json | Compact)
@@ -516,11 +512,15 @@ public static class StringLikeTestData
             }
            ,
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     | DefaultTreatedAsStringOut, Json | Compact | Pretty)
-              , """""
-                """" 
-                """""
+                new EK( AcceptsChars | AcceptsCharArray | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites 
+                      | NonNullAndPopulatedWrites | DefaultTreatedAsStringOut, Log | Compact | Pretty)
+              , "\"\""
+            }
+          , 
+            {
+                new EK( AcceptsChars | AcceptsCharArray | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites 
+                      | NonNullAndPopulatedWrites | DefaultTreatedAsStringOut, Json | Compact | Pretty)
+              , "\"\\u0022\\u0022\""
             }
         }
       , new FieldExpect<char[]>("began".ToCharArray(), "'{0[8..10]}'", false, [], 10, 5)
@@ -573,7 +573,7 @@ public static class StringLikeTestData
             {
                 new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      , Log | Compact | Pretty)
-              , "[\"\"]"
+              , "[]"
             }
            ,
             {
@@ -594,10 +594,15 @@ public static class StringLikeTestData
             }
            ,
             {
-                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites)
-              , """""
-                """"
-                """""
+                new EK( AcceptsChars | AcceptsCharArray | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites 
+                      | NonNullAndPopulatedWrites | DefaultTreatedAsStringOut, Log | Compact | Pretty)
+              , "\"\""
+            }
+          , 
+            {
+                new EK( AcceptsChars | AcceptsCharArray | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites 
+                      | NonNullAndPopulatedWrites | DefaultTreatedAsStringOut, Json | Compact | Pretty)
+              , "\"\\u0022\\u0022\""
             }
         }
       , new FieldExpect<char[]>("the".ToCharArray(), "{0}", true, [], -1, -10)
@@ -1719,10 +1724,7 @@ public static class StringLikeTestData
               , "\"\\u0022\\u0022\"" }
           , {
                 new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut
-                     , Log | Compact | Pretty)
-              , """""
-                """"
-                """""
+                     , Log | Compact | Pretty), "\"\"" 
             }
           , {
                 new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut
@@ -1788,10 +1790,7 @@ public static class StringLikeTestData
           //     , "\"\\u0022\\u0022\"" }
           , {
                 new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                     , Log | Compact | Pretty)
-              , """""
-                """"
-                """""
+                     , Log | Compact | Pretty) , "\"\"" 
             }
            ,
             {
@@ -2774,13 +2773,11 @@ public static class StringLikeTestData
               , "\"\\u00220\\u0022\"" }
           , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence, Log | Compact | Pretty) , "\"\"" }
           , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence  | DefaultTreatedAsValueOut) , "\"\"" }
-          , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence)
-              , "\"\\u0022\\u0022\"" }
-          , {
-                new EK(AcceptsChars | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut )
-              , """""
-                """"
-                """""
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence) , "\"\\u0022\\u0022\"" }
+          , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut, Log | Compact | Pretty ) , "\"\"" }
+          , { 
+                new EK(AcceptsChars | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut, Json | Compact | Pretty )
+                  , "\"\\u0022\\u0022\"" 
             }
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("began"), "'{0[8..10]}'", false, new StringBuilder("0"), 10, 5)
@@ -2803,10 +2800,11 @@ public static class StringLikeTestData
               , "\"\\u0022\\u0022\"" }
           , {
                 new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites 
-                     | DefaultTreatedAsStringOut )
-              , """""
-                """"
-                """""
+                     | DefaultTreatedAsStringOut, Log | Compact | Pretty ) , "\"\""
+            }
+          , {
+                new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites 
+                     | DefaultTreatedAsStringOut, Json | Compact | Pretty ) , "\"\\u0022\\u0022\""
             }
         }
       , new FieldExpect<StringBuilder>(new StringBuilder("the"), "{0}", true, new StringBuilder(""), -1, -10)

@@ -27,139 +27,143 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
 
     public virtual int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, IStringBuilder destSb)
     {
-        if (encodeFirst)
-        {
-            if (source.Length > 0)
-            {
-                var firstChar      = source[0];
-                var firstCharCount = 0;
-                if (firstChar != DblQtChar)
-                {
-                    destSb.Append(firstChar);
-                    firstCharCount = 1;
-                }
-                if (source.Length > 1)
-                {
-                    if (firstChar.IsTwoCharHighSurrogate())
-                    {
-                        destSb.Append(source[1]);
-                        if (source.Length > 2)
-                        {
-                            return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 2, destSb) + 1 + firstCharCount;
-                        }
-                    }
-                    return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 1, destSb) + firstCharCount;
-                }
-                return firstCharCount;
-            }
-            return 0;
-        }
-        else { return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb); }
+        // if (encodeFirst)
+        // {
+        //     if (source.Length > 0)
+        //     {
+        //         var firstChar      = source[0];
+        //         var firstCharCount = 0;
+        //         if (firstChar != DblQtChar)
+        //         {
+        //             destSb.Append(firstChar);
+        //             firstCharCount = 1;
+        //         }
+        //         if (source.Length > 1)
+        //         {
+        //             if (firstChar.IsTwoCharHighSurrogate())
+        //             {
+        //                 destSb.Append(source[1]);
+        //                 if (source.Length > 2)
+        //                 {
+        //                     return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 2, destSb) + 1 + firstCharCount;
+        //                 }
+        //             }
+        //             return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 1, destSb) + firstCharCount;
+        //         }
+        //         return firstCharCount;
+        //     }
+        //     return 0;
+        // }
+        // else { return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb); }
+        return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb);
     }
 
     public virtual int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex)
     {
-        if (encodeFirst)
-        {
-            if (source.Length > 0)
-            {
-                var firstChar      = source[0];
-                var firstCharCount = 0;
-                if (firstChar != DblQtChar)
-                {
-                    destSpan.OverWriteAt(destStartIndex, firstChar);
-                    firstCharCount = 1;
-                }
-                if (source.Length > 1)
-                {
-                    if (firstChar.IsTwoCharHighSurrogate())
-                    {
-                        destSpan.OverWriteAt(destStartIndex + firstCharCount, source[1]);
-                        if (source.Length > 2)
-                        {
-                            return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source
-                                          , 2, destSpan, destStartIndex + 2) + 2;
-                        }
-                    }
-                    return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 1, destSpan
-                                  , destStartIndex + firstCharCount) + firstCharCount;
-                }
-                return firstCharCount;
-            }
-            return 0;
-        }
-        else { return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex); }
+        // if (encodeFirst)
+        // {
+        //     if (source.Length > 0)
+        //     {
+        //         var firstChar      = source[0];
+        //         var firstCharCount = 0;
+        //         if (firstChar != DblQtChar)
+        //         {
+        //             destSpan.OverWriteAt(destStartIndex, firstChar);
+        //             firstCharCount = 1;
+        //         }
+        //         if (source.Length > 1)
+        //         {
+        //             if (firstChar.IsTwoCharHighSurrogate())
+        //             {
+        //                 destSpan.OverWriteAt(destStartIndex + firstCharCount, source[1]);
+        //                 if (source.Length > 2)
+        //                 {
+        //                     return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source
+        //                                   , 2, destSpan, destStartIndex + 2) + 2;
+        //                 }
+        //             }
+        //             return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 1, destSpan
+        //                           , destStartIndex + firstCharCount) + firstCharCount;
+        //         }
+        //         return firstCharCount;
+        //     }
+        //     return 0;
+        // }
+        // else { return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex); }
+        return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex);
     }
 
     public virtual int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeLast)
     {
-        if (encodeLast)
-        {
-            if (source.Length > 0)
-            {
-                var lastChar = source[^1];
-                if (source.Length > 1)
-                {
-                    var encodedCount = 0;
-                    if (lastChar.IsTwoCharLowSurrogate())
-                    {
-                        // then definitely last char is not DblQty
-                        return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb);
-                    }
-                    encodedCount = Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb
-                                          , maxTransferCount: source.Length - 1);
-
-                    if (lastChar != DblQtChar)
-                    {
-                        destSb.Append(lastChar);
-                        return encodedCount + 1;
-                    }
-                    return encodedCount;
-                }
-                if (lastChar != DblQtChar)
-                {
-                    destSb.Append(lastChar);
-                    return 1;
-                }
-            }
-            return 0;
-        }
-        else { return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb); }
+        // if (encodeLast)
+        // {
+        //     if (source.Length > 0)
+        //     {
+        //         var lastChar = source[^1];
+        //         if (source.Length > 1)
+        //         {
+        //             var encodedCount = 0;
+        //             if (lastChar.IsTwoCharLowSurrogate())
+        //             {
+        //                 // then definitely last char is not DblQty
+        //                 return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb);
+        //             }
+        //             encodedCount = Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb
+        //                                   , maxTransferCount: source.Length - 1);
+        //
+        //             if (lastChar != DblQtChar)
+        //             {
+        //                 destSb.Append(lastChar);
+        //                 return encodedCount + 1;
+        //             }
+        //             return encodedCount;
+        //         }
+        //         if (lastChar != DblQtChar)
+        //         {
+        //             destSb.Append(lastChar);
+        //             return 1;
+        //         }
+        //     }
+        //     return 0;
+        // }
+        // else { return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb); }
+        return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb);
     }
 
     public virtual int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeLast)
     {
-        if (encodeLast)
-        {
-            if (source.Length > 0)
-            {
-                var lastChar = source[^1];
-                if (source.Length > 1)
-                {
-                    if (lastChar.IsTwoCharLowSurrogate())
-                    {
-                        // then definitely last char is not DblQty
-                        return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex);
-                    }
-                    var encodedCount = Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex
-                                              , maxTransferCount: source.Length - 1);
-
-                    if (lastChar != DblQtChar)
-                    {
-                        destSpan.OverWriteAt(destStartIndex + encodedCount, lastChar);
-                        return encodedCount + 1;
-                    }
-                    return encodedCount;
-                }
-                if (lastChar != DblQtChar)
-                {
-                    destSpan.OverWriteAt(destStartIndex, lastChar);
-                    return 1;
-                }
-            }
-            return 0;
-        }
-        else { return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex); }
+        // if (encodeLast)
+        // {
+        //     if (source.Length > 0)
+        //     {
+        //         var lastChar = source[^1];
+        //         if (source.Length > 1)
+        //         {
+        //             if (lastChar.IsTwoCharLowSurrogate())
+        //             {
+        //                 // then definitely last char is not DblQty
+        //                 return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex);
+        //             }
+        //             var encodedCount = Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex
+        //                                       , maxTransferCount: source.Length - 1);
+        //
+        //             if (lastChar != DblQtChar)
+        //             {
+        //                 destSpan.OverWriteAt(destStartIndex + encodedCount, lastChar);
+        //                 return encodedCount + 1;
+        //             }
+        //             return encodedCount;
+        //         }
+        //         if (lastChar != DblQtChar)
+        //         {
+        //             destSpan.OverWriteAt(destStartIndex, lastChar);
+        //             return 1;
+        //         }
+        //     }
+        //     return 0;
+        // }
+        // else { return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex); }
+        return Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex);
     }
 
     public virtual int Transfer(ICustomStringFormatter stringFormatter, ReadOnlySpan<char> source, IStringBuilder destSb

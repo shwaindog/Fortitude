@@ -19,7 +19,13 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null
       , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
+    T Append(ICharSequence? value, int startIndex, int length , ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
     T Append(StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    T Append(StringBuilder? value, int startIndex, int length, ReadOnlySpan<char> formatString
       , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
     T Append(bool value, ICustomStringFormatter? customStringFormatter = null);
@@ -40,6 +46,9 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(string? value, int startIndex, int length = int.MaxValue, string? formatString = null
       , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
+    T Append(string? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
     T Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter = null) where TFmt : ISpanFormattable;
     
     T Append(Span<char> value, ICustomStringFormatter? customStringFormatter = null);
@@ -58,6 +67,9 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     , ICustomStringFormatter? customStringFormatter = null , FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
     T Append(char[]? value, int startIndex, int length, string? formatString = null, ICustomStringFormatter? customStringFormatter = null
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    T Append(char[]? value, int startIndex, int length, ReadOnlySpan<char> formatString, ICustomStringFormatter? customStringFormatter = null
       , FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
     T Append(ushort value);

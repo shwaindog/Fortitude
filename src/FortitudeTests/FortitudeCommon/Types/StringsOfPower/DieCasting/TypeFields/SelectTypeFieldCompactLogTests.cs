@@ -245,13 +245,86 @@ public partial class SelectTypeFieldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog
-            (new FieldExpect<string>("forging", "{0,10}", true, "orging", 1)
+            (new FieldExpect<MutableString>
+            (new MutableString
+                 ("One string to use in all, one string to find text in, One string to replace them all and in the dustbins of " +
+                  "time confine them"), "{0[^40..^0]}")
             {
-                { new EK(AcceptsChars | CallsAsReadOnlySpan |  DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesNull), "    orging" }
-              , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites |  DefaultTreatedAsStringOut 
-                       | DefaultBecomesZero | DefaultBecomesNull), "\"    orging\"" }
+                {
+                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
+                  , "and in the dustbins of time confine them"
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
+                  , "\"and in the dustbins of time confine them\""
+                }
+               ,
+                {
+                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites |
+                           NonNullAndPopulatedWrites, Log | Compact | Pretty)
+                  , "\"and in the dustbins of time confine them\""
+                }
+               ,
+                {
+                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites |
+                           NonNullAndPopulatedWrites, Json | Compact)
+                  , """
+                    ["a","n","d"," ","i","n"," ","t","h","e"," ","d","u","s","t","b","i","n","s"," ","o","f"," ","t","i","m","e"," ",
+                    "c","o","n","f","i","n","e"," ","t","h","e","m"]
+                    """.RemoveLineEndings()
+                }
+               ,
+                {
+                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites |
+                           NonNullAndPopulatedWrites, Json | Pretty)
+                  , """
+                    [
+                        "a",
+                        "n",
+                        "d",
+                        " ",
+                        "i",
+                        "n",
+                        " ",
+                        "t",
+                        "h",
+                        "e",
+                        " ",
+                        "d",
+                        "u",
+                        "s",
+                        "t",
+                        "b",
+                        "i",
+                        "n",
+                        "s",
+                        " ",
+                        "o",
+                        "f",
+                        " ",
+                        "t",
+                        "i",
+                        "m",
+                        "e",
+                        " ",
+                        "c",
+                        "o",
+                        "n",
+                        "f",
+                        "i",
+                        "n",
+                        "e",
+                        " ",
+                        "t",
+                        "h",
+                        "e",
+                        "m"
+                      ]
+                    """.Dos2Unix()
+                }
             }, new ScaffoldingPartEntry
-                 (typeof(FieldStringRangeWhenNonDefaultStringBearer)
+                 (typeof(FieldCharSequenceWhenNonNullStringBearer<>)
                 , ComplexType | AcceptsSingleValue | NonDefaultWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling));
     }
@@ -262,7 +335,7 @@ public partial class SelectTypeFieldTests
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")
-              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F"))
+              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F").Replace(",", " |"))
               .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
@@ -298,8 +371,8 @@ public partial class SelectTypeFieldTests
                 (stringBearer.GetType().ShortNameInCSharpFormat()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
-               , formatExpectation);
-        var result = tos.WriteBuffer.ToString();
+               , formatExpectation).MakeWhiteSpaceVisible();
+        var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
         if (buildExpectedOutput != result)
         {
             logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()

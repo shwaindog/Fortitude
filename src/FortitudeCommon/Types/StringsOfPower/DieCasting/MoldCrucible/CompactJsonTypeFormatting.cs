@@ -36,14 +36,43 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         FieldContentHandling setFlags = callerFormattingFlags;
         setFlags |= (FieldContentHandling)base.ResolveStringFormattingFlags
             (sb.LastNonWhiteChar(), input, (FormattingHandlingFlags)setFlags, formatString);
-        if (isFieldName) { setFlags |= FieldContentHandling.EnsureFormattedDelimited; }
+        if (isFieldName) { setFlags |= EnsureFormattedDelimited; }
 
         var typeofT = typeof(T);
         if (typeofT.IsAnyTypeHoldingChars())
         {
-            setFlags |= !callerFormattingFlags.HasDisableAutoDelimiting() ? FieldContentHandling.EnsureFormattedDelimited : None;
+            var notAsStringOrValue = !(callerFormattingFlags.HasAsStringContentFlag()
+                                    || callerFormattingFlags.HasAsValueContentFlag());
+            setFlags |= !callerFormattingFlags.HasDisableAutoDelimiting() && notAsStringOrValue ? EnsureFormattedDelimited : None;
+            setFlags |= setFlags.ShouldDelimit() && callerFormattingFlags.DoesNotHaveAsValueContentFlag()  ? EncodeAll : EncodeInnerContent;
         }
         return setFlags;
+    }
+
+    public FieldContentHandling ResolveContentAsValueFormattingFlags<T>(T input, bool hasFallbackValue)
+    {
+        if (input == null && !hasFallbackValue) return DefaultCallerTypeFlags;
+        var typeOfT = typeof(T);
+        if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar())
+            return DisableAutoDelimiting | AsValueContent;
+        var isSpanFormattableOrNullable           = typeOfT.IsSpanFormattableOrNullable();
+        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable();
+        if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable)
+            return EnsureFormattedDelimited | AsValueContent;
+        return AsValueContent;
+    }
+
+    public FieldContentHandling ResolveContentAsStringFormattingFlags<T>(T input, bool hasFallbackValue)
+    {
+        if (input == null && !hasFallbackValue) return DefaultCallerTypeFlags;
+        var typeOfT = typeof(T);
+        if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar())
+            return DisableAutoDelimiting | AsStringContent;
+        var isSpanFormattableOrNullable           = typeOfT.IsSpanFormattableOrNullable();
+        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable();
+        if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable)
+            return DisableAutoDelimiting | AsStringContent;
+        return AsStringContent;
     }
 
     public virtual IStringBuilder AppendValueTypeOpening(IStringBuilder sb, Type valueType, string? alternativeName = null) => sb;
@@ -243,14 +272,17 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             var cappedFrom   = Math.Clamp(sourceFrom, 0, sb.Length);
             var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
 
-            var                 formattedLength = cappedLength + 256;
-            Span<char>          sourceInSpan    = stackalloc char[Math.Min(4096, formattedLength)];
-            RecyclingCharArray? largeBuffer     = null;
+            var        formattedLength = cappedLength + 256;
+            Span<char> sourceInSpan    = stackalloc char[Math.Min(4096, formattedLength)];
+
+            RecyclingCharArray? largeBuffer = null;
+
+            var asStringHandlingFlags = (fmtHndlingFlags & ~FormattingHandlingFlags.EncodeBounds);
             if (formattedLength < 4096)
             {
                 cappedLength = ICustomStringFormatter.DefaultBufferFormatter
                                                      .Format(source, cappedFrom, sourceInSpan, formatString
-                                                           , 0, cappedLength, fmtHndlingFlags);
+                                                           , 0, cappedLength, asStringHandlingFlags);
             }
             else
             {
@@ -259,7 +291,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
                 cappedLength =
                     ICustomStringFormatter.DefaultBufferFormatter
                                           .Format(source, cappedFrom, sourceInSpan
-                                                , formatString, 0, cappedLength, fmtHndlingFlags);
+                                                , formatString, 0, cappedLength, asStringHandlingFlags);
             }
 
             var charType = typeof(char);
@@ -298,14 +330,18 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             var cappedFrom   = Math.Clamp(sourceFrom, 0, sb.Length);
             var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
 
-            var                 formattedLength = cappedLength + 256;
-            Span<char>          sourceInSpan    = stackalloc char[Math.Min(4096, formattedLength)];
-            RecyclingCharArray? largeBuffer     = null;
+            var        formattedLength = cappedLength + 256;
+            Span<char> sourceInSpan    = stackalloc char[Math.Min(4096, formattedLength)];
+
+            RecyclingCharArray? largeBuffer = null;
+
+            var asStringHandlingFlags = (fmtHndlingFlags & ~FormattingHandlingFlags.EncodeBounds);
             if (formattedLength < 4096)
             {
-                cappedLength = ICustomStringFormatter.DefaultBufferFormatter
-                                                     .Format(source, cappedFrom, sourceInSpan, formatString
-                                                           , 0, cappedLength, fmtHndlingFlags);
+                cappedLength =
+                    ICustomStringFormatter.DefaultBufferFormatter
+                                          .Format(source, cappedFrom, sourceInSpan, formatString
+                                                , 0, cappedLength, asStringHandlingFlags);
             }
             else
             {
@@ -314,7 +350,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
                 cappedLength =
                     ICustomStringFormatter.DefaultBufferFormatter
                                           .Format(source, cappedFrom, sourceInSpan, formatString
-                                                , 0, cappedLength, fmtHndlingFlags);
+                                                , 0, cappedLength, asStringHandlingFlags);
             }
 
             var charType = typeof(char);
@@ -366,7 +402,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
 
-    public virtual IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public virtual IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (StyleOptions.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
@@ -487,11 +524,11 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
     public virtual IStringBuilder FormatCollectionStart(IStringBuilder sb
-      , Type itemElementType, bool hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags) => 
+      , Type itemElementType, bool hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         base.CollectionStart(itemElementType, sb, hasItems).ToStringBuilder(sb);
 
     public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
-      , TCloaked item, int retrieveCount, PalantírReveal<TCloakedBase> styler) 
+      , TCloaked item, int retrieveCount, PalantírReveal<TCloakedBase> styler)
         where TCloaked : TCloakedBase
     {
         styler(item, tos);
@@ -523,9 +560,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence
     {
         if (item == null) { return sb.Append(StyleOptions.NullStyle); }
-        if (formatFlags.HasAsStringContentFlag()  && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
+        if (formatFlags.HasAsStringContentFlag() && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         FormatFieldContents(sb, item, 0, formatString ?? "");
-        if (formatFlags.HasAsStringContentFlag()  && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
+        if (formatFlags.HasAsStringContentFlag() && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         return sb;
     }
 

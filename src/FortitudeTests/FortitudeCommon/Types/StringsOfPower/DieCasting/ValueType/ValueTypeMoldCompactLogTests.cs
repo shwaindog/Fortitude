@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Globalization;
+using System.Net;
 using System.Numerics;
 using System.Reflection;
 using FortitudeCommon.Extensions;
@@ -542,40 +543,41 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLogAsValue
-            (new FieldExpect<string>("with", "\"{0[8..10]}\"")
+            (new FieldExpect<IPAddress, string>(null, "", true, "")
              {
-                 { new EK(SimpleType | AcceptsChars | AcceptsString |  AcceptsAnyGeneric), "\"\"" }
-               , { new EK(SimpleType | AcceptsChars | AcceptsString | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsValueOut)
-                   , "\"\"" }
-               , { new EK(SimpleType | AcceptsChars | AcceptsString | AcceptsAnyGeneric | DefaultBecomesFallback) , "\"\\u0022\\u0022\"" }
-               , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan, Log | Compact | Pretty), "\"\"" }
-               , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }
-               , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan),
-                     """""
-                     "\u0022\u0022"
-                     """""
-                 }
-              ,  {
-                     new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                          | DefaultTreatedAsStringOut)
-                   , """""
-                     """"
-                     """""
-                 }
+                 { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
+               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
+                        , Log | Compact | Pretty), "" }
+               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"\"" }
+               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+                 // Some SpanFormattable Scaffolds have both DefaultBecomesNull and DefaultBecomesFallback for when their default is TFmt?
+                 // So the following will only match when both the scaffold and the following have both.
+               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull | DefaultBecomesFallback), "null" }
+               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty | DefaultBecomesZero
+                        , Log | Compact | Pretty) , "0" }
+               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty | DefaultBecomesZero )
+                   , "\"0\"" }
+               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty | DefaultBecomesFallback
+                        , Log | Compact | Pretty) , "" }
+               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty | DefaultBecomesEmpty | DefaultBecomesFallback), "\"\"" }
+                 // The following covers the others that would return null.
+               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
+               , { new EK(AcceptsSpanFormattable | AlwaysWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
              }
            , new ScaffoldingPartEntry
-                 (typeof(SimpleAsStringMatchOrDefaultSimpleValueTypeStringBearer<>)
-                , SimpleType | AcceptsSingleValue  | AcceptsAnyGeneric | SupportsValueFormatString
-                | DefaultTreatedAsStringOut | DefaultBecomesNull));
+                 (typeof(SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithFieldSimpleValueTypeStringBearer<>)
+                , SimpleType | AcceptsSingleValue | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable | AcceptsIntegerNumber 
+                | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsSettingDefaultValue | DefaultTreatedAsValueOut 
+                | DefaultBecomesFallback));
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
-        logger.InfoAppend("Complex Type Single Value Field  Scaffolding Class - ")?
+        logger.InfoAppend("Simple Value Type Single Value Field  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")
-              .AppendLine(new MutableString().AppendFormat("{0}",  scaffoldingToCall.ScaffoldingFlags).ToString())
+              .AppendLine(new MutableString().AppendFormat("{0}",  scaffoldingToCall.ScaffoldingFlags).ToString().Replace(",", " |"))
               .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
@@ -634,8 +636,8 @@ public partial class ValueTypeMoldTests
                 (stringBearer.GetType().ShortNameInCSharpFormat()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
-               , formatExpectation);
-        var result = tos.WriteBuffer.ToString();
+               , formatExpectation).MakeWhiteSpaceVisible();
+        var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
         if (buildExpectedOutput != result)
         {
             logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
@@ -655,11 +657,11 @@ public partial class ValueTypeMoldTests
 
     private void SharedCompactLogAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
-        logger.InfoAppend("Complex Type Single Value Field  Scaffolding Class - ")?
+        logger.InfoAppend("Simple Value Type Single Value Field  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")
-              .AppendLine(new MutableString().AppendFormat("{0}",  scaffoldingToCall.ScaffoldingFlags).ToString())
+              .AppendLine(new MutableString().AppendFormat("{0}",  scaffoldingToCall.ScaffoldingFlags).ToString().Replace(",", " |"))
               .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
@@ -720,8 +722,8 @@ public partial class ValueTypeMoldTests
                 (stringBearer.GetType().ShortNameInCSharpFormat()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
-               , formatExpectation);
-        var result = tos.WriteBuffer.ToString();
+               , formatExpectation).MakeWhiteSpaceVisible();
+        var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
         if (buildExpectedOutput != result)
         {
             logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()

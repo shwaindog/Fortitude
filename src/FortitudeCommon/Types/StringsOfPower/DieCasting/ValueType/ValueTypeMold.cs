@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -56,357 +55,357 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, bool value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueNext("", value, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, bool? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(bool? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueNext("", value, formatString ?? "", formatFlags);
 
     public TExt AsValue<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "");
 
     public TExt AsValue<TFmt>(TFmt value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
         Stb.FieldValueOrDefaultNext("", value, "0", formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : class, ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmt : class, ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmtStruct : struct, ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull<TFmt>(TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+      , FieldContentHandling formatFlags = AsValueContent) 
         where TFmt : ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext("", value, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull<TFmt>(TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+      , FieldContentHandling formatFlags = AsValueContent) 
         where TFmt : struct, ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext("", value, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, TFmt defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value ?? defaultValue, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault<TFmt>(TFmt? value, TFmt defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext("", value ?? defaultValue, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault<TFmtStruct>(TFmtStruct? value, TFmtStruct defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmtStruct : struct, ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext("", value ?? defaultValue, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, TFmtStruct defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmtStruct : struct, ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value ?? defaultValue, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault<TFmt>(TFmt? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
         Stb.FieldValueOrDefaultNext("", value, defaultValue, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault<TFmtStruct>(TFmtStruct? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FieldContentHandling formatFlags = AsValueContent)
         where TFmtStruct : struct, ISpanFormattable =>
         Stb.FieldValueOrDefaultNext("", value, defaultValue, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmtStruct : struct, ISpanFormattable =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
     public TExt RevealAsValue<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
 
     public TExt RevealAsValue<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+      , FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
         Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrNull<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FieldContentHandling formatFlags = AsValueContent)
         where TCloaked : TCloakedBase =>
         Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal, ReadOnlySpan<char> defaultValue
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+      , FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
 
     public TExt RevealAsValueOrDefault<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
-      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
         Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue, formatFlags);
 
     public TExt RevealAsValue<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
 
     public TExt RevealAsValue<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
         Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrNull<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
         Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+      , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent) 
         where TCloakedStruct : struct =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
 
     public TExt RevealAsValueOrDefault<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
         Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue, formatFlags);
 
-    public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value, FieldContentHandling formatFlags = AsValueContent) 
         where TBearer : IStringBearer =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
 
-    public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, FieldContentHandling formatFlags = AsValueContent) 
         where TBearer : struct, IStringBearer =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
 
     public TExt RevealAsValueOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
+      , FieldContentHandling formatFlags = AsValueContent) where TBearer : IStringBearer =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
 
     public TExt RevealAsValueOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : struct, IStringBearer =>
+      , FieldContentHandling formatFlags = AsValueContent) where TBearer : struct, IStringBearer =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
 
     public TExt RevealAsValueOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
+      , FieldContentHandling formatFlags = AsValueContent) where TBearer : IStringBearer =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags);
 
     public TExt RevealAsValueOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : struct, IStringBearer =>
+      , FieldContentHandling formatFlags = AsValueContent) where TBearer : struct, IStringBearer =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
 
-    public TExt AsValueOrZero(Span<char> value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) => 
+    public TExt AsValueOrZero(Span<char> value, FieldContentHandling formatFlags = AsValueContent) => 
         Stb.FieldValueOrDefaultNext("", value, "0", "",  formatFlags);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
         , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, ReadOnlySpan<char> defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public TExt AsValueOrZero(ReadOnlySpan<char> value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) => 
+    public TExt AsValueOrZero(ReadOnlySpan<char> value, FieldContentHandling formatFlags = AsValueContent) => 
         Stb.FieldValueOrDefaultNext("", value, "0", "",  formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, ReadOnlySpan<char> defaultValue
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
-    public TExt AsValue(Span<char> value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+    public TExt AsValue(Span<char> value, FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, "0", "", formatFlags);
 
-    public TExt AsValue(ReadOnlySpan<char> value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+    public TExt AsValue(ReadOnlySpan<char> value, FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, "0", "", formatFlags);
 
-    public TExt AsValue(string value, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+    public TExt AsValue(string value, FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, "0", "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, string value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, string value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length = int.MaxValue
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length = int.MaxValue
       , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, char[] value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, 0, value?.Length ?? 0, "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(char[] value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, "0", formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(char[]? value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext("", value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0, int length = int.MaxValue
       , string? defaultValue = null , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(char[]? value, int startIndex = 0, int length = int.MaxValue, string? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ICharSequence value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, 0, int.MaxValue, "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ICharSequence value, int startIndex = 0, int length = int.MaxValue 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, "0", formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(ICharSequence? value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext("", value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0, int length = int.MaxValue
       , string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ICharSequence? value, int startIndex = 0, int length = int.MaxValue, string? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(StringBuilder value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, 0, int.MaxValue, "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
 
     public TExt AsValue(StringBuilder value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, "0", formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull(StringBuilder? value, int startIndex = 0, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext("", value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0, int length = int.MaxValue
       , string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(StringBuilder? value, int startIndex = 0, int length = int.MaxValue, string? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
     public TExt AsValueMatch<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.ValueMatchOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsValueMatchOrNull<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.ValueMatchOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsValueMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string? defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null 
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.ValueMatchOrDefaultNext(nonJsonfieldName, value, defaultValue ?? "", formatString ?? "", formatFlags);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, bool value

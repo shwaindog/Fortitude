@@ -137,7 +137,7 @@ public partial class SelectTypeFieldTests
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")
-              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F"))
+              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F").Replace(",", " |"))
               .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
@@ -173,8 +173,8 @@ public partial class SelectTypeFieldTests
                 (stringBearer.GetType().ShortNameInCSharpFormat()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
-               , formatExpectation);
-        var result = tos.WriteBuffer.ToString();
+               , formatExpectation).MakeWhiteSpaceVisible();
+        var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
         if (buildExpectedOutput != result)
         {
             logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()

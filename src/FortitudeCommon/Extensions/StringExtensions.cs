@@ -235,5 +235,44 @@ public static class StringExtensions
     public static bool IsDblQtBounded(this string input)  => input.Length > 1 &&  input[0] == '\"' && input[^1] == '\"';
     public static bool IsSqBrktBounded(this string input) => input.Length > 1 &&  input[0] == '[' && input[^1] == ']';
     public static bool IsBrcBounded(this string input)    => input.Length > 1 &&  input[0] == '{' && input[^1] == '}';
-
+    
+    public static string MakeWhiteSpaceVisible(this string input)
+    {
+        var sb = new StringBuilder();
+        for (var i = 0; i < input.Length; i++)
+        {
+            var c = input[i];
+            switch (c)
+            {
+                case ' ' : sb.Append('\u00B7'); break;
+                case '\t' : sb.Append('\u21E5'); break;
+                case '\r' :
+                    sb.Append('\u00B6');
+                    sb.Append('\r');
+                    break;
+                case '\n' : 
+                    if (i - 1 >= 0)
+                    {
+                        var prev = input[i - 1];
+                        if (prev == '\r' && sb.Length - 2 > 0 && sb[^2] == '\u00B6')
+                        {
+                            sb.Append('\n');
+                        }
+                        else
+                        {
+                            sb.Append('\u00B6');
+                            sb.Append('\n');
+                        }
+                    }
+                    else
+                    {
+                        sb.Append('\u00B6');
+                        sb.Append('\n');
+                    }
+                    break;
+                default:  sb.Append(c); break;
+            }
+        }
+        return sb.ToString();
+    }
 }
