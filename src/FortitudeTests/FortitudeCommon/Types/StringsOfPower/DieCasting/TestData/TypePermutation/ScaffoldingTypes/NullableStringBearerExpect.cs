@@ -1,0 +1,102 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.Options;
+
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+
+
+
+public class NullableStringBearerExpect<TInput> : NullableStringBearerExpect<TInput, TInput>
+    where TInput : struct, IStringBearer
+{
+    public NullableStringBearerExpect(TInput? input, string? formatString = null
+      , bool hasDefault = false, TInput? defaultValue = null) : base(input, formatString, hasDefault, defaultValue)
+    {
+        FieldValueExpectation = new FieldExpect<TInput?>(Input, FormatString, HasDefault, DefaultValue);
+    }
+}
+
+public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?, TDefault?>, IComplexFieldFormatExpectation
+    where TInput : struct, IStringBearer
+    where TDefault : struct
+{
+    public ITypedFormatExpectation<TInput?> FieldValueExpectation { get; protected init; }
+
+    public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
+
+    public override bool IsNullable => InputType.IsNullable();
+
+    public NullableStringBearerExpect(TInput? input, string? formatString = null
+      , bool hasDefault = false, TDefault? defaultValue = null) : base(input, formatString, hasDefault, defaultValue)
+    {
+        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, FormatString, HasDefault, DefaultValue);
+    }
+
+    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null)
+    {
+        FieldValueExpectation.ClearExpectations();
+        foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
+        condition |= ScaffoldingStringBuilderInvokeFlags.AcceptsSpanFormattable | ScaffoldingStringBuilderInvokeFlags.AcceptsChars | ScaffoldingStringBuilderInvokeFlags.AcceptsString;
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, stringStyle, formatString);
+        if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
+        {
+            expectValue = WhenValueExpectedOutput
+                ((Input?.GetType() ?? typeof(TInput)).ShortNameInCSharpFormat(), ((ISinglePropertyTestStringBearer)Input!.Value).PropertyName
+               , condition
+               , FieldValueExpectation);
+        }
+        return expectValue;
+    }
+
+    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    {
+        return scaffoldEntry.ScaffoldingFlags.HasAcceptsNullableStruct() && !scaffoldEntry.ScaffoldingFlags.IsAcceptsAnyGeneric()
+            ? scaffoldEntry.CreateStringBearerFunc(CoreType)()
+            : scaffoldEntry.CreateStringBearerFunc(InputType)();
+    }
+
+    public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)
+    {
+        var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
+        if (createdStringBearer is IMoldSupportedDefaultValue<object?> supportsObjectDefaultValue)
+            supportsObjectDefaultValue.DefaultValue = DefaultValue;
+        if (createdStringBearer is IMoldSupportedDefaultValue<TDefault?> supportsDefaultValue) { supportsDefaultValue.DefaultValue = DefaultValue; }
+        if (createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
+        {
+            var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
+            FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
+            supportsStringDefaultValue.DefaultValue =
+                scaffoldEntry.ScaffoldingFlags.HasAnyOf(ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsValueOut | ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsStringOut)
+             && !InputType.IsSpanFormattableOrNullable()
+                    ? expectedDefaultString
+                    : new MutableString().Append(DefaultValue).ToString();
+        }
+        var stringBearerInput = Input;
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (FormatString != null && stringBearerInput is ISupportsValueFormatString supportsValueFormatString)
+        {
+            supportsValueFormatString.ValueFormatString = FormatString;
+
+            stringBearerInput = (TInput)(supportsValueFormatString);
+        }
+        if (createdStringBearer is IMoldSupportedValue<object?> isObjectMold)
+            isObjectMold.Value = stringBearerInput;
+        else if (createdStringBearer is IMoldSupportedValue<TInput?> nullableMoldBearer)
+        {
+            nullableMoldBearer.Value = stringBearerInput;
+
+            createdStringBearer = nullableMoldBearer;
+        }
+        else if (createdStringBearer is IMoldSupportedValue<TInput> moldBearer)
+        {
+            moldBearer.Value = stringBearerInput ?? throw new ArgumentNullException(nameof(stringBearerInput));
+
+            createdStringBearer = moldBearer;
+        }
+        return createdStringBearer;
+    }
+}

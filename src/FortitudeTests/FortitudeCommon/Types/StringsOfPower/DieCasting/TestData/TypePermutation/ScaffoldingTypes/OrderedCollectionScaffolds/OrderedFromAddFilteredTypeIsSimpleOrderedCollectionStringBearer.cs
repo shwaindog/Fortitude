@@ -907,7 +907,8 @@ public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedColl
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable(OrderedCollectionRevealFilteredCloakedBearerNullableSpan.AsSpan(), ElementPredicate, ValueRevealer)
+           .RevealFilteredNullable(OrderedCollectionRevealFilteredCloakedBearerNullableSpan.AsSpan()
+                                 , ElementPredicate, ValueRevealer)
            .Complete();
 
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }

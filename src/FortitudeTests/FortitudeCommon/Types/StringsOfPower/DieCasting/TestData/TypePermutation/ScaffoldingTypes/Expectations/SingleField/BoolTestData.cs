@@ -5,11 +5,11 @@ using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 
-public class BoolTestData
+public static class BoolTestData
 {
-    public static readonly IFormatExpectation[] AllBoolExpectations =
+    public static readonly ISingleFieldExpectation[] AllBoolExpectations =
     [
         // bool
         new FieldExpect<bool>(false, "")
