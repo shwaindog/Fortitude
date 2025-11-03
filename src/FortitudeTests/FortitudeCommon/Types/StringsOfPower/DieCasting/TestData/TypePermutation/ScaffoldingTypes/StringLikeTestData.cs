@@ -487,11 +487,12 @@ public static class StringLikeTestData
                    , Log | Compact | Pretty) , "\"\"" }
           , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
           , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut), "\"\\u0022\\u0022\"" }
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsValueOut, Log | Compact | Pretty), "[]" }
           ,
             {
                 new EK( AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      | DefaultTreatedAsStringOut, Log | Compact | Pretty)
-              , "[]"
+              , "[\"\"]"
             }
           , 
             {
@@ -569,11 +570,11 @@ public static class StringLikeTestData
                 "\u0022\u0022"
                 """""
             }
-           ,
-            {
+          , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsValueOut, Log | Compact | Pretty), "[]" }
+          , {
                 new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
                      , Log | Compact | Pretty)
-              , "[]"
+              , "[\"\"]"
             }
            ,
             {

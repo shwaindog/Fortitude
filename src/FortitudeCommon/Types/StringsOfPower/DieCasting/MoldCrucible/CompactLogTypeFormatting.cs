@@ -295,7 +295,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
 
         Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];
-        if (formatFlags.DoesNotHaveAsValueContentFlag())
+        if (formatFlags.HasAsStringContentFlag())
         {
             formatSpan = formatSpan.ReplaceBounds(formatReadOnlySpan, DblQtChar, lhsReplaceWith, rhsReplaceWith);
         }
@@ -318,7 +318,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
 
         Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];
-        if (formatFlags.DoesNotHaveAsValueContentFlag())
+        if (formatFlags.HasAsStringContentFlag())
         {
             formatSpan = formatSpan.ReplaceBounds(formatReadOnlySpan, DblQtChar, lhsReplaceWith, rhsReplaceWith);
         }
@@ -342,7 +342,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
 
         Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];
-        if (formatFlags.DoesNotHaveAsValueContentFlag())
+        if (formatFlags.HasAsStringContentFlag())
         {
             formatSpan = formatSpan.ReplaceBounds(formatReadOnlySpan, DblQtChar, lhsReplaceWith, rhsReplaceWith);
         }
@@ -367,7 +367,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
 
         Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];
-        if (formatFlags.DoesNotHaveAsValueContentFlag())
+        if (formatFlags.HasAsStringContentFlag())
         {
             formatSpan = formatSpan.ReplaceBounds(formatReadOnlySpan, DblQtChar, lhsReplaceWith, rhsReplaceWith);
         }
@@ -393,7 +393,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
 
         Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];
-        if (formatFlags.DoesNotHaveAsValueContentFlag())
+        if (formatFlags.HasAsStringContentFlag() || formatFlags.ShouldDelimit())
         {
             formatSpan = formatSpan.ReplaceBounds(formatReadOnlySpan, DblQtChar, lhsReplaceWith, rhsReplaceWith);
         }
@@ -419,7 +419,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
 
         Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];
-        if (formatFlags.DoesNotHaveAsValueContentFlag())
+        if (formatFlags.HasAsStringContentFlag())
         {
             formatSpan = formatSpan.ReplaceBounds(formatReadOnlySpan, DblQtChar, lhsReplaceWith, rhsReplaceWith);
         }
@@ -445,7 +445,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
 
         Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];;
-        if (formatFlags.DoesNotHaveAsValueContentFlag())
+        if (formatFlags.HasAsStringContentFlag() || formatFlags.ShouldDelimit())
         {
             formatSpan = formatSpan.ReplaceBounds(formatReadOnlySpan, DblQtChar, lhsReplaceWith, rhsReplaceWith);
         }
@@ -471,7 +471,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
 
         Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];
-        if (formatFlags.DoesNotHaveAsValueContentFlag())
+        if (formatFlags.HasAsStringContentFlag() || formatFlags.ShouldDelimit())
         {
             formatSpan = formatSpan.ReplaceBounds(formatReadOnlySpan, DblQtChar, lhsReplaceWith, rhsReplaceWith);
         }

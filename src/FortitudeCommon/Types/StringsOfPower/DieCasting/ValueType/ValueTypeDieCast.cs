@@ -1048,7 +1048,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags   | StyleFormatter.ResolveContentAsStringFormattingFlags( value, false));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1060,7 +1060,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags( value, false));
         return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     

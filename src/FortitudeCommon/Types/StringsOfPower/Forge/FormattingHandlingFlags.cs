@@ -49,6 +49,9 @@ public static class FieldContentHandlingExtensions
 
     public static bool HasAsValueContentFlag(this FormattingHandlingFlags flags) =>
         (flags & FormattingHandlingFlags.AsValueContent) > 0;
+    
+    public static bool IsUnspecifiedContent(this FormattingHandlingFlags flags) =>
+        !(flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag());
 
     public static bool ShouldDelimit(this FormattingHandlingFlags flags) =>
         (flags & FormattingHandlingFlags.EnsureFormattedDelimited) > 0;
