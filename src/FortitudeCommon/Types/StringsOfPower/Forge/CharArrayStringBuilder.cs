@@ -467,6 +467,36 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
+    public CharArrayStringBuilder Append(char[]? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (value == null) return this;
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (customStringFormatter != null)
+        {
+            var charArraySpan = ca.RemainingAsSpan();
+            if (formatString == null)
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
+            else
+                ca.Length += customStringFormatter.Format(value, startIndex, this, formatString, cappedLength, formatFlags);
+            return this;
+        }
+        if (formatString == null)
+        {
+            CharArray(cappedLength).Add(value, startIndex, cappedLength);
+        }
+        else
+        {
+            CharArray(cappedLength + formatString.Length);
+            var charArraySpan = ca.WrittenAsSpan();
+            var size          = ca.Length;
+            var endIndex      = startIndex + cappedLength;
+            var toAddSpan     = value[startIndex..endIndex];
+            charArraySpan.SingleTokenFormatAt(size, toAddSpan, formatString);
+        }
+        return this;
+    }
+
     public unsafe CharArrayStringBuilder Append(char* value, int valueCount)
     {
         if (value == null) return this;
@@ -552,7 +582,66 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
+    public CharArrayStringBuilder Append(StringBuilder? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (value == null) return this;
+
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (customStringFormatter != null)
+        {
+            var charArraySpan = ca.RemainingAsSpan();
+            if (formatString == null)
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
+            else
+                ca.Length += customStringFormatter.Format(value, startIndex, this, formatString, cappedLength, formatFlags);
+            return this;
+        }
+        if (formatString == null)
+        {
+            CharArray(cappedLength).Add(value, startIndex, cappedLength);
+        }
+        else
+        {
+            customStringFormatter = ICustomStringFormatter.DefaultBufferFormatter;
+            var charArraySpan = ca.RemainingAsSpan();
+            ca.Length += customStringFormatter.Format(value, startIndex, charArraySpan, formatString, 0, cappedLength);
+        }
+        return this;
+    }
+
     public CharArrayStringBuilder Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (value == null) return this;
+
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (customStringFormatter != null)
+        {
+            var charArraySpan = ca.RemainingAsSpan();
+            if (formatString == null)
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex
+                                                                                   , charArraySpan, 0, cappedLength);
+            else
+                ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
+                                                        , cappedLength, formatFlags);
+            return this;
+        }
+        if (formatString == null)
+        {
+            CharArray(cappedLength).Add(value, startIndex, cappedLength);
+        }
+        else
+        {
+            customStringFormatter = ICustomStringFormatter.DefaultBufferFormatter;
+            var charArraySpan = ca.RemainingAsSpan();
+            ca.Length += customStringFormatter.Format(value, startIndex, charArraySpan, formatString
+                                                    , 0, cappedLength, formatFlags);
+        }
+        return this;
+    }
+
+    public CharArrayStringBuilder Append(ICharSequence? value, int startIndex, int length, ReadOnlySpan<char> formatString
       , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (value == null) return this;
@@ -637,6 +726,35 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder Append(string? value, int startIndex, int length = int.MaxValue, string? formatString = null
+      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        if (value == null) return this;
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (customStringFormatter != null)
+        {
+            var charArraySpan = ca.RemainingAsSpan();
+            if (formatString == null)
+                ca.Length += customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, startIndex, charArraySpan, 0, cappedLength);
+            else
+                ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
+                                                        , cappedLength, formatFlags);
+            return this;
+        }
+        if (formatString == null)
+        {
+            CharArray(cappedLength).Add(value, startIndex, cappedLength);
+        }
+        else
+        {
+            customStringFormatter = ICustomStringFormatter.DefaultBufferFormatter;
+            var charArraySpan = ca.RemainingAsSpan();
+            ca.Length += customStringFormatter.Format(value, startIndex, charArraySpan, formatString
+                                                    , 0, cappedLength, formatFlags);
+        }
+        return this;
+    }
+
+    public CharArrayStringBuilder Append(string? value, int startIndex, int length, ReadOnlySpan<char> formatString
       , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (value == null) return this;
@@ -1422,6 +1540,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
       , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
+        Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct arg0, ICustomStringFormatter? customStringFormatter) =>
         Append(arg0, customStringFormatter);
 
@@ -1450,6 +1572,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
       , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
+        Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value) => Append(value);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(float value) => Append(value);
@@ -1471,7 +1597,15 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
       , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(StringBuilder? value, int startIndex, int length, ReadOnlySpan<char> formatString
+      , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
+        Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ICharSequence? value, int startIndex, int length, string? formatString
+      , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
+        Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ICharSequence? value, int startIndex, int length, ReadOnlySpan<char> formatString
       , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 

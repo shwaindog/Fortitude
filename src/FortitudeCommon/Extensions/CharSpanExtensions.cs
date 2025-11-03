@@ -1531,4 +1531,46 @@ public static class CharSpanExtensions
         for (; i >= 0 && sb[i].IsWhiteSpace(); i--) ; // no op
         return sb[Math.Max(0, i)];
     }
+
+    public static int BoundsReplaceBufferSize(this ReadOnlySpan<char> original, string lhsReplace, string rhsReplace)
+    {
+        
+        var replaceStartLen    = lhsReplace.Length;
+        var replaceStartOffset = Math.Max(0, replaceStartLen - 1);
+
+        var totalLength = original.Length
+                        + Math.Max(0, replaceStartOffset)
+                        + Math.Max(0, rhsReplace.Length - 1);
+
+        return totalLength;
+    }
+
+    public static Span<char> ReplaceBounds(this Span<char> formatSpan, ReadOnlySpan<char> original, char replaceCharMatch, string lhsReplace, string rhsReplace)
+    {
+        
+        var replaceStartLen    = lhsReplace.Length;
+        var replaceStartOffset = Math.Max(0, replaceStartLen - 1);
+
+        formatSpan.OverWriteAt(replaceStartOffset, original);
+
+        if (original.Length > 1 && original[0] == replaceCharMatch && original[^1] == replaceCharMatch)
+        {
+            formatSpan.OverWriteAt(0, lhsReplace);
+            formatSpan.OverWriteAt(original.Length - 1 + replaceStartOffset, rhsReplace);
+            
+            var replaceEndLen      = rhsReplace.Length;
+            if (replaceStartLen == 0)
+            {
+                formatSpan =  formatSpan[1..(original.Length + replaceEndLen - 1)];
+            } else if (replaceEndLen == 0)
+            {
+                formatSpan =  formatSpan[0..(original.Length - 1)];
+            }
+        }
+        else
+        {
+            formatSpan = formatSpan[replaceStartOffset..(replaceStartOffset + original.Length)];
+        }
+        return formatSpan;
+    }
 }

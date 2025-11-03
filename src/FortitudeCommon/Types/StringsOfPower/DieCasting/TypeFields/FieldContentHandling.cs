@@ -75,6 +75,13 @@ public static class FieldContentHandlingExtensions
     public static bool DoesNotHaveAsStringContentFlag(this FieldContentHandling flags)      => (flags & AsStringContent) == 0;
     public static bool HasAsValueContentFlag(this FieldContentHandling flags)               => (flags & AsValueContent) > 0;
     public static bool DoesNotHaveAsValueContentFlag(this FieldContentHandling flags)       => (flags & AsValueContent) == 0;
+    
+    public static bool IsUnspecifiedContent(this FieldContentHandling flags) =>
+        ! flags.IsSpecifiedContent();
+    
+    public static bool IsSpecifiedContent(this FieldContentHandling flags) =>
+        flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
+    
     public static bool HasNullBecomesEmptyFlag(this FieldContentHandling flags)             => (flags & NullBecomesEmpty) > 0;
     public static bool HasEnsureLogFormattingFlag(this FieldContentHandling flags)          => (flags & EnsureLogFormatting) > 0;
     public static bool HasEnsureJsonFormattingFlag(this FieldContentHandling flags)         => (flags & EnsureJsonFormatting) > 0;

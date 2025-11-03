@@ -147,7 +147,7 @@ public partial class SelectTypeFieldTests
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")
-              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F"))
+              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F").Replace(",", " |"))
               .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
@@ -160,7 +160,7 @@ public partial class SelectTypeFieldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactJsonTemplate = "{{{0}{1}{2}{0}}}";
+            const string prettyJsonTemplate = "{{{0}{1}{2}{0}}}";
 
             var maybeNewLine = "";
             var maybeIndent = "";
@@ -174,13 +174,13 @@ public partial class SelectTypeFieldTests
 
             else { expectValue = ""; }
 
-            return string.Format(compactJsonTemplate, maybeNewLine, maybeIndent, expectValue);
+            return string.Format(prettyJsonTemplate, maybeNewLine, maybeIndent, expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactJsonTemplate = "{{{0}{1}{1}{2}{0}{1}}}";
+            const string prettyJsonTemplate = "{{{0}{1}{1}{2}{0}{1}}}";
 
             var maybeNewLine = "";
             var maybeIndent = "";
@@ -194,7 +194,7 @@ public partial class SelectTypeFieldTests
 
             else { expectValue = ""; }
 
-            return string.Format(compactJsonTemplate, maybeNewLine, maybeIndent, expectValue);
+            return string.Format(prettyJsonTemplate, maybeNewLine, maybeIndent, expectValue);
         }
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)

@@ -16,6 +16,10 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
     , string formatString = "", bool isFieldName = false);
+    
+    FieldContentHandling ResolveContentAsValueFormattingFlags<T>(T input, bool hasFallbackValue);
+    
+    FieldContentHandling ResolveContentAsStringFormattingFlags<T>(T input, bool hasFallbackValue);
 
     IStringBuilder AppendValueTypeOpening(IStringBuilder sb, Type valueType, string? alternativeName = null);
 

@@ -34,6 +34,9 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public const string DefaultYyyyMMddToMsFormat  = "{0:yyyy-MMd-dTHH:mm:ss.fff}";
     public const string DefaultYyyyMMddToUsFormat  = "{0:yyyy-MM-ddTHH:mm:ss.ffffff}";
 
+    public const string DefaultLogInnerDblQtReplacementOpenChars  = "";  //  considered  "\u201C";  “
+    public const string DefaultLogInnerDblQtReplacementCloseChars = "";  //  considered  "\u201D";  ”
+
     public StyleOptionsValue(StringStyle style) => this.style = style;
     public StyleOptionsValue(StyleOptions defaultOptions) => fallbackOptions = defaultOptions;
 
@@ -98,6 +101,9 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private CollectionPrettyStyleFormat? prettyCollectionStyle;
 
     private (Range, JsonEscapeType, Func<Rune, string>)[]? cachedMappingFactoryRanges;
+    
+    private string? logInnerDoubleQuoteOpenReplacement;
+    private string? logInnerDoubleQuoteCloseReplacement;
 
     public StyleOptions? MyObjInstance
     {
@@ -141,6 +147,22 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public int IndentLevel { get; set; }
 
     public int IndentRepeat(int level) => level * IndentSize;
+
+    public string LogInnerDoubleQuoteOpenReplacement
+    {
+        readonly get => logInnerDoubleQuoteOpenReplacement
+                     ?? fallbackOptions?.Values.LogInnerDoubleQuoteOpenReplacement
+                     ?? DefaultLogInnerDblQtReplacementOpenChars;
+        set => logInnerDoubleQuoteOpenReplacement = value;
+    }
+
+    public string LogInnerDoubleQuoteCloseReplacement
+    {
+        readonly get => logInnerDoubleQuoteCloseReplacement
+                     ?? fallbackOptions?.Values.LogInnerDoubleQuoteCloseReplacement
+                     ?? DefaultLogInnerDblQtReplacementCloseChars;
+        set => logInnerDoubleQuoteCloseReplacement = value;
+    }
 
     public string ItemSeparator
     {
@@ -526,7 +548,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
 
     public StyleOptions(StringStyle style)
     {
-        values = new StyleOptionsValue
+        values = new StyleOptionsValue()
         {
             Style = style, MyObjInstance = this
         };
@@ -606,6 +628,18 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
     }
 
     public int IndentRepeat(int indentLevel) => values.IndentRepeat(indentLevel);
+
+    public string LogInnerDoubleQuoteOpenReplacement
+    {
+        get => values.LogInnerDoubleQuoteOpenReplacement;
+        set => values.LogInnerDoubleQuoteOpenReplacement = value;
+    }
+
+    public string LogInnerDoubleQuoteCloseReplacement
+    {
+        get => values.LogInnerDoubleQuoteCloseReplacement;
+        set => values.LogInnerDoubleQuoteCloseReplacement = value;
+    }
 
     public string ItemSeparator
     {
@@ -711,7 +745,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
 
     public ICustomStringFormatter Formatter
     {
-        get => formatter ??=  (Recycler.ThreadStaticRecycler).ResolveStyleFormatter(this);
+        get => formatter ??= (Recycler.ThreadStaticRecycler).ResolveStyleFormatter(this);
         set
         {
             formatter?.DecrementRefCount();
