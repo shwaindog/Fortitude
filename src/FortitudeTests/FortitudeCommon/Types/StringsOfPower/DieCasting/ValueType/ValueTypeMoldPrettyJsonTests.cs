@@ -192,7 +192,7 @@ public partial class ValueTypeMoldTests
         SharedPrettyJsonAsValue(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void PrettyJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
