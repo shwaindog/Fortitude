@@ -8,11 +8,11 @@ using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 
 public static class StringLikeTestData
 {
-    public static readonly IFormatExpectation[] AllStringLikeExpectations =
+    public static readonly ISingleFieldExpectation[] AllStringLikeExpectations =
     [
         // string
         new FieldExpect<string>("", "", true, "0")

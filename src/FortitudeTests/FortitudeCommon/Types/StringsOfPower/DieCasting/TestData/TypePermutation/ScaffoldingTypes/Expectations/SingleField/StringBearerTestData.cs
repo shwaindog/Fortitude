@@ -7,11 +7,11 @@ using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 
 public static class StringBearerTestData
 {
-    public static readonly IFormatExpectation[] AllStringBearerExpectations =
+    public static readonly ISingleFieldExpectation[] AllStringBearerExpectations =
     [
         // byte
         new StringBearerExpect<FieldSpanFormattableAlwaysAddStringBearer<byte>>

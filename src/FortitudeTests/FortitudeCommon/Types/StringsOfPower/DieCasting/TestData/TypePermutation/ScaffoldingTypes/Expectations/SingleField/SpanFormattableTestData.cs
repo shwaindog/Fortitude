@@ -9,11 +9,11 @@ using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 
 public static class SpanFormattableTestData
 {
-    public static readonly IFormatExpectation[] AllSpanFormattableExpectations =
+    public static readonly ISingleFieldExpectation[] AllSpanFormattableExpectations =
     [
         // byte
         new FieldExpect<byte>(0, "")

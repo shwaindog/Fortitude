@@ -12,6 +12,7 @@ using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.SimpleTypeScaffolds;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
@@ -473,7 +474,6 @@ public partial class ValueTypeMoldTests
         from scaffoldToCall in
             scafReg.IsSimpleType().ProcessesSingleValue().AcceptsNonNullables().HasSupportsValueRevealer()
                    .HasTreatedAsValueOut()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
 
@@ -491,7 +491,6 @@ public partial class ValueTypeMoldTests
         from scaffoldToCall in
             scafReg.IsSimpleType().ProcessesSingleValue().OnlyAcceptsNullableStructs().HasSupportsValueRevealer()
                    .HasTreatedAsValueOut()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
     [TestMethod]
@@ -509,7 +508,6 @@ public partial class ValueTypeMoldTests
             scafReg.IsSimpleType().ProcessesSingleValue().AcceptsNonNullables()
                    .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
                    .HasTreatedAsValueOut()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
 
