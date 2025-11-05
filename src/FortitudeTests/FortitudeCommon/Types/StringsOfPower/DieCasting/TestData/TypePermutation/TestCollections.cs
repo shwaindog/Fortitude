@@ -22,20 +22,22 @@ public class TestCollections
 
     public static PalantírReveal<bool> NullBoolRevealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
 
-    public static OrderedCollectionPredicate<bool> Bool_All_True       = (count, item) => EvaluateAndContinue(item);
-    public static OrderedCollectionPredicate<bool> Bool_All_False      = (count, item) => EvaluateAndContinue(!item);
-    public static OrderedCollectionPredicate<bool> Bool_First_8        = (count, item) => StopOnFirstExclusion(count < 8);
-    public static OrderedCollectionPredicate<bool> Bool_Skip_Odd_Index = (count, item) => StopOnFirstExclusion(true, 1);
-    public static OrderedCollectionPredicate<bool> Bool_All            = (count, item) => EvaluateAndContinue(true);
+    public static OrderedCollectionPredicate<bool> Bool_All_True       = (count, item) => EvaluateIsIncludedAndContinue(item);
+    public static OrderedCollectionPredicate<bool> Bool_All_False      = (count, item) => EvaluateIsIncludedAndContinue(!item);
+    public static OrderedCollectionPredicate<bool> Bool_First_8        = (count, item) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<bool> Bool_Skip_Odd_Index = (count, item) => EvaluateIsIncludedAndContinue(((count -1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<bool> Bool_All            = (count, item) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<bool> Bool_First_False            = (count, item) => First(!item);
 
-    public static OrderedCollectionPredicate<bool> Bool_None      = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<bool> Bool_None      = (count, item) => EvaluateIsIncludedAndContinue(false);
 
-    public static OrderedCollectionPredicate<bool?> NullBool_All_True  = (count, item) => EvaluateAndContinue(item.HasValue && item.Value);
-    public static OrderedCollectionPredicate<bool?> NullBool_All_NullOrFalse = (count, item) => EvaluateAndContinue(!item.HasValue || !item.Value);
-    public static OrderedCollectionPredicate<bool?> NullBool_First_8   = (count, item) => StopOnFirstExclusion(count < 8);
-    public static OrderedCollectionPredicate<bool?> NullBool_Skip_Odd_Index   = (count, item) => StopOnFirstExclusion(true, 1);
-    public static OrderedCollectionPredicate<bool?> NullBool_All       = (count, item) => EvaluateAndContinue(true);
-    public static OrderedCollectionPredicate<bool?> NullBool_None      = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<bool?> NullBool_All_True        = (count, item) => EvaluateIsIncludedAndContinue(item.HasValue && item.Value);
+    public static OrderedCollectionPredicate<bool?> NullBool_All_NullOrFalse = (count, item) => EvaluateIsIncludedAndContinue(!item.HasValue || !item.Value);
+    public static OrderedCollectionPredicate<bool?> NullBool_First_8         = (count, item) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<bool?> NullBool_Skip_Odd_Index  = (count, item) => EvaluateIsIncludedAndContinue(((count -1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<bool?> NullBool_All             = (count, item) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<bool?> NullBool_None            = (count, item) => EvaluateIsIncludedAndContinue(false);
+    public static OrderedCollectionPredicate<bool?> NullBool_First_False            = (count, item) => First(item is false);
     
     public static readonly float[] FloatArray = [(float)Math.PI, (float)Math.E, (float)Math.PI * 2, (float)Math.E * 2, (float)Math.PI * 3
       , (float)Math.E * 3, (float)Math.PI * 4, (float)Math.E * 4, (float)Math.PI * 5, (float)Math.E * 5, ];
@@ -55,21 +57,21 @@ public class TestCollections
 
     public static PalantírReveal<float?> NullFloatF4Default42Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrDefault(showMe, "42", "F4");
 
-    public static OrderedCollectionPredicate<float> Float_Lt_10          = (count, item) => EvaluateAndContinue(item < 10.0f);
-    public static OrderedCollectionPredicate<float> Float_Gt_10          = (count, item) => EvaluateAndContinue(item > 10.0f);
+    public static OrderedCollectionPredicate<float> Float_Lt_10          = (count, item) => EvaluateIsIncludedAndContinue(item < 10.0f);
+    public static OrderedCollectionPredicate<float> Float_Gt_10          = (count, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
     public static OrderedCollectionPredicate<float> Float_First_2        = (count, item) => StopOnFirstExclusion(count < 2);
-    public static OrderedCollectionPredicate<float> Float_Skip_Odd_Index = (count, item) => EvaluateAndContinue(true, 1);
-    public static OrderedCollectionPredicate<float> Float_All            = (count, item) => EvaluateAndContinue(true);
+    public static OrderedCollectionPredicate<float> Float_Skip_Odd_Index = (count, item) => EvaluateIsIncludedAndContinue(true, 1);
+    public static OrderedCollectionPredicate<float> Float_All            = (count, item) => EvaluateIsIncludedAndContinue(true);
 
-    public static OrderedCollectionPredicate<float> Float_None           = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<float> Float_None           = (count, item) => EvaluateIsIncludedAndContinue(false);
 
-    public static OrderedCollectionPredicate<float?> NullFloat_Lt_10          = (count, item) => EvaluateAndContinue(item < 10.0f);
-    public static OrderedCollectionPredicate<float?> NullFloat_Gt_10          = (count, item) => EvaluateAndContinue(item > 10.0f);
+    public static OrderedCollectionPredicate<float?> NullFloat_Lt_10          = (count, item) => EvaluateIsIncludedAndContinue(item < 10.0f);
+    public static OrderedCollectionPredicate<float?> NullFloat_Gt_10          = (count, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
     public static OrderedCollectionPredicate<float?> NullFloat_First_2        = (count, item) => StopOnFirstExclusion(count < 2);
-    public static OrderedCollectionPredicate<float?> NullFloat_Skip_Odd_Index = (count, item) => EvaluateAndContinue(true, 1);
-    public static OrderedCollectionPredicate<float?> NullFloat_All            = (count, item) => EvaluateAndContinue(true);
+    public static OrderedCollectionPredicate<float?> NullFloat_Skip_Odd_Index = (count, item) => EvaluateIsIncludedAndContinue(true, 1);
+    public static OrderedCollectionPredicate<float?> NullFloat_All            = (count, item) => EvaluateIsIncludedAndContinue(true);
 
-    public static OrderedCollectionPredicate<float?> NullFloat_None           = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<float?> NullFloat_None           = (count, item) => EvaluateIsIncludedAndContinue(false);
 
     public static readonly sbyte[]     SByteArray = [-128, -127, -126, -125, -124, 0, 1, 2, 3, 4, 5, 6, 7, 8, 120, 121, 122, 123, 124, 125, 126, 127];
     public static readonly List<sbyte> SByteList  = [..SByteArray];
@@ -88,16 +90,16 @@ public class TestCollections
 
     public static PalantírReveal<sbyte?> NullSByteF4OrDefault42Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrDefault(showMe, 42, "F4");
 
-    public static OrderedCollectionPredicate<sbyte> SByte_Lt_10    = (count, item) => EvaluateAndContinue(item < 10);
-    public static OrderedCollectionPredicate<sbyte> SByte_Gt_10    = (count, item) => EvaluateAndContinue(item > 10);
-    public static OrderedCollectionPredicate<sbyte> SByte_All = (count, item) => EvaluateAndContinue(true);
-    public static OrderedCollectionPredicate<sbyte> SByte_None = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<sbyte> SByte_Lt_10    = (count, item) => EvaluateIsIncludedAndContinue(item < 10);
+    public static OrderedCollectionPredicate<sbyte> SByte_Gt_10    = (count, item) => EvaluateIsIncludedAndContinue(item > 10);
+    public static OrderedCollectionPredicate<sbyte> SByte_All = (count, item) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<sbyte> SByte_None = (count, item) => EvaluateIsIncludedAndContinue(false);
     
-    public static OrderedCollectionPredicate<sbyte?> NullSByte_Lt_10    = (count, item) => EvaluateAndContinue(item < 10);
-    public static OrderedCollectionPredicate<sbyte?> NullSByte_Gt_10    = (count, item) => EvaluateAndContinue(item > 10);
-    public static OrderedCollectionPredicate<sbyte?> NullSByte_All = (count, item) => EvaluateAndContinue(true);
+    public static OrderedCollectionPredicate<sbyte?> NullSByte_Lt_10    = (count, item) => EvaluateIsIncludedAndContinue(item < 10);
+    public static OrderedCollectionPredicate<sbyte?> NullSByte_Gt_10    = (count, item) => EvaluateIsIncludedAndContinue(item > 10);
+    public static OrderedCollectionPredicate<sbyte?> NullSByte_All = (count, item) => EvaluateIsIncludedAndContinue(true);
 
-    public static OrderedCollectionPredicate<sbyte?> NullSByte_None = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<sbyte?> NullSByte_None = (count, item) => EvaluateIsIncludedAndContinue(false);
 
     public static readonly byte[]     ByteArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255];
     public static readonly List<byte> ByteList  = [..ByteArray];
@@ -112,11 +114,11 @@ public class TestCollections
 
     public static PalantírReveal<byte?> NullByteF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrNull(showMe, "F4");
 
-    public static OrderedCollectionPredicate<byte> Byte_Lt_10  = (count, item) => EvaluateAndContinue(item < 10);
-    public static OrderedCollectionPredicate<byte> Byte_Gt_10  = (count, item) => EvaluateAndContinue(item > 10);
-    public static OrderedCollectionPredicate<byte> Byte_All = (count, item) => EvaluateAndContinue(true);
+    public static OrderedCollectionPredicate<byte> Byte_Lt_10  = (count, item) => EvaluateIsIncludedAndContinue(item < 10);
+    public static OrderedCollectionPredicate<byte> Byte_Gt_10  = (count, item) => EvaluateIsIncludedAndContinue(item > 10);
+    public static OrderedCollectionPredicate<byte> Byte_All = (count, item) => EvaluateIsIncludedAndContinue(true);
 
-    public static OrderedCollectionPredicate<byte> Byte_None  = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<byte> Byte_None  = (count, item) => EvaluateIsIncludedAndContinue(false);
 
     public static readonly long[] LongArray =
     [
@@ -130,11 +132,11 @@ public class TestCollections
 
     public static PalantírReveal<long> LongF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
 
-    public static OrderedCollectionPredicate<long> Long_Lt_10 = (count, item) => EvaluateAndContinue(item < 10);
-    public static OrderedCollectionPredicate<long> Long_Gt_10 = (count, item) => EvaluateAndContinue(item > 10);
-    public static OrderedCollectionPredicate<long> Long_All   = (count, item) => EvaluateAndContinue(true);
+    public static OrderedCollectionPredicate<long> Long_Lt_10 = (count, item) => EvaluateIsIncludedAndContinue(item < 10);
+    public static OrderedCollectionPredicate<long> Long_Gt_10 = (count, item) => EvaluateIsIncludedAndContinue(item > 10);
+    public static OrderedCollectionPredicate<long> Long_All   = (count, item) => EvaluateIsIncludedAndContinue(true);
 
-    public static OrderedCollectionPredicate<long> Long_None  = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<long> Long_None  = (count, item) => EvaluateIsIncludedAndContinue(false);
 
     public static readonly ulong[]     ULongArray = [0, 1, 2, 3, 4, 5, ulong.MaxValue - 3, ulong.MaxValue - 2, ulong.MaxValue - 1, ulong.MaxValue];
     public static readonly List<ulong> ULongList  = [..ULongArray];
@@ -144,11 +146,11 @@ public class TestCollections
 
     public static PalantírReveal<ulong> ULongF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
 
-    public static OrderedCollectionPredicate<ulong> ULong_Lt_10 = (count, item) => EvaluateAndContinue(item < 10);
-    public static OrderedCollectionPredicate<ulong> ULong_Gt_10 = (count, item) => EvaluateAndContinue(item > 10);
-    public static OrderedCollectionPredicate<ulong> ULong_All   = (count, item) => EvaluateAndContinue(true);
+    public static OrderedCollectionPredicate<ulong> ULong_Lt_10 = (count, item) => EvaluateIsIncludedAndContinue(item < 10);
+    public static OrderedCollectionPredicate<ulong> ULong_Gt_10 = (count, item) => EvaluateIsIncludedAndContinue(item > 10);
+    public static OrderedCollectionPredicate<ulong> ULong_All   = (count, item) => EvaluateIsIncludedAndContinue(true);
 
-    public static OrderedCollectionPredicate<ulong> ULong_None  = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<ulong> ULong_None  = (count, item) => EvaluateIsIncludedAndContinue(false);
 
     public static readonly decimal[] DecimalArray =
     [
@@ -164,11 +166,11 @@ public class TestCollections
 
     public static PalantírReveal<decimal> DecimalF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
 
-    public static OrderedCollectionPredicate<decimal> Decimal_Lt_10 = (count, item) => EvaluateAndContinue(item < 10);
-    public static OrderedCollectionPredicate<decimal> Decimal_Gt_10 = (count, item) => EvaluateAndContinue(item > 10);
-    public static OrderedCollectionPredicate<decimal> Decimal_All   = (count, item) => EvaluateAndContinue(true);
+    public static OrderedCollectionPredicate<decimal> Decimal_Lt_10 = (count, item) => EvaluateIsIncludedAndContinue(item < 10);
+    public static OrderedCollectionPredicate<decimal> Decimal_Gt_10 = (count, item) => EvaluateIsIncludedAndContinue(item > 10);
+    public static OrderedCollectionPredicate<decimal> Decimal_All   = (count, item) => EvaluateIsIncludedAndContinue(true);
 
-    public static OrderedCollectionPredicate<decimal> Decimal_None  = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<decimal> Decimal_None  = (count, item) => EvaluateIsIncludedAndContinue(false);
 
     public static readonly BigInteger[] BigIntegerArray =
     [
@@ -182,11 +184,11 @@ public class TestCollections
 
     public static PalantírReveal<BigInteger> BigIntegerF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
 
-    public static OrderedCollectionPredicate<BigInteger> BigInteger_Lt_10 = (count, item) => EvaluateAndContinue(item < 10);
-    public static OrderedCollectionPredicate<BigInteger> BigInteger_Gt_10 = (count, item) => EvaluateAndContinue(item > 10);
-    public static OrderedCollectionPredicate<BigInteger> BigInteger_All   = (count, item) => EvaluateAndContinue(true);
+    public static OrderedCollectionPredicate<BigInteger> BigInteger_Lt_10 = (count, item) => EvaluateIsIncludedAndContinue(item < 10);
+    public static OrderedCollectionPredicate<BigInteger> BigInteger_Gt_10 = (count, item) => EvaluateIsIncludedAndContinue(item > 10);
+    public static OrderedCollectionPredicate<BigInteger> BigInteger_All   = (count, item) => EvaluateIsIncludedAndContinue(true);
 
-    public static OrderedCollectionPredicate<BigInteger> BigInteger_None  = (count, item) => EvaluateAndContinue(false);
+    public static OrderedCollectionPredicate<BigInteger> BigInteger_None  = (count, item) => EvaluateIsIncludedAndContinue(false);
 
     public static readonly TimeSpanConfig[] StyledToStringArray =
     [
@@ -201,14 +203,14 @@ public class TestCollections
     public static PalantírReveal<TimeSpanConfig> TimeSpanConfigF0Revealer = (showMe, tos) => showMe.RevealState(tos);
 
     public static OrderedCollectionPredicate<TimeSpanConfig> TimeSpanConfig_Lt_250d = (count, item) => 
-        EvaluateAndContinue(item.ToTimeSpan() < TimeSpan.FromDays(250));
+        EvaluateIsIncludedAndContinue(item.ToTimeSpan() < TimeSpan.FromDays(250));
     
     public static OrderedCollectionPredicate<TimeSpanConfig> TimeSpanConfig_Gt_300d = (count, item) => 
-        EvaluateAndContinue(item.ToTimeSpan() < TimeSpan.FromDays(300));
+        EvaluateIsIncludedAndContinue(item.ToTimeSpan() < TimeSpan.FromDays(300));
     
     public static OrderedCollectionPredicate<TimeSpanConfig> TimeSpanConfig_All   = (count, item) => 
-        EvaluateAndContinue(true);
+        EvaluateIsIncludedAndContinue(true);
     
     public static OrderedCollectionPredicate<TimeSpanConfig> TimeSpanConfig_None  = (count, item) => 
-        EvaluateAndContinue(false);
+        EvaluateIsIncludedAndContinue(false);
 }

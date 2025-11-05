@@ -111,24 +111,19 @@ public partial class SelectTypeFieldTests
         SharedCompactJson(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJson
-            ( new FieldExpect<char[]>("".ToCharArray(), "", true, ['0'])
+            ( new FieldExpect<bool?>(false, "{0}")
             {
-                { new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites,
-                         Log | Compact | Pretty), "\"\"" }
-              , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites,
-                         Log | Compact | Pretty), "null" }
-              , { new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites
-                       , Json |  Compact | Pretty) , "[]" }
-              , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites
-                       , Json |  Compact | Pretty) , "null" }
+                { new EK(AcceptsNullableStruct | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "false" }
+               ,{ new EK(SimpleType | AcceptsNullableStruct  | DefaultTreatedAsStringOut), "\"false\"" }
             }, new ScaffoldingPartEntry
-                 (typeof(FieldCharSpanWhenNonNullStringBearer)
-                , ComplexType | AcceptsSingleValue | CallsAsSpan | NonNullWrites | AcceptsCharArray | SupportsValueFormatString));
+                 (typeof(FieldMatchWhenNonDefaultStringBearer<>)
+                , NonDefaultWrites | ComplexType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString 
+                | SupportsCustomHandling));
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

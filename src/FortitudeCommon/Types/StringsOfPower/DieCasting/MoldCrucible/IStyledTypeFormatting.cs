@@ -35,6 +35,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     IStringBuilder AppendTypeClosing(IStringBuilder sb);
 
+    IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+
     IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
@@ -62,6 +64,19 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType, bool? hasItems, Type collectionType
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
+    IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool item
+      , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+
+    IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool? item
+      , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+
+    IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt? item
+      , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt: ISpanFormattable;
+
+    IStringBuilder CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item
+      , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+      where TFmtStruct: struct, ISpanFormattable;
+
     IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked item
       , int retrieveCount, PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase;
 
@@ -71,15 +86,15 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder CollectionNextItemFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount, string? formatString = null
+    IStringBuilder CollectionNextCharSeqFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)  where TCharSeq : ICharSequence;
 
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder CollectionNextItemFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer;
+    IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer;
 
-    IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount
+    IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount, string? formatString
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber
@@ -167,7 +182,11 @@ public static class StyleTypeFormattingExtensions
             sb.Length -= 1;
             return sb[^1];
         }
-        if (sb[^2] == ',' && sb[^1] == ' ') sb.Length -= 2;
+        if (sb[^2] == ',' && sb[^1] == ' ')
+        {
+          sb.Length -= 2;
+          return sb[^1];
+        }
         var i                                         = sb.Length - 1;
         for (; i > 0 && sb[i] is ' ' or '\r' or '\n' or ','; i--)
             if (sb[i] == ',')
@@ -177,6 +196,30 @@ public static class StyleTypeFormattingExtensions
             }
         sb.Length = i + 1;
         return sb[^1];
+    }
+    
+    public static char RemoveLastWhiteSpacedCommaIfFound(this Span<char> destSpan, ref int destIndex)
+    {
+        if (destIndex < 2) return destIndex > 0 ? destSpan[0] : '\0';
+        if (destSpan[destIndex -1] == ',')
+        {
+            destIndex -= 1;
+            return destSpan[destIndex - 1];
+        }
+        if (destSpan[destIndex - 2] == ',' && destSpan[destIndex - 1] == ' ')
+        {
+          destIndex -= 2;
+          return destSpan[destIndex - 1];
+        }
+        var i   = destIndex - 1;
+        for (; i > 0 && destSpan[i] is ' ' or '\r' or '\n' or ','; i--)
+            if (destSpan[i] == ',')
+            {
+                destIndex = i;
+                return destSpan[destIndex - 1];
+            }
+        destIndex = i + 1;
+        return destSpan[destIndex - 1];
     }
 
     public static int RemoveLastWhiteSpacedCommaIfFound(this Span<char> destSpan, int destStartIndex)

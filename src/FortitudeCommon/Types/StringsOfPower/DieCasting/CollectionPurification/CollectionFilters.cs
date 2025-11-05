@@ -16,6 +16,8 @@ public static class CollectionFilterExtensions
     private static ConcurrentDictionary<(Type, int), Delegate> topXOrderedCollectionPredicates      = new();
     private static ConcurrentDictionary<(Type, int, int), Delegate> sampleOrderedCollectionPredicates   = new();
 
+    public static OrderedCollectionPredicate<object> ToObjectCastingFilter<TInputFilter>(this OrderedCollectionPredicate<TInputFilter> toConvert) =>
+        (retreiveCount, obj) => toConvert(retreiveCount,  (TInputFilter)obj);
 
     public static KeyValuePredicate<TKey, TValue> ResolveAcceptAllKeyedCollectionItemsPredicate<TKey, TValue>()
     {
@@ -60,14 +62,14 @@ public static class CollectionFilterExtensions
         ResolveSampleKeyedCollectionItemsPredicate<TKey, TValue>(2, 1);
 
     private static CollectionItemResult AcceptAllKeyedCollectionPredicate<TKey, TValue>(int retrieveCount, TKey key, TValue value) =>
-        CollectionItemResult.IncludeContinueToNext;
+        CollectionItemResult.IncludedContinueToNext;
 
     private static KeyValuePredicate<TKey, TValue> AcceptFirst<TKey, TValue>(int firstItemsToAccept)
     {
         return (retrieveCount, key, value) =>
         {
-            if (retrieveCount < firstItemsToAccept) return CollectionItemResult.IncludeContinueToNext;
-            return CollectionItemResult.DoNotIncludeAndComplete;
+            if (retrieveCount < firstItemsToAccept) return CollectionItemResult.IncludedContinueToNext;
+            return CollectionItemResult.NotIncludedAndComplete;
         };
     }
 
@@ -76,7 +78,7 @@ public static class CollectionFilterExtensions
         if (sampleCount <= 1) return AcceptAllKeyedCollectionPredicate;
         return (retrieveCount, key, value) =>
         {
-            if ((retrieveCount + startOffset) % sampleCount == 0) return CollectionItemResult.IncludeAndSkipNext(sampleCount - 1);
+            if ((retrieveCount + startOffset) % sampleCount == 0) return CollectionItemResult.IncludedAndSkipNext(sampleCount - 1);
             return CollectionItemResult.DoNotIncludeAndGoToNext;
         };
     }
@@ -125,14 +127,14 @@ public static class CollectionFilterExtensions
         ResolveSampleOrderedCollectionItemsPredicate<TItem>(2, 1);
 
     private static CollectionItemResult AcceptAllOrderedCollectionPredicate<TItem>(int retrieveCount, TItem item) =>
-        CollectionItemResult.IncludeContinueToNext;
+        CollectionItemResult.IncludedContinueToNext;
 
     private static OrderedCollectionPredicate<TItem> AcceptFirst<TItem>(int firstItemsToAccept)
     {
         return (retrieveCount, item) =>
         {
-            if (retrieveCount < firstItemsToAccept) return CollectionItemResult.IncludeContinueToNext;
-            return CollectionItemResult.DoNotIncludeAndComplete;
+            if (retrieveCount < firstItemsToAccept) return CollectionItemResult.IncludedContinueToNext;
+            return CollectionItemResult.NotIncludedAndComplete;
         };
     }
 
@@ -141,7 +143,7 @@ public static class CollectionFilterExtensions
         if (sampleCount <= 1) return AcceptAllOrderedCollectionPredicate;
         return (retrieveCount, item) =>
         {
-            if ((retrieveCount + startOffset) % sampleCount == 0) return CollectionItemResult.IncludeAndSkipNext(sampleCount - 1);
+            if ((retrieveCount + startOffset) % sampleCount == 0) return CollectionItemResult.IncludedAndSkipNext(sampleCount - 1);
             return CollectionItemResult.DoNotIncludeAndGoToNext;
         };
     }

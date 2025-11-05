@@ -14,7 +14,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | SupportsValueFormatString)]
 public class FieldBoolAlwaysAddStringBearer : IMoldSupportedValue<bool>, ISupportsValueFormatString
 {
     public bool ComplexTypeFieldAlwaysAddBool
@@ -39,7 +39,7 @@ public class FieldBoolAlwaysAddStringBearer : IMoldSupportedValue<bool>, ISuppor
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct | SupportsValueFormatString)]
 public class FieldNullableBoolAlwaysAddStringBearer : IMoldSupportedValue<bool?>, ISupportsValueFormatString
 {
     public bool? ComplexTypeFieldAlwaysAddNullableBool
@@ -64,7 +64,7 @@ public class FieldNullableBoolAlwaysAddStringBearer : IMoldSupportedValue<bool?>
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldSpanFormattableAlwaysAddStringBearer<TFmt> : IMoldSupportedValue<TFmt>, ISupportsValueFormatString
   , IPalantirRevealerFactory<TFmt> where TFmt : ISpanFormattable
@@ -116,7 +116,7 @@ public class FieldSpanFormattableAlwaysAddStringBearer<TFmt> : IMoldSupportedVal
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSupportedValue<TFmt>, ISupportsValueFormatString
   , IPalantirRevealerFactory<TFmt>, ISupportsFieldHandling where TFmt : ISpanFormattable
@@ -178,7 +178,7 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : IMoldSupportedValue<TFmtStruct?>
   , IPalantirRevealerFactory<TFmtStruct>, ISupportsValueFormatString, ISupportsFieldHandling where TFmtStruct : struct, ISpanFormattable
@@ -232,7 +232,7 @@ public class FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : IMo
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public struct FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct> : IMoldSupportedValue<TFmtStruct?>
   , IPalantirRevealerFactory<TFmtStruct>, ISupportsValueFormatString, ISupportsFieldHandling where TFmtStruct : struct, ISpanFormattable
@@ -295,7 +295,7 @@ public struct FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer | SupportsCustomHandling)]
 public class FieldCloakedBearerAlwaysAddStringBearer<TTCloaked, TCloakedBase> : IMoldSupportedValue<TTCloaked?>
@@ -332,7 +332,7 @@ public class FieldCloakedBearerAlwaysAddStringBearer<TTCloaked, TCloakedBase> : 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer | SupportsCustomHandling)]
 public class FieldNullableCloakedBearerAlwaysAddStringBearer<TCloakedStruct> : IMoldSupportedValue<TCloakedStruct?>
@@ -369,7 +369,7 @@ public class FieldNullableCloakedBearerAlwaysAddStringBearer<TCloakedStruct> : I
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer |
                   SupportsCustomHandling)]
 public class FieldStringBearerAlwaysAddStringBearer<TBearer> : IMoldSupportedValue<TBearer?>, ISupportsFieldHandling
     where TBearer : IStringBearer
@@ -397,7 +397,7 @@ public class FieldStringBearerAlwaysAddStringBearer<TBearer> : IMoldSupportedVal
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer |
                   SupportsCustomHandling)]
 public class FieldNullableStringBearerAlwaysAddStringBearer<TBearerStruct> : IMoldSupportedValue<TBearerStruct?>
   , ISupportsFieldHandling where TBearerStruct : struct, IStringBearer
@@ -425,7 +425,7 @@ public class FieldNullableStringBearerAlwaysAddStringBearer<TBearerStruct> : IMo
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldCharSpanAlwaysAddStringBearer : IMoldSupportedValue<char[]>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
@@ -461,7 +461,7 @@ public class FieldCharSpanAlwaysAddStringBearer : IMoldSupportedValue<char[]>, I
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldCharReadOnlySpanAlwaysAddStringBearer : IMoldSupportedValue<string>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
@@ -497,7 +497,7 @@ public class FieldCharReadOnlySpanAlwaysAddStringBearer : IMoldSupportedValue<st
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , IPalantirRevealerFactory<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -552,7 +552,7 @@ public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, IS
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
 public struct FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , IPalantirRevealerFactory<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -615,7 +615,7 @@ public struct FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<strin
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldStringRangeAlwaysAddStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
@@ -654,7 +654,7 @@ public class FieldStringRangeAlwaysAddStringBearer : IMoldSupportedValue<string?
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharArrayAlwaysAddStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -689,7 +689,7 @@ public class FieldCharArrayAlwaysAddStringBearer : IMoldSupportedValue<char[]?>,
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldCharArrayRangeAlwaysAddStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
@@ -728,7 +728,7 @@ public class FieldCharArrayRangeAlwaysAddStringBearer : IMoldSupportedValue<char
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldCharSequenceAlwaysAddStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling where TCharSeq : ICharSequence
 {
@@ -771,7 +771,7 @@ public class FieldCharSequenceAlwaysAddStringBearer<TCharSeq> : IMoldSupportedVa
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldCharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
@@ -819,7 +819,7 @@ public class FieldCharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IMoldSuppor
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldStringBuilderAlwaysAddStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -854,7 +854,7 @@ public class FieldStringBuilderAlwaysAddStringBearer : IMoldSupportedValue<Strin
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldStringBuilderRangeAlwaysAddStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
   , ISupportsSettingValueFromString
@@ -894,7 +894,7 @@ public class FieldStringBuilderRangeAlwaysAddStringBearer : IMoldSupportedValue<
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldMatchAlwaysAddStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString, ISupportsFieldHandling
 {
     public TAny? ComplexTypeFieldAlwaysAddMatch
@@ -920,7 +920,7 @@ public class FieldMatchAlwaysAddStringBearer<TAny> : IMoldSupportedValue<TAny?>,
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldObjectAlwaysAddStringBearer : IMoldSupportedValue<object?>, ISupportsValueFormatString, ISupportsFieldHandling
 {
     public object? ComplexTypeFieldAlwaysAddObject

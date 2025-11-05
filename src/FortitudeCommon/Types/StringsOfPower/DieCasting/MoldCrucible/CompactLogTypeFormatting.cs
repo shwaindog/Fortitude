@@ -124,6 +124,24 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.Append(SpcBrcCls);
     }
 
+    public IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if (((ReadOnlySpan<char>)formatString).HasFormatStringPadding() || ((ReadOnlySpan<char>)formatString).PrefixSuffixLength() > 0)
+        {
+            var        formatStringBufferSize = StyleOptions.NullString.Length.CalculatePrefixPaddedAlignedAndSuffixFormatStringLength(formatString);
+            Span<char> justPrefixPaddingSuffix            = stackalloc char[formatStringBufferSize];
+            justPrefixPaddingSuffix = justPrefixPaddingSuffix.ToPrefixLayoutSuffixOnlyFormatString(formatString);
+            Format(StyleOptions.NullString, 0, sb, justPrefixPaddingSuffix
+                               ,  formatFlags: DefaultCallerType);
+            
+        }
+        else
+        {
+            sb.Append(StyleOptions.NullString);
+        }
+        return sb;
+    }
+
     public virtual IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
@@ -385,7 +403,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var lhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteOpenReplacement;
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
 
-        Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];;
+        Span<char> formatSpan = stackalloc char[formatReadOnlySpan.BoundsReplaceBufferSize(lhsReplaceWith, rhsReplaceWith)];
         if (formatFlags.HasAsStringContentFlag() || formatFlags.ShouldDelimit())
         {
             formatSpan = formatSpan.ReplaceBounds(formatReadOnlySpan, DblQtChar, lhsReplaceWith, rhsReplaceWith);
@@ -445,7 +463,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             collectionType.AppendShortNameInCSharpFormat(sb);
             sb.Append(RndBrktCls);
         }
-        return CollectionStart(itemElementType, sb, hasItems.Value).ToStringBuilder(sb);
+        return CollectionStart(itemElementType, sb, hasItems.Value, (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
     }
 
     public override int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems
@@ -466,6 +484,40 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             return 0;
         }
         return destSpan.OverWriteAt(destStartIndex, SqBrktOpnSpc);
+    }
+
+    public IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
+            .ToStringBuilder(sb);
+
+    public IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool? item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if (item == null)
+        {
+            AppendFormattedNull(sb, formatString, formatFlags);
+            return sb;
+        }
+        return CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
+            .ToStringBuilder(sb);
+    }
+
+    public IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt? item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
+            .ToStringBuilder(sb);
+
+    public IStringBuilder CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
+    {
+        if (item == null)
+        {
+            AppendFormattedNull(sb, formatString, formatFlags);
+            return sb;
+        }
+        return CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
+            .ToStringBuilder(sb);
     }
 
     public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
@@ -491,7 +543,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount
+    public virtual IStringBuilder CollectionNextCharSeqFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
@@ -514,7 +566,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer
+    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer
     {
         if (item == null) { return tos.WriteBuffer.Append(StyleOptions.NullString); }
         item.RevealState(tos);
@@ -528,17 +580,20 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             : sb.Append(CmaSpc));
 
     public virtual IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType
-      , int? totalItemCount, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , int? totalItemCount, string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
         if (!totalItemCount.HasValue)
         {
-            sb.Append(StyleOptions.NullString);
+            if (StyleOptions.NullWritesEmpty)
+            {
+                CollectionStart(itemElementType, sb, false, (FormattingHandlingFlags)formatFlags);
+                CollectionEnd(itemElementType, sb, 0, (FormattingHandlingFlags)formatFlags);
+            }
+            else { AppendFormattedNull(sb, formatString, formatFlags); }
             return sb;
         }
-        totalItemCount ??= 0;
         
-        return CollectionEnd(itemElementType, sb, totalItemCount.Value).ToStringBuilder(sb);
+        return CollectionEnd(itemElementType, sb, totalItemCount.Value, (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
     }
 
     public override int CollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount
@@ -548,7 +603,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         {
             return 0;
         }
-        return sb.Append(SpcSqBrktCls).ReturnCharCount(2);
+        var lastChar = sb.RemoveLastWhiteSpacedCommaIfFound();
+        if (lastChar != SqBrktOpnChar) sb.Append(Spc);
+        return sb.Append(SqBrktCls).ReturnCharCount(2);
     }
 
     public override int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int itemsCount
@@ -560,7 +617,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        return destSpan.OverWriteAt(index, SpcSqBrktCls);
+        var lastChar = destSpan.RemoveLastWhiteSpacedCommaIfFound(ref index);
+        if (lastChar != SqBrktOpnChar) index += destSpan.OverWriteAt(index, Spc);
+        return destSpan.OverWriteAt(index, SqBrktCls);
     }
 
     public virtual ITypeMolderDieCast<TMold> FormatCollectionNext<TMold, TItem>(ITypeMolderDieCast<TMold> typeMold

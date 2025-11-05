@@ -167,16 +167,21 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonDefaultAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value, TAny? defaultValue = default(TAny)
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields
-     && (typeof(TAny).IsNullable() && value == null && defaultValue != null
-      || typeof(TAny).IsNullable() && !Equals(value, defaultValue ?? typeof(TAny).GetDefaultForUnderlyingNullableOrThis())
-      || typeof(TAny).IsNotNullable() 
-      && (!Equals(value, defaultValue ?? default(TAny)) 
-       && !(defaultValue != null && value != null && value.IsStringBuilder() && defaultValue.IsStringBuilder() 
-         && value.UnknownSequenceMatches(defaultValue))))
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        
+        if( stb.SkipFields) return  stb.StyleTypeBuilder;
+            
+        var anyIsNullable = typeof(TAny).IsNullable();
+        var shouldProceed =  (anyIsNullable && value == null && defaultValue != null);
+        if(!shouldProceed) shouldProceed =  anyIsNullable && !Equals(value, defaultValue ?? typeof(TAny).GetDefaultForUnderlyingNullableOrThis());
+        if(!shouldProceed) shouldProceed = !anyIsNullable && !Equals(value, defaultValue ?? default(TAny))
+                                         && !(defaultValue != null && value != null && value.IsStringBuilder() 
+                                           && defaultValue.IsStringBuilder() && value.UnknownSequenceMatches(defaultValue));
+        return shouldProceed 
             ? AlwaysAddMatch(fieldName, value, formatString, formatFlags)
             : stb.StyleTypeBuilder;
+    }
 
     [CallsObjectToString]
     public TMold WhenNonDefaultAddObject(ReadOnlySpan<char> fieldName, object? value, object? defaultValue = null

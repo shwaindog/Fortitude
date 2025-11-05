@@ -70,6 +70,17 @@ public interface ICustomStringFormatter : IRecyclableObject
     int Format(bool? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = DefaultCallerType);
 
+    int FormatBoolEnumerator(IEnumerator<bool> arg0, IStringBuilder sb, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+
+    int FormatBoolEnumerator(IEnumerator<bool> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+
+    int FormatBoolEnumerator(IEnumerator<bool?> arg0, IStringBuilder sb, string? formatString = null
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+
+    int FormatBoolEnumerator(IEnumerator<bool?> arg0, Span<char> destCharSpan, int destStartIndex
+    , string? formatString = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
     int Format<TFmtStruct>(TFmtStruct? source, IStringBuilder sb, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmtStruct : struct, ISpanFormattable;
@@ -188,8 +199,7 @@ public interface ICustomStringFormatter : IRecyclableObject
       , string formatString, FormattingHandlingFlags formatFlags = EncodeInnerContent) 
         where TFmtStruct : struct, ISpanFormattable;
 
-    int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb
-    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb, FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
     int CollectionNextItem<T>(T nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
     , FormattingHandlingFlags formatFlags = EncodeInnerContent);

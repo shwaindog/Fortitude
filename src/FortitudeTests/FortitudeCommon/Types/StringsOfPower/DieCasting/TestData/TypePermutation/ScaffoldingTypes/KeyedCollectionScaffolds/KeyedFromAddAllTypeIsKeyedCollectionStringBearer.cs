@@ -10,7 +10,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     KeyedCollectionScaffolds;
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -35,7 +35,7 @@ public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> :
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairArrayBothFormatStringsAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -62,7 +62,7 @@ public class KeyedFromPairArrayBothFormatStringsAddAllStringBearer<TKey, TValue>
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairListBothFormatStringsAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -90,7 +90,7 @@ public class KeyedFromPairListBothFormatStringsAddAllStringBearer<TKey, TValue> 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairEnumerableBothFormatStringsAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -118,7 +118,7 @@ public class KeyedFromPairEnumerableBothFormatStringsAddAllStringBearer<TKey, TV
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairEnumeratorBothFormatStringsAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -146,7 +146,7 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddAllStringBearer<TKey, TV
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>
@@ -182,7 +182,7 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TValue : TVRevealBase
@@ -216,7 +216,7 @@ public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddAllStringBearer<T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairListValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
@@ -251,7 +251,7 @@ public class KeyedFromPairListValueRevealerKeyFormatStringsAddAllStringBearer<TK
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
@@ -286,7 +286,7 @@ public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddAllStringBea
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
@@ -321,7 +321,7 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBea
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
@@ -362,7 +362,7 @@ public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TK
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
@@ -403,7 +403,7 @@ public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKR
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
@@ -444,7 +444,7 @@ public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRe
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumerableBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
@@ -483,7 +483,7 @@ public class KeyedFromPairEnumerableBothRevealersAddAllStringBearer<TKey, TValue
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumeratorBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>

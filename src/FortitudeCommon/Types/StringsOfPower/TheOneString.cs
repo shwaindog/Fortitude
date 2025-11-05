@@ -83,7 +83,8 @@ public interface ISecretStringOfPower : ITheOneString
 
     new IRecycler Recycler { get; }
 
-    StateExtractStringRange RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null);
+    StateExtractStringRange RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     bool RegisterVisitedCheckCanContinue(object obj);
     int  EnsureRegisteredVisited(object obj);
@@ -256,15 +257,16 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         ((IRecyclableObject)completeType).DecrementRefCount();
     }
 
-    public StateExtractStringRange RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null)
+    public StateExtractStringRange RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         var type           = obj.GetType();
         var existingRefId  = SourceGraphVisitRefId(obj, type);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
 
         return existingRefId > 0 || remainingDepth <= 0
-            ? StartComplexValueType(obj).AsValueMatch("", obj, formatString).Complete()
-            : StartSimpleValueType(obj).AsValueMatch("", obj, formatString).Complete();
+            ? StartComplexValueType(obj).AsValueMatch("", obj, formatString, formatFlags).Complete()
+            : StartSimpleValueType(obj).AsValueMatch("", obj, formatString, formatFlags).Complete();
     }
 
     public bool RegisterVisitedCheckCanContinue(object obj)

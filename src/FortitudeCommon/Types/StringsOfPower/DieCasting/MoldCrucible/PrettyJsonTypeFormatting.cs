@@ -230,7 +230,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return addedChars;
     }
 
-    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount
+    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount, string? formatString
       , FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags) => 
         CollectionEnd(itemElementType, sb, totalItemCount ?? 0).ToStringBuilder(sb);
 }

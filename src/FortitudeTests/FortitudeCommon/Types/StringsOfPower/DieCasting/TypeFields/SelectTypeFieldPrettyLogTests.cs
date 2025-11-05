@@ -130,7 +130,7 @@ public partial class SelectTypeFieldTests
                        | DefaultBecomesZero | DefaultBecomesNull, Json |  Compact | Pretty) , "null" }
             }, new ScaffoldingPartEntry
                  (typeof(FieldCharArrayRangeWhenNonDefaultStringBearer)
-                , ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
+                , ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling));
     }
 

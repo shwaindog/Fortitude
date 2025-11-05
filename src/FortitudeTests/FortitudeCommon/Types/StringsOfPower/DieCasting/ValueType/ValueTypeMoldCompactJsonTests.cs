@@ -214,7 +214,7 @@ public partial class ValueTypeMoldTests
              }
            , new ScaffoldingPartEntry
                  (typeof(SimpleAsValueNullableSpanFormattableClassWithStringDefaultNoFieldSimpleValueTypeStringBearer<>)
-                , SimpleType | AcceptsSingleValue | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber 
+                , SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber 
                 | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesNull));
     }
 

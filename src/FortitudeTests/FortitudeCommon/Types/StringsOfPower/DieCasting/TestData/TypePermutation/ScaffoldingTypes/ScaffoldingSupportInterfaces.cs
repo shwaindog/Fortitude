@@ -55,14 +55,16 @@ public interface ISupportsSubsetDisplayKeys<TKeyDerivedType>
 
 public interface ISupportsOrderedCollectionPredicate<TElement>
 {
-    public static OrderedCollectionPredicate<TElement> GetNoFilterPredicate => (_, _) => CollectionItemResult.IncludeContinueToNext;
+    private static OrderedCollectionPredicate<TElement>? cachedNoFilterPredicate;
+    public static OrderedCollectionPredicate<TElement> GetNoFilterPredicate => 
+        cachedNoFilterPredicate ??= (_, _) => CollectionItemResult.IncludedContinueToNext;
 
     [JsonIgnore] OrderedCollectionPredicate<TElement> ElementPredicate { get; set; }
 }
 
 public interface ISupportsKeyedCollectionPredicate<TKey, TValue>
 {
-    public static KeyValuePredicate<TKey, TValue> GetNoFilterPredicate => (_, _, _) => CollectionItemResult.IncludeContinueToNext;
+    public static KeyValuePredicate<TKey, TValue> GetNoFilterPredicate => (_, _, _) => CollectionItemResult.IncludedContinueToNext;
     [JsonIgnore] KeyValuePredicate<TKey, TValue> KeyValuePredicate { get; set; }
 }
 

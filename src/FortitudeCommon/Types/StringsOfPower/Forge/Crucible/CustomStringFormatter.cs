@@ -198,7 +198,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 charsAdded += TransferEncoder.TransferSuffix(suffix, sb, formatFlags.HasEncodeBoundsFlag());
             return charsAdded;
         }
-        var alignedLength = source.CalculatePaddedAlignedLength(layout) + 256;
+        var alignedLength = source.CalculatePaddedAlignedFormatStringLength(layout) + 256;
         if (alignedLength < 4096)
         {
             Span<char> padSpan = stackalloc char[alignedLength];
@@ -1093,7 +1093,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         var type                     = source.GetType();
         var maybeIterableElementType = type.GetIterableElementType();
         if (maybeIterableElementType == null) return 0;
-        if (!((maybeIterableElementType.IsSpanFormattable()) || (maybeIterableElementType.IsNullableSpanFormattable()))) return 0;
+        if (!((maybeIterableElementType.IsSpanFormattableOrNullable() || maybeIterableElementType.IsBoolOrNullable()))) return 0;
         if (source is String stringSource) { return NeverZero(Format(stringSource, 0, sb, formatString)); }
         if (source is char[] charArraySource) { return NeverZero(Format(charArraySource, 0, sb, formatString)); }
         if (source is StringBuilder stringBuilderSource) { return NeverZero(Format(stringBuilderSource, 0, sb, formatString)); }
@@ -1110,39 +1110,41 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         var enumeratorElementType = type.IfEnumeratorGetElementType()!;
 
-        if (enumeratorElementType.IsSpanFormattable())
+        if (enumeratorElementType.IsSpanFormattable() || enumeratorElementType.IsBool())
         {
             switch (source)
             {
-                case IEnumerator<byte> byteArray:           return FormatEnumerator(byteArray, sb, formatString, formatFlags);
-                case IEnumerator<sbyte> sbyteArray:         return FormatEnumerator(sbyteArray, sb, formatString, formatFlags);
-                case IEnumerator<char> charArray:           return FormatEnumerator(charArray, sb, formatString, formatFlags);
-                case IEnumerator<short> shortArray:         return FormatEnumerator(shortArray, sb, formatString, formatFlags);
-                case IEnumerator<ushort> uShortArray:       return FormatEnumerator(uShortArray, sb, formatString, formatFlags);
-                case IEnumerator<Half> halfFloatArray:      return FormatEnumerator(halfFloatArray, sb, formatString, formatFlags);
-                case IEnumerator<int> intArray:             return FormatEnumerator(intArray, sb, formatString, formatFlags);
-                case IEnumerator<uint> uIntArray:           return FormatEnumerator(uIntArray, sb, formatString, formatFlags);
-                case IEnumerator<nint> nIntArray:           return FormatEnumerator(nIntArray, sb, formatString, formatFlags);
-                case IEnumerator<float> floatArray:         return FormatEnumerator(floatArray, sb, formatString, formatFlags);
-                case IEnumerator<long> longArray:           return FormatEnumerator(longArray, sb, formatString, formatFlags);
-                case IEnumerator<ulong> uLongArray:         return FormatEnumerator(uLongArray, sb, formatString, formatFlags);
-                case IEnumerator<double> doubleArray:       return FormatEnumerator(doubleArray, sb, formatString, formatFlags);
-                case IEnumerator<decimal> decimalArray:     return FormatEnumerator(decimalArray, sb, formatString, formatFlags);
-                case IEnumerator<Int128> veryLongArray:     return FormatEnumerator(veryLongArray, sb, formatString, formatFlags);
-                case IEnumerator<UInt128> veryUlongArray:   return FormatEnumerator(veryUlongArray, sb, formatString, formatFlags);
-                case IEnumerator<BigInteger> bigIntArray:   return FormatEnumerator(bigIntArray, sb, formatString, formatFlags);
-                case IEnumerator<Complex> complexNumArray:  return FormatEnumerator(complexNumArray, sb, formatString, formatFlags);
-                case IEnumerator<DateTime> dateTimeArray:   return FormatEnumerator(dateTimeArray, sb, formatString, formatFlags);
-                case IEnumerator<DateOnly> dateOnlyArray:   return FormatEnumerator(dateOnlyArray, sb, formatString, formatFlags);
-                case IEnumerator<TimeSpan> timeSpanArray:   return FormatEnumerator(timeSpanArray, sb, formatString, formatFlags);
-                case IEnumerator<TimeOnly> timeOnlyArray:   return FormatEnumerator(timeOnlyArray, sb, formatString, formatFlags);
-                case IEnumerator<Rune> runeArray:           return FormatEnumerator(runeArray, sb, formatString, formatFlags);
-                case IEnumerator<Guid> guidArray:           return FormatEnumerator(guidArray, sb, formatString, formatFlags);
-                case IEnumerator<IPNetwork> ipNetworkArray: return FormatEnumerator(ipNetworkArray, sb, formatString, formatFlags);
-                case IEnumerator<Enum> enumArray:           return FormatEnumerator(enumArray, sb, formatString, formatFlags);
-                case IEnumerator<Version> versionArray:     return FormatEnumerator(versionArray, sb, formatString, formatFlags);
-                case IEnumerator<IPAddress> ipAddressArray: return FormatEnumerator(ipAddressArray, sb, formatString, formatFlags);
-                case IEnumerator<Uri> uriArray:             return FormatEnumerator(uriArray, sb, formatString, formatFlags);
+                case IEnumerable<bool?> boolEnumerator:           
+                    return FormatBoolEnumerator(boolEnumerator.GetEnumerator(), sb, formatString, formatFlags);
+                case IEnumerator<byte> byteEnumerator:           return FormatEnumerator(byteEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<sbyte> sbyteEnumerator:         return FormatEnumerator(sbyteEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<char> charEnumerator:           return FormatEnumerator(charEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<short> shortEnumerator:         return FormatEnumerator(shortEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<ushort> uShortEnumerator:       return FormatEnumerator(uShortEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Half> halfFloatEnumerator:      return FormatEnumerator(halfFloatEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<int> intEnumerator:             return FormatEnumerator(intEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<uint> uIntEnumerator:           return FormatEnumerator(uIntEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<nint> nIntEnumerator:           return FormatEnumerator(nIntEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<float> floatEnumerator:         return FormatEnumerator(floatEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<long> longEnumerator:           return FormatEnumerator(longEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<ulong> uLongEnumerator:         return FormatEnumerator(uLongEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<double> doubleEnumerator:       return FormatEnumerator(doubleEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<decimal> decimalEnumerator:     return FormatEnumerator(decimalEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Int128> veryLongEnumerator:     return FormatEnumerator(veryLongEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<UInt128> veryUlongEnumerator:   return FormatEnumerator(veryUlongEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<BigInteger> bigIntEnumerator:   return FormatEnumerator(bigIntEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Complex> complexNumEnumerator:  return FormatEnumerator(complexNumEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<DateTime> dateTimeEnumerator:   return FormatEnumerator(dateTimeEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<DateOnly> dateOnlyEnumerator:   return FormatEnumerator(dateOnlyEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<TimeSpan> timeSpanEnumerator:   return FormatEnumerator(timeSpanEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<TimeOnly> timeOnlyEnumerator:   return FormatEnumerator(timeOnlyEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Rune> runeEnumerator:           return FormatEnumerator(runeEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Guid> guidEnumerator:           return FormatEnumerator(guidEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<IPNetwork> ipNetworkEnumerator: return FormatEnumerator(ipNetworkEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Enum> enumEnumerator:           return FormatEnumerator(enumEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Version> versionEnumerator:     return FormatEnumerator(versionEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<IPAddress> ipAddressEnumerator: return FormatEnumerator(ipAddressEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Uri> uriEnumerator:             return FormatEnumerator(uriEnumerator, sb, formatString, formatFlags);
             }
         }
         else if (enumeratorElementType is { IsValueType: true, IsGenericType: true } &&
@@ -1150,31 +1152,33 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         {
             switch (source)
             {
-                case IEnumerator<byte?> nullByteArray:           return FormatEnumerator(nullByteArray, sb, formatString, formatFlags);
-                case IEnumerator<sbyte?> nullSbyteArray:         return FormatEnumerator(nullSbyteArray, sb, formatString, formatFlags);
-                case IEnumerator<char?> nullCharArray:           return FormatEnumerator(nullCharArray, sb, formatString, formatFlags);
-                case IEnumerator<short?> nullShortArray:         return FormatEnumerator(nullShortArray, sb, formatString, formatFlags);
-                case IEnumerator<ushort?> nullUShortArray:       return FormatEnumerator(nullUShortArray, sb, formatString, formatFlags);
-                case IEnumerator<Half?> nullHalfFloatArray:      return FormatEnumerator(nullHalfFloatArray, sb, formatString, formatFlags);
-                case IEnumerator<int?> nullIntArray:             return FormatEnumerator(nullIntArray, sb, formatString, formatFlags);
-                case IEnumerator<uint?> nullUIntArray:           return FormatEnumerator(nullUIntArray, sb, formatString, formatFlags);
-                case IEnumerator<nint?> nullNIntArray:           return FormatEnumerator(nullNIntArray, sb, formatString, formatFlags);
-                case IEnumerator<float?> nullFloatArray:         return FormatEnumerator(nullFloatArray, sb, formatString, formatFlags);
-                case IEnumerator<long?> nullLongArray:           return FormatEnumerator(nullLongArray, sb, formatString, formatFlags);
-                case IEnumerator<ulong?> nullULongArray:         return FormatEnumerator(nullULongArray, sb, formatString, formatFlags);
-                case IEnumerator<double?> nullDoubleArray:       return FormatEnumerator(nullDoubleArray, sb, formatString, formatFlags);
-                case IEnumerator<decimal?> nullDecimalArray:     return FormatEnumerator(nullDecimalArray, sb, formatString, formatFlags);
-                case IEnumerator<Int128?> nullVeryLongArray:     return FormatEnumerator(nullVeryLongArray, sb, formatString, formatFlags);
-                case IEnumerator<UInt128?> nullVeryUlongArray:   return FormatEnumerator(nullVeryUlongArray, sb, formatString, formatFlags);
-                case IEnumerator<BigInteger?> nullBigIntArray:   return FormatEnumerator(nullBigIntArray, sb, formatString, formatFlags);
-                case IEnumerator<Complex?> nullComplexNumArray:  return FormatEnumerator(nullComplexNumArray, sb, formatString, formatFlags);
-                case IEnumerator<DateTime?> nullDateTimeArray:   return FormatEnumerator(nullDateTimeArray, sb, formatString, formatFlags);
-                case IEnumerator<DateOnly?> nullDateOnlyArray:   return FormatEnumerator(nullDateOnlyArray, sb, formatString, formatFlags);
-                case IEnumerator<TimeSpan?> nullTimeSpanArray:   return FormatEnumerator(nullTimeSpanArray, sb, formatString, formatFlags);
-                case IEnumerator<TimeOnly?> nullTimeOnlyArray:   return FormatEnumerator(nullTimeOnlyArray, sb, formatString, formatFlags);
-                case IEnumerator<Rune?> nullRuneArray:           return FormatEnumerator(nullRuneArray, sb, formatString, formatFlags);
-                case IEnumerator<Guid?> nullGuidArray:           return FormatEnumerator(nullGuidArray, sb, formatString, formatFlags);
-                case IEnumerator<IPNetwork?> nullIpNetworkArray: return FormatEnumerator(nullIpNetworkArray, sb, formatString, formatFlags);
+                case IEnumerable<bool?> nullBoolEnumerator:           
+                    return FormatBoolEnumerator(nullBoolEnumerator.GetEnumerator(), sb, formatString, formatFlags);
+                case IEnumerator<byte?> nullByteEnumerator:           return FormatEnumerator(nullByteEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<sbyte?> nullSbyteEnumerator:         return FormatEnumerator(nullSbyteEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<char?> nullCharEnumerator:           return FormatEnumerator(nullCharEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<short?> nullShortEnumerator:         return FormatEnumerator(nullShortEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<ushort?> nullUShortEnumerator:       return FormatEnumerator(nullUShortEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Half?> nullHalfFloatEnumerator:      return FormatEnumerator(nullHalfFloatEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<int?> nullIntEnumerator:             return FormatEnumerator(nullIntEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<uint?> nullUIntEnumerator:           return FormatEnumerator(nullUIntEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<nint?> nullNIntEnumerator:           return FormatEnumerator(nullNIntEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<float?> nullFloatEnumerator:         return FormatEnumerator(nullFloatEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<long?> nullLongEnumerator:           return FormatEnumerator(nullLongEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<ulong?> nullULongEnumerator:         return FormatEnumerator(nullULongEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<double?> nullDoubleEnumerator:       return FormatEnumerator(nullDoubleEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<decimal?> nullDecimalEnumerator:     return FormatEnumerator(nullDecimalEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Int128?> nullVeryLongEnumerator:     return FormatEnumerator(nullVeryLongEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<UInt128?> nullVeryUlongEnumerator:   return FormatEnumerator(nullVeryUlongEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<BigInteger?> nullBigIntEnumerator:   return FormatEnumerator(nullBigIntEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Complex?> nullComplexNumEnumerator:  return FormatEnumerator(nullComplexNumEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<DateTime?> nullDateTimeEnumerator:   return FormatEnumerator(nullDateTimeEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<DateOnly?> nullDateOnlyEnumerator:   return FormatEnumerator(nullDateOnlyEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<TimeSpan?> nullTimeSpanEnumerator:   return FormatEnumerator(nullTimeSpanEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<TimeOnly?> nullTimeOnlyEnumerator:   return FormatEnumerator(nullTimeOnlyEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Rune?> nullRuneEnumerator:           return FormatEnumerator(nullRuneEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<Guid?> nullGuidEnumerator:           return FormatEnumerator(nullGuidEnumerator, sb, formatString, formatFlags);
+                case IEnumerator<IPNetwork?> nullIpNetworkEnumerator: return FormatEnumerator(nullIpNetworkEnumerator, sb, formatString, formatFlags);
             }
         }
         return 0;
@@ -1185,39 +1189,41 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         var enumerableElementType = type.IfEnumerableGetElementType()!;
 
-        if (enumerableElementType.IsSpanFormattable())
+        if (enumerableElementType.IsSpanFormattable() || enumerableElementType.IsBool())
         {
             switch (source)
             {
-                case IEnumerable<byte> byteArray:           return FormatEnumerable(byteArray, sb, formatString, formatFlags);
-                case IEnumerable<sbyte> sbyteArray:         return FormatEnumerable(sbyteArray, sb, formatString, formatFlags);
-                case IEnumerable<char> charArray:           return FormatEnumerable(charArray, sb, formatString, formatFlags);
-                case IEnumerable<short> shortArray:         return FormatEnumerable(shortArray, sb, formatString, formatFlags);
-                case IEnumerable<ushort> uShortArray:       return FormatEnumerable(uShortArray, sb, formatString, formatFlags);
-                case IEnumerable<Half> halfFloatArray:      return FormatEnumerable(halfFloatArray, sb, formatString, formatFlags);
-                case IEnumerable<int> intArray:             return FormatEnumerable(intArray, sb, formatString, formatFlags);
-                case IEnumerable<uint> uIntArray:           return FormatEnumerable(uIntArray, sb, formatString, formatFlags);
-                case IEnumerable<nint> nIntArray:           return FormatEnumerable(nIntArray, sb, formatString, formatFlags);
-                case IEnumerable<float> floatArray:         return FormatEnumerable(floatArray, sb, formatString, formatFlags);
-                case IEnumerable<long> longArray:           return FormatEnumerable(longArray, sb, formatString, formatFlags);
-                case IEnumerable<ulong> uLongArray:         return FormatEnumerable(uLongArray, sb, formatString, formatFlags);
-                case IEnumerable<double> doubleArray:       return FormatEnumerable(doubleArray, sb, formatString, formatFlags);
-                case IEnumerable<decimal> decimalArray:     return FormatEnumerable(decimalArray, sb, formatString, formatFlags);
-                case IEnumerable<Int128> veryLongArray:     return FormatEnumerable(veryLongArray, sb, formatString, formatFlags);
-                case IEnumerable<UInt128> veryULongArray:   return FormatEnumerable(veryULongArray, sb, formatString, formatFlags);
-                case IEnumerable<BigInteger> bigIntArray:   return FormatEnumerable(bigIntArray, sb, formatString, formatFlags);
-                case IEnumerable<Complex> complexNumArray:  return FormatEnumerable(complexNumArray, sb, formatString, formatFlags);
-                case IEnumerable<DateTime> dateTimeArray:   return FormatEnumerable(dateTimeArray, sb, formatString, formatFlags);
-                case IEnumerable<DateOnly> dateOnlyArray:   return FormatEnumerable(dateOnlyArray, sb, formatString, formatFlags);
-                case IEnumerable<TimeSpan> timeSpanArray:   return FormatEnumerable(timeSpanArray, sb, formatString, formatFlags);
-                case IEnumerable<TimeOnly> timeOnlyArray:   return FormatEnumerable(timeOnlyArray, sb, formatString, formatFlags);
-                case IEnumerable<Rune> runeArray:           return FormatEnumerable(runeArray, sb, formatString, formatFlags);
-                case IEnumerable<Guid> guidArray:           return FormatEnumerable(guidArray, sb, formatString, formatFlags);
-                case IEnumerable<IPNetwork> ipNetworkArray: return FormatEnumerable(ipNetworkArray, sb, formatString, formatFlags);
-                case IEnumerable<Enum> enumArray:           return FormatEnumerable(enumArray, sb, formatString, formatFlags);
-                case IEnumerable<Version> versionArray:     return FormatEnumerable(versionArray, sb, formatString, formatFlags);
-                case IEnumerable<IPAddress> ipAddressArray: return FormatEnumerable(ipAddressArray, sb, formatString, formatFlags);
-                case IEnumerable<Uri> uriArray:             return FormatEnumerable(uriArray, sb, formatString, formatFlags);
+                case IEnumerable<bool?> boolEnumerable:           
+                    return FormatBoolEnumerator(boolEnumerable.GetEnumerator(), sb, formatString, formatFlags);
+                case IEnumerable<byte> byteEnumerable:           return FormatEnumerable(byteEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<sbyte> sbyteEnumerable:         return FormatEnumerable(sbyteEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<char> charEnumerable:           return FormatEnumerable(charEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<short> shortEnumerable:         return FormatEnumerable(shortEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<ushort> uShortEnumerable:       return FormatEnumerable(uShortEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Half> halfFloatEnumerable:      return FormatEnumerable(halfFloatEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<int> intEnumerable:             return FormatEnumerable(intEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<uint> uIntEnumerable:           return FormatEnumerable(uIntEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<nint> nIntEnumerable:           return FormatEnumerable(nIntEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<float> floatEnumerable:         return FormatEnumerable(floatEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<long> longEnumerable:           return FormatEnumerable(longEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<ulong> uLongEnumerable:         return FormatEnumerable(uLongEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<double> doubleEnumerable:       return FormatEnumerable(doubleEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<decimal> decimalEnumerable:     return FormatEnumerable(decimalEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Int128> veryLongEnumerable:     return FormatEnumerable(veryLongEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<UInt128> veryULongEnumerable:   return FormatEnumerable(veryULongEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<BigInteger> bigIntEnumerable:   return FormatEnumerable(bigIntEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Complex> complexNumEnumerable:  return FormatEnumerable(complexNumEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<DateTime> dateTimeEnumerable:   return FormatEnumerable(dateTimeEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<DateOnly> dateOnlyEnumerable:   return FormatEnumerable(dateOnlyEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<TimeSpan> timeSpanEnumerable:   return FormatEnumerable(timeSpanEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<TimeOnly> timeOnlyEnumerable:   return FormatEnumerable(timeOnlyEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Rune> runeEnumerable:           return FormatEnumerable(runeEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Guid> guidEnumerable:           return FormatEnumerable(guidEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<IPNetwork> ipNetworkEnumerable: return FormatEnumerable(ipNetworkEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Enum> enumEnumerable:           return FormatEnumerable(enumEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Version> versionEnumerable:     return FormatEnumerable(versionEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<IPAddress> ipAddressEnumerable: return FormatEnumerable(ipAddressEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Uri> uriEnumerable:             return FormatEnumerable(uriEnumerable, sb, formatString, formatFlags);
             }
         }
         else if (enumerableElementType is { IsValueType: true, IsGenericType: true } &&
@@ -1225,31 +1231,33 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         {
             switch (source)
             {
-                case IEnumerable<byte?> nullByteArray:           return FormatEnumerable(nullByteArray, sb, formatString, formatFlags);
-                case IEnumerable<sbyte?> nullSbyteArray:         return FormatEnumerable(nullSbyteArray, sb, formatString, formatFlags);
-                case IEnumerable<char?> nullCharArray:           return FormatEnumerable(nullCharArray, sb, formatString, formatFlags);
-                case IEnumerable<short?> nullShortArray:         return FormatEnumerable(nullShortArray, sb, formatString, formatFlags);
-                case IEnumerable<ushort?> nullUShortArray:       return FormatEnumerable(nullUShortArray, sb, formatString, formatFlags);
-                case IEnumerable<Half?> nullHalfFloatArray:      return FormatEnumerable(nullHalfFloatArray, sb, formatString, formatFlags);
-                case IEnumerable<int?> nullIntArray:             return FormatEnumerable(nullIntArray, sb, formatString, formatFlags);
-                case IEnumerable<uint?> nullUIntArray:           return FormatEnumerable(nullUIntArray, sb, formatString, formatFlags);
-                case IEnumerable<nint?> nullNIntArray:           return FormatEnumerable(nullNIntArray, sb, formatString, formatFlags);
-                case IEnumerable<float?> nullFloatArray:         return FormatEnumerable(nullFloatArray, sb, formatString, formatFlags);
-                case IEnumerable<long?> nullLongArray:           return FormatEnumerable(nullLongArray, sb, formatString, formatFlags);
-                case IEnumerable<ulong?> nullULongArray:         return FormatEnumerable(nullULongArray, sb, formatString, formatFlags);
-                case IEnumerable<double?> nullDoubleArray:       return FormatEnumerable(nullDoubleArray, sb, formatString, formatFlags);
-                case IEnumerable<decimal?> nullDecimalArray:     return FormatEnumerable(nullDecimalArray, sb, formatString, formatFlags);
-                case IEnumerable<Int128?> nullVeryLongArray:     return FormatEnumerable(nullVeryLongArray, sb, formatString, formatFlags);
-                case IEnumerable<UInt128?> nullVeryULongArray:   return FormatEnumerable(nullVeryULongArray, sb, formatString, formatFlags);
-                case IEnumerable<BigInteger?> nullBigIntArray:   return FormatEnumerable(nullBigIntArray, sb, formatString, formatFlags);
-                case IEnumerable<Complex?> nullComplexNumArray:  return FormatEnumerable(nullComplexNumArray, sb, formatString, formatFlags);
-                case IEnumerable<DateTime?> nullDateTimeArray:   return FormatEnumerable(nullDateTimeArray, sb, formatString, formatFlags);
-                case IEnumerable<DateOnly?> nullDateOnlyArray:   return FormatEnumerable(nullDateOnlyArray, sb, formatString, formatFlags);
-                case IEnumerable<TimeSpan?> nullTimeSpanArray:   return FormatEnumerable(nullTimeSpanArray, sb, formatString, formatFlags);
-                case IEnumerable<TimeOnly?> nullTimeOnlyArray:   return FormatEnumerable(nullTimeOnlyArray, sb, formatString, formatFlags);
-                case IEnumerable<Rune?> nullRuneArray:           return FormatEnumerable(nullRuneArray, sb, formatString, formatFlags);
-                case IEnumerable<Guid?> nullGuidArray:           return FormatEnumerable(nullGuidArray, sb, formatString, formatFlags);
-                case IEnumerable<IPNetwork?> nullIpNetworkArray: return FormatEnumerable(nullIpNetworkArray, sb, formatString, formatFlags);
+                case IEnumerable<bool?> nullBoolEnumerable:           
+                    return FormatBoolEnumerator(nullBoolEnumerable.GetEnumerator(), sb, formatString, formatFlags);
+                case IEnumerable<byte?> nullByteEnumerable:           return FormatEnumerable(nullByteEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<sbyte?> nullSbyteEnumerable:         return FormatEnumerable(nullSbyteEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<char?> nullCharEnumerable:           return FormatEnumerable(nullCharEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<short?> nullShortEnumerable:         return FormatEnumerable(nullShortEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<ushort?> nullUShortEnumerable:       return FormatEnumerable(nullUShortEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Half?> nullHalfFloatEnumerable:      return FormatEnumerable(nullHalfFloatEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<int?> nullIntEnumerable:             return FormatEnumerable(nullIntEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<uint?> nullUIntEnumerable:           return FormatEnumerable(nullUIntEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<nint?> nullNIntEnumerable:           return FormatEnumerable(nullNIntEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<float?> nullFloatEnumerable:         return FormatEnumerable(nullFloatEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<long?> nullLongEnumerable:           return FormatEnumerable(nullLongEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<ulong?> nullULongEnumerable:         return FormatEnumerable(nullULongEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<double?> nullDoubleEnumerable:       return FormatEnumerable(nullDoubleEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<decimal?> nullDecimalEnumerable:     return FormatEnumerable(nullDecimalEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Int128?> nullVeryLongEnumerable:     return FormatEnumerable(nullVeryLongEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<UInt128?> nullVeryULongEnumerable:   return FormatEnumerable(nullVeryULongEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<BigInteger?> nullBigIntEnumerable:   return FormatEnumerable(nullBigIntEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Complex?> nullComplexNumEnumerable:  return FormatEnumerable(nullComplexNumEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<DateTime?> nullDateTimeEnumerable:   return FormatEnumerable(nullDateTimeEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<DateOnly?> nullDateOnlyEnumerable:   return FormatEnumerable(nullDateOnlyEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<TimeSpan?> nullTimeSpanEnumerable:   return FormatEnumerable(nullTimeSpanEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<TimeOnly?> nullTimeOnlyEnumerable:   return FormatEnumerable(nullTimeOnlyEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Rune?> nullRuneEnumerable:           return FormatEnumerable(nullRuneEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<Guid?> nullGuidEnumerable:           return FormatEnumerable(nullGuidEnumerable, sb, formatString, formatFlags);
+                case IEnumerable<IPNetwork?> nullIpNetworkEnumerable: return FormatEnumerable(nullIpNetworkEnumerable, sb, formatString, formatFlags);
             }
         }
         return 0;
@@ -1260,70 +1268,74 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         var listType = type.GetListElementType()!;
 
-        if (listType.IsSpanFormattable())
+        if (listType.IsSpanFormattable() || listType.IsBool())
         {
             switch (source)
             {
-                case IReadOnlyList<byte> byteArray:           return FormatList(byteArray, sb, formatString, formatFlags);
-                case IReadOnlyList<sbyte> sbyteArray:         return FormatList(sbyteArray, sb, formatString, formatFlags);
-                case IReadOnlyList<char> charArray:           return FormatList(charArray, sb, formatString, formatFlags);
-                case IReadOnlyList<short> shortArray:         return FormatList(shortArray, sb, formatString, formatFlags);
-                case IReadOnlyList<ushort> uShortArray:       return FormatList(uShortArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Half> halfFloatArray:      return FormatList(halfFloatArray, sb, formatString, formatFlags);
-                case IReadOnlyList<int> intArray:             return FormatList(intArray, sb, formatString, formatFlags);
-                case IReadOnlyList<uint> uIntArray:           return FormatList(uIntArray, sb, formatString, formatFlags);
-                case IReadOnlyList<nint> nIntArray:           return FormatList(nIntArray, sb, formatString, formatFlags);
-                case IReadOnlyList<float> floatArray:         return FormatList(floatArray, sb, formatString, formatFlags);
-                case IReadOnlyList<long> longArray:           return FormatList(longArray, sb, formatString, formatFlags);
-                case IReadOnlyList<ulong> uLongArray:         return FormatList(uLongArray, sb, formatString, formatFlags);
-                case IReadOnlyList<double> doubleArray:       return FormatList(doubleArray, sb, formatString, formatFlags);
-                case IReadOnlyList<decimal> decimalArray:     return FormatList(decimalArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Int128> veryLongArray:     return FormatList(veryLongArray, sb, formatString, formatFlags);
-                case IReadOnlyList<UInt128> veryULongArray:   return FormatList(veryULongArray, sb, formatString, formatFlags);
-                case IReadOnlyList<BigInteger> bigIntArray:   return FormatList(bigIntArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Complex> complexNumArray:  return FormatList(complexNumArray, sb, formatString, formatFlags);
-                case IReadOnlyList<DateTime> dateTimeArray:   return FormatList(dateTimeArray, sb, formatString, formatFlags);
-                case IReadOnlyList<DateOnly> dateOnlyArray:   return FormatList(dateOnlyArray, sb, formatString, formatFlags);
-                case IReadOnlyList<TimeSpan> timeSpanArray:   return FormatList(timeSpanArray, sb, formatString, formatFlags);
-                case IReadOnlyList<TimeOnly> timeOnlyArray:   return FormatList(timeOnlyArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Rune> runeArray:           return FormatList(runeArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Guid> guidArray:           return FormatList(guidArray, sb, formatString, formatFlags);
-                case IReadOnlyList<IPNetwork> ipNetworkArray: return FormatList(ipNetworkArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Enum> enumArray:           return FormatList(enumArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Version> versionArray:     return FormatList(versionArray, sb, formatString, formatFlags);
-                case IReadOnlyList<IPAddress> ipAddressArray: return FormatList(ipAddressArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Uri> uriArray:             return FormatList(uriArray, sb, formatString, formatFlags);
+                case IReadOnlyList<bool> boolList:           
+                    return FormatBoolEnumerator(boolList.GetEnumerator(), sb, formatString, formatFlags);
+                case IReadOnlyList<byte> byteList:           return FormatList(byteList, sb, formatString, formatFlags);
+                case IReadOnlyList<sbyte> sbyteList:         return FormatList(sbyteList, sb, formatString, formatFlags);
+                case IReadOnlyList<char> charList:           return FormatList(charList, sb, formatString, formatFlags);
+                case IReadOnlyList<short> shortList:         return FormatList(shortList, sb, formatString, formatFlags);
+                case IReadOnlyList<ushort> uShortList:       return FormatList(uShortList, sb, formatString, formatFlags);
+                case IReadOnlyList<Half> halfFloatList:      return FormatList(halfFloatList, sb, formatString, formatFlags);
+                case IReadOnlyList<int> intList:             return FormatList(intList, sb, formatString, formatFlags);
+                case IReadOnlyList<uint> uIntList:           return FormatList(uIntList, sb, formatString, formatFlags);
+                case IReadOnlyList<nint> nIntList:           return FormatList(nIntList, sb, formatString, formatFlags);
+                case IReadOnlyList<float> floatList:         return FormatList(floatList, sb, formatString, formatFlags);
+                case IReadOnlyList<long> longList:           return FormatList(longList, sb, formatString, formatFlags);
+                case IReadOnlyList<ulong> uLongList:         return FormatList(uLongList, sb, formatString, formatFlags);
+                case IReadOnlyList<double> doubleList:       return FormatList(doubleList, sb, formatString, formatFlags);
+                case IReadOnlyList<decimal> decimalList:     return FormatList(decimalList, sb, formatString, formatFlags);
+                case IReadOnlyList<Int128> veryLongList:     return FormatList(veryLongList, sb, formatString, formatFlags);
+                case IReadOnlyList<UInt128> veryULongList:   return FormatList(veryULongList, sb, formatString, formatFlags);
+                case IReadOnlyList<BigInteger> bigIntList:   return FormatList(bigIntList, sb, formatString, formatFlags);
+                case IReadOnlyList<Complex> complexNumList:  return FormatList(complexNumList, sb, formatString, formatFlags);
+                case IReadOnlyList<DateTime> dateTimeList:   return FormatList(dateTimeList, sb, formatString, formatFlags);
+                case IReadOnlyList<DateOnly> dateOnlyList:   return FormatList(dateOnlyList, sb, formatString, formatFlags);
+                case IReadOnlyList<TimeSpan> timeSpanList:   return FormatList(timeSpanList, sb, formatString, formatFlags);
+                case IReadOnlyList<TimeOnly> timeOnlyList:   return FormatList(timeOnlyList, sb, formatString, formatFlags);
+                case IReadOnlyList<Rune> runeList:           return FormatList(runeList, sb, formatString, formatFlags);
+                case IReadOnlyList<Guid> guidList:           return FormatList(guidList, sb, formatString, formatFlags);
+                case IReadOnlyList<IPNetwork> ipNetworkList: return FormatList(ipNetworkList, sb, formatString, formatFlags);
+                case IReadOnlyList<Enum> enumList:           return FormatList(enumList, sb, formatString, formatFlags);
+                case IReadOnlyList<Version> versionList:     return FormatList(versionList, sb, formatString, formatFlags);
+                case IReadOnlyList<IPAddress> ipAddressList: return FormatList(ipAddressList, sb, formatString, formatFlags);
+                case IReadOnlyList<Uri> uriList:             return FormatList(uriList, sb, formatString, formatFlags);
             }
         }
         else if (listType is { IsValueType: true, IsGenericType: true } && listType.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             switch (source)
             {
-                case IReadOnlyList<byte?> nullByteArray:           return FormatList(nullByteArray, sb, formatString, formatFlags);
-                case IReadOnlyList<sbyte?> nullSbyteArray:         return FormatList(nullSbyteArray, sb, formatString, formatFlags);
-                case IReadOnlyList<char?> nullCharArray:           return FormatList(nullCharArray, sb, formatString, formatFlags);
-                case IReadOnlyList<short?> nullShortArray:         return FormatList(nullShortArray, sb, formatString, formatFlags);
-                case IReadOnlyList<ushort?> nullUShortArray:       return FormatList(nullUShortArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Half?> nullHalfFloatArray:      return FormatList(nullHalfFloatArray, sb, formatString, formatFlags);
-                case IReadOnlyList<int?> nullIntArray:             return FormatList(nullIntArray, sb, formatString, formatFlags);
-                case IReadOnlyList<uint?> nullUIntArray:           return FormatList(nullUIntArray, sb, formatString, formatFlags);
-                case IReadOnlyList<nint?> nullNIntArray:           return FormatList(nullNIntArray, sb, formatString, formatFlags);
-                case IReadOnlyList<float?> nullFloatArray:         return FormatList(nullFloatArray, sb, formatString, formatFlags);
-                case IReadOnlyList<long?> nullLongArray:           return FormatList(nullLongArray, sb, formatString, formatFlags);
-                case IReadOnlyList<ulong?> nullULongArray:         return FormatList(nullULongArray, sb, formatString, formatFlags);
-                case IReadOnlyList<double?> nullDoubleArray:       return FormatList(nullDoubleArray, sb, formatString, formatFlags);
-                case IReadOnlyList<decimal?> nullDecimalArray:     return FormatList(nullDecimalArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Int128?> nullVeryLongArray:     return FormatList(nullVeryLongArray, sb, formatString, formatFlags);
-                case IReadOnlyList<UInt128?> nullVeryULongArray:   return FormatList(nullVeryULongArray, sb, formatString, formatFlags);
-                case IReadOnlyList<BigInteger?> nullBigIntArray:   return FormatList(nullBigIntArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Complex?> nullComplexNumArray:  return FormatList(nullComplexNumArray, sb, formatString, formatFlags);
-                case IReadOnlyList<DateTime?> nullDateTimeArray:   return FormatList(nullDateTimeArray, sb, formatString, formatFlags);
-                case IReadOnlyList<DateOnly?> nullDateOnlyArray:   return FormatList(nullDateOnlyArray, sb, formatString, formatFlags);
-                case IReadOnlyList<TimeSpan?> nullTimeSpanArray:   return FormatList(nullTimeSpanArray, sb, formatString, formatFlags);
-                case IReadOnlyList<TimeOnly?> nullTimeOnlyArray:   return FormatList(nullTimeOnlyArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Rune?> nullRuneArray:           return FormatList(nullRuneArray, sb, formatString, formatFlags);
-                case IReadOnlyList<Guid?> nullGuidArray:           return FormatList(nullGuidArray, sb, formatString, formatFlags);
-                case IReadOnlyList<IPNetwork?> nullIpNetworkArray: return FormatList(nullIpNetworkArray, sb, formatString, formatFlags);
+                case IReadOnlyList<bool?> nullBoolList:           
+                    return FormatBoolEnumerator(nullBoolList.GetEnumerator(), sb, formatString, formatFlags);
+                case IReadOnlyList<byte?> nullByteList:           return FormatList(nullByteList, sb, formatString, formatFlags);
+                case IReadOnlyList<sbyte?> nullSbyteList:         return FormatList(nullSbyteList, sb, formatString, formatFlags);
+                case IReadOnlyList<char?> nullCharList:           return FormatList(nullCharList, sb, formatString, formatFlags);
+                case IReadOnlyList<short?> nullShortList:         return FormatList(nullShortList, sb, formatString, formatFlags);
+                case IReadOnlyList<ushort?> nullUShortList:       return FormatList(nullUShortList, sb, formatString, formatFlags);
+                case IReadOnlyList<Half?> nullHalfFloatList:      return FormatList(nullHalfFloatList, sb, formatString, formatFlags);
+                case IReadOnlyList<int?> nullIntList:             return FormatList(nullIntList, sb, formatString, formatFlags);
+                case IReadOnlyList<uint?> nullUIntList:           return FormatList(nullUIntList, sb, formatString, formatFlags);
+                case IReadOnlyList<nint?> nullNIntList:           return FormatList(nullNIntList, sb, formatString, formatFlags);
+                case IReadOnlyList<float?> nullFloatList:         return FormatList(nullFloatList, sb, formatString, formatFlags);
+                case IReadOnlyList<long?> nullLongList:           return FormatList(nullLongList, sb, formatString, formatFlags);
+                case IReadOnlyList<ulong?> nullULongList:         return FormatList(nullULongList, sb, formatString, formatFlags);
+                case IReadOnlyList<double?> nullDoubleList:       return FormatList(nullDoubleList, sb, formatString, formatFlags);
+                case IReadOnlyList<decimal?> nullDecimalList:     return FormatList(nullDecimalList, sb, formatString, formatFlags);
+                case IReadOnlyList<Int128?> nullVeryLongList:     return FormatList(nullVeryLongList, sb, formatString, formatFlags);
+                case IReadOnlyList<UInt128?> nullVeryULongList:   return FormatList(nullVeryULongList, sb, formatString, formatFlags);
+                case IReadOnlyList<BigInteger?> nullBigIntList:   return FormatList(nullBigIntList, sb, formatString, formatFlags);
+                case IReadOnlyList<Complex?> nullComplexNumList:  return FormatList(nullComplexNumList, sb, formatString, formatFlags);
+                case IReadOnlyList<DateTime?> nullDateTimeList:   return FormatList(nullDateTimeList, sb, formatString, formatFlags);
+                case IReadOnlyList<DateOnly?> nullDateOnlyList:   return FormatList(nullDateOnlyList, sb, formatString, formatFlags);
+                case IReadOnlyList<TimeSpan?> nullTimeSpanList:   return FormatList(nullTimeSpanList, sb, formatString, formatFlags);
+                case IReadOnlyList<TimeOnly?> nullTimeOnlyList:   return FormatList(nullTimeOnlyList, sb, formatString, formatFlags);
+                case IReadOnlyList<Rune?> nullRuneList:           return FormatList(nullRuneList, sb, formatString, formatFlags);
+                case IReadOnlyList<Guid?> nullGuidList:           return FormatList(nullGuidList, sb, formatString, formatFlags);
+                case IReadOnlyList<IPNetwork?> nullIpNetworkList: return FormatList(nullIpNetworkList, sb, formatString, formatFlags);
             }
         }
         return 0;
@@ -1333,10 +1345,12 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         var elementType = type.GetElementType()!;
-        if (elementType.IsSpanFormattable())
+        if (elementType.IsSpanFormattable() || elementType.IsBool())
         {
             switch (source)
             {
+                case bool[] boolArray:           
+                    return FormatBoolEnumerator((IEnumerator<bool>)boolArray.GetEnumerator(), sb, formatString, formatFlags);
                 case byte[] byteArray:           return FormatArray(byteArray, sb, formatString, formatFlags);
                 case sbyte[] sbyteArray:         return FormatArray(sbyteArray, sb, formatString, formatFlags);
                 case char[] charArray:           return FormatArray(charArray, sb, formatString, formatFlags);
@@ -1372,6 +1386,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         {
             switch (source)
             {
+                case bool?[] nullBoolArray:           
+                    return FormatBoolEnumerator((IEnumerator<bool?>)(nullBoolArray.GetEnumerator()), sb, formatString, formatFlags);
                 case byte?[] nullByteArray:           return FormatArray(nullByteArray, sb, formatString, formatFlags);
                 case sbyte?[] nullSbyteArray:         return FormatArray(nullSbyteArray, sb, formatString, formatFlags);
                 case char?[] nullCharArray:           return FormatArray(nullCharArray, sb, formatString, formatFlags);
@@ -1400,6 +1416,186 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
             }
         }
         return 0;
+    }
+    
+    public virtual int FormatBoolEnumerator(IEnumerator<bool> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        var preAppendLen = sb.Length;
+        var hasNext      = arg0.MoveNext();
+
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
+        {
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
+        }
+        var elementType = typeof(bool);
+        if (!hasNext || !Options.IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, hasNext);
+        }
+        var itemCount   = 0;
+        if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+        {
+            while (hasNext)
+            {
+                var item = arg0.Current;
+                if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
+                CollectionNextItem(item, itemCount, sb);
+                itemCount++;
+                hasNext = arg0.MoveNext();
+            }
+        }
+        else
+        {
+            while (hasNext)
+            {
+                var item = arg0.Current;
+                if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
+                CollectionNextItem(item, itemCount, sb);
+                itemCount++;
+                hasNext = arg0.MoveNext();
+            }
+        }
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, itemCount);
+        }
+        return sb.Length - preAppendLen;
+    }
+
+    public virtual int FormatBoolEnumerator(IEnumerator<bool> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        var addedChars = 0;
+        var hasNext    = arg0.MoveNext();
+
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
+        {
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
+        }
+        var elementType = typeof(bool);
+        if (!hasNext || !Options.IgnoreEmptyCollection)
+        {
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
+        }
+        var itemCount   = 0;
+        if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+        {
+            while (hasNext)
+            {
+                var item                      = arg0.Current;
+                if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+                addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
+                itemCount++;
+                hasNext = arg0.MoveNext();
+            }
+        }
+        else
+        {
+            while (hasNext)
+            {
+                var item                      = arg0.Current;
+                if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+                addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                itemCount++;
+                hasNext = arg0.MoveNext();
+            }
+        }
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
+        {
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+        }
+        return addedChars;
+    }
+
+    public virtual int FormatBoolEnumerator(IEnumerator<bool?> arg0, IStringBuilder sb, string? formatString = null
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        var preAppendLen = sb.Length;
+        var hasNext      = arg0.MoveNext();
+
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
+        {
+            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
+        }
+        var elementType = typeof(bool?);
+        if (!hasNext || !Options.IgnoreEmptyCollection)
+        {
+            CollectionStart(elementType, sb, hasNext);
+        }
+        var itemCount   = 0;
+        if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+        {
+            while (hasNext)
+            {
+                var item = arg0.Current;
+                if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
+                CollectionNextItem(item, itemCount, sb);
+                itemCount++;
+                hasNext = arg0.MoveNext();
+            }
+        }
+        else
+        {
+            while (hasNext)
+            {
+                var item = arg0.Current;
+                if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
+                CollectionNextItemFormat(item, itemCount, sb, formatString);
+                itemCount++;
+                hasNext = arg0.MoveNext();
+            }
+        }
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
+        {
+            CollectionEnd(elementType, sb, itemCount);
+        }
+        return sb.Length - preAppendLen;
+    }
+
+    public virtual int FormatBoolEnumerator(IEnumerator<bool?> arg0, Span<char> destCharSpan, int destStartIndex
+      , string? formatString = null, FormattingHandlingFlags formatFlags = EncodeInnerContent)
+    {
+        var addedChars = 0;
+        var hasNext    = arg0.MoveNext();
+
+        if (!hasNext && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
+        {
+            return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
+        }
+        var elementType = typeof(bool?);
+        if (!hasNext || !Options.IgnoreEmptyCollection)
+        {
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext);
+        }
+        var itemCount   = 0;
+        if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
+        {
+            while (hasNext)
+            {
+                var item                      = arg0.Current;
+                if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+                addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
+                itemCount++;
+                hasNext = arg0.MoveNext();
+            }
+        }
+        else
+        {
+            while (hasNext)
+            {
+                var item                      = arg0.Current;
+                if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+                addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString);
+                itemCount++;
+                hasNext = arg0.MoveNext();
+            }
+        }
+        if (itemCount > 0 || !Options.IgnoreEmptyCollection)
+        {
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+        }
+        return addedChars;
     }
 
     public abstract int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null

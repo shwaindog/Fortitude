@@ -46,7 +46,7 @@ public partial class SelectTypeFieldTests
         from scaffoldToCall in
             scafReg.IsComplexType()
                    .ProcessesSingleValue()
-                   .AcceptsOnlyBoolean()
+                   .AcceptsBoolean()
                    .AcceptsNonNullables()
         select new object[] { fe, scaffoldToCall };
 
@@ -62,7 +62,7 @@ public partial class SelectTypeFieldTests
         from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsOnlyBoolean().OnlyAcceptsNullableStructs()
+            scafReg.IsComplexType().ProcessesSingleValue().AcceptsBoolean().OnlyAcceptsNullableStructs()
         select new object[] { fe, scaffoldToCall };
 
     [TestMethod]
@@ -323,7 +323,7 @@ public partial class SelectTypeFieldTests
                 }
             }, new ScaffoldingPartEntry
                  (typeof(FieldCharSequenceWhenNonNullStringBearer<>)
-                , ComplexType | AcceptsSingleValue | NonDefaultWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
+                , ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling));
     }
 

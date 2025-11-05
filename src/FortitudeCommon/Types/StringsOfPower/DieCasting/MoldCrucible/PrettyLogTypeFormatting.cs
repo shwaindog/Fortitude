@@ -161,7 +161,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (!totalItemCount.HasValue)
         {

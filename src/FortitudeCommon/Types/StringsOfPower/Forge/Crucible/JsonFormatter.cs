@@ -479,7 +479,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int Format<TFmtStruct>(TFmtStruct? source, IStringBuilder sb, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
-        if (!source.HasValue) { return (Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length)); }
+        if (!source.HasValue)
+        {
+            return (Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length));
+        }
         return Format(source.Value, sb, formatString, formatFlags);
     }
 

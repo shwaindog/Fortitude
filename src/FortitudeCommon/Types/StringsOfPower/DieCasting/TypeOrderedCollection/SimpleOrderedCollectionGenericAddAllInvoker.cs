@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
@@ -75,7 +76,8 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
     private static readonly Type CharSequenceType         = typeof(ICharSequence);
     private static readonly Type StyledToStringObjectType = typeof(IStringBearer);
     private static readonly Type StringBuilderType        = typeof(StringBuilder);
-    private static readonly Type Func4TypesType           = typeof(Func<,,,>);
+    private static readonly Type Func5TypesType           = typeof(Func<,,,,>);
+    private static readonly Type FieldContentHandlingType = typeof(FieldContentHandling);
 
     static SimpleOrderedCollectionGenericAddAllInvoker()
     {
@@ -125,7 +127,8 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             = MyCallAddAllMethodInfo(typeof(SimpleOrderedCollectionGenericAddAllInvoker).GetMethods(BindingFlags.Public | BindingFlags.Static));
     }
 
-    public static void CallAddAll<TOrdColl, TItem>(SimpleOrderedCollectionMold typeMolder, TOrdColl keyColl, string? valueFormatString = null)
+    public static void CallAddAll<TOrdColl, TItem>(SimpleOrderedCollectionMold typeMolder, TOrdColl keyColl
+      , string? valueFormatString = null, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
         where TOrdColl : IEnumerable<TItem>
     {
         var keyedCollType = keyColl.GetType();
@@ -136,26 +139,28 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
     }
 
     public static void CallAddAllEnumerator<TKeyColl, TItem>(
-        SimpleOrderedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
+        SimpleOrderedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null
+      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
         where TKeyColl : IEnumerator<TItem>
     {
         var keyedCollType = keyColl.GetType();
-        var callAddAllEnumerator = (Func<SimpleOrderedCollectionMold, TKeyColl, string?, SimpleOrderedCollectionMold>)
+        var callAddAllEnumerator = (Func<SimpleOrderedCollectionMold, TKeyColl, string?, FieldContentHandling, SimpleOrderedCollectionMold>)
             OrderedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
-        callAddAllEnumerator(typeMolder, keyColl, valueFormatString);
+        callAddAllEnumerator(typeMolder, keyColl, valueFormatString, formatFlags);
     }
 
-    public static void CallAddAll<TOrdColl>(SimpleOrderedCollectionMold typeMolder, TOrdColl keyColl, string? valueFormatString = null)
+    public static void CallAddAll<TOrdColl>(SimpleOrderedCollectionMold typeMolder, TOrdColl keyColl, string? valueFormatString = null
+      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
     {
         var tOrdType        = typeof(TOrdColl);
         var orderedCollType = keyColl!.GetType();
         if (tOrdType.IsEnumerable() || tOrdType.IsEnumerator())
         {
-            var callAddAllDelegate = (Func<SimpleOrderedCollectionMold, TOrdColl, string?, SimpleOrderedCollectionMold>)
+            var callAddAllDelegate = (Func<SimpleOrderedCollectionMold, TOrdColl, string?, FieldContentHandling, SimpleOrderedCollectionMold>)
                 OrderedCollAddAllInvokers.GetOrAdd(orderedCollType, CreateInvokeMethod);
 
-            callAddAllDelegate(typeMolder, keyColl, valueFormatString);
+            callAddAllDelegate(typeMolder, keyColl, valueFormatString, formatFlags);
         }
         else
         {
@@ -168,7 +173,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
                         void Converter(object?[] arguments) => genericMethod.Invoke(null, arguments);
                         return (Action<object?[]>)Converter;
                     });
-                callAddAllDelegate([typeMolder, keyColl, valueFormatString]);
+                callAddAllDelegate([typeMolder, keyColl, valueFormatString, formatFlags]);
             }
         }
     }
@@ -199,15 +204,16 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsBoolArray()) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
         }
-        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException($"Method does not exist for {AddAllMethodName}");
         return foundMatch;
     }
 
@@ -221,15 +227,16 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsNullableBoolArray()) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
         }
-        if (foundMatch == null) throw new InvalidOperationException("Method does not exist");
+        if (foundMatch == null) throw new InvalidOperationException($"Method does not exist for {AddAllMethodName}");
         return foundMatch;
     }
 
@@ -245,10 +252,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.IsSpanFormattable()) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsArrayOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -269,10 +277,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.IsSpanFormattable()) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsNullableArrayOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -291,10 +300,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsArrayOf(StringType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -315,10 +325,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.Derives(CharSequenceType)) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsArrayOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -337,10 +348,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsArrayOf(StringBuilderType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -361,9 +373,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.Derives(StyledToStringObjectType)) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsArrayOf(genericParam)) continue;
+            if (methodParams[1].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -383,10 +396,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             if (genericParams.Length != 1) continue;
             var genericParam = genericParams[0];
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsArrayOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -405,10 +419,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsBoolList()) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -427,10 +442,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsReadOnlyListOfNullable(BoolType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -451,10 +467,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.IsSpanFormattable()) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsReadOnlyListOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -475,10 +492,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.IsSpanFormattable()) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsReadOnlyListOfNullable(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -497,10 +515,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsReadOnlyListOf(StringType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -521,10 +540,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.Derives(CharSequenceType)) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsReadOnlyListOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -543,10 +563,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsReadOnlyListOf(StringBuilderType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -567,9 +588,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.Derives(StyledToStringObjectType)) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsReadOnlyListOf(genericParam)) continue;
+            if (methodParams[1].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -589,10 +611,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             if (genericParams.Length != 1) continue;
             var genericParam = genericParams[0];
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsReadOnlyListOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -611,10 +634,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOf(BoolType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -633,10 +657,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOfNullable(BoolType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -657,10 +682,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.IsSpanFormattable()) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -681,10 +707,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.IsSpanFormattable()) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOfNullable(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -703,10 +730,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOf(StringType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -727,10 +755,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.Derives(CharSequenceType)) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -749,10 +778,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOf(StringBuilderType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -773,9 +803,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.Derives(StyledToStringObjectType)) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOf(genericParam)) continue;
+            if (methodParams[1].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -795,10 +826,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             if (genericParams.Length != 1) continue;
             var genericParam = genericParams[0];
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -817,10 +849,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOf(BoolType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -839,10 +872,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOfNullable(BoolType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -863,10 +897,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.IsSpanFormattable()) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -887,10 +922,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.IsSpanFormattable()) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOfNullable(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -909,10 +945,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOf(StringType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -933,10 +970,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.Derives(CharSequenceType)) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -955,10 +993,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 0) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOf(StringBuilderType)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -979,9 +1018,10 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             var genericParam = genericParams[0];
             if (!genericParam.Derives(StyledToStringObjectType)) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 1) continue;
+            if (methodParams.Length != 2) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumeratorOf(genericParam)) continue;
+            if (methodParams[1].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -1001,10 +1041,11 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             if (genericParams.Length != 1) continue;
             var genericParam = genericParams[0];
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 2) continue;
+            if (methodParams.Length != 3) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (!methParam1Type.IsEnumerableOf(genericParam)) continue;
             if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams[2].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -1024,13 +1065,14 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
             if (genericParams.Length != 1) continue;
             var genericParam = genericParams[0];
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 3) continue;
+            if (methodParams.Length != 4) continue;
             var methParam1Type = methodParams[0].ParameterType;
             if (methParam1Type != SimpleOrderedCollectionBuilderType) continue;
             var methParam2Type = methodParams[1].ParameterType;
             if (methParam2Type != genericParam) continue;
             var methParam3Type = methodParams[2].ParameterType;
             if (methParam3Type != StringType) continue;
+            if (methodParams[3].ParameterType != FieldContentHandlingType) continue;
 
             foundMatch = mi;
             break;
@@ -1126,19 +1168,19 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         {
             var myType = typeof(SimpleOrderedCollectionGenericAddAllInvoker);
             var noOpMethodToCall = myType.GetMethod($"{nameof(NoOpNotASupportedOrderedCollection)}", [
-                SimpleOrderedCollectionBuilderType, keyedCollType, StringType, SimpleOrderedCollectionBuilderType
+                SimpleOrderedCollectionBuilderType, keyedCollType, StringType, FieldContentHandlingType, SimpleOrderedCollectionBuilderType
             ]);
             noOpMethodToCall = noOpMethodToCall!.MakeGenericMethod(keyedCollType);
 
-            var noOpInvokerType = Func4TypesType.MakeGenericType
-                (SimpleOrderedCollectionBuilderType, keyedCollType, StringType, SimpleOrderedCollectionBuilderType);
+            var noOpInvokerType = Func5TypesType.MakeGenericType
+                (SimpleOrderedCollectionBuilderType, keyedCollType, StringType, FieldContentHandlingType, SimpleOrderedCollectionBuilderType);
             var noOpInvoker = GetAddAllInvoker(SimpleOrderedCollectionBuilderType, keyedCollType, noOpMethodToCall, noOpInvokerType);
             OrderedCollAddAllInvokers.TryAdd(keyedCollType, noOpInvoker);
             return noOpInvoker;
         }
         if (selectedMethodInfo.IsGenericMethod) { selectedMethodInfo = selectedMethodInfo.MakeGenericMethod(itemType); }
-        Type invokerType = Func4TypesType.MakeGenericType
-            (SimpleOrderedCollectionBuilderType, keyedCollType, StringType, SimpleOrderedCollectionBuilderType);
+        Type invokerType = Func5TypesType.MakeGenericType
+            (SimpleOrderedCollectionBuilderType, keyedCollType, StringType, FieldContentHandlingType, SimpleOrderedCollectionBuilderType);
         var invoker = isFormattable
             ? GetAddAllFormattableInvoker(SimpleOrderedCollectionBuilderType, keyedCollType, selectedMethodInfo, invokerType)
             : GetAddAllInvoker(SimpleOrderedCollectionBuilderType, keyedCollType, selectedMethodInfo, invokerType);
@@ -1156,10 +1198,12 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
     {
         var helperMethod =
             new DynamicMethod($"{keyValueCollectionBuilder.Name}_{collectionToAdd.Name}_AddAll", keyValueCollectionBuilder,
-                              [keyValueCollectionBuilder, collectionToAdd, StringType], keyValueCollectionBuilder.Module, true);
+                              [keyValueCollectionBuilder, collectionToAdd, StringType, FieldContentHandlingType], keyValueCollectionBuilder.Module
+                            , true);
         var ilGenerator = helperMethod.GetILGenerator();
         ilGenerator.Emit(OpCodes.Ldarg_0);
         ilGenerator.Emit(OpCodes.Ldarg_1);
+        ilGenerator.Emit(OpCodes.Ldarg_2);
         ilGenerator.Emit(OpCodes.Call, methodToCall);
         ilGenerator.Emit(OpCodes.Ret);
         var methodInvoker = helperMethod.CreateDelegate(invokerFunc);
@@ -1171,14 +1215,27 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
     {
         var helperMethod =
             new DynamicMethod($"{keyValueCollectionBuilder.Name}_AddAll", keyValueCollectionBuilder,
-                              [keyValueCollectionBuilder, collectionToAdd, StringType], keyValueCollectionBuilder.Module, true);
+                              [keyValueCollectionBuilder, collectionToAdd, StringType, FieldContentHandlingType]
+                            , keyValueCollectionBuilder.Module, true);
         var ilGenerator = helperMethod.GetILGenerator();
         ilGenerator.Emit(OpCodes.Ldarg_0);
         ilGenerator.Emit(OpCodes.Ldarg_1);
         ilGenerator.Emit(OpCodes.Ldarg_2);
+        ilGenerator.Emit(OpCodes.Ldarg_3);
         ilGenerator.Emit(OpCodes.Call, methodToCall);
         ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker = helperMethod.CreateDelegate(invokerFunc);
+
+        Delegate methodInvoker;
+        try { methodInvoker = helperMethod.CreateDelegate(invokerFunc); }
+        catch (Exception e)
+        {
+            Console.Out.WriteLine
+                ($"Problem creating dynamic invoker for {keyValueCollectionBuilder.ShortNameInCSharpFormat()}.{methodToCall.Name} " +
+                 $"with args(" +
+                 $"({string.Join(",", methodToCall.GetParameters().Select(pi => pi.ParameterType.ShortNameInCSharpFormat()))})" +
+                 $" Got {e}");
+            throw;
+        }
         return methodInvoker;
     }
 

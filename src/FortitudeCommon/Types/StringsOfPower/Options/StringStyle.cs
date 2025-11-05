@@ -17,6 +17,7 @@ public enum StringStyle
   , Json        = 0x08
   , CompactJson = 0x09
   , PrettyJson  = 0x0A
+  , AllStyles   = 0x0F  
 }
 
 public static class StringStyleExtensions

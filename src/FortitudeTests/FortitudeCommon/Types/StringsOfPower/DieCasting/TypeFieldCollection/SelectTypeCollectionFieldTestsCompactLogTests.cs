@@ -17,7 +17,7 @@ using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.TypeFieldCollection;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldCollection;
 
 [TestClass]
 public partial class SelectTypeCollectionFieldTests
@@ -41,20 +41,63 @@ public partial class SelectTypeCollectionFieldTests
         return $"{methodInfo.Name}_{(((IFormatExpectation)data[0]).ShortTestName)}_{((ScaffoldingPartEntry)data[1]).Name}";
     }
 
-    private static IEnumerable<object[]> BooleanCollectionsExpect =>
+    private static IEnumerable<object[]> UnfilteredBooleanCollectionsExpect =>
         (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations.Value
-            where !fe.ElementTypeIsNullable   
-            from scaffoldToCall in scafReg.IsJustComplexType().ProcessesCollection().AcceptsOnlyBoolean().AcceptsNonNullables()
+            where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+            from scaffoldToCall in 
+                scafReg
+                    .IsJustComplexType()
+                    .ProcessesCollection()
+                    .NoFilterPredicate()
+                    .AcceptsBoolean()
+                    .AcceptsNonNullables()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in BoolCollectionsTestData.AllBoolCollectionExpectations.Value
-                where fe.ElementTypeIsNullable   
-                from scaffoldToCall in scafReg.IsJustComplexType().ProcessesCollection().AcceptsOnlyBoolean().OnlyAcceptsNullableStructs()
+                where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .NoFilterPredicate()
+                        .AcceptsBoolean()
+                        .OnlyAcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
-    [DynamicData(nameof(BooleanCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    [DynamicData(nameof(UnfilteredBooleanCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> FilteredBooleanCollectionsExpect =>
+        (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations.Value
+            where !fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
+            from scaffoldToCall in 
+                scafReg
+                    .IsJustComplexType()
+                    .ProcessesCollection()
+                    .HasFilterPredicate()
+                    .AcceptsBoolean()
+                    .AcceptsNonNullables()
+            select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in BoolCollectionsTestData.AllBoolCollectionExpectations.Value
+                where fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .HasFilterPredicate()
+                        .AcceptsBoolean()
+                        .OnlyAcceptsNullableStructs()
+                select new object[] { fe, scaffoldToCall });
+
+    [TestMethod]
+    [DynamicData(nameof(FilteredBooleanCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -292,7 +335,7 @@ public partial class SelectTypeCollectionFieldTests
                 }
             }, new ScaffoldingPartEntry
                  (typeof(FieldCharSequenceWhenNonNullStringBearer<>)
-                , ComplexType | AcceptsSingleValue | NonDefaultWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
+                , ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling));
     }
 

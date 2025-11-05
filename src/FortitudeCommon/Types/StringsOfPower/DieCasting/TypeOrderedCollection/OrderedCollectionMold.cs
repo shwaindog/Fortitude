@@ -49,7 +49,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         else
         {
             var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            CompAccess.StyleFormatter.FormatCollectionEnd(CompAccess.Sb, elementType!, 1);
+            CompAccess.StyleFormatter.FormatCollectionEnd(CompAccess.Sb, elementType!, 1, "");
         }
     }
 
