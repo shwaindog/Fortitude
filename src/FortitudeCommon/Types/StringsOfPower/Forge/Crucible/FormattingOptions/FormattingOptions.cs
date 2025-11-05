@@ -12,7 +12,7 @@ public interface IFormattingOptions
     
     string ItemSeparator { get; set; }
 
-    bool NullWritesNothing { get; set; }
+    bool NullWritesEmpty { get; set; }
 
     bool NullWritesNullString { get; set; }
 
@@ -54,7 +54,7 @@ public class FormattingOptions : ExplicitRecyclableObject, IFormattingOptions
 
     public string ItemSeparator { get; set; } = IFormattingOptions.DefaultItemSeparator;
 
-    public bool NullWritesNothing
+    public bool NullWritesEmpty
     {
         get => !writeNullString;
         set => writeNullString = !value;

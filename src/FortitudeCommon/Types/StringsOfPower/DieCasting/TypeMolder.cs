@@ -162,7 +162,7 @@ public static class StyledTypeBuilderExtensions
         if (value == null)
         {
             var sb = stb.Sb;
-            sb.Append(stb.Settings.NullStyle);
+            sb.Append(stb.Settings.NullString);
             return stb;
         }
         if (!callContext.HasFormatChange) return stb.AppendFormattedOrNull(value, formatString, formatFlags, isKeyName);
@@ -264,7 +264,7 @@ public static class StyledTypeBuilderExtensions
         if (value == null)
         {
             var sb = stb.Sb;
-            sb.Append(stb.Settings.NullStyle);
+            sb.Append(stb.Settings.NullString);
             return stb;
         }
         formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, formatString, isKeyName);
@@ -404,7 +404,7 @@ public static class StyledTypeBuilderExtensions
         
         if (value == null)
         {
-            sb.Append(stb.Settings.NullStyle);
+            sb.Append(stb.Settings.NullString);
             return stb;
         }
         if (isKeyName)
@@ -439,7 +439,7 @@ public static class StyledTypeBuilderExtensions
         var cappedFrom = Math.Clamp(fromIndex, 0,  value.Length);
         if (value.Length == 0)
         {
-            sb.Append(stb.Settings.NullStyle);
+            sb.Append(stb.Settings.NullString);
             return stb;
         }
         formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, "InputIsCharSpan", formatFlags, formatString, isKeyName);
@@ -474,7 +474,7 @@ public static class StyledTypeBuilderExtensions
         var sb = stb.Sb;
         if (value == null)
         {
-            sb.Append(stb.Settings.NullStyle);
+            sb.Append(stb.Settings.NullString);
             return stb;
         }
         formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, "InputIsCharSpan", formatFlags, formatString, isKeyName);
@@ -510,7 +510,7 @@ public static class StyledTypeBuilderExtensions
         var sb = stb.Sb;
         if (value == null)
         {
-            sb.Append(stb.Settings.NullStyle);
+            sb.Append(stb.Settings.NullString);
             return stb;
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
@@ -547,7 +547,7 @@ public static class StyledTypeBuilderExtensions
         var sb = stb.Sb;
         if (value == null)
         {
-            sb.Append(stb.Settings.NullStyle);
+            sb.Append(stb.Settings.NullString);
             return stb;
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
@@ -584,7 +584,7 @@ public static class StyledTypeBuilderExtensions
         var sb = stb.Sb;
         if (value == null)
         {
-            sb.Append(stb.Settings.NullStyle);
+            sb.Append(stb.Settings.NullString);
             return stb;
         }
         var cappedFrom = Math.Clamp(fromIndex, 0, value.Length);

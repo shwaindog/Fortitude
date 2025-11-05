@@ -31,7 +31,7 @@ public class FieldBoolSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<bo
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStruct | AcceptsNullableStruct)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsNullableStruct)]
 public class FieldNullableBoolSpanWhenNonNullAddAllStringBearer : IMoldSupportedValue<bool?[]>
 {
     public bool?[] ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolSpan

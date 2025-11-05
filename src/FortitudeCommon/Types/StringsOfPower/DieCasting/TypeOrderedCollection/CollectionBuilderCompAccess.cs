@@ -19,7 +19,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
         return this;
     }
     
-    public void ConditionalCollectionPrefix(Type elementType, bool hasAny)
+    public void ConditionalCollectionPrefix(Type elementType, bool? hasAny)
     {
         if (CollectionInComplexType)
         {
@@ -29,7 +29,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
         }
     }
 
-    public bool ConditionalCollectionSuffix(Type elementType, int count)
+    public bool ConditionalCollectionSuffix(Type elementType, int? count)
     {
         if (CollectionInComplexType)
         {

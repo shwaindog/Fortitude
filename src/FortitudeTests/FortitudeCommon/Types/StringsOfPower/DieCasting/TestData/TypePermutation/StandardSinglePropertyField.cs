@@ -12,7 +12,6 @@ using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
 
-[NoMatchingProductionClass]
 public class StandardSinglePropertyFieldClass : IStringBearer
 {
     public StandardSinglePropertyFieldClass()

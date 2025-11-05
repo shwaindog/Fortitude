@@ -30,7 +30,7 @@ public class FieldBoolSpanWhenPopulatedAddAllStringBearer : IMoldSupportedValue<
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsNullableStruct)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsNullableStruct)]
 public class FieldNullableBoolSpanWhenPopulatedAddAllStringBearer : IMoldSupportedValue<bool?[]>
 {
     public bool?[] ComplexTypeCollectionFieldWhenPopulatedAddAllNullableBoolSpan

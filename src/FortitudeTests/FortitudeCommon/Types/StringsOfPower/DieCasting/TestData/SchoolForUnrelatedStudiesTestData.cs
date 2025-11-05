@@ -11,6 +11,9 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.OrderedLists;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -430,7 +433,7 @@ public class SchoolForUnrelatedStudiesTestData
                     RequiredAttendeeLicense = null
                   , RequiredTeacherLicense  = new HighVoltageElectriciansLicense("Level 2 - Polls and Wires")
 
-                  , RecentGrades = new LinkedList<double?>(TestStringAppendCollections.IntToDoubleMap.Select(kvp => (double?)kvp.Value))
+                  , RecentGrades = new LinkedList<double?>(TestMaps.IntToDoubleMap.Select(kvp => (double?)kvp.Value))
                   , SubjectOwner = (AccredittedInstructor)CourseDeliverers[eidShakespeare]
                 }
             }
@@ -439,7 +442,7 @@ public class SchoolForUnrelatedStudiesTestData
                 "MA102", new EngineeringSubject("Calculus for Fluids")
                 {
                     RecentGrades
-                        = new LinkedList<double?>(TestStringAppendCollections.IntToDoubleMap.Select(kvp => (double?)kvp.Value / 10))
+                        = new LinkedList<double?>(TestMaps.IntToDoubleMap.Select(kvp => (double?)kvp.Value / 10))
                   , CourseCoordinator = (Lecturer)CourseDeliverers[eidLennon]
                 }
             }
@@ -450,7 +453,7 @@ public class SchoolForUnrelatedStudiesTestData
                     RequiredAttendeeLicense = null
                   , RequiredTeacherLicense  = new HighPressureHydraulicsLicense("Level 1 - Domestic Water supply")
 
-                  , RecentGrades = new LinkedList<double?>(TestStringAppendCollections.IntToDoubleMap.Select(kvp => (double?)kvp.Value))
+                  , RecentGrades = new LinkedList<double?>(TestMaps.IntToDoubleMap.Select(kvp => (double?)kvp.Value))
                   , SubjectOwner = (AccredittedInstructor)CourseDeliverers[eidJoel]
                 }
             }
@@ -461,7 +464,7 @@ public class SchoolForUnrelatedStudiesTestData
                     RequiredAttendeeLicense = null
                   , RequiredTeacherLicense  = new HighVoltageElectriciansLicense("Level 1 - Polls and Wires")
 
-                  , RecentGrades = new LinkedList<double?>(TestStringAppendCollections.IntToDoubleMap.Select(kvp => (double?)kvp.Value))
+                  , RecentGrades = new LinkedList<double?>(TestMaps.IntToDoubleMap.Select(kvp => (double?)kvp.Value))
                   , SubjectOwner = (AccredittedInstructor)CourseDeliverers[eidShakespeare]
                 }
             }
@@ -470,7 +473,7 @@ public class SchoolForUnrelatedStudiesTestData
                 "MA103", new EngineeringSubject("Sochastic Processes")
                 {
                     RecentGrades
-                        = new LinkedList<double?>(TestStringAppendCollections.IntToDoubleMap.Select(kvp => (double?)kvp.Value / 100))
+                        = new LinkedList<double?>(TestMaps.IntToDoubleMap.Select(kvp => (double?)kvp.Value / 100))
                   , CourseCoordinator = (Lecturer)CourseDeliverers[eidLennon]
                 }
             }
@@ -482,7 +485,7 @@ public class SchoolForUnrelatedStudiesTestData
                   , RequiredTeacherLicense  = new HighPressureHydraulicsLicense("Level 1 - Urban street plans")
 
                   , RecentGrades
-                        = new LinkedList<double?>(TestStringAppendCollections.IntToDoubleMap.Select(kvp => (double?)kvp.Value * 67))
+                        = new LinkedList<double?>(TestMaps.IntToDoubleMap.Select(kvp => (double?)kvp.Value * 67))
                   , SubjectOwner = (AccredittedInstructor)CourseDeliverers[eidJoel]
                 }
             }

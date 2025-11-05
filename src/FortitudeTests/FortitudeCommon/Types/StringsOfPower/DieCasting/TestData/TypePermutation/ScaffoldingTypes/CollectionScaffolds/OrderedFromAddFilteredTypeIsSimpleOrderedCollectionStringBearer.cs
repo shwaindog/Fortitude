@@ -10,7 +10,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.OrderedCollectionScaffolds;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.CollectionScaffolds;
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray | FilterPredicate | AcceptsStruct)]
 public class OrderedFromBoolArrayAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool>
@@ -176,9 +176,9 @@ public class OrderedFromNullableBoolReadOnlySpanAddFilteredSimpleOrderedCollecti
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct)]
 public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool>
-  , IMoldSupportedValue<List<bool>?>, IEnumerable<bool>
+  , IMoldSupportedValue<IReadOnlyList<bool>?>, IEnumerable<bool>
 {
-    public List<bool>? OrderedCollectionAddFilteredBoolList
+    public IReadOnlyList<bool>? OrderedCollectionAddFilteredBoolList
     {
         get => Value;
         set =>Value = value;
@@ -186,7 +186,7 @@ public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer :
 
     public string PropertyName => nameof(OrderedCollectionAddFilteredBoolList);
 
-    public List<bool>? Value { get; set; }
+    public IReadOnlyList<bool>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -203,9 +203,9 @@ public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer :
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct)]
 public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool?>
-  , IMoldSupportedValue<List<bool?>?>, IEnumerable<bool?>
+  , IMoldSupportedValue<IReadOnlyList<bool?>?>, IEnumerable<bool?>
 {
-    public List<bool?>? OrderedCollectionAddFilteredNullableBoolList
+    public IReadOnlyList<bool?>? OrderedCollectionAddFilteredNullableBoolList
     {
         get => Value;
         set =>Value = value;
@@ -213,7 +213,7 @@ public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionString
 
     public string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolList);
 
-    public List<bool?>? Value { get; set; }
+    public IReadOnlyList<bool?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -585,9 +585,9 @@ public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrde
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
-  , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<List<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
+  , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<IReadOnlyList<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
-    public List<TFmt?>? OrderedCollectionAddFilteredSpanFormattableList
+    public IReadOnlyList<TFmt?>? OrderedCollectionAddFilteredSpanFormattableList
     {
         get => Value;
         set =>Value = value;
@@ -595,7 +595,7 @@ public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStr
 
     public string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableList);
 
-    public List<TFmt?>? Value { get; set; }
+    public IReadOnlyList<TFmt?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -615,10 +615,10 @@ public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStr
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList | FilterPredicate | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
-  , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<List<TFmtStruct?>?>
+  , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
-    public List<TFmtStruct?>? OrderedCollectionAddFilteredNullableSpanFormattableList
+    public IReadOnlyList<TFmtStruct?>? OrderedCollectionAddFilteredNullableSpanFormattableList
     {
         get => Value;
         set =>Value = value;
@@ -626,7 +626,7 @@ public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedColle
 
     public string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableList);
 
-    public List<TFmtStruct?>? Value { get; set; }
+    public IReadOnlyList<TFmtStruct?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)

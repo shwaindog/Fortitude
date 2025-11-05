@@ -33,8 +33,13 @@ public class EK
         var styleIsMatched        = (style & MatchStyle) == style;
         var bothGenericOrNotScaff = true;
         if (MatchScaff.IsAcceptsAnyGeneric()) { bothGenericOrNotScaff = condition.IsAcceptsAnyGeneric(); }
-        var meetsMoldTypeCondition = (MatchScaff & ScaffoldingStringBuilderInvokeFlags.MoldTypeConditionMask) == 0 || (MatchScaff & ScaffoldingStringBuilderInvokeFlags.MoldTypeConditionMask & condition) > 0;
-        var meetsWriteCondition    = (MatchScaff & ScaffoldingStringBuilderInvokeFlags.OutputConditionMask & condition) > 0 || condition.HasAnyOf((ScaffoldingStringBuilderInvokeFlags.SimpleType));
+        
+        var meetsMoldTypeCondition = (MatchScaff & ScaffoldingStringBuilderInvokeFlags.MoldTypeConditionMask) == 0 
+                                  || (MatchScaff & ScaffoldingStringBuilderInvokeFlags.MoldTypeConditionMask & condition) > 0;
+        
+        var meetsWriteCondition    = 
+            (MatchScaff & ScaffoldingStringBuilderInvokeFlags.AllOutputConditionsMask & condition) > 0 
+         || condition.HasSimpleTypeFlag() || condition.HasOrderedCollectionTypeFlag() || condition.HasKeyedCollectionTypeFlag();
         var conditionHasBothBecomesNullAndFallback = (condition & ScaffoldingStringBuilderInvokeFlags.OutputBecomesMask) == (ScaffoldingStringBuilderInvokeFlags.DefaultBecomesNull | ScaffoldingStringBuilderInvokeFlags.DefaultBecomesFallback)
                                                   && (condition & ScaffoldingStringBuilderInvokeFlags.SupportsSettingDefaultValue) > 0;
         var scaffHasBothBecomesNullAndFallback = (MatchScaff & ScaffoldingStringBuilderInvokeFlags.OutputBecomesMask) == (ScaffoldingStringBuilderInvokeFlags.DefaultBecomesNull | ScaffoldingStringBuilderInvokeFlags.DefaultBecomesFallback);

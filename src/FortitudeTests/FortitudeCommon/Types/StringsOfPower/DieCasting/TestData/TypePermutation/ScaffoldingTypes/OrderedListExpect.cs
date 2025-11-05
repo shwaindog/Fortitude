@@ -4,39 +4,42 @@
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
-public class OrderedListExpect<TInput, TInputElement>
+public interface IOrderedListExpect : IFormatExpectation
+{
+    bool ElementTypeIsNullable { get; }
+}
+
+public class OrderedListExpect<TInputElement>
 (
-    TInput? input
+    List<TInputElement>? inputList
   , string? formatString = null
   , PalantírReveal<TInputElement>? valueRevealer = null
   , OrderedCollectionPredicate<TInputElement>? elementFilter = null)
-    : OrderedListExpect<TInput, TInputElement, TInputElement, TInputElement>(input, formatString, valueRevealer, elementFilter);
+    : OrderedListExpect<TInputElement, TInputElement, TInputElement>(inputList, formatString, valueRevealer, elementFilter);
 
-public class OrderedListExpect<TInput, TInputElement, TFilterBase, TRevealerBase> : FieldExpectBase<TInput?>
+public class OrderedListExpect<TInputElement, TFilterBase, TRevealerBase> : ExpectBase<List<TInputElement>?>, IOrderedListExpect
+    where TInputElement : TFilterBase, TRevealerBase
 {
-
     // ReSharper disable once ConvertToPrimaryConstructor
-    public OrderedListExpect(TInput? input, string? formatString = null, PalantírReveal<TRevealerBase>? valueRevealer = null
-      , OrderedCollectionPredicate<TFilterBase>? elementFilter = null) : base(input, formatString)
+    public OrderedListExpect(List<TInputElement>? inputList, string? formatString = null, PalantírReveal<TRevealerBase>? valueRevealer = null
+      , OrderedCollectionPredicate<TFilterBase>? elementFilter = null, FieldContentHandling valueHandlingFlags = DefaultCallerTypeFlags)
+        : base(inputList, formatString, valueHandlingFlags)
     {
+        ElementPredicate = elementFilter;
+        ValueRevealer =  valueRevealer;
     }
 
-    public override bool InputIsEmpty
-    {
-        get
-        {
-            switch (Input)
-            {
-                default: return Input != null && Equals(Input, default(TInput));
-            }
-        }
-    }
+    public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
+
+    public bool ElementTypeIsNullable =>  typeof(TInputElement).IsNullable() || InputIsNull;
 
     public override string ShortTestName
     {
@@ -57,6 +60,10 @@ public class OrderedListExpect<TInput, TInputElement, TFilterBase, TRevealerBase
             }
         }
     }
+    
+    public PalantírReveal<TRevealerBase>? ValueRevealer { get; init; }
+    
+    public OrderedCollectionPredicate<TFilterBase>? ElementPredicate { get; init; }
 
     public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
@@ -68,12 +75,15 @@ public class OrderedListExpect<TInput, TInputElement, TFilterBase, TRevealerBase
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)
     {
         var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
-        if (InputType == typeof(string) && createdStringBearer is ISupportsSettingValueFromString supportsSettingValueFromString)
-            supportsSettingValueFromString.StringValue = (string?)(object?)Input;
-        else if (createdStringBearer is IMoldSupportedValue<object?> isObjectMold)
-            isObjectMold.Value = Input;
-        else
-            ((IMoldSupportedValue<TInput?>)createdStringBearer).Value = Input;
+        
+        if (createdStringBearer is IMoldSupportedValue<TInputElement[]?> arrayMold)
+            arrayMold.Value = Input?.ToArray();
+        if (createdStringBearer is IMoldSupportedValue<IReadOnlyList<TInputElement>?> listMold)
+            listMold.Value = Input;
+        if (createdStringBearer is IMoldSupportedValue<IEnumerable<TInputElement>?> enumerableMold)
+            enumerableMold.Value = Input;
+        if (createdStringBearer is IMoldSupportedValue<IEnumerator<TInputElement>?> enumeratorMold)
+            enumeratorMold.Value = Input?.GetEnumerator();
         if (FormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
             supportsValueFormatString.ValueFormatString = FormatString;
         return createdStringBearer;

@@ -14,7 +14,7 @@ public enum ScaffoldingStringBuilderInvokeFlags : ulong
   , NonDefaultWrites                 = 0x00_00_00_00_00_00_02
   , NonNullWrites                    = 0x00_00_00_00_00_00_04
   , NonNullAndPopulatedWrites        = 0x00_00_00_00_00_00_08
-  , OutputConditionMask              = 0x00_00_00_00_00_00_0F
+  , AllOutputConditionsMask          = 0x00_00_00_00_00_00_0F
   , SimpleType                       = 0x00_00_00_00_00_00_10
   , ComplexType                      = 0x00_00_00_00_00_00_20
   , OrderedCollectionType            = 0x00_00_00_00_00_00_40
@@ -42,7 +42,7 @@ public enum ScaffoldingStringBuilderInvokeFlags : ulong
   , AcceptsDictionary                = 0x00_00_00_08_00_00_00
   , AcceptsEnumerable                = 0x00_00_00_10_00_00_00
   , AcceptsEnumerator                = 0x00_00_00_20_00_00_00
-  , MatchGenericFlag                 = 0x00_00_00_30_00_00_00  
+  , MatchGenericFlag                 = 0x00_00_00_30_00_00_00
   , AcceptsAnyGeneric                = 0x00_00_00_3F_FF_F8_00
   , CallsAsSpan                      = 0x00_00_00_40_00_00_00
   , CallsAsReadOnlySpan              = 0x00_00_00_80_00_00_00
@@ -80,6 +80,18 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
 
     public static bool HasSimpleTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
         (flags & SimpleType) > 0;
+
+    public static bool HasOrderedCollectionTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
+        (flags & OrderedCollectionType) > 0;
+
+    public static bool DoesNotHaveOrderedCollectionTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
+        (flags & OrderedCollectionType) == 0;
+
+    public static bool HasKeyedCollectionTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
+        (flags & KeyedCollectionType) > 0;
+
+    public static bool DoesNotHaveKeyedCollectionTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
+        (flags & KeyedCollectionType) == 0;
 
     public static bool IsAcceptsAnyGeneric(this ScaffoldingStringBuilderInvokeFlags flags)       => (flags & AcceptsAnyGeneric) == AcceptsAnyGeneric;
     public static bool IsNotAcceptsAnyGeneric(this ScaffoldingStringBuilderInvokeFlags flags)    => !flags.HasAllOf(AcceptsAnyGeneric);

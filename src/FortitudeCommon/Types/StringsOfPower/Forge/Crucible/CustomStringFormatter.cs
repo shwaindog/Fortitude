@@ -821,7 +821,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable
     {
-        if (source == null) return Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
+        if (source == null) return Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         int charsWritten;
         if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
         {
@@ -908,7 +908,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
         where TFmt : ISpanFormattable
     {
-        if (source == null) return Options.NullWritesNothing ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString);
+        if (source == null) return Options.NullWritesEmpty ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString);
         int charsWritten;
         var charSpan = stackalloc char[2048].ResetMemory();
         if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
@@ -993,14 +993,14 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : struct, ISpanFormattable
     {
-        if (source == null) return Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
+        if (source == null) return Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         return Format(source.Value, sb, formatString);
     }
 
     public virtual int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : struct, ISpanFormattable
     {
-        if (source == null) return Options.NullWritesNothing ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
+        if (source == null) return Options.NullWritesEmpty ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         return Format(source.Value, destCharSpan, destStartIndex, formatString);
     }
 
@@ -1070,14 +1070,14 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public int Format(bool? source, IStringBuilder sb, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) 
     {
-        if (source == null) return Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
+        if (source == null) return Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         return Format(source.Value, sb, formatString, formatFlags);
     }
 
     public int Format(bool? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) 
     {
-        if (source == null) return Options.NullWritesNothing ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
+        if (source == null) return Options.NullWritesEmpty ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         return Format(source.Value, destCharSpan, destStartIndex, formatString, formatFlags);
     }
 
@@ -1495,14 +1495,14 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public int CollectionNextItemFormat(bool? nextItem, int retrieveCount, IStringBuilder sb, string formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
-        if (nextItem == null) return Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
+        if (nextItem == null) return Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         return CollectionNextItemFormat(nextItem.Value, retrieveCount, sb, formatString);
     }
 
     public int CollectionNextItemFormat(bool? nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex, string formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
-        if (nextItem == null) return Options.NullWritesNothing ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
+        if (nextItem == null) return Options.NullWritesEmpty ? 0 : destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         return CollectionNextItemFormat(nextItem.Value, retrieveCount, destCharSpan, destStartIndex, formatString);
     }
 

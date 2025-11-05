@@ -200,18 +200,27 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> IsComplexType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ComplexType));
 
-
+    public static IEnumerable<ScaffoldingPartEntry> IsJustComplexType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasComplexTypeFlag() 
+                         && spe.ScaffoldingFlags.HasNoneOf( SimpleType | OrderedCollectionType | KeyedCollectionType));
+    
     public static IEnumerable<ScaffoldingPartEntry> IsOrderedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(OrderedCollectionType));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasOrderedCollectionTypeFlag());
+    
+    public static IEnumerable<ScaffoldingPartEntry> IsNotOrderedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.DoesNotHaveOrderedCollectionTypeFlag());
 
     public static IEnumerable<ScaffoldingPartEntry> IsKeyedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(KeyedCollectionType));
+
+    public static IEnumerable<ScaffoldingPartEntry> IsNotKeyedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(KeyedCollectionType));
 
     public static IEnumerable<ScaffoldingPartEntry> ProcessesSingleValue(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsSingleValue));
 
     public static IEnumerable<ScaffoldingPartEntry> ProcessesCollection(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsCollection));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsCollection));
     
     public static IEnumerable<ScaffoldingPartEntry> ProcessesKeyedCollection(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsKeyValueCollection));

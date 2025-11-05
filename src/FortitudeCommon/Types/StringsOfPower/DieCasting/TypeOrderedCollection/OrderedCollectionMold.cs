@@ -53,7 +53,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         }
     }
 
-    protected CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection => (CollectionBuilderCompAccess<TOCMold>)CompAccess;
+    protected virtual CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection =>  (CollectionBuilderCompAccess<TOCMold>)CompAccess;
 }
 
 public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCollectionMold>

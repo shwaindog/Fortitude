@@ -9,7 +9,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.OrderedCollectionScaffolds;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.CollectionScaffolds;
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsArray  | AcceptsStruct)]
 public class OrderedFromBoolArrayAddAllSimpleOrderedCollectionStringBearer : IEnumerable<bool>, IMoldSupportedValue<bool[]?>
@@ -162,9 +162,9 @@ public class OrderedFromNullableBoolReadOnlySpanAddAllSimpleOrderedCollectionStr
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList  | AcceptsStruct)]
-public class OrderedFromBoolListAddAllSimpleOrderedCollectionStringBearer : IMoldSupportedValue<List<bool>?>, IEnumerable<bool>
+public class OrderedFromBoolListAddAllSimpleOrderedCollectionStringBearer : IMoldSupportedValue<IReadOnlyList<bool>?>, IEnumerable<bool>
 {
-    public List<bool>? OrderedCollectionAddAllBoolList
+    public IReadOnlyList<bool>? OrderedCollectionAddAllBoolList
     {
         get => Value;
         set =>Value = value;
@@ -172,7 +172,7 @@ public class OrderedFromBoolListAddAllSimpleOrderedCollectionStringBearer : IMol
 
     public string PropertyName => nameof(OrderedCollectionAddAllBoolList);
 
-    public List<bool>? Value { get; set; }
+    public IReadOnlyList<bool>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
@@ -187,9 +187,9 @@ public class OrderedFromBoolListAddAllSimpleOrderedCollectionStringBearer : IMol
 }
 
 [TypeGeneratePart(OrderedCollectionType | AcceptsCollection | AcceptsList  | AcceptsNullableStruct)]
-public class OrderedFromNullableBoolListAddAllSimpleOrderedCollectionStringBearer : IMoldSupportedValue<List<bool?>?>, IEnumerable<bool?>
+public class OrderedFromNullableBoolListAddAllSimpleOrderedCollectionStringBearer : IMoldSupportedValue<IReadOnlyList<bool?>?>, IEnumerable<bool?>
 {
-    public List<bool?>? OrderedCollectionAddAllNullableBoolList
+    public IReadOnlyList<bool?>? OrderedCollectionAddAllNullableBoolList
     {
         get => Value;
         set =>Value = value;
@@ -197,7 +197,7 @@ public class OrderedFromNullableBoolListAddAllSimpleOrderedCollectionStringBeare
 
     public string PropertyName => nameof(OrderedCollectionAddAllNullableBoolList);
 
-    public List<bool?>? Value { get; set; }
+    public IReadOnlyList<bool?>? Value { get; set; }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)

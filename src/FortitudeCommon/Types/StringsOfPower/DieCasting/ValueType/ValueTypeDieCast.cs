@@ -245,7 +245,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value, palantírReveal); 
@@ -281,7 +281,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value.Value, palantírReveal); 
@@ -453,7 +453,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value);
@@ -486,7 +486,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value.Value);
@@ -1345,7 +1345,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 if(addEndDblQt) Sb.Append("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
         }
         else
         {
@@ -1439,7 +1439,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 if(addEndDblQt) Sb.Append("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
         }
         else
         {
@@ -1570,7 +1570,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 if(addEndDblQt) Sb.Append("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
         }
         else
         {
@@ -1615,7 +1615,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 if(addEndDblQt) Sb.Append("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
         }
         else
         {
@@ -1699,7 +1699,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 if(addEndDblQt) Sb.Append("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
             return StyleTypeBuilder;
         }
         if(addStartDblQt) Sb.Append("\"");
@@ -1777,7 +1777,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 if(addEndDblQt) Sb.Append("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
             return StyleTypeBuilder;
         }
         if(addStartDblQt) Sb.Append("\"");
@@ -2306,13 +2306,13 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             Span<char> justPadding = stackalloc char[12];
             justPadding = justPadding.ToLayoutOnlyFormatString(formatString);
-            StyleFormatter.Format(Settings.NullStyle, 0, Sb, justPadding
+            StyleFormatter.Format(Settings.NullString, 0, Sb, justPadding
                                ,  formatFlags: FormattingHandlingFlags.DefaultCallerType);
             
         }
         else
         {
-            Sb.Append(Settings.NullStyle);
+            Sb.Append(Settings.NullString);
         }
     }
 

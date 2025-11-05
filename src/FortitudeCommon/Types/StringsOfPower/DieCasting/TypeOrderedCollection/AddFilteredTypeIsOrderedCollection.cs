@@ -43,7 +43,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -78,7 +78,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -253,7 +253,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -288,7 +288,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -498,7 +498,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -534,7 +534,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -786,7 +786,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -822,7 +822,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -1034,7 +1034,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -1068,7 +1068,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -1238,7 +1238,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -1273,7 +1273,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -1481,7 +1481,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -1515,7 +1515,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -1754,7 +1754,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -1788,7 +1788,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -1993,7 +1993,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -2168,7 +2168,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -2292,7 +2292,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -2472,7 +2472,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -2597,7 +2597,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -2774,7 +2774,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
@@ -2897,7 +2897,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -3072,7 +3072,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -3191,7 +3191,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
@@ -3371,7 +3371,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     

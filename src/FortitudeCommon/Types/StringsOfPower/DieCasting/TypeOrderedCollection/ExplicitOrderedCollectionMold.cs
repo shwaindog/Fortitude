@@ -6,7 +6,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 
 public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<ExplicitOrderedCollectionMold<TElement>>
 {
-    public override bool IsComplexType => CompAsOrderedCollection.CollectionInComplexType;
+    public override bool IsComplexType => false;
+    
     protected static readonly Type TypeOfElement = typeof(TElement);
 
     private int elementCount = -1;
@@ -32,7 +33,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 ++elementCount;
                 return AppendNextCollectionItemSeparator();
             }
@@ -56,7 +57,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 return AppendNextCollectionItemSeparator();
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
@@ -73,7 +74,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 ++elementCount;
                 return AppendNextCollectionItemSeparator();
             }
@@ -91,7 +92,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 return AppendNextCollectionItemSeparator();
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
@@ -109,7 +110,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 return AppendNextCollectionItemSeparator();
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
@@ -126,7 +127,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 ++elementCount;
                 return AppendNextCollectionItemSeparator();
             }
@@ -144,7 +145,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 ++elementCount;
                 return AppendNextCollectionItemSeparator();
             }
@@ -162,7 +163,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 ++elementCount;
                 return AppendNextCollectionItemSeparator();
             }
@@ -179,7 +180,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 ++elementCount;
                 return AppendNextCollectionItemSeparator();
             }
@@ -197,7 +198,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 ++elementCount;
                 return AppendNextCollectionItemSeparator();
             }
@@ -214,7 +215,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 ++elementCount;
                 return AppendNextCollectionItemSeparator();
             }
@@ -231,7 +232,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         {
             if (CompAsOrderedCollection.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullStyle);
+                CompAsOrderedCollection.Sb.Append(CompAsOrderedCollection.Settings.NullString);
                 ++elementCount;
                 return AppendNextCollectionItemSeparator();
             }
@@ -248,4 +249,14 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     }
 
     public StateExtractStringRange AppendCollectionComplete() => Complete();
+
+    protected override void SourceBuilderComponentAccess()
+    {
+        var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
+        CompAccess = recycler.Borrow<CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>>()
+                             .InitializeOrderCollectionComponentAccess(this, PortableState, false);
+    }
+    
+    protected override CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>> CompAsOrderedCollection =>  
+        (CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>)CompAccess;
 }

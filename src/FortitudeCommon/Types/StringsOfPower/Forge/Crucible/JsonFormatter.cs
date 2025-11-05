@@ -301,7 +301,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : default
     {
-        if (source == null) { return (Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length)); }
+        if (source == null) { return (Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length)); }
         var originalLength = sb.Length;
         var fmtType        = typeof(TFmt);
         fmtType = fmtType == typeof(ISpanFormattable) ? source.GetType() : fmtType;
@@ -386,7 +386,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : default
     {
-        if (source == null) { return Options.NullWritesNothing ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString); }
+        if (source == null) { return Options.NullWritesEmpty ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString); }
         var charsAdded      = 0;
         var fmtType         = typeof(TFmt);
         var hasFormatQuotes = formatString.IsDblQtBounded();
@@ -479,14 +479,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int Format<TFmtStruct>(TFmtStruct? source, IStringBuilder sb, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
-        if (!source.HasValue) { return (Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length)); }
+        if (!source.HasValue) { return (Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length)); }
         return Format(source.Value, sb, formatString, formatFlags);
     }
 
     public override int Format<TFmtStruct>(TFmtStruct? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
-        if (!source.HasValue) { return Options.NullWritesNothing ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString); }
+        if (!source.HasValue) { return Options.NullWritesEmpty ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString); }
         return Format(source.Value, destCharSpan, destStartIndex, formatString);
     }
 
@@ -1526,7 +1526,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     {
         formatFlags = ResolveStringFormattingFlags(sb.LastNonWhiteChar(), nextItem, formatFlags);
         var preAppendLen = sb.Length;
-        if (nextItem == null) { return sb.Append(JsonOptions.NullStyle).ReturnCharCount(JsonOptions.NullStyle.Length); }
+        if (nextItem == null) { return sb.Append(JsonOptions.NullString).ReturnCharCount(JsonOptions.NullString.Length); }
         switch (nextItem)
         {
             case string stringItem: return sb.Append(DblQt).Append(stringItem).Append(DblQt).ReturnCharCount(stringItem.Length + 2);

@@ -5,8 +5,10 @@ using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
@@ -42,7 +44,7 @@ public class FieldExpect<TInput>
   , int length = Int32.MaxValue)
     : FieldExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, fromIndex, length);
 
-public class FieldExpect<TInput, TDefault> : FieldExpectBase<TInput?>, ISingleFieldExpectation
+public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldExpectation
 {
     public int FromIndex { get; init; }
     public int Length { get; init; }
@@ -64,9 +66,14 @@ public class FieldExpect<TInput, TDefault> : FieldExpectBase<TInput?>, ISingleFi
 
     public string? FormattedDefault { get; protected set; }
 
+    public bool IsStruct => InputType.IsValueType;
+
+    public virtual bool IsNullable => InputType.IsNullable() || InputIsNull;
+
     // ReSharper disable once ConvertToPrimaryConstructor
     public FieldExpect(TInput? input, string? formatString = null, bool hasDefault = false
-      , TDefault? defaultValue = default, int fromIndex = 0, int length = int.MaxValue) : base(input, formatString)
+      , TDefault? defaultValue = default, int fromIndex = 0, int length = int.MaxValue
+      , FieldContentHandling valueContentHandling = DefaultCallerTypeFlags) : base(input, formatString)
     {
         HasDefault   = hasDefault;
         DefaultValue = !typeof(TInput).IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>()

@@ -340,7 +340,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        stb.FieldNameJoin(fieldName);
 
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -363,7 +362,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
-        stb.FieldNameJoin(fieldName);
 
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)

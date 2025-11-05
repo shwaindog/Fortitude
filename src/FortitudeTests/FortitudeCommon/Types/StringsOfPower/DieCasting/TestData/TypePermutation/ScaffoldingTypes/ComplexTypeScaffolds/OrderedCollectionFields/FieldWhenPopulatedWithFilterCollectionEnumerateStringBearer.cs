@@ -36,7 +36,7 @@ public class FieldBoolEnumerableWhenPopulatedWithFilterStringBearer : IMoldSuppo
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate | AcceptsNullableStruct)]
 public class FieldNullableBoolEnumerableWhenPopulatedWithFilterStringBearer : IMoldSupportedValue<IEnumerable<bool?>?>
   , ISupportsOrderedCollectionPredicate<bool?>
 {
@@ -424,7 +424,7 @@ public class FieldBoolEnumeratorWhenPopulatedWithFilterStringBearer : IMoldSuppo
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
+[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate | AcceptsNullableStruct)]
 public class FieldNullableBoolEnumeratorWhenPopulatedWithFilterStringBearer : IMoldSupportedValue<IEnumerator<bool?>?>
   , ISupportsOrderedCollectionPredicate<bool?>
 {

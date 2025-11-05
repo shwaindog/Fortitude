@@ -45,6 +45,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -96,6 +100,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -149,6 +157,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -202,6 +214,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -255,6 +271,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -615,6 +635,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -666,6 +690,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -718,6 +746,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -770,6 +802,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -821,6 +857,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -872,6 +912,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -924,6 +968,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -976,6 +1024,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1038,7 +1090,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                if (matchedItems++ == 0)
+                {
+                    stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType);
+                }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1090,6 +1149,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1143,6 +1206,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1195,6 +1262,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1248,6 +1319,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItem(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1608,6 +1683,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1659,6 +1738,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1711,6 +1794,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1763,6 +1850,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1814,6 +1905,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1865,6 +1960,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1917,6 +2016,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1968,6 +2071,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     break;
                 }
                 if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb.Sb, elementType, value.Length > 0, collectionType); }
+                else
+                {
+                    stb.GoToNextCollectionItemStart(elementType, i);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2033,7 +2140,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2071,7 +2178,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2111,7 +2218,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2151,7 +2258,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2189,7 +2296,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2227,7 +2334,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2265,7 +2372,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2302,7 +2409,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2341,7 +2448,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2381,7 +2488,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2419,7 +2526,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2458,7 +2565,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2502,7 +2609,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2540,7 +2647,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2579,7 +2686,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2619,7 +2726,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2657,7 +2764,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2695,7 +2802,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2733,7 +2840,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2770,7 +2877,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2808,7 +2915,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2848,7 +2955,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2886,7 +2993,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2925,7 +3032,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.Sb.Append(stb.Settings.NullStyle);
+        stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2944,7 +3051,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2957,7 +3064,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2971,7 +3078,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2985,7 +3092,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -2999,7 +3106,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3013,7 +3120,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3026,7 +3133,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3039,7 +3146,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3052,7 +3159,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3066,7 +3173,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredCharSeqEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3079,7 +3186,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3093,7 +3200,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredMatchEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3107,7 +3214,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredObjectEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
     
@@ -3120,7 +3227,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3133,7 +3240,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3147,7 +3254,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3161,7 +3268,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3175,7 +3282,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3189,7 +3296,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3202,7 +3309,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3215,7 +3322,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3227,7 +3334,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3241,7 +3348,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredCharSeqEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3254,7 +3361,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3268,7 +3375,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredMatchEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -3282,7 +3389,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master.StartSimpleCollectionType(value).AddFilteredObjectEnumerate(value, filterPredicate, formatString).Complete();
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 }
