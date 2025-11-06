@@ -536,7 +536,7 @@ public partial class ValueTypeMoldTests
         SharedCompactLogAsValue(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
