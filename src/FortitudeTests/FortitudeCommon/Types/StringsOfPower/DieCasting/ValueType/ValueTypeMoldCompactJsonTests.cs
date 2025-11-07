@@ -214,8 +214,8 @@ public partial class ValueTypeMoldTests
              }
            , new ScaffoldingPartEntry
                  (typeof(SimpleAsValueNullableSpanFormattableClassWithStringDefaultNoFieldSimpleValueTypeStringBearer<>)
-                , SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber 
-                | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesNull));
+                , SimpleType | SingleValueCardinality  | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback));
     }
 
     private void SharedCompactJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

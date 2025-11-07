@@ -39,8 +39,8 @@ public class TestCollections
     public static OrderedCollectionPredicate<bool?> NullBool_None            = (count, item) => EvaluateIsIncludedAndContinue(false);
     public static OrderedCollectionPredicate<bool?> NullBool_First_False            = (count, item) => First(item is false);
     
-    public static readonly float[] FloatArray = [(float)Math.PI, (float)Math.E, (float)Math.PI * 2, (float)Math.E * 2, (float)Math.PI * 3
-      , (float)Math.E * 3, (float)Math.PI * 4, (float)Math.E * 4, (float)Math.PI * 5, (float)Math.E * 5, ];
+    public static readonly float[] FloatArray = [(float)Math.PI, (float)Math.E, (float)Math.PI * 2, (float)Math.E * 2, (float)Math.PI * 4
+      , (float)Math.E * 4, (float)Math.PI * 6, (float)Math.E * 6, (float)Math.PI * 8, (float)Math.E * 8, ];
     public static readonly List<float> FloatList = [..FloatArray];
     public static readonly float?[] NullFloatArray = [null, (float)Math.PI, (float)Math.E, null, null, (float)Math.PI * 3, null, null, null
       , (float)Math.E * 3, (float)Math.PI * 4, (float)Math.E * 4,  null, (float)Math.PI * 5, null, (float)Math.E * 5, ];

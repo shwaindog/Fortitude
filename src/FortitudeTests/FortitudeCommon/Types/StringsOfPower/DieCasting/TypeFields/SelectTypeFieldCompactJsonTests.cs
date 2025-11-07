@@ -116,14 +116,57 @@ public partial class SelectTypeFieldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJson
-            ( new FieldExpect<bool?>(false, "{0}")
+            ( new FieldExpect<char[]>("".ToCharArray(), "", true, ['0'])
+        {
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut), "" }
+          , { new EK(SimpleType | CallsViaMatch), "\"\"" }
+          , {
+                new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut | DefaultBecomesZero
+                     | DefaultBecomesFallback)
+              , "0"
+            }
+           ,
             {
-                { new EK(AcceptsNullableStruct | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "false" }
-               ,{ new EK(SimpleType | AcceptsNullableStruct  | DefaultTreatedAsStringOut), "\"false\"" }
-            }, new ScaffoldingPartEntry
-                 (typeof(FieldMatchWhenNonDefaultStringBearer<>)
-                , NonDefaultWrites | ComplexType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString 
-                | SupportsCustomHandling));
+                new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
+                     | EmptyBecomesNull | DefaultBecomesNull)
+              , "null"
+            }
+           ,
+            {
+                new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut | DefaultBecomesZero
+                     | DefaultBecomesFallback)
+              , "\"0\""
+            }
+          , { new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut) , "" }
+          , { new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut) , "\"\"" }
+           ,
+            {
+                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
+                     | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesNull,
+                       Log | Compact | Pretty)
+              , "[]"
+            }
+           ,
+            {
+                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
+                     | DefaultBecomesZero | DefaultBecomesNull, Log | Compact | Pretty)
+              , "null"
+            }
+           ,
+            {
+                new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
+                     | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesNull, Json | Compact | Pretty)
+              , "[]"
+            }
+           ,
+            {
+                new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
+                     | DefaultBecomesZero | DefaultBecomesNull, Json | Compact | Pretty)
+              , "null"
+            }
+        }, new ScaffoldingPartEntry
+                 (typeof(FieldCharSpanWhenNonDefaultStringBearer)
+                , ComplexType | SingleValueCardinality | CallsAsSpan | NonDefaultWrites | AcceptsCharArray | SupportsValueFormatString));
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
@@ -31,36 +32,38 @@ public class EK
     public bool IsMatchingScenario(ScaffoldingStringBuilderInvokeFlags condition, StringStyle style)
     {
         var styleIsMatched        = (style & MatchStyle) == style;
-        var bothGenericOrNotScaff = true;
-        if (MatchScaff.IsAcceptsAnyGeneric()) { bothGenericOrNotScaff = condition.IsAcceptsAnyGeneric(); }
+        var bothCallViaObjectOrNeither = true;
+        if (MatchScaff.HasCallsUsingObject()) { bothCallViaObjectOrNeither = condition.HasCallsUsingObject(); }
+        var bothCallViaMatchOrNeither = true;
+        if (MatchScaff.HasCallsViaMatch()) { bothCallViaMatchOrNeither = condition.HasCallsViaMatch(); }
         
-        var meetsMoldTypeCondition = (MatchScaff & ScaffoldingStringBuilderInvokeFlags.MoldTypeConditionMask) == 0 
-                                  || (MatchScaff & ScaffoldingStringBuilderInvokeFlags.MoldTypeConditionMask & condition) > 0;
+        var meetsMoldTypeCondition = (MatchScaff & MoldTypeConditionMask) == 0 
+                                  || (MatchScaff & MoldTypeConditionMask & condition) > 0;
         
         var meetsWriteCondition    = 
-            (MatchScaff & ScaffoldingStringBuilderInvokeFlags.AllOutputConditionsMask & condition) > 0 
+            (MatchScaff & AllOutputConditionsMask & condition) > 0 
          || condition.HasSimpleTypeFlag() || condition.HasOrderedCollectionTypeFlag() || condition.HasKeyedCollectionTypeFlag();
-        var conditionHasBothBecomesNullAndFallback = (condition & ScaffoldingStringBuilderInvokeFlags.OutputBecomesMask) == (ScaffoldingStringBuilderInvokeFlags.DefaultBecomesNull | ScaffoldingStringBuilderInvokeFlags.DefaultBecomesFallback)
-                                                  && (condition & ScaffoldingStringBuilderInvokeFlags.SupportsSettingDefaultValue) > 0;
-        var scaffHasBothBecomesNullAndFallback = (MatchScaff & ScaffoldingStringBuilderInvokeFlags.OutputBecomesMask) == (ScaffoldingStringBuilderInvokeFlags.DefaultBecomesNull | ScaffoldingStringBuilderInvokeFlags.DefaultBecomesFallback);
+        var conditionHasBothBecomesNullAndFallback = (condition & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallback)
+                                                  && (condition & SupportsSettingDefaultValue) > 0;
+        var scaffHasBothBecomesNullAndFallback = (MatchScaff & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallback);
         var meetsOutputType =
-            ((MatchScaff.HasNoneOf(ScaffoldingStringBuilderInvokeFlags.OutputTreatedMask)
-           || condition.HasNoneOf(ScaffoldingStringBuilderInvokeFlags.OutputTreatedMask)
-           || (MatchScaff & condition).HasAnyOf(ScaffoldingStringBuilderInvokeFlags.OutputTreatedMask))
+            ((MatchScaff.HasNoneOf(OutputTreatedMask)
+           || condition.HasNoneOf(OutputTreatedMask)
+           || (MatchScaff & condition).HasAnyOf(OutputTreatedMask))
            &&
              ((!scaffHasBothBecomesNullAndFallback || conditionHasBothBecomesNullAndFallback)
-           && (MatchScaff.HasNoneOf(ScaffoldingStringBuilderInvokeFlags.OutputBecomesMask)
-            || condition.HasNoneOf(ScaffoldingStringBuilderInvokeFlags.OutputBecomesMask)
-            || (MatchScaff & condition).HasAnyOf(ScaffoldingStringBuilderInvokeFlags.OutputBecomesMask))));
-        var hasMatchingInputType           = (MatchScaff & ScaffoldingStringBuilderInvokeFlags.AcceptsAnyGeneric & condition).HasAnyOf(MatchScaff & ScaffoldingStringBuilderInvokeFlags.AcceptsAnyGeneric);
-        var conditionIsSubSpanOnlyCallType = (condition & ScaffoldingStringBuilderInvokeFlags.SubSpanCallMask) > 0;
+           && (MatchScaff.HasNoneOf(OutputBecomesMask)
+            || condition.HasNoneOf(OutputBecomesMask)
+            || (MatchScaff & condition).HasAnyOf(OutputBecomesMask))));
+        var hasMatchingInputType           = (MatchScaff & AcceptsAnyGeneric & condition).HasAnyOf(MatchScaff & AcceptsAnyGeneric);
+        var conditionIsSubSpanOnlyCallType = (condition & SubSpanCallMask) > 0;
         var meetsInputTypeCondition        = (hasMatchingInputType && !conditionIsSubSpanOnlyCallType);
         var isSameSubSpanCalType =
-            ((condition & ScaffoldingStringBuilderInvokeFlags.SubSpanCallMask) & (MatchScaff & ScaffoldingStringBuilderInvokeFlags.SubSpanCallMask)) == (condition & ScaffoldingStringBuilderInvokeFlags.SubSpanCallMask);
-        var checkIsSubSpanOnlyCallType = (MatchScaff & ScaffoldingStringBuilderInvokeFlags.SubSpanCallMask) > 0;
+            ((condition & SubSpanCallMask) & (MatchScaff & SubSpanCallMask)) == (condition & SubSpanCallMask);
+        var checkIsSubSpanOnlyCallType = (MatchScaff & SubSpanCallMask) > 0;
         var meetSubSpanCallType        = (conditionIsSubSpanOnlyCallType && checkIsSubSpanOnlyCallType && isSameSubSpanCalType);
-        return styleIsMatched && bothGenericOrNotScaff && meetsMoldTypeCondition && meetsWriteCondition && meetsOutputType
-            && (meetsInputTypeCondition || (meetSubSpanCallType));
+        return styleIsMatched && bothCallViaObjectOrNeither && bothCallViaMatchOrNeither && meetsMoldTypeCondition && meetsWriteCondition 
+            && meetsOutputType && (meetsInputTypeCondition || (meetSubSpanCallType));
     }
 
     public bool Equals(EK? other) => matchScaff == other?.matchScaff && matchStyle == other.matchStyle;

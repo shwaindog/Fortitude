@@ -327,6 +327,9 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> OnlyAcceptsNullableStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableStruct));
 
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsNullableClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableClass));
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct));
 
@@ -348,7 +351,7 @@ public static class ScaffoldingRegistry
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
 
     public static IEnumerable<ScaffoldingPartEntry> NotHasAcceptsAny(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => !spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
+        subSet.Where(spe => !spe.ScaffoldingFlags.HasAllOf(AcceptsAnyMask));
 
 
     public static IEnumerable<ScaffoldingPartEntry> HasAcceptsStringBearer(this IEnumerable<ScaffoldingPartEntry> subSet) =>

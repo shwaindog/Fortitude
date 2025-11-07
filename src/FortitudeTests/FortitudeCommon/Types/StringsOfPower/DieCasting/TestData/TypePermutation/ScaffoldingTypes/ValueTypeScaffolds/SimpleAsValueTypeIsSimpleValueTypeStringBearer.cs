@@ -79,7 +79,8 @@ public class SimpleAsValueNullableBoolWithFieldSimpleValueTypeStringBearer : IMo
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | SupportsValueFormatString | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueNullableBoolNoFieldSimpleValueTypeStringBearer : IMoldSupportedValue<bool?>, ISupportsValueFormatString
 {
     public bool? SimpleTypeAsValueNullableBool
@@ -99,9 +100,8 @@ public class SimpleAsValueNullableBoolNoFieldSimpleValueTypeStringBearer : IMold
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | DefaultTreatedAsValueOut
-                | DefaultBecomesZero)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString 
+                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
 public class SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<TFmt> : IMoldSupportedValue<TFmt>
   , ISupportsValueFormatString where TFmt : ISpanFormattable
 {
@@ -125,9 +125,8 @@ public class SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<TF
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | DefaultTreatedAsValueOut
-                  | DefaultBecomesZero)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString 
+                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
 public class SimpleAsValueSpanFormattableNoFieldSimpleValueTypeStringBearer<TFmt> : IMoldSupportedValue<TFmt>
   , ISupportsValueFormatString where TFmt : ISpanFormattable
 {
@@ -149,9 +148,8 @@ public class SimpleAsValueSpanFormattableNoFieldSimpleValueTypeStringBearer<TFmt
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString 
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableClassWithFieldSimpleValueTypeStringBearer<TFmtClass> :
     IMoldSupportedValue<TFmtClass?>, ISupportsValueFormatString where TFmtClass : class, ISpanFormattable
 {
@@ -175,9 +173,8 @@ public class SimpleAsValueNullableSpanFormattableClassWithFieldSimpleValueTypeSt
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString 
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableClassNoFieldSimpleValueTypeStringBearer<TFmtClass> :
     IMoldSupportedValue<TFmtClass?>, ISupportsValueFormatString where TFmtClass : class, ISpanFormattable
 {
@@ -199,9 +196,8 @@ public class SimpleAsValueNullableSpanFormattableClassNoFieldSimpleValueTypeStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsSettingDefaultValue | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableClassWithDefaultWithFieldSimpleValueTypeStringBearer<TFmtClass> :
     IMoldSupportedValue<TFmtClass?>, IMoldSupportedDefaultValue<TFmtClass>, ISupportsValueFormatString where TFmtClass : class, ISpanFormattable
 {
@@ -228,9 +224,8 @@ public class SimpleAsValueNullableSpanFormattableClassWithDefaultWithFieldSimple
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsSettingDefaultValue | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithFieldSimpleValueTypeStringBearer<TFmtClass> :
     IMoldSupportedValue<TFmtClass?>, IMoldSupportedDefaultValue<string>, ISupportsValueFormatString where TFmtClass : class, ISpanFormattable
 {
@@ -257,9 +252,8 @@ public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithField
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsSettingDefaultValue | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableClassWithDefaultNoFieldSimpleValueTypeStringBearer<TFmtClass> :
     IMoldSupportedValue<TFmtClass?>, IMoldSupportedDefaultValue<TFmtClass>, ISupportsValueFormatString where TFmtClass : class, ISpanFormattable
 {
@@ -285,9 +279,8 @@ public class SimpleAsValueNullableSpanFormattableClassWithDefaultNoFieldSimpleVa
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsSettingDefaultValue | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultNoFieldSimpleValueTypeStringBearer<TFmtClass> :
     IMoldSupportedValue<TFmtClass?>, IMoldSupportedDefaultValue<string>, ISupportsValueFormatString where TFmtClass : class, ISpanFormattable
 {
@@ -313,8 +306,7 @@ public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultNoFieldSi
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString 
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString 
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithFieldSimpleValueTypeStringBearer<TFmtStruct> :
     IMoldSupportedValue<TFmtStruct?>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
@@ -339,8 +331,7 @@ public class SimpleAsValueNullableSpanFormattableStructWithFieldSimpleValueTypeS
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructNoFieldSimpleValueTypeStringBearer<TFmtStruct> :
     IMoldSupportedValue<TFmtStruct?>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
@@ -363,9 +354,8 @@ public class SimpleAsValueNullableSpanFormattableStructNoFieldSimpleValueTypeStr
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsSettingDefaultValue | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithDefaultWithFieldSimpleValueTypeStringBearer<TFmtStruct> :
     IMoldSupportedValue<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
@@ -392,9 +382,8 @@ public class SimpleAsValueNullableSpanFormattableStructWithDefaultWithFieldSimpl
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsSettingDefaultValue | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFieldSimpleValueTypeStringBearer<TFmtStruct> :
     IMoldSupportedValue<TFmtStruct?>, IMoldSupportedDefaultValue<string>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
@@ -421,9 +410,8 @@ public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFiel
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsSettingDefaultValue | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithDefaultNoFieldSimpleValueTypeStringBearer<TFmtStruct> :
     IMoldSupportedValue<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
@@ -449,9 +437,8 @@ public class SimpleAsValueNullableSpanFormattableStructWithDefaultNoFieldSimpleV
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsSettingDefaultValue | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultNoFieldSimpleValueTypeStringBearer<TFmtStruct> :
     IMoldSupportedValue<TFmtStruct?>, IMoldSupportedDefaultValue<string>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
 {
@@ -477,9 +464,8 @@ public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultNoFieldS
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueCloakedBearerWithFieldSimpleValueTypeStringBearer<TCloaked, TCloakedBase> :
     IMoldSupportedValue<TCloaked>, ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
@@ -511,9 +497,8 @@ public class SimpleAsValueCloakedBearerWithFieldSimpleValueTypeStringBearer<TClo
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloaked, TCloakedBase> :
     IMoldSupportedValue<TCloaked>, ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
@@ -542,9 +527,8 @@ public class SimpleAsValueCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloak
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueCloakedBearerOrNullWithFieldSimpleValueTypeStringBearer<TCloaked, TCloakedBase> :
     IMoldSupportedValue<TCloaked>, ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
@@ -576,9 +560,8 @@ public class SimpleAsValueCloakedBearerOrNullWithFieldSimpleValueTypeStringBeare
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut 
+        | DefaultBecomesNull)]
 public class SimpleAsValueCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer<TCloaked, TCloakedBase> :
     IMoldSupportedValue<TCloaked>, ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
@@ -607,9 +590,8 @@ public class SimpleAsValueCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer<
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue 
+                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueCloakedBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TCloaked, TCloakedBase> :
     IMoldSupportedValue<TCloaked?>, IMoldSupportedDefaultValue<string>, ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
@@ -643,9 +625,8 @@ public class SimpleAsValueCloakedBearerWithDefaultWithFieldSimpleValueTypeString
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue 
+                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TCloaked, TCloakedBase> :
     IMoldSupportedValue<TCloaked?>, IMoldSupportedDefaultValue<string>, ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
 {
@@ -676,9 +657,38 @@ public class SimpleAsValueCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBe
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
+public class SimpleAsValueNullableCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloakedStruct> :
+    IMoldSupportedValue<TCloakedStruct?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
+{
+    public TCloakedStruct? SimpleTypeAsValueCloakedBearer
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public string PropertyName => "";
+    public TCloakedStruct? Value { get; set; }
+
+    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
+
+    public Delegate ValueRevealerDelegate
+    {
+        get => ValueRevealer;
+        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
+    }
+
+    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleValueType(this)
+           .RevealAsValue(SimpleTypeAsValueCloakedBearer, ValueRevealer)
+           .Complete();
+
+    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+}
+
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueNullableCloakedBearerWithFieldSimpleValueTypeStringBearer<TCloakedStruct> :
     IMoldSupportedValue<TCloakedStruct?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
@@ -710,40 +720,8 @@ public class SimpleAsValueNullableCloakedBearerWithFieldSimpleValueTypeStringBea
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueNullableCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloakedStruct> :
-    IMoldSupportedValue<TCloakedStruct?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
-{
-    public TCloakedStruct? SimpleTypeAsValueCloakedBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public string PropertyName => "";
-    public TCloakedStruct? Value { get; set; }
-
-    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValue(SimpleTypeAsValueCloakedBearer, ValueRevealer)
-           .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueNullableCloakedBearerOrNullWithFieldSimpleValueTypeStringBearer<TCloakedStruct> :
     IMoldSupportedValue<TCloakedStruct?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
@@ -775,9 +753,8 @@ public class SimpleAsValueNullableCloakedBearerOrNullWithFieldSimpleValueTypeStr
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueNullableCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer<TCloakedStruct> :
     IMoldSupportedValue<TCloakedStruct?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
 {
@@ -806,9 +783,8 @@ public class SimpleAsValueNullableCloakedBearerOrNullNoFieldSimpleValueTypeStrin
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue 
+                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueNullableCloakedBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TCloakedStruct> :
     IMoldSupportedValue<TCloakedStruct?>, IMoldSupportedDefaultValue<string>, ISupportsValueRevealer<TCloakedStruct> 
     where TCloakedStruct : struct
@@ -843,9 +819,8 @@ public class SimpleAsValueNullableCloakedBearerWithDefaultWithFieldSimpleValueTy
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue 
+                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueNullableCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TCloakedStruct> :
     IMoldSupportedValue<TCloakedStruct?>, IMoldSupportedDefaultValue<string>, ISupportsValueRevealer<TCloakedStruct> 
     where TCloakedStruct : struct
@@ -877,8 +852,8 @@ public class SimpleAsValueNullableCloakedBearerWithDefaultNoFieldSimpleValueType
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass 
-                | AcceptsStringBearer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueStringBearerWithFieldSimpleValueTypeStringBearer<TBearer> : IMoldSupportedValue<TBearer>
     where TBearer : IStringBearer
 {
@@ -899,8 +874,8 @@ public class SimpleAsValueStringBearerWithFieldSimpleValueTypeStringBearer<TBear
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass 
-                | AcceptsStringBearer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueStringBearerNoFieldSimpleValueTypeStringBearer<TBearer> : IMoldSupportedValue<TBearer>
     where TBearer : IStringBearer
 {
@@ -921,8 +896,8 @@ public class SimpleAsValueStringBearerNoFieldSimpleValueTypeStringBearer<TBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass 
-                | AcceptsStringBearer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueStringBearerOrNullWithFieldSimpleValueTypeStringBearer<TBearer> : IMoldSupportedValue<TBearer?> where
     TBearer : IStringBearer
 {
@@ -943,8 +918,8 @@ public class SimpleAsValueStringBearerOrNullWithFieldSimpleValueTypeStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass 
-                | AcceptsStringBearer | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueStringBearerOrNullNoFieldSimpleValueTypeStringBearer<TBearer> : IMoldSupportedValue<TBearer?> where
     TBearer : IStringBearer
 {
@@ -965,8 +940,8 @@ public class SimpleAsValueStringBearerOrNullNoFieldSimpleValueTypeStringBearer<T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass 
-                | AcceptsStringBearer | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue 
+                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearer> : IMoldSupportedValue<TBearer?>
   , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
 {
@@ -989,8 +964,8 @@ public class SimpleAsValueStringBearerWithDefaultWithFieldSimpleValueTypeStringB
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsStruct | AcceptsClass | AcceptsNullableClass 
-                | AcceptsStringBearer | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue 
+                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearer> : IMoldSupportedValue<TBearer?>
   , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
 {
@@ -1013,8 +988,8 @@ public class SimpleAsValueStringBearerWithDefaultNoFieldSimpleValueTypeStringBea
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer |
-                  DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueNullableStringBearerWithFieldSimpleValueTypeStringBearer<TBearerStruct> : IMoldSupportedValue<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -1035,8 +1010,8 @@ public class SimpleAsValueNullableStringBearerWithFieldSimpleValueTypeStringBear
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer
-                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueNullableStringBearerNoFieldSimpleValueTypeStringBearer<TBearerStruct> : IMoldSupportedValue<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
@@ -1057,8 +1032,8 @@ public class SimpleAsValueNullableStringBearerNoFieldSimpleValueTypeStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer |
-                  DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueNullableStringBearerOrNullWithFieldSimpleValueTypeStringBearer<TBearerStruct> 
     : IMoldSupportedValue<TBearerStruct?> where TBearerStruct : struct, IStringBearer
 {
@@ -1079,8 +1054,8 @@ public class SimpleAsValueNullableStringBearerOrNullWithFieldSimpleValueTypeStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer
-                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut 
+                | DefaultBecomesNull)]
 public class SimpleAsValueNullableStringBearerOrNullNoFieldSimpleValueTypeStringBearer<TBearerStruct> 
     : IMoldSupportedValue<TBearerStruct?> where TBearerStruct : struct, IStringBearer
 {
@@ -1101,8 +1076,8 @@ public class SimpleAsValueNullableStringBearerOrNullNoFieldSimpleValueTypeString
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct  | AcceptsStringBearer
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct  | AcceptsStringBearer | SupportsSettingDefaultValue 
+                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueNullableStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearerStruct> 
     : IMoldSupportedValue<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
 {
@@ -1125,8 +1100,8 @@ public class SimpleAsValueNullableStringBearerWithDefaultWithFieldSimpleValueTyp
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue 
+                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueNullableStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearerStruct> 
     : IMoldSupportedValue<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
 {
@@ -1149,8 +1124,8 @@ public class SimpleAsValueNullableStringBearerWithDefaultNoFieldSimpleValueTypeS
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan  | AcceptsCharArray 
-                | SupportsValueFormatString | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan  | AcceptsCharArray | SupportsValueFormatString 
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesZero)]
 public class SimpleAsValueCharSpanWithFieldOrDefaultSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
@@ -1182,8 +1157,8 @@ public class SimpleAsValueCharSpanWithFieldOrDefaultSimpleValueTypeStringBearer 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan  | AcceptsCharArray 
-                | SupportsValueFormatString | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan  | AcceptsCharArray | SupportsValueFormatString 
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
 public class SimpleAsValueCharSpanWithDefaultWithFieldAsSpanSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>
 {
@@ -1218,8 +1193,8 @@ public class SimpleAsValueCharSpanWithDefaultWithFieldAsSpanSimpleValueTypeStrin
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan  | AcceptsCharArray 
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan  | AcceptsCharArray | SupportsValueFormatString 
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
 public class SimpleAsValueCharSpanWithFieldSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
 {
@@ -1251,8 +1226,8 @@ public class SimpleAsValueCharSpanWithFieldSimpleValueTypeStringBearer : IMoldSu
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan  | AcceptsCharArray
-                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan  | AcceptsCharArray | DefaultTreatedAsValueOut 
+                | DefaultBecomesZero)]
 public class SimpleAsValueCharSpanWithNoFieldAsSpanSimpleValueTypeStringBearer : IMoldSupportedValue<char[]>
 {
     public char[] SimpleTypeAsValueCharSpan
@@ -1952,8 +1927,8 @@ public class SimpleAsValueCharSequenceWithFieldOrDefaultSimpleValueTypeStringBea
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsCharSequence | SupportsValueFormatString 
-                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+[TypeGeneratePart(SimpleType | SingleValueCardinality  | AcceptsCharSequence | SupportsValueFormatString | DefaultTreatedAsValueOut 
+                | DefaultBecomesZero)]
 public class SimpleAsValueCharSequenceNoFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , ISupportsValueFormatString, ISupportsSettingValueFromString
     where TCharSeq : ICharSequence

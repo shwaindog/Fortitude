@@ -564,9 +564,8 @@ public partial class ValueTypeMoldTests
              }
            , new ScaffoldingPartEntry
                  (typeof(SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithFieldSimpleValueTypeStringBearer<>)
-                , SimpleType | SingleValueCardinality | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable | AcceptsIntegerNumber 
-                | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsSettingDefaultValue | DefaultTreatedAsValueOut 
-                | DefaultBecomesFallback));
+                , SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue 
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback));
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

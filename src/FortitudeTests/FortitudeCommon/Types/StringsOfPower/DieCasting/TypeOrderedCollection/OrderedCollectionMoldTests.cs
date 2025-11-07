@@ -98,34 +98,86 @@ public partial class OrderedCollectionMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
+    
+    private static IEnumerable<object[]> UnfilteredNonNullFmtCollectionsExpect =>
+        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+            where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+            from scaffoldToCall in 
+                scafReg
+                    .IsOrderedCollectionType()
+                    .NoFilterPredicate()
+                    .HasSpanFormattable()
+                    .NotHasSupportsValueRevealer()
+                    .AcceptsNonNullables()
+            select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .NoFilterPredicate()
+                        .HasSpanFormattable()
+                        .NotHasSupportsValueRevealer()
+                        .OnlyAcceptsNullableStructs()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                where fe.ElementTypeIsClass && !fe.HasRestrictingFilter   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .NoFilterPredicate()
+                        .HasSpanFormattable()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall });
 
-    private static IEnumerable<object[]> NonNullableSpanFormattableExpect =>
-        from fe in SpanFormattableTestData.AllSpanFormattableExpectations
-        where !fe.IsNullable
-        from scaffoldToCall in
-            scafReg.IsOrderedCollectionType().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullables()
-        select new object[] { fe, scaffoldToCall };
-
-
-    // [TestMethod]
-    [DynamicData(nameof(NonNullableSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactLogNonNullFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    [TestMethod]
+    [DynamicData(nameof(UnfilteredNonNullFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    private static IEnumerable<object[]> NullableStructSpanFormattableExpect =>
-        from fe in SpanFormattableTestData.AllSpanFormattableExpectations
-        where fe is { IsNullable: true, IsStruct: true }
-        from scaffoldToCall in
-            scafReg.IsOrderedCollectionType().HasSpanFormattable().NotHasSupportsValueRevealer().OnlyAcceptsNullableStructs()
-        select new object[] { fe, scaffoldToCall };
+    private static IEnumerable<object[]> FilteredNonNullFmtCollectionsExpect =>
+        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+            where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+            from scaffoldToCall in 
+                scafReg
+                    .IsOrderedCollectionType()
+                    .NoFilterPredicate()
+                    .HasSpanFormattable()
+                    .NotHasSupportsValueRevealer()
+                    .AcceptsNonNullables()
+            select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .NoFilterPredicate()
+                        .HasSpanFormattable()
+                        .NotHasSupportsValueRevealer()
+                        .OnlyAcceptsNullableStructs()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                where fe.ElementTypeIsClass && !fe.HasRestrictingFilter   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .NoFilterPredicate()
+                        .HasSpanFormattable()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall });
 
-
-    // [TestMethod]
-    [DynamicData(nameof(NullableStructSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactLogNullFmtStructList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    [TestMethod]
+    [DynamicData(nameof(FilteredNonNullFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);

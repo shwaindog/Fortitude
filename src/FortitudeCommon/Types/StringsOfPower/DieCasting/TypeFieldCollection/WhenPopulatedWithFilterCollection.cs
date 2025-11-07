@@ -3402,6 +3402,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
             }
         }
         if (eocm != null)

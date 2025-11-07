@@ -102,9 +102,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<byte?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -258,10 +258,10 @@ public static class SpanFormattableTestData
         // char?
       , new FieldExpect<char?>('\0', "")
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut, Log | Compact | Pretty), "\0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"\0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut), "\\u0000" }
-          , { new EK(SimpleType | AcceptsAnyGeneric), "\"\\u0000\"" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut, Log | Compact | Pretty), "\0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"\0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut), "\\u0000" }
+          , { new EK(SimpleType | CallsViaMatch), "\"\\u0000\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "\0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"\0\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\\u0000" }
@@ -271,11 +271,11 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<char?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty), "\0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback, Log | Compact | Pretty), "\"\0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "\\u0000" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"\\u0000\"" }
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty), "\0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback, Log | Compact | Pretty), "\"\0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "\\u0000" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback), "\"\\u0000\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesZero
                    , Log | Compact | Pretty), "\0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback | DefaultBecomesZero 
@@ -316,9 +316,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<char?>(' ', "'{0}'")
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut), "' '" }
-          , { new EK(SimpleType | AcceptsAnyGeneric), "\"' '\"" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut), "' '" }
+          , { new EK(SimpleType | CallsViaMatch), "\"' '\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "' '" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "' '" }
@@ -410,9 +410,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<short?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -521,9 +521,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<ushort?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -670,9 +670,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<Half?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -834,9 +834,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<int?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -969,9 +969,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<uint?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -1139,9 +1139,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<float?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -1304,9 +1304,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<long?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -1435,9 +1435,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<ulong?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -1610,9 +1610,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<double?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -1794,9 +1794,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<decimal?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
            ,
@@ -1967,10 +1967,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<Int128?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback
                      , Log | Compact | Pretty), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback), "\"0\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback
                    , Log | Compact | Pretty), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback), "\"0\"" }
@@ -2156,10 +2156,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<UInt128?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback
                    , Log | Compact | Pretty), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback), "\"0\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback
                    , Log | Compact | Pretty), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback), "\"0\"" }
@@ -2346,9 +2346,9 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<BigInteger?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut, Log | Compact | Pretty ), "0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric), "\"0\"" }
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut, Log | Compact | Pretty ), "0" }
+          , { new EK(SimpleType | CallsViaMatch), "\"0\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback
                      , Log | Compact | Pretty), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero), "\"0\"" }
@@ -2658,11 +2658,11 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<Complex?>(null, "", true)
         {  
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback
                    , Log | Compact | Pretty), "<0; 0>" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback, Log | Compact | Pretty), "\"<0; 0>\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback, Json | Compact | Pretty), "\"\\u003c0; 0\\u003e\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback, Log | Compact | Pretty), "\"<0; 0>\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback, Json | Compact | Pretty), "\"\\u003c0; 0\\u003e\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesZero, Log | Compact | Pretty), "0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesZero), "\"0\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback
@@ -2968,10 +2968,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<DateTime?>(null, "yyyy-MM-ddTHH:mm:ss", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty)
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty)
               , "0001-01-01T00:00:00" }
-          , { new EK(SimpleType | AcceptsAnyGeneric), "\"0001-01-01T00:00:00\"" }
+          , { new EK(SimpleType | CallsViaMatch), "\"0001-01-01T00:00:00\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull
               , Log | Compact | Pretty ), "0001-01-01T00:00:00" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull
@@ -3203,10 +3203,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<TimeSpan?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty)
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty)
               , "00:00:00" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"00:00:00\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback), "\"00:00:00\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero, Log | Compact | Pretty)
               , "00:00:00" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback
@@ -3428,10 +3428,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<DateOnly?>(null, "yyyy-MM-dd", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty)
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty)
               , "0001-01-01" }
-          , { new EK(SimpleType | AcceptsAnyGeneric), "\"0001-01-01\"" }
+          , { new EK(SimpleType | CallsViaMatch), "\"0001-01-01\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback
                    , Log | Compact | Pretty) , "0001-01-01" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesZero | DefaultBecomesFallback) 
@@ -3647,10 +3647,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<TimeOnly?>(null, "HH:mm:ss.FFFFFFF", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback, 
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback, 
                      Log | Compact | Pretty), "00:00:00" }
-          , { new EK(SimpleType | AcceptsAnyGeneric), "\"00:00:00\"" }
+          , { new EK(SimpleType | CallsViaMatch), "\"00:00:00\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull
                    , Log | Compact | Pretty), "00:00:00" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull), "\"00:00:00\"" }
@@ -3878,10 +3878,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<Rune?>(null, "", true)
         {  
-            { new EK(SimpleType | AcceptsAnyGeneric  | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty), "\0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback, Log | Compact | Pretty), "\"\0\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric), "\"\\u0000\"" }
+            { new EK(SimpleType | CallsViaMatch  | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty), "\0" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback, Log | Compact | Pretty), "\"\0\"" }
+          , { new EK(SimpleType | CallsViaMatch), "\"\\u0000\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull
                    , Log | Compact | Pretty), "\0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback | DefaultBecomesNull 
@@ -3894,10 +3894,10 @@ public static class SpanFormattableTestData
                    , Log | Compact | Pretty) , "\"\0\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable), "\"\\u0000\"" }
-          //   { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-          // , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty), "\0" }
-          // , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback, Log | Compact | Pretty), "\"\0\"" }
-          // , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut), "\"\\u0000\"" }
+          //   { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+          // , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty), "\0" }
+          // , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback, Log | Compact | Pretty), "\"\0\"" }
+          // , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "\"\\u0000\"" }
           // , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback
           //          , Log | Compact | Pretty), "\0" }
           // , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesFallback
@@ -4071,8 +4071,8 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<Guid?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty)
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback, Log | Compact | Pretty)
               , "00000000-0000-0000-0000-000000000000" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesZero
                    , Log | Compact | Pretty) , "00000000-0000-0000-0000-000000000000"
@@ -4080,7 +4080,7 @@ public static class SpanFormattableTestData
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallback | DefaultBecomesZero
                    , Log | Compact | Pretty) , "\"00000000-0000-0000-0000-000000000000\""
             }
-          , { new EK(SimpleType | AcceptsAnyGeneric) , "\"00000000-0000-0000-0000-000000000000\"" }
+          , { new EK(SimpleType | CallsViaMatch) , "\"00000000-0000-0000-0000-000000000000\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallback |  DefaultBecomesNull
                    , Log | Compact | Pretty), "00000000-0000-0000-0000-000000000000" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback |  DefaultBecomesNull)
@@ -4209,10 +4209,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<IPNetwork?>(null, "", true)
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
+            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback
                    , Log | Compact | Pretty), "0.0.0.0/0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric), "\"0.0.0.0/0\"" }
+          , { new EK(SimpleType | CallsViaMatch), "\"0.0.0.0/0\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesNull | DefaultBecomesFallback
                    , Log | Compact | Pretty), "0.0.0.0/0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull | DefaultBecomesFallback), "\"0.0.0.0/0\"" }
@@ -4287,10 +4287,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<Version>(null, "{0}", true, new Version())
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut |  DefaultBecomesFallback
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallback
                      , Log | Compact | Pretty), "0.0" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"0.0\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback), "\"0.0\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesNull | DefaultBecomesFallback
                      , Log | Compact | Pretty) , "0.0" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull | DefaultBecomesFallback) , "\"0.0\"" }
@@ -4304,10 +4304,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<Version, string>(null, "", true, "")
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut |  DefaultBecomesFallback
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallback
                    , Log | Compact | Pretty), "" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback), "\"\"" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull | DefaultBecomesFallback), "null" }
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty | DefaultBecomesFallback
                    , Log | Compact | Pretty), "" }
@@ -4392,11 +4392,11 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<IPAddress, string>(null, "", true, "")
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback
                      , Log | Compact | Pretty), "" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"\"" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback), "\"\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
             // Some SpanFormattable Scaffolds have both DefaultBecomesNull and DefaultBecomesFallback for when their default is TFmt?
             // So the following will only match when both the scaffold and the following have both.
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull | DefaultBecomesFallback), "null" }
@@ -4485,10 +4485,10 @@ public static class SpanFormattableTestData
         }
       , new FieldExpect<Uri, string>(null, "", false, "")
         {
-            { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
+            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback
                      , Log | Compact | Pretty), "" }
-          , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
             // Some SpanFormattable Scaffolds have both DefaultBecomesNull and DefaultBecomesFallback for when their default is TFmt?
             // So the following will only match when both the scaffold and the following have both.
           , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull | DefaultBecomesFallback), "null" }

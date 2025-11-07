@@ -15,7 +15,11 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 public interface IOrderedListExpect : IFormatExpectation
 {
     bool ElementTypeIsNullable { get; }
-    
+    Type ElementTypeScaffoldType { get; }
+    Type ElementType { get; }
+
+    bool ElementTypeIsClass { get; }
+
     bool HasRestrictingFilter { get; }
 }
 
@@ -24,7 +28,7 @@ public class OrderedListExpect<TInputElement> : OrderedListExpect<TInputElement,
     public OrderedListExpect(List<TInputElement>? inputList
       , string? formatString = null
       , OrderedCollectionPredicate<TInputElement>? elementFilter = null) : base(inputList, formatString, elementFilter) { }
-    
+
     public OrderedListExpect(List<TInputElement>? inputList, string? formatString
       , Func<OrderedCollectionPredicate<TInputElement>?> elementFilterResolver) : base(inputList, formatString, elementFilterResolver) { }
 }
@@ -34,24 +38,33 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
 {
     private readonly OrderedCollectionPredicate<TFilterBase>? elementPredicate;
 
+    private Type? elementType;
+
     // ReSharper disable once ConvertToPrimaryConstructor
     public OrderedListExpect(List<TInputElement>? inputList, string? formatString = null
       , OrderedCollectionPredicate<TFilterBase>? elementFilter = null, FieldContentHandling valueHandlingFlags = DefaultCallerTypeFlags)
         : base(inputList, formatString, valueHandlingFlags) =>
         elementPredicate = elementFilter ?? ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
 
-    public OrderedListExpect(List<TInputElement>? inputList, string? formatString 
+    public OrderedListExpect(List<TInputElement>? inputList, string? formatString
       , Func<OrderedCollectionPredicate<TFilterBase>?> elementFilterResolver, FieldContentHandling valueHandlingFlags = DefaultCallerTypeFlags)
         : base(inputList, formatString, valueHandlingFlags) =>
         elementPredicate = elementFilterResolver();
 
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
 
-    public bool ElementTypeIsNullable =>  typeof(TInputElement).IsNullable();
-    
+    public bool ElementTypeIsNullable => ElementType.IsNullable();
+    public bool ElementTypeIsClass => !ElementType.IsValueType;
+
+    public Type ElementType => elementType ??= typeof(TInputElement);
+    public Type ElementTypeScaffoldType =>
+        ElementType.IsNullableSpanFormattable() 
+            ? ElementType.IfNullableGetUnderlyingTypeOrThis()
+            : ElementType;
+
     public override Type CoreType => typeof(TInputElement).IfNullableGetUnderlyingTypeOrThis();
 
-    public bool HasRestrictingFilter => ElementPredicate != null 
+    public bool HasRestrictingFilter => ElementPredicate != null
                                      && !Equals(ElementPredicate, ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate);
 
     public override string ShortTestName
@@ -83,35 +96,14 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
     public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         var flags = scaffoldEntry.ScaffoldingFlags;
-        
-        return flags.HasFilterPredicate() 
-            ? scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement), typeof(TFilterBase))()
-            :  scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement))();
-        // if (flags.HasAcceptsArray())
-        // {
-        //     return flags.HasFilterPredicate() 
-        //     ? scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement), typeof(TFilterBase))()
-        //     : scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement))();
-        // }
-        // if (flags.HasAcceptsList())
-        // {
-        //     return flags.HasFilterPredicate() 
-        //         ? scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement), typeof(TFilterBase))()
-        //         :  scaffoldEntry.CreateStringBearerFunc(typeof(List<TInputElement>))();
-        // }
-        // if (flags.HasAcceptsEnumerable())
-        // {
-        //     return flags.HasFilterPredicate() 
-        //         ? scaffoldEntry.CreateStringBearerFunc(typeof(IEnumerable<TInputElement>), typeof(TFilterBase))()
-        //         : scaffoldEntry.CreateStringBearerFunc(typeof(IEnumerable<TInputElement>))();
-        // }
-        // if (flags.HasAcceptsEnumerator())
-        // {
-        //     return flags.HasFilterPredicate() 
-        //         ? scaffoldEntry.CreateStringBearerFunc(typeof(IEnumerator<TInputElement>), typeof(TFilterBase))()
-        //         : scaffoldEntry.CreateStringBearerFunc(typeof(IEnumerator<TInputElement>))();
-        // }
-        // throw new ArgumentException("Unexpected collection scaffolding type");
+
+        return flags.HasFilterPredicate()
+            ? (flags.IsAcceptsAnyGeneric() 
+                ? scaffoldEntry.CreateStringBearerFunc(ElementType, typeof(TFilterBase))()
+                : scaffoldEntry.CreateStringBearerFunc(ElementTypeScaffoldType, typeof(TFilterBase))())
+            : (flags.IsAcceptsAnyGeneric()
+                ? scaffoldEntry.CreateStringBearerFunc(ElementType)()
+                : scaffoldEntry.CreateStringBearerFunc(ElementTypeScaffoldType)());
     }
 
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)
@@ -119,7 +111,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
         var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
 
         var acceptsNullables = scaffoldEntry.ScaffoldingFlags.HasAcceptsNullables();
-        
+
         if (acceptsNullables && createdStringBearer is IMoldSupportedValue<TInputElement?[]?> nullArrayMold)
             nullArrayMold.Value = Input?.ToArray();
         else if (createdStringBearer is IMoldSupportedValue<TInputElement[]?> arrayMold)
@@ -134,24 +126,21 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
         {
             nullObjArrayMold.Value = Input?.Select(i => i as object).ToArray();
         }
-        else if (createdStringBearer is IMoldSupportedValue<object[]?> objArrayMold)
-        {
-            objArrayMold.Value = Input?.OfType<object>().ToArray();
-        }
+        else if (createdStringBearer is IMoldSupportedValue<object[]?> objArrayMold) { objArrayMold.Value = Input?.OfType<object>().ToArray(); }
         else if (createdStringBearer is IMoldSupportedValue<IReadOnlyList<object?>?> objListMold)
             objListMold.Value = Input?.Select(i => i as object).ToList();
         else if (createdStringBearer is IMoldSupportedValue<IEnumerable<object?>?> objEnumerableMold)
             objEnumerableMold.Value = Input?.Select(i => i as object).ToList();
         else if (createdStringBearer is IMoldSupportedValue<IEnumerator<object?>?> objEnumeratorMold)
             objEnumeratorMold.Value = Input?.Select(i => i as object).ToList().GetEnumerator();
-        
-        if ( HasRestrictingFilter && createdStringBearer is ISupportsOrderedCollectionPredicate<object> supportsSettingObjPredicateFilter)
+
+        if (HasRestrictingFilter && createdStringBearer is ISupportsOrderedCollectionPredicate<object> supportsSettingObjPredicateFilter)
             supportsSettingObjPredicateFilter.ElementPredicate = ElementPredicate!.ToObjectCastingFilter();
-        if ( HasRestrictingFilter && createdStringBearer is ISupportsOrderedCollectionPredicate<TFilterBase> supportsSettingPredicateFilter)
+        if (HasRestrictingFilter && createdStringBearer is ISupportsOrderedCollectionPredicate<TFilterBase> supportsSettingPredicateFilter)
             supportsSettingPredicateFilter.ElementPredicate = ElementPredicate!;
         if (FormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
             supportsValueFormatString.ValueFormatString = FormatString;
-        
+
         return createdStringBearer;
     }
 

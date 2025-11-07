@@ -220,7 +220,8 @@ public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer :
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsNullableStruct | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsNullableStruct 
+                | SupportsValueFormatString)]
 public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool?>
   , IMoldSupportedValue<IReadOnlyList<bool?>?>, IEnumerable<bool?>, ISupportsValueFormatString
 {
@@ -249,7 +250,8 @@ public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionString
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsStruct | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsStruct 
+                | SupportsValueFormatString)]
 public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer : ISupportsOrderedCollectionPredicate<bool>
   , IMoldSupportedValue<IEnumerable<bool>?>, IEnumerable<bool>, ISupportsValueFormatString
 {
@@ -367,8 +369,8 @@ public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollection
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsSpanFormattableExceptNullableStruct
+                | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TBase>, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt> where TFmt : ISpanFormattable, TBase
 {
@@ -397,8 +399,8 @@ public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionSt
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsOnlyNullableStructSpanFormattable 
+                | SupportsValueFormatString)]
 public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<TFmtStruct?[]?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
@@ -429,8 +431,8 @@ public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedColl
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate 
+                | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt[]?>, IEnumerable<TFmt> where TFmt : ISpanFormattable
 {
@@ -459,8 +461,8 @@ public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStr
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate 
+                | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt?> where TFmt : class, ISpanFormattable
 {
@@ -489,8 +491,8 @@ public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedColle
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate 
+                | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
 public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<TFmtStruct?[]?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
@@ -521,8 +523,8 @@ public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedColle
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate 
+                | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt[]?>, IEnumerable<TFmt> where TFmt : ISpanFormattable
 {
@@ -551,8 +553,8 @@ public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedColle
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate 
+                | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<TFmt?[]?>, IEnumerable<TFmt?> where TFmt : class, ISpanFormattable
 {
@@ -581,8 +583,8 @@ public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrde
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate 
+                | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
 public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<TFmtStruct?[]?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
@@ -599,7 +601,9 @@ public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrde
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<TFmtStruct?>)OrderedCollectionAddFilteredNullableSpanFormattableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered
+               ((ReadOnlySpan<TFmtStruct?>)OrderedCollectionAddFilteredNullableSpanFormattableReadOnlySpan.AsSpan()
+              , ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
@@ -613,8 +617,8 @@ public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrde
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsSpanFormattableExceptNullableStruct
+                | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<IReadOnlyList<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
@@ -643,8 +647,8 @@ public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStr
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsOnlyNullableStructSpanFormattable 
+                | SupportsValueFormatString)]
 public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
@@ -675,8 +679,8 @@ public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedColle
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate 
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<IEnumerable<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
@@ -705,8 +709,8 @@ public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollect
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsOnlyNullableStructSpanFormattable 
+                | SupportsValueFormatString)]
 public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<IEnumerable<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
@@ -737,8 +741,8 @@ public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrdere
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate 
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmt> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmt>, IMoldSupportedValue<IEnumerator<TFmt?>?>, IEnumerable<TFmt?> where TFmt : ISpanFormattable
 {
@@ -767,8 +771,8 @@ public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollect
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsOnlyNullableStructSpanFormattable 
+                | SupportsValueFormatString)]
 public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TFmtStruct?>, IMoldSupportedValue<IEnumerator<TFmtStruct?>?>
   , IEnumerable<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
@@ -799,8 +803,7 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrdere
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
     : ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
@@ -839,8 +842,7 @@ public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionS
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsAnyNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
   ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
@@ -879,8 +881,7 @@ public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCol
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsAnyNonNullable
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
   ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
@@ -919,8 +920,7 @@ public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionSt
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsAnyNullableClass
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked?[]?>
@@ -960,8 +960,7 @@ public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedColl
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsAnyNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
   ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
@@ -1000,8 +999,7 @@ public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedColl
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsAnyNonNullable
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase> : 
   ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked[]?>
@@ -1040,8 +1038,7 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsAnyNullableClass
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>, IMoldSupportedValue<TCloaked?[]?>
@@ -1080,8 +1077,7 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrd
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsAnyNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
   ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<TCloakedStruct?[]?>
@@ -1120,8 +1116,7 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrd
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
@@ -1160,8 +1155,7 @@ public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionSt
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsAnyNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
   ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>
@@ -1200,8 +1194,7 @@ public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedColl
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
@@ -1240,8 +1233,7 @@ public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollec
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsAnyNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
   ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>
@@ -1280,8 +1272,7 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrder
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedBase>
     : ISupportsValueRevealer<TCloakedBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
@@ -1320,8 +1311,7 @@ public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollec
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsAnyNullableStruct
                 | SupportsValueRevealer)]
 public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> : 
   ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?>, IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>
@@ -1360,7 +1350,8 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrder
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsTypeAllButNullableStruct 
+                | AcceptsStringBearer)]
 public class OrderedFromStringBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
   ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
   , IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
@@ -1418,7 +1409,8 @@ public class OrderedFromNullableStringBearerArrayRevealFilteredSimpleOrderedColl
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsTypeNonNullable 
+                | AcceptsStringBearer)]
 public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
   ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer[]?>, IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
 {
@@ -1446,7 +1438,8 @@ public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStr
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass 
+                | AcceptsStringBearer)]
 public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
   ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
   , IEnumerable<TBearer> where TBearer : class, IStringBearer, TBearerBase
@@ -1475,7 +1468,8 @@ public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedColle
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableStruct 
+                | AcceptsStringBearer)]
 public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : 
   ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
@@ -1504,7 +1498,8 @@ public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedColle
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsTypeNonNullable 
+                | AcceptsStringBearer)]
 public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
   ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer[]?>, IEnumerable<TBearer> where TBearer : IStringBearer, TBearerBase
 {
@@ -1532,7 +1527,7 @@ public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedColle
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsNullableClass |
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass |
                   AcceptsStringBearer)]
 public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
   ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<TBearer?[]?>
@@ -1550,7 +1545,10 @@ public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrde
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable((ReadOnlySpan<TBearer?>)OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan.AsSpan(), ElementPredicate)
+           .RevealFilteredNullable
+               (
+                (ReadOnlySpan<TBearer?>)OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan.AsSpan()
+              , ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -1562,7 +1560,8 @@ public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrde
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate  | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableStruct 
+                | AcceptsStringBearer)]
 public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : 
   ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<TBearerStruct?[]?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
@@ -1579,7 +1578,9 @@ public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrde
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered((ReadOnlySpan<TBearerStruct?>)OrderedCollectionRevealFilteredNullableStringBearerReadOnlySpan.AsSpan(), ElementPredicate)
+           .RevealFiltered
+               ((ReadOnlySpan<TBearerStruct?>)OrderedCollectionRevealFilteredNullableStringBearerReadOnlySpan.AsSpan()
+              , ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
@@ -1591,7 +1592,8 @@ public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrde
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate  | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsTypeAllButNullableStruct 
+                | AcceptsStringBearer)]
 public class OrderedFromStringBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
   ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IReadOnlyList<TBearer?>?>, IEnumerable<TBearer>
     where TBearer : IStringBearer, TBearerBase
@@ -1649,7 +1651,8 @@ public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedColle
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsTypeAllButNullableStruct 
+                | AcceptsStringBearer)]
 public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
   ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IEnumerable<TBearer?>?>, IEnumerable<TBearer>
     where TBearer : IStringBearer, TBearerBase
@@ -1666,7 +1669,9 @@ public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollect
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredStringBearerEnumerable, ElementPredicate)
+           .RevealFilteredEnumerate
+               (OrderedCollectionRevealFilteredStringBearerEnumerable
+              , ElementPredicate)
            .Complete();
 
     public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
@@ -1678,7 +1683,8 @@ public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollect
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct 
+                | AcceptsStringBearer)]
 public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : 
   ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IEnumerable<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
@@ -1707,7 +1713,8 @@ public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrdere
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsTypeAllButNullableStruct 
+                | AcceptsStringBearer)]
 public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> : 
   ISupportsOrderedCollectionPredicate<TBearerBase>, IMoldSupportedValue<IEnumerator<TBearer?>?>, IEnumerable<TBearer>
     where TBearer : IStringBearer, TBearerBase
@@ -1736,7 +1743,8 @@ public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollect
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct 
+                | AcceptsStringBearer)]
 public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> : 
   ISupportsOrderedCollectionPredicate<TBearerStruct?>, IMoldSupportedValue<IEnumerator<TBearerStruct?>?>, IEnumerable<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
@@ -1765,7 +1773,8 @@ public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrdere
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string?[]?>, IEnumerable<string?>
 {
@@ -1794,7 +1803,8 @@ public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBeare
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsString 
+                | SupportsValueFormatString)]
 public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string[]?>, IEnumerable<string>
 {
@@ -1823,7 +1833,8 @@ public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass 
+                | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string?[]?>, IEnumerable<string?>
 {
@@ -1852,7 +1863,8 @@ public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass 
+                | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string[]?>, IEnumerable<string>
 {
@@ -1881,7 +1893,8 @@ public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsString |
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass 
+                | AcceptsString |
                   SupportsValueFormatString)]
 public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<string?[]?>, IEnumerable<string?>
@@ -1898,7 +1911,9 @@ public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollec
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable((ReadOnlySpan<string?>)OrderedCollectionAddFilteredStringNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable
+               ((ReadOnlySpan<string?>)OrderedCollectionAddFilteredStringNullableReadOnlySpan.AsSpan()
+              , ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<string> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string>.GetNoFilterPredicate;
@@ -1911,7 +1926,8 @@ public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollec
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<IReadOnlyList<string?>?>, IEnumerable<string?>
 {
@@ -1940,8 +1956,8 @@ public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsString |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<IEnumerable<string?>?>, IEnumerable<string?>
 {
@@ -1970,8 +1986,8 @@ public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionString
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsString |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<string>, IMoldSupportedValue<IEnumerator<string?>?>, IEnumerable<string?>
 {
@@ -2000,7 +2016,8 @@ public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionString
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -2031,7 +2048,8 @@ public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStrin
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -2062,7 +2080,8 @@ public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionString
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
   ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
@@ -2093,7 +2112,8 @@ public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollecti
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
   ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq[]?>, IEnumerable<TCharSeq>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -2110,7 +2130,9 @@ public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollecti
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq((ReadOnlySpan<TCharSeq>)OrderedCollectionAddFilteredCharSequenceReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeq
+               ((ReadOnlySpan<TCharSeq>)OrderedCollectionAddFilteredCharSequenceReadOnlySpan.AsSpan()
+              , ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -2124,8 +2146,8 @@ public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollecti
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsCharSequence |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
   ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<TCharSeq?[]?>, IEnumerable<TCharSeq?>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -2142,7 +2164,9 @@ public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrdered
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqNullable((ReadOnlySpan<TCharSeq?>)OrderedCollectionAddFilteredCharSequenceNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeqNullable
+               ((ReadOnlySpan<TCharSeq?>)OrderedCollectionAddFilteredCharSequenceNullableReadOnlySpan.AsSpan()
+              , ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<TCharSeqBase> ElementPredicate { get; set; }
@@ -2156,7 +2180,8 @@ public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrdered
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
@@ -2187,8 +2212,8 @@ public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionString
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
   ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IEnumerable<TCharSeq?>?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
@@ -2219,8 +2244,8 @@ public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollection
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> : 
   ISupportsValueFormatString, ISupportsOrderedCollectionPredicate<TCharSeqBase>, IMoldSupportedValue<IEnumerator<TCharSeq?>?>
   , IEnumerable<TCharSeq?> where TCharSeq : ICharSequence, TCharSeqBase
@@ -2251,7 +2276,8 @@ public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollection
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
@@ -2281,7 +2307,8 @@ public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
@@ -2311,7 +2338,8 @@ public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStrin
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
@@ -2341,7 +2369,8 @@ public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollect
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder[]?>, IEnumerable<StringBuilder>
 {
@@ -2357,7 +2386,9 @@ public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollect
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<StringBuilder>)OrderedCollectionAddFilteredStringBuilderReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered
+               ((ReadOnlySpan<StringBuilder>)OrderedCollectionAddFilteredStringBuilderReadOnlySpan.AsSpan()
+              , ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -2371,8 +2402,8 @@ public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollect
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass | AcceptsStringBuilder |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<StringBuilder?[]?>, IEnumerable<StringBuilder?>
 {
@@ -2388,7 +2419,9 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrdere
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable((ReadOnlySpan<StringBuilder?>)OrderedCollectionAddFilteredStringBuilderNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable
+               ((ReadOnlySpan<StringBuilder?>)OrderedCollectionAddFilteredStringBuilderNullableReadOnlySpan.AsSpan()
+              , ElementPredicate, ValueFormatString)
            .Complete();
 
     public OrderedCollectionPredicate<StringBuilder> ElementPredicate { get; set; }
@@ -2402,7 +2435,8 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrdere
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
@@ -2432,8 +2466,8 @@ public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStrin
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<IEnumerable<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
@@ -2463,8 +2497,8 @@ public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectio
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<StringBuilder>, IMoldSupportedValue<IEnumerator<StringBuilder?>?>, IEnumerable<StringBuilder?>
 {
@@ -2514,7 +2548,8 @@ public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer
            .AddFilteredMatch(OrderedCollectionAddFilteredMatchArray, ElementPredicate, ValueFormatString)
            .Complete();
 
-    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; } = 
+        ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -2525,7 +2560,7 @@ public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan |  SupportsValueFormatString
-                | (AcceptsAnyGeneric & ~(AcceptsNullableClass | AcceptsNullableStruct)) | FilterPredicate)]
+                | AcceptsOnlyNonNullableGeneric | FilterPredicate)]
 public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TAnyFilterBase>, IMoldSupportedValue<TAny[]?>, IEnumerable<TAny> where TAny : TAnyFilterBase
 {
@@ -2544,7 +2579,8 @@ public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<
            .AddFilteredMatch(OrderedCollectionAddFilteredMatchSpan.AsSpan(), ElementPredicate, ValueFormatString)
            .Complete();
 
-    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
+    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; } = 
+        ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
 
     public string? ValueFormatString { get; set; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -2585,7 +2621,7 @@ public class OrderedFromMatchNullableSpanAddFilteredSimpleOrderedCollectionStrin
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan |  SupportsValueFormatString
-                | (AcceptsAnyGeneric & ~(AcceptsNullableClass | AcceptsNullableStruct)) | FilterPredicate)]
+                | AcceptsOnlyNonNullableGeneric | FilterPredicate)]
 public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<TAnyFilterBase>, IMoldSupportedValue<TAny[]?>, IEnumerable<TAny> where TAny : TAnyFilterBase
 {
@@ -2735,7 +2771,7 @@ public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringB
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray |  SupportsValueFormatString
-                | AcceptsAnyGeneric | FilterPredicate | AcceptsUnknownObject)]
+                | AcceptsNullableObject | FilterPredicate)]
 public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
@@ -2765,7 +2801,7 @@ public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBeare
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan |  SupportsValueFormatString
-                | (AcceptsAnyGeneric & (AcceptsNullableClass | AcceptsNullableStruct)) | FilterPredicate | AcceptsUnknownObject)]
+                | AcceptsNonNullableObject | FilterPredicate)]
 public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object[]?>, IEnumerable<object>
 {
@@ -2795,7 +2831,7 @@ public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan |  SupportsValueFormatString
-                | AcceptsAnyGeneric | FilterPredicate | AcceptsUnknownObject)]
+                | AcceptsNullableObject | FilterPredicate)]
 public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
@@ -2825,7 +2861,7 @@ public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStri
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan |  SupportsValueFormatString
-                | (AcceptsAnyGeneric & (AcceptsNullableClass | AcceptsNullableStruct)) | FilterPredicate | AcceptsUnknownObject)]
+                | AcceptsNonNullableObject | FilterPredicate)]
 public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object[]?>, IEnumerable<object>
 {
@@ -2854,8 +2890,8 @@ public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsAnyGeneric 
-                | SupportsValueFormatString | FilterPredicate | AcceptsUnknownObject)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableObject 
+                | SupportsValueFormatString | FilterPredicate)]
 public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<object?[]?>, IEnumerable<object?>
 {
@@ -2884,8 +2920,8 @@ public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollec
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsAnyGeneric | SupportsValueFormatString
-                | FilterPredicate | AcceptsUnknownObject)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsNullableObject | SupportsValueFormatString
+                | FilterPredicate)]
 public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<IReadOnlyList<object?>?>, IEnumerable<object?>
 {
@@ -2914,8 +2950,8 @@ public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsAnyGeneric | SupportsValueFormatString
-                | FilterPredicate | AcceptsUnknownObject)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsNullableObject | SupportsValueFormatString
+                | FilterPredicate)]
 public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<IEnumerable<object?>?>, IEnumerable<object?>
 {
@@ -2944,8 +2980,8 @@ public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionString
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsAnyGeneric | SupportsValueFormatString
-                | FilterPredicate | AcceptsUnknownObject)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsNullableObject | SupportsValueFormatString
+                | FilterPredicate)]
 public class OrderedFromObjectEnumeratorAddFilteredSimpleOrderedCollectionStringBearer : ISupportsValueFormatString
   , ISupportsOrderedCollectionPredicate<object>, IMoldSupportedValue<IEnumerator<object?>?>, IEnumerable<object?>
 {
