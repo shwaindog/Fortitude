@@ -1,9 +1,11 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
@@ -18,8 +20,13 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
 {
     private ScaffoldingPartEntry? calledScaffoldingPart;
 
+    // ReSharper disable twice ExplicitCallerInfoArgument
     public CloakedBearerExpect(TChildScaffoldType? input, string? formatString = null
-      , bool hasDefault = false, TChildScaffoldType? defaultValue = default) : base(input, formatString, hasDefault, defaultValue)
+      , bool hasDefault = false, TChildScaffoldType? defaultValue = default
+      , FieldContentHandling contentHandling = FieldContentHandling.DefaultCallerTypeFlags
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) : 
+        base(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
     {
         FieldValueExpectation = new FieldExpect<TChildScaffoldType>(Input, FormatString, HasDefault, DefaultValue);
     }
@@ -71,7 +78,8 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
             var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
             FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
             supportsStringDefaultValue.DefaultValue =
-                scaffoldEntry.ScaffoldingFlags.HasAnyOf(ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsValueOut | ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsStringOut)
+                scaffoldEntry.ScaffoldingFlags.HasAnyOf(ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsValueOut 
+                                                      | ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsStringOut)
              && !InputType.IsSpanFormattableOrNullable()
                     ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();

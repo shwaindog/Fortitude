@@ -1,10 +1,13 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
@@ -13,8 +16,12 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 public class NullableStringBearerExpect<TInput> : NullableStringBearerExpect<TInput, TInput>
     where TInput : struct, IStringBearer
 {
+    // ReSharper disable twice ExplicitCallerInfoArgument
     public NullableStringBearerExpect(TInput? input, string? formatString = null
-      , bool hasDefault = false, TInput? defaultValue = null) : base(input, formatString, hasDefault, defaultValue)
+      , bool hasDefault = false, TInput? defaultValue = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) : base(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
     {
         FieldValueExpectation = new FieldExpect<TInput?>(Input, FormatString, HasDefault, DefaultValue);
     }
@@ -29,11 +36,15 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
     public override bool IsNullable => InputType.IsNullable();
-
+ 
+    // ReSharper disable twice ExplicitCallerInfoArgument
     public NullableStringBearerExpect(TInput? input, string? formatString = null
-      , bool hasDefault = false, TDefault? defaultValue = null) : base(input, formatString, hasDefault, defaultValue)
+      , bool hasDefault = false, TDefault? defaultValue = null, FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0)
+        : base(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
     {
-        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, FormatString, HasDefault, DefaultValue);
+        // ReSharper disable twice ExplicitCallerInfoArgument
+        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, FormatString, HasDefault, DefaultValue, contentHandling, srcFile, srcLine);
     }
 
     public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null)

@@ -1008,11 +1008,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenNonNullAddFiltered<TFmt>
-    (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value, OrderedCollectionPredicate<TFmt> filterPredicate
+    public TExt WhenNonNullAddFiltered<TFmt, TFmtBase>
+    (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         var collectionType = typeof(ReadOnlySpan<TFmt>);
@@ -1825,10 +1825,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TFmt>
-    (string fieldName, TFmt?[]? value, OrderedCollectionPredicate<TFmt> filterPredicate
+    public TExt WhenNonNullAddFiltered<TFmt, TFmtBase>
+    (string fieldName, TFmt?[]? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable, TFmtBase =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TFmtStruct>
@@ -1900,10 +1900,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TFmt>
-    (string fieldName, IReadOnlyList<TFmt?>? value, OrderedCollectionPredicate<TFmt> filterPredicate
+    public TExt WhenNonNullAddFiltered<TFmt, TFmtBase>
+    (string fieldName, IReadOnlyList<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable, TFmtBase =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TFmtStruct>

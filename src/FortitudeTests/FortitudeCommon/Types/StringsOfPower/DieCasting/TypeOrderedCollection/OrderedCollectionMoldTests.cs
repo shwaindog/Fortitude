@@ -10,6 +10,7 @@ using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.CollectionScaffolds;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.OrderedLists;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
@@ -42,7 +43,7 @@ public partial class OrderedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> UnfilteredBooleanCollectionsExpect =>
-        (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations.Value
+        (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
             where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
             from scaffoldToCall in 
                 scafReg
@@ -52,7 +53,7 @@ public partial class OrderedCollectionMoldTests
                     .AcceptsNonNullables()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in BoolCollectionsTestData.AllBoolCollectionExpectations.Value
+                from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
                 where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
                 from scaffoldToCall in 
                     scafReg
@@ -71,7 +72,7 @@ public partial class OrderedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> FilteredBooleanCollectionsExpect =>
-        (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations.Value
+        (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
             where !fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
             from scaffoldToCall in 
                 scafReg
@@ -81,7 +82,7 @@ public partial class OrderedCollectionMoldTests
                     .AcceptsNonNullables()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in BoolCollectionsTestData.AllBoolCollectionExpectations.Value
+                from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
                 where fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
                 from scaffoldToCall in 
                     scafReg
@@ -100,7 +101,8 @@ public partial class OrderedCollectionMoldTests
     }
     
     private static IEnumerable<object[]> UnfilteredNonNullFmtCollectionsExpect =>
-        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+        // Non nullables and classes
+        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
             where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
             from scaffoldToCall in 
                 scafReg
@@ -111,7 +113,8 @@ public partial class OrderedCollectionMoldTests
                     .AcceptsNonNullables()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                // Nullable structs
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
                 where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
                 from scaffoldToCall in 
                     scafReg
@@ -122,7 +125,8 @@ public partial class OrderedCollectionMoldTests
                         .OnlyAcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                // classes
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
                 where fe.ElementTypeIsClass && !fe.HasRestrictingFilter   
                 from scaffoldToCall in 
                     scafReg
@@ -141,42 +145,42 @@ public partial class OrderedCollectionMoldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    private static IEnumerable<object[]> FilteredNonNullFmtCollectionsExpect =>
-        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-            where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+    private static IEnumerable<object[]> FilteredFmtCollectionsExpect =>
+        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+            where !fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
             from scaffoldToCall in 
                 scafReg
                     .IsOrderedCollectionType()
-                    .NoFilterPredicate()
+                    .HasFilterPredicate()
                     .HasSpanFormattable()
                     .NotHasSupportsValueRevealer()
                     .AcceptsNonNullables()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                where fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
                 from scaffoldToCall in 
                     scafReg
                         .IsOrderedCollectionType()
-                        .NoFilterPredicate()
+                        .HasFilterPredicate()
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
                         .OnlyAcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe.ElementTypeIsClass && !fe.HasRestrictingFilter   
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                where fe.ElementTypeIsClass && fe.HasRestrictingFilter   
                 from scaffoldToCall in 
                     scafReg
                         .IsOrderedCollectionType()
-                        .NoFilterPredicate()
+                        .HasFilterPredicate()
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
                         .AcceptsNullableClasses()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
-    [DynamicData(nameof(FilteredNonNullFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    [DynamicData(nameof(FilteredFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void FilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
@@ -298,93 +302,12 @@ public partial class OrderedCollectionMoldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactLogListTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactLog
-            (new FieldExpect<MutableString>
-            (new MutableString
-                 ("One string to use in all, one string to find text in, One string to replace them all and in the dustbins of " +
-                  "time confine them"), "{0[^40..^0]}")
-            {
-                {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
-                  , "and in the dustbins of time confine them"
-                }
-               ,
-                {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
-                  , "\"and in the dustbins of time confine them\""
-                }
-               ,
-                {
-                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Log | Compact | Pretty)
-                  , "\"and in the dustbins of time confine them\""
-                }
-               ,
-                {
-                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Compact)
-                  , """
-                    ["a","n","d"," ","i","n"," ","t","h","e"," ","d","u","s","t","b","i","n","s"," ","o","f"," ","t","i","m","e"," ",
-                    "c","o","n","f","i","n","e"," ","t","h","e","m"]
-                    """.RemoveLineEndings()
-                }
-               ,
-                {
-                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                           NonNullAndPopulatedWrites, Json | Pretty)
-                  , """
-                    [
-                        "a",
-                        "n",
-                        "d",
-                        " ",
-                        "i",
-                        "n",
-                        " ",
-                        "t",
-                        "h",
-                        "e",
-                        " ",
-                        "d",
-                        "u",
-                        "s",
-                        "t",
-                        "b",
-                        "i",
-                        "n",
-                        "s",
-                        " ",
-                        "o",
-                        "f",
-                        " ",
-                        "t",
-                        "i",
-                        "m",
-                        "e",
-                        " ",
-                        "c",
-                        "o",
-                        "n",
-                        "f",
-                        "i",
-                        "n",
-                        "e",
-                        " ",
-                        "t",
-                        "h",
-                        "e",
-                        "m"
-                      ]
-                    """.Dos2Unix()
-                }
-            }, new ScaffoldingPartEntry
-                 (typeof(FieldCharSequenceWhenNonNullStringBearer<>)
-                , ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
-                  SupportsCustomHandling));
+        //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
+        SharedCompactLog(BoolCollectionsTestData.AllBoolCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -437,6 +360,11 @@ public partial class OrderedCollectionMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(CompactLogListTest)).Append("()\n\n")
+                  .Append("SharedCompactLog(")?
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {

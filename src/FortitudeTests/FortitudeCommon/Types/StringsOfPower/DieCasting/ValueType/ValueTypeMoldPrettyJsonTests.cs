@@ -9,6 +9,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ValueTypeScaffolds;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
@@ -196,32 +197,8 @@ public partial class ValueTypeMoldTests
     public void PrettyJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyJsonAsString
-            (new FieldExpect<IPAddress, string>(null, "", true, "")
-             {
-                 { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
-                        , Log | Compact | Pretty), "" }
-               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"\"" }
-               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
-                 // Some SpanFormattable Scaffolds have both DefaultBecomesNull and DefaultBecomesFallback for when their default is TFmt?
-                 // So the following will only match when both the scaffold and the following have both.
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull | DefaultBecomesFallback), "null" }
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty | DefaultBecomesZero
-                        , Log | Compact | Pretty) , "0" }
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty | DefaultBecomesZero )
-                   , "\"0\"" }
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty | DefaultBecomesFallback
-                        , Log | Compact | Pretty) , "" }
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty | DefaultBecomesEmpty | DefaultBecomesFallback), "\"\"" }
-                 // The following covers the others that would return null.
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
-               , { new EK(AcceptsSpanFormattable | AlwaysWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
-             }
-           , new ScaffoldingPartEntry
-                 (typeof(SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithFieldSimpleValueTypeStringBearer<>)
-                , SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue 
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback));
+        //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
+        SharedCompactJsonAsValue(SpanFormattableTestData.AllSpanFormattableExpectations[209], ScaffoldingRegistry.AllScaffoldingTypes[1139]);
     }
 
     private void SharedPrettyJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -241,7 +218,7 @@ public partial class ValueTypeMoldTests
         var tos = new TheOneString().Initialize(Pretty | Json);
         tos.Settings.NewLineStyle = "\n";
 
-        string BuildExpectedOutput(string className, string propertyName
+        string BuildExpectedOutput(string _, string _1
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
             var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
@@ -253,8 +230,6 @@ public partial class ValueTypeMoldTests
         string BuildChildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string prettyJsonTemplate = "{{{0}{1}{2}{0}}}";
-
             var maybeNewLine = "";
             var maybeIndent  = "";
             var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
@@ -292,6 +267,11 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(PrettyJsonSingleTest)).Append("()\n\n")
+                  .Append("SharedPrettyJsonAsValue(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {
@@ -320,7 +300,7 @@ public partial class ValueTypeMoldTests
         tos.Settings.NewLineStyle = "\n";
 
 
-        string BuildExpectedOutput(string className, string propertyName
+        string BuildExpectedOutput(string _, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
             var prettyJsonTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
@@ -382,6 +362,11 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(PrettyJsonSingleTest)).Append("()\n\n")
+                  .Append("SharedPrettyJsonAsString(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {

@@ -4,6 +4,7 @@
 using System.Net;
 using System.Numerics;
 using System.Text;
+using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
@@ -13,8 +14,11 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 public static class SpanFormattableTestData
 {
-    public static readonly ISingleFieldExpectation[] AllSpanFormattableExpectations =
-    [
+    private static PositionUpdatingList<ISingleFieldExpectation>? allSpanFormattableExpectations;  
+    
+    public static PositionUpdatingList<ISingleFieldExpectation> AllSpanFormattableExpectations => allSpanFormattableExpectations ??=
+        new PositionUpdatingList<ISingleFieldExpectation>(typeof(SpanFormattableTestData))
+        {
         // byte
         new FieldExpect<byte>(0, "")
         {
@@ -4555,5 +4559,5 @@ public static class SpanFormattableTestData
               , "\"'https://en.wikipedia.org/wiki/Rings_of_Power'\""
             }
         }
-    ];
+    };
 }

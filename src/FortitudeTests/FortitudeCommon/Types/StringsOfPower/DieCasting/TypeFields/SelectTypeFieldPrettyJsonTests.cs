@@ -7,6 +7,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -115,30 +116,8 @@ public partial class SelectTypeFieldTests
     public void PrettyJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyJson
-            (new FieldExpect<MutableString>
-                 (new MutableString
-                      ("And nine, nine strings were gifted to the race of C++ coders, " +
-                       "who above all else desired unchecked memory access power. "), "***\"{0[1..^1]}\"***"
-                , fromIndex: 9, length: 41)
-                 {
-                     {
-                         new EK(AcceptsChars | CallsAsReadOnlySpan | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                                NonNullAndPopulatedWrites)
-                       , "***\"nine strings were gifted to the race of\"***"
-                     }
-                    ,
-                     {
-                         new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | NonNullWrites |
-                                NonNullAndPopulatedWrites, Json | Pretty | Pretty)
-                       , """
-                         ["*","*","*","\u0022","n","i","n","e"," ","s","t","r","i","n","g","s"," ","w","e","r","e"," ","g","i","f","t","e","d",
-                         " ","t","o"," ","t","h","e"," ","r","a","c","e"," ","o","f","\u0022","*","*","*"]
-                         """.RemoveLineEndings()
-                     }
-                 }, new ScaffoldingPartEntry
-                 (typeof(FieldCharSequenceRangeAlwaysAddStringBearer<>)
-                , ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges));
+        //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
+        SharedCompactJson(SpanFormattableTestData.AllSpanFormattableExpectations[145], ScaffoldingRegistry.AllScaffoldingTypes[945]);
     }
 
     private void SharedPrettyJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

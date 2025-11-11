@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Net;
+using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
@@ -11,8 +12,11 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 public static class StringBearerTestData
 {
-    public static readonly ISingleFieldExpectation[] AllStringBearerExpectations =
-    [
+    private static PositionUpdatingList<ISingleFieldExpectation>? allStringBearerExpectations;  
+    
+    public static PositionUpdatingList<ISingleFieldExpectation> AllStringBearerExpectations => allStringBearerExpectations ??=
+        new PositionUpdatingList<ISingleFieldExpectation>(typeof(StringBearerTestData))
+        {
         // byte
         new StringBearerExpect<FieldSpanFormattableAlwaysAddStringBearer<byte>>
             (new FieldSpanFormattableAlwaysAddStringBearer<byte>
@@ -2860,5 +2864,5 @@ public static class StringBearerTestData
                     new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites), "null"
                 }
             }
-    ];
+    };
 }

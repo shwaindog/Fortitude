@@ -1243,18 +1243,23 @@ public class ScaffoldingValidateClassTests
         var allComplexSingleFieldsThatAcceptChars =
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsChars().NotHasAcceptsAny().ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsSettingValueFromString in allComplexSingleFieldsThatAcceptChars)
         {
-            try { Assert.IsTrue(checkImplementsSettingValueFromString.SupportsSettingValueFromString); }
-            catch (Exception)
+            if (!checkImplementsSettingValueFromString.SupportsSettingValueFromString)
             {
-                logger.ErrorAppend("Complex Type Accepts Char Fields -  Expected - ")?
-                      .AppendLine(checkImplementsSettingValueFromString.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(nameof(ISupportsSettingValueFromString));
-
-                throw;
+                violatingScaffoldEntries.Add(checkImplementsSettingValueFromString);
             }
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Type Accepts Char Fields -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
+            {
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
+            }
+            le?.Append(" to implement ").FinalAppend(nameof(ISupportsSettingValueFromString));
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1264,18 +1269,23 @@ public class ScaffoldingValidateClassTests
         var allComplexSingleFieldsThatAcceptChars =
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsChars().NotHasAcceptsAny().ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsSettingValueFromString in allComplexSingleFieldsThatAcceptChars)
         {
-            try { Assert.IsTrue(checkImplementsSettingValueFromString.SupportsValueFormatString); }
-            catch (Exception)
+            if (!checkImplementsSettingValueFromString.SupportsValueFormatString)
             {
-                logger.ErrorAppend("Complex Type Accepts Char Fields -  Expected - ")?
-                      .AppendLine(checkImplementsSettingValueFromString.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(nameof(ISupportsValueFormatString));
-
-                throw;
+                violatingScaffoldEntries.Add(checkImplementsSettingValueFromString);
             }
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Type Accepts Char Fields -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
+            {
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
+            }
+            le?.Append(" to implement ").FinalAppend(nameof(ISupportsValueFormatString));
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1285,18 +1295,23 @@ public class ScaffoldingValidateClassTests
         var allSupportsValueFormatString =
             scafReg.HasSupportsValueFormatString().ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsSettingValueFormatString in allSupportsValueFormatString)
         {
-            try { Assert.IsTrue(checkImplementsSettingValueFormatString.SupportsValueFormatString); }
-            catch (Exception)
+            if (!checkImplementsSettingValueFormatString.SupportsValueFormatString)
             {
-                logger.ErrorAppend("Any Scaffolding with SupportsValueFormatString Flag -  Expected - ")?
-                      .AppendLine(checkImplementsSettingValueFormatString.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(nameof(ISupportsValueFormatString));
-
-                throw;
+                violatingScaffoldEntries.Add(checkImplementsSettingValueFormatString);
             }
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding tagged with SupportsValueFormatString Flag -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
+            {
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
+            }
+            le?.Append(" to implement ").FinalAppend(nameof(ISupportsValueFormatString));
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1306,23 +1321,24 @@ public class ScaffoldingValidateClassTests
         var allSupportsValueFormatString =
             scafReg.Where(spe => spe.SupportsValueFormatString).ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
+
         foreach (var checkImplementsSettingValueFormatString in allSupportsValueFormatString)
         {
-            try
+            if (!checkImplementsSettingValueFormatString.ScaffoldingFlags.HasAllOf(SupportsValueFormatString))
             {
-                Assert.IsTrue(checkImplementsSettingValueFormatString
-                              .ScaffoldingFlags
-                              .HasAllOf(SupportsValueFormatString), $"{checkImplementsSettingValueFormatString.Name} does not have \"SupportsValueFormatString\" flag");
+                violatingScaffoldEntries.Add(checkImplementsSettingValueFormatString);
             }
-            catch (Exception)
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding implementing ISupportsValueFormatString -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
             {
-                logger.ErrorAppend("Any Scaffolding with ISupportsValueFormatString -  Expected - ")?
-                      .AppendLine(checkImplementsSettingValueFormatString.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(nameof(ISupportsValueFormatString));
-
-                throw;
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
+            le?.Append(" to be tagged with ScaffoldStringBuilderInvokeFlags.").FinalAppend(nameof(SupportsValueFormatString));
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1332,18 +1348,24 @@ public class ScaffoldingValidateClassTests
         var allSupportsKeyFormatString =
             scafReg.HasSupportsKeyFormatString().ToList();
 
+
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsSettingKeyFormatString in allSupportsKeyFormatString)
         {
-            try { Assert.IsTrue(checkImplementsSettingKeyFormatString.SupportsKeyFormatString); }
-            catch (Exception)
+            if (!checkImplementsSettingKeyFormatString.SupportsKeyFormatString)
             {
-                logger.ErrorAppend("Any Scaffolding with SupportsKeyFormatString Flag -  Expected - ")?
-                      .AppendLine(checkImplementsSettingKeyFormatString.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(nameof(ISupportsKeyFormatString));
-
-                throw;
+                violatingScaffoldEntries.Add(checkImplementsSettingKeyFormatString);
             }
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding Tagged with SupportsKeyFormatString Flag -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
+            {
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
+            }
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsKeyFormatString).ShortNameInCSharpFormat());
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1353,23 +1375,23 @@ public class ScaffoldingValidateClassTests
         var allAcceptsKeyFormatString =
             scafReg.Where(spe => spe.SupportsKeyFormatString).ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsSettingKeyFormatString in allAcceptsKeyFormatString)
         {
-            try
+            if (checkImplementsSettingKeyFormatString.ScaffoldingFlags.HasNoneOf(SupportsKeyFormatString))
             {
-                Assert.IsTrue(checkImplementsSettingKeyFormatString
-                              .ScaffoldingFlags
-                              .HasAllOf(SupportsKeyFormatString));
+                violatingScaffoldEntries.Add(checkImplementsSettingKeyFormatString);
             }
-            catch (Exception)
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding implementing ISupportsKeyFormatString -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
             {
-                logger.ErrorAppend("Any Scaffolding with ISupportsKeyFormatString -  Expected - ")?
-                      .AppendLine(checkImplementsSettingKeyFormatString.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(nameof(ISupportsKeyFormatString));
-
-                throw;
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
+            le?.Append(" to be tagged with ScaffoldStringBuilderInvokeFlags.").FinalAppend(nameof(SupportsKeyFormatString));
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1379,18 +1401,23 @@ public class ScaffoldingValidateClassTests
         var allSupportsValueRevealer =
             scafReg.HasSupportsValueRevealer().ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsValueRevealer in allSupportsValueRevealer)
         {
-            try { Assert.IsTrue(checkImplementsValueRevealer.SupportsValueRevealer); }
-            catch (Exception)
+            if (!checkImplementsValueRevealer.SupportsValueRevealer)
             {
-                logger.ErrorAppend("Any Scaffolding with SupportsValueRevealer Flag -  Expected - ")?
-                      .AppendLine(checkImplementsValueRevealer.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(typeof(ISupportsValueRevealer<>).Name);
-
-                throw;
+                violatingScaffoldEntries.Add(checkImplementsValueRevealer);
             }
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding tagged with SupportsValueRevealer Flag -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
+            {
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
+            }
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsValueRevealer<>).ShortNameInCSharpFormat());
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1400,25 +1427,25 @@ public class ScaffoldingValidateClassTests
         var allSupportsValueRevealer =
             scafReg.Where(spe => spe.SupportsValueRevealer).ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsValueRevealer in allSupportsValueRevealer)
         {
-            try
+            if (checkImplementsValueRevealer.ScaffoldingFlags.HasNoneOf(SupportsValueRevealer))
             {
-                Assert.IsTrue(checkImplementsValueRevealer
-                              .ScaffoldingFlags
-                              .HasAllOf(SupportsValueRevealer));
+                violatingScaffoldEntries.Add(checkImplementsValueRevealer);
             }
-            catch (Exception)
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding with ")?
+                           .Append((typeof(ISupportsValueRevealer<>).ShortNameInCSharpFormat()))
+                           .Append("  -  Expected - ").AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
             {
-                logger.ErrorAppend("Any Scaffolding with ")?
-                      .Append((typeof(ISupportsValueRevealer<>).Name))
-                      .Append("  -  Expected - ")
-                      .AppendLine(checkImplementsValueRevealer.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(SupportsValueRevealer);
-
-                throw;
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
+            le?.Append(" to be tagged with ScaffoldStringBuilderInvokeFlags.").FinalAppend(nameof(SupportsValueRevealer));
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1428,18 +1455,23 @@ public class ScaffoldingValidateClassTests
         var allSupportsKeyRevealer =
             scafReg.HasSupportsKeyRevealer().ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsKeyRevealer in allSupportsKeyRevealer)
         {
-            try { Assert.IsTrue(checkImplementsKeyRevealer.SupportsKeyRevealer); }
-            catch (Exception)
+            if (!checkImplementsKeyRevealer.SupportsKeyRevealer)
             {
-                logger.ErrorAppend("Any Scaffolding with SupportsKeyRevealer Flag -  Expected - ")?
-                      .AppendLine(checkImplementsKeyRevealer.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(typeof(ISupportsKeyRevealer<>).Name);
-
-                throw;
+                violatingScaffoldEntries.Add(checkImplementsKeyRevealer);
             }
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding tagged with SupportsKeyRevealer Flag -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
+            {
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
+            }
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsKeyRevealer<>).ShortNameInCSharpFormat());
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1449,25 +1481,25 @@ public class ScaffoldingValidateClassTests
         var allSupportsKeyRevealer =
             scafReg.Where(spe => spe.SupportsKeyRevealer).ToList();
 
-        foreach (var checkImplementsValueRevealer in allSupportsKeyRevealer)
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
+        foreach (var checkImplementsKeyRevealer in allSupportsKeyRevealer)
         {
-            try
+            if (checkImplementsKeyRevealer.ScaffoldingFlags.HasNoneOf(SupportsKeyRevealer))
             {
-                Assert.IsTrue(checkImplementsValueRevealer
-                              .ScaffoldingFlags
-                              .HasAllOf(SupportsKeyRevealer));
+                violatingScaffoldEntries.Add(checkImplementsKeyRevealer);
             }
-            catch (Exception)
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding with ")?
+                           .Append((typeof(ISupportsKeyRevealer<>).ShortNameInCSharpFormat()))
+                           .Append("  -  Expected - ").AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
             {
-                logger.ErrorAppend("Any Scaffolding with ")?
-                      .Append((typeof(ISupportsKeyRevealer<>).Name))
-                      .Append("  -  Expected - ")
-                      .AppendLine(checkImplementsValueRevealer.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(SupportsKeyRevealer);
-
-                throw;
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
+            le?.Append(" to be tagged with ScaffoldStringBuilderInvokeFlags.").FinalAppend(nameof(SupportsKeyRevealer));
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1477,18 +1509,23 @@ public class ScaffoldingValidateClassTests
         var allSupportsIndexSubRanges =
             scafReg.HasSupportsIndexSubRanges().ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsSupportsIndexSubRanges in allSupportsIndexSubRanges)
         {
-            try { Assert.IsTrue(checkImplementsSupportsIndexSubRanges.SupportsIndexRangeLimiting); }
-            catch (Exception)
+            if (!checkImplementsSupportsIndexSubRanges.SupportsIndexRangeLimiting)
             {
-                logger.ErrorAppend("Any Scaffolding with SupportsIndexSubRanges Flag -  Expected - ")?
-                      .AppendLine(checkImplementsSupportsIndexSubRanges.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(nameof(ISupportsIndexRangeLimiting));
-
-                throw;
+                violatingScaffoldEntries.Add(checkImplementsSupportsIndexSubRanges);
             }
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding tagged with SupportsIndexSubRanges Flag -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
+            {
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
+            }
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsIndexRangeLimiting).ShortNameInCSharpFormat());
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1498,25 +1535,25 @@ public class ScaffoldingValidateClassTests
         var allSupportsIndexSubRanges =
             scafReg.Where(spe => spe.SupportsIndexRangeLimiting).ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsSupportsIndexSubRanges in allSupportsIndexSubRanges)
         {
-            try
+            if (checkImplementsSupportsIndexSubRanges.ScaffoldingFlags.HasNoneOf(SupportsIndexSubRanges))
             {
-                Assert.IsTrue(checkImplementsSupportsIndexSubRanges
-                              .ScaffoldingFlags
-                              .HasAllOf(SupportsIndexSubRanges));
+                violatingScaffoldEntries.Add(checkImplementsSupportsIndexSubRanges);
             }
-            catch (Exception)
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding with ")?
+                           .Append((typeof(ISupportsIndexRangeLimiting).ShortNameInCSharpFormat()))
+                           .Append("  -  Expected - ").AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
             {
-                logger.ErrorAppend("Any Scaffolding with ")?
-                      .Append((nameof(ISupportsIndexRangeLimiting)))
-                      .Append(" ISupportsValueFormatString -  Expected - ")
-                      .AppendLine(checkImplementsSupportsIndexSubRanges.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(SupportsIndexSubRanges);
-
-                throw;
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
+            le?.Append(" to be tagged with ScaffoldStringBuilderInvokeFlags.").FinalAppend(nameof(SupportsIndexSubRanges));
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1526,18 +1563,23 @@ public class ScaffoldingValidateClassTests
         var allOrderedCollectionFilterPredicate =
             scafReg.ProcessesCollection().HasFilterPredicate().ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsOrderedCollectionPredicate in allOrderedCollectionFilterPredicate)
         {
-            try { Assert.IsTrue(checkImplementsOrderedCollectionPredicate.SupportsOrderedCollectionPredicate); }
-            catch (Exception)
+            if (!checkImplementsOrderedCollectionPredicate.SupportsOrderedCollectionPredicate)
             {
-                logger.ErrorAppend("Any Scaffolding with FilterPredicate Flag -  Expected - ")?
-                      .AppendLine(checkImplementsOrderedCollectionPredicate.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(typeof(ISupportsOrderedCollectionPredicate<>).Name);
-
-                throw;
+                violatingScaffoldEntries.Add(checkImplementsOrderedCollectionPredicate);
             }
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding tagged with FilterPredicate Flag -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
+            {
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
+            }
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsOrderedCollectionPredicate<>).ShortNameInCSharpFormat());
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1547,25 +1589,26 @@ public class ScaffoldingValidateClassTests
         var allOrderedCollectionFilterPredicate =
             scafReg.Where(spe => spe.SupportsOrderedCollectionPredicate).ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsOrderedCollectionPredicate in allOrderedCollectionFilterPredicate)
         {
-            try
+            if (!checkImplementsOrderedCollectionPredicate.ScaffoldingFlags.HasAllOf(FilterPredicate | CollectionCardinality))
             {
-                Assert.IsTrue(checkImplementsOrderedCollectionPredicate
-                              .ScaffoldingFlags
-                              .HasAllOf(FilterPredicate | CollectionCardinality));
+                violatingScaffoldEntries.Add(checkImplementsOrderedCollectionPredicate);
             }
-            catch (Exception)
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding with ")?
+                           .Append((typeof(ISupportsOrderedCollectionPredicate<>).ShortNameInCSharpFormat()))
+                           .Append("  -  Expected - ").AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
             {
-                logger.ErrorAppend("Any Scaffolding with ")?
-                      .Append((typeof(ISupportsOrderedCollectionPredicate<>).Name))
-                      .Append("  -  Expected - ")
-                      .AppendLine(checkImplementsOrderedCollectionPredicate.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(FilterPredicate);
-
-                throw;
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
+            le?.Append(" to be tagged with ScaffoldStringBuilderInvokeFlags.").Append(nameof(FilterPredicate))
+              . Append(" and ScaffoldStringBuilderInvokeFlags.").FinalAppend(nameof(CollectionCardinality)) ;
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1575,18 +1618,23 @@ public class ScaffoldingValidateClassTests
         var allKeyedCollectionFilterPredicate =
             scafReg.ProcessesKeyedCollection().HasFilterPredicate().ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsKeyedCollectionPredicate in allKeyedCollectionFilterPredicate)
         {
-            try { Assert.IsTrue(checkImplementsKeyedCollectionPredicate.SupportsKeyedCollectionPredicate); }
-            catch (Exception)
+            if (!checkImplementsKeyedCollectionPredicate.SupportsKeyedCollectionPredicate)
             {
-                logger.ErrorAppend("Any Scaffolding with FilterPredicate Flag -  Expected - ")?
-                      .AppendLine(checkImplementsKeyedCollectionPredicate.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(typeof(ISupportsKeyedCollectionPredicate<,>).Name);
-
-                throw;
+                violatingScaffoldEntries.Add(checkImplementsKeyedCollectionPredicate);
             }
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding tagged with FilterPredicate Flag -  Expected - ")?.AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
+            {
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
+            }
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsKeyedCollectionPredicate<,>).ShortNameInCSharpFormat());
+            Assert.Fail(le?.ToString());
         }
     }
 
@@ -1596,25 +1644,26 @@ public class ScaffoldingValidateClassTests
         var allKeyedCollectionFilterPredicate =
             scafReg.Where(spe => spe.SupportsKeyedCollectionPredicate).ToList();
 
+        var violatingScaffoldEntries = new List<ScaffoldingPartEntry>();
         foreach (var checkImplementsKeyedCollectionPredicate in allKeyedCollectionFilterPredicate)
         {
-            try
+            if (!checkImplementsKeyedCollectionPredicate.ScaffoldingFlags.HasAllOf(FilterPredicate | KeyValueCardinality))
             {
-                Assert.IsTrue(checkImplementsKeyedCollectionPredicate
-                              .ScaffoldingFlags
-                              .HasAllOf(FilterPredicate | KeyValueCardinality));
+                violatingScaffoldEntries.Add(checkImplementsKeyedCollectionPredicate);
             }
-            catch (Exception)
+        }
+        if (violatingScaffoldEntries.Any())
+        {
+            var le = logger.ErrorAppend("Any Scaffolding with ")?
+                           .Append((typeof(ISupportsKeyedCollectionPredicate<,>).ShortNameInCSharpFormat()))
+                           .Append("  -  Expected - ").AppendLine();
+            foreach (var violating in violatingScaffoldEntries)
             {
-                logger.ErrorAppend("Any Scaffolding with ")?
-                      .Append((typeof(ISupportsKeyedCollectionPredicate<,>).Name))
-                      .Append("  -  Expected - ")
-                      .AppendLine(checkImplementsKeyedCollectionPredicate.Name)
-                      .Append(" to implement ")
-                      .FinalAppend(FilterPredicate);
-
-                throw;
+                le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
+            le?.Append(" to be tagged with ScaffoldStringBuilderInvokeFlags.").Append(nameof(FilterPredicate))
+              . Append(" and ScaffoldStringBuilderInvokeFlags.").FinalAppend(nameof(KeyValueCardinality)) ;
+            Assert.Fail(le?.ToString());
         }
     }
 }

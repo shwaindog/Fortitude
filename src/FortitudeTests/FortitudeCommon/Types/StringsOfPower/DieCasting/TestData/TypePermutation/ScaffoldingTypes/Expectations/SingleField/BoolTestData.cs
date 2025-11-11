@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.DataStructures.Lists.PositionAware;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -9,8 +10,11 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 public static class BoolTestData
 {
-    public static readonly ISingleFieldExpectation[] AllBoolExpectations =
-    [
+    private static PositionUpdatingList<ISingleFieldExpectation>? allBoolExpectations;  
+    
+    public static PositionUpdatingList<ISingleFieldExpectation> AllBoolExpectations => allBoolExpectations ??=
+        new PositionUpdatingList<ISingleFieldExpectation>(typeof(BoolTestData))
+            {
         // bool
         new FieldExpect<bool>(false, "")
         {
@@ -99,5 +103,5 @@ public static class BoolTestData
                      | DefaultTreatedAsValueOut) , "\"true      \""
             }
         }
-    ];
+    };
 }

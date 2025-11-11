@@ -2,6 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Collections;
+using System.Runtime.CompilerServices;
+using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
@@ -14,8 +16,7 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldCon
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
-
-public interface IFormatExpectation
+public interface IFormatExpectation : ICodeLocationAwareListItem
 {
     public const string NoResultExpectedValue = "No ResultExpected Value";
 
@@ -44,22 +45,29 @@ public interface ITypedFormatExpectation<out T> : IFormatExpectation
     void Add(KeyValuePair<EK, string> newExpectedResult);
 }
 
-public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnumerable<KeyValuePair<EK, string>>
+public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnumerable<KeyValuePair<EK, string>>, ICodeLocationAwareListItem
 {
+    private readonly string srcFile;
+    private readonly int    srcLine;
+
     private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
     protected readonly List<KeyValuePair<EK, string>> ExpectedResults = new();
 
     // ReSharper disable once ConvertToPrimaryConstructor
-    protected ExpectBase(TInput? input, string? formatString = null, FieldContentHandling valueContentHandling = DefaultCallerTypeFlags)
+    protected ExpectBase(TInput? input, string? formatString = null
+      , FieldContentHandling valueContentHandling = DefaultCallerTypeFlags
+      , [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0)
     {
+        this.srcFile    = srcFile;
+        this.srcLine    = srcLine;
         ContentHandling = valueContentHandling;
-        Input        = input;
-        FormatString = formatString;
+        Input           = input;
+        FormatString    = formatString;
     }
 
     public virtual Type InputType => typeof(TInput);
-    
+
     public bool IsStringLike => InputType.IsAnyTypeHoldingChars();
 
     public virtual Type CoreType => InputType.IfNullableGetUnderlyingTypeOrThis();
@@ -67,7 +75,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
     public TInput? Input { get; set; }
 
     public string? FormatString { get; init; }
-    
+
     public FieldContentHandling ContentHandling { get; init; }
 
     public bool InputIsNull => Input == null;
@@ -117,6 +125,16 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
           , _               => ")"
         };
 
+    public int AtIndex { get; set; }
+
+    public Type? ListOwningType { get; set; }
+
+    public string? ListMemberName { get; set; }
+
+    public string? ItemCodePath => ListOwningType != null
+        ? $"{ListOwningType.Name}.{ListMemberName}[{AtIndex}]"
+        : $"UnsetListOwnerType.UnknownListMemberName[{AtIndex}]";
+
     public virtual string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null)
     {
         for (var i = 0; i < ExpectedResults.Count; i++)
@@ -160,6 +178,12 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
     public override string ToString()
     {
         var sb = new MutableString();
+        sb.AppendLine(GetType().ShortNameInCSharpFormat());
+        if (srcFile.IsNotEmpty())
+        {
+            sb.AppendLine();
+            sb.Append(new Uri("file://" + new FileInfo(srcFile).FullName + ":" + srcLine)).AppendLine();
+        }
         sb.Append(nameof(InputType)).Append(": ").Append(InputType.ShortNameInCSharpFormat()).Append(", ");
         sb.Append(nameof(Input)).Append(": ");
         if (InputIsNull) { sb.Append("null"); }

@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
@@ -25,8 +26,6 @@ public interface ISingleFieldExpectation : IFormatExpectation
     string? FormattedDefault { get; }
 
     bool HasDefault { get; }
-
-    bool HasIndexRangeLimiting { get; }
 }
 
 public interface IComplexFieldFormatExpectation : IFormatExpectation
@@ -34,32 +33,32 @@ public interface IComplexFieldFormatExpectation : IFormatExpectation
     BuildExpectedOutput WhenValueExpectedOutput { get; set; }
 }
 
+// ReSharper disable twice ExplicitCallerInfoArgument
 public class FieldExpect<TInput>
 (
     TInput? input
   , string? formatString = null
   , bool hasDefault = false
   , TInput? defaultValue = default
-  , int fromIndex = 0
-  , int length = Int32.MaxValue)
-    : FieldExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, fromIndex, length);
+  , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , [CallerFilePath] string srcFile = ""
+  , [CallerLineNumber] int srcLine = 0)
+    : FieldExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine);
 
 public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldExpectation
 {
-    public int FromIndex { get; init; }
-    public int Length { get; init; }
 
-    public override bool HasIndexRangeLimiting => FromIndex != 0 || Length != int.MaxValue;
-
-    public FieldExpect(TInput? input, string? formatString = null, bool hasDefault = false, TDefault? defaultValue = default) :
-        base(input, formatString)
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public FieldExpect(TInput? input, string? formatString = null, bool hasDefault = false, TDefault? defaultValue = default
+     , FieldContentHandling contentHandling = DefaultCallerTypeFlags, [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0) :
+        base(input, formatString, contentHandling,  srcFile, srcLine)
     {
         HasDefault   = hasDefault;
         DefaultValue = !typeof(TInput).IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>()
             ? defaultValue.IfNullableGetNonNullableUnderlyingDefault()
             : defaultValue;
     }
-
+    
     public bool HasDefault { get; init; }
 
     public TDefault? DefaultValue { get; init; }
@@ -70,42 +69,7 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
 
     public virtual bool IsNullable => InputType.IsNullable() || InputIsNull;
 
-    // ReSharper disable once ConvertToPrimaryConstructor
-    public FieldExpect(TInput? input, string? formatString = null, bool hasDefault = false
-      , TDefault? defaultValue = default, int fromIndex = 0, int length = int.MaxValue
-      , FieldContentHandling valueContentHandling = DefaultCallerTypeFlags) : base(input, formatString)
-    {
-        HasDefault   = hasDefault;
-        DefaultValue = !typeof(TInput).IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>()
-            ? defaultValue.IfNullableGetNonNullableUnderlyingDefault()
-            : defaultValue;
-        
-        FromIndex = fromIndex;
-        Length    = length;
-    }
-
-    public override bool InputIsEmpty
-    {
-        get
-        {
-            switch (Input)
-            {
-                case string stringValue:
-                    return stringValue.Length == 0
-                        || FromIndex >= stringValue.Length || Length <= 0;
-                case char[] charArrayValue:
-                    return charArrayValue.Length == 0
-                        || FromIndex >= charArrayValue.Length || Length <= 0;
-                case ICharSequence charSeqValue:
-                    return charSeqValue.Length == 0
-                        || FromIndex >= charSeqValue.Length || Length <= 0;
-                case StringBuilder sbValue:
-                    return sbValue.Length == 0
-                        || FromIndex >= sbValue.Length || Length <= 0;
-                default: return Input != null && Equals(Input, default(TInput));
-            }
-        }
-    }
+    public override bool InputIsEmpty => Input != null && Equals(Input, default(TInput));
 
     public override string ShortTestName
     {
@@ -181,11 +145,6 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
             ((IMoldSupportedValue<TInput?>)createdStringBearer).Value = Input;
         if (FormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
             supportsValueFormatString.ValueFormatString = FormatString;
-        if (FormatString != null && createdStringBearer is ISupportsIndexRangeLimiting indexRangeLimiting)
-        {
-            indexRangeLimiting.FromIndex = FromIndex;
-            indexRangeLimiting.Length    = Length;
-        }
         if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<object?> supportsObjectDefaultValue)
             supportsObjectDefaultValue.DefaultValue = DefaultValue;
         if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<TDefault> supportsDefaultValue)
@@ -208,10 +167,11 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
         return createdStringBearer;
     }
 
+    protected virtual void AdditionalExpectFields(IStringBuilder typeInfoBuilder) { }
+
     public override string ToString()
     {
         var sb = new MutableString();
-        sb.AppendLine(GetType().ShortNameInCSharpFormat());
         sb.Append(base.ToString());
         sb.Append(", ").Append(nameof(HasDefault)).Append(": ").Append(HasDefault ? "true" : "false");
         sb.Append(", ").Append(nameof(DefaultValue)).Append(": ");
@@ -222,11 +182,7 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
           .Append(new MutableString()
                   .Append(DefaultAsString(new CompactJsonTypeFormatting())).ToString())
           .Append(AsStringDelimiterClose);
-        if (FromIndex != 0 || Length != int.MaxValue)
-        {
-            sb.Append(", ").Append(nameof(FromIndex)).Append(": ").Append(FromIndex).Append(", ");
-            sb.Append(nameof(Length)).Append(": ").Append(Length);
-        }
+        AdditionalExpectFields(sb);
         sb.AppendLine();
         sb.AppendLine("ExpectedResults");
         var count = 0;

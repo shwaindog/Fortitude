@@ -1,5 +1,7 @@
-﻿using System.Text;
-using FortitudeCommon.Extensions;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
@@ -10,7 +12,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsNullableStruct | SupportsValueFormatString)]
-public class FieldNullableBoolWhenNonNullStringBearer : IMoldSupportedValue<bool?>, ISupportsValueFormatString
+public class FieldNullableBoolWhenNonNullStringBearer : FormattedMoldScaffold<bool?>
 {
     public bool? ComplexTypeFieldWhenNonNullAddNullableBool
     {
@@ -18,25 +20,20 @@ public class FieldNullableBoolWhenNonNullStringBearer : IMoldSupportedValue<bool
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddNullableBool);
-    public bool? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddNullableBool);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddNullableBool)
               , ComplexTypeFieldWhenNonNullAddNullableBool
               , ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsSpanFormattableExceptNullableStruct 
-                | SupportsValueFormatString )]
-public class FieldSpanFormattableWhenNonNullStringBearer<TFmt> : IMoldSupportedValue<TFmt?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsSpanFormattableExceptNullableStruct
+                | SupportsValueFormatString)]
+public class FieldSpanFormattableWhenNonNullStringBearer<TFmt> : FormattedMoldScaffold<TFmt?>
   , ISupportsFieldHandling where TFmt : ISpanFormattable
 {
     public TFmt? ComplexTypeFieldWhenNonNullAddSpanFormattableAs
@@ -45,27 +42,21 @@ public class FieldSpanFormattableWhenNonNullStringBearer<TFmt> : IMoldSupportedV
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddSpanFormattableAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddSpanFormattableAs);
     public FieldContentHandling FieldContentHandling { get; set; }
 
-    public TFmt? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddSpanFormattableAs)
               , ComplexTypeFieldWhenNonNullAddSpanFormattableAs
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString )]
-public class FieldNullableSpanFormattableWhenNonNullStringBearer<TFmtStruct> : IMoldSupportedValue<TFmtStruct?>, ISupportsFieldHandling
-  , ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
+public class FieldNullableSpanFormattableWhenNonNullStringBearer<TFmtStruct> : FormattedMoldScaffold<TFmtStruct?>, ISupportsFieldHandling
+   where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct? ComplexTypeFieldWhenNonNullAddNullableSpanFormattableAs
     {
@@ -73,27 +64,21 @@ public class FieldNullableSpanFormattableWhenNonNullStringBearer<TFmtStruct> : I
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddNullableSpanFormattableAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddNullableSpanFormattableAs);
     public FieldContentHandling FieldContentHandling { get; set; }
 
-    public TFmtStruct? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddNullableSpanFormattableAs)
               , ComplexTypeFieldWhenNonNullAddNullableSpanFormattableAs
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer )]
-public class FieldCloakedBearerWhenNonNullStringBearer<TTCloaked, TCloakedBase> : IMoldSupportedValue<TTCloaked?>
-  , ISupportsFieldHandling, ISupportsValueRevealer<TCloakedBase> where TTCloaked : TCloakedBase
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+public class FieldCloakedBearerWhenNonNullStringBearer<TTCloaked, TCloakedRevealerBase> : ValueRevealerMoldScaffold<TTCloaked?, TCloakedRevealerBase>
+  , ISupportsFieldHandling where TTCloaked : TCloakedRevealerBase
 {
     public TTCloaked? ComplexTypeFieldWhenNonNullRevealCloakedBearerAs
     {
@@ -101,33 +86,21 @@ public class FieldCloakedBearerWhenNonNullStringBearer<TTCloaked, TCloakedBase> 
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealCloakedBearerAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealCloakedBearerAs);
     public FieldContentHandling FieldContentHandling { get; set; }
 
-    public TTCloaked? Value { get; set; }
-
-    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealCloakedBearerAs)
               , ComplexTypeFieldWhenNonNullRevealCloakedBearerAs
               , ValueRevealer, FieldContentHandling)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsAnyNullableStruct | SupportsValueRevealer )]
-public class FieldNullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> : IMoldSupportedValue<TCloakedStruct?>
-  , ISupportsValueRevealer<TCloakedStruct>, ISupportsFieldHandling where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsAnyNullableStruct | SupportsValueRevealer)]
+public class FieldNullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> : ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct>
+  , ISupportsFieldHandling where TCloakedStruct : struct
 {
     public TCloakedStruct? ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs
     {
@@ -135,32 +108,20 @@ public class FieldNullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> :
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs);
     public FieldContentHandling FieldContentHandling { get; set; }
 
-    public TCloakedStruct? Value { get; set; }
-
-    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs),
                 ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs
               , ValueRevealer, FieldContentHandling)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer )]
-public class FieldStringBearerWhenNonNullStringBearer<TBearer> : IMoldSupportedValue<TBearer?>, ISupportsFieldHandling
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+public class FieldStringBearerWhenNonNullStringBearer<TBearer> : MoldScaffoldBase<TBearer?>, ISupportsFieldHandling
     where TBearer : IStringBearer
 {
     public TBearer? ComplexTypeFieldWhenNonNullRevealStringBearerAs
@@ -169,24 +130,20 @@ public class FieldStringBearerWhenNonNullStringBearer<TBearer> : IMoldSupportedV
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealStringBearerAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealStringBearerAs);
     public FieldContentHandling FieldContentHandling { get; set; }
 
-    public TBearer? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealStringBearerAs)
               , ComplexTypeFieldWhenNonNullRevealStringBearerAs
               , FieldContentHandling)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer )]
-public class FieldNullableStringBearerWhenNonNullStringBearer<TBearerStruct> : IMoldSupportedValue<TBearerStruct?>
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
+public class FieldNullableStringBearerWhenNonNullStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
   , ISupportsFieldHandling
     where TBearerStruct : struct, IStringBearer
 {
@@ -196,44 +153,30 @@ public class FieldNullableStringBearerWhenNonNullStringBearer<TBearerStruct> : I
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealNullableStringBearerAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealNullableStringBearerAs);
     public FieldContentHandling FieldContentHandling { get; set; }
 
-    public TBearerStruct? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealNullableStringBearerAs)
               , ComplexTypeFieldWhenNonNullRevealNullableStringBearerAs
               , FieldContentHandling)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsSpan | NonNullWrites | AcceptsCharArray | SupportsValueFormatString )]
-public class FieldCharSpanWhenNonNullStringBearer : IMoldSupportedValue<char[]>
-  , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
+[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsSpan | NonNullWrites | AcceptsCharArray | SupportsValueFormatString)]
+public class FieldCharSpanWhenNonNullStringBearer : FormattedMoldScaffold<char[]>
+  , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public char[] ComplexTypeFieldWhenNonNullAddCharSpanAs
     {
-        get => Value;
+        get => Value!;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharSpanAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharSpanAs);
     public string DefaultValue { get; set; } = "";
-
-    public char[] Value { get; set; } = null!;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.WhenNonNullAdd
-               (nameof(ComplexTypeFieldWhenNonNullAddCharSpanAs)
-              , ComplexTypeFieldWhenNonNullAddCharSpanAs.AsSpan()
-              , ValueFormatString, FieldContentHandling)
-           .Complete();
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -243,33 +186,27 @@ public class FieldCharSpanWhenNonNullStringBearer : IMoldSupportedValue<char[]>
         set => Value = value?.ToCharArray()!;
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.WhenNonNullAdd
+               (nameof(ComplexTypeFieldWhenNonNullAddCharSpanAs)
+              , ComplexTypeFieldWhenNonNullAddCharSpanAs.AsSpan()
+              , ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | NonNullWrites | AcceptsString | SupportsValueFormatString )]
-public class FieldCharReadOnlySpanWhenNonNullStringBearer : IMoldSupportedValue<string>
-  , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
+[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+public class FieldCharReadOnlySpanWhenNonNullStringBearer : FormattedMoldScaffold<string>
+  , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public string ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs
     {
-        get => Value;
+        get => Value!;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs);
     public string DefaultValue { get; set; } = "";
-
-    public string Value { get; set; } = null!;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.WhenNonNullAdd
-               (nameof(ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs)
-              , ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs.AsSpan()
-              , ValueFormatString, FieldContentHandling)
-           .Complete();
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -279,13 +216,17 @@ public class FieldCharReadOnlySpanWhenNonNullStringBearer : IMoldSupportedValue<
         set => Value = value!;
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.WhenNonNullAdd
+               (nameof(ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs)
+              , ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs.AsSpan()
+              , ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsString | SupportsValueFormatString )]
-public class FieldStringWhenNonNullStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+public class FieldStringWhenNonNullStringBearer : FormattedMoldScaffold<string?>
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public string? ComplexTypeFieldWhenNonNullAddStringAs
@@ -294,10 +235,8 @@ public class FieldStringWhenNonNullStringBearer : IMoldSupportedValue<string?>, 
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddStringAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddStringAs);
     public FieldContentHandling FieldContentHandling { get; set; }
-
-    public string? Value { get; set; }
 
     public string? StringValue
     {
@@ -305,21 +244,17 @@ public class FieldStringWhenNonNullStringBearer : IMoldSupportedValue<string?>, 
         set => Value = value;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddStringAs)
               , ComplexTypeFieldWhenNonNullAddStringAs
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges )]
-public class FieldStringRangeWhenNonNullStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
+public class FieldStringRangeWhenNonNullStringBearer : FormattedMoldScaffold<string?>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public string? ComplexTypeFieldWhenNonNullAddStringRangeAs
@@ -328,14 +263,12 @@ public class FieldStringRangeWhenNonNullStringBearer : IMoldSupportedValue<strin
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddStringRangeAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddStringRangeAs);
+
+    public FieldContentHandling FieldContentHandling { get; set; }
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
-
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public string? Value { get; set; }
 
     public string? StringValue
     {
@@ -343,21 +276,17 @@ public class FieldStringRangeWhenNonNullStringBearer : IMoldSupportedValue<strin
         set => Value = value;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddStringRangeAs)
               , ComplexTypeFieldWhenNonNullAddStringRangeAs
               , FromIndex, Length, ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsArray | SupportsValueFormatString )]
-public class FieldCharArrayWhenNonNullStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsArray | SupportsValueFormatString)]
+public class FieldCharArrayWhenNonNullStringBearer : FormattedMoldScaffold<char[]?>
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public char[]? ComplexTypeFieldWhenNonNullAddCharArrayAs
@@ -366,10 +295,8 @@ public class FieldCharArrayWhenNonNullStringBearer : IMoldSupportedValue<char[]?
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharArrayAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharArrayAs);
     public FieldContentHandling FieldContentHandling { get; set; }
-
-    public char[]? Value { get; set; }
 
     public string? StringValue
     {
@@ -377,21 +304,17 @@ public class FieldCharArrayWhenNonNullStringBearer : IMoldSupportedValue<char[]?
         set => Value = value?.ToCharArray();
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddCharArrayAs)
               , ComplexTypeFieldWhenNonNullAddCharArrayAs
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges )]
-public class FieldCharArrayRangeWhenNonNullStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
+public class FieldCharArrayRangeWhenNonNullStringBearer : FormattedMoldScaffold<char[]?>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public char[]? ComplexTypeFieldWhenNonNullAddCharArrayRangeAs
@@ -400,14 +323,12 @@ public class FieldCharArrayRangeWhenNonNullStringBearer : IMoldSupportedValue<ch
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharArrayRangeAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharArrayRangeAs);
+
+    public FieldContentHandling FieldContentHandling { get; set; }
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
-
-    public char[]? Value { get; set; }
-
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public string? StringValue
     {
@@ -415,22 +336,17 @@ public class FieldCharArrayRangeWhenNonNullStringBearer : IMoldSupportedValue<ch
         set => Value = value?.ToCharArray();
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddCharArrayRangeAs)
               , ComplexTypeFieldWhenNonNullAddCharArrayRangeAs
               , FromIndex, Length, ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString )]
-public class FieldCharSequenceWhenNonNullStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>
-  , ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
+public class FieldCharSequenceWhenNonNullStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq?>
   , ISupportsSettingValueFromString, ISupportsFieldHandling where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldWhenNonNullAddCharSequenceAs
@@ -439,10 +355,8 @@ public class FieldCharSequenceWhenNonNullStringBearer<TCharSeq> : IMoldSupported
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharSequenceAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharSequenceAs);
     public FieldContentHandling FieldContentHandling { get; set; }
-
-    public TCharSeq? Value { get; set; }
 
     public string? StringValue
     {
@@ -451,28 +365,25 @@ public class FieldCharSequenceWhenNonNullStringBearer<TCharSeq> : IMoldSupported
         {
             var typeOfCharSeq = typeof(TCharSeq);
 
-            if (typeOfCharSeq == typeof(CharArrayStringBuilder)) { Value = (TCharSeq)(object)new CharArrayStringBuilder(value); }
-            else { Value                                                 = (TCharSeq)(object)new MutableString(value); }
+            if (typeOfCharSeq == typeof(CharArrayStringBuilder))
+                Value = (TCharSeq)(object)new CharArrayStringBuilder(value);
+            else
+                Value = (TCharSeq)(object)new MutableString(value);
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddCharSeq
                (nameof(ComplexTypeFieldWhenNonNullAddCharSequenceAs)
               , ComplexTypeFieldWhenNonNullAddCharSequenceAs
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString 
-        | SupportsIndexSubRanges )]
-public class FieldCharSequenceRangeWhenNonNullStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>
-  , ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString
+                | SupportsIndexSubRanges)]
+public class FieldCharSequenceRangeWhenNonNullStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq?>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldWhenNonNullAddCharSequenceRangeAs
@@ -481,14 +392,12 @@ public class FieldCharSequenceRangeWhenNonNullStringBearer<TCharSeq> : IMoldSupp
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharSequenceRangeAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddCharSequenceRangeAs);
+
+    public FieldContentHandling FieldContentHandling { get; set; }
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
-
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public TCharSeq? Value { get; set; }
 
     public string? StringValue
     {
@@ -497,26 +406,24 @@ public class FieldCharSequenceRangeWhenNonNullStringBearer<TCharSeq> : IMoldSupp
         {
             var typeOfCharSeq = typeof(TCharSeq);
 
-            if (typeOfCharSeq == typeof(CharArrayStringBuilder)) { Value = (TCharSeq)(object)new CharArrayStringBuilder(value); }
-            else { Value                                                 = (TCharSeq)(object)new MutableString(value); }
+            if (typeOfCharSeq == typeof(CharArrayStringBuilder))
+                Value = (TCharSeq)(object)new CharArrayStringBuilder(value);
+            else
+                Value = (TCharSeq)(object)new MutableString(value);
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddCharSeq
                (nameof(ComplexTypeFieldWhenNonNullAddCharSequenceRangeAs)
               , ComplexTypeFieldWhenNonNullAddCharSequenceRangeAs
               , FromIndex, Length, ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString )]
-public class FieldStringBuilderWhenNonNullStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
+public class FieldStringBuilderWhenNonNullStringBearer : FormattedMoldScaffold<StringBuilder?>
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public StringBuilder? ComplexTypeFieldWhenNonNullAddStringBuilderAs
@@ -525,10 +432,8 @@ public class FieldStringBuilderWhenNonNullStringBearer : IMoldSupportedValue<Str
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddStringBuilderAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddStringBuilderAs);
     public FieldContentHandling FieldContentHandling { get; set; }
-
-    public StringBuilder? Value { get; set; }
 
     public string? StringValue
     {
@@ -536,23 +441,19 @@ public class FieldStringBuilderWhenNonNullStringBearer : IMoldSupportedValue<Str
         set => Value = new StringBuilder(value);
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddStringBuilderAs)
               , ComplexTypeFieldWhenNonNullAddStringBuilderAs
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString 
-                | SupportsIndexSubRanges )]
-public class FieldStringBuilderRangeWhenNonNullStringBearer : IMoldSupportedValue<StringBuilder?>
-  , ISupportsValueFormatString, ISupportsSettingValueFromString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString
+                | SupportsIndexSubRanges)]
+public class FieldStringBuilderRangeWhenNonNullStringBearer : FormattedMoldScaffold<StringBuilder?>
+  , ISupportsSettingValueFromString
   , ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public StringBuilder? ComplexTypeFieldWhenNonNullAddStringBuilderRangeAs
@@ -561,14 +462,12 @@ public class FieldStringBuilderRangeWhenNonNullStringBearer : IMoldSupportedValu
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddStringBuilderRangeAs);
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddStringBuilderRangeAs);
+
+    public FieldContentHandling FieldContentHandling { get; set; }
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
-
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public StringBuilder? Value { get; set; }
 
     public string? StringValue
     {
@@ -576,21 +475,17 @@ public class FieldStringBuilderRangeWhenNonNullStringBearer : IMoldSupportedValu
         set => Value = new StringBuilder(value);
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddStringBuilderRangeAs)
               , ComplexTypeFieldWhenNonNullAddStringBuilderRangeAs
               , FromIndex, Length, ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString )]
-public class FieldMatchWhenNonNullStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString, ISupportsFieldHandling
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchWhenNonNullStringBearer<TAny> : FormattedMoldScaffold<TAny?>, ISupportsFieldHandling
 {
     public TAny? ComplexTypeFieldWhenNonNullAddMatch
     {
@@ -598,26 +493,21 @@ public class FieldMatchWhenNonNullStringBearer<TAny> : IMoldSupportedValue<TAny?
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddMatch);
-    public TAny? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddMatch);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddMatch
                (nameof(ComplexTypeFieldWhenNonNullAddMatch)
               , ComplexTypeFieldWhenNonNullAddMatch
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsNullableObject | SupportsValueFormatString )]
-public class FieldObjectWhenNonNullStringBearer : IMoldSupportedValue<object?>, ISupportsValueFormatString, ISupportsFieldHandling
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsNullableObject | SupportsValueFormatString)]
+public class FieldObjectWhenNonNullStringBearer : FormattedMoldScaffold<object?>, ISupportsFieldHandling
 {
     public object? ComplexTypeFieldWhenNonNullAddObject
     {
@@ -625,20 +515,15 @@ public class FieldObjectWhenNonNullStringBearer : IMoldSupportedValue<object?>, 
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddObject);
-    public object? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddObject);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddObject
                (nameof(ComplexTypeFieldWhenNonNullAddObject)
               , ComplexTypeFieldWhenNonNullAddObject
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

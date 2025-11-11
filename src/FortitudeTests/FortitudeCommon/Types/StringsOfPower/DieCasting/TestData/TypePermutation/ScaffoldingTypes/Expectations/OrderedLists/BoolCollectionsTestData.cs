@@ -1,18 +1,23 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
+
 // ReSharper disable FormatStringProblem
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.OrderedLists;
 
 public static class BoolCollectionsTestData
 {
-    public static readonly Lazy<IOrderedListExpect[]> AllBoolCollectionExpectations = new (() =>
-    [
+    private static PositionUpdatingList<IOrderedListExpect>? allBoolCollectionExpectations;  
+    
+    public static PositionUpdatingList<IOrderedListExpect> AllBoolCollectionExpectations => allBoolCollectionExpectations ??=
+        new PositionUpdatingList<IOrderedListExpect>(typeof(BoolCollectionsTestData))
+        {
         // bool Collections
         new OrderedListExpect<bool>([],  "")
         {
@@ -57,7 +62,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool>(TestCollections.BoolList, "", TestCollections.Bool_First_8)
+      , new OrderedListExpect<bool>(TestCollections.BoolList, "", () => TestCollections.Bool_First_8)
         {
             { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -79,7 +84,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool>(TestCollections.BoolList, "", TestCollections.Bool_First_False)
+      , new OrderedListExpect<bool>(TestCollections.BoolList, "", () => TestCollections.Bool_First_False)
         {
             { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -176,7 +181,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool?>(TestCollections.NullBoolList, "", TestCollections.NullBool_Skip_Odd_Index)
+      , new OrderedListExpect<bool?>(TestCollections.NullBoolList, "", () => TestCollections.NullBool_Skip_Odd_Index)
         {
             { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -197,7 +202,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool?>(TestCollections.NullBoolList, "", TestCollections.NullBool_First_False)
+      , new OrderedListExpect<bool?>(TestCollections.NullBoolList, "", () => TestCollections.NullBool_First_False)
         {
             { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -248,5 +253,5 @@ public static class BoolCollectionsTestData
                 """.Dos2Unix() 
             }
         }
-    ]);
+    };
 }

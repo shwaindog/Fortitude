@@ -122,11 +122,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TFmt>
-    (ReadOnlySpan<char> fieldName, Span<TFmt> value, OrderedCollectionPredicate<TFmt> filterPredicate
+    public TExt AlwaysAddFiltered<TFmt, TFmtBase>
+    (ReadOnlySpan<char> fieldName, Span<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -179,11 +179,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredNullable<TFmt>
-    (ReadOnlySpan<char> fieldName, Span<TFmt?> value, OrderedCollectionPredicate<TFmt> filterPredicate
+    public TExt AlwaysAddFilteredNullable<TFmt, TFmtBase>
+    (ReadOnlySpan<char> fieldName, Span<TFmt?> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1171,11 +1171,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TFmt>
-    (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value, OrderedCollectionPredicate<TFmt> filterPredicate
+    public TExt AlwaysAddFiltered<TFmt, TFmtBase>
+    (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1228,10 +1228,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredNullable<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt?> value
-      , OrderedCollectionPredicate<TFmt> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TExt AlwaysAddFilteredNullable<TFmt, TFmtBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt?> value
+      , OrderedCollectionPredicate<TFmtBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : class, ISpanFormattable, TFmtBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2184,11 +2184,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TFmt>
-    (string fieldName, TFmt?[]? value, OrderedCollectionPredicate<TFmt> filterPredicate
+    public TExt AlwaysAddFiltered<TFmt, TFmtBase>
+    (string fieldName, TFmt?[]? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2664,10 +2664,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TFmt>(string fieldName, IReadOnlyList<TFmt?>? value, OrderedCollectionPredicate<TFmt> filterPredicate
+    public TExt AlwaysAddFiltered<TFmt, TFmtBase>(string fieldName, IReadOnlyList<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);

@@ -57,19 +57,23 @@ public class TestCollections
 
     public static PalantírReveal<float?> NullFloatF4Default42Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrDefault(showMe, "42", "F4");
 
-    public static OrderedCollectionPredicate<float> Float_Lt_10          = (count, item) => EvaluateIsIncludedAndContinue(item < 10.0f);
-    public static OrderedCollectionPredicate<float> Float_Gt_10          = (count, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
-    public static OrderedCollectionPredicate<float> Float_First_2        = (count, item) => StopOnFirstExclusion(count < 2);
-    public static OrderedCollectionPredicate<float> Float_Skip_Odd_Index = (count, item) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<float> Float_All            = (count, item) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<float>  Float_Lt_10          = (count, item) => EvaluateIsIncludedAndContinue(item < 10.0f);
+    public static OrderedCollectionPredicate<float>  Float_Gt_10          = (count, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
+    public static OrderedCollectionPredicate<float>  Float_First_5        = (count, item) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<float>  Float_First_2        = (count, item) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<float>  Float_Skip_Odd_Index = (count, item) => EvaluateIsIncludedAndContinue(true, 1);
+    public static OrderedCollectionPredicate<float>  Float_All            = (count, item) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<float> Float_First_Gt_10 = (count, item) => First(item > 10.0f);
 
     public static OrderedCollectionPredicate<float> Float_None           = (count, item) => EvaluateIsIncludedAndContinue(false);
 
     public static OrderedCollectionPredicate<float?> NullFloat_Lt_10          = (count, item) => EvaluateIsIncludedAndContinue(item < 10.0f);
     public static OrderedCollectionPredicate<float?> NullFloat_Gt_10          = (count, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
-    public static OrderedCollectionPredicate<float?> NullFloat_First_2        = (count, item) => StopOnFirstExclusion(count < 2);
+    public static OrderedCollectionPredicate<float?> NullFloat_First_2        = (count, item) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<float?> NullFloat_First_5        = (count, item) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<float?> NullFloat_Skip_Odd_Index = (count, item) => EvaluateIsIncludedAndContinue(true, 1);
     public static OrderedCollectionPredicate<float?> NullFloat_All            = (count, item) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<float?> NullFloat_First_Gt_10    = (count, item) => First(item is > 10.0f);
 
     public static OrderedCollectionPredicate<float?> NullFloat_None           = (count, item) => EvaluateIsIncludedAndContinue(false);
 

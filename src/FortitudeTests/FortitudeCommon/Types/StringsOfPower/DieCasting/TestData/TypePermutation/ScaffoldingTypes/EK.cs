@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
@@ -8,11 +9,11 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 // Expect Key shortened to reduce obscuring declarative expect definition
 // ReSharper disable once InconsistentNaming
-public class EK
+public class EK 
 (
     ScaffoldingStringBuilderInvokeFlags matchScaff
   , StringStyle matchStyle = StringStyle.Compact | StringStyle.Json | StringStyle.Log | StringStyle.Pretty)
-    : IEquatable<EK>
+    : IEquatable<EK>, IOffsetAwareListItem
 {
     private readonly ScaffoldingStringBuilderInvokeFlags matchScaff = matchScaff;
     private readonly StringStyle                         matchStyle = matchStyle;
@@ -72,5 +73,8 @@ public class EK
 
     public override int GetHashCode() => HashCode.Combine(matchScaff, (int)matchStyle);
 
-    public override string ToString() => $"{{ {nameof(MatchScaff)}: {MatchScaff}, {nameof(MatchStyle)}: {MatchStyle} }}";
+    public int AtIndex { get; set; }
+
+    public override string ToString() => $"{{ {nameof(AtIndex)}: {AtIndex}, {nameof(MatchScaff)}: {MatchScaff}, " +
+                                         $"{nameof(MatchStyle)}: {MatchStyle} }}";
 }

@@ -1,31 +1,42 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
 
+// ReSharper disable twice ExplicitCallerInfoArgument
 public class StringBearerExpect<TInput>
 (
     TInput? input
   , string? formatString = null
   , bool hasDefault = false
-  , TInput? defaultValue = default)
-    : StringBearerExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue)
+  , TInput? defaultValue = default
+  , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , [CallerFilePath] string srcFile = ""
+  , [CallerLineNumber] int srcLine = 0)
+    : StringBearerExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
     where TInput : IStringBearer;
 
 
 public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault>, IComplexFieldFormatExpectation
     where TInput : IStringBearer
 {
+    // ReSharper disable twice ExplicitCallerInfoArgument
     public StringBearerExpect(TInput? input, string? formatString = null
-      , bool hasDefault = false, TDefault? defaultValue = default) : base(input, formatString, hasDefault, defaultValue)
+      , bool hasDefault = false, TDefault? defaultValue = default
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) : base(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
     {
-        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, FormatString, HasDefault, DefaultValue);
+        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, FormatString, HasDefault, DefaultValue, contentHandling, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TInput?> FieldValueExpectation { get; }
