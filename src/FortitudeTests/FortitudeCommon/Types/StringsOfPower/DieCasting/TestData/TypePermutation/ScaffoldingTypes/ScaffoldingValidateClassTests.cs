@@ -1553,7 +1553,7 @@ public class ScaffoldingValidateClassTests
             {
                 Assert.IsTrue(checkImplementsOrderedCollectionPredicate
                               .ScaffoldingFlags
-                              .HasAllOf(FilterPredicate | AcceptsCollection));
+                              .HasAllOf(FilterPredicate | CollectionCardinality));
             }
             catch (Exception)
             {
@@ -1602,7 +1602,7 @@ public class ScaffoldingValidateClassTests
             {
                 Assert.IsTrue(checkImplementsKeyedCollectionPredicate
                               .ScaffoldingFlags
-                              .HasAllOf(FilterPredicate | AcceptsKeyValueCollection));
+                              .HasAllOf(FilterPredicate | KeyValueCardinality));
             }
             catch (Exception)
             {

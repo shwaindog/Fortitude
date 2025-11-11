@@ -882,7 +882,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
         where TFmt : default =>
         nextItem == null 
-            ?  (Options.NullWritesNothing 
+            ?  (Options.NullWritesEmpty 
                     ? 0 
                     : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length))
              : Format(nextItem, sb, formatString);
@@ -891,7 +891,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
       , string formatString, FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : default
         => 
             nextItem == null 
-                ?  (Options.NullWritesNothing 
+                ?  (Options.NullWritesEmpty 
                     ? 0 
                     : destCharSpan.AppendReturnAddCount(Options.NullString))
                 : Format(nextItem, destCharSpan, destStartIndex, formatString);
@@ -908,7 +908,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     {
         if (nextItem == null)
         {
-            return (Options.NullWritesNothing ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length));
+            return (Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length));
         }
         switch (nextItem)
         {
@@ -933,7 +933,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
     {
         if (nextItem == null)
         {
-            return Options.NullWritesNothing ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString);
+            return Options.NullWritesEmpty ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString);
         }
         switch (nextItem)
         {

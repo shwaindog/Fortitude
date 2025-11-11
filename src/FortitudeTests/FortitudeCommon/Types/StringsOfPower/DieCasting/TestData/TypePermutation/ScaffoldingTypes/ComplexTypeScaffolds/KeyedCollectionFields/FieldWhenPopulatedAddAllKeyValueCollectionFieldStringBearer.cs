@@ -10,7 +10,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
     KeyedCollectionFields;
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -38,7 +38,7 @@ public class FieldKeyValueDictionaryFormatStringsWhenPopulatedAddAllStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsArray | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValuePairArrayBothFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -66,7 +66,7 @@ public class FieldKeyValuePairArrayBothFormatStringsWhenPopulatedAddAllStringBea
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsList | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValuePairListBothFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -95,7 +95,7 @@ public class FieldKeyValuePairListBothFormatStringsWhenPopulatedAddAllStringBear
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerable | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValuePairEnumerableBothFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -124,7 +124,7 @@ public class FieldKeyValuePairEnumerableBothFormatStringsWhenPopulatedAddAllStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValuePairEnumeratorBothFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue> : 
   IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
@@ -153,7 +153,7 @@ public class FieldKeyValuePairEnumeratorBothFormatStringsWhenPopulatedAddAllStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>
@@ -190,7 +190,7 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsWhenPopulatedAd
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsArray | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TValue : TVRevealBase
@@ -225,7 +225,7 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsWhenPopulatedAdd
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsList | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValuePairListValueRevealerKeyFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
@@ -261,7 +261,7 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsWhenPopulatedAddA
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerable | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
@@ -297,7 +297,7 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsWhenPopulat
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenPopulatedAddAllStringBearer<TKey, TValue, TVRevealBase> : 
   IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
@@ -333,7 +333,7 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenPopulat
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsDictionary | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersWhenPopulatedAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
@@ -375,7 +375,7 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedAddAllStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsArray | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsArray | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValuePairArrayBothRevealersWhenPopulatedAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
@@ -417,7 +417,7 @@ public class FieldKeyValuePairArrayBothRevealersWhenPopulatedAddAllStringBearer<
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsList | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsList | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValuePairListBothRevealersWhenPopulatedAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
@@ -459,7 +459,7 @@ public class FieldKeyValuePairListBothRevealersWhenPopulatedAddAllStringBearer<T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerable | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerable | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValuePairEnumerableBothRevealersWhenPopulatedAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
@@ -501,7 +501,7 @@ public class FieldKeyValuePairEnumerableBothRevealersWhenPopulatedAddAllStringBe
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsKeyValueCollection | AcceptsEnumerator | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | NonDefaultWrites | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValuePairEnumeratorBothRevealersWhenPopulatedAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
   IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>

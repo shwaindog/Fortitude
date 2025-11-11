@@ -92,6 +92,25 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
     public virtual IStringBuilder AppendTypeClosing(IStringBuilder sb) =>
         sb.RemoveLastWhiteSpacedCommaIfFound().ToStringBuilder(sb).Append(BrcCls);
+    
+
+    public IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if (((ReadOnlySpan<char>)formatString).HasFormatStringPadding())
+        {
+            
+            Span<char> justPadding = stackalloc char[12];
+            justPadding = justPadding.ToLayoutOnlyFormatString(formatString);
+            Format(StyleOptions.NullString, 0, sb, justPadding
+                ,  formatFlags: FormattingHandlingFlags.DefaultCallerType);
+            
+        }
+        else
+        {
+            sb.Append(StyleOptions.NullString);
+        }
+        return sb;
+    }
 
     public virtual IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName) =>
         sb.Append(DblQt).Append(fieldName).Append(DblQt);
@@ -135,7 +154,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : struct, ISpanFormattable
     {
-        if (!source.HasValue) { return sb.Append(StyleOptions.NullStyle); }
+        if (!source.HasValue) { return sb.Append(StyleOptions.NullString); }
         return FormatFieldName(sb, source.Value, formatString);
     }
 
@@ -227,7 +246,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         if (source != null)
             FormatFieldContents(sb, source.Value, formatString, formatFlags: formatFlags);
         else
-            sb.Append(StyleOptions.NullStyle);
+            sb.Append(StyleOptions.NullString);
         return sb;
     }
 
@@ -244,7 +263,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
-        if (!source.HasValue) { return sb.Append(StyleOptions.NullStyle); }
+        if (!source.HasValue) { return sb.Append(StyleOptions.NullString); }
         return FormatFieldContents(sb, source.Value, formatString, formatFlags);
     }
 
@@ -501,12 +520,17 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb
       , Type keyedCollectionType, Type keyType, Type valueType, int previousItemCount) => sb.Append(Cma);
 
+    public virtual IStringBuilder FormatCollectionStart(IStringBuilder sb
+      , Type itemElementType, bool? hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if (!hasItems.HasValue) return sb;
+        return base.CollectionStart(itemElementType, sb, hasItems.Value).ToStringBuilder(sb);
+    }
+
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems, FormattingHandlingFlags formatFlags
         = FormattingHandlingFlags.EncodeInnerContent)
     {
-        if (elementType == typeof(char) &&
-            (JsonOptions.CharArrayWritesString
-          || formatFlags.TreatCharArrayAsString()))
+        if (elementType == typeof(char) && (JsonOptions.CharArrayWritesString || formatFlags.TreatCharArrayAsString()))
             return formatFlags.ShouldDelimit() ? sb.Append(DblQt).ReturnCharCount(1) : 0;
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
         return sb.Append(SqBrktOpn).ReturnCharCount(1);
@@ -523,9 +547,25 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
     }
 
-    public virtual IStringBuilder FormatCollectionStart(IStringBuilder sb
-      , Type itemElementType, bool hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        base.CollectionStart(itemElementType, sb, hasItems).ToStringBuilder(sb);
+    public IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
+            .ToStringBuilder(sb);
+
+    public IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool? item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
+            .ToStringBuilder(sb);
+
+    public IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt? item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
+            .ToStringBuilder(sb);
+
+    public IStringBuilder CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
+            .ToStringBuilder(sb);
 
     public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
       , TCloaked item, int retrieveCount, PalantírReveal<TCloakedBase> styler)
@@ -538,7 +578,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (item == null) { return sb.Append(StyleOptions.NullStyle); }
+        if (item == null) { return sb.Append(StyleOptions.NullString); }
 
         if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Format(item, 0, sb, formatString ?? "");
@@ -549,17 +589,17 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (item == null) { return sb.Append(StyleOptions.NullStyle); }
+        if (item == null) { return sb.Append(StyleOptions.NullString); }
         if (formatFlags.HasAsStringContentFlag() && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Format(item, 0, sb, formatString ?? "");
         if (formatFlags.HasAsStringContentFlag() && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount
+    public virtual IStringBuilder CollectionNextCharSeqFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence
     {
-        if (item == null) { return sb.Append(StyleOptions.NullStyle); }
+        if (item == null) { return sb.Append(StyleOptions.NullString); }
         if (formatFlags.HasAsStringContentFlag() && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         FormatFieldContents(sb, item, 0, formatString ?? "");
         if (formatFlags.HasAsStringContentFlag() && formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
@@ -569,17 +609,17 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item
       , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (item == null) { return sb.Append(StyleOptions.NullStyle); }
+        if (item == null) { return sb.Append(StyleOptions.NullString); }
         if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Format(item, 0, sb, formatString ?? "");
         if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount)
+    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount)
         where TBearer : IStringBearer
     {
-        if (item == null) { return tos.WriteBuffer.Append(StyleOptions.NullStyle); }
+        if (item == null) { return tos.WriteBuffer.Append(StyleOptions.NullString); }
         item.RevealState(tos);
         return tos.WriteBuffer;
     }
@@ -591,11 +631,21 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount
+    public virtual IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount, string? formatString
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        if (!totalItemCount.HasValue)
+        {
+            if (StyleOptions.NullWritesEmpty)
+            {
+                CollectionStart(itemElementType, sb, false, (FormattingHandlingFlags)formatFlags);
+                CollectionEnd(itemElementType, sb, 0, (FormattingHandlingFlags)formatFlags);
+            }
+            else { AppendFormattedNull(sb, formatString, formatFlags); }
+            return sb;
+        }
         sb.RemoveLastWhiteSpacedCommaIfFound();
-        base.CollectionEnd(itemElementType, sb, totalItemCount);
+        base.CollectionEnd(itemElementType, sb, totalItemCount.Value);
         return sb;
     }
 }

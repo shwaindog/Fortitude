@@ -138,7 +138,7 @@ public partial class SelectTypeFieldTests
                      }
                  }, new ScaffoldingPartEntry
                  (typeof(FieldCharSequenceRangeAlwaysAddStringBearer<>)
-                , ComplexType | AcceptsSingleValue | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges));
+                , ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges));
     }
 
     private void SharedPrettyJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

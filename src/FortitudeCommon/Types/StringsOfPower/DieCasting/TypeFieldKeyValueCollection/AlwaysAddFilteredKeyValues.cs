@@ -49,7 +49,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -88,7 +88,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -127,7 +127,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -176,7 +176,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -223,7 +223,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -262,7 +262,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -303,7 +303,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -352,7 +352,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -395,7 +395,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -432,7 +432,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -471,7 +471,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -518,7 +518,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }

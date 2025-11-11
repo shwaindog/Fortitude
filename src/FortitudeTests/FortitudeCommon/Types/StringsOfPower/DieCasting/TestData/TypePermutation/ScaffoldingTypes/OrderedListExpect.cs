@@ -4,39 +4,55 @@
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
-public class OrderedListExpect<TInput, TInputElement>
-(
-    TInput? input
-  , string? formatString = null
-  , PalantírReveal<TInputElement>? valueRevealer = null
-  , OrderedCollectionPredicate<TInputElement>? elementFilter = null)
-    : OrderedListExpect<TInput, TInputElement, TInputElement, TInputElement>(input, formatString, valueRevealer, elementFilter);
-
-public class OrderedListExpect<TInput, TInputElement, TFilterBase, TRevealerBase> : FieldExpectBase<TInput?>
+public interface IOrderedListExpect : IFormatExpectation
 {
+    bool ElementTypeIsNullable { get; }
+    
+    bool HasRestrictingFilter { get; }
+}
+
+public class OrderedListExpect<TInputElement> : OrderedListExpect<TInputElement, TInputElement>
+{
+    public OrderedListExpect(List<TInputElement>? inputList
+      , string? formatString = null
+      , OrderedCollectionPredicate<TInputElement>? elementFilter = null) : base(inputList, formatString, elementFilter) { }
+    
+    public OrderedListExpect(List<TInputElement>? inputList, string? formatString
+      , Func<OrderedCollectionPredicate<TInputElement>?> elementFilterResolver) : base(inputList, formatString, elementFilterResolver) { }
+}
+
+public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TInputElement>?>, IOrderedListExpect
+    where TInputElement : TFilterBase
+{
+    private readonly OrderedCollectionPredicate<TFilterBase>? elementPredicate;
 
     // ReSharper disable once ConvertToPrimaryConstructor
-    public OrderedListExpect(TInput? input, string? formatString = null, PalantírReveal<TRevealerBase>? valueRevealer = null
-      , OrderedCollectionPredicate<TFilterBase>? elementFilter = null) : base(input, formatString)
-    {
-    }
+    public OrderedListExpect(List<TInputElement>? inputList, string? formatString = null
+      , OrderedCollectionPredicate<TFilterBase>? elementFilter = null, FieldContentHandling valueHandlingFlags = DefaultCallerTypeFlags)
+        : base(inputList, formatString, valueHandlingFlags) =>
+        elementPredicate = elementFilter ?? ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
 
-    public override bool InputIsEmpty
-    {
-        get
-        {
-            switch (Input)
-            {
-                default: return Input != null && Equals(Input, default(TInput));
-            }
-        }
-    }
+    public OrderedListExpect(List<TInputElement>? inputList, string? formatString 
+      , Func<OrderedCollectionPredicate<TFilterBase>?> elementFilterResolver, FieldContentHandling valueHandlingFlags = DefaultCallerTypeFlags)
+        : base(inputList, formatString, valueHandlingFlags) =>
+        elementPredicate = elementFilterResolver();
+
+    public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
+
+    public bool ElementTypeIsNullable =>  typeof(TInputElement).IsNullable();
+    
+    public override Type CoreType => typeof(TInputElement).IfNullableGetUnderlyingTypeOrThis();
+
+    public bool HasRestrictingFilter => ElementPredicate != null 
+                                     && !Equals(ElementPredicate, ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate);
 
     public override string ShortTestName
     {
@@ -58,24 +74,84 @@ public class OrderedListExpect<TInput, TInputElement, TFilterBase, TRevealerBase
         }
     }
 
+    public OrderedCollectionPredicate<TFilterBase>? ElementPredicate
+    {
+        get => elementPredicate;
+        init => elementPredicate = value;
+    }
+
     public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
-        return scaffoldEntry.ScaffoldingFlags.IsNullableSpanFormattableOnly()
-            ? scaffoldEntry.CreateStringBearerFunc(CoreType)()
-            : scaffoldEntry.CreateStringBearerFunc(InputType)();
+        var flags = scaffoldEntry.ScaffoldingFlags;
+        
+        return flags.HasFilterPredicate() 
+            ? scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement), typeof(TFilterBase))()
+            :  scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement))();
+        // if (flags.HasAcceptsArray())
+        // {
+        //     return flags.HasFilterPredicate() 
+        //     ? scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement), typeof(TFilterBase))()
+        //     : scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement))();
+        // }
+        // if (flags.HasAcceptsList())
+        // {
+        //     return flags.HasFilterPredicate() 
+        //         ? scaffoldEntry.CreateStringBearerFunc(typeof(TInputElement), typeof(TFilterBase))()
+        //         :  scaffoldEntry.CreateStringBearerFunc(typeof(List<TInputElement>))();
+        // }
+        // if (flags.HasAcceptsEnumerable())
+        // {
+        //     return flags.HasFilterPredicate() 
+        //         ? scaffoldEntry.CreateStringBearerFunc(typeof(IEnumerable<TInputElement>), typeof(TFilterBase))()
+        //         : scaffoldEntry.CreateStringBearerFunc(typeof(IEnumerable<TInputElement>))();
+        // }
+        // if (flags.HasAcceptsEnumerator())
+        // {
+        //     return flags.HasFilterPredicate() 
+        //         ? scaffoldEntry.CreateStringBearerFunc(typeof(IEnumerator<TInputElement>), typeof(TFilterBase))()
+        //         : scaffoldEntry.CreateStringBearerFunc(typeof(IEnumerator<TInputElement>))();
+        // }
+        // throw new ArgumentException("Unexpected collection scaffolding type");
     }
 
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)
     {
         var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
-        if (InputType == typeof(string) && createdStringBearer is ISupportsSettingValueFromString supportsSettingValueFromString)
-            supportsSettingValueFromString.StringValue = (string?)(object?)Input;
-        else if (createdStringBearer is IMoldSupportedValue<object?> isObjectMold)
-            isObjectMold.Value = Input;
-        else
-            ((IMoldSupportedValue<TInput?>)createdStringBearer).Value = Input;
+
+        var acceptsNullables = scaffoldEntry.ScaffoldingFlags.HasAcceptsNullables();
+        
+        if (acceptsNullables && createdStringBearer is IMoldSupportedValue<TInputElement?[]?> nullArrayMold)
+            nullArrayMold.Value = Input?.ToArray();
+        else if (createdStringBearer is IMoldSupportedValue<TInputElement[]?> arrayMold)
+            arrayMold.Value = Input?.OfType<TInputElement>().ToArray();
+        else if (createdStringBearer is IMoldSupportedValue<IReadOnlyList<TInputElement>?> listMold)
+            listMold.Value = Input;
+        else if (createdStringBearer is IMoldSupportedValue<IEnumerable<TInputElement>?> enumerableMold)
+            enumerableMold.Value = Input;
+        else if (createdStringBearer is IMoldSupportedValue<IEnumerator<TInputElement>?> enumeratorMold)
+            enumeratorMold.Value = Input?.GetEnumerator();
+        else if (acceptsNullables && createdStringBearer is IMoldSupportedValue<object?[]?> nullObjArrayMold)
+        {
+            nullObjArrayMold.Value = Input?.Select(i => i as object).ToArray();
+        }
+        else if (createdStringBearer is IMoldSupportedValue<object[]?> objArrayMold)
+        {
+            objArrayMold.Value = Input?.OfType<object>().ToArray();
+        }
+        else if (createdStringBearer is IMoldSupportedValue<IReadOnlyList<object?>?> objListMold)
+            objListMold.Value = Input?.Select(i => i as object).ToList();
+        else if (createdStringBearer is IMoldSupportedValue<IEnumerable<object?>?> objEnumerableMold)
+            objEnumerableMold.Value = Input?.Select(i => i as object).ToList();
+        else if (createdStringBearer is IMoldSupportedValue<IEnumerator<object?>?> objEnumeratorMold)
+            objEnumeratorMold.Value = Input?.Select(i => i as object).ToList().GetEnumerator();
+        
+        if ( HasRestrictingFilter && createdStringBearer is ISupportsOrderedCollectionPredicate<object> supportsSettingObjPredicateFilter)
+            supportsSettingObjPredicateFilter.ElementPredicate = ElementPredicate!.ToObjectCastingFilter();
+        if ( HasRestrictingFilter && createdStringBearer is ISupportsOrderedCollectionPredicate<TFilterBase> supportsSettingPredicateFilter)
+            supportsSettingPredicateFilter.ElementPredicate = ElementPredicate!;
         if (FormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
             supportsValueFormatString.ValueFormatString = FormatString;
+        
         return createdStringBearer;
     }
 

@@ -96,10 +96,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     }
 
     public override IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType
-      , bool hasItems, Type collectionType, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags)
+      , bool? hasItems, Type collectionType, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags)
     {
-        if (!hasItems) return sb;
-        return CollectionStart(itemElementType, sb, hasItems).ToStringBuilder(sb);
+        hasItems ??= false;
+        return !hasItems.Value ? sb : CollectionStart(itemElementType, sb, hasItems.Value).ToStringBuilder(sb);
     }
 
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems
@@ -230,7 +230,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return addedChars;
     }
 
-    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount
+    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount, string? formatString
       , FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags) => 
-        CollectionEnd(itemElementType, sb, totalItemCount).ToStringBuilder(sb);
+        CollectionEnd(itemElementType, sb, totalItemCount ?? 0).ToStringBuilder(sb);
 }

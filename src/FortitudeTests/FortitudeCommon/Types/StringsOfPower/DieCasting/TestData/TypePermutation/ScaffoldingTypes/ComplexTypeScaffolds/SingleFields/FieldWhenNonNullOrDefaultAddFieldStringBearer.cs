@@ -12,7 +12,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsNullableStruct | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsNullableStruct | SupportsValueFormatString)]
 public class FieldNullableBoolWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<bool?>, IMoldSupportedDefaultValue<bool?>
   , ISupportsValueFormatString
 {
@@ -40,7 +40,7 @@ public class FieldNullableBoolWhenNonNullOrDefaultStringBearer : IMoldSupportedV
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass |
                   AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldSpanFormattableWhenNonNullOrDefaultStringBearer<TFmt> : IMoldSupportedValue<TFmt?>
@@ -72,7 +72,7 @@ public class FieldSpanFormattableWhenNonNullOrDefaultStringBearer<TFmt> : IMoldS
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldNullableSpanFormattableWhenNonNullOrDefaultStringBearer<TFmtStruct> : IMoldSupportedValue<TFmtStruct?>
   , IMoldSupportedDefaultValue<TFmtStruct?>, ISupportsValueFormatString, ISupportsFieldHandling
@@ -103,7 +103,7 @@ public class FieldNullableSpanFormattableWhenNonNullOrDefaultStringBearer<TFmtSt
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer | SupportsCustomHandling)]
 public class FieldCloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked, TCloakedBase> : IMoldSupportedValue<TCloaked?>
@@ -142,7 +142,7 @@ public class FieldCloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked, TCloak
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsNullableStruct
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
                 | SupportsValueRevealer | SupportsCustomHandling)]
 public class FieldNullableCloakedBearerWhenNonNullOrDefaultStringBearer<TCloakedStruct> : IMoldSupportedValue<TCloakedStruct?>
@@ -181,7 +181,7 @@ public class FieldNullableCloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsStringBearer | SupportsCustomHandling)]
 public class FieldStringBearerWhenNonNullOrDefaultStringBearer<TBearer> : IMoldSupportedValue<TBearer?>
   , IMoldSupportedDefaultValue<TBearer?>, ISupportsFieldHandling where TBearer : IStringBearer
@@ -210,7 +210,7 @@ public class FieldStringBearerWhenNonNullOrDefaultStringBearer<TBearer> : IMoldS
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsNullableStruct | AcceptsStringBearer |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsNullableStruct | AcceptsStringBearer |
                   SupportsCustomHandling)]
 public class FieldNullableStringBearerWhenNonNullOrDefaultStringBearer<TBearerStruct> : IMoldSupportedValue<TBearerStruct?>
   , IMoldSupportedDefaultValue<TBearerStruct?>, ISupportsFieldHandling where TBearerStruct : struct, IStringBearer
@@ -239,7 +239,7 @@ public class FieldNullableStringBearerWhenNonNullOrDefaultStringBearer<TBearerSt
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsCharArray | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsCharArray | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldCharSpanWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<char[]>
   , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
@@ -276,7 +276,7 @@ public class FieldCharSpanWhenNonNullOrDefaultStringBearer : IMoldSupportedValue
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | AcceptsString | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | AcceptsString | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldCharReadOnlySpanWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<string>
   , IMoldSupportedDefaultValue<string>
@@ -314,7 +314,7 @@ public class FieldCharReadOnlySpanWhenNonNullOrDefaultStringBearer : IMoldSuppor
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsString | SupportsValueFormatString | SupportsCustomHandling)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsString | SupportsValueFormatString | SupportsCustomHandling)]
 public class FieldStringWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<string?>, IMoldSupportedDefaultValue<string>
   , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
@@ -349,7 +349,7 @@ public class FieldStringWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<s
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
                   SupportsCustomHandling)]
 public class FieldStringRangeWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<string?>
   , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
@@ -390,7 +390,7 @@ public class FieldStringRangeWhenNonNullOrDefaultStringBearer : IMoldSupportedVa
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsCharArray | SupportsValueFormatString 
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsCharArray | SupportsValueFormatString 
     | SupportsSettingDefaultValue | SupportsCustomHandling)]
 public class FieldCharArrayWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<char[]>, IMoldSupportedDefaultValue<string>
 , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
@@ -426,7 +426,7 @@ public class FieldCharArrayWhenNonNullOrDefaultStringBearer : IMoldSupportedValu
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsCharArray | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsCharArray | SupportsValueFormatString |
                   SupportsIndexSubRanges | SupportsCustomHandling)]
 public class FieldCharArrayRangeWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<char[]>
   , IMoldSupportedDefaultValue<string>
@@ -467,7 +467,7 @@ public class FieldCharArrayRangeWhenNonNullOrDefaultStringBearer : IMoldSupporte
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsCharSequence | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsCharSequence | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldCharSequenceWhenNonNullOrDefaultStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
@@ -513,7 +513,7 @@ public class FieldCharSequenceWhenNonNullOrDefaultStringBearer<TCharSeq> : IMold
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsCharSequence | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsCharSequence | SupportsValueFormatString |
                   SupportsIndexSubRanges | SupportsCustomHandling)]
 public class FieldCharSequenceRangeWhenNonNullOrDefaultStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq>
   , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
@@ -562,7 +562,7 @@ public class FieldCharSequenceRangeWhenNonNullOrDefaultStringBearer<TCharSeq> : 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsStringBuilder | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsStringBuilder | SupportsValueFormatString |
                   SupportsCustomHandling)]
 public class FieldStringBuilderWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<StringBuilder>
   , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
@@ -599,7 +599,7 @@ public class FieldStringBuilderWhenNonNullOrDefaultStringBearer : IMoldSupported
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsStringBuilder | SupportsValueFormatString |
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsStringBuilder | SupportsValueFormatString |
                   SupportsIndexSubRanges | SupportsCustomHandling)]
 public class FieldStringBuilderRangeWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<StringBuilder>
   , IMoldSupportedDefaultValue<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
@@ -640,7 +640,7 @@ public class FieldStringBuilderRangeWhenNonNullOrDefaultStringBearer : IMoldSupp
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsAnyGeneric | SupportsValueFormatString 
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsAnyGeneric | SupportsValueFormatString 
                 | SupportsCustomHandling)]
 public class FieldMatchWhenNonNullOrDefaultStringBearer<TAny> : IMoldSupportedValue<TAny?>
   , IMoldSupportedDefaultValue<TAny?>, ISupportsValueFormatString, ISupportsFieldHandling
@@ -671,7 +671,7 @@ public class FieldMatchWhenNonNullOrDefaultStringBearer<TAny> : IMoldSupportedVa
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsSingleValue | NonNullAndPopulatedWrites | AcceptsAnyGeneric | SupportsValueFormatString 
+[TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsAnyGeneric | SupportsValueFormatString 
                 | SupportsCustomHandling)]
 public class FieldObjectWhenNonNullOrDefaultStringBearer : IMoldSupportedValue<object?>, IMoldSupportedDefaultValue<object?>
   , ISupportsValueFormatString, ISupportsFieldHandling

@@ -10,9 +10,9 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
     OrderedCollectionFields;
 
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | SupportsValueFormatString)]
 public class FieldBoolEnumerableAlwaysAddFilteredStringBearer : IMoldSupportedValue<IEnumerable<bool>>
-  , ISupportsOrderedCollectionPredicate<bool>
+  , ISupportsOrderedCollectionPredicate<bool>, ISupportsValueFormatString
 {
     public IEnumerable<bool>? ComplexTypeCollectionFieldAlwaysAddFilteredBoolList
     {
@@ -29,15 +29,18 @@ public class FieldBoolEnumerableAlwaysAddFilteredStringBearer : IMoldSupportedVa
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredBoolList, ElementPredicate)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredBoolList, ElementPredicate, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct 
+                | SupportsValueFormatString)]
 public class FieldNullableBoolEnumerableAlwaysAddFilteredStringBearer : IMoldSupportedValue<IEnumerable<bool?>?>
-  , ISupportsOrderedCollectionPredicate<bool?>
+  , ISupportsOrderedCollectionPredicate<bool?>, ISupportsValueFormatString
 {
     public IEnumerable<bool?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList
     {
@@ -54,13 +57,15 @@ public class FieldNullableBoolEnumerableAlwaysAddFilteredStringBearer : IMoldSup
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList, ElementPredicate)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList, ElementPredicate, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldSpanFormattableEnumerableAlwaysAddFilteredStringBearer<TFmt, TFmtBase>
     : IMoldSupportedValue<IEnumerable<TFmt?>?>, ISupportsOrderedCollectionPredicate<TFmtBase>, ISupportsValueFormatString
@@ -91,7 +96,7 @@ public class FieldSpanFormattableEnumerableAlwaysAddFilteredStringBearer<TFmt, T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableEnumerableAlwaysAddFilteredStringBearer<TFmtStruct>
     : IMoldSupportedValue<IEnumerable<TFmtStruct?>?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
@@ -122,7 +127,7 @@ public class FieldNullableSpanFormattableEnumerableAlwaysAddFilteredStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerEnumerableAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
@@ -160,7 +165,7 @@ public class FieldCloakedBearerEnumerableAlwaysAddFilteredStringBearer<TCloaked,
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable
                 | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
 public class FieldNullableCloakedBearerEnumerableAlwaysAddFilteredStringBearer<TCloakedStruct> : 
   IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct>
@@ -197,7 +202,7 @@ public class FieldNullableCloakedBearerEnumerableAlwaysAddFilteredStringBearer<T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass 
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass 
                 | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerEnumerableAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
     : IMoldSupportedValue<IEnumerable<TBearer?>?>, ISupportsOrderedCollectionPredicate<TBearerBase?> where TBearer : IStringBearer, TBearerBase
@@ -224,7 +229,7 @@ public class FieldStringBearerEnumerableAlwaysAddFilteredStringBearer<TBearer, T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate)]
 public class FieldNullableStringBearerEnumerableAlwaysAddFilteredStringBearer<TBearerStruct>
     : IMoldSupportedValue<IEnumerable<TBearerStruct?>?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
@@ -251,7 +256,7 @@ public class FieldNullableStringBearerEnumerableAlwaysAddFilteredStringBearer<TB
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringEnumerableAlwaysAddFilteredStringBearer : IMoldSupportedValue<IEnumerable<string?>?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
@@ -279,7 +284,7 @@ public class FieldStringEnumerableAlwaysAddFilteredStringBearer : IMoldSupported
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<IEnumerable<TCharSeq?>?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>
       , ISupportsValueFormatString
@@ -310,7 +315,7 @@ public class FieldCharSequenceEnumerableAlwaysAddFilteredStringBearer<TCharSeq, 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderEnumerableAlwaysAddFilteredStringBearer
     : IMoldSupportedValue<IEnumerable<StringBuilder?>?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
@@ -339,7 +344,7 @@ public class FieldStringBuilderEnumerableAlwaysAddFilteredStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchEnumerableAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
     : IMoldSupportedValue<IEnumerable<TAny>?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
     where TAny : TAnyFilterBase
@@ -369,7 +374,7 @@ public class FieldMatchEnumerableAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldObjectEnumerableAlwaysAddFilteredStringBearer : IMoldSupportedValue<IEnumerable<object?>?>
   , ISupportsOrderedCollectionPredicate<object>, ISupportsValueFormatString
 {
@@ -396,9 +401,9 @@ public class FieldObjectEnumerableAlwaysAddFilteredStringBearer : IMoldSupported
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | SupportsValueFormatString)]
 public class FieldBoolEnumeratorAlwaysAddFilteredStringBearer : IMoldSupportedValue<IEnumerator<bool>>
-  , ISupportsOrderedCollectionPredicate<bool>
+  , ISupportsOrderedCollectionPredicate<bool>, ISupportsValueFormatString
 {
     public IEnumerator<bool>? ComplexTypeCollectionFieldAlwaysAddFilteredBoolList
     {
@@ -415,15 +420,18 @@ public class FieldBoolEnumeratorAlwaysAddFilteredStringBearer : IMoldSupportedVa
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredBoolList, ElementPredicate)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredBoolList, ElementPredicate, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsNullableStruct)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct
+                | SupportsValueFormatString)]
 public class FieldNullableBoolEnumeratorAlwaysAddFilteredStringBearer : IMoldSupportedValue<IEnumerator<bool?>?>
-  , ISupportsOrderedCollectionPredicate<bool?>
+  , ISupportsOrderedCollectionPredicate<bool?>, ISupportsValueFormatString
 {
     public IEnumerator<bool?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList
     {
@@ -440,13 +448,15 @@ public class FieldNullableBoolEnumeratorAlwaysAddFilteredStringBearer : IMoldSup
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList, ElementPredicate)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList, ElementPredicate, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldSpanFormattableEnumeratorAlwaysAddFilteredStringBearer<TFmt, TFmtBase>
     : IMoldSupportedValue<IEnumerator<TFmt?>?>, ISupportsOrderedCollectionPredicate<TFmtBase>, ISupportsValueFormatString
@@ -477,7 +487,7 @@ public class FieldSpanFormattableEnumeratorAlwaysAddFilteredStringBearer<TFmt, T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableEnumeratorAlwaysAddFilteredStringBearer<TFmtStruct>
     : IMoldSupportedValue<IEnumerator<TFmtStruct?>?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
@@ -508,7 +518,7 @@ public class FieldNullableSpanFormattableEnumeratorAlwaysAddFilteredStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
@@ -546,7 +556,7 @@ public class FieldCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<TCloaked,
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable
                 | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
 public class FieldNullableCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<TCloakedStruct> : 
   IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct>
@@ -584,7 +594,7 @@ public class FieldNullableCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass 
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass 
                 | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerEnumeratorAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
     : IMoldSupportedValue<IEnumerator<TBearer?>?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
@@ -612,7 +622,7 @@ public class FieldStringBearerEnumeratorAlwaysAddFilteredStringBearer<TBearer, T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate)]
 public class FieldNullableStringBearerEnumeratorAlwaysAddFilteredStringBearer<TBearerStruct>
     : IMoldSupportedValue<IEnumerator<TBearerStruct?>?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
@@ -639,7 +649,7 @@ public class FieldNullableStringBearerEnumeratorAlwaysAddFilteredStringBearer<TB
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
 public class FieldStringEnumeratorAlwaysAddFilteredStringBearer : IMoldSupportedValue<IEnumerator<string?>?>
   , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
 {
@@ -667,7 +677,7 @@ public class FieldStringEnumeratorAlwaysAddFilteredStringBearer : IMoldSupported
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceEnumeratorAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : IMoldSupportedValue<IEnumerator<TCharSeq?>?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>
       , ISupportsValueFormatString
@@ -698,7 +708,7 @@ public class FieldCharSequenceEnumeratorAlwaysAddFilteredStringBearer<TCharSeq, 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderEnumeratorAlwaysAddFilteredStringBearer
     : IMoldSupportedValue<IEnumerator<StringBuilder?>?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
 {
@@ -727,7 +737,7 @@ public class FieldStringBuilderEnumeratorAlwaysAddFilteredStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchEnumeratorAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
     : IMoldSupportedValue<IEnumerator<TAny>?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
     where TAny : TAnyFilterBase
@@ -757,7 +767,7 @@ public class FieldMatchEnumeratorAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldObjectEnumeratorAlwaysAddFilteredStringBearer : IMoldSupportedValue<IEnumerator<object?>?>
   , ISupportsOrderedCollectionPredicate<object>, ISupportsValueFormatString
 {

@@ -424,6 +424,7 @@ public static class TypeExtensions
 
     public static bool IsBool(this Type check)              => check == typeof(bool);
     public static bool IsNullableBool(this Type check)      => check == typeof(bool?);
+    public static bool IsBoolOrNullable(this Type check)      => check.IsBool() || check.IsNullableBool();
     public static bool IsBoolArray(this Type check)         => check == typeof(bool[]);
     public static bool IsNullableBoolArray(this Type check) => check == typeof(bool?[]);
 

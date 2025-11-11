@@ -11,7 +11,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     KeyedCollectionScaffolds;
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromDictionaryFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
   IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -44,7 +44,7 @@ public class KeyedFromDictionaryFormatStringsAddFilteredStringBearer<TKey, TValu
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairArrayBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
   IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -76,7 +76,7 @@ public class KeyedFromPairArrayBothFormatStringsAddFilteredStringBearer<TKey, TV
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairListBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
   IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -108,7 +108,7 @@ public class KeyedFromPairListBothFormatStringsAddFilteredStringBearer<TKey, TVa
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairEnumerableBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
   IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -140,7 +140,7 @@ public class KeyedFromPairEnumerableBothFormatStringsAddFilteredStringBearer<TKe
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairEnumeratorBothFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase> : 
   IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -172,7 +172,7 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddFilteredStringBearer<TKe
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase> :
     IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -210,7 +210,7 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddFilteredStringBe
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase> :
     IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -248,7 +248,7 @@ public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddFilteredStringBea
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairListValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     : IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -286,7 +286,7 @@ public class KeyedFromPairListValueRevealerKeyFormatStringsAddFilteredStringBear
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     : IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -324,7 +324,7 @@ public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddFilteredStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     : IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -362,7 +362,7 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddFilteredStri
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsDictionary  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -407,7 +407,7 @@ public class KeyedFromDictionaryBothRevealersAddFilteredStringBearer<TKey, TValu
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsArray  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -452,7 +452,7 @@ public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsList  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -497,7 +497,7 @@ public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue,
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerable  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
@@ -542,7 +542,7 @@ public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(KeyedCollectionType | AcceptsKeyValueCollection | AcceptsEnumerator  | FilterPredicate | AcceptsClass
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumeratorBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>

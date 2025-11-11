@@ -32,7 +32,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -55,7 +55,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -76,7 +76,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -97,7 +97,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -121,7 +121,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -151,7 +151,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -174,7 +174,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -195,7 +195,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -218,7 +218,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -245,7 +245,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -267,7 +267,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -287,7 +287,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 
@@ -310,7 +310,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
             ekcb.AppendCollectionComplete();
         }
         else
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         return stb.AddGoToNext();
     }
 }

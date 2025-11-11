@@ -730,19 +730,19 @@ public static class ExtendedSpanFormattableExtensions
         return Math.Max(rangeCappedSize, padding);
     }
 
-    public static int CalculatePaddedAlignedLength(this ReadOnlySpan<char> toInsert, ReadOnlySpan<char> layout)
+    public static int CalculatePaddedAlignedFormatStringLength(this ReadOnlySpan<char> toInsert, ReadOnlySpan<char> toExtractJustLayout)
     {
-        if (layout.Length == 0)
+        if (toExtractJustLayout.Length == 0)
         {
             return toInsert.Length;
         }
-        var isLeftAligned  = layout[0].IsMinus();
-        var isStringLength = layout[0].IsDigit() || isLeftAligned;
+        var isLeftAligned  = toExtractJustLayout[0].IsMinus();
+        var isStringLength = toExtractJustLayout[0].IsDigit() || isLeftAligned;
         if (isStringLength)
         {
-            layout.LayoutStringRangeIndexers(out var range);
+            toExtractJustLayout.LayoutStringRangeIndexers(out var range);
 
-            int.TryParse(layout, out var padding);
+            int.TryParse(toExtractJustLayout, out var padding);
             padding = Math.Abs(padding);
 
             var finalLength = range.IsAllRange()
@@ -791,11 +791,16 @@ public static class ExtendedSpanFormattableExtensions
 
     public static Span<char> ToLayoutOnlyFormatString(this Span<char> toBuild, ReadOnlySpan<char> toExtractLayout)
     {
-        toBuild.Append("{0");
-        
         toExtractLayout.ExtractExtendedStringFormatStages
             (out _, out _, out _
             , out var layout, out _, out _, out _);
+
+        return MakeLayoutOnlyFormatString(toBuild, layout);
+    }
+
+    private static Span<char> MakeLayoutOnlyFormatString(this Span<char> toBuild, ReadOnlySpan<char> layout)
+    {
+        toBuild.Append("{0");
 
         if (layout.IsEmpty)
         {
@@ -819,5 +824,50 @@ public static class ExtendedSpanFormattableExtensions
         }
         toBuild.Append("}");
         return toBuild[..3];
+    }
+
+    public static int CalculatePrefixPaddedAlignedAndSuffixFormatStringLength(this int toInsertLength, ReadOnlySpan<char> formatStringToExtract)
+    {
+        formatStringToExtract.ExtractExtendedStringFormatStages
+            (out var prefix, out _, out _
+           , out var layout, out _, out _, out var suffix);
+        if (prefix.Length == 0 && layout.Length == 0 && suffix.Length == 0)
+        {
+            return toInsertLength;
+        }
+        return CalculatePrefixPaddedAlignedAndSuffixLength(toInsertLength, prefix, layout, suffix);;
+    }
+
+    private static int CalculatePrefixPaddedAlignedAndSuffixLength(this int toInsertLength, ReadOnlySpan<char> prefix
+      , ReadOnlySpan<char> layout, ReadOnlySpan<char> suffix)
+    {
+        if (prefix.Length == 0 && layout.Length == 0 && suffix.Length == 0)
+        {
+            return toInsertLength;
+        }
+        Span<char> layoutOnlyFormatString = stackalloc char[12];
+        layoutOnlyFormatString = layoutOnlyFormatString.MakeLayoutOnlyFormatString(layout);
+        return layoutOnlyFormatString.Length + prefix.Length + suffix.Length;;
+    }
+
+    public static Span<char> ToPrefixLayoutSuffixOnlyFormatString(this Span<char> toBuild, ReadOnlySpan<char> toExtractLayout)
+    {
+        toExtractLayout.ExtractExtendedStringFormatStages
+            (out var prefix, out _, out _
+            , out var layout, out _, out _, out var suffix);
+        
+        if (prefix.Length > 0)
+        {
+            toBuild.Append(prefix);
+            var layoutFormatBuild = toBuild[prefix.Length..];
+            layoutFormatBuild.MakeLayoutOnlyFormatString(layout);
+        }
+        else
+        {
+            toBuild.MakeLayoutOnlyFormatString(layout);
+        }
+        toBuild.Append(suffix);
+        var length = toBuild.PopulatedLength();
+        return toBuild[..length];
     }
 }

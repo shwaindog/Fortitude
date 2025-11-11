@@ -59,7 +59,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private string? nullString;
     private bool?   ignoreEmptyCollection;
     private bool?   emptyCollectionWritesNull;
-    private bool?   onNullWriteNullString;
+    private bool?   onNullWriteEmpty;
     private string? itemSeparator;
 
     private IEncodingTransfer? encodingTransfer;
@@ -170,16 +170,16 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => itemSeparator = value;
     }
 
-    public bool NullWritesNothing
+    public bool NullWritesEmpty
     {
-        readonly get => !onNullWriteNullString ?? fallbackOptions?.Values.NullWritesNothing ?? false;
-        set => onNullWriteNullString = !value;
+        readonly get => onNullWriteEmpty ?? fallbackOptions?.Values.NullWritesEmpty ?? false;
+        set => onNullWriteEmpty = value;
     }
 
     public bool NullWritesNullString
     {
-        readonly get => onNullWriteNullString ?? fallbackOptions?.Values.NullWritesNothing ?? false;
-        set => onNullWriteNullString = value;
+        readonly get => !onNullWriteEmpty ?? fallbackOptions?.Values.NullWritesNullString ?? true;
+        set => onNullWriteEmpty = !value;
     }
 
     public bool EmptyCollectionWritesNull
@@ -192,12 +192,6 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     {
         readonly get => ignoreEmptyCollection ?? fallbackOptions?.Values.ignoreEmptyCollection ?? false;
         set => ignoreEmptyCollection = value;
-    }
-
-    public string NullString
-    {
-        readonly get => nullString ?? fallbackOptions?.Values.False ?? IFormattingOptions.DefaultNullString;
-        set => nullString = value;
     }
 
     public string True
@@ -359,17 +353,17 @@ public struct StyleOptionsValue : IJsonFormattingOptions
             encodingTransfer = SourceEncodingTransfer(this);
         }
     }
+    
+    public string NullString
+    {
+        readonly get => nullString ?? fallbackOptions?.Values.False ?? IFormattingOptions.DefaultNullString;
+        set => nullString = value;
+    }
 
     public string NewLineStyle
     {
         readonly get => newLineStyle ?? fallbackOptions?.Values.NewLineStyle ?? Environment.NewLine;
         set => newLineStyle = value;
-    }
-
-    public string NullStyle
-    {
-        readonly get => nullStyle ?? fallbackOptions?.Values.NullStyle ?? "null";
-        set => nullStyle = value;
     }
 
     public TimeStyleFormat TimeFormat
@@ -647,10 +641,10 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         set => values.ItemSeparator = value;
     }
 
-    public bool NullWritesNothing
+    public bool NullWritesEmpty
     {
-        get => values.NullWritesNothing;
-        set => values.NullWritesNothing = value;
+        get => values.NullWritesEmpty;
+        set => values.NullWritesEmpty = value;
     }
 
     public bool NullWritesNullString
@@ -669,12 +663,6 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
     {
         get => values.EmptyCollectionWritesNull;
         set => values.EmptyCollectionWritesNull = value;
-    }
-
-    public string NullString
-    {
-        get => values.NullString;
-        set => values.NullString = value;
     }
 
     public string True
@@ -764,10 +752,10 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         set => values.NewLineStyle = value;
     }
 
-    public string NullStyle
+    public string NullString
     {
-        get => values.NullStyle;
-        set => values.NullStyle = value;
+        get => values.NullString;
+        set => values.NullString = value;
     }
 
     public TimeStyleFormat TimeFormat

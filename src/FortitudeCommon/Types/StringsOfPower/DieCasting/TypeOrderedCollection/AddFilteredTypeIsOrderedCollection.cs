@@ -4,7 +4,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification.CollectionItemResult;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -13,7 +16,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
 {
     public TOCMold AddFiltered(bool[]? value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -24,7 +28,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -43,12 +47,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered(bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
@@ -59,7 +64,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -78,12 +83,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered(Span<bool> value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -94,7 +100,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -113,12 +119,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered(Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
@@ -129,7 +136,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -148,12 +155,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered(ReadOnlySpan<bool> value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -164,7 +172,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -183,12 +191,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered(ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
@@ -199,7 +208,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -218,12 +227,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered(IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -234,7 +244,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -253,12 +263,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered(IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
@@ -269,7 +280,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -288,12 +299,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerable<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -308,7 +320,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -327,12 +339,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
@@ -347,7 +360,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -366,12 +379,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool);
@@ -392,7 +406,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -414,12 +428,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(bool?);
@@ -440,7 +455,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -462,12 +477,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered<TFmt, TFmtBase>(TFmt?[]? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -479,7 +495,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -498,12 +514,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered<TFmtStruct>(TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -515,7 +532,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -534,12 +551,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered<TFmt, TFmtBase>(Span<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -551,7 +569,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -570,12 +588,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredNullable<TFmt, TFmtBase>(Span<TFmt?> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : class, ISpanFormattable, TFmtBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -587,7 +606,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -606,12 +625,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered<TFmtStruct>(Span<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -623,7 +643,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -642,12 +662,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered<TFmt, TFmtBase>(ReadOnlySpan<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -659,7 +680,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -678,12 +699,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredNullable<TFmt, TFmtBase>(ReadOnlySpan<TFmt?> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : class, ISpanFormattable, TFmtBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -695,7 +717,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -714,12 +736,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered<TFmtStruct>(ReadOnlySpan<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -731,7 +754,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -750,12 +773,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered<TFmt, TFmtBase>(IReadOnlyList<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -767,7 +791,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -786,12 +810,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered<TFmtStruct>(IReadOnlyList<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -803,7 +828,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -822,12 +847,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate<TFmt, TFmtBase>(IEnumerable<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -843,7 +869,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -862,12 +888,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate<TFmtStruct>(IEnumerable<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -883,7 +910,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -902,12 +929,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate<TFmt, TFmtBase>(IEnumerator<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable, TFmtBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -929,7 +957,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -951,12 +979,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate<TFmtStruct>(IEnumerator<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -978,7 +1007,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1000,12 +1029,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(TCloaked?[]? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+    public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(TCloaked?[]? value
+      , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1015,7 +1046,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1034,12 +1065,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold RevealFiltered<TCloakedStruct>(TCloakedStruct?[]? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
-      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+      , PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloakedStruct);
@@ -1049,7 +1081,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1068,12 +1100,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(Span<TCloaked> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1083,7 +1116,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1102,12 +1135,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold RevealFilteredNullable<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(Span<TCloaked?> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : class, TCloakedFilterBase, TCloakedRevealBase
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : class, TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1117,7 +1151,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1136,12 +1170,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold RevealFiltered<TCloakedStruct>(Span<TCloakedStruct?> value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
-      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+      , PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloakedStruct);
@@ -1151,7 +1186,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1170,12 +1205,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(ReadOnlySpan<TCloaked> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+    public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(ReadOnlySpan<TCloaked> value
+      , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1185,7 +1222,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1204,12 +1241,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(IReadOnlyList<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1219,7 +1257,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1238,13 +1276,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold RevealFiltered<TCloakedStruct>(IReadOnlyList<TCloakedStruct?>? value, 
         OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
-      , PalantírReveal<TCloakedStruct> palantírReveal) where TCloakedStruct : struct
+      , PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloakedStruct);
@@ -1254,7 +1293,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1273,12 +1312,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold RevealFilteredEnumerate<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(IEnumerable<TCloaked?>? value
-      , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal)
+      , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1293,7 +1333,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1312,12 +1352,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold RevealFilteredEnumerate<TCloakedStruct>(IEnumerable<TCloakedStruct?>? value
-      , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal)
+      , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1332,7 +1373,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1351,12 +1392,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealFilteredEnumerate<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(IEnumerator<TCloaked?>? value
-      , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal) 
+      , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TCloakedFilterBase, TCloakedRevealBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1377,7 +1419,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1399,12 +1441,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold RevealFilteredEnumerate<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value
-      , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal) 
+      , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCloakedStruct : struct
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1425,7 +1468,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1447,11 +1490,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFiltered<TBearer, TBearerBase>(TBearer?[]? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TOCMold RevealFiltered<TBearer, TBearerBase>(TBearer?[]? value, OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1462,7 +1506,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1481,11 +1525,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFiltered<TBearerStruct>(TBearerStruct?[]? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+    public TOCMold RevealFiltered<TBearerStruct>(TBearerStruct?[]? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1496,7 +1541,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1515,12 +1560,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
 
-    public TOCMold RevealFiltered<TBearer, TBearerBase>(Span<TBearer> value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TOCMold RevealFiltered<TBearer, TBearerBase>(Span<TBearer> value, OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase  
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1531,7 +1577,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1550,11 +1596,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFilteredNullable<TBearer, TBearerBase>(Span<TBearer?> value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TOCMold RevealFilteredNullable<TBearer, TBearerBase>(Span<TBearer?> value, OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : class, IStringBearer, TBearerBase  
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1565,7 +1612,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1584,11 +1631,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFiltered<TBearerStruct>(Span<TBearerStruct?> value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+    public TOCMold RevealFiltered<TBearerStruct>(Span<TBearerStruct?> value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1599,7 +1647,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1618,11 +1666,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFiltered<TBearer, TBearerBase>(ReadOnlySpan<TBearer> value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TOCMold RevealFiltered<TBearer, TBearerBase>(ReadOnlySpan<TBearer> value, OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase  
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1633,7 +1682,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1652,11 +1701,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealFilteredNullable<TBearer, TBearerBase>(ReadOnlySpan<TBearer?> value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TOCMold RevealFilteredNullable<TBearer, TBearerBase>(ReadOnlySpan<TBearer?> value, OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : class, IStringBearer, TBearerBase  
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1667,7 +1717,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1686,11 +1736,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFiltered<TBearerStruct>(ReadOnlySpan<TBearerStruct?> value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+    public TOCMold RevealFiltered<TBearerStruct>(ReadOnlySpan<TBearerStruct?> value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1701,7 +1752,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1720,11 +1771,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealFiltered<TBearer, TBearerBase>(IReadOnlyList<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TOCMold RevealFiltered<TBearer, TBearerBase>(IReadOnlyList<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1735,7 +1787,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1754,11 +1806,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealFiltered<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+    public TOCMold RevealFiltered<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1769,7 +1822,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1788,11 +1841,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealFilteredEnumerate<TBearer, TBearerBase>(IEnumerable<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TOCMold RevealFilteredEnumerate<TBearer, TBearerBase>(IEnumerable<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1807,7 +1861,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1826,11 +1880,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealFilteredEnumerate<TBearerStruct>(IEnumerable<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+    public TOCMold RevealFilteredEnumerate<TBearerStruct>(IEnumerable<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1845,7 +1900,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1864,11 +1919,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFilteredEnumerate<TBearer, TBearerBase>(IEnumerator<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate)
+    public TOCMold RevealFilteredEnumerate<TBearer, TBearerBase>(IEnumerator<TBearer?>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1889,7 +1945,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1911,11 +1967,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealFilteredEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate)
+    public TOCMold RevealFilteredEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -1936,7 +1993,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item);
+                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1958,12 +2015,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, "", formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered(string?[]? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -1974,7 +2032,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1993,12 +2051,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered(Span<string> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -2009,7 +2068,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2028,12 +2087,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredNullable(Span<string?> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -2044,7 +2104,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2063,12 +2123,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered(ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -2079,7 +2140,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2098,12 +2159,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredNullable(ReadOnlySpan<string?> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -2114,7 +2176,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2133,12 +2195,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered(IReadOnlyList<string?>? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -2149,7 +2212,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2168,12 +2231,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerable<string?>? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -2188,7 +2252,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2207,13 +2271,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
 
     public TOCMold AddFilteredEnumerate(IEnumerator<string?>? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(string);
@@ -2234,7 +2299,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2256,12 +2321,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredCharSeq<TCharSeq, TCharSeqBase>(TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -2273,7 +2339,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2292,12 +2358,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredCharSeq<TCharSeq, TCharSeqBase>(Span<TCharSeq> value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -2309,7 +2376,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2328,12 +2395,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredCharSeqNullable<TCharSeq, TCharSeqBase>(Span<TCharSeq?> value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -2345,7 +2413,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2364,12 +2432,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<TCharSeq> value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -2381,7 +2450,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2400,12 +2469,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredCharSeqNullable<TCharSeq, TCharSeqBase>(ReadOnlySpan<TCharSeq?> value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -2417,7 +2487,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2436,12 +2506,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredCharSeq<TCharSeq, TCharSeqBase>(IReadOnlyList<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -2453,7 +2524,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2472,12 +2543,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(IEnumerable<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -2493,7 +2565,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2512,13 +2584,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
 
     public TOCMold AddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(IEnumerator<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     where TCharSeq : ICharSequence, TCharSeqBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
@@ -2540,7 +2613,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2562,12 +2635,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered(StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -2578,7 +2652,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2597,13 +2671,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
 
     public TOCMold AddFiltered(Span<StringBuilder> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -2614,7 +2689,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2633,13 +2708,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
 
     public TOCMold AddFilteredNullable(Span<StringBuilder?> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -2650,7 +2726,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2669,12 +2745,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFiltered(ReadOnlySpan<StringBuilder> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -2685,7 +2762,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2704,12 +2781,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredNullable(ReadOnlySpan<StringBuilder?> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -2720,7 +2798,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2739,12 +2817,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFiltered(IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -2755,7 +2834,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2774,12 +2853,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerable<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -2794,7 +2874,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2813,13 +2893,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
 
     public TOCMold AddFilteredEnumerate(IEnumerator<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(StringBuilder);
@@ -2840,7 +2921,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2862,12 +2943,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(TAny?[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TAny);
@@ -2878,7 +2960,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2897,12 +2979,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(Span<TAny> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TAny);
@@ -2913,7 +2996,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2932,12 +3015,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredMatchNullable<TAny, TAnyBase>(Span<TAny?> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TAny);
@@ -2948,7 +3032,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -2967,12 +3051,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(ReadOnlySpan<TAny> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TAny);
@@ -2983,7 +3068,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3002,12 +3087,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredMatchNullable<TAny, TAnyBase>(ReadOnlySpan<TAny?> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TAny);
@@ -3018,7 +3104,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3037,12 +3123,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(IReadOnlyList<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TAny);
@@ -3053,7 +3140,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3072,12 +3159,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     public TOCMold AddFilteredMatchEnumerate<TAny, TAnyBase>(IEnumerable<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TAny);
@@ -3092,7 +3180,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3105,15 +3193,17 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 any = true;
                 stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddFilteredMatchEnumerate<TAny, TAnyBase>(IEnumerator<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TAny : TAnyBase
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TAny);
@@ -3134,7 +3224,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3155,13 +3245,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString] 
     public TOCMold AddFilteredObject(object?[]? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(object);
@@ -3172,7 +3263,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3191,13 +3282,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     [CallsObjectToString] 
     public TOCMold AddFilteredObject(Span<object> value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(object);
@@ -3208,7 +3300,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3227,13 +3319,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     [CallsObjectToString] 
     public TOCMold AddFilteredObjectNullable(Span<object?> value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(object);
@@ -3244,7 +3337,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3263,13 +3356,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     [CallsObjectToString] 
     public TOCMold AddFilteredObject(ReadOnlySpan<object> value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(object);
@@ -3280,7 +3374,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item);
+                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3299,13 +3393,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     [CallsObjectToString] 
     public TOCMold AddFilteredObjectNullable(ReadOnlySpan<object?> value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(object);
@@ -3316,7 +3411,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3335,13 +3430,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length);
+        stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     [CallsObjectToString] 
     public TOCMold AddFilteredObject(IReadOnlyList<object?>? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(object);
@@ -3352,7 +3448,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Count; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate(i, item!);
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3371,13 +3467,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count ?? 0);
+        stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
     [CallsObjectToString] 
     public TOCMold AddFilteredObjectEnumerate(IEnumerable<object?>? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(object);
@@ -3392,7 +3489,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3405,16 +3502,18 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 any = true;
                 stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString] 
     public TOCMold AddFilteredObjectEnumerate(IEnumerator<object?>? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(object);
@@ -3435,7 +3534,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     continue;
                 }
                 var item         = value!.Current;
-                var filterResult = filterPredicate(count, item!);
+                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -3456,7 +3555,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount);
+        stb.ConditionalCollectionSuffix(elementType, itemCount, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 

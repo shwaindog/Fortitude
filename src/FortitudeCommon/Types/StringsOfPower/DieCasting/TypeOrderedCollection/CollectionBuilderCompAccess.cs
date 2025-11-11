@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
@@ -19,21 +20,29 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
         return this;
     }
     
-    public void ConditionalCollectionPrefix(Type elementType, bool hasAny)
+    public void ConditionalCollectionPrefix(Type elementType, bool? hasAny)
     {
         if (CollectionInComplexType)
         {
             StyleFormatter.AppendFieldName( Sb, "$values");
             StyleFormatter.AppendFieldValueSeparator(Sb);
-            StyleFormatter.FormatCollectionStart(Sb, elementType, hasAny, TypeBeingBuilt);
+            if(hasAny == true)
+                StyleFormatter.FormatCollectionStart(Sb, elementType, hasAny, TypeBeingBuilt);
         }
     }
 
-    public bool ConditionalCollectionSuffix(Type elementType, int count)
+    public bool ConditionalCollectionSuffix(Type elementType, int? count, string? formatString, FieldContentHandling formatFlags)
     {
         if (CollectionInComplexType)
         {
-            StyleFormatter.FormatCollectionEnd(Sb, elementType, count);
+            if (!count.HasValue)
+            {
+                StyleFormatter.AppendFormattedNull( Sb, formatString, formatFlags);
+            }
+            else
+            {
+                StyleFormatter.FormatCollectionEnd(Sb, elementType, count, formatString);
+            }
         }
         return false;
     }

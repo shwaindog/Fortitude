@@ -2,7 +2,6 @@
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
 
-[NoMatchingProductionClass]
 public class TestCustomSpanFormattable(string data) : ISpanFormattable
 {
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)

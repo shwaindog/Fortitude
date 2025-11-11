@@ -6,9 +6,11 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
@@ -42,22 +44,22 @@ public interface ITypedFormatExpectation<out T> : IFormatExpectation
     void Add(KeyValuePair<EK, string> newExpectedResult);
 }
 
-public abstract class FieldExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnumerable<KeyValuePair<EK, string>>
+public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnumerable<KeyValuePair<EK, string>>
 {
     private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
     protected readonly List<KeyValuePair<EK, string>> ExpectedResults = new();
 
     // ReSharper disable once ConvertToPrimaryConstructor
-    protected FieldExpectBase(TInput? input, string? formatString = null)
+    protected ExpectBase(TInput? input, string? formatString = null, FieldContentHandling valueContentHandling = DefaultCallerTypeFlags)
     {
+        ContentHandling = valueContentHandling;
         Input        = input;
         FormatString = formatString;
     }
 
     public virtual Type InputType => typeof(TInput);
-
-
+    
     public bool IsStringLike => InputType.IsAnyTypeHoldingChars();
 
     public virtual Type CoreType => InputType.IfNullableGetUnderlyingTypeOrThis();
@@ -65,13 +67,11 @@ public abstract class FieldExpectBase<TInput> : ITypedFormatExpectation<TInput>,
     public TInput? Input { get; set; }
 
     public string? FormatString { get; init; }
-
-    public virtual bool IsNullable => InputType.IsNullable() || InputIsNull;
+    
+    public FieldContentHandling ContentHandling { get; init; }
 
     public bool InputIsNull => Input == null;
     public abstract bool InputIsEmpty { get; }
-
-    public bool IsStruct => InputType.IsValueType;
 
     public virtual bool HasIndexRangeLimiting => false;
 

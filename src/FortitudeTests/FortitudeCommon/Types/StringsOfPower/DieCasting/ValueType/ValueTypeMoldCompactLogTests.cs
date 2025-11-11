@@ -13,7 +13,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.SimpleTypeScaffolds;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ValueTypeScaffolds;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -49,7 +49,7 @@ public partial class ValueTypeMoldTests
         from scaffoldToCall in
             scafReg.IsSimpleType()
                    .ProcessesSingleValue()
-                   .AcceptsOnlyBoolean()
+                   .AcceptsBoolean()
                    .AcceptsNonNullables()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
@@ -68,7 +68,7 @@ public partial class ValueTypeMoldTests
         from scaffoldToCall in
             scafReg.IsSimpleType()
                    .ProcessesSingleValue()
-                   .AcceptsOnlyBoolean()
+                   .AcceptsBoolean()
                    .AcceptsNonNullables()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall };
@@ -85,7 +85,7 @@ public partial class ValueTypeMoldTests
         from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsOnlyBoolean().OnlyAcceptsNullableStructs()
+            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsBoolean().OnlyAcceptsNullableStructs()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -101,7 +101,7 @@ public partial class ValueTypeMoldTests
         from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsOnlyBoolean().OnlyAcceptsNullableStructs()
+            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsBoolean().OnlyAcceptsNullableStructs()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -564,7 +564,7 @@ public partial class ValueTypeMoldTests
              }
            , new ScaffoldingPartEntry
                  (typeof(SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithFieldSimpleValueTypeStringBearer<>)
-                , SimpleType | AcceptsSingleValue | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable | AcceptsIntegerNumber 
+                , SimpleType | SingleValueCardinality | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable | AcceptsIntegerNumber 
                 | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsSettingDefaultValue | DefaultTreatedAsValueOut 
                 | DefaultBecomesFallback));
     }

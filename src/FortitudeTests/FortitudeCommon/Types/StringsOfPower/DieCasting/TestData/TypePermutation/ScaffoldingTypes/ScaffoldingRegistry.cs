@@ -17,7 +17,7 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
     private static readonly Type SupportsOrderedCollectionPredicateType = typeof(ISupportsOrderedCollectionPredicate<>);
     private static readonly Type SupportsKeyedCollectionPredicateType   = typeof(ISupportsKeyedCollectionPredicate<,>);
     private static readonly Type SupportsValueRevealerType              = typeof(ISupportsValueRevealer<>);
-    private static readonly Type SupportsKeyRevealerType              = typeof(ISupportsKeyRevealer<>);
+    private static readonly Type SupportsKeyRevealerType                = typeof(ISupportsKeyRevealer<>);
 
     public Type ValueType { get; } = ScaffoldingType.MoldSupportedValueGetValueType();
 
@@ -58,20 +58,36 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
 
     public Func<IStringBearer> CreateStringBearerFunc(params Type[] genericTypeArguments)
     {
-        if (ScaffoldingType.IsGenericType)
+        try
         {
-            return ReflectionHelper.GenericTypeDefaultCtorBinder<IStringBearer>(ScaffoldingType, genericTypeArguments);
+            if (ScaffoldingType.IsGenericType)
+            {
+                return ReflectionHelper.GenericTypeDefaultCtorBinder<IStringBearer>(ScaffoldingType, genericTypeArguments);
+            }
+            return ReflectionHelper.DefaultCtorFunc<IStringBearer>(ScaffoldingType);
         }
-        return ReflectionHelper.DefaultCtorFunc<IStringBearer>(ScaffoldingType);
+        catch (Exception e)
+        {
+            Console.Out.WriteLine
+                ($"Problem trying to create {Name} with generic arguments " +
+                 $"{string.Join(",", genericTypeArguments.Select(t => t.ShortNameInCSharpFormat()))}." +
+                 $"  Got {e}");
+            throw;
+        }
     }
 
     public Func<TScaffold> CreateTypedStringBearerFunc<TScaffold>()
     {
-        if (ScaffoldingType.IsGenericType)
+        try
         {
-            return ReflectionHelper.GenericTypeDefaultCtorBinder<TScaffold>();
+            if (ScaffoldingType.IsGenericType) { return ReflectionHelper.GenericTypeDefaultCtorBinder<TScaffold>(); }
+            return ReflectionHelper.DefaultCtorFunc<TScaffold>();
         }
-        return ReflectionHelper.DefaultCtorFunc<TScaffold>();
+        catch (Exception e)
+        {
+            Console.Out.WriteLine($"Problem trying to create {Name}.  Got {e}");
+            throw;
+        }
     }
 
     public int CompareTo(ScaffoldingPartEntry? other) => String.Compare(Name, other?.Name ?? "none", StringComparison.InvariantCulture);
@@ -155,42 +171,47 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldAlwaysAddAllFilter
         (this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsComplexType().ProcessesKeyedCollection().AlwaysWrites().NoFilterPredicate().NoSubsetList();
-    
+
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenNonNullAddAllFilter
         (this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsComplexType().ProcessesKeyedCollection().NonNullWrites().NoFilterPredicate().NoSubsetList();
-    
+
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldAlwaysAddFiltered(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsComplexType().ProcessesKeyedCollection().AlwaysWrites().HasFilterPredicate();
-    
-    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenNonNullAddFiltered(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+
+    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenNonNullAddFiltered(
+        this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsComplexType().ProcessesKeyedCollection().NonNullWrites().HasFilterPredicate();
-    
-    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+
+    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilter(
+        this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsComplexType().ProcessesKeyedCollection().PopulatedWrites().HasFilterPredicate();
-    
-    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldAlwaysAddSelectKeysFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+
+    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldAlwaysAddSelectKeysFilter(
+        this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsComplexType().ProcessesKeyedCollection().AlwaysWrites().NoFilterPredicate().HasSubsetList();
-    
-    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenNonNullAddSelectKeysFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+
+    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenNonNullAddSelectKeysFilter(
+        this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsComplexType().ProcessesKeyedCollection().NonNullWrites().NoFilterPredicate().HasSubsetList();
-    
-    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldPopulatedWithSelectKeysFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+
+    public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldPopulatedWithSelectKeysFilter(
+        this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsComplexType().ProcessesKeyedCollection().PopulatedWrites().NoFilterPredicate().HasSubsetList();
-    
+
     public static IEnumerable<ScaffoldingPartEntry> OrderedCollectionAlwaysAddAllFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsOrderedCollectionType().ProcessesCollection().NoFilterPredicate();
-    
+
     public static IEnumerable<ScaffoldingPartEntry> OrderedCollectionAddFiltered(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsOrderedCollectionType().ProcessesCollection().HasFilterPredicate();
-    
-    
+
+
     public static IEnumerable<ScaffoldingPartEntry> KeyedCollectionAlwaysAddAllFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsKeyedCollectionType().ProcessesKeyedCollection().NoFilterPredicate().NoSubsetList();
-    
+
     public static IEnumerable<ScaffoldingPartEntry> KeyedCollectionAddFiltered(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsKeyedCollectionType().ProcessesKeyedCollection().HasFilterPredicate();
-    
+
     public static IEnumerable<ScaffoldingPartEntry> KeyedCollectionAddWithSelectedKeysFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.IsKeyedCollectionType().ProcessesKeyedCollection().NoFilterPredicate().HasSubsetList();
 
@@ -200,21 +221,30 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> IsComplexType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ComplexType));
 
+    public static IEnumerable<ScaffoldingPartEntry> IsJustComplexType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasComplexTypeFlag()
+                         && spe.ScaffoldingFlags.HasNoneOf(SimpleType | OrderedCollectionType | KeyedCollectionType));
 
     public static IEnumerable<ScaffoldingPartEntry> IsOrderedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(OrderedCollectionType));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasOrderedCollectionTypeFlag());
+
+    public static IEnumerable<ScaffoldingPartEntry> IsNotOrderedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.DoesNotHaveOrderedCollectionTypeFlag());
 
     public static IEnumerable<ScaffoldingPartEntry> IsKeyedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(KeyedCollectionType));
 
+    public static IEnumerable<ScaffoldingPartEntry> IsNotKeyedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(KeyedCollectionType));
+
     public static IEnumerable<ScaffoldingPartEntry> ProcessesSingleValue(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsSingleValue));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SingleValueCardinality));
 
     public static IEnumerable<ScaffoldingPartEntry> ProcessesCollection(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsCollection));
-    
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(CollectionCardinality));
+
     public static IEnumerable<ScaffoldingPartEntry> ProcessesKeyedCollection(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsKeyValueCollection));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(KeyValueCardinality));
 
     public static IEnumerable<ScaffoldingPartEntry> HasSubsetList(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SubsetListFilter));
@@ -223,18 +253,18 @@ public static class ScaffoldingRegistry
         subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(SubsetListFilter));
 
     public static IEnumerable<ScaffoldingPartEntry> HasFilterPredicate(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(FilterPredicate));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasFilterPredicate());
 
     public static IEnumerable<ScaffoldingPartEntry> NoFilterPredicate(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(FilterPredicate));
+        subSet.Where(spe => spe.ScaffoldingFlags.DoesNotHaveFilterPredicate());
 
     public static IEnumerable<ScaffoldingPartEntry> NoEnumerableOrEnumerator(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsEnumerable | AcceptsEnumerator) ||
                             (spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric)
                           && !(spe.Name.Contains("MatchEnumerable")
                             || spe.Name.Contains("MatchEnumerator")
-                            || spe.Name.Contains("ObjectEnumerable") 
-                             || spe.Name.Contains("ObjectEnumerator"))));
+                            || spe.Name.Contains("ObjectEnumerable")
+                            || spe.Name.Contains("ObjectEnumerator"))));
 
     public static IEnumerable<ScaffoldingPartEntry> AlwaysWrites(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AlwaysWrites));
@@ -251,67 +281,67 @@ public static class ScaffoldingRegistry
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsChars(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsChars));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsString));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsCharArray(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsCharArray));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsCharSequence(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsCharSequence));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsStringBuilder(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ScaffoldingStringBuilderInvokeFlags.AcceptsStringBuilder));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsValueFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsValueFormatString));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> HasNotSupportsValueFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(SupportsValueFormatString));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsKeyFormatString(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsKeyFormatString));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsValueRevealer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsValueRevealer));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> NotHasSupportsValueRevealer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(SupportsValueRevealer));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsKeyRevealer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsKeyRevealer));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> HasSupportsIndexSubRanges(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> HasSpanFormattable(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsSpanFormattable));
-    
-    public static IEnumerable<ScaffoldingPartEntry> AcceptsOnlyBoolean(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsStruct | AcceptsNullableStruct) 
-     && spe.ScaffoldingFlags.HasNoneOf(AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable | SupportsValueRevealer | AcceptsStringBearer));
-    
+
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsBoolean(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.IsAcceptsBool());
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableClass | AcceptsNullableStruct));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> OnlyAcceptsNullableStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableStruct));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsStruct));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsNullableClass));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> NoExplicitAcceptsNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass | AcceptsNullableStruct) || spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
-    
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass | AcceptsNullableStruct) ||
+                            spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
+
     public static IEnumerable<ScaffoldingPartEntry> NoExplicitAcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsClass | AcceptsStruct) || spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(AcceptsClass | AcceptsStruct) || spe.ScaffoldingFlags.IsAcceptsAnyGeneric());
 
 
     public static IEnumerable<ScaffoldingPartEntry> HasAcceptsAny(this IEnumerable<ScaffoldingPartEntry> subSet) =>
@@ -323,15 +353,10 @@ public static class ScaffoldingRegistry
 
     public static IEnumerable<ScaffoldingPartEntry> HasAcceptsStringBearer(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsStringBearer));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> HasTreatedAsValueOut(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(DefaultTreatedAsValueOut));
-    
+
     public static IEnumerable<ScaffoldingPartEntry> HasTreatedAsStringOut(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(DefaultTreatedAsStringOut));
-    
-
-    
-
-
 }

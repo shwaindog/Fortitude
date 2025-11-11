@@ -104,12 +104,13 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType
-      , bool hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , bool? hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        hasItems ??= false;
+        if (!hasItems.Value) return sb;        
         if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString) return sb.Append(DblQt);
         if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return sb.Append(DblQt);
 
-        if (!hasItems) return sb;
         StyleOptions.IndentLevel++;
 
         return sb.Append(SqBrktOpn)
@@ -159,16 +160,21 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return sb;
     }
 
-    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int totalItemCount
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount
+      , string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        if (!totalItemCount.HasValue)
+        {
+            sb.Append(StyleOptions.NullString);
+            return sb;
+        }
         if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString)
         {
-            return CollectionEnd(itemElementType, sb, totalItemCount).ToStringBuilder(sb);
+            return CollectionEnd(itemElementType, sb, totalItemCount.Value).ToStringBuilder(sb);
         }
         if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String)
         {
-            return CollectionEnd(itemElementType, sb, totalItemCount).ToStringBuilder(sb);
+            return CollectionEnd(itemElementType, sb, totalItemCount.Value).ToStringBuilder(sb);
         }
 
         sb.RemoveLastWhiteSpacedCommaIfFound();

@@ -11,8 +11,8 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
     OrderedCollectionFields;
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStruct)]
-public class FieldBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<bool>?>
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStruct | SupportsValueFormatString)]
+public class FieldBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<bool>?>, ISupportsValueFormatString
 {
     public IEnumerable<bool>? ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable
     {
@@ -27,14 +27,16 @@ public class FieldBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedVa
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct)]
-public class FieldNullableBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<bool?>?>
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | SupportsValueFormatString)]
+public class FieldNullableBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<bool?>?>, ISupportsValueFormatString
 {
     public IEnumerable<bool?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable
     {
@@ -49,13 +51,15 @@ public class FieldNullableBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSup
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<IEnumerable<TFmt>?>
   , ISupportsValueFormatString where TFmt : ISpanFormattable
@@ -82,7 +86,7 @@ public class FieldSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt> :
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TStructFmt> : 
   IMoldSupportedValue<IEnumerable<TStructFmt?>?>, ISupportsValueFormatString where TStructFmt : struct, ISpanFormattable
@@ -108,7 +112,7 @@ public class FieldNullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase>
@@ -141,7 +145,7 @@ public class FieldCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked,
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
                 | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
 public class FieldNullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloakedStruct>
     : IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
@@ -173,7 +177,7 @@ public class FieldNullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<IEnumerable<TBearer>?>
     where TBearer : IStringBearer
 {
@@ -196,7 +200,7 @@ public class FieldStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer> :
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
 public class FieldNullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearerStruct> : 
   IMoldSupportedValue<IEnumerable<TBearerStruct?>?>
     where TBearerStruct : struct, IStringBearer
@@ -220,7 +224,7 @@ public class FieldNullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TB
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<string?>?>, ISupportsValueFormatString
 {
     public IEnumerable<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable
@@ -244,7 +248,7 @@ public class FieldStringEnumerableWhenNonNullAddAllStringBearer : IMoldSupported
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<IEnumerable<TCharSeq?>?>
   , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
@@ -269,7 +273,7 @@ public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<StringBuilder?>?>
   , ISupportsValueFormatString
 {
@@ -294,7 +298,7 @@ public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer : IMoldSu
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerable<TAny>?>
   , ISupportsValueFormatString
 {
@@ -319,7 +323,7 @@ public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<TAny> : IMoldSupp
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerable | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldObjectEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<object?>?>
   , ISupportsValueFormatString
 {
@@ -344,8 +348,8 @@ public class FieldObjectEnumerableWhenNonNullAddAllStringBearer : IMoldSupported
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStruct)]
-public class FieldBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<bool>?>
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStruct | SupportsValueFormatString)]
+public class FieldBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<bool>?>, ISupportsValueFormatString
 {
     public IEnumerator<bool>? ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator
     {
@@ -360,14 +364,16 @@ public class FieldBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedVa
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct)]
-public class FieldNullableBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<bool?>?>
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | SupportsValueFormatString)]
+public class FieldNullableBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<bool?>?>, ISupportsValueFormatString
 {
     public IEnumerator<bool?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator
     {
@@ -382,13 +388,15 @@ public class FieldNullableBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSup
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator, ValueFormatString)
            .Complete();
+
+    public string? ValueFormatString { get; set; }
 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<IEnumerator<TFmt>?>
   , ISupportsValueFormatString where TFmt : ISpanFormattable
@@ -414,7 +422,7 @@ public class FieldSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt> :
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
                   AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmtStruct> : 
   IMoldSupportedValue<IEnumerator<TFmtStruct?>?>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
@@ -440,7 +448,7 @@ public class FieldNullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IMoldSupportedValue<IEnumerator<TCloaked>?>
@@ -473,7 +481,7 @@ public class FieldCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked,
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct
                 | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
                   SupportsValueRevealer)]
 public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloakedStruct> : 
@@ -507,7 +515,7 @@ public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<T
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<IEnumerator<TBearer>?>
     where TBearer : IStringBearer
 {
@@ -530,7 +538,7 @@ public class FieldStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer> :
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
 public class FieldNullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearerStruct> : 
   IMoldSupportedValue<IEnumerator<TBearerStruct?>?> where TBearerStruct : struct, IStringBearer
 {
@@ -552,7 +560,7 @@ public class FieldNullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TB
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<string?>?>, ISupportsValueFormatString
 {
     public IEnumerator<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator
@@ -576,7 +584,7 @@ public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : IMoldSupported
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<IEnumerator<TCharSeq?>?>
   , ISupportsValueFormatString where TCharSeq : ICharSequence
 {
@@ -601,7 +609,7 @@ public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<StringBuilder?>?>
   , ISupportsValueFormatString
 {
@@ -626,7 +634,7 @@ public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer : IMoldSu
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerator<TAny>?>, ISupportsValueFormatString
 {
     public IEnumerator<TAny>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator
@@ -650,7 +658,7 @@ public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<TAny> : IMoldSupp
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | AcceptsCollection | AcceptsEnumerator | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldObjectEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<object?>?>, ISupportsValueFormatString
 {
     public IEnumerator<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator

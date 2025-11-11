@@ -27,7 +27,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -53,7 +53,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -79,7 +79,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -105,7 +105,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -130,7 +130,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -146,7 +146,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         var hasValue = selectKeys.MoveNext();
         if (value == null)
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
@@ -185,7 +185,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -211,7 +211,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -237,7 +237,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -263,7 +263,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -287,7 +287,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -302,7 +302,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         var hasValue = selectKeys.MoveNext();
         if (value == null)
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
@@ -341,7 +341,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -365,7 +365,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -389,7 +389,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -414,7 +414,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -438,7 +438,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         }
         else
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
         }
         return stb.AddGoToNext();
     }
@@ -453,7 +453,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         var hasValue = selectKeys.MoveNext();
         if (value == null)
         {
-            stb.Sb.Append(stb.Settings.NullStyle);
+            stb.Sb.Append(stb.Settings.NullString);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);

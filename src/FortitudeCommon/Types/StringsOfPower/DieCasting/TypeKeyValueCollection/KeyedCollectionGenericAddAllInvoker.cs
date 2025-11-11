@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 
@@ -61,7 +62,8 @@ public static class KeyedCollectionGenericAddAllInvoker
         callBaseToString(typeMolder, keyColl, valueFormatString, null);
     }
 
-    public static void CallAddAll<TKeyColl>(KeyValueCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
+    public static void CallAddAll<TKeyColl>(KeyValueCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null
+        , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
     {
         var keyedCollType = keyColl!.GetType();
         if (keyedCollType.IsKeyedCollection())
