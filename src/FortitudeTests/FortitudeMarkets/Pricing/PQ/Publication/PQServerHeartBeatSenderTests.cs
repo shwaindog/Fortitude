@@ -25,6 +25,7 @@ public class PQServerHeartBeatSenderTests
     private Mock<IOSParallelController>        moqOsParallelController      = null!;
     private Mock<IOSThread>                    moqOsThread                  = null!;
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
+    private Mock<ITimeContext>                 moqTimeContext               = null!;
 
     private Mock<IDoublyLinkedList<IPQMessage>> moqQuotesList = null!;
 
@@ -53,6 +54,7 @@ public class PQServerHeartBeatSenderTests
         moqUpdateServer = new Mock<IPQUpdateServer>();
         moqSyncLock     = new Mock<ISyncLock>();
         moqQuotesList   = new Mock<IDoublyLinkedList<IPQMessage>>();
+        moqTimeContext  = new Mock<ITimeContext>();
 
         moqOsParallelController.Setup(opc => opc.CreateNewOSThread(It.IsAny<ThreadStart>()))
                                .Returns(moqOsThread.Object)
@@ -60,7 +62,7 @@ public class PQServerHeartBeatSenderTests
         moqOsThread.SetupSet(ot => ot.IsBackground = true).Verifiable();
         moqOsThread.Setup(ot => ot.Start()).Verifiable();
 
-        pqServerHeartBeatSender = new PQServerHeartBeatSender(moqOsParallelController.Object)
+        pqServerHeartBeatSender = new PQServerHeartBeatSender(moqOsParallelController.Object, moqTimeContext.Object)
         {
             UpdateServer       = moqUpdateServer.Object, ServerLinkedLock = moqSyncLock.Object
           , ServerLinkedQuotes = moqQuotesList.Object
@@ -106,9 +108,6 @@ public class PQServerHeartBeatSenderTests
         var preTestTimeContext = TimeContext.Provider;
         try
         {
-            var moqTimeContext = new Mock<ITimeContext>();
-            TimeContext.Provider = moqTimeContext.Object;
-
             var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
 
             moqTimeContext.SetupSequence(tc => tc.UtcNow)
@@ -167,317 +166,262 @@ public class PQServerHeartBeatSenderTests
     [TestMethod]
     public void StartedHeartBeatSenderAllQuotesJustPublished_CheckPublishHeartBeats_PublishesNothing()
     {
-        var preTestTimeContext = TimeContext.Provider;
-        try
-        {
-            var moqTimeContext = new Mock<ITimeContext>();
-            TimeContext.Provider = moqTimeContext.Object;
+        var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
 
-            var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
+        moqTimeContext.SetupSequence(tc => tc.UtcNow)
+                      .Returns(baseTime)                        //original lastRun
+                      .Returns(baseTime.AddMilliseconds(1001))  //checktime since lastRun
+                      .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
+                      .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
+                      .Returns(baseTime.AddMilliseconds(1002))  //1st set new last published
+                      .Returns(baseTime.AddMilliseconds(1003))  //2nd quote check last published
+                      .Returns(baseTime.AddMilliseconds(1003)); //2nd quote new last published
 
-            moqTimeContext.SetupSequence(tc => tc.UtcNow)
-                          .Returns(baseTime)                        //original lastRun
-                          .Returns(baseTime.AddMilliseconds(1001))  //checktime since lastRun
-                          .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
-                          .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
-                          .Returns(baseTime.AddMilliseconds(1002))  //1st set new last published
-                          .Returns(baseTime.AddMilliseconds(1003))  //2nd quote check last published
-                          .Returns(baseTime.AddMilliseconds(1003)); //2nd quote new last published
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
+        moqOsThread.Setup(ot => ot.Join());
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
+                   .Callback(() => { pqServerHeartBeatSender.StopAndWaitUntilFinished(); });
 
-            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
-            moqOsThread.Setup(ot => ot.Join());
-            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
-                       .Callback(() => { pqServerHeartBeatSender.StopAndWaitUntilFinished(); });
+        tickInstant1.LastPublicationTime = baseTime.AddMilliseconds(800);
+        tickInstant2.LastPublicationTime = baseTime.AddMilliseconds(851);
+        tickInstant3.LastPublicationTime = baseTime.AddMilliseconds(900);
 
-            tickInstant1.LastPublicationTime = baseTime.AddMilliseconds(800);
-            tickInstant2.LastPublicationTime = baseTime.AddMilliseconds(851);
-            tickInstant3.LastPublicationTime = baseTime.AddMilliseconds(900);
+        var realQuoteList = new DoublyLinkedList<IPQMessage>();
+        realQuoteList.AddLast(tickInstant3);
+        realQuoteList.AddFirst(tickInstant2);
+        realQuoteList.AddFirst(tickInstant1);
+        pqServerHeartBeatSender.ServerLinkedQuotes = realQuoteList;
 
-            var realQuoteList = new DoublyLinkedList<IPQMessage>();
-            realQuoteList.AddLast(tickInstant3);
-            realQuoteList.AddFirst(tickInstant2);
-            realQuoteList.AddFirst(tickInstant1);
-            pqServerHeartBeatSender.ServerLinkedQuotes = realQuoteList;
+        moqUpdateServer.SetupGet(us => us.IsStarted).Returns(true);
+        moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
+                       .Callback<IVersionedMessage>(vmsg =>
+                       {
+                           var hbMsg = vmsg as IPQHeartBeatQuotesMessage;
+                           Assert.IsNotNull(hbMsg);
+                           Assert.AreEqual(2, hbMsg.QuotesToSendHeartBeats.Count);
+                           Assert.AreEqual(tickInstant1, hbMsg.QuotesToSendHeartBeats[0]);
+                           Assert.AreEqual(tickInstant2, hbMsg.QuotesToSendHeartBeats[1]);
+                       }).Verifiable();
 
-            moqUpdateServer.SetupGet(us => us.IsStarted).Returns(true);
-            moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
-                           .Callback<IVersionedMessage>(vmsg =>
-                           {
-                               var hbMsg = vmsg as IPQHeartBeatQuotesMessage;
-                               Assert.IsNotNull(hbMsg);
-                               Assert.AreEqual(2, hbMsg.QuotesToSendHeartBeats.Count);
-                               Assert.AreEqual(tickInstant1, hbMsg.QuotesToSendHeartBeats[0]);
-                               Assert.AreEqual(tickInstant2, hbMsg.QuotesToSendHeartBeats[1]);
-                           }).Verifiable();
+        Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
+        pqServerHeartBeatSender.StartSendingHeartBeats();
+        Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
-            Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
-            pqServerHeartBeatSender.StartSendingHeartBeats();
-            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
+        pqServerHeartBeatSender.CheckPublishHeartbeats();
+        moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(0));
+        moqUpdateServer.Verify(us => us.Send(It.IsAny<IVersionedMessage>()), Times.Exactly(0));
 
-            pqServerHeartBeatSender.CheckPublishHeartbeats();
-            moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(0));
-            moqUpdateServer.Verify(us => us.Send(It.IsAny<IVersionedMessage>()), Times.Exactly(0));
-
-            Assert.AreEqual(tickInstant1, realQuoteList.Head);
-            Assert.AreEqual(tickInstant3, realQuoteList.Tail);
-        }
-        finally
-        {
-            TimeContext.Provider = preTestTimeContext;
-        }
+        Assert.AreEqual(tickInstant1, realQuoteList.Head);
+        Assert.AreEqual(tickInstant3, realQuoteList.Tail);
     }
 
     [TestMethod]
     public void StartedHeartBeatSenderDisconnectedUpdateServer_CheckPublishHeartBeats_PublishesNothing()
     {
-        var preTestTimeContext = TimeContext.Provider;
-        try
-        {
-            var moqTimeContext = new Mock<ITimeContext>();
-            TimeContext.Provider = moqTimeContext.Object;
+        var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
 
-            var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
+        moqTimeContext.SetupSequence(tc => tc.UtcNow)
+                      .Returns(baseTime)                        //original lastRun
+                      .Returns(baseTime.AddMilliseconds(1001))  //checktime since lastRun
+                      .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
+                      .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
+                      .Returns(baseTime.AddMilliseconds(1002))  //1st set new last published
+                      .Returns(baseTime.AddMilliseconds(1003))  //2nd quote check last published
+                      .Returns(baseTime.AddMilliseconds(1003)); //2nd quote new last published
 
-            moqTimeContext.SetupSequence(tc => tc.UtcNow)
-                          .Returns(baseTime)                        //original lastRun
-                          .Returns(baseTime.AddMilliseconds(1001))  //checktime since lastRun
-                          .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
-                          .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
-                          .Returns(baseTime.AddMilliseconds(1002))  //1st set new last published
-                          .Returns(baseTime.AddMilliseconds(1003))  //2nd quote check last published
-                          .Returns(baseTime.AddMilliseconds(1003)); //2nd quote new last published
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
+        moqOsThread.Setup(ot => ot.Join());
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
+                   .Callback(() => { pqServerHeartBeatSender.StopAndWaitUntilFinished(); });
 
-            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
-            moqOsThread.Setup(ot => ot.Join());
-            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
-                       .Callback(() => { pqServerHeartBeatSender.StopAndWaitUntilFinished(); });
+        tickInstant1.LastPublicationTime = baseTime.AddMilliseconds(-5);
+        tickInstant2.LastPublicationTime = baseTime.AddMilliseconds(-4);
+        tickInstant3.LastPublicationTime = baseTime.AddMilliseconds(900);
 
-            tickInstant1.LastPublicationTime = baseTime.AddMilliseconds(-5);
-            tickInstant2.LastPublicationTime = baseTime.AddMilliseconds(-4);
-            tickInstant3.LastPublicationTime = baseTime.AddMilliseconds(900);
+        var realTickInstantList = new DoublyLinkedList<IPQMessage>();
+        realTickInstantList.AddLast(tickInstant3);
+        realTickInstantList.AddFirst(tickInstant2);
+        realTickInstantList.AddFirst(tickInstant1);
+        pqServerHeartBeatSender.ServerLinkedQuotes = realTickInstantList;
 
-            var realTickInstantList = new DoublyLinkedList<IPQMessage>();
-            realTickInstantList.AddLast(tickInstant3);
-            realTickInstantList.AddFirst(tickInstant2);
-            realTickInstantList.AddFirst(tickInstant1);
-            pqServerHeartBeatSender.ServerLinkedQuotes = realTickInstantList;
+        moqUpdateServer.SetupGet(us => us.IsStarted).Returns(false);
+        moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
+                       .Callback<IVersionedMessage>(vmsg =>
+                       {
+                           var hbMsg = vmsg as IPQHeartBeatQuotesMessage;
+                           Assert.IsNotNull(hbMsg);
+                           Assert.AreEqual(2, hbMsg.QuotesToSendHeartBeats.Count);
+                           Assert.AreEqual(tickInstant1, hbMsg.QuotesToSendHeartBeats[0]);
+                           Assert.AreEqual(tickInstant2, hbMsg.QuotesToSendHeartBeats[1]);
+                       }).Verifiable();
 
-            moqUpdateServer.SetupGet(us => us.IsStarted).Returns(false);
-            moqUpdateServer.Setup(us => us.Send(It.IsAny<IVersionedMessage>()))
-                           .Callback<IVersionedMessage>(vmsg =>
-                           {
-                               var hbMsg = vmsg as IPQHeartBeatQuotesMessage;
-                               Assert.IsNotNull(hbMsg);
-                               Assert.AreEqual(2, hbMsg.QuotesToSendHeartBeats.Count);
-                               Assert.AreEqual(tickInstant1, hbMsg.QuotesToSendHeartBeats[0]);
-                               Assert.AreEqual(tickInstant2, hbMsg.QuotesToSendHeartBeats[1]);
-                           }).Verifiable();
+        Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
+        pqServerHeartBeatSender.StartSendingHeartBeats();
+        Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
-            Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
-            pqServerHeartBeatSender.StartSendingHeartBeats();
-            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
+        pqServerHeartBeatSender.CheckPublishHeartbeats();
+        moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(1));
+        moqUpdateServer.Verify(us => us.Send(It.IsAny<IVersionedMessage>()), Times.Exactly(0));
 
-            pqServerHeartBeatSender.CheckPublishHeartbeats();
-            moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(1));
-            moqUpdateServer.Verify(us => us.Send(It.IsAny<IVersionedMessage>()), Times.Exactly(0));
-
-            Assert.AreEqual(tickInstant3, realTickInstantList.Head);
-            Assert.AreEqual(tickInstant2, realTickInstantList.Tail);
-        }
-        finally
-        {
-            TimeContext.Provider = preTestTimeContext;
-        }
+        Assert.AreEqual(tickInstant3, realTickInstantList.Head);
+        Assert.AreEqual(tickInstant2, realTickInstantList.Tail);
     }
 
     [TestMethod]
     public void StartedHeartBeatSender_CheckPublishHeartBeats_ProtectsUpdatesToQuotesList()
     {
-        var preTestTimeContext = TimeContext.Provider;
-        try
+        var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
+
+        moqTimeContext.SetupSequence(tc => tc.UtcNow)
+                      .Returns(baseTime)                        //original lastRun
+                      .Returns(baseTime.AddMilliseconds(1001))  //checktime since lastRun
+                      .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
+                      .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
+                      .Returns(baseTime.AddMilliseconds(1002)); //1st set new last published
+
+        moqOsThread.Setup(ot => ot.Join());
+        var isInHeartBeatSyncLock = false;
+
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                   .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() =>
         {
-            var moqTimeContext = new Mock<ITimeContext>();
-            TimeContext.Provider = moqTimeContext.Object;
+            isInHeartBeatSyncLock = false;
+            pqServerHeartBeatSender.StopAndWaitUntilFinished();
+        }).Verifiable();
 
-            var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
+        moqQuotesList.SetupGet(ql => ql.IsEmpty).Returns(false).Verifiable();
 
-            moqTimeContext.SetupSequence(tc => tc.UtcNow)
-                          .Returns(baseTime)                        //original lastRun
-                          .Returns(baseTime.AddMilliseconds(1001))  //checktime since lastRun
-                          .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
-                          .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
-                          .Returns(baseTime.AddMilliseconds(1002)); //1st set new last published
+        var moqTickInstantQuote = new Mock<IPQMessage>();
+        moqTickInstantQuote.SetupGet(lv0Q => lv0Q.LastPublicationTime)
+                           .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock))
+                           .Returns(baseTime.AddMilliseconds(-5)).Verifiable();
+        moqTickInstantQuote.SetupSet(lv0Q => lv0Q.LastPublicationTime = baseTime.AddMilliseconds(1002))
+                           .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
 
-            moqOsThread.Setup(ot => ot.Join());
-            var isInHeartBeatSyncLock = false;
+        moqQuotesList.SetupGet(ql => ql.Head).Returns(moqTickInstantQuote.Object)
+                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
+        moqQuotesList.Setup(ql => ql.Remove(moqTickInstantQuote.Object))
+                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
+        moqQuotesList.Setup(ql => ql.AddLast(moqTickInstantQuote.Object))
+                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
 
-            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
-                       .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
-            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() =>
-            {
-                isInHeartBeatSyncLock = false;
-                pqServerHeartBeatSender.StopAndWaitUntilFinished();
-            }).Verifiable();
+        Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
+        Assert.AreNotSame(OSParallelControllerFactory.Instance, moqOsParallelController);
+        pqServerHeartBeatSender.StartSendingHeartBeats();
+        Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
-            moqQuotesList.SetupGet(ql => ql.IsEmpty).Returns(false).Verifiable();
-
-            var moqTickInstantQuote = new Mock<IPQMessage>();
-            moqTickInstantQuote.SetupGet(lv0Q => lv0Q.LastPublicationTime)
-                               .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock))
-                               .Returns(baseTime.AddMilliseconds(-5)).Verifiable();
-            moqTickInstantQuote.SetupSet(lv0Q => lv0Q.LastPublicationTime = baseTime.AddMilliseconds(1002))
-                               .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
-
-            moqQuotesList.SetupGet(ql => ql.Head).Returns(moqTickInstantQuote.Object)
-                         .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
-            moqQuotesList.Setup(ql => ql.Remove(moqTickInstantQuote.Object))
-                         .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
-            moqQuotesList.Setup(ql => ql.AddLast(moqTickInstantQuote.Object))
-                         .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
-
-            Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
-            Assert.AreNotSame(OSParallelControllerFactory.Instance, moqOsParallelController);
-            pqServerHeartBeatSender.StartSendingHeartBeats();
-            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
-
-            Assert.AreNotSame(OSParallelControllerFactory.Instance, moqOsParallelController);
-            pqServerHeartBeatSender.CheckPublishHeartbeats();
-            moqSyncLock.Verify();
-            moqQuotesList.Verify();
-            moqTickInstantQuote.Verify();
-        }
-        finally
-        {
-            TimeContext.Provider = preTestTimeContext;
-        }
+        Assert.AreNotSame(OSParallelControllerFactory.Instance, moqOsParallelController);
+        pqServerHeartBeatSender.CheckPublishHeartbeats();
+        moqSyncLock.Verify();
+        moqQuotesList.Verify();
+        moqTickInstantQuote.Verify();
     }
 
     [TestMethod]
     public void StartedHeartBeatSender_CheckPublishHeartBeats_RecoversAfterExceptionToPublish()
     {
-        var preTestTimeContext = TimeContext.Provider;
-        try
+        var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
+
+        moqTimeContext.SetupSequence(tc => tc.UtcNow)
+                      .Returns(baseTime) //original lastRun
+                      .Throws(new Exception("Recover from this will you?"))
+                      .Returns(baseTime.AddMilliseconds(1001))  //checktime since lastRun
+                      .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
+                      .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
+                      .Returns(baseTime.AddMilliseconds(1002)); //1st set new last published
+
+        moqOsThread.Setup(ot => ot.Join());
+        var isInHeartBeatSyncLock = false;
+
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                   .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() =>
         {
-            var moqTimeContext = new Mock<ITimeContext>();
-            TimeContext.Provider = moqTimeContext.Object;
+            isInHeartBeatSyncLock = false;
+            pqServerHeartBeatSender.StopAndWaitUntilFinished();
+        }).Verifiable();
 
-            var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
+        moqQuotesList.SetupGet(ql => ql.IsEmpty).Returns(false).Verifiable();
 
-            moqTimeContext.SetupSequence(tc => tc.UtcNow)
-                          .Returns(baseTime) //original lastRun
-                          .Throws(new Exception("Recover from this will you?"))
-                          .Returns(baseTime.AddMilliseconds(1001))  //checktime since lastRun
-                          .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
-                          .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
-                          .Returns(baseTime.AddMilliseconds(1002)); //1st set new last published
+        var moqTickInstant = new Mock<IPQMessage>();
+        moqTickInstant.SetupGet(lv0Q => lv0Q.LastPublicationTime)
+                      .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock))
+                      .Returns(baseTime.AddMilliseconds(-5)).Verifiable();
+        moqTickInstant.SetupSet(lv0Q => lv0Q.LastPublicationTime = baseTime.AddMilliseconds(1002))
+                      .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
 
-            moqOsThread.Setup(ot => ot.Join());
-            var isInHeartBeatSyncLock = false;
+        moqQuotesList.SetupGet(ql => ql.Head).Returns(moqTickInstant.Object)
+                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
+        moqQuotesList.Setup(ql => ql.Remove(moqTickInstant.Object))
+                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
+        moqQuotesList.Setup(ql => ql.AddLast(moqTickInstant.Object))
+                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
 
-            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
-                       .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
-            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() =>
-            {
-                isInHeartBeatSyncLock = false;
-                pqServerHeartBeatSender.StopAndWaitUntilFinished();
-            }).Verifiable();
+        Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
+        pqServerHeartBeatSender.StartSendingHeartBeats();
+        Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
-            moqQuotesList.SetupGet(ql => ql.IsEmpty).Returns(false).Verifiable();
+        var moqLogger = new Mock<IFLogger>();
+        moqLogger.Setup(l => l.Error(It.IsAny<string>(), It.IsAny<object[]>())).Verifiable();
+        NonPublicInvocator.SetStaticField(pqServerHeartBeatSender, "Logger", moqLogger.Object);
 
-            var moqTickInstant = new Mock<IPQMessage>();
-            moqTickInstant.SetupGet(lv0Q => lv0Q.LastPublicationTime)
-                          .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock))
-                          .Returns(baseTime.AddMilliseconds(-5)).Verifiable();
-            moqTickInstant.SetupSet(lv0Q => lv0Q.LastPublicationTime = baseTime.AddMilliseconds(1002))
-                          .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
-
-            moqQuotesList.SetupGet(ql => ql.Head).Returns(moqTickInstant.Object)
-                         .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
-            moqQuotesList.Setup(ql => ql.Remove(moqTickInstant.Object))
-                         .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
-            moqQuotesList.Setup(ql => ql.AddLast(moqTickInstant.Object))
-                         .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
-
-            Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
-            pqServerHeartBeatSender.StartSendingHeartBeats();
-            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
-
-            var moqLogger = new Mock<IFLogger>();
-            moqLogger.Setup(l => l.Error(It.IsAny<string>(), It.IsAny<object[]>())).Verifiable();
-            NonPublicInvocator.SetStaticField(pqServerHeartBeatSender, "Logger", moqLogger.Object);
-
-            pqServerHeartBeatSender.CheckPublishHeartbeats();
-            moqQuotesList.Verify();
-            moqTickInstant.Verify();
-            moqLogger.Verify();
-        }
-        finally
-        {
-            TimeContext.Provider = preTestTimeContext;
-        }
+        pqServerHeartBeatSender.CheckPublishHeartbeats();
+        moqQuotesList.Verify();
+        moqTickInstant.Verify();
+        moqLogger.Verify();
     }
 
 
     [TestMethod]
     public void StartedHeartBeatSenderJustChecked_CheckPublishHeartBeats_PausesUntilNextCheckTime()
     {
-        var preTestTimeContext = TimeContext.Provider;
-        try
+        var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
+
+        moqTimeContext.SetupSequence(tc => tc.UtcNow)
+                      .Returns(baseTime)                        //original lastRun
+                      .Returns(baseTime.AddMilliseconds(1))     //checktime since lastRun
+                      .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
+                      .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
+                      .Returns(baseTime.AddMilliseconds(1002)); //1st set new last published
+
+        moqOsThread.Setup(ot => ot.Join());
+        var isInHeartBeatSyncLock = false;
+
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                   .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() =>
         {
-            var moqTimeContext = new Mock<ITimeContext>();
-            TimeContext.Provider = moqTimeContext.Object;
+            isInHeartBeatSyncLock = false;
+            pqServerHeartBeatSender.StopAndWaitUntilFinished();
+        }).Verifiable();
 
-            var baseTime = new DateTime(2017, 03, 18, 19, 42, 00);
+        moqQuotesList.SetupGet(ql => ql.IsEmpty).Returns(false).Verifiable();
 
-            moqTimeContext.SetupSequence(tc => tc.UtcNow)
-                          .Returns(baseTime)                        //original lastRun
-                          .Returns(baseTime.AddMilliseconds(1))     //checktime since lastRun
-                          .Returns(baseTime.AddMilliseconds(1002))  //new lastrun
-                          .Returns(baseTime.AddMilliseconds(1002))  //1st quote check last published
-                          .Returns(baseTime.AddMilliseconds(1002)); //1st set new last published
+        var moqTickInstant = new Mock<IPQMessage>();
+        moqTickInstant.SetupGet(lv0Q => lv0Q.LastPublicationTime)
+                      .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock))
+                      .Returns(baseTime.AddMilliseconds(-5)).Verifiable();
+        moqTickInstant.SetupSet(lv0Q => lv0Q.LastPublicationTime = baseTime.AddMilliseconds(1002))
+                      .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
 
-            moqOsThread.Setup(ot => ot.Join());
-            var isInHeartBeatSyncLock = false;
+        moqQuotesList.SetupGet(ql => ql.Head).Returns(moqTickInstant.Object)
+                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
+        moqQuotesList.Setup(ql => ql.Remove(moqTickInstant.Object))
+                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
+        moqQuotesList.Setup(ql => ql.AddLast(moqTickInstant.Object))
+                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
 
-            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
-                       .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
-            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() =>
-            {
-                isInHeartBeatSyncLock = false;
-                pqServerHeartBeatSender.StopAndWaitUntilFinished();
-            }).Verifiable();
+        moqOsParallelController.Setup(opc => opc.Sleep(999)).Verifiable();
 
-            moqQuotesList.SetupGet(ql => ql.IsEmpty).Returns(false).Verifiable();
-
-            var moqTickInstant = new Mock<IPQMessage>();
-            moqTickInstant.SetupGet(lv0Q => lv0Q.LastPublicationTime)
-                          .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock))
-                          .Returns(baseTime.AddMilliseconds(-5)).Verifiable();
-            moqTickInstant.SetupSet(lv0Q => lv0Q.LastPublicationTime = baseTime.AddMilliseconds(1002))
-                          .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
-
-            moqQuotesList.SetupGet(ql => ql.Head).Returns(moqTickInstant.Object)
-                         .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
-            moqQuotesList.Setup(ql => ql.Remove(moqTickInstant.Object))
-                         .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
-            moqQuotesList.Setup(ql => ql.AddLast(moqTickInstant.Object))
-                         .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
-
-            moqOsParallelController.Setup(opc => opc.Sleep(999)).Verifiable();
-
-            Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
-            pqServerHeartBeatSender.StartSendingHeartBeats();
-            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
-            
-            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
-            pqServerHeartBeatSender.CheckPublishHeartbeats();
-            moqOsParallelController.Verify();
-            moqQuotesList.Verify();
-            moqTickInstant.Verify();
-        }
-        finally
-        {
-            TimeContext.Provider = preTestTimeContext;
-        }
+        Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
+        pqServerHeartBeatSender.StartSendingHeartBeats();
+        Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
+        
+        Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
+        pqServerHeartBeatSender.CheckPublishHeartbeats();
+        moqOsParallelController.Verify();
+        moqQuotesList.Verify();
+        moqTickInstant.Verify();
     }
 }
