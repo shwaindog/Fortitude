@@ -1915,7 +1915,7 @@ public partial class OrderedCollectionMold<TOCMold>
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
-        stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
+        stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 

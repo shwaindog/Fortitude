@@ -540,33 +540,8 @@ public partial class ValueTypeMoldTests
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactLogAsValue
-            (new FieldExpect<IPAddress, string>(null, "", true, "")
-             {
-                 { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull), "null" }
-               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
-                        , Log | Compact | Pretty), "" }
-               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback), "\"\"" }
-               , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
-                 // Some SpanFormattable Scaffolds have both DefaultBecomesNull and DefaultBecomesFallback for when their default is TFmt?
-                 // So the following will only match when both the scaffold and the following have both.
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull | DefaultBecomesFallback), "null" }
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty | DefaultBecomesZero
-                        , Log | Compact | Pretty) , "0" }
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty | DefaultBecomesZero )
-                   , "\"0\"" }
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty | DefaultBecomesFallback
-                        , Log | Compact | Pretty) , "" }
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty | DefaultBecomesEmpty | DefaultBecomesFallback), "\"\"" }
-                 // The following covers the others that would return null.
-               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
-               , { new EK(AcceptsSpanFormattable | AlwaysWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
-             }
-           , new ScaffoldingPartEntry
-                 (typeof(SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithFieldSimpleValueTypeStringBearer<>)
-                , SimpleType | SingleValueCardinality | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable | AcceptsIntegerNumber 
-                | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | SupportsSettingDefaultValue | DefaultTreatedAsValueOut 
-                | DefaultBecomesFallback));
+        //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
+        SharedCompactJsonAsValue(SpanFormattableTestData.AllSpanFormattableExpectations[209], ScaffoldingRegistry.AllScaffoldingTypes[1139]);
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -643,6 +618,11 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(CompactLogSingleTest)).Append("()\n\n")
+                  .Append("SharedCompactLogAsValue(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {
@@ -729,6 +709,11 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(CompactLogSingleTest)).Append("()\n\n")
+                  .Append("SharedCompactLogAsString(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {

@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Net;
+using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
@@ -11,8 +12,11 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 public static class CloakedBearerTestData
 {
-    public static readonly ISingleFieldExpectation[] AllCloakedBearerExpectations =
-    [
+    private static PositionUpdatingList<ISingleFieldExpectation>? allCloakedBearerExpectations;  
+    
+    public static PositionUpdatingList<ISingleFieldExpectation> AllCloakedBearerExpectations => allCloakedBearerExpectations ??=
+        new PositionUpdatingList<ISingleFieldExpectation>(typeof(CloakedBearerTestData))
+        {
         // byte
         new CloakedBearerExpect<byte, FieldSpanFormattableAlwaysAddStringBearer<byte>>(0, "")
         {
@@ -568,5 +572,5 @@ public static class CloakedBearerTestData
                   , "\"[It began with the forging of the Great Strings.]\""
                 }
             }
-    ];
+    };
 }

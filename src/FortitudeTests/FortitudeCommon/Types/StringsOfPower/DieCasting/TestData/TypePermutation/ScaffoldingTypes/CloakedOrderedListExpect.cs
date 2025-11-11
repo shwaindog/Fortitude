@@ -1,6 +1,8 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
@@ -15,18 +17,14 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 public class CloakedOrderedListExpect<TInputElement> : CloakedOrderedListExpect<TInputElement, TInputElement, TInputElement>
 {
-    public CloakedOrderedListExpect(List<TInputElement> inputList
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public CloakedOrderedListExpect(List<TInputElement?> inputList
       , PalantírReveal<TInputElement> valueRevealer
-      , OrderedCollectionPredicate<TInputElement>? elementFilter = null
-      , FieldContentHandling valueHandlingFlags = DefaultCallerTypeFlags) 
-        : base(inputList, valueRevealer, elementFilter, valueHandlingFlags) { }
-
-    public CloakedOrderedListExpect(List<TInputElement>? inputList
-      , PalantírReveal<TInputElement> valueRevealer 
-      , Func<OrderedCollectionPredicate<TInputElement>?> elementFilterResolver
-      , FieldContentHandling valueHandlingFlags = DefaultCallerTypeFlags)
-        : base(inputList, valueRevealer, elementFilterResolver, valueHandlingFlags) =>
-        ValueRevealer    = valueRevealer;
+      ,  Expression<Func<OrderedCollectionPredicate<TInputElement?>>>? elementFilter = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) 
+        : base(inputList, valueRevealer, elementFilter, contentHandling, srcFile, srcLine) { }
 }
 
 public class CloakedOrderedListExpect<TInputElement, TFilterBase, TRevealerBase> : OrderedListExpect<TInputElement, TFilterBase>
@@ -36,15 +34,15 @@ public class CloakedOrderedListExpect<TInputElement, TFilterBase, TRevealerBase>
         ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
 
     // ReSharper disable once ConvertToPrimaryConstructor
-    public CloakedOrderedListExpect(List<TInputElement>? inputList, PalantírReveal<TRevealerBase> valueRevealer
-      , OrderedCollectionPredicate<TFilterBase>? elementFilter = null, FieldContentHandling valueHandlingFlags = DefaultCallerTypeFlags)
-        : base(inputList, null, elementFilter, valueHandlingFlags) =>
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public CloakedOrderedListExpect(List<TInputElement?>? inputList, PalantírReveal<TRevealerBase> valueRevealer
+      , Expression<Func<OrderedCollectionPredicate<TFilterBase?>>>? elementFilter = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0)
+        : base(inputList, null, elementFilter, contentHandling, srcFile, srcLine) =>
         ValueRevealer    = valueRevealer;
 
-    public CloakedOrderedListExpect(List<TInputElement>? inputList, PalantírReveal<TRevealerBase> valueRevealer 
-      , Func<OrderedCollectionPredicate<TFilterBase>?> elementFilterResolver, FieldContentHandling valueHandlingFlags = DefaultCallerTypeFlags)
-        : base(inputList, null, elementFilterResolver, valueHandlingFlags) =>
-        ValueRevealer    = valueRevealer;
 
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
 

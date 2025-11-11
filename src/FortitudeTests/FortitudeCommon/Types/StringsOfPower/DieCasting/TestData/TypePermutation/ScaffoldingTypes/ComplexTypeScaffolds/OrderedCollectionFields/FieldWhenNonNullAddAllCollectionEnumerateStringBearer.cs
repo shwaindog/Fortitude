@@ -2,17 +2,18 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
+    ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.
     OrderedCollectionFields;
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStruct | SupportsValueFormatString)]
-public class FieldBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<bool>?>, ISupportsValueFormatString
+public class FieldBoolEnumerableWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<bool, IEnumerable<bool>>
+  
 {
     public IEnumerable<bool>? ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable
     {
@@ -20,23 +21,19 @@ public class FieldBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedVa
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable);
-    public IEnumerable<bool>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerable, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | SupportsValueFormatString)]
-public class FieldNullableBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<bool?>?>, ISupportsValueFormatString
+public class FieldNullableBoolEnumerableWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<bool?, IEnumerable<bool?>>
+  
 {
     public IEnumerable<bool?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable
     {
@@ -44,25 +41,20 @@ public class FieldNullableBoolEnumerableWhenNonNullAddAllStringBearer : IMoldSup
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable);
-    public IEnumerable<bool?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerable, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<IEnumerable<TFmt>?>
-  , ISupportsValueFormatString where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsSpanFormattableExceptNullableStruct
+                | SupportsValueFormatString)]
+public class FieldSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt> : FormattedCollectionFieldMoldScaffold<TFmt, IEnumerable<TFmt>>
+   where TFmt : ISpanFormattable
 {
     public IEnumerable<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerable
     {
@@ -70,26 +62,22 @@ public class FieldSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TFmt> :
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerable);
-    public IEnumerable<TFmt>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerable
               , ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldNullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TStructFmt> : 
-  IMoldSupportedValue<IEnumerable<TStructFmt?>?>, ISupportsValueFormatString where TStructFmt : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsOnlyNullableStructSpanFormattable
+                | SupportsValueFormatString)]
+public class FieldNullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer<TStructFmt> :
+    FormattedCollectionFieldMoldScaffold<TStructFmt?, IEnumerable<TStructFmt?>>
+   where TStructFmt : struct, ISpanFormattable
 {
     public IEnumerable<TStructFmt?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerable
     {
@@ -97,26 +85,20 @@ public class FieldNullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerable);
-    public IEnumerable<TStructFmt?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerable, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase>
-    : IMoldSupportedValue<IEnumerable<TCloaked>?>, ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
+public class FieldCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TCloakedRevealerBase> : 
+    RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedRevealerBase, IEnumerable<TCloaked>> where TCloaked : TCloakedRevealerBase
 {
     public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable
     {
@@ -124,31 +106,19 @@ public class FieldCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked,
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable);
-    public IEnumerable<TCloaked>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable);
 
-    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable | AcceptsIntegerNumber
-                | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldNullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloakedStruct>
-    : IMoldSupportedValue<IEnumerable<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct> where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsAnyNullableStruct | SupportsValueRevealer)]
+public class FieldNullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloakedStruct> : 
+    RevealerCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct, IEnumerable<TCloakedStruct?>> where TCloakedStruct : struct
 {
     public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerable
     {
@@ -156,29 +126,19 @@ public class FieldNullableCloakedBearerEnumerableWhenNonNullAddAllStringBearer<T
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerable);
-    public IEnumerable<TCloakedStruct?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerable);
 
-    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerable, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class FieldStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<IEnumerable<TBearer>?>
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsTypeAllButNullableStruct
+                | AcceptsStringBearer)]
+public class FieldStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer> : CollectionFieldMoldScaffold<TBearer, IEnumerable<TBearer>>
     where TBearer : IStringBearer
 {
     public IEnumerable<TBearer>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerable
@@ -187,22 +147,19 @@ public class FieldStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearer> :
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerable);
-    public IEnumerable<TBearer>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerable)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearerStruct> : 
-  IMoldSupportedValue<IEnumerable<TBearerStruct?>?>
+public class FieldNullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TBearerStruct> :
+    CollectionFieldMoldScaffold<TBearerStruct?, IEnumerable<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
     public IEnumerable<TBearerStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerable
@@ -211,21 +168,19 @@ public class FieldNullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TB
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerable);
-    public IEnumerable<TBearerStruct?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerable)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsString | SupportsValueFormatString)]
-public class FieldStringEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<string?>?>, ISupportsValueFormatString
+public class FieldStringEnumerableWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<string?, IEnumerable<string?>>
+  
 {
     public IEnumerable<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable
     {
@@ -233,24 +188,20 @@ public class FieldStringEnumerableWhenNonNullAddAllStringBearer : IMoldSupported
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable);
-    public IEnumerable<string?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerable, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
-public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<IEnumerable<TCharSeq?>?>
-  , ISupportsValueFormatString where TCharSeq : ICharSequence
+public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> :
+    FormattedCollectionFieldMoldScaffold<TCharSeq?, IEnumerable<TCharSeq?>>
+   where TCharSeq : ICharSequence
 {
     public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerable
     {
@@ -258,24 +209,20 @@ public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> 
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerable);
-    public IEnumerable<TCharSeq?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllCharSeqEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerable, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
-public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<StringBuilder?>?>
-  , ISupportsValueFormatString
+public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer :
+    FormattedCollectionFieldMoldScaffold<StringBuilder?, IEnumerable<StringBuilder?>>
+  
 {
     public IEnumerable<StringBuilder?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerable
     {
@@ -283,24 +230,19 @@ public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer : IMoldSu
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerable);
-    public IEnumerable<StringBuilder?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerable, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
-public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerable<TAny>?>
-  , ISupportsValueFormatString
+public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<TAny> : FormattedCollectionFieldMoldScaffold<TAny, IEnumerable<TAny>>
+  
 {
     public IEnumerable<TAny>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable
     {
@@ -308,24 +250,19 @@ public class FieldMatchEnumerableWhenNonNullAddAllStringBearer<TAny> : IMoldSupp
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable);
-    public IEnumerable<TAny>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatchEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerable, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
-public class FieldObjectEnumerableWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerable<object?>?>
-  , ISupportsValueFormatString
+public class FieldObjectEnumerableWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<object?, IEnumerable<object?>>
+  
 {
     public IEnumerable<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerable
     {
@@ -333,23 +270,19 @@ public class FieldObjectEnumerableWhenNonNullAddAllStringBearer : IMoldSupported
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerable);
-    public IEnumerable<object?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerable);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObjectEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerable, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStruct | SupportsValueFormatString)]
-public class FieldBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<bool>?>, ISupportsValueFormatString
+public class FieldBoolEnumeratorWhenNonNullAddAllStringBearer : FormattedEnumeratorFieldMoldScaffold<bool, IEnumerator<bool>>
+  
 {
     public IEnumerator<bool>? ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator
     {
@@ -357,23 +290,19 @@ public class FieldBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedVa
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator);
-    public IEnumerator<bool>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllBoolEnumerator, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | SupportsValueFormatString)]
-public class FieldNullableBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<bool?>?>, ISupportsValueFormatString
+public class FieldNullableBoolEnumeratorWhenNonNullAddAllStringBearer : FormattedEnumeratorFieldMoldScaffold<bool?, IEnumerator<bool?>>
+  
 {
     public IEnumerator<bool?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator
     {
@@ -381,25 +310,20 @@ public class FieldNullableBoolEnumeratorWhenNonNullAddAllStringBearer : IMoldSup
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator);
-    public IEnumerator<bool?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolEnumerator, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt> : IMoldSupportedValue<IEnumerator<TFmt>?>
-  , ISupportsValueFormatString where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsSpanFormattableExceptNullableStruct
+                | SupportsValueFormatString)]
+public class FieldSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt> : FormattedEnumeratorFieldMoldScaffold<TFmt, IEnumerator<TFmt>>
+   where TFmt : ISpanFormattable
 {
     public IEnumerator<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerator
     {
@@ -407,25 +331,21 @@ public class FieldSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmt> :
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerator);
-    public IEnumerator<TFmt>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableEnumerator, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldNullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmtStruct> : 
-  IMoldSupportedValue<IEnumerator<TFmtStruct?>?>, ISupportsValueFormatString where TFmtStruct : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsOnlyNullableStructSpanFormattable
+                | SupportsValueFormatString)]
+public class FieldNullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer<TFmtStruct> :
+    FormattedEnumeratorFieldMoldScaffold<TFmtStruct?, IEnumerator<TFmtStruct?>>
+   where TFmtStruct : struct, ISpanFormattable
 {
     public IEnumerator<TFmtStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerator
     {
@@ -433,26 +353,20 @@ public class FieldNullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerator);
-    public IEnumerator<TFmtStruct?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableEnumerator, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TCloakedBase> : IMoldSupportedValue<IEnumerator<TCloaked>?>
-  , ISupportsValueRevealer<TCloakedBase> where TCloaked : TCloakedBase
+public class FieldCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TCloakedRevealerBase> :
+    RevealerEnumeratorFieldMoldScaffold<TCloaked, TCloakedRevealerBase, IEnumerator<TCloaked>> where TCloaked : TCloakedRevealerBase
 {
     public IEnumerator<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator
     {
@@ -460,32 +374,20 @@ public class FieldCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked,
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator);
-    public IEnumerator<TCloaked>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator);
 
-    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsAnyNullableStruct |
                   SupportsValueRevealer)]
-public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloakedStruct> : 
-  IMoldSupportedValue<IEnumerator<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct>
+public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloakedStruct> :
+    RevealerEnumeratorFieldMoldScaffold<TCloakedStruct?, TCloakedStruct, IEnumerator<TCloakedStruct?>>
     where TCloakedStruct : struct
 {
     public IEnumerator<TCloakedStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerator
@@ -494,29 +396,18 @@ public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<T
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerator);
-    public IEnumerator<TCloakedStruct?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerator);
 
-    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerEnumerator, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer)]
-public class FieldStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer> : IMoldSupportedValue<IEnumerator<TBearer>?>
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+public class FieldStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer> : EnumeratorFieldMoldScaffold<TBearer, IEnumerator<TBearer>>
     where TBearer : IStringBearer
 {
     public IEnumerator<TBearer>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerator
@@ -525,22 +416,19 @@ public class FieldStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearer> :
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerator);
-    public IEnumerator<TBearer>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerEnumerator)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearerStruct> : 
-  IMoldSupportedValue<IEnumerator<TBearerStruct?>?> where TBearerStruct : struct, IStringBearer
+public class FieldNullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TBearerStruct> :
+    EnumeratorFieldMoldScaffold<TBearerStruct?, IEnumerator<TBearerStruct?>> where TBearerStruct : struct, IStringBearer
 {
     public IEnumerator<TBearerStruct?>? ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerator
     {
@@ -548,20 +436,18 @@ public class FieldNullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TB
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerator);
-    public IEnumerator<TBearerStruct?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAllEnumerate(nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerator)
                                                         , ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerEnumerator)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsString | SupportsValueFormatString)]
-public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<string?>?>, ISupportsValueFormatString
+public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : FormattedEnumeratorFieldMoldScaffold<string?, IEnumerator<string?>>
+  
 {
     public IEnumerator<string?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator
     {
@@ -569,24 +455,20 @@ public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : IMoldSupported
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator);
-    public IEnumerator<string?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllStringEnumerator, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
-public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> : IMoldSupportedValue<IEnumerator<TCharSeq?>?>
-  , ISupportsValueFormatString where TCharSeq : ICharSequence
+public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> :
+    FormattedEnumeratorFieldMoldScaffold<TCharSeq?, IEnumerator<TCharSeq?>>
+   where TCharSeq : ICharSequence
 {
     public IEnumerator<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerator
     {
@@ -594,24 +476,20 @@ public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> 
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerator);
-    public IEnumerator<TCharSeq?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllCharSeqEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceEnumerator, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
-public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<StringBuilder?>?>
-  , ISupportsValueFormatString
+public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer :
+    FormattedEnumeratorFieldMoldScaffold<StringBuilder?, IEnumerator<StringBuilder?>>
+  
 {
     public IEnumerator<StringBuilder?>? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerator
     {
@@ -619,23 +497,19 @@ public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer : IMoldSu
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerator);
-    public IEnumerator<StringBuilder?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderEnumerator, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
-public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<TAny> : IMoldSupportedValue<IEnumerator<TAny>?>, ISupportsValueFormatString
+public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<TAny> : FormattedEnumeratorFieldMoldScaffold<TAny, IEnumerator<TAny>>
+  
 {
     public IEnumerator<TAny>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator
     {
@@ -643,23 +517,19 @@ public class FieldMatchEnumeratorWhenNonNullAddAllStringBearer<TAny> : IMoldSupp
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator);
-    public IEnumerator<TAny>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatchEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllMatchEnumerator, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
-public class FieldObjectEnumeratorWhenNonNullAddAllStringBearer : IMoldSupportedValue<IEnumerator<object?>?>, ISupportsValueFormatString
+public class FieldObjectEnumeratorWhenNonNullAddAllStringBearer : FormattedEnumeratorFieldMoldScaffold<object?, IEnumerator<object?>>
+  
 {
     public IEnumerator<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator
     {
@@ -667,17 +537,12 @@ public class FieldObjectEnumeratorWhenNonNullAddAllStringBearer : IMoldSupported
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator);
-    public IEnumerator<object?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObjectEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddAllObjectEnumerator, ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

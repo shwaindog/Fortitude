@@ -885,7 +885,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
             ?  (Options.NullWritesEmpty 
                     ? 0 
                     : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length))
-             : Format(nextItem, sb, formatString);
+             : Format(nextItem, sb, formatString, formatFlags);
 
     public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destCharSpan, int destStartIndex
       , string formatString, FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : default

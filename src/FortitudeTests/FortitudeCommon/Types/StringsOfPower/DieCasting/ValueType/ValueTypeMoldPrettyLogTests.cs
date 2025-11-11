@@ -2,17 +2,12 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Globalization;
-using System.Net;
-using System.Numerics;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ValueTypeScaffolds;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
-    ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
@@ -196,28 +191,8 @@ public partial class ValueTypeMoldTests
     public void PrettyLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLogAsValue
-            (new FieldExpect<BigInteger>(Int128.MinValue * (BigInteger)50, "'{0:X33}'")
-             {
-                 { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
-                   , "'E700000000000000000000000000000000'" }
-               , { new EK(SimpleType | AcceptsSpanFormattable), "\"'E700000000000000000000000000000000'\"" }
-               , {
-                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                          , Log | Compact | Pretty) , "'E700000000000000000000000000000000'"
-                 }
-                ,
-                 {
-                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                          , Json | Compact | Pretty)
-                   , "\"'E700000000000000000000000000000000'\""
-                 }
-             }
-           , new ScaffoldingPartEntry
-                 (typeof(SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<>)
-                , SimpleType | SingleValueCardinality | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable 
-                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString | DefaultTreatedAsValueOut 
-                | DefaultBecomesZero));
+        //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
+        SharedCompactJsonAsValue(SpanFormattableTestData.AllSpanFormattableExpectations[209], ScaffoldingRegistry.AllScaffoldingTypes[1139]);
     }
 
     private void SharedPrettyLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -295,6 +270,11 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(PrettyLogSingleTest)).Append("()\n\n")
+                  .Append("SharedPrettyLogAsValue(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {
@@ -381,6 +361,11 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(PrettyLogSingleTest)).Append("()\n\n")
+                  .Append("SharedPrettyLogAsString(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {

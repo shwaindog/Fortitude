@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Net;
+using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
@@ -11,8 +12,11 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 public static class StringBearerTestData
 {
-    public static readonly ISingleFieldExpectation[] AllStringBearerExpectations =
-    [
+    private static PositionUpdatingList<ISingleFieldExpectation>? allStringBearerExpectations;  
+    
+    public static PositionUpdatingList<ISingleFieldExpectation> AllStringBearerExpectations => allStringBearerExpectations ??=
+        new PositionUpdatingList<ISingleFieldExpectation>(typeof(StringBearerTestData))
+        {
         // byte
         new StringBearerExpect<FieldSpanFormattableAlwaysAddStringBearer<byte>>
             (new FieldSpanFormattableAlwaysAddStringBearer<byte>
@@ -319,14 +323,14 @@ public static class StringBearerTestData
                 Value = 1
             })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
+                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback
                        , Log | Compact | Pretty ) , "FieldNullableSpanFormattableAlwaysAddStringBearer<byte>(1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback 
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback 
                        , Log | Compact | Pretty ) , "\"FieldNullableSpanFormattableAlwaysAddStringBearer<byte>(1)\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer\\\\u003cbyte\\\\u003e(1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric ), "null" }
+              , { new EK(SimpleType | CallsViaMatch ), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -346,14 +350,14 @@ public static class StringBearerTestData
                 Value = 1
             })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback
+                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback
                        , Log | Compact | Pretty ) , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>(1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback 
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback 
                        , Log | Compact | Pretty ) , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>(1)\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cbyte\\\\u003e(1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric ), "null" }
+              , { new EK(SimpleType | CallsViaMatch ), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -373,14 +377,14 @@ public static class StringBearerTestData
                 Value = 1
             })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsValueOut | DefaultBecomesFallback 
+                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback 
                        , Log | Compact | Pretty ), "FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>(1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultTreatedAsStringOut | DefaultBecomesFallback 
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback 
                        , Log | Compact | Pretty ), "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>(1)\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cbyte\\\\u003e(1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric ), "null" }
+              , { new EK(SimpleType | CallsViaMatch ), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -1030,15 +1034,15 @@ public static class StringBearerTestData
                  Value = new DateTime(2020, 2, 2).AddTicks(2222222)
              })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull) , "null" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsValueOut
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull) , "null" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsValueOut
                        , Log | Compact | Pretty ) , "FieldNullableSpanFormattableAlwaysAddStringBearer<DateTime>(2/2/2020 12:00:00 AM)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldNullableSpanFormattableAlwaysAddStringBearer<DateTime>(2/2/2020 12:00:00 AM)\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer\\\\u003cDateTime\\\\u003e(2/2/2020 12:00:00 AM)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+              , { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -1061,7 +1065,7 @@ public static class StringBearerTestData
                  Value = new DateTime(2020, 2, 2).AddTicks(2222222)
              })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric) , "null" }
+                { new EK(SimpleType | CallsViaMatch) , "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -1085,15 +1089,15 @@ public static class StringBearerTestData
                  Value = new DateTime(2020, 2, 2).AddTicks(2222222)
              })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull) , "null" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsValueOut
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull) , "null" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsValueOut
                        , Log | Compact | Pretty ) , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>(2/2/2020 12:00:00 AM)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>(2/2/2020 12:00:00 AM)\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cDateTime\\\\u003e(2/2/2020 12:00:00 AM)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+              , { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -1112,28 +1116,28 @@ public static class StringBearerTestData
       , new StringBearerExpect<FieldNullableSpanFormattableAlwaysAddStringBearer<DateTime>>
             (null)
             {
-                { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+                { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty) , "" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
             }
       , new StringBearerExpect<FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>>
             (default)
             {
-                { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+                { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback) , "null" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "null" }
             }
       , new NullableStringBearerExpect<FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>>
             (null, null, true, new FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>())
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsValueOut
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsValueOut
                        , Log | Compact | Pretty ) , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>()\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cDateTime\\\\u003e()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+              , { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -1913,15 +1917,15 @@ public static class StringBearerTestData
                  Value = TimeSpan.FromSeconds(1)
              })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull) , "null" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsValueOut
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull) , "null" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsValueOut
                        , Log | Compact | Pretty ) , "FieldNullableSpanFormattableAlwaysAddStringBearer<TimeSpan>(00:00:01)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldNullableSpanFormattableAlwaysAddStringBearer<TimeSpan>(00:00:01)\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer\\\\u003cTimeSpan\\\\u003e(00:00:01)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+              , { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -1946,7 +1950,7 @@ public static class StringBearerTestData
                  Value = TimeSpan.FromSeconds(1)
              })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+                { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -1964,15 +1968,15 @@ public static class StringBearerTestData
                  Value = TimeSpan.FromSeconds(1)
              })
             {
-               { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull) , "null" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsValueOut
+               { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull) , "null" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsValueOut
                        , Log | Compact | Pretty ) , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>(00:00:01)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>(00:00:01)\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cTimeSpan\\\\u003e(00:00:01)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+              , { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -1991,9 +1995,9 @@ public static class StringBearerTestData
       , new StringBearerExpect<FieldNullableSpanFormattableAlwaysAddStringBearer<TimeSpan>>
             (null, "")
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull) , "null" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) , "null" }
-              , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull) , "null" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) , "null" }
+              , { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -2004,7 +2008,7 @@ public static class StringBearerTestData
       , new StringBearerExpect<FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>>
             (default, "")
             {
-                { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+                { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -2020,15 +2024,15 @@ public static class StringBearerTestData
                  Value = null
              })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull) , "null" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsValueOut
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull) , "null" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsValueOut
                        , Log | Compact | Pretty ) , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>()\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cTimeSpan\\\\u003e()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+              , { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -2424,14 +2428,14 @@ public static class StringBearerTestData
       , new StringBearerExpect<FieldSpanFormattableAlwaysAddStringBearer<IPAddress>>
             (null, "", true, new FieldSpanFormattableAlwaysAddStringBearer<IPAddress>())
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback
                        , Log | Compact | Pretty ) , "FieldSpanFormattableAlwaysAddStringBearer<IPAddress>()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldSpanFormattableAlwaysAddStringBearer<IPAddress>()\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldSpanFormattableAlwaysAddStringBearer\\\\u003cIPAddress\\\\u003e()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric) , "null" }
+              , { new EK(SimpleType | CallsViaMatch) , "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -2449,14 +2453,14 @@ public static class StringBearerTestData
       , new NullableStringBearerExpect<FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>>
             (null, "", true, new FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>())
             {
-               { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback
+               { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback
                        , Log | Compact | Pretty ) , "FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>()\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldSpanFormattableAlwaysAddStructStringBearer\\\\u003cIPAddress\\\\u003e()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric) , "null" }
+              , { new EK(SimpleType | CallsViaMatch) , "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -2474,14 +2478,14 @@ public static class StringBearerTestData
       , new NullableStringBearerExpect<FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>>
             (null, null, true, new FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>())
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback
                        , Log | Compact | Pretty ) , "FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>()\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldSpanFormattableAlwaysAddStructStringBearer\\\\u003cIPAddress\\\\u003e()" }
-              , { new EK(SimpleType | AcceptsAnyGeneric) , "null" }
+              , { new EK(SimpleType | CallsViaMatch) , "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -2503,14 +2507,14 @@ public static class StringBearerTestData
                  Value = IPAddress.Loopback
              })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback
                        , Log | Compact | Pretty ) , "FieldSpanFormattableAlwaysAddStringBearer<IPAddress>(127.0.0.1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldSpanFormattableAlwaysAddStringBearer<IPAddress>(127.0.0.1)\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldSpanFormattableAlwaysAddStringBearer\\\\u003cIPAddress\\\\u003e(127.0.0.1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric) , "null" }
+              , { new EK(SimpleType | CallsViaMatch) , "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -2532,12 +2536,12 @@ public static class StringBearerTestData
                  Value = IPAddress.Loopback
              })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesNull) , "null" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) , "null" }
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull) , "null" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) , "null" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldSpanFormattableAlwaysAddStructStringBearer\\\\u003cIPAddress\\\\u003e(127.0.0.1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric) , "null" }
+              , { new EK(SimpleType | CallsViaMatch) , "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -2552,14 +2556,14 @@ public static class StringBearerTestData
                  Value = IPAddress.Loopback
              })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback
                        , Log | Compact | Pretty ) , "FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>(127.0.0.1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback | DefaultTreatedAsStringOut
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback | DefaultTreatedAsStringOut
                        , Log | Compact | Pretty ) , "\"FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>(127.0.0.1)\"" }
                 // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              , { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback) 
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback) 
                   , "FieldSpanFormattableAlwaysAddStructStringBearer\\\\u003cIPAddress\\\\u003e(127.0.0.1)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric) , "null" }
+              , { new EK(SimpleType | CallsViaMatch) , "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesEmpty) , "" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesEmpty) , "\"\"" }
@@ -2822,9 +2826,9 @@ public static class StringBearerTestData
                 Value = "non null expect non null bearer not empty"
             })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback)
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback)
                   , "FieldStringAlwaysAddStringBearer(non null expect non null bearer not empty)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+              , { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback)
                   , "FieldStringAlwaysAddStringBearer(non null expect non null bearer not empty)" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty), "" }
@@ -2836,7 +2840,7 @@ public static class StringBearerTestData
                 Value = "non null expect null bearer not empty"
             })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric), "null" }
+                { new EK(SimpleType | CallsViaMatch), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable), "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty), "" }
               , {
@@ -2850,9 +2854,9 @@ public static class StringBearerTestData
                 Value = "null expect null bearer not empty"
             })
             {
-                { new EK(SimpleType | AcceptsAnyGeneric | DefaultBecomesFallback)
+                { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback)
                   , "FieldStringAlwaysAddStructStringBearer(null expect null bearer not empty)" }
-              , { new EK(SimpleType | AcceptsAnyGeneric) , "null" }
+              , { new EK(SimpleType | CallsViaMatch) , "null" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback) 
                   , "FieldStringAlwaysAddStructStringBearer(null expect null bearer not empty)" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesEmpty) , "" }
@@ -2860,5 +2864,5 @@ public static class StringBearerTestData
                     new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites), "null"
                 }
             }
-    ];
+    };
 }

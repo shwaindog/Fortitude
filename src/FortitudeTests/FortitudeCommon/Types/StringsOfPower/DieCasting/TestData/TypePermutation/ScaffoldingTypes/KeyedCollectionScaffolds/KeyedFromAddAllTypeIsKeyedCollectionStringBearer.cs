@@ -12,306 +12,250 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
-public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> : 
-  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> :
+    FormattedKeyValueMoldScaffold<TKey, TValue>
+    where TKey : notnull
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothFormatStrings
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothFormatStrings);
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-    public string? ValueFormatString { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll (KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothFormatStrings , ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairArrayBothFormatStringsAddAllStringBearer<TKey, TValue> : 
-  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueFormatString, ISupportsKeyFormatString
+    FormattedKeyValueMoldScaffold<TKey, TValue>
+    where TKey : notnull
 {
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothFormatStrings
     {
-        get => Value;
-        set => Value = value;
+        get => Value?.ToArray();
+        set => Value = value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothFormatStrings);
-    public KeyValuePair<TKey, TValue>[]? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-    public string? ValueFormatString { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairListBothFormatStringsAddAllStringBearer<TKey, TValue> : 
-  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+    FormattedKeyValueMoldScaffold<TKey, TValue>
+    where TKey : notnull
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllListBothFormatStrings
     {
-        get => Value;
-        set => Value = value;
+        get => Value?.ToList();
+        set => Value = value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListBothFormatStrings);
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListBothFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-
-    public string? ValueFormatString { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllListBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairEnumerableBothFormatStringsAddAllStringBearer<TKey, TValue> : 
-  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+    FormattedKeyValueMoldScaffold<TKey, TValue>
+    where TKey : notnull
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothFormatStrings
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothFormatStrings);
-    public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-
-    public string? ValueFormatString { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAllEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromPairEnumeratorBothFormatStringsAddAllStringBearer<TKey, TValue> : 
-  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueFormatString, ISupportsKeyFormatString
+    FormattedKeyValueMoldScaffold<TKey, TValue>
+    where TKey : notnull
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothFormatStrings
     {
-        get => Value;
-        set => Value = value;
+        get => Value?.GetEnumerator();
+        set
+        {
+            if (value == null)
+            {
+                Value = null;
+                return;
+            }
+            var newValue       = new Dictionary<TKey, TValue>();
+            var shouldContinue = value.MoveNext();
+            while (shouldContinue)
+            {
+                newValue.Add(value.Current.Key, value.Current.Value);
+                shouldContinue = value.MoveNext();
+            }
+            Value = newValue;
+        }
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothFormatStrings);
-    public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-
-    public string? ValueFormatString { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAllEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothFormatStrings
               , ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
-  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>
-  , ISupportsKeyFormatString where TValue : TVRevealBase
+    FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase>
+    where TKey : notnull
+    where TValue : TVRevealBase
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryValueRevealerKeyFormatString
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryValueRevealerKeyFormatString);
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryValueRevealerKeyFormatString);
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
-  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString where TValue : TVRevealBase
+    FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase>
+    where TKey : notnull
+    where TValue : TVRevealBase
 {
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddAllArrayValueRevealerKeyFormatString
     {
-        get => Value;
-        set => Value = value;
+        get => Value?.ToArray();
+        set => Value = value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayValueRevealerKeyFormatString);
-    public KeyValuePair<TKey, TValue>[]? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayValueRevealerKeyFormatString);
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllArrayValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairListValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
-  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
-  , ISupportsKeyFormatString where TValue : TVRevealBase
+    FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase>
+    where TKey : notnull
+    where TValue : TVRevealBase
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllListValueRevealerKeyFormatStrings
     {
-        get => Value;
-        set => Value = value;
+        get => Value?.ToList();
+        set => Value = value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListValueRevealerKeyFormatStrings);
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListValueRevealerKeyFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllListValueRevealerKeyFormatStrings
               , ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
-  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
-  , ISupportsKeyFormatString where TValue : TVRevealBase
+    FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase>
+    where TKey : notnull
+    where TValue : TVRevealBase
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString);
-    public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString);
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAllEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString
               , ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyFormatString)]
 public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBearer<TKey, TValue, TVRevealBase> : 
-  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>
-  , ISupportsKeyFormatString where TValue : TVRevealBase
+    FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase>
+    where TKey : notnull
+    where TValue : TVRevealBase
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorValueRevealerKeyFormatString
     {
-        get => Value;
-        set => Value = value;
+        get => Value?.GetEnumerator();
+        set
+        {
+            if (value == null)
+            {
+                Value = null;
+                return;
+            }
+            var newValue       = new Dictionary<TKey, TValue>();
+            var shouldContinue = value.MoveNext();
+            while (shouldContinue)
+            {
+                newValue.Add(value.Current.Key, value.Current.Value);
+                shouldContinue = value.MoveNext();
+            }
+            Value = newValue;
+        }
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorValueRevealerKeyFormatString);
-    public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorValueRevealerKeyFormatString);
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAllEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorValueRevealerKeyFormatString
@@ -324,202 +268,127 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBea
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
-  IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
-    where TKey : TKRevealBase where TValue : TVRevealBase
+    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
+    where TKey : notnull, TKRevealBase
+    where TValue : TVRevealBase
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothRevealers
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothRevealers);
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothRevealers);
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
-  IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
-    where TKey : TKRevealBase where TValue : TVRevealBase
+    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
+    where TKey : notnull, TKRevealBase
+    where TValue : TVRevealBase
 {
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothRevealers
     {
-        get => Value;
-        set => Value = value;
+        get => Value?.ToArray();
+        set => Value = value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothRevealers);
-    public KeyValuePair<TKey, TValue>[]? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothRevealers);
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
-  IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
-    where TKey : TKRevealBase where TValue : TVRevealBase
+    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
+    where TKey : notnull, TKRevealBase
+    where TValue : TVRevealBase
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllListBothRevealers
     {
-        get => Value;
-        set => Value = value;
+        get => Value?.ToList();
+        set => Value = value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListBothRevealers);
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListBothRevealers);
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll
                (KeyedCollectionTypeKeyedCollectionFieldAddAllListBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumerableBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
-  IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
-    where TKey : TKRevealBase where TValue : TVRevealBase
+    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
+    where TKey : notnull, TKRevealBase
+    where TValue : TVRevealBase
 {
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers);
-    public IEnumerable<KeyValuePair<TKey, TValue>>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers);
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAllEnumerate(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers, ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | AcceptsClass | AcceptsNullableClass
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumeratorBothRevealersAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
-  IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?>, ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase>
-    where TKey : TKRevealBase where TValue : TVRevealBase
+    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
+    where TKey : notnull, TKRevealBase
+    where TValue : TVRevealBase
 {
     public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers
     {
-        get => Value;
-        set => Value = value;
+        get => Value?.GetEnumerator();
+        set
+        {
+            if (value == null)
+            {
+                Value = null;
+                return;
+            }
+            var newValue       = new Dictionary<TKey, TValue>();
+            var shouldContinue = value.MoveNext();
+            while (shouldContinue)
+            {
+                newValue.Add(value.Current.Key, value.Current.Value);
+                shouldContinue = value.MoveNext();
+            }
+            Value = newValue;
+        }
     }
 
-    public string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers);
-    public IEnumerator<KeyValuePair<TKey, TValue>>? Value { get; set; }
+    public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers);
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAllEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers
               , ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

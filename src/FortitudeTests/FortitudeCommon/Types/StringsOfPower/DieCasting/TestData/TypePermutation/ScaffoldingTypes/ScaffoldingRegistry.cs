@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Reflection;
+using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.StringsOfPower;
@@ -10,7 +11,8 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
-public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilderInvokeFlags ScaffoldingFlags) : IComparable<ScaffoldingPartEntry>
+public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilderInvokeFlags ScaffoldingFlags) 
+    : IComparable<ScaffoldingPartEntry>, ICodeLocationAwareListItem
 {
     private static readonly Type MoldSupportedDefaultValueType          = typeof(IMoldSupportedDefaultValue<>);
     private static readonly Type SupportsSubsetDisplayKeysType          = typeof(ISupportsSubsetDisplayKeys<>);
@@ -20,7 +22,6 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
     private static readonly Type SupportsKeyRevealerType                = typeof(ISupportsKeyRevealer<>);
 
     public Type ValueType { get; } = ScaffoldingType.MoldSupportedValueGetValueType();
-
 
     public int RequiredNumOfTypeArguments => ScaffoldingType.IsGenericType ? ScaffoldingType.GenericTypeArguments.Length : 0;
 
@@ -55,6 +56,16 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
     public bool SupportsSettingValueFromString => ScaffoldingType.ImplementsInterface<ISupportsSettingValueFromString>();
 
     public string Name { get; } = ScaffoldingType.ShortNameInCSharpFormat();
+
+    public int AtIndex { get; set; }
+
+    public Type? ListOwningType { get; set; }
+    
+    public string? ListMemberName { get; set; }
+
+    public string? ItemCodePath => ListOwningType != null 
+        ? $"{ListOwningType.Name}.{ListMemberName}[{AtIndex}]" 
+        : $"UnsetListOwnerType.UnknownListMemberName[{AtIndex}]";
 
     public Func<IStringBearer> CreateStringBearerFunc(params Type[] genericTypeArguments)
     {
@@ -94,8 +105,10 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
 };
 
 public static class ScaffoldingRegistry
-{
-    private static readonly List<ScaffoldingPartEntry> ScaffoldingTypes = new();
+{ 
+    // ReSharper disable once ExplicitCallerInfoArgument
+    private static readonly PositionUpdatingList<ScaffoldingPartEntry> ScaffoldingTypes =
+        new(typeof(ScaffoldingRegistry), "AllScaffoldingTypes");
 
     private static readonly Type MoldSupportedValueInterfaceType = typeof(IMoldSupportedValue<>);
 
@@ -104,12 +117,15 @@ public static class ScaffoldingRegistry
         var types =
             typeof(ScaffoldingPartEntry)
                 .Assembly.GetAllTopLevelClassTypes()
-                .Where(t => t.GetCustomAttributes(typeof(TypeGeneratePartAttribute)).Any() &&
+                .Where(t => 
+                           !t.IsAbstract &&
+                           t.GetCustomAttributes(typeof(TypeGeneratePartAttribute)).Any() &&
                             t.ImplementsInterface<IStringBearer>())
                 .ToList();
 
-        foreach (var scaffoldType in types)
+        for (var i = 0; i < types.Count; i++)
         {
+            var scaffoldType       = types[i];
             var typeGenerateAttrib = (TypeGeneratePartAttribute)scaffoldType.GetCustomAttributes(typeof(TypeGeneratePartAttribute)).First();
             var scaffoldPartEntry  = new ScaffoldingPartEntry(scaffoldType, typeGenerateAttrib.ScaffoldingFlags);
             ScaffoldingTypes.Add(scaffoldPartEntry);
@@ -117,6 +133,8 @@ public static class ScaffoldingRegistry
 
         AllScaffoldingTypes = ScaffoldingTypes.AsReadOnly();
     }
+
+    public static ScaffoldingPartEntry GetScaffoldPartEntry(int key) => ScaffoldingTypes[key];
 
     public static IReadOnlyList<ScaffoldingPartEntry> AllScaffoldingTypes { get; }
 
@@ -327,6 +345,9 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> OnlyAcceptsNullableStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableStruct));
 
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsNullableClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableClass));
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct));
 
@@ -348,7 +369,7 @@ public static class ScaffoldingRegistry
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
 
     public static IEnumerable<ScaffoldingPartEntry> NotHasAcceptsAny(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => !spe.ScaffoldingFlags.HasAllOf(AcceptsAnyGeneric));
+        subSet.Where(spe => !spe.ScaffoldingFlags.HasAllOf(AcceptsAnyMask));
 
 
     public static IEnumerable<ScaffoldingPartEntry> HasAcceptsStringBearer(this IEnumerable<ScaffoldingPartEntry> subSet) =>

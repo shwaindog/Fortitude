@@ -17,6 +17,8 @@ namespace FortitudeMarkets.Pricing.PQ.Publication;
 
 public class PQServerHeartBeatSender : IPQServerHeartBeatSender
 {
+    private readonly ITimeContext timeContext;
+
     private const int HbFrequencyMs = 1000;
     private const int HbToleranceMs = 750;
 
@@ -30,8 +32,9 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
 
     private IOSThread? heartBeatOSThread;
 
-    public PQServerHeartBeatSender(IOSParallelController? parallelController = null)
+    public PQServerHeartBeatSender(IOSParallelController? parallelController = null, ITimeContext? timeContext = null)
     {
+        this.timeContext        = timeContext ?? TimeContext.Provider;
         this.parallelController = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
     }
 
@@ -60,15 +63,15 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
 
     internal void CheckPublishHeartbeats()
     {
-        var lastRun = TimeContext.UtcNow;
+        var lastRun = timeContext.UtcNow;
         var hbs     = new List<IPQMessage>();
         var hbm     = new PQHeartBeatQuotesMessage(hbs);
         while (HasStarted)
             try
             {
-                var elapsedMs = (int)(TimeContext.UtcNow - lastRun).TotalMilliseconds;
+                var elapsedMs = (int)(timeContext.UtcNow - lastRun).TotalMilliseconds;
                 if (elapsedMs < HbFrequencyMs) parallelController.Sleep(HbFrequencyMs - elapsedMs);
-                lastRun = TimeContext.UtcNow;
+                lastRun = timeContext.UtcNow;
                 if (hasStarted)
                 {
                     hbs.Clear();
@@ -79,17 +82,14 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
                         try
                         {
                             if ((tickInstant = ServerLinkedQuotes.Head) == null
-                             || (TimeContext.UtcNow - tickInstant.LastPublicationTime).TotalMilliseconds <
+                             || (timeContext.UtcNow - tickInstant.LastPublicationTime).TotalMilliseconds <
                                 HbToleranceMs)
                                 break;
                             ServerLinkedQuotes.Remove(tickInstant);
                             ServerLinkedQuotes.AddLast(tickInstant);
-                            tickInstant.LastPublicationTime = TimeContext.UtcNow;
+                            tickInstant.LastPublicationTime = timeContext.UtcNow;
                         }
-                        finally
-                        {
-                            ServerLinkedLock.Release();
-                        }
+                        finally { ServerLinkedLock.Release(); }
 
                         hbs.Add(tickInstant);
                     }
@@ -97,9 +97,6 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
                     if (hbs.Count > 0 && UpdateServer is { IsStarted: true }) UpdateServer.Send(hbm);
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Error("Unexpected error in heart beat sender: {0}", ex);
-            }
+            catch (Exception ex) { Logger.Error("Unexpected error in heart beat sender: {0}", ex); }
     }
 }

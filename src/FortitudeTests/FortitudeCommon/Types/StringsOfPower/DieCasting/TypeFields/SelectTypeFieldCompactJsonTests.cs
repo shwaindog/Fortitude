@@ -7,6 +7,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -115,15 +116,8 @@ public partial class SelectTypeFieldTests
     public void CompactJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson
-            ( new FieldExpect<bool?>(false, "{0}")
-            {
-                { new EK(AcceptsNullableStruct | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "false" }
-               ,{ new EK(SimpleType | AcceptsNullableStruct  | DefaultTreatedAsStringOut), "\"false\"" }
-            }, new ScaffoldingPartEntry
-                 (typeof(FieldMatchWhenNonDefaultStringBearer<>)
-                , NonDefaultWrites | ComplexType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString 
-                | SupportsCustomHandling));
+        //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
+        SharedCompactJson(SpanFormattableTestData.AllSpanFormattableExpectations[145], ScaffoldingRegistry.AllScaffoldingTypes[945]);
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -177,6 +171,11 @@ public partial class SelectTypeFieldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
+                  .Append("SharedCompactJson(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {
@@ -184,6 +183,11 @@ public partial class SelectTypeFieldTests
                   .Append(result).AppendLine()
                   .FinalAppend("");
         }
+            
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
+              .Append("SharedCompactJson(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         Assert.AreEqual(buildExpectedOutput, result);
     }
 }

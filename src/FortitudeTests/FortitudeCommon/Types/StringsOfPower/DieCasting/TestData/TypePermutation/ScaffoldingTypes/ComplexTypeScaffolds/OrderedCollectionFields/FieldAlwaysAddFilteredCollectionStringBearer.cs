@@ -1,8 +1,6 @@
 ﻿using System.Text;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
@@ -13,8 +11,8 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStruct
                 | SupportsValueFormatString)]
-public class FieldBoolSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
-  , ISupportsValueFormatString
+public class FieldBoolSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool, bool[]>
+  
 {
     public bool[]? ComplexTypeCollectionFieldAlwaysAddFilteredBoolSpan
     {
@@ -22,12 +20,10 @@ public class FieldBoolSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<bo
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolSpan);
-    public bool[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolSpan);
 
-    public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolSpan)
@@ -35,15 +31,12 @@ public class FieldBoolSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<bo
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct
                 | SupportsValueFormatString)]
-public class FieldNullableBoolSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
-  , ISupportsValueFormatString
+public class FieldNullableBoolSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool?, bool?[]>
+  
 {
     public bool?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolSpan
     {
@@ -51,12 +44,10 @@ public class FieldNullableBoolSpanAlwaysAddFilteredStringBearer : IMoldSupported
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolSpan);
-    public bool?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolSpan);
 
-    public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolSpan)
@@ -64,15 +55,12 @@ public class FieldNullableBoolSpanAlwaysAddFilteredStringBearer : IMoldSupported
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmt> : IMoldSupportedValue<TFmt[]?>
-  , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
+public class FieldSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmt, TFmtBase> : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmt[]>
+   where TFmt : ISpanFormattable, TFmtBase
 {
     public TFmt[]? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableSpan
     {
@@ -80,12 +68,10 @@ public class FieldSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmt> : IMold
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableSpan);
-    public TFmt[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableSpan);
 
-    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableSpan)
@@ -93,15 +79,12 @@ public class FieldSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmt> : IMold
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableClassSpanAlwaysAddFilteredStringBearer<TFmt> : IMoldSupportedValue<TFmt?[]?>
-  , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString where TFmt : class, ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
+                | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString)]
+public class FieldSpanFormattableNullableClassSpanAlwaysAddFilteredStringBearer<TFmt> : FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmt?[]>
+   where TFmt : class, ISpanFormattable
 {
     public TFmt?[]? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableSpan
     {
@@ -109,12 +92,10 @@ public class FieldSpanFormattableNullableClassSpanAlwaysAddFilteredStringBearer<
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableSpan);
-    public TFmt?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableSpan);
 
-    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableSpan)
@@ -122,15 +103,12 @@ public class FieldSpanFormattableNullableClassSpanAlwaysAddFilteredStringBearer<
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
+                | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmtStruct>
-    : IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TFmtStruct?, TFmtStruct?[]>
     where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableSpan
@@ -139,13 +117,10 @@ public class FieldNullableSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmtS
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableSpan);
-    public TFmtStruct?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableSpan);
 
-    public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFmtStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableSpan)
@@ -153,16 +128,12 @@ public class FieldNullableSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmtS
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
+                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
 public class FieldCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
-    IMoldSupportedValue<TCloaked[]?>, ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
     where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
     public TCloaked[]? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerSpan
@@ -171,34 +142,21 @@ public class FieldCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloaked, TCloa
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerSpan);
-    public TCloaked[]? Value { get; set; }
-
-    public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerSpan);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerSpan.AsSpan()
               , ElementPredicate, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable
-                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldCloakedBearerNullableClassSpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : IMoldSupportedValue<TCloaked?[]?>, ISupportsValueRevealer<TCloakedRevealBase>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
+                | AcceptsAnyNullableClass | SupportsValueRevealer)]
+public class FieldCloakedBearerNullableClassSpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked?, TCloakedFilterBase?, TCloakedRevealBase, TCloaked?[]>
     where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
 {
     public TCloaked?[]? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableSpan
@@ -207,36 +165,21 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddFilteredStringBearer<TC
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableSpan);
-    public TCloaked?[]? Value { get; set; }
-
-    public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableSpan);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableSpan.AsSpan()
               , ElementPredicate, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer)]
-public class FieldNullableCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloakedStruct> : IMoldSupportedValue<TCloakedStruct?[]?>
-  , ISupportsValueRevealer<TCloakedStruct>, ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
+                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+public class FieldNullableCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloakedStruct> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]> where TCloakedStruct : struct
 {
     public TCloakedStruct?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerSpan
     {
@@ -244,34 +187,21 @@ public class FieldNullableCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloake
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerSpan);
-    public TCloakedStruct?[]? Value { get; set; }
-
-    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerSpan);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerSpan.AsSpan()
               , ElementPredicate, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
+                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
 public class FieldStringBearerSpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
-    : IMoldSupportedValue<TBearer[]?>, ISupportsOrderedCollectionPredicate<TBearerBase>
+    : FilteredCollectionFieldMoldScaffold<TBearer, TBearer[]>
     where TBearer : IStringBearer, TBearerBase
 {
     public TBearer[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerSpan
@@ -280,25 +210,21 @@ public class FieldStringBearerSpanAlwaysAddFilteredStringBearer<TBearer, TBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerSpan);
-    public TBearer[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerSpan);
 
-    public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerSpan.AsSpan(), ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass
+                | AcceptsStringBearer)]
 public class FieldStringBearerNullableClassSpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
-    : IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
+    : FilteredCollectionFieldMoldScaffold<TBearer?, TBearer?[]>
     where TBearer : class, IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan
@@ -307,26 +233,22 @@ public class FieldStringBearerNullableClassSpanAlwaysAddFilteredStringBearer<TBe
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan);
-    public TBearer?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan);
 
-    public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan.AsSpan()
               , ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct 
+                | AcceptsStringBearer)]
 public class FieldNullableStringBearerSpanAlwaysAddFilteredStringBearer<TBearerStruct>
-    : IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
+    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerSpan
@@ -335,26 +257,22 @@ public class FieldNullableStringBearerSpanAlwaysAddFilteredStringBearer<TBearerS
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerSpan);
-    public TBearerStruct?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerSpan);
 
-    public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerSpan.AsSpan()
               , ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
-public class FieldStringSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<string[]?>, ISupportsOrderedCollectionPredicate<string?>
-  , ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsString 
+                | SupportsValueFormatString)]
+public class FieldStringSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string, string[]>
+  
 {
     public string[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringSpan
     {
@@ -362,12 +280,10 @@ public class FieldStringSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringSpan);
-    public string[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringSpan);
 
-    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringSpan)
@@ -375,14 +291,12 @@ public class FieldStringSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
-public class FieldStringNullableSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<string?[]?>
-  , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsString 
+                | SupportsValueFormatString)]
+public class FieldStringNullableSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string?, string?[]>
+  
 {
     public string?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringSpan
     {
@@ -390,12 +304,10 @@ public class FieldStringNullableSpanAlwaysAddFilteredStringBearer : IMoldSupport
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringSpan);
-    public string?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringSpan);
 
-    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFilteredNullable
@@ -404,14 +316,12 @@ public class FieldStringNullableSpanAlwaysAddFilteredStringBearer : IMoldSupport
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
+                | SupportsValueFormatString)]
 public class FieldCharSequenceSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq[]? ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceSpan
@@ -420,13 +330,10 @@ public class FieldCharSequenceSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharS
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceSpan);
-    public TCharSeq[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceSpan);
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceSpan)
@@ -434,14 +341,12 @@ public class FieldCharSequenceSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharS
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
+                | SupportsValueFormatString)]
 public class FieldCharSequenceNullableSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceSpan
@@ -450,13 +355,10 @@ public class FieldCharSequenceNullableSpanAlwaysAddFilteredStringBearer<TCharSeq
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceSpan);
-    public TCharSeq?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceSpan);
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeqNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceSpan)
@@ -464,14 +366,12 @@ public class FieldCharSequenceNullableSpanAlwaysAddFilteredStringBearer<TCharSeq
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
-public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<StringBuilder[]?>
-  , ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
+                | SupportsValueFormatString)]
+public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder, StringBuilder[]>
+  
 {
     public StringBuilder[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderSpan
     {
@@ -479,13 +379,10 @@ public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : IMoldSupporte
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderSpan);
-    public StringBuilder[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderSpan);
 
-    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderSpan)
@@ -493,14 +390,12 @@ public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : IMoldSupporte
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
+                | SupportsValueFormatString)]
 public class FieldStringBuilderNullableSpanAlwaysAddFilteredStringBearer
-    : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, StringBuilder?[]>
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderSpan
     {
@@ -508,13 +403,10 @@ public class FieldStringBuilderNullableSpanAlwaysAddFilteredStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderSpan);
-    public StringBuilder?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderSpan);
 
-    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderSpan)
@@ -522,14 +414,12 @@ public class FieldStringBuilderNullableSpanAlwaysAddFilteredStringBearer
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsAnyNonNullable 
+                | SupportsValueFormatString)]
 public class FieldMatchSpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
-    : IMoldSupportedValue<TAny[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TAny, TAny[]>
     where TAny : TAnyFilterBase
 {
     public TAny[]? ComplexTypeCollectionFieldAlwaysAddFilteredMatchSpan
@@ -538,13 +428,10 @@ public class FieldMatchSpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchSpan);
-    public TAny[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchSpan);
 
-    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchSpan)
@@ -552,14 +439,12 @@ public class FieldMatchSpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric 
+                | SupportsValueFormatString)]
 public class FieldMatchNullableSpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
-    : IMoldSupportedValue<TAny?[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TAny?, TAny?[]>
     where TAny : TAnyFilterBase
 {
     public TAny?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchSpan
@@ -568,13 +453,10 @@ public class FieldMatchNullableSpanAlwaysAddFilteredStringBearer<TAny, TAnyFilte
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchSpan);
-    public TAny?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchSpan);
 
-    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFilteredMatchNullable
@@ -583,14 +465,12 @@ public class FieldMatchNullableSpanAlwaysAddFilteredStringBearer<TAny, TAnyFilte
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass | SupportsValueFormatString)]
-public class FieldObjectSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<object[]?>, ISupportsOrderedCollectionPredicate<object>
-  , ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
+                | AcceptsNonNullableObject | SupportsValueFormatString)]
+public class FieldObjectSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<object, object[]>
+  
 {
     public object[]? ComplexTypeCollectionFieldAlwaysAddFilteredObjectSpan
     {
@@ -598,26 +478,22 @@ public class FieldObjectSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectSpan);
-    public object[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectSpan);
 
-    public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredObjectSpan.AsSpan()
               , ElementPredicate, ValueFormatString);
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldNullableObjectSpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<object?[]?>
-  , ISupportsOrderedCollectionPredicate<object?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableObject 
+                | SupportsValueFormatString)]
+public class FieldNullableObjectSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<object?, object?[]>
+  
 {
     public object?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectSpan
     {
@@ -625,27 +501,22 @@ public class FieldNullableObjectSpanAlwaysAddFilteredStringBearer : IMoldSupport
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectSpan);
-    public object?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectSpan);
 
-    public OrderedCollectionPredicate<object?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObjectNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectSpan.AsSpan()
               , ElementPredicate, ValueFormatString);
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStruct
                 | SupportsValueFormatString)]
-public class FieldBoolReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
-  , ISupportsValueFormatString
+public class FieldBoolReadOnlySpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool, bool[]>
+  
 {
     public bool[]? ComplexTypeCollectionFieldAlwaysAddFilteredBoolReadOnlySpan
     {
@@ -653,12 +524,10 @@ public class FieldBoolReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupported
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolReadOnlySpan);
-    public bool[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolReadOnlySpan);
 
-    public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolReadOnlySpan)
@@ -666,15 +535,12 @@ public class FieldBoolReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupported
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct
                 | SupportsValueFormatString)]
-public class FieldNullableBoolReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?> 
-  , ISupportsValueFormatString
+public class FieldNullableBoolReadOnlySpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool?, bool?[]> 
+  
 {
     public bool?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolReadOnlySpan
     {
@@ -682,12 +548,10 @@ public class FieldNullableBoolReadOnlySpanAlwaysAddFilteredStringBearer : IMoldS
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolReadOnlySpan);
-    public bool?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolReadOnlySpan);
 
-    public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolReadOnlySpan)
@@ -695,16 +559,13 @@ public class FieldNullableBoolReadOnlySpanAlwaysAddFilteredStringBearer : IMoldS
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableReadOnlySpanAlwaysAddFilteredStringBearer<TFmt>
-    : IMoldSupportedValue<TFmt[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
-    where TFmt : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
+public class FieldSpanFormattableReadOnlySpanAlwaysAddFilteredStringBearer<TFmt, TFmtBase>
+    : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmt[]>
+    where TFmt : struct, ISpanFormattable, TFmtBase
 {
     public TFmt[]? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableReadOnlySpan
     {
@@ -712,12 +573,10 @@ public class FieldSpanFormattableReadOnlySpanAlwaysAddFilteredStringBearer<TFmt>
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableReadOnlySpan);
-    public TFmt[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableReadOnlySpan);
 
-    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableReadOnlySpan)
@@ -725,16 +584,13 @@ public class FieldSpanFormattableReadOnlySpanAlwaysAddFilteredStringBearer<TFmt>
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TFmt>
-    : IMoldSupportedValue<TFmt?[]?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
-    where TFmt : class, ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString)]
+public class FieldSpanFormattableNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TFmt, TFmtBase>
+    : FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmt?[]>
+    where TFmt : class, ISpanFormattable, TFmtBase
 {
     public TFmt?[]? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableReadOnlySpan
     {
@@ -742,12 +598,10 @@ public class FieldSpanFormattableNullableClassReadOnlySpanAlwaysAddFilteredStrin
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableReadOnlySpan);
-    public TFmt?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableReadOnlySpan);
 
-    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableReadOnlySpan)
@@ -755,15 +609,12 @@ public class FieldSpanFormattableNullableClassReadOnlySpanAlwaysAddFilteredStrin
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableReadOnlySpanAlwaysAddFilteredStringBearer<TFmtStruct>
-    : IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TFmtStruct?, TFmtStruct?[]>
     where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableReadOnlySpan
@@ -772,13 +623,10 @@ public class FieldNullableSpanFormattableReadOnlySpanAlwaysAddFilteredStringBear
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableReadOnlySpan);
-    public TFmtStruct?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableReadOnlySpan);
 
-    public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFmtStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableReadOnlySpan)
@@ -786,17 +634,12 @@ public class FieldNullableSpanFormattableReadOnlySpanAlwaysAddFilteredStringBear
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer)]
-public class FieldCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : IMoldSupportedValue<TCloaked[]?>, ISupportsValueRevealer<TCloakedRevealBase>
-      , ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+public class FieldCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
     where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
     public TCloaked[]? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerReadOnlySpan
@@ -805,37 +648,21 @@ public class FieldCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloake
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerReadOnlySpan);
-    public TCloaked[]? Value { get; set; }
-
-    public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerReadOnlySpan);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerReadOnlySpan)
               , (ReadOnlySpan<TCloaked>)ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerReadOnlySpan
               , ElementPredicate, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer)]
-public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : IMoldSupportedValue<TCloaked?[]?>, ISupportsValueRevealer<TCloakedRevealBase>
-      , ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsAnyNullableClass | SupportsValueRevealer)]
+public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked?, TCloakedFilterBase?, TCloakedRevealBase, TCloaked?[]>
     where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
 {
     public TCloaked?[]? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableReadOnlySpan
@@ -844,37 +671,22 @@ public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddFilteredStringB
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableReadOnlySpan);
-    public TCloaked?[]? Value { get; set; }
-
-    public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableReadOnlySpan);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableReadOnlySpan)
               , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableReadOnlySpan
               , ElementPredicate, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
-                  SupportsValueRevealer)]
-public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloakedStruct>
-    : IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsValueRevealer<TCloakedStruct>
-      , ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsAnyNullableStruct | SupportsValueRevealer)]
+public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloakedStruct> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]>
+       where TCloakedStruct : struct
 {
     public TCloakedStruct?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerReadOnlySpan
     {
@@ -882,34 +694,21 @@ public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerReadOnlySpan);
-    public TCloakedStruct?[]? Value { get; set; }
-
-    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerReadOnlySpan);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerReadOnlySpan)
               , (ReadOnlySpan<TCloakedStruct?>)ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerReadOnlySpan
               , ElementPredicate, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsTypeNonNullable | AcceptsStringBearer)]
 public class FieldStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
-    : IMoldSupportedValue<TBearer[]?>, ISupportsOrderedCollectionPredicate<TBearerBase>
+    : FilteredCollectionFieldMoldScaffold<TBearer, TBearer[]>
     where TBearer : IStringBearer, TBearerBase
 {
     public TBearer[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerReadOnlySpan
@@ -918,26 +717,22 @@ public class FieldStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<TBearer,
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerReadOnlySpan);
-    public TBearer[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerReadOnlySpan);
 
-    public OrderedCollectionPredicate<TBearerBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerReadOnlySpan)
               , (ReadOnlySpan<TBearer>)ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerReadOnlySpan
               , ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
-    : IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
+    : FilteredCollectionFieldMoldScaffold<TBearer?, TBearer?[]>
     where TBearer : class, IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan
@@ -946,26 +741,22 @@ public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddFilteredStringBe
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan);
-    public TBearer?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan);
 
-    public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan)
               , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan
               , ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsNullableStruct | AcceptsStringBearer)]
 public class FieldNullableStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<TBearerStruct>
-    : IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
+    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerReadOnlySpan
@@ -974,26 +765,22 @@ public class FieldNullableStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerReadOnlySpan);
-    public TBearerStruct?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerReadOnlySpan);
 
-    public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerReadOnlySpan),
                 (ReadOnlySpan<TBearerStruct?>)ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerReadOnlySpan
               , ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
-public class FieldStringReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<string[]?>
-  , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsString 
+                | SupportsValueFormatString)]
+public class FieldStringReadOnlySpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string, string[]>
+  
 {
     public string[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringReadOnlySpan
     {
@@ -1001,12 +788,10 @@ public class FieldStringReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupport
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringReadOnlySpan);
-    public string[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringReadOnlySpan);
 
-    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringReadOnlySpan)
@@ -1014,14 +799,12 @@ public class FieldStringReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupport
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsString 
+                | SupportsValueFormatString)]
 public class FieldStringNullableReadOnlySpanAlwaysAddFilteredStringBearer
-    : IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<string?, string?[]>
 {
     public string?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringReadOnlySpan
     {
@@ -1029,12 +812,10 @@ public class FieldStringNullableReadOnlySpanAlwaysAddFilteredStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringReadOnlySpan);
-    public string?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringReadOnlySpan);
 
-    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringReadOnlySpan),
@@ -1042,14 +823,12 @@ public class FieldStringNullableReadOnlySpanAlwaysAddFilteredStringBearer
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IMoldSupportedValue<TCharSeq[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq[]? ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceReadOnlySpan
@@ -1058,13 +837,10 @@ public class FieldCharSequenceReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceReadOnlySpan);
-    public TCharSeq[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceReadOnlySpan);
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceReadOnlySpan)
@@ -1072,14 +848,12 @@ public class FieldCharSequenceReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceNullableReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan
@@ -1088,13 +862,10 @@ public class FieldCharSequenceNullableReadOnlySpanAlwaysAddFilteredStringBearer<
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan);
-    public TCharSeq?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan);
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeqNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan),
@@ -1102,14 +873,12 @@ public class FieldCharSequenceNullableReadOnlySpanAlwaysAddFilteredStringBearer<
               , ElementPredicate)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderReadOnlySpanAlwaysAddFilteredStringBearer
-    : IMoldSupportedValue<StringBuilder[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder, StringBuilder[]>
 {
     public StringBuilder[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderReadOnlySpan
     {
@@ -1117,13 +886,10 @@ public class FieldStringBuilderReadOnlySpanAlwaysAddFilteredStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderReadOnlySpan);
-    public StringBuilder[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderReadOnlySpan);
 
-    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderReadOnlySpan)
@@ -1131,14 +897,12 @@ public class FieldStringBuilderReadOnlySpanAlwaysAddFilteredStringBearer
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderNullableReadOnlySpanAlwaysAddFilteredStringBearer
-    : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, StringBuilder?[]>
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderReadOnlySpan
     {
@@ -1146,13 +910,10 @@ public class FieldStringBuilderNullableReadOnlySpanAlwaysAddFilteredStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderReadOnlySpan);
-    public StringBuilder?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderReadOnlySpan);
 
-    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderReadOnlySpan)
@@ -1160,14 +921,12 @@ public class FieldStringBuilderNullableReadOnlySpanAlwaysAddFilteredStringBearer
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsOnlyNonNullableGeneric | SupportsValueFormatString)]
 public class FieldMatchReadOnlySpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
-    : IMoldSupportedValue<TAny[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TAny, TAny[]>
     where TAny : TAnyFilterBase
 {
     public TAny[]? ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan
@@ -1176,13 +935,10 @@ public class FieldMatchReadOnlySpanAlwaysAddFilteredStringBearer<TAny, TAnyFilte
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan);
-    public TAny[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan);
 
-    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan)
@@ -1190,14 +946,12 @@ public class FieldMatchReadOnlySpanAlwaysAddFilteredStringBearer<TAny, TAnyFilte
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchNullableReadOnlySpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
-    : IMoldSupportedValue<TAny?[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TAny?, TAny?[]>
     where TAny : TAnyFilterBase
 {
     public TAny?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan
@@ -1206,13 +960,10 @@ public class FieldMatchNullableReadOnlySpanAlwaysAddFilteredStringBearer<TAny, T
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan);
-    public TAny?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan);
 
-    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatchNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableMatchReadOnlySpan)
@@ -1220,14 +971,12 @@ public class FieldMatchNullableReadOnlySpanAlwaysAddFilteredStringBearer<TAny, T
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass | SupportsValueFormatString)]
-public class FieldObjectReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupportedValue<object[]?>
-  , ISupportsOrderedCollectionPredicate<object>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsNonNullableObject | SupportsValueFormatString)]
+public class FieldObjectReadOnlySpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<object, object[]>
+  
 {
     public object[]? ComplexTypeCollectionFieldAlwaysAddFilteredObjectReadOnlySpan
     {
@@ -1235,26 +984,22 @@ public class FieldObjectReadOnlySpanAlwaysAddFilteredStringBearer : IMoldSupport
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectReadOnlySpan);
-    public object[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectReadOnlySpan);
 
-    public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectReadOnlySpan)
               , (ReadOnlySpan<object>)ComplexTypeCollectionFieldAlwaysAddFilteredObjectReadOnlySpan
               , ElementPredicate, ValueFormatString);
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
+                | AcceptsNullableObject | SupportsValueFormatString)]
 public class FieldNullableObjectReadOnlySpanAlwaysAddFilteredStringBearer
-    : IMoldSupportedValue<object?[]?>, ISupportsOrderedCollectionPredicate<object?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<object?, object?[]>
 {
     public object?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectReadOnlySpan
     {
@@ -1262,27 +1007,22 @@ public class FieldNullableObjectReadOnlySpanAlwaysAddFilteredStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectReadOnlySpan);
-    public object?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectReadOnlySpan);
 
-    public OrderedCollectionPredicate<object?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObjectNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectReadOnlySpan)
               , (ReadOnlySpan<object?>)ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectReadOnlySpan
               , ElementPredicate, ValueFormatString);
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsStruct
                 | SupportsValueFormatString)]
-public class FieldBoolArrayAlwaysAddFilteredStringBearer : IMoldSupportedValue<bool[]?>, ISupportsOrderedCollectionPredicate<bool>
-  , ISupportsValueFormatString
+public class FieldBoolArrayAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool, bool[]>
+  
 {
     public bool[]? ComplexTypeCollectionFieldAlwaysAddFilteredBoolArray
     {
@@ -1290,27 +1030,22 @@ public class FieldBoolArrayAlwaysAddFilteredStringBearer : IMoldSupportedValue<b
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolArray);
-    public bool[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolArray);
 
-    public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolArray)
               , ComplexTypeCollectionFieldAlwaysAddFilteredBoolArray, ElementPredicate)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsNullableStruct
                 | SupportsValueFormatString)]
-public class FieldNullableBoolArrayAlwaysAddFilteredStringBearer : IMoldSupportedValue<bool?[]?>, ISupportsOrderedCollectionPredicate<bool?>
-  , ISupportsValueFormatString
+public class FieldNullableBoolArrayAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool?, bool?[]>
+  
 {
     public bool?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolArray
     {
@@ -1318,27 +1053,22 @@ public class FieldNullableBoolArrayAlwaysAddFilteredStringBearer : IMoldSupporte
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolArray);
-    public bool?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolArray);
 
-    public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolArray)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolArray, ElementPredicate)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt> : IMoldSupportedValue<TFmt?[]?>
-  , ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate 
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
+public class FieldSpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt, TFmtBase> : FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmt?[]>
+   where TFmt : ISpanFormattable, TFmtBase
 {
     public TFmt?[]? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableArray
     {
@@ -1346,12 +1076,10 @@ public class FieldSpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt> : IMol
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableArray);
-    public TFmt?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableArray);
 
-    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableArray)
@@ -1359,15 +1087,12 @@ public class FieldSpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt> : IMol
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate 
+                | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableArrayAlwaysAddFilteredStringBearer<TFmtStruct>
-    : IMoldSupportedValue<TFmtStruct?[]?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TFmtStruct?, TFmtStruct?[]>
     where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableArray
@@ -1376,13 +1101,10 @@ public class FieldNullableSpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableArray);
-    public TFmtStruct?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableArray);
 
-    public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFmtStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableArray)
@@ -1390,17 +1112,13 @@ public class FieldNullableSpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : IMoldSupportedValue<TCloaked[]?>, ISupportsValueRevealer<TCloakedRevealBase>
-      , ISupportsOrderedCollectionPredicate<TCloakedFilterBase> where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
+       where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
     public TCloaked[]? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerArray
     {
@@ -1408,37 +1126,21 @@ public class FieldCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloaked, TClo
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerArray);
-    public TCloaked[]? Value { get; set; }
-
-    public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerArray);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerArray)
               , ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerArray, ElementPredicate
               , ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAnyNullableStruct |
                   SupportsValueRevealer)]
-public class FieldNullableCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloakedStruct>
-    : IMoldSupportedValue<TCloakedStruct?[]?>, ISupportsValueRevealer<TCloakedStruct>
-      , ISupportsOrderedCollectionPredicate<TCloakedStruct?>
+public class FieldNullableCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloakedStruct> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]>
     where TCloakedStruct : struct
 {
     public TCloakedStruct?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerArray
@@ -1447,36 +1149,21 @@ public class FieldNullableCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloak
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerArray);
-    public TCloakedStruct?[]? Value { get; set; }
-
-
-    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerArray);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerArray)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerArray
               , ElementPredicate, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass | AcceptsNullableClass |
-                  AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsTypeAllButNullableStruct
+                | AcceptsStringBearer)]
 public class FieldStringBearerArrayAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
-    : IMoldSupportedValue<TBearer?[]?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
+    : FilteredCollectionFieldMoldScaffold<TBearer?, TBearer?[]>
     where TBearer : IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerArray
@@ -1485,25 +1172,21 @@ public class FieldStringBearerArrayAlwaysAddFilteredStringBearer<TBearer, TBeare
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerArray);
-    public TBearer?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerArray);
 
-    public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerArray)
               , ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerArray, ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsNullableStruct 
+                | AcceptsStringBearer)]
 public class FieldNullableStringBearerArrayAlwaysAddFilteredStringBearer<TBearerStruct>
-    : IMoldSupportedValue<TBearerStruct?[]?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
+    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerArray
@@ -1512,26 +1195,22 @@ public class FieldNullableStringBearerArrayAlwaysAddFilteredStringBearer<TBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerArray);
-    public TBearerStruct?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerArray);
 
-    public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerArray)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerArray
               , ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
-public class FieldStringArrayAlwaysAddFilteredStringBearer : IMoldSupportedValue<string?[]?>, ISupportsOrderedCollectionPredicate<string?>
-  , ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsString 
+                | SupportsValueFormatString)]
+public class FieldStringArrayAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string?, string?[]>
+  
 {
     public string?[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringArray
     {
@@ -1539,12 +1218,10 @@ public class FieldStringArrayAlwaysAddFilteredStringBearer : IMoldSupportedValue
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringArray);
-    public string?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringArray);
 
-    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringArray)
@@ -1552,14 +1229,12 @@ public class FieldStringArrayAlwaysAddFilteredStringBearer : IMoldSupportedValue
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
+                | SupportsValueFormatString)]
 public class FieldCharSequenceArrayAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IMoldSupportedValue<TCharSeq?[]?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public TCharSeq?[]? ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceArray
@@ -1568,13 +1243,10 @@ public class FieldCharSequenceArrayAlwaysAddFilteredStringBearer<TCharSeq, TChar
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceArray);
-    public TCharSeq?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceArray);
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceArray)
@@ -1582,14 +1254,12 @@ public class FieldCharSequenceArrayAlwaysAddFilteredStringBearer<TCharSeq, TChar
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
+                | SupportsValueFormatString)]
 public class FieldStringBuilderArrayAlwaysAddFilteredStringBearer
-    : IMoldSupportedValue<StringBuilder?[]?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, StringBuilder?[]>
 {
     public StringBuilder?[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderArray
     {
@@ -1597,13 +1267,10 @@ public class FieldStringBuilderArrayAlwaysAddFilteredStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderArray);
-    public StringBuilder?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderArray);
 
-    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFiltered
@@ -1612,14 +1279,12 @@ public class FieldStringBuilderArrayAlwaysAddFilteredStringBearer
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric 
+                | SupportsValueFormatString)]
 public class FieldMatchArrayAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
-    : IMoldSupportedValue<TAny[]?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TAny, TAny[]>
     where TAny : TAnyFilterBase
 {
     public TAny[]? ComplexTypeCollectionFieldAlwaysAddFilteredMatchArray
@@ -1628,13 +1293,10 @@ public class FieldMatchArrayAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchArray);
-    public TAny[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchArray);
 
-    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFilteredMatch
@@ -1643,14 +1305,12 @@ public class FieldMatchArrayAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric 
+                | SupportsValueFormatString)]
 public class FieldObjectArrayAlwaysAddFilteredStringBearer
-    : IMoldSupportedValue<object?[]?>, ISupportsOrderedCollectionPredicate<object>
+    : FormattedFilteredCollectionFieldMoldScaffold<object?, object?[]>
 {
     public object?[]? ComplexTypeCollectionFieldAlwaysAddFilteredObjectArray
     {
@@ -1658,24 +1318,21 @@ public class FieldObjectArrayAlwaysAddFilteredStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectArray);
-    public object?[]? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectArray);
 
-    public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectArray)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredObjectArray, ElementPredicate);
+              , ComplexTypeCollectionFieldAlwaysAddFilteredObjectArray, ElementPredicate, ValueFormatString);
 
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct
                 | SupportsValueFormatString)]
-public class FieldBoolListAlwaysAddFilteredStringBearer : IMoldSupportedValue<IReadOnlyList<bool>>
-  , ISupportsOrderedCollectionPredicate<bool>, ISupportsValueFormatString
+public class FieldBoolListAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool, IReadOnlyList<bool>>
+  
 {
     public IReadOnlyList<bool>? ComplexTypeCollectionFieldAlwaysAddFilteredBoolList
     {
@@ -1683,27 +1340,22 @@ public class FieldBoolListAlwaysAddFilteredStringBearer : IMoldSupportedValue<IR
         set => Value = value!;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList);
-    public IReadOnlyList<bool> Value { get; set; } = null!;
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList);
 
-    public OrderedCollectionPredicate<bool> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList)
               , ComplexTypeCollectionFieldAlwaysAddFilteredBoolList, ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct
                 | SupportsValueFormatString)]
-public class FieldNullableBoolListAlwaysAddFilteredStringBearer : IMoldSupportedValue<IReadOnlyList<bool?>?>
-  , ISupportsOrderedCollectionPredicate<bool?>, ISupportsValueFormatString
+public class FieldNullableBoolListAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool?, IReadOnlyList<bool?>>
+  
 {
     public IReadOnlyList<bool?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList
     {
@@ -1711,28 +1363,23 @@ public class FieldNullableBoolListAlwaysAddFilteredStringBearer : IMoldSupported
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList);
-    public IReadOnlyList<bool?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList);
 
-    public OrderedCollectionPredicate<bool?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<bool?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList, ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableListAlwaysAddFilteredStringBearer<TFmt>
-    : IMoldSupportedValue<IReadOnlyList<TFmt?>?>, ISupportsOrderedCollectionPredicate<TFmt>, ISupportsValueFormatString
-    where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate 
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
+public class FieldSpanFormattableListAlwaysAddFilteredStringBearer<TFmt, TFmtBase>
+    : FormattedFilteredCollectionFieldMoldScaffold<TFmt?, IReadOnlyList<TFmt?>>
+    where TFmt : ISpanFormattable, TFmtBase
 {
     public IReadOnlyList<TFmt?>? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList
     {
@@ -1740,12 +1387,10 @@ public class FieldSpanFormattableListAlwaysAddFilteredStringBearer<TFmt>
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList);
-    public IReadOnlyList<TFmt?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList);
 
-    public OrderedCollectionPredicate<TFmt> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<TFmt>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFiltered
@@ -1754,15 +1399,12 @@ public class FieldSpanFormattableListAlwaysAddFilteredStringBearer<TFmt>
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate 
+                | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableListAlwaysAddFilteredStringBearer<TFmtStruct>
-    : IMoldSupportedValue<IReadOnlyList<TFmtStruct?>?>, ISupportsOrderedCollectionPredicate<TFmtStruct?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TFmtStruct?, IReadOnlyList<TFmtStruct?>>
     where TFmtStruct : struct, ISpanFormattable
 {
     public IReadOnlyList<TFmtStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList
@@ -1771,31 +1413,24 @@ public class FieldNullableSpanFormattableListAlwaysAddFilteredStringBearer<TFmtS
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList);
-    public IReadOnlyList<TFmtStruct?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList);
 
-    public OrderedCollectionPredicate<TFmtStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TFmtStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList
-              , ElementPredicate)
+              , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerListAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : IMoldSupportedValue<IReadOnlyList<TCloaked>?>, ISupportsValueRevealer<TCloakedRevealBase>
-      , ISupportsOrderedCollectionPredicate<TCloakedFilterBase> where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerListAlwaysAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, IReadOnlyList<TCloaked>>
+       where TCloaked : TCloakedRevealBase, TCloakedFilterBase
 {
     public IReadOnlyList<TCloaked>? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList
     {
@@ -1803,35 +1438,22 @@ public class FieldCloakedBearerListAlwaysAddFilteredStringBearer<TCloaked, TCloa
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList);
-    public IReadOnlyList<TCloaked>? Value { get; set; }
-
-    public PalantírReveal<TCloakedRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedRevealBase>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList)
               , ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList, ElementPredicate
               , ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct | AcceptsSpanFormattable
-                | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldNullableCloakedBearerListAlwaysAddFilteredStringBearer<TCloakedStruct> : IMoldSupportedValue<IReadOnlyList<TCloakedStruct?>?>, ISupportsValueRevealer<TCloakedStruct>
-  , ISupportsOrderedCollectionPredicate<TCloakedStruct?> where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAnyNullableStruct 
+                | SupportsValueRevealer)]
+public class FieldNullableCloakedBearerListAlwaysAddFilteredStringBearer<TCloakedStruct> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IReadOnlyList<TCloakedStruct?>>
+  where TCloakedStruct : struct
 {
     public IReadOnlyList<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList
     {
@@ -1839,36 +1461,21 @@ public class FieldNullableCloakedBearerListAlwaysAddFilteredStringBearer<TCloake
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList);
-    public IReadOnlyList<TCloakedStruct?>? Value { get; set; }
-
-
-    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
-    }
-
-    public OrderedCollectionPredicate<TCloakedStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCloakedStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList);
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList
               , ElementPredicate, ValueRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStruct | AcceptsClass 
-                | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsTypeAllButNullableStruct
+                | AcceptsStringBearer)]
 public class FieldStringBearerListAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
-    : IMoldSupportedValue<IReadOnlyList<TBearer?>?>, ISupportsOrderedCollectionPredicate<TBearerBase?>
+    : FilteredCollectionFieldMoldScaffold<TBearer?, IReadOnlyList<TBearer?>>
     where TBearer : IStringBearer, TBearerBase
 {
     public IReadOnlyList<TBearer?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList
@@ -1877,25 +1484,21 @@ public class FieldStringBearerListAlwaysAddFilteredStringBearer<TBearer, TBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList);
-    public IReadOnlyList<TBearer?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList);
 
-    public OrderedCollectionPredicate<TBearerBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList)
               , ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList, ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableStruct 
+                | AcceptsStringBearer)]
 public class FieldNullableStringBearerListAlwaysAddFilteredStringBearer<TBearerStruct>
-    : IMoldSupportedValue<IReadOnlyList<TBearerStruct?>?>, ISupportsOrderedCollectionPredicate<TBearerStruct?>
+    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, IReadOnlyList<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
     public IReadOnlyList<TBearerStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList
@@ -1904,25 +1507,21 @@ public class FieldNullableStringBearerListAlwaysAddFilteredStringBearer<TBearerS
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList);
-    public IReadOnlyList<TBearerStruct?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList);
 
-    public OrderedCollectionPredicate<TBearerStruct?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TBearerStruct?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList, ElementPredicate)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsString | SupportsValueFormatString)]
-public class FieldStringListAlwaysAddFilteredStringBearer : IMoldSupportedValue<IReadOnlyList<string?>?>
-  , ISupportsOrderedCollectionPredicate<string?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsString 
+                | SupportsValueFormatString)]
+public class FieldStringListAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string?, IReadOnlyList<string?>>
+  
 {
     public IReadOnlyList<string?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringList
     {
@@ -1930,12 +1529,10 @@ public class FieldStringListAlwaysAddFilteredStringBearer : IMoldSupportedValue<
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringList);
-    public IReadOnlyList<string?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringList);
 
-    public OrderedCollectionPredicate<string?> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<string?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringList)
@@ -1943,15 +1540,12 @@ public class FieldStringListAlwaysAddFilteredStringBearer : IMoldSupportedValue<
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
+                | SupportsValueFormatString)]
 public class FieldCharSequenceListAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : IMoldSupportedValue<IReadOnlyList<TCharSeq?>?>, ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>
-      , ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, IReadOnlyList<TCharSeq?>>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
     public IReadOnlyList<TCharSeq?>? ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList
@@ -1960,13 +1554,10 @@ public class FieldCharSequenceListAlwaysAddFilteredStringBearer<TCharSeq, TCharS
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList);
-    public IReadOnlyList<TCharSeq?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList);
 
-    public OrderedCollectionPredicate<TCharSeqFilterBase?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TCharSeqFilterBase?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList)
@@ -1974,14 +1565,12 @@ public class FieldCharSequenceListAlwaysAddFilteredStringBearer<TCharSeq, TCharS
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
+                | SupportsValueFormatString)]
 public class FieldStringBuilderListAlwaysAddFilteredStringBearer
-    : IMoldSupportedValue<IReadOnlyList<StringBuilder?>?>, ISupportsOrderedCollectionPredicate<StringBuilder?>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, IReadOnlyList<StringBuilder?>>
 {
     public IReadOnlyList<StringBuilder?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList
     {
@@ -1989,13 +1578,10 @@ public class FieldStringBuilderListAlwaysAddFilteredStringBearer
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList);
-    public IReadOnlyList<StringBuilder?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList);
 
-    public OrderedCollectionPredicate<StringBuilder?> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<StringBuilder?>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList)
@@ -2003,14 +1589,12 @@ public class FieldStringBuilderListAlwaysAddFilteredStringBearer
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsAnyGeneric 
+                | SupportsValueFormatString)]
 public class FieldMatchListAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
-    : IMoldSupportedValue<IReadOnlyList<TAny>?>, ISupportsOrderedCollectionPredicate<TAnyFilterBase>, ISupportsValueFormatString
+    : FormattedFilteredCollectionFieldMoldScaffold<TAny, IReadOnlyList<TAny>>
     where TAny : TAnyFilterBase
 {
     public IReadOnlyList<TAny>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
@@ -2019,13 +1603,10 @@ public class FieldMatchListAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList);
-    public IReadOnlyList<TAny>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList);
 
-    public OrderedCollectionPredicate<TAnyFilterBase> ElementPredicate { get; set; }
-        = ISupportsOrderedCollectionPredicate<TAnyFilterBase>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList)
@@ -2033,14 +1614,12 @@ public class FieldMatchListAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
               , ElementPredicate, ValueFormatString)
            .Complete();
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldObjectListAlwaysAddFilteredStringBearer : IMoldSupportedValue<IReadOnlyList<object?>?>
-  , ISupportsOrderedCollectionPredicate<object>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsNullableClass 
+                | SupportsValueFormatString)]
+public class FieldObjectListAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<object?, IReadOnlyList<object?>>
+  
 {
     public IReadOnlyList<object?>? ComplexTypeCollectionFieldAlwaysAddFilteredObjectList
     {
@@ -2048,19 +1627,14 @@ public class FieldObjectListAlwaysAddFilteredStringBearer : IMoldSupportedValue<
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectList);
-    public IReadOnlyList<object?>? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectList);
 
-    public OrderedCollectionPredicate<object> ElementPredicate { get; set; } = ISupportsOrderedCollectionPredicate<object>.GetNoFilterPredicate;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectList)
               , ComplexTypeCollectionFieldAlwaysAddFilteredObjectList
               , ElementPredicate, ValueFormatString);
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

@@ -105,7 +105,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueRevealer, keyRevealer)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+    public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
@@ -113,7 +113,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueRevealer, keyRevealer) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+    public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
@@ -121,7 +121,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueRevealer, keyRevealer) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
@@ -131,7 +131,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer)
             : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+    public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer

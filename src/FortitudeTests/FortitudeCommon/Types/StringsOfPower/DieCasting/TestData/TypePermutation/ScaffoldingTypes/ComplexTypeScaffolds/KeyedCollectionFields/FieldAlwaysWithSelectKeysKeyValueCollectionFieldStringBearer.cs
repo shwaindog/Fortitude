@@ -1,5 +1,4 @@
-﻿using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StringsOfPower;
+﻿using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
@@ -9,791 +8,442 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
+    : SelectFormattedKeyValueFieldMoldScaffold<TKey, TValue, TKSelectDerived>
+    where TKey : notnull
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
-
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromArrayBothFormatStrings
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromArrayBothFormatStrings);
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayBothFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-
-    public string? ValueFormatString { get; set; }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromArrayBothFormatStrings)
               , AlwaysWithSelectKeysFromArrayBothFormatStrings
               , DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
+    : SelectFormattedKeyValueFieldMoldScaffold<TKey, TValue, TKSelectDerived> 
+    where TKey : notnull
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromSpanBothFormatStrings
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromSpanBothFormatStrings);
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanBothFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-
-    public string? ValueFormatString { get; set; }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromSpanBothFormatStrings)
               , AlwaysWithSelectKeysFromSpanBothFormatStrings
               , DisplayKeys.ToArray().AsSpan(), ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
+    : SelectFormattedKeyValueFieldMoldScaffold<TKey, TValue, TKSelectDerived> 
+    where TKey : notnull
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromReadOnlySpanBothFormatStrings
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanBothFormatStrings);
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanBothFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-
-    public string? ValueFormatString { get; set; }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromReadOnlySpanBothFormatStrings)
               , AlwaysWithSelectKeysFromReadOnlySpanBothFormatStrings
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
+    : SelectFormattedKeyValueFieldMoldScaffold<TKey, TValue, TKSelectDerived> 
+    where TKey : notnull
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromListBothFormatStrings
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromListBothFormatStrings);
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromListBothFormatStrings);
 
-    public string? KeyFormatString { get; set; }
-
-    public string? ValueFormatString { get; set; }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromListBothFormatStrings)
               , AlwaysWithSelectKeysFromListBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsEnumerable | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
+    : SelectFormattedKeyValueFieldMoldScaffold<TKey, TValue, TKSelectDerived> 
+    where TKey : notnull
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromEnumerableBothFormatStrings 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromEnumerableBothFormatStrings );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromEnumerableBothFormatStrings );
 
-    public string? KeyFormatString { get; set; }
-
-    public string? ValueFormatString { get; set; }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysFromEnumerableBothFormatStrings)
               , AlwaysWithSelectKeysFromEnumerableBothFormatStrings
               , DisplayKeys, ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueFormatString, ISupportsKeyFormatString where TKSelectDerived : TKey
+    : SelectFormattedKeyValueFieldMoldScaffold<TKey, TValue, TKSelectDerived> 
+    where TKey : notnull
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumeratorBothFormatStrings 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothFormatStrings );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothFormatStrings );
 
-    public string? KeyFormatString { get; set; }
-
-    public string? ValueFormatString { get; set; }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothFormatStrings)
               , AlwaysWithSelectKeysKeyValuePairEnumeratorBothFormatStrings
               , DisplayKeys.GetEnumerator(), ValueFormatString, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
-    where TKSelectDerived : TKey where TValue : TVRevealBase
+    : SelectFormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase> 
+    where TKey : notnull
+    where TValue : TVRevealBase
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString)
               , AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString
               , DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
-    where TKSelectDerived : TKey where TValue : TVRevealBase
+    : SelectFormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase> 
+    where TKey : notnull
+    where TValue : TVRevealBase
+    where TKSelectDerived : TKey 
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString)
               , AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
-    where TKSelectDerived : TKey where TValue : TVRevealBase
+    : SelectFormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase> 
+    where TKey : notnull
+    where TValue : TVRevealBase
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString)
               , AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
-    where TKSelectDerived : TKey where TValue : TVRevealBase
+    : SelectFormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase>
+    where TKey : notnull
+    where TValue : TVRevealBase
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromListValueRevealerKeyFormatString 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromListValueRevealerKeyFormatString );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromListValueRevealerKeyFormatString );
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromListValueRevealerKeyFormatString)
               , AlwaysWithSelectKeysFromListValueRevealerKeyFormatString
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsEnumerable | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
-    where TKSelectDerived : TKey where TValue : TVRevealBase
+    : SelectFormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase> 
+    where TKey : notnull
+    where TValue : TVRevealBase
+    where TKSelectDerived : TKey 
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
               , AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
               , DisplayKeys, ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyFormatString 
-    where TKSelectDerived : TKey where TValue : TVRevealBase
+    : SelectFormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase> 
+    where TKey : notnull
+    where TValue : TVRevealBase
+    where TKSelectDerived : TKey
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
-    public string? KeyFormatString { get; set; }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
               , AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyFormatString)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
-    where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
+    : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>  
+    where TKey : notnull, TKRevealBase 
+    where TValue : TVRevealBase
+    where TKSelectDerived : TKey 
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromArrayBothRevealers 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromArrayBothRevealers );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
-    
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayBothRevealers );
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromArrayBothRevealers)
               , AlwaysWithSelectKeysFromArrayBothRevealers
               , DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
-    where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
+    : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase> 
+    where TKey : notnull, TKRevealBase 
+    where TValue : TVRevealBase
+    where TKSelectDerived : TKey 
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromSpanBothRevealers 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromSpanBothRevealers );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
-    
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanBothRevealers );
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromSpanBothRevealers)
               , AlwaysWithSelectKeysFromSpanBothRevealers
               , DisplayKeys.ToArray().AsSpan(), ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites 
                 | SubsetListFilter | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
-    where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
+    : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase> 
+    where TKey : notnull, TKRevealBase 
+    where TValue : TVRevealBase
+    where TKSelectDerived : TKey 
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromReadOnlySpanBothRevealers 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanBothRevealers );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
-    
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanBothRevealers );
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromReadOnlySpanBothRevealers)
               , AlwaysWithSelectKeysFromReadOnlySpanBothRevealers
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
-    where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
+    : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase> 
+    where TKey : notnull, TKRevealBase 
+    where TValue : TVRevealBase 
+    where TKSelectDerived : TKey 
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromListBothRevealers 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysFromListBothRevealers );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
-    
+    public override string PropertyName => nameof(AlwaysWithSelectKeysFromListBothRevealers );
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromListBothRevealers)
               , AlwaysWithSelectKeysFromListBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsEnumerable | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
-    where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
+    : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    where TKey : notnull, TKRevealBase 
+    where TValue : TVRevealBase 
+    where TKSelectDerived : TKey 
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
+    public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers );
     
-
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers)
               , AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers
               , DisplayKeys, ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    : IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?>, ISupportsSubsetDisplayKeys<TKSelectDerived>
-      , ISupportsValueRevealer<TVRevealBase>, ISupportsKeyRevealer<TKRevealBase> 
-    where TKSelectDerived : TKey where TKey : TKRevealBase where TValue : TVRevealBase
+    : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    where TKey : notnull, TKRevealBase 
+    where TValue : TVRevealBase 
+    where TKSelectDerived : TKey 
 {
-    private IReadOnlyList<TKSelectDerived>? displayKeys;
     public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers 
     {
         get => Value;
-        set => Value = value;
+        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
     }
 
-    public string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers );
-    public IReadOnlyDictionary<TKey, TValue>? Value { get; set; }
-    
+    public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
-    public PalantírReveal<TKRevealBase> KeyRevealer { get; set; } = null!;
-
-    public Delegate KeyRevealerDelegate
-    {
-        get => KeyRevealer;
-        set => KeyRevealer = (PalantírReveal<TKRevealBase>)value;
-    }
-
-    public PalantírReveal<TVRevealBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TVRevealBase>)value;
-    }
-
-    public IReadOnlyList<TKSelectDerived> DisplayKeys
-    {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
-        set => displayKeys = value;
-    }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers), AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers
               , DisplayKeys.GetEnumerator(), ValueRevealer, KeyRevealer)
            .Complete();
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

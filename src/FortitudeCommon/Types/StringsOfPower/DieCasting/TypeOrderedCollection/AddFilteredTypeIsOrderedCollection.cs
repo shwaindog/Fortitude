@@ -920,9 +920,9 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if(!any) stb.ConditionalCollectionPrefix(elementType, true);
+                if(!any) stb.ConditionalCollectionPrefix(elementType,  true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;

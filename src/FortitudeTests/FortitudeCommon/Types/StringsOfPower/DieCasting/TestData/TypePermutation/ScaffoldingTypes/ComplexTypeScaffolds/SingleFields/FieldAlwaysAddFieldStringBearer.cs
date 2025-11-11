@@ -15,7 +15,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | SupportsValueFormatString)]
-public class FieldBoolAlwaysAddStringBearer : IMoldSupportedValue<bool>, ISupportsValueFormatString
+public class FieldBoolAlwaysAddStringBearer : FormattedMoldScaffold<bool>
 {
     public bool ComplexTypeFieldAlwaysAddBool
     {
@@ -23,24 +23,19 @@ public class FieldBoolAlwaysAddStringBearer : IMoldSupportedValue<bool>, ISuppor
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddBool);
-    public bool Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddBool);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddBool)
               , ComplexTypeFieldAlwaysAddBool
               , ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct | SupportsValueFormatString)]
-public class FieldNullableBoolAlwaysAddStringBearer : IMoldSupportedValue<bool?>, ISupportsValueFormatString
+public class FieldNullableBoolAlwaysAddStringBearer : FormattedMoldScaffold<bool?>
 {
     public bool? ComplexTypeFieldAlwaysAddNullableBool
     {
@@ -48,35 +43,28 @@ public class FieldNullableBoolAlwaysAddStringBearer : IMoldSupportedValue<bool?>
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddNullableBool);
-    public bool? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddNullableBool);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddNullableBool)
               , ComplexTypeFieldAlwaysAddNullableBool
               , ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldSpanFormattableAlwaysAddStringBearer<TFmt> : IMoldSupportedValue<TFmt>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
+public class FieldSpanFormattableAlwaysAddStringBearer<TFmt> : FormattedMoldScaffold<TFmt>
   , IPalantirRevealerFactory<TFmt> where TFmt : ISpanFormattable
 {
     public TFmt ComplexTypeFieldAlwaysAddSpanFormattable
     {
-        get => Value;
+        get => Value!;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddSpanFormattable);
-    public TFmt Value { get; set; } = default!;
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddSpanFormattable);
 
     public PalantírReveal<TFmt> CreateRevealer => (cloaked, tos) =>
         tos.StartComplexType(cloaked)
@@ -87,15 +75,13 @@ public class FieldSpanFormattableAlwaysAddStringBearer<TFmt> : IMoldSupportedVal
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddSpanFormattable)
               , ComplexTypeFieldAlwaysAddSpanFormattable
               , ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
 
     protected bool Equals(FieldSpanFormattableAlwaysAddStringBearer<TFmt> other) =>
         EqualityComparer<TFmt>.Default.Equals(Value, other.Value);
@@ -112,14 +98,11 @@ public class FieldSpanFormattableAlwaysAddStringBearer<TFmt> : IMoldSupportedVal
     #pragma warning disable CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
     public override int GetHashCode() => EqualityComparer<TFmt>.Default.GetHashCode(Value);
     #pragma warning restore CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSupportedValue<TFmt>, ISupportsValueFormatString
-  , IPalantirRevealerFactory<TFmt>, ISupportsFieldHandling where TFmt : ISpanFormattable
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
+public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSupportedValue<TFmt>
+  , IPalantirRevealerFactory<TFmt>, ISupportsValueFormatString , ISupportsFieldHandling where TFmt : ISpanFormattable
 {
     public FieldSpanFormattableAlwaysAddStructStringBearer() { }
     public TFmt ComplexTypeFieldAlwaysAddSpanFormattableFromStruct
@@ -129,6 +112,8 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
     }
 
     public string PropertyName => nameof(ComplexTypeFieldAlwaysAddSpanFormattableFromStruct);
+
+    public FieldContentHandling ContentHandlingFlags { get; set; }
     public TFmt Value { get; set; } = default!;
 
     public PalantírReveal<TFmt> CreateRevealer
@@ -165,7 +150,6 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
-        if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
         return Equals((FieldSpanFormattableAlwaysAddStructStringBearer<TFmt>)obj);
     }
@@ -178,10 +162,9 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
-public class FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : IMoldSupportedValue<TFmtStruct?>
-  , IPalantirRevealerFactory<TFmtStruct>, ISupportsValueFormatString, ISupportsFieldHandling where TFmtStruct : struct, ISpanFormattable
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
+public class FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : FormattedMoldScaffold<TFmtStruct?>
+  , IPalantirRevealerFactory<TFmtStruct>, ISupportsFieldHandling where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct? ComplexTypeFieldAlwaysAddNullableSpanFormattable
     {
@@ -189,8 +172,7 @@ public class FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : IMo
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddNullableSpanFormattable);
-    public TFmtStruct? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddNullableSpanFormattable);
 
     public PalantírReveal<TFmtStruct> CreateRevealer => (cloaked, tos) =>
         tos.StartComplexType(cloaked)
@@ -201,15 +183,13 @@ public class FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : IMo
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddNullableSpanFormattable)
               , ComplexTypeFieldAlwaysAddNullableSpanFormattable
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -228,12 +208,9 @@ public class FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : IMo
     #pragma warning disable CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
     public override int GetHashCode() => EqualityComparer<TFmtStruct?>.Default.GetHashCode(Value);
     #pragma warning restore CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct | AcceptsSpanFormattable |
-                  AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
 public struct FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct> : IMoldSupportedValue<TFmtStruct?>
   , IPalantirRevealerFactory<TFmtStruct>, ISupportsValueFormatString, ISupportsFieldHandling where TFmtStruct : struct, ISpanFormattable
 {
@@ -246,6 +223,8 @@ public struct FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct
     }
 
     public string PropertyName => nameof(ComplexTypeFieldAlwaysAddNullableSpanFormattableFromStruct);
+
+    public FieldContentHandling ContentHandlingFlags { get; set; }
     public TFmtStruct? Value { get; set; }
 
     public PalantírReveal<TFmtStruct> CreateRevealer
@@ -282,7 +261,6 @@ public struct FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
-        if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
         return Equals((FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct>)obj);
     }
@@ -295,11 +273,10 @@ public struct FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
-                | SupportsValueRevealer | SupportsCustomHandling)]
-public class FieldCloakedBearerAlwaysAddStringBearer<TTCloaked, TCloakedBase> : IMoldSupportedValue<TTCloaked?>
-  , ISupportsFieldHandling, ISupportsValueRevealer<TCloakedBase> where TTCloaked : TCloakedBase
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer
+                 )]
+public class FieldCloakedBearerAlwaysAddStringBearer<TTCloaked, TCloakedBase> : ValueRevealerMoldScaffold<TTCloaked, TCloakedBase>
+  , ISupportsFieldHandling where TTCloaked : TCloakedBase
 {
     public TTCloaked? ComplexTypeFieldAlwaysAddCloakedBearerAs
     {
@@ -307,36 +284,23 @@ public class FieldCloakedBearerAlwaysAddStringBearer<TTCloaked, TCloakedBase> : 
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddCloakedBearerAs);
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddCloakedBearerAs);
 
-    public TTCloaked? Value { get; set; }
+    public FieldContentHandling FieldContentHandling { get; set; }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(ComplexTypeFieldAlwaysAddCloakedBearerAs)
               , ComplexTypeFieldAlwaysAddCloakedBearerAs
               , ValueRevealer, FieldContentHandling)
            .Complete();
-
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public PalantírReveal<TCloakedBase> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedBase>)value;
-    }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct
-                | AcceptsSpanFormattable | AcceptsIntegerNumber | AcceptsDecimalNumber | AcceptsDateTimeLike | AcceptsStringBearer
-                | SupportsValueRevealer | SupportsCustomHandling)]
-public class FieldNullableCloakedBearerAlwaysAddStringBearer<TCloakedStruct> : IMoldSupportedValue<TCloakedStruct?>
-  , ISupportsValueRevealer<TCloakedStruct>, ISupportsFieldHandling where TCloakedStruct : struct
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsAnyNullableStruct | SupportsValueRevealer
+                 )]
+public class FieldNullableCloakedBearerAlwaysAddStringBearer<TCloakedStruct> : ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct>
+ , ISupportsFieldHandling where TCloakedStruct : struct
 {
     public TCloakedStruct? ComplexTypeFieldAlwaysAddCloakedBearerStructAs
     {
@@ -344,34 +308,21 @@ public class FieldNullableCloakedBearerAlwaysAddStringBearer<TCloakedStruct> : I
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddCloakedBearerStructAs);
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddCloakedBearerStructAs);
 
-    public TCloakedStruct? Value { get; set; }
+    public FieldContentHandling FieldContentHandling { get; set; }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(ComplexTypeFieldAlwaysAddCloakedBearerStructAs)
               , ComplexTypeFieldAlwaysAddCloakedBearerStructAs
               , ValueRevealer, FieldContentHandling)
            .Complete();
-
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public PalantírReveal<TCloakedStruct> ValueRevealer { get; set; } = null!;
-
-    public Delegate ValueRevealerDelegate
-    {
-        get => ValueRevealer;
-        set => ValueRevealer = (PalantírReveal<TCloakedStruct>)value;
-    }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStruct | AcceptsClass | AcceptsNullableClass | AcceptsStringBearer |
-                  SupportsCustomHandling)]
-public class FieldStringBearerAlwaysAddStringBearer<TBearer> : IMoldSupportedValue<TBearer?>, ISupportsFieldHandling
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+public class FieldStringBearerAlwaysAddStringBearer<TBearer> : MoldScaffoldBase<TBearer?>, ISupportsFieldHandling
     where TBearer : IStringBearer
 {
     public TBearer? ComplexTypeFieldAlwaysAddStringBearerAs
@@ -380,26 +331,21 @@ public class FieldStringBearerAlwaysAddStringBearer<TBearer> : IMoldSupportedVal
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBearerAs);
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBearerAs);
 
-    public TBearer? Value { get; set; }
+    public FieldContentHandling FieldContentHandling { get; set; }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(ComplexTypeFieldAlwaysAddStringBearerAs)
               , ComplexTypeFieldAlwaysAddStringBearerAs
               , FieldContentHandling)
            .Complete();
-
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer |
-                  SupportsCustomHandling)]
-public class FieldNullableStringBearerAlwaysAddStringBearer<TBearerStruct> : IMoldSupportedValue<TBearerStruct?>
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
+public class FieldNullableStringBearerAlwaysAddStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
   , ISupportsFieldHandling where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? ComplexTypeFieldAlwaysAddStringBearerStructAs
@@ -408,45 +354,30 @@ public class FieldNullableStringBearerAlwaysAddStringBearer<TBearerStruct> : IMo
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBearerStructAs);
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBearerStructAs);
 
-    public TBearerStruct? Value { get; set; }
+    public FieldContentHandling FieldContentHandling { get; set; }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(ComplexTypeFieldAlwaysAddStringBearerStructAs)
               , ComplexTypeFieldAlwaysAddStringBearerStructAs
               , FieldContentHandling)
            .Complete();
-
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString |
-                  SupportsCustomHandling)]
-public class FieldCharSpanAlwaysAddStringBearer : IMoldSupportedValue<char[]>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsSpan | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString)]
+public class FieldCharSpanAlwaysAddStringBearer : FormattedMoldScaffold<char[]>
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public char[] ComplexTypeFieldAlwaysAddCharSpanAs
     {
-        get => Value;
+        get => Value!;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharSpanAs);
-
-    public char[] Value { get; set; } = null!;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(ComplexTypeFieldAlwaysAddCharSpanAs)
-              , ComplexTypeFieldAlwaysAddCharSpanAs.AsSpan()
-              , ValueFormatString, FieldContentHandling)
-           .Complete();
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharSpanAs);
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -456,33 +387,26 @@ public class FieldCharSpanAlwaysAddStringBearer : IMoldSupportedValue<char[]>, I
         set => Value = value?.ToCharArray()!;
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddCharSpanAs)
+              , ComplexTypeFieldAlwaysAddCharSpanAs.AsSpan()
+              , ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString |
-                  SupportsCustomHandling)]
-public class FieldCharReadOnlySpanAlwaysAddStringBearer : IMoldSupportedValue<string>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
+public class FieldCharReadOnlySpanAlwaysAddStringBearer : FormattedMoldScaffold<string>
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public string ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs
     {
-        get => Value;
+        get => Value!;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs);
-
-    public string Value { get; set; } = null!;
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs)
-              , ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs.AsSpan()
-              , ValueFormatString, FieldContentHandling)
-           .Complete();
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs);
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -492,13 +416,17 @@ public class FieldCharReadOnlySpanAlwaysAddStringBearer : IMoldSupportedValue<st
         set => Value = value!;
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs)
+              , ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs.AsSpan()
+              , ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
-public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
+public class FieldStringAlwaysAddStringBearer : FormattedMoldScaffold<string?>
   , IPalantirRevealerFactory<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public string? ComplexTypeFieldAlwaysAddString
@@ -507,8 +435,7 @@ public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, IS
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddString);
-    public string? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddString);
 
     public PalantírReveal<string> CreateRevealer => (cloaked, tos) =>
         tos.StartComplexType(cloaked)
@@ -519,7 +446,7 @@ public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, IS
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddString)
@@ -527,15 +454,14 @@ public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, IS
               , ValueFormatString, FieldContentHandling)
            .Complete();
 
+
+    public FieldContentHandling FieldContentHandling { get; set; }
+
     public string? StringValue
     {
         get => Value;
         set => Value = value;
     }
-
-    public string? ValueFormatString { get; set; }
-    
-    public FieldContentHandling FieldContentHandling { get; set; }
     protected bool Equals(FieldStringAlwaysAddStringBearer other) => Value == other.Value;
 
     public override bool Equals(object? obj)
@@ -548,13 +474,11 @@ public class FieldStringAlwaysAddStringBearer : IMoldSupportedValue<string?>, IS
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => Value?.GetHashCode() ?? 0;
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsString | SupportsValueFormatString)]
-public struct FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
-  , IPalantirRevealerFactory<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
+public struct FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<string?>
+  , IPalantirRevealerFactory<string>, ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public FieldStringAlwaysAddStructStringBearer() { }
 
@@ -565,6 +489,8 @@ public struct FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<strin
     }
 
     public string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringFromStruct);
+
+    public FieldContentHandling ContentHandlingFlags { get; set; }
     public string? Value { get; set; }
 
     public PalantírReveal<string> CreateRevealer
@@ -604,7 +530,6 @@ public struct FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<strin
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
-        if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
         return Equals((FieldStringAlwaysAddStructStringBearer)obj);
     }
@@ -615,9 +540,8 @@ public struct FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<strin
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges |
-                  SupportsCustomHandling)]
-public class FieldStringRangeAlwaysAddStringBearer : IMoldSupportedValue<string?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
+public class FieldStringRangeAlwaysAddStringBearer : FormattedMoldScaffold<string?>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public string? ComplexTypeFieldAlwaysAddStringRangeAs
@@ -626,17 +550,7 @@ public class FieldStringRangeAlwaysAddStringBearer : IMoldSupportedValue<string?
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringRangeAs);
-
-    public string? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(ComplexTypeFieldAlwaysAddStringRangeAs)
-              , ComplexTypeFieldAlwaysAddStringRangeAs
-              , FromIndex, Length, ValueFormatString, FieldContentHandling)
-           .Complete();
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringRangeAs);
 
     public FieldContentHandling FieldContentHandling { get; set; }
     public int FromIndex { get; set; }
@@ -649,13 +563,17 @@ public class FieldStringRangeAlwaysAddStringBearer : IMoldSupportedValue<string?
         set => Value = value;
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddStringRangeAs)
+              , ComplexTypeFieldAlwaysAddStringRangeAs
+              , FromIndex, Length, ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsCustomHandling)]
-public class FieldCharArrayAlwaysAddStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString)]
+public class FieldCharArrayAlwaysAddStringBearer : FormattedMoldScaffold<char[]?>
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public char[]? ComplexTypeFieldAlwaysAddCharArrayAs
@@ -664,17 +582,7 @@ public class FieldCharArrayAlwaysAddStringBearer : IMoldSupportedValue<char[]?>,
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharArrayAs);
-
-    public char[]? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(ComplexTypeFieldAlwaysAddCharArrayAs)
-              , ComplexTypeFieldAlwaysAddCharArrayAs
-              , ValueFormatString, FieldContentHandling)
-           .Complete();
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharArrayAs);
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -684,14 +592,17 @@ public class FieldCharArrayAlwaysAddStringBearer : IMoldSupportedValue<char[]?>,
         set => Value = value?.ToCharArray();
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddCharArrayAs)
+              , ComplexTypeFieldAlwaysAddCharArrayAs
+              , ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
-                  SupportsCustomHandling)]
-public class FieldCharArrayRangeAlwaysAddStringBearer : IMoldSupportedValue<char[]?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
+public class FieldCharArrayRangeAlwaysAddStringBearer : FormattedMoldScaffold<char[]?>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
     public char[]? ComplexTypeFieldAlwaysAddCharArrayRangeAs
@@ -700,16 +611,7 @@ public class FieldCharArrayRangeAlwaysAddStringBearer : IMoldSupportedValue<char
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharArrayRangeAs);
-    public char[]? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(ComplexTypeFieldAlwaysAddCharArrayRangeAs)
-              , ComplexTypeFieldAlwaysAddCharArrayRangeAs
-              , FromIndex, Length, ValueFormatString, FieldContentHandling)
-           .Complete();
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharArrayRangeAs);
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -723,13 +625,17 @@ public class FieldCharArrayRangeAlwaysAddStringBearer : IMoldSupportedValue<char
         set => Value = value?.ToCharArray();
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddCharArrayRangeAs)
+              , ComplexTypeFieldAlwaysAddCharArrayRangeAs
+              , FromIndex, Length, ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsCustomHandling)]
-public class FieldCharSequenceAlwaysAddStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString)]
+public class FieldCharSequenceAlwaysAddStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq?>
   , ISupportsSettingValueFromString, ISupportsFieldHandling where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldAlwaysAddCharSequenceAs
@@ -738,17 +644,7 @@ public class FieldCharSequenceAlwaysAddStringBearer<TCharSeq> : IMoldSupportedVa
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharSequenceAs);
-
-    public TCharSeq? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAddCharSeq
-               (nameof(ComplexTypeFieldAlwaysAddCharSequenceAs)
-              , ComplexTypeFieldAlwaysAddCharSequenceAs
-              , ValueFormatString, FieldContentHandling)
-           .Complete();
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharSequenceAs);
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -766,15 +662,18 @@ public class FieldCharSequenceAlwaysAddStringBearer<TCharSeq> : IMoldSupportedVa
         }
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAddCharSeq
+               (nameof(ComplexTypeFieldAlwaysAddCharSequenceAs)
+              , ComplexTypeFieldAlwaysAddCharSequenceAs
+              , ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
-                  SupportsCustomHandling)]
-public class FieldCharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IMoldSupportedValue<TCharSeq?>
-  , ISupportsValueFormatString, ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
+public class FieldCharSequenceRangeAlwaysAddStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq?>
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
     where TCharSeq : ICharSequence
 {
     public TCharSeq? ComplexTypeFieldAlwaysAddCharSequenceRangeAs
@@ -783,17 +682,7 @@ public class FieldCharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IMoldSuppor
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharSequenceRangeAs);
-
-    public TCharSeq? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAddCharSeq
-               (nameof(ComplexTypeFieldAlwaysAddCharSequenceRangeAs)
-              , ComplexTypeFieldAlwaysAddCharSequenceRangeAs
-              , FromIndex, Length, ValueFormatString, FieldContentHandling)
-           .Complete();
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddCharSequenceRangeAs);
 
     public FieldContentHandling FieldContentHandling { get; set; }
     public int FromIndex { get; set; }
@@ -814,13 +703,17 @@ public class FieldCharSequenceRangeAlwaysAddStringBearer<TCharSeq> : IMoldSuppor
         }
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAddCharSeq
+               (nameof(ComplexTypeFieldAlwaysAddCharSequenceRangeAs)
+              , ComplexTypeFieldAlwaysAddCharSequenceRangeAs
+              , FromIndex, Length, ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsCustomHandling)]
-public class FieldStringBuilderAlwaysAddStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString)]
+public class FieldStringBuilderAlwaysAddStringBearer : FormattedMoldScaffold<StringBuilder?>
   , ISupportsSettingValueFromString, ISupportsFieldHandling
 {
     public StringBuilder? ComplexTypeFieldAlwaysAddStringBuilderAs
@@ -829,17 +722,7 @@ public class FieldStringBuilderAlwaysAddStringBearer : IMoldSupportedValue<Strin
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBuilderAs);
-
-    public StringBuilder? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(ComplexTypeFieldAlwaysAddStringBuilderAs)
-              , ComplexTypeFieldAlwaysAddStringBuilderAs
-              , ValueFormatString, FieldContentHandling)
-           .Complete();
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBuilderAs);
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -849,14 +732,18 @@ public class FieldStringBuilderAlwaysAddStringBearer : IMoldSupportedValue<Strin
         set => Value = new StringBuilder(value);
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddStringBuilderAs)
+              , ComplexTypeFieldAlwaysAddStringBuilderAs
+              , ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
-                  SupportsCustomHandling)]
-public class FieldStringBuilderRangeAlwaysAddStringBearer : IMoldSupportedValue<StringBuilder?>, ISupportsValueFormatString
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsStringBuilder | SupportsValueFormatString
+                | SupportsIndexSubRanges)]
+public class FieldStringBuilderRangeAlwaysAddStringBearer : FormattedMoldScaffold<StringBuilder?>
   , ISupportsSettingValueFromString
   , ISupportsIndexRangeLimiting, ISupportsFieldHandling
 {
@@ -866,16 +753,7 @@ public class FieldStringBuilderRangeAlwaysAddStringBearer : IMoldSupportedValue<
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBuilderRangeAs);
-    public StringBuilder? Value { get; set; }
-
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(ComplexTypeFieldAlwaysAddStringBuilderRangeAs)
-              , ComplexTypeFieldAlwaysAddStringBuilderRangeAs
-              , FromIndex, Length, ValueFormatString, FieldContentHandling)
-           .Complete();
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBuilderRangeAs);
 
     public FieldContentHandling FieldContentHandling { get; set; }
 
@@ -889,13 +767,17 @@ public class FieldStringBuilderRangeAlwaysAddStringBearer : IMoldSupportedValue<
         set => Value = new StringBuilder(value);
     }
 
-    public string? ValueFormatString { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .Field.AlwaysAdd
+               (nameof(ComplexTypeFieldAlwaysAddStringBuilderRangeAs)
+              , ComplexTypeFieldAlwaysAddStringBuilderRangeAs
+              , FromIndex, Length, ValueFormatString, FieldContentHandling)
+           .Complete();
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString | SupportsCustomHandling)]
-public class FieldMatchAlwaysAddStringBearer<TAny> : IMoldSupportedValue<TAny?>, ISupportsValueFormatString, ISupportsFieldHandling
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+public class FieldMatchAlwaysAddStringBearer<TAny> : FormattedMoldScaffold<TAny?>, ISupportsFieldHandling
 {
     public TAny? ComplexTypeFieldAlwaysAddMatch
     {
@@ -903,25 +785,21 @@ public class FieldMatchAlwaysAddStringBearer<TAny> : IMoldSupportedValue<TAny?>,
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddMatch);
-    public TAny? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddMatch);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddMatch
                (nameof(ComplexTypeFieldAlwaysAddMatch)
               , ComplexTypeFieldAlwaysAddMatch
               , ValueFormatString)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
-[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsAnyGeneric | SupportsValueFormatString | SupportsCustomHandling)]
-public class FieldObjectAlwaysAddStringBearer : IMoldSupportedValue<object?>, ISupportsValueFormatString, ISupportsFieldHandling
+[TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsNullableObject | SupportsValueFormatString)]
+public class FieldObjectAlwaysAddStringBearer : FormattedMoldScaffold<object?>, ISupportsFieldHandling
 {
     public object? ComplexTypeFieldAlwaysAddObject
     {
@@ -929,20 +807,16 @@ public class FieldObjectAlwaysAddStringBearer : IMoldSupportedValue<object?>, IS
         set => Value = value;
     }
 
-    public string PropertyName => nameof(ComplexTypeFieldAlwaysAddObject);
-    public object? Value { get; set; }
+    public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddObject);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+
+    public FieldContentHandling FieldContentHandling { get; set; }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddObject
                (nameof(ComplexTypeFieldAlwaysAddObject)
               , ComplexTypeFieldAlwaysAddObject
               , ValueFormatString, FieldContentHandling)
            .Complete();
-
-    public string? ValueFormatString { get; set; }
-    
-    public FieldContentHandling FieldContentHandling { get; set; }
-
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
