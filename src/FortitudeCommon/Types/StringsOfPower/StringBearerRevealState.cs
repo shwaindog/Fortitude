@@ -4,9 +4,10 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.Types.StringsOfPower;
 
-public delegate StateExtractStringRange PalantírReveal<in TToStyle>(TToStyle toStyle, ITheOneString toAppendTo);
+public delegate StateExtractStringRange PalantírReveal<in TToStyle>(TToStyle toStyle, ITheOneString toAppendTo)
+    where TToStyle : notnull;
 
-public interface IStringBearerRevelStateProvider<in TToStyle> : IStringBearerFormattableProvider
+public interface IStringBearerRevelStateProvider<in TToStyle> : IStringBearerFormattableProvider where TToStyle : notnull
 {
     PalantírReveal<TToStyle>  EnumPalantír { get; }
 }

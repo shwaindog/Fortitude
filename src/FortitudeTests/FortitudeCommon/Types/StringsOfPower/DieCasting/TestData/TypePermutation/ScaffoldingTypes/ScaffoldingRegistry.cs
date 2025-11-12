@@ -348,6 +348,10 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNullableClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableClass));
 
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsOnlyNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe =>  spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct) 
+                          && spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass | AcceptsNullableStruct));
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct));
 

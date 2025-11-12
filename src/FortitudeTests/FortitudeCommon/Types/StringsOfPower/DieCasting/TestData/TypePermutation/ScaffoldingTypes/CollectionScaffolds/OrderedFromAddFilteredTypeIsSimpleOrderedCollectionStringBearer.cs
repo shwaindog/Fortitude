@@ -379,9 +379,9 @@ public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedColle
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
                 | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt> :
-    FormattedFilteredCollectionMoldScaffold<TFmt?, TFmt?[]>
-    where TFmt : class, ISpanFormattable
+public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TFmtBase> :
+    FormattedFilteredCollectionMoldScaffold<TFmt?, TFmtBase?, TFmt?[]>
+    where TFmt : class, ISpanFormattable, TFmtBase
 {
     public TFmt?[]? OrderedCollectionAddFilteredSpanFormattableNullableReadOnlySpan
     {

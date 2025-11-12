@@ -10,8 +10,6 @@ using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.CollectionScaffolds;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.OrderedLists;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
@@ -103,7 +101,7 @@ public partial class OrderedCollectionMoldTests
     private static IEnumerable<object[]> UnfilteredNonNullFmtCollectionsExpect =>
         // Non nullables and classes
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-            where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+            where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
             from scaffoldToCall in 
                 scafReg
                     .IsOrderedCollectionType()
@@ -115,7 +113,7 @@ public partial class OrderedCollectionMoldTests
         .Concat( 
                 // Nullable structs
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-                where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+                where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: false }   
                 from scaffoldToCall in 
                     scafReg
                         .IsOrderedCollectionType()
@@ -127,7 +125,7 @@ public partial class OrderedCollectionMoldTests
         .Concat( 
                 // classes
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-                where fe.ElementTypeIsClass && !fe.HasRestrictingFilter   
+                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
                     scafReg
                         .IsOrderedCollectionType()
@@ -147,7 +145,7 @@ public partial class OrderedCollectionMoldTests
 
     private static IEnumerable<object[]> FilteredFmtCollectionsExpect =>
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-            where !fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
+            where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: true }   
             from scaffoldToCall in 
                 scafReg
                     .IsOrderedCollectionType()
@@ -158,7 +156,7 @@ public partial class OrderedCollectionMoldTests
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-                where fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
+                where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: true }   
                 from scaffoldToCall in 
                     scafReg
                         .IsOrderedCollectionType()
@@ -169,7 +167,7 @@ public partial class OrderedCollectionMoldTests
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-                where fe.ElementTypeIsClass && fe.HasRestrictingFilter   
+                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     scafReg
                         .IsOrderedCollectionType()
@@ -324,6 +322,7 @@ public partial class OrderedCollectionMoldTests
               .FinalAppend("");
 
 
+        // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Compact | Log);
 
         string BuildExpectedOutput(string className, string propertyName
@@ -363,7 +362,7 @@ public partial class OrderedCollectionMoldTests
             
             logger.InfoAppend("To Debug Test past the following code into ")?
                   .Append(nameof(CompactLogListTest)).Append("()\n\n")
-                  .Append("SharedCompactLog(")?
+                  .Append("SharedCompactLog(")
                   .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else

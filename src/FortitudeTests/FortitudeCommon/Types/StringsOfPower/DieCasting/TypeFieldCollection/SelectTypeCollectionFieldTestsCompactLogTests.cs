@@ -106,7 +106,7 @@ public partial class SelectTypeCollectionFieldTests
 
     private static IEnumerable<object[]> UnfiltereFmtCollectionsExpect =>
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-            where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+            where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
             from scaffoldToCall in 
                 scafReg
                     .IsJustComplexType()
@@ -118,7 +118,7 @@ public partial class SelectTypeCollectionFieldTests
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-                where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
+                where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: false }   
                 from scaffoldToCall in 
                     scafReg
                         .IsJustComplexType()
@@ -130,7 +130,7 @@ public partial class SelectTypeCollectionFieldTests
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-                where fe.ElementTypeIsClass && !fe.HasRestrictingFilter   
+                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
                     scafReg
                         .IsJustComplexType()
@@ -152,7 +152,7 @@ public partial class SelectTypeCollectionFieldTests
     private static IEnumerable<object[]> FilteredFmtCollectionsExpect =>
         // Non nullables and classes
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-            where !fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
+            where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: true }   
             from scaffoldToCall in 
                 scafReg
                     .IsJustComplexType()
@@ -165,7 +165,7 @@ public partial class SelectTypeCollectionFieldTests
         .Concat( 
                 // Nullable structs
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-                where fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
+                where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: true }   
                 from scaffoldToCall in 
                     scafReg
                         .IsJustComplexType()
@@ -178,7 +178,7 @@ public partial class SelectTypeCollectionFieldTests
         .Concat( 
                 // classes
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
-                where fe.ElementTypeIsClass && fe.HasRestrictingFilter   
+                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     scafReg
                         .IsJustComplexType()
