@@ -2,9 +2,11 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Numerics;
+using System.Text;
 using FortitudeCommon.Config;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification.CollectionItemResult;
 // ReSharper disable InconsistentNaming
 // ReSharper disable FormatStringProblem
@@ -245,4 +247,177 @@ public static class TestCollections
     public static OrderedCollectionPredicate<Version?> NullVersion_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
     public static OrderedCollectionPredicate<Version?> NullVersion_First_MjrGt_10    = (_, item) => First(item?.Major is > 10);
     public static OrderedCollectionPredicate<Version?> NullVersion_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
+
+    public static string[] StringArray =
+    [
+        "<Title author=\"A RR Token\">Origin of the 𝄞trings & spin offs</Title>"
+      , "It began with the forging of the Great Strings."
+      , "Three were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings."
+      , "Seven to the Cobol-Lords, eventually great Bitcoin miners and great cardigan wearers of the mainframe halls."
+      , "And nine, nine strings were gifted to the race of C++ coders, who above all else desired unchecked memory access power. "
+      , "For within these strings was bound the flexibility, mutability and the operators to govern each language"
+      , "But they were all of them deceived, for another string was made."
+      , "Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master String, " + 
+        " and into this string he poured his unambiguity, his immutability desires and his will to replace all "
+      , "One string to use in all, one string to find text in, One string to replace them all and in the dustbins of time confine them"
+      , "<ǝlʇᴉ┴/>sɟɟo uᴉds ⅋ sƃuᴉɹʇS ǝɥʇ ɟo uᴉƃᴉɹO<,,uǝʞo┴ ɹɹ ∀,,=ɹoɥʇnɐ ǝlʇᴉ┴>"
+    ];
+    
+    public static List<string> StringList = [..StringArray];
+    public static Lazy<List<string?>> NullStringList = new (() =>
+    {
+        var stringWithNulls = new List<string?>();
+        for (int i = 0; i < StringArray.Length; i++)
+        {
+            var stringAtIndex = StringArray[i];
+            switch (i)
+            {
+                case 0: 
+                case 8:
+                    stringWithNulls.Add(null);
+                    stringWithNulls.Add(stringAtIndex);
+                    break;
+                case 3: 
+                    stringWithNulls.Add(null);
+                    stringWithNulls.Add(null);
+                    stringWithNulls.Add(stringAtIndex);
+                    break;
+                default:
+                    stringWithNulls.Add(stringAtIndex);
+                    break;
+            }
+        }
+        return stringWithNulls;
+    });
+
+    public static PalantírReveal<string> StringRevealer            = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
+    public static PalantírReveal<string> StringRevealer_Pad_20     = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0}|");
+    public static PalantírReveal<string> StringRevealer_Pad_80 = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0,80}|");
+
+    public static OrderedCollectionPredicate<string> String_LenLt_100      = (_, item) => EvaluateIsIncludedAndContinue(item.Length < 100);
+    public static OrderedCollectionPredicate<string> String_LenGt_100      = (_, item) => EvaluateIsIncludedAndContinue(item.Length > 100);
+    public static OrderedCollectionPredicate<string> String_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<string> String_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<string> String_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
+    public static OrderedCollectionPredicate<string> String_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<string> String_First_LenGt_100 = (_, item) => First(item.Length > 100);
+    public static OrderedCollectionPredicate<string> String_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
+
+    public static OrderedCollectionPredicate<string?> NullString_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length < 100);
+    public static OrderedCollectionPredicate<string?> NullString_LenGt_100          = (_, item) => EvaluateIsIncludedAndContinue(item?.Length > 100);
+    public static OrderedCollectionPredicate<string?> NullString_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<string?> NullString_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<string?> NullString_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
+    public static OrderedCollectionPredicate<string?> NullString_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<string?> NullString_First_LenGt_100    = (_, item) => First(item?.Length is > 100);
+    public static OrderedCollectionPredicate<string?> NullString_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
+    
+    public static Lazy<List<char[]>> CharArrayList = new(() => StringArray.Select(s => s.ToCharArray()).ToList()); 
+    public static Lazy<List<char[]?>> NullCharArrayList = new (() =>
+    {
+        var withNulls = new List<char[]?>();
+        for (int i = 0; i < StringArray.Length; i++)
+        {
+            var stringAtIndex = StringArray[i];
+            switch (i)
+            {
+                case 0: 
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(stringAtIndex.ToCharArray());
+                    break;
+                case 3: 
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(stringAtIndex.ToCharArray());
+                    break;
+                default:
+                    withNulls.Add(stringAtIndex.ToCharArray());
+                    break;
+            }
+        }
+        return withNulls;
+    });
+    
+    public static Lazy<List<MutableString>> MutableStringList = new(() => StringArray.Select(s => new MutableString(s)).ToList()); 
+    public static Lazy<List<MutableString?>> NullMutableStringList = new (() =>
+    {
+        var withNulls = new List<MutableString?>();
+        for (int i = 0; i < StringArray.Length; i++)
+        {
+            var stringAtIndex = StringArray[i];
+            switch (i)
+            {
+                case 0: 
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(new MutableString(stringAtIndex));
+                    break;
+                case 3: 
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(new MutableString(stringAtIndex));
+                    break;
+                default:
+                    withNulls.Add(new MutableString(stringAtIndex));
+                    break;
+            }
+        }
+        return withNulls;
+    });
+    
+    public static Lazy<List<CharArrayStringBuilder>> CharArrayStringBuilderList = new(() => StringArray.Select(s => new CharArrayStringBuilder(s)).ToList()); 
+    public static Lazy<List<CharArrayStringBuilder?>> NullCharArrayStringBuilderList = new (() =>
+    {
+        var withNulls = new List<CharArrayStringBuilder?>();
+        for (int i = 0; i < StringArray.Length; i++)
+        {
+            var stringAtIndex = StringArray[i];
+            switch (i)
+            {
+                case 0: 
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(new CharArrayStringBuilder(stringAtIndex));
+                    break;
+                case 3: 
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(new CharArrayStringBuilder(stringAtIndex));
+                    break;
+                default:
+                    withNulls.Add(new CharArrayStringBuilder(stringAtIndex));
+                    break;
+            }
+        }
+        return withNulls;
+    });
+    
+    public static Lazy<List<StringBuilder>> StringBuilderList = new(() => StringArray.Select(s => new StringBuilder(s)).ToList()); 
+    public static Lazy<List<StringBuilder?>> NullStringBuilderList = new (() =>
+    {
+        var withNulls = new List<StringBuilder?>();
+        for (int i = 0; i < StringArray.Length; i++)
+        {
+            var stringAtIndex = StringArray[i];
+            switch (i)
+            {
+                case 0: 
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(new StringBuilder(stringAtIndex));
+                    break;
+                case 3: 
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(new StringBuilder(stringAtIndex));
+                    break;
+                default:
+                    withNulls.Add(new StringBuilder(stringAtIndex));
+                    break;
+            }
+        }
+        return withNulls;
+    });
+    
 }

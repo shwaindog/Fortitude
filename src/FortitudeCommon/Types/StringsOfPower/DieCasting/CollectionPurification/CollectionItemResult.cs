@@ -29,19 +29,22 @@ public readonly record struct CollectionItemResult(CollectionItemFilterFlags Inc
         new ( (CollectionItemFilterFlags)(Math.Abs(skipAmount)));
     
     public static          CollectionItemResult NotIncludedAndSkipNext(int skipAmount)      => 
-        new ( (CollectionItemFilterFlags)(-1 * Math.Abs(skipAmount) - 1));
+        new ( (CollectionItemFilterFlags)(-Math.Abs(skipAmount) + 1));
     
     public static CollectionItemResult EvaluateIsIncludedAndContinue(bool shouldInclude, int skipAmount = 0) => 
-        new ((CollectionItemFilterFlags)((shouldInclude ? 1 : -1)  *  Math.Abs(skipAmount)));  
+        new ((CollectionItemFilterFlags)(shouldInclude 
+                 ?  Math.Abs(skipAmount) 
+                 : -(Math.Abs(skipAmount)+ 1)));  
     
     public static CollectionItemResult StopOnFirstExclusion(bool shouldInclude, int skipAmount = 0) => 
         new (shouldInclude 
-                 ? ((CollectionItemFilterFlags)(
-                     ((shouldInclude ? Math.Abs(skipAmount) : -1 * (Math.Abs(skipAmount)+ 1))))) 
+                 ? ((CollectionItemFilterFlags)(shouldInclude 
+                     ?  Math.Abs(skipAmount) 
+                     : -(Math.Abs(skipAmount)+ 1))) 
                  : DoNotIncludeAndComplete );  
     
     public static CollectionItemResult First(bool shouldInclude, int skipAmount = 0) => 
         new ((shouldInclude 
                  ? IncludeAndComplete 
-                 : (CollectionItemFilterFlags)(-1 * (Math.Abs(skipAmount)+ 1))));  
+                 : (CollectionItemFilterFlags)(-(Math.Abs(skipAmount)+ 1))));  
 }

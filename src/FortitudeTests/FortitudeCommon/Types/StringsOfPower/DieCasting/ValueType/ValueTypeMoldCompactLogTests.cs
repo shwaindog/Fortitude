@@ -213,7 +213,7 @@ public partial class ValueTypeMoldTests
     {
         get
         {
-            var acceptsFormatString = from fe in StringLikeTestData.AllStringLikeExpectations
+            var acceptsFormatString = from fe in StringTestData.AllStringExpectations
                 where fe.InputType.IsString()
                 from scaffoldToCall in
                     scafReg.IsSimpleType().ProcessesSingleValue().AcceptsString().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
@@ -222,8 +222,8 @@ public partial class ValueTypeMoldTests
                 select new object[] { fe, scaffoldToCall };
 
             var noFormatStringFiltering =
-                StringLikeTestData
-                    .AllStringLikeExpectations
+                StringTestData
+                    .AllStringExpectations
                     .Where(fe =>
                     {
                         var noFormatStringModifications = fe.FormatString.IsNullOrEmpty();
@@ -260,7 +260,7 @@ public partial class ValueTypeMoldTests
     {
         get
         {
-            var acceptsFormatString = from fe in StringLikeTestData.AllStringLikeExpectations
+            var acceptsFormatString = from fe in StringTestData.AllStringExpectations
                 where fe.InputType.IsString()
                 from scaffoldToCall in
                     scafReg.IsSimpleType().ProcessesSingleValue().AcceptsString().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
@@ -269,8 +269,8 @@ public partial class ValueTypeMoldTests
                 select new object[] { fe, scaffoldToCall };
 
             var noFormatStringFiltering =
-                StringLikeTestData
-                    .AllStringLikeExpectations
+                StringTestData
+                    .AllStringExpectations
                     .Where(fe =>
                     {
                         var noFormatStringModifications = fe.FormatString.IsNullOrEmpty();
@@ -307,7 +307,7 @@ public partial class ValueTypeMoldTests
     {
         get
         {
-            var acceptsFormatString = from fe in StringLikeTestData.AllStringLikeExpectations
+            var acceptsFormatString = from fe in CharArrayTestData.AllCharArrayExpectations
                 where fe.InputType.IsCharArray()
                 from scaffoldToCall in
                     scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharArray().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
@@ -316,8 +316,8 @@ public partial class ValueTypeMoldTests
                 select new object[] { fe, scaffoldToCall };
 
             var noFormatStringFiltering =
-                StringLikeTestData
-                    .AllStringLikeExpectations
+                CharArrayTestData
+                    .AllCharArrayExpectations
                     .Where(fe =>
                     {
                         var noFormatStringModifications = fe.FormatString.IsNullOrEmpty();
@@ -354,7 +354,7 @@ public partial class ValueTypeMoldTests
     {
         get
         {
-            var acceptsFormatString = from fe in StringLikeTestData.AllStringLikeExpectations
+            var acceptsFormatString = from fe in CharArrayTestData.AllCharArrayExpectations
                 where fe.InputType.IsCharArray()
                 from scaffoldToCall in
                     scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharArray().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
@@ -363,8 +363,8 @@ public partial class ValueTypeMoldTests
                 select new object[] { fe, scaffoldToCall };
 
             var noFormatStringFiltering =
-                StringLikeTestData
-                    .AllStringLikeExpectations
+                CharArrayTestData
+                    .AllCharArrayExpectations
                     .Where(fe =>
                     {
                         var noFormatStringModifications = fe.FormatString.IsNullOrEmpty();
@@ -387,7 +387,7 @@ public partial class ValueTypeMoldTests
             return acceptsFormatString.Concat(noFormatStringFiltering);
         }
     }
-    
+
     [TestMethod]
     [DynamicData(nameof(CharArrayExpectAsString), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactLogCharArrayAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -397,7 +397,7 @@ public partial class ValueTypeMoldTests
     }
 
     private static IEnumerable<object[]> CharSequenceExpectAsValue =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in CharSequenceTestData.AllCharSequenceExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
             scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
@@ -415,7 +415,7 @@ public partial class ValueTypeMoldTests
     }
 
     private static IEnumerable<object[]> CharSequenceExpectAsString =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in CharSequenceTestData.AllCharSequenceExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
             scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
@@ -433,7 +433,7 @@ public partial class ValueTypeMoldTests
     }
 
     private static IEnumerable<object[]> StringBuilderExpectAsValue =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in StringBuilderTestData.AllStringBuilderExpectations
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
             scafReg.IsSimpleType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
@@ -451,7 +451,7 @@ public partial class ValueTypeMoldTests
     }
 
     private static IEnumerable<object[]> StringBuilderExpectAsString =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in StringBuilderTestData.AllStringBuilderExpectations
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
             scafReg.IsSimpleType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
@@ -550,7 +550,7 @@ public partial class ValueTypeMoldTests
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")
-              .AppendLine(new MutableString().AppendFormat("{0}",  scaffoldingToCall.ScaffoldingFlags).ToString().Replace(",", " |"))
+              .AppendLine(new MutableString().AppendFormat("{0}", scaffoldingToCall.ScaffoldingFlags).ToString().Replace(",", " |"))
               .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
@@ -574,10 +574,7 @@ public partial class ValueTypeMoldTests
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 maybeSpace = expectValue.Trim().Length > 0 ? " " : "";
-                if (maybeSpace.Length == 0)
-                {
-                    expectValue = "";
-                }
+                if (maybeSpace.Length == 0) { expectValue = ""; }
             }
             else { expectValue = ""; }
             return string.Format(compactLogTemplate, className, propertyName, maybeSpace, expectValue);
@@ -618,7 +615,7 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
-            
+
             logger.InfoAppend("To Debug Test past the following code into ")?
                   .Append(nameof(CompactLogSingleTest)).Append("()\n\n")
                   .Append("SharedCompactLogAsValue(")
@@ -639,7 +636,7 @@ public partial class ValueTypeMoldTests
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")
-              .AppendLine(new MutableString().AppendFormat("{0}",  scaffoldingToCall.ScaffoldingFlags).ToString().Replace(",", " |"))
+              .AppendLine(new MutableString().AppendFormat("{0}", scaffoldingToCall.ScaffoldingFlags).ToString().Replace(",", " |"))
               .FinalAppend("\n");
 
         logger.WarnAppend("FormatExpectation - ")?
@@ -661,14 +658,11 @@ public partial class ValueTypeMoldTests
 
             var maybeSpace  = "";
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            
+
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 maybeSpace = expectValue.Trim().Length > 0 ? " " : "";
-                if (maybeSpace.Length == 0)
-                {
-                    expectValue = "";
-                }
+                if (maybeSpace.Length == 0) { expectValue = ""; }
             }
             else { expectValue = ""; }
             return string.Format(compactLogTemplate, className, propertyName, maybeSpace, expectValue);
@@ -709,7 +703,7 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
-            
+
             logger.InfoAppend("To Debug Test past the following code into ")?
                   .Append(nameof(CompactLogSingleTest)).Append("()\n\n")
                   .Append("SharedCompactLogAsString(")
