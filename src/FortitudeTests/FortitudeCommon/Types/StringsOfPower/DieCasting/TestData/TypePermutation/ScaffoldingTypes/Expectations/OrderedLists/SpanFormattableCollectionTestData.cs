@@ -75,6 +75,24 @@ public class SpanFormattableCollectionTestData
                 """ 
             }
         }
+      , new OrderedListExpect<float>(FloatList, "|{0,-10:F4}|",() => Float_Skip_Odd_Index)
+        {
+            { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
+                "[ |3.1416    |, |6.2832    |, |12.5664   |, |18.8496   |, |25.1327   | ]" }
+          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+                "[|3.1416    |,|6.2832    |,|12.5664   |,|18.8496   |,|25.1327   |]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+                """
+                [
+                  |3.1416    |,
+                  |6.2832    |,
+                  |12.5664   |,
+                  |18.8496   |,
+                  |25.1327   |
+                ]
+                """ 
+            }
+        }
       , new OrderedListExpect<float>(FloatList, "{0:F3}", () => Float_First_2)
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
@@ -135,7 +153,6 @@ public class SpanFormattableCollectionTestData
                   null,
                   3.1415927,
                   2.7182817,
-                  5.4365635,
                   null,
                   null,
                   9.424778,
@@ -167,6 +184,27 @@ public class SpanFormattableCollectionTestData
                   2.7182817,
                   null,
                   null
+                ]
+                """ 
+            }
+        }
+      , new OrderedListExpect<float?>(NullFloatList, "|{0,10:F4}|",() => NullFloat_Skip_Odd_Index)
+        {
+            { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
+                "[ |      null|, |    2.7183|, |      null|, |      null|, |      null|, |   12.5664|, |      null|, |      null| ]" }
+          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+                "[|      null|,|    2.7183|,|      null|,|      null|,|      null|,|   12.5664|,|      null|,|      null|]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+                """
+                [
+                  |      null|,
+                  |    2.7183|,
+                  |      null|,
+                  |      null|,
+                  |      null|,
+                  |   12.5664|,
+                  |      null|,
+                  |      null|
                 ]
                 """ 
             }

@@ -152,12 +152,13 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         return false;
     }
 
-    protected virtual bool TryGetCachedCustomStyledToStringFormatter<T>([NotNullWhen(true)] out PalantírReveal<T>? maybeFormatter)
+    protected virtual bool TryGetCachedCustomStyledToStringFormatter<TCloaked>
+        ([NotNullWhen(true)] out PalantírReveal<TCloaked>? maybeFormatter) where TCloaked : notnull
     {
         maybeFormatter = null;
-        if (GlobalCustomStyledToStringFormattableProviders.TryGetValue(typeof(T), out var formattableProvider))
+        if (GlobalCustomStyledToStringFormattableProviders.TryGetValue(typeof(TCloaked), out var formattableProvider))
         {
-            if (formattableProvider.SupportStyleToString && formattableProvider is IStringBearerRevelStateProvider<T> spanFormattableProvider)
+            if (formattableProvider.SupportStyleToString && formattableProvider is IStringBearerRevelStateProvider<TCloaked> spanFormattableProvider)
             {
                 maybeFormatter = spanFormattableProvider.EnumPalantír;
                 return true;

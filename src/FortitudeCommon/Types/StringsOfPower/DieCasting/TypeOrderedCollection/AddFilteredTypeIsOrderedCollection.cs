@@ -3194,6 +3194,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
@@ -3503,6 +3504,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
