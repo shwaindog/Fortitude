@@ -77,8 +77,9 @@ public class FieldSpanFormattableSpanWhenPopulatedWithFilterStringBearer<TFmt, T
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | FilterPredicate 
                 | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableClassSpanWhenPopulatedWithFilterStringBearer<TFmt> : FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmt?[]>
-   where TFmt : class, ISpanFormattable
+public class FieldSpanFormattableNullableClassSpanWhenPopulatedWithFilterStringBearer<TFmt, TFmtBase> : 
+    FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmtBase?, TFmt?[]>
+   where TFmt : class, ISpanFormattable, TFmtBase
 {
     public TFmt?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableSpan
     {
@@ -125,6 +126,7 @@ public class FieldNullableSpanFormattableSpanWhenPopulatedWithFilterStringBearer
 public class FieldCloakedBearerSpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
     where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+    where TCloakedRevealBase : notnull
 {
     public TCloaked[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerSpan
     {
@@ -148,6 +150,7 @@ public class FieldCloakedBearerSpanWhenPopulatedWithFilterStringBearer<TCloaked,
 public class FieldCloakedBearerNullableClassSpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
   RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
     where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
+    where TCloakedRevealBase : notnull
 {
     public TCloaked?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableSpan
     {
@@ -528,7 +531,7 @@ public class FieldNullableBoolReadOnlySpanWhenPopulatedWithFilterStringBearer : 
                 | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
 public class FieldSpanFormattableReadOnlySpanWhenPopulatedWithFilterStringBearer<TFmt, TFmtBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmtBase, TFmt[]>
-    where TFmt : struct, ISpanFormattable, TFmtBase
+    where TFmt : ISpanFormattable, TFmtBase
 {
     public TFmt[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableReadOnlySpan
     {
@@ -549,9 +552,9 @@ public class FieldSpanFormattableReadOnlySpanWhenPopulatedWithFilterStringBearer
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
                 | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableClassReadOnlySpanWhenPopulatedWithFilterStringBearer<TFmt>
-    : FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmt?[]>
-    where TFmt : class, ISpanFormattable
+public class FieldSpanFormattableNullableClassReadOnlySpanWhenPopulatedWithFilterStringBearer<TFmt, TFmtBase>
+    : FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmtBase?, TFmt?[]>
+    where TFmt : class, ISpanFormattable, TFmtBase
 {
     public TFmt?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan
     {

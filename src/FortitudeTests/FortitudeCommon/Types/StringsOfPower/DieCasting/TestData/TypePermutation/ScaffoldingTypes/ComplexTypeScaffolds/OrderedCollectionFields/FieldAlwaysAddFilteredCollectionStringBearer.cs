@@ -83,8 +83,9 @@ public class FieldSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmt, TFmtBas
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
                 | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString)]
-public class FieldSpanFormattableNullableClassSpanAlwaysAddFilteredStringBearer<TFmt> : FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmt?[]>
-   where TFmt : class, ISpanFormattable
+public class FieldSpanFormattableNullableClassSpanAlwaysAddFilteredStringBearer<TFmt, TFmtBase> : 
+    FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmtBase?, TFmt?[]>
+   where TFmt : class, ISpanFormattable, TFmtBase
 {
     public TFmt?[]? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableSpan
     {
@@ -224,7 +225,7 @@ public class FieldStringBearerSpanAlwaysAddFilteredStringBearer<TBearer, TBearer
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsNullableClass
                 | AcceptsStringBearer)]
 public class FieldStringBearerNullableClassSpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer?, TBearer?[]>
+    : FilteredCollectionFieldMoldScaffold<TBearer?, TBearerBase?, TBearer?[]>
     where TBearer : class, IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan
@@ -564,8 +565,8 @@ public class FieldNullableBoolReadOnlySpanAlwaysAddFilteredStringBearer : Format
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
                 | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class FieldSpanFormattableReadOnlySpanAlwaysAddFilteredStringBearer<TFmt, TFmtBase>
-    : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmt[]>
-    where TFmt : struct, ISpanFormattable, TFmtBase
+    : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmtBase, TFmt[]>
+    where TFmt : ISpanFormattable, TFmtBase
 {
     public TFmt[]? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableReadOnlySpan
     {
@@ -732,7 +733,7 @@ public class FieldStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<TBearer,
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
                 | AcceptsNullableClass | AcceptsStringBearer)]
 public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer?, TBearer?[]>
+    : FilteredCollectionFieldMoldScaffold<TBearer?, TBearerBase?, TBearer?[]>
     where TBearer : class, IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan

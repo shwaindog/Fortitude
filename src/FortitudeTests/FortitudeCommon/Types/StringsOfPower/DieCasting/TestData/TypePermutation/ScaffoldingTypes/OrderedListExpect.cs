@@ -1,10 +1,12 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Collections;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -16,10 +18,12 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 public interface IOrderedListExpect : IFormatExpectation
 {
     bool ElementTypeIsNullable { get; }
+    bool ElementTypeIsStruct { get; }
     Type ElementTypeScaffoldType { get; }
     Type ElementType { get; }
 
     bool ElementTypeIsClass { get; }
+    bool ContainsNullElements { get; }
 
     bool HasRestrictingFilter { get; }
 }
@@ -27,26 +31,24 @@ public interface IOrderedListExpect : IFormatExpectation
 // ReSharper disable twice ExplicitCallerInfoArgument
 public class OrderedListExpect<TInputElement>
 (
-    List<TInputElement?>? inputList
+    List<TInputElement>? inputList
   , string? formatString = null
-  , Expression<Func<OrderedCollectionPredicate<TInputElement?>>>? elementFilterExpression = null
+  , Expression<Func<OrderedCollectionPredicate<TInputElement>>>? elementFilterExpression = null
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
     : OrderedListExpect<TInputElement, TInputElement>(inputList, formatString, elementFilterExpression, contentHandling, srcFile, srcLine);
 
-public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TInputElement?>?>, IOrderedListExpect
+public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TInputElement>?>, IOrderedListExpect
 {
-    private readonly OrderedCollectionPredicate<TFilterBase?>? elementPredicate;
-
     private readonly string? filterName;
 
     private Type? elementType;
 
     // ReSharper disable once ConvertToPrimaryConstructor
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public OrderedListExpect(List<TInputElement?>? inputList, string? formatString = null
-      , Expression<Func<OrderedCollectionPredicate<TFilterBase?>>>? elementFilterExpression = null
+    public OrderedListExpect(List<TInputElement>? inputList, string? formatString = null
+      , Expression<Func<OrderedCollectionPredicate<TFilterBase>>>? elementFilterExpression = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
@@ -55,17 +57,26 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
         if (elementFilterExpression != null)
         {
             var elementFilter = elementFilterExpression.Compile();
-            elementPredicate = elementFilter.Invoke();
+            ElementPredicate = elementFilter.Invoke();
             var expression = (MemberExpression)elementFilterExpression.Body;
             filterName = expression.Member.Name;
         }
-        else { elementPredicate = ISupportsOrderedCollectionPredicate<TFilterBase?>.GetNoFilterPredicate; }
+        else { ElementPredicate = ISupportsOrderedCollectionPredicate<TFilterBase?>.GetNoFilterPredicate; }
     }
 
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
 
-    public bool ElementTypeIsNullable => ElementType.IsNullable();
-    public bool ElementTypeIsClass => !ElementType.IsValueType;
+    public bool ElementTypeIsNullable => ElementType.IsNullable() || ContainsNullElements;
+    public bool ElementTypeIsClass => !ElementTypeIsStruct;
+    public bool ElementTypeIsStruct => ElementType.IsValueType;
+
+    public bool ContainsNullElements
+    {
+        get
+        {
+            return Input?.Any(i => i == null) ?? false;
+        }
+    }
 
     public Type ElementType => elementType ??= typeof(TInputElement);
     public Type ElementTypeScaffoldType =>
@@ -98,11 +109,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
         }
     }
 
-    public OrderedCollectionPredicate<TFilterBase?>? ElementPredicate
-    {
-        get => elementPredicate;
-        init => elementPredicate = value;
-    }
+    public OrderedCollectionPredicate<TFilterBase>? ElementPredicate { get; init; }
 
     public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
@@ -158,8 +165,12 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
     public override string ToString()
     {
         var sb = new MutableString();
-        sb.AppendLine(GetType().ShortNameInCSharpFormat());
         sb.Append(base.ToString());
+        if (filterName != null)
+        {
+            sb.Append(", FilterName: ")
+              .Append(filterName);
+        }
         sb.AppendLine();
         sb.AppendLine("ExpectedResults");
         var count = 0;

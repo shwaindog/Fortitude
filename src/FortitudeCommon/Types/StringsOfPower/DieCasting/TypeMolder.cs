@@ -790,17 +790,17 @@ public static class StyledTypeBuilderExtensions
                     if (typeOfTValue.ImplementsInterface(typeof(ISpanFormattable)))
                     {
                         var castInvoker = (SpanFmtStructCollectionElementHandler<TValue>)invoker;
-                        castInvoker(stb.Sb, stb.StyleFormatter, value, retrieveCount, formatString);
+                        castInvoker(stb.Sb, stb.StyleFormatter, value, retrieveCount, formatString, formatFlags);
                     }
                     else if (value is Enum valueEnum)
                     {
                         var castInvoker = (SpanFmtStructCollectionElementHandler<Enum>)invoker;
-                        castInvoker(stb.Sb, stb.StyleFormatter, valueEnum, retrieveCount, formatString);
+                        castInvoker(stb.Sb, stb.StyleFormatter, valueEnum, retrieveCount, formatString, formatFlags);
                     }
                     else
                     {
                         var castInvoker = (SpanFmtStructCollectionElementHandler<ISpanFormattable>)invoker;
-                        castInvoker(stb.Sb, stb.StyleFormatter, (ISpanFormattable)value, retrieveCount, formatString);
+                        castInvoker(stb.Sb, stb.StyleFormatter, (ISpanFormattable)value, retrieveCount, formatString, formatFlags);
                     }
                     break;
 
