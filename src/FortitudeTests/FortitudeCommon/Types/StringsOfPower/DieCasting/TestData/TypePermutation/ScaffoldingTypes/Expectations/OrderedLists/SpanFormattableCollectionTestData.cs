@@ -260,17 +260,17 @@ public class SpanFormattableCollectionTestData
                 """ 
             }
         }
-      , new OrderedListExpect<Version>(VersionsList, "{0:F3}", () => Version_First_2)
+      , new OrderedListExpect<Version>(VersionsList, "\"{0,-10}\"", () => Version_First_2)
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
-                "[ 0.0, 0.1.1 ]" }
+                "[ \"0.0       \", \"0.1.1     \" ]" }
           , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
-                "[\"0.0\",\"0.1.1\"]" }
+                "[\"0.0       \",\"0.1.1     \"]" }
           , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
                 """
                 [
-                  "0.0",
-                  "0.1.1"
+                  "0.0       ",
+                  "0.1.1     "
                 ]
                 """ 
             }
@@ -356,17 +356,17 @@ public class SpanFormattableCollectionTestData
                 """ 
             }
         }
-      , new OrderedListExpect<Version?>(NullVersionsList, "{0:F3}", () => NullVersion_First_2)
+      , new OrderedListExpect<Version?>(NullVersionsList, "\'{0,10}\'", () => NullVersion_First_2)
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
-                "[ null, 0.0 ]" }
+                "[ '      null', '       0.0' ]" }
           , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
-                "[null,\"0.0\"]" }
+                "['      null',\"'       0.0'\"]" }
           , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
                 """
                 [
-                  null,
-                  "0.0"
+                  '      null',
+                  "'       0.0'"
                 ]
                 """ 
             }
