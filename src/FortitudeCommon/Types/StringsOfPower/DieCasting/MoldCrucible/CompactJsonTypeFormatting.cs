@@ -434,6 +434,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
       , int totalItemCount, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        sb.RemoveLastWhiteSpacedCommaIfFound();
         if (StyleOptions.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
              keyedCollectionType.IsReadOnlyList())) { sb.Append(SqBrktCls); }

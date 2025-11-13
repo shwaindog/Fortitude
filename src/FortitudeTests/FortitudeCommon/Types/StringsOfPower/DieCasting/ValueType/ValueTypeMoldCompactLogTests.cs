@@ -2,8 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Globalization;
-using System.Net;
-using System.Numerics;
 using System.Reflection;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.ExampleConfig;
@@ -13,7 +11,6 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ValueTypeScaffolds;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -47,11 +44,12 @@ public partial class ValueTypeMoldTests
         from fe in BoolTestData.AllBoolExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType()
-                   .ProcessesSingleValue()
-                   .AcceptsBoolean()
-                   .AcceptsNonNullables()
-                   .HasTreatedAsValueOut()
+            scafReg
+                .IsSimpleType()
+                .ProcessesSingleValue()
+                .AcceptsBoolean()
+                .AcceptsNonNullables()
+                .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
 
     [TestMethod]
@@ -536,12 +534,12 @@ public partial class ValueTypeMoldTests
         SharedCompactLogAsValue(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJsonAsValue(SpanFormattableTestData.AllSpanFormattableExpectations[209], ScaffoldingRegistry.AllScaffoldingTypes[1139]);
+        SharedCompactLogAsString(StringTestData.AllStringExpectations[5], ScaffoldingRegistry.AllScaffoldingTypes[1100]);
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -564,20 +562,17 @@ public partial class ValueTypeMoldTests
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
             var compactLogTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
-                ? (propertyName.IsNotEmpty() ? "{0} {{ {1}:{2}{3}{2}}}" : "{0} {{ {3} }}")
+                ? (propertyName.IsNotEmpty() ? "{0} {{ {1}: {2} }}" : "{0} {{ {2} }}")
                 : expectation.InputType.IsEnum
-                    ? (propertyName.IsNotEmpty() ? "{0}.{1}:{2}{3}" : "{0}.{3}")
-                    : (propertyName.IsNotEmpty() ? "{0}={1}:{2}{3}" : "{0}={3}");
+                    ? (propertyName.IsNotEmpty() ? "{0}.{1}: {2}" : "{0}.{2}")
+                    : (propertyName.IsNotEmpty() ? "{0}= {1}: {2}" : "{0}= {2}");
 
-            var maybeSpace  = "";
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
-                maybeSpace = expectValue.Trim().Length > 0 ? " " : "";
-                if (maybeSpace.Length == 0) { expectValue = ""; }
+                expectValue = "";
             }
-            else { expectValue = ""; }
-            return string.Format(compactLogTemplate, className, propertyName, maybeSpace, expectValue);
+            return string.Format(compactLogTemplate, className, propertyName, expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName
@@ -651,21 +646,18 @@ public partial class ValueTypeMoldTests
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
             var compactLogTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
-                ? (propertyName.IsNotEmpty() ? "{0} {{ {1}:{2}{3} }}" : "{0} {{ {3} }}")
+                ? (propertyName.IsNotEmpty() ? "{0} {{ {1}: {2} }}" : "{0} {{ {2} }}")
                 : expectation.InputType.IsEnum
-                    ? (propertyName.IsNotEmpty() ? "{0}.{1}:{2}{3}" : "{0}.{3}")
-                    : (propertyName.IsNotEmpty() ? "{0}={1}:{2}{3}" : "{0}={3}");
+                    ? (propertyName.IsNotEmpty() ? "{0}.{1}: {2}" : "{0}.{2}")
+                    : (propertyName.IsNotEmpty() ? "{0}= {1}: {2}" : "{0}= {2}");
 
-            var maybeSpace  = "";
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
 
-            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
-                maybeSpace = expectValue.Trim().Length > 0 ? " " : "";
-                if (maybeSpace.Length == 0) { expectValue = ""; }
+                expectValue = "";
             }
-            else { expectValue = ""; }
-            return string.Format(compactLogTemplate, className, propertyName, maybeSpace, expectValue);
+            return string.Format(compactLogTemplate, className, propertyName, expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName

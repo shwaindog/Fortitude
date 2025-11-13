@@ -1036,7 +1036,9 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(TCloaked?[]? value
       , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
       , PalantírReveal<TCloakedRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedFilterBase, TCloakedRevealBase 
+        where TCloakedRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1106,7 +1108,9 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     
     public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(Span<TCloaked> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
       , PalantírReveal<TCloakedRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+        where TCloakedRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1141,7 +1145,9 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     
     public TOCMold RevealFilteredNullable<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(Span<TCloaked?> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
       , PalantírReveal<TCloakedRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : class, TCloakedFilterBase, TCloakedRevealBase
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : class, TCloakedFilterBase, TCloakedRevealBase
+        where TCloakedRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1212,7 +1218,9 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(ReadOnlySpan<TCloaked> value
       , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
       , PalantírReveal<TCloakedRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+        where TCloakedRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1247,7 +1255,9 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     
     public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(IReadOnlyList<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
       , PalantírReveal<TCloakedRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+        where TCloakedRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1320,6 +1330,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+        where TCloakedRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -1400,6 +1411,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+        where TCloakedRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -2351,7 +2363,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2388,7 +2400,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2425,7 +2437,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2462,7 +2474,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
