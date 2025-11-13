@@ -185,31 +185,78 @@ public partial class OrderedCollectionMoldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    private static IEnumerable<object[]> StringExpect =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
-        where fe.InputType.IsString()
-        from scaffoldToCall in scafReg.IsOrderedCollectionType().AcceptsString().NotHasSupportsValueRevealer()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
-        select new object[] { fe, scaffoldToCall };
+    private static IEnumerable<object[]> UnfilteredStringCollectionExpect =>
+        (from fe in StringCollectionsTestData.AllStringCollectionExpectations
+        where fe.ElementType.IsString() && fe is { HasRestrictingFilter: false } 
+        from scaffoldToCall in 
+            scafReg
+                .IsOrderedCollectionType()
+                .AcceptsNonNullables()
+                .NoFilterPredicate()
+                .AcceptsString()
+                .NotHasSupportsValueRevealer()
+        select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in StringCollectionsTestData.AllStringCollectionExpectations
+                where fe is {ContainsNullElements : true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .HasFilterPredicate()
+                        .AcceptsString()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall });
 
 
-    // [TestMethod]
-    [DynamicData(nameof(StringExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    [TestMethod]
+    [DynamicData(nameof(UnfilteredStringCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> FilteredStringCollectionExpect =>
+        (from fe in StringCollectionsTestData.AllStringCollectionExpectations
+        where fe.ElementType.IsString() && fe is { HasRestrictingFilter: true } 
+        from scaffoldToCall in 
+            scafReg
+                .IsOrderedCollectionType()
+                .AcceptsNonNullables()
+                .HasFilterPredicate()
+                .AcceptsString()
+                .NotHasSupportsValueRevealer()
+        select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in StringCollectionsTestData.AllStringCollectionExpectations
+                where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .HasFilterPredicate()
+                        .AcceptsString()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall });
+
+
+    [TestMethod]
+    [DynamicData(nameof(FilteredStringCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
     private static IEnumerable<object[]> CharSequenceExpect =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in StringTestData.AllStringExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
             scafReg.IsOrderedCollectionType().AcceptsCharSequence().NotHasSupportsValueRevealer()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
-
-
+    
     // [TestMethod]
     [DynamicData(nameof(CharSequenceExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -219,7 +266,7 @@ public partial class OrderedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> StringBuilderExpect =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in StringTestData.AllStringExpectations
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
             scafReg.IsOrderedCollectionType().AcceptsStringBuilder().NotHasSupportsValueRevealer()
@@ -305,7 +352,7 @@ public partial class OrderedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations[16], ScaffoldingRegistry.AllScaffoldingTypes[45]);
+        SharedCompactLog(StringCollectionsTestData.AllStringCollectionExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[44]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

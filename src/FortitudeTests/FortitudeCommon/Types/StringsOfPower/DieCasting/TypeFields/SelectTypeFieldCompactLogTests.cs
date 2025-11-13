@@ -106,7 +106,7 @@ public partial class SelectTypeFieldTests
     }
 
     private static IEnumerable<object[]> StringExpect =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in StringTestData.AllStringExpectations
         where fe.InputType.IsString()
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsString().NotHasSupportsValueRevealer()
@@ -123,7 +123,7 @@ public partial class SelectTypeFieldTests
     }
 
     private static IEnumerable<object[]> CharArrayExpect =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in CharArrayTestData.AllCharArrayExpectations
         where fe.InputType.IsCharArray()
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsCharArray().NotHasSupportsValueRevealer()
@@ -140,7 +140,7 @@ public partial class SelectTypeFieldTests
     }
 
     private static IEnumerable<object[]> CharSequenceExpect =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in CharSequenceTestData.AllCharSequenceExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
@@ -157,7 +157,7 @@ public partial class SelectTypeFieldTests
     }
 
     private static IEnumerable<object[]> StringBuilderExpect =>
-        from fe in StringLikeTestData.AllStringLikeExpectations
+        from fe in StringBuilderTestData.AllStringBuilderExpectations
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
