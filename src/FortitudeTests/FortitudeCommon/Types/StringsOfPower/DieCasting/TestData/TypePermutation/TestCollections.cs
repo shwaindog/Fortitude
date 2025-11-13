@@ -305,20 +305,20 @@ public static class TestCollections
     public static OrderedCollectionPredicate<string> String_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<string> String_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<string> String_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<string> String_Skip_Odd_Index  = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<string> String_All             = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<string> String_Skip_Odd_Index  = (_, _) => IncludedAndSkipNext(1);
+    public static OrderedCollectionPredicate<string> String_All             = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<string> String_First_LenGt_100 = (_, item) => First(item.Length > 100);
-    public static OrderedCollectionPredicate<string> String_None            = (_, _) => EvaluateIsIncludedAndContinue(false);
+    public static OrderedCollectionPredicate<string> String_None            = (_, _) => NotIncludedAndComplete;
 
     public static OrderedCollectionPredicate<string?> NullString_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length < 100);
     public static OrderedCollectionPredicate<string?> NullString_LenGt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length > 100);
     public static OrderedCollectionPredicate<string?> NullString_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<string?> NullString_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<string?> NullString_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<string?> NullString_Skip_Odd_Index  = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<string?> NullString_All             = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<string?> NullString_Skip_Odd_Index  = (_, _) => IncludedAndSkipNext(1);
+    public static OrderedCollectionPredicate<string?> NullString_All             = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<string?> NullString_First_LenGt_100 = (_, item) => First(item?.Length is > 100);
-    public static OrderedCollectionPredicate<string?> NullString_None            = (_, _) => EvaluateIsIncludedAndContinue(false);
+    public static OrderedCollectionPredicate<string?> NullString_None            = (_, _) => NotIncludedAndComplete;
     
     public static Lazy<List<char[]>> CharArrayList = new(() => StringArray.Select(s => s.ToCharArray()).ToList()); 
     public static Lazy<List<char[]?>> NullCharArrayList = new (() =>
@@ -373,6 +373,30 @@ public static class TestCollections
         }
         return withNulls;
     });
+
+    public static PalantírReveal<MutableString> MutableStringRevealer            = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
+    public static PalantírReveal<MutableString> MutableStringRevealer_Pad_20     = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0}|");
+    public static PalantírReveal<MutableString> MutableStringRevealer_Pad_80 = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0,80}|");
+
+    public static OrderedCollectionPredicate<MutableString> MutableString_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item.Length < 100);
+    public static OrderedCollectionPredicate<MutableString> MutableString_LenGt_100       = (_, item) => EvaluateIsIncludedAndContinue(item.Length > 100);
+    public static OrderedCollectionPredicate<MutableString> MutableString_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<MutableString> MutableString_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<MutableString> MutableString_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<MutableString> MutableString_Skip_Odd_Index  = (_, _) => IncludedAndSkipNext(1);
+    public static OrderedCollectionPredicate<MutableString> MutableString_All             = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<MutableString> MutableString_First_LenGt_100 = (_, item) => First(item.Length > 100);
+    public static OrderedCollectionPredicate<MutableString> MutableString_None            = (_, _) => NotIncludedAndComplete;
+
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length < 100);
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_LenGt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length > 100);
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_Skip_Odd_Index  = (_, _) => IncludedAndSkipNext(1);
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_All             = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_First_LenGt_100 = (_, item) => First(item?.Length is > 100);
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_None            = (_, _) => NotIncludedAndComplete;
     
     public static Lazy<List<CharArrayStringBuilder>> CharArrayStringBuilderList = new(() => StringArray.Select(s => new CharArrayStringBuilder(s)).ToList()); 
     public static Lazy<List<CharArrayStringBuilder?>> NullCharArrayStringBuilderList = new (() =>
@@ -400,6 +424,30 @@ public static class TestCollections
         }
         return withNulls;
     });
+
+    public static PalantírReveal<CharArrayStringBuilder> CharArrayStringBuilderRevealer            = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
+    public static PalantírReveal<CharArrayStringBuilder> CharArrayStringBuilderRevealer_Pad_20     = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0}|");
+    public static PalantírReveal<CharArrayStringBuilder> CharArrayStringBuilderRevealer_Pad_80 = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0,80}|");
+
+    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item.Length < 100);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_LenGt_100       = (_, item) => EvaluateIsIncludedAndContinue(item.Length > 100);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_Skip_Odd_Index  = (_, _) => IncludedAndSkipNext(1);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_All             = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_First_LenGt_100 = (_, item) => First(item.Length > 100);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_None            = (_, _) => NotIncludedAndComplete;
+
+    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length < 100);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_LenGt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length > 100);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_Skip_Odd_Index  = (_, _) => IncludedAndSkipNext(1);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_All             = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_First_LenGt_100 = (_, item) => First(item?.Length is > 100);
+    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_None            = (_, _) => NotIncludedAndComplete;
     
     public static Lazy<List<StringBuilder>> StringBuilderList = new(() => StringArray.Select(s => new StringBuilder(s)).ToList()); 
     public static Lazy<List<StringBuilder?>> NullStringBuilderList = new (() =>

@@ -49,14 +49,20 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags) where TMold : TypeMolder;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVBase>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null
+      , TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder where TValue : TVBase;
+        where TMold : TypeMolder 
+        where TValue : TVBase
+        where TVBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
       , TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder where TValue : TVBase where TKey : TKBase;
+        where TMold : TypeMolder
+        where TKey : TKBase 
+        where TValue : TVBase 
+        where TKBase : notnull
+        where TVBase : notnull;
 
     IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int previousItemNumber);
@@ -71,14 +77,17 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt? item
-      , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt: ISpanFormattable;
+      , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+      where TFmt: ISpanFormattable;
 
     IStringBuilder CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item
       , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
       where TFmtStruct: struct, ISpanFormattable;
 
-    IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked item
-      , int retrieveCount, PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase;
+    IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked? item
+      , int retrieveCount, PalantírReveal<TCloakedBase> styler)
+      where TCloaked : TCloakedBase
+      where TCloakedBase : notnull;
 
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
@@ -92,7 +101,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer;
+    IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) 
+      where TBearer : IStringBearer;
 
     IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount, string? formatString
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
@@ -131,7 +141,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , string? formatString = null, int maxTransferCount = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
-        where TCloaked : TCloakedBase;
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull;
 
     IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer;
 
@@ -163,7 +174,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , int maxTransferCount = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
-        where TCloaked : TCloakedBase;
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull;
 
     IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer;
 }

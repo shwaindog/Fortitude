@@ -18,13 +18,10 @@ public readonly record struct CollectionItemResult(CollectionItemFilterFlags Inc
     public bool KeepProcessing => IncludeAndContinueTo != DoNotIncludeAndComplete && IncludeAndContinueTo != IncludeAndComplete;
 
     public static readonly CollectionItemResult DoNotIncludeAndGoToNext = new (DoNotIncludeContinueToNext);
-
     public static readonly CollectionItemResult NotIncludedAndComplete = new (DoNotIncludeAndComplete);
-
     public static readonly CollectionItemResult IncludedContinueToNext = new (IncludeContinueToNext);
-
-    public static CollectionItemResult IncludedAndContinue()    => new (IncludeContinueToNext);
-    public static CollectionItemResult NotIncludedAndContinue() => new (DoNotIncludeContinueToNext);
+    public static readonly CollectionItemResult IncludedAndContinue    = new (IncludeContinueToNext);
+    public static readonly CollectionItemResult NotIncludedAndContinue = new (DoNotIncludeContinueToNext);
 
     public static CollectionItemResult IncludedAndSkipNext(int skipAmount) =>
         new ((CollectionItemFilterFlags)(Math.Abs(skipAmount)));

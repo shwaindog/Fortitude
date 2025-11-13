@@ -24,7 +24,7 @@ public class SimpleValueTypeMold : ValueTypeMold<SimpleValueTypeMold>
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         CompAccess = recycler.Borrow<ValueTypeDieCast<SimpleValueTypeMold>>()
-                             .InitializeValueBuilderCompAccess(this, PortableState, true);
+                             .InitializeValueBuilderCompAccess(this, PortableState, false);
     }
 
 }

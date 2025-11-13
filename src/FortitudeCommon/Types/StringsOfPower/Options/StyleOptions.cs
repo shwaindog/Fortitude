@@ -34,8 +34,15 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public const string DefaultYyyyMMddToMsFormat  = "{0:yyyy-MMd-dTHH:mm:ss.fff}";
     public const string DefaultYyyyMMddToUsFormat  = "{0:yyyy-MM-ddTHH:mm:ss.ffffff}";
 
-    public const string DefaultLogInnerDblQtReplacementOpenChars  = "";  //  considered  "\u201C";  “
-    public const string DefaultLogInnerDblQtReplacementCloseChars = "";  //  considered  "\u201D";  ”
+    public const string DefaultLogInnerDblQtReplacementOpenChars  = ""; //  considered  "\u201C";  “
+    public const string DefaultLogInnerDblQtReplacementCloseChars = ""; //  considered  "\u201D";  ”
+
+    public static readonly string[] DefaultLogSuppressTypeNames = [];
+    public static readonly string[] DefaultLogSuppressCollectionNames =
+    [
+        "System"
+      , "FortitudeCommon.Types.StringsOfPower.Forge"
+    ];
 
     public StyleOptionsValue(StringStyle style) => this.style = style;
     public StyleOptionsValue(StyleOptions defaultOptions) => fallbackOptions = defaultOptions;
@@ -68,29 +75,30 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
     private Func<IJsonFormattingOptions, IEncodingTransfer>? sourceEncodingTransferResolver;
 
-    private char?    indentChar;
-    private int?     indentSize;
-    private bool?    byteSequenceToBase64;
-    private bool?    disableCircularRefCheck;
-    private bool?    charSArraysAsString;
-    private bool?    circularRefUsesRefEquals;
-    private string?  newLineStyle;
-    private string?  nullStyle;
-    private int?     prettyCollectionsColumnCountWrap;
-    private int?     defaultGraphMaxDepth;
-    private string?  customDateTimeFormatString;
-    private string?  customTimeFormatString;
-    private string?  dateOnlyAsStringFormatString;
-    private string?  dateTimeYyyyMMddTossFormat;
-    private string?  dateTimeYyyyMMddTomsFormat;
-    private string?  dateTimeYyyyMMddTousFormat;
-    private string?  timeHHmmssFormat;
-    private string?  timeHHmmssToMsFormat;
-    private string?  timeHHmmssToUsFormat;
-    private string?  timeHHmmssToTicksFormat;
-    private bool?    writeKeyValuePairsAsCollection;
-    private Range[]? unicodeEscapingRanges;
-    private Range[]? exemptEscapingRanges;
+    private char?     indentChar;
+    private int?      indentSize;
+    private bool?     byteSequenceToBase64;
+    private bool?     disableCircularRefCheck;
+    private bool?     charSArraysAsString;
+    private bool?     circularRefUsesRefEquals;
+    private string?   newLineStyle;
+    private int?      prettyCollectionsColumnCountWrap;
+    private int?      defaultGraphMaxDepth;
+    private string?   customDateTimeFormatString;
+    private string?   customTimeFormatString;
+    private string?   dateOnlyAsStringFormatString;
+    private string?   dateTimeYyyyMMddTossFormat;
+    private string?   dateTimeYyyyMMddTomsFormat;
+    private string?   dateTimeYyyyMMddTousFormat;
+    private string?   timeHHmmssFormat;
+    private string?   timeHHmmssToMsFormat;
+    private string?   timeHHmmssToUsFormat;
+    private string?   timeHHmmssToTicksFormat;
+    private bool?     writeKeyValuePairsAsCollection;
+    private Range[]?  unicodeEscapingRanges;
+    private Range[]?  exemptEscapingRanges;
+    private string[]? logSuppressDisplayTypeNames;
+    private string[]? logSuppressDisplayCollectionNames;
 
     private FieldContentHandling contextContentHandlingFlags;
     private StringStyle?         style;
@@ -101,7 +109,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private CollectionPrettyStyleFormat? prettyCollectionStyle;
 
     private (Range, JsonEscapeType, Func<Rune, string>)[]? cachedMappingFactoryRanges;
-    
+
     private string? logInnerDoubleQuoteOpenReplacement;
     private string? logInnerDoubleQuoteCloseReplacement;
 
@@ -353,7 +361,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
             encodingTransfer = SourceEncodingTransfer(this);
         }
     }
-    
+
     public string NullString
     {
         readonly get => nullString ?? fallbackOptions?.Values.False ?? IFormattingOptions.DefaultNullString;
@@ -499,6 +507,20 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     {
         readonly get => prettyCollectionsColumnCountWrap ?? fallbackOptions?.Values.PrettyCollectionsColumnContentWidthWrap ?? 120;
         set => prettyCollectionsColumnCountWrap = value;
+    }
+
+    public string[] LogSuppressDisplayTypeNames
+    {
+        readonly get => logSuppressDisplayTypeNames ??
+                        fallbackOptions?.Values.LogSuppressDisplayTypeNames ?? DefaultLogSuppressTypeNames;
+        set => logSuppressDisplayTypeNames = value;
+    }
+
+    public string[] LogSuppressDisplayCollectionNames
+    {
+        readonly get => logSuppressDisplayCollectionNames ??
+                        fallbackOptions?.Values.LogSuppressDisplayCollectionNames ?? DefaultLogSuppressCollectionNames;
+        set => logSuppressDisplayCollectionNames = value;
     }
 
     public bool ByteSequenceToBase64
@@ -882,6 +904,18 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
     {
         get => values.PrettyCollectionsColumnContentWidthWrap;
         set => values.PrettyCollectionsColumnContentWidthWrap = value;
+    }
+
+    public string[] LogSuppressDisplayTypeNames
+    {
+        get => values.LogSuppressDisplayTypeNames;
+        set => values.LogSuppressDisplayTypeNames = value;
+    }
+
+    public string[] LogSuppressDisplayCollectionNames
+    {
+        get => values.LogSuppressDisplayCollectionNames;
+        set => values.LogSuppressDisplayCollectionNames = value;
     }
 
     public int DefaultGraphMaxDepth

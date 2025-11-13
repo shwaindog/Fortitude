@@ -20,10 +20,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     protected const string Dot          = ".";
     protected const string CmaSpc       = ", ";
     protected const string Spc          = " ";
+    protected const char SpcChar      = ' ';
     protected const string ClnSpc       = ": ";
     protected const string BrcOpnSpc    = "{ ";
     protected const string SpcBrcCls    = " }";
     protected const string Eqls         = "=";
+    protected const string EqlsSpc         = "= ";
     protected const string SqBrktOpnSpc = "[ ";
     protected const string SpcSqBrktCls = " ]";
     protected const string RndBrktOpn = "(";
@@ -92,7 +94,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         else
             valueType.AppendShortNameInCSharpFormat(sb);
         if (valueType.IsEnum) { return sb.Append(Dot); }
-        return sb.Append(Eqls);
+        return sb.Append(EqlsSpc);
     }
 
     public virtual IStringBuilder AppendValueTypeClosing(IStringBuilder sb, Type valueType)
@@ -151,7 +153,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount, FieldContentHandling formatFlags = DefaultCallerTypeFlags) => sb.Append(SpcBrcCls);
+      , Type keyType, Type valueType, int totalItemCount, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        sb.RemoveLastWhiteSpacedCommaIfFound();
+        return sb.Append(SpcBrcCls);
+    }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
       , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null
@@ -163,23 +169,37 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null
+      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder where TValue : TVBase
+        where TMold : TypeMolder 
+        where TValue : TVBase
+        where TVBase : notnull
     {
         typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
-        valueStyler(value, typeMold.Master);
+        if (value == null)
+        {
+            AppendFormattedNull(typeMold.Sb, "", valueFlags);
+        }
+        else { valueStyler(value, typeMold.Master); }
         return typeMold;
     }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
+      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder where TKey : TKBase where TValue : TVBase
+        where TMold : TypeMolder 
+        where TKey : TKBase 
+        where TValue : TVBase
+        where TKBase : notnull
+        where TVBase : notnull
     {
         keyStyler(key, typeMold.Master);
         typeMold.FieldEnd();
-        valueStyler(value, typeMold.Master);
+        if (value == null)
+        {
+            AppendFormattedNull(typeMold.Sb, "", valueFlags);
+        }
+        else { valueStyler(value, typeMold.Master); }
         return typeMold;
     }
 
@@ -234,7 +254,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             .ToStringBuilder(sb);
 
     public virtual IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase =>
+      , PalantírReveal<TCloakedBase> styler) 
+        where TCloaked : TCloakedBase 
+        where TCloakedBase : notnull=>
         styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
 
     public virtual IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer =>
@@ -447,7 +469,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase =>
+      , PalantírReveal<TCloakedBase> styler) 
+        where TCloaked : TCloakedBase 
+        where TCloakedBase : notnull =>
         styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
 
     public virtual IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer =>
@@ -457,7 +481,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (!hasItems.HasValue) return sb;
-        if (!(collectionType.FullName?.StartsWith("System") ?? true))
+        if (!StyleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionType.FullName?.StartsWith(s) ?? false ))
         {
             sb.Append(RndBrktOpn);
             collectionType.AppendShortNameInCSharpFormat(sb);
@@ -528,9 +552,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
-      , TCloaked item, int retrieveCount, PalantírReveal<TCloakedBase> styler) where TCloaked : TCloakedBase
+      , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler) 
+        where TCloaked : TCloakedBase 
+        where TCloakedBase : notnull
     {
-        styler(item, tos);
+        if (item == null)
+        {
+            AppendFormattedNull(tos.WriteBuffer, "");
+        }
+        else { styler(item, tos); }
         return tos.WriteBuffer;
     }
 
@@ -611,6 +641,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             return 0;
         }
         var lastChar = sb.RemoveLastWhiteSpacedCommaIfFound();
+        // if (lastChar != SqBrktOpnChar && lastChar != SpcChar) sb.Append(Spc);
         if (lastChar != SqBrktOpnChar) sb.Append(Spc);
         return sb.Append(SqBrktCls).ReturnCharCount(2);
     }

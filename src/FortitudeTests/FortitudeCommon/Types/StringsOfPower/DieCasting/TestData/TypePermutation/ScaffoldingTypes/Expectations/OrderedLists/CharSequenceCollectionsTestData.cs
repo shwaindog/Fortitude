@@ -3,23 +3,34 @@
 
 using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.TestCollections;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.OrderedLists;
 
-public class StringCollectionsTestData
+public class CharSequenceCollectionsTestData
 {
 
-    private static PositionUpdatingList<IOrderedListExpect>? allStringCollectionExpectations;
+    private static PositionUpdatingList<IOrderedListExpect>? allCharSequenceCollectionExpectations;
 
-    public static PositionUpdatingList<IOrderedListExpect> AllStringCollectionExpectations => allStringCollectionExpectations ??=
-        new PositionUpdatingList<IOrderedListExpect>(typeof(StringCollectionsTestData))
+    public static PositionUpdatingList<IOrderedListExpect> AllCharSequenceCollectionExpectations => allCharSequenceCollectionExpectations ??=
+        new PositionUpdatingList<IOrderedListExpect>(typeof(CharSequenceCollectionsTestData))
         {
             
-            // string Collections 
-            new OrderedListExpect<string>([],  "", name: "Empty")
+            // CharSequence Collections 
+            new OrderedListExpect<MutableString>([],  "", name: "MutableString_Empty")
+            {
+                { new EK(  OrderedCollectionType | AcceptsChars), "[]" }
+              , { new EK(   AcceptsChars | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
+              , { new EK(   AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
+              , { new EK( CollectionCardinality  | AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
+                       , CompactJson), "[]" }
+              , { new EK( CollectionCardinality  | AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
+                       , Pretty), "[]" }
+            } 
+          , new OrderedListExpect<CharArrayStringBuilder>([],  "", name: "CharArrayStringBuilder_Empty")
             {
                 { new EK(  OrderedCollectionType | AcceptsChars), "[]" }
               , { new EK(   AcceptsChars | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
@@ -29,7 +40,7 @@ public class StringCollectionsTestData
               , { new EK( CollectionCardinality  | AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
                        , Pretty), "[]" }
             }
-          , new OrderedListExpect<string>(null,  "")
+          , new OrderedListExpect<MutableString>(null,  "", name: "MutableString_Null")
             {
                 { new EK( OrderedCollectionType | AcceptsChars | AlwaysWrites), "[]" }
               , { new EK(  AcceptsChars | AlwaysWrites), "null" }
@@ -37,7 +48,15 @@ public class StringCollectionsTestData
               , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
               , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, Pretty), "null" }
             }
-          , new OrderedListExpect<string>(StringList,  "", name: "All_NoFilter")
+          , new OrderedListExpect<CharArrayStringBuilder>(null,  "", name: "CharArrayStringBuilder_Null")
+            {
+                { new EK( OrderedCollectionType | AcceptsChars | AlwaysWrites), "[]" }
+              , { new EK(  AcceptsChars | AlwaysWrites), "null" }
+              , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
+              , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
+              , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, Pretty), "null" }
+            }
+          , new OrderedListExpect<MutableString>(MutableStringList.Value,  "", name: "All_NoFilter")
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -106,7 +125,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string>(StringList, name: "All_NullFmtString")
+          , new OrderedListExpect<CharArrayStringBuilder>(CharArrayStringBuilderList.Value, name: "All_NullFmtString")
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -175,7 +194,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string>(StringList,  "{0[..50]}", name: "All_LenCapped50")
+          , new OrderedListExpect<MutableString>(MutableStringList.Value,  "{0[..50]}", name: "All_LenCapped50")
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -242,7 +261,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string>(StringList,  "'{0,100}'", () => String_LenLt_100)
+          , new OrderedListExpect<CharArrayStringBuilder>(CharArrayStringBuilderList.Value,  "'{0,100}'", () => CharArrayStringBuilder_LenLt_100)
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -289,7 +308,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string>(StringList,  "{0,0/ /_/}", () => String_First_5)
+          , new OrderedListExpect<MutableString>(MutableStringList.Value,  "{0,0/ /_/}", () => MutableString_First_5)
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -320,7 +339,7 @@ public class StringCollectionsTestData
                     "It_began_with_the_forging_of_the_Great_Strings.",
                     "Three_were_given_to_the_Assembly_Programmers,_impractical,_wackiest_and_hairiest_of_all_beings.",
                     "Seven_to_the_Cobol-Lords,_eventually_great_Bitcoin_miners_and_great_cardigan_wearers_of_the_mainframe_halls.",
-                    "And_nine,_nine_strings_were_gifted_to_the_race_of_C++_coders,_who_above_all_else_desired_unchecked_memory_access_powe r".
+                    "And_nine,_nine_strings_were_gifted_to_the_race_of_C++_coders,_who_above_all_else_desired_unchecked_memory_access_power ".
                     ]
                     """.RemoveLineEndings()
                 }
@@ -336,7 +355,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string>(StringList,  "", () => String_Second_5)
+          , new OrderedListExpect<CharArrayStringBuilder>(CharArrayStringBuilderList.Value,  "", () => CharArrayStringBuilder_Second_5)
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -385,7 +404,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string>(StringList,  "", () => String_Skip_Odd_Index)
+          , new OrderedListExpect<MutableString>(MutableStringList.Value,  "", () => MutableString_Skip_Odd_Index)
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -433,8 +452,8 @@ public class StringCollectionsTestData
                 }
             }
             
-            // string? (collections with null strings) 
-          , new OrderedListExpect<string?>([],  "", name: "Empty")
+            // CharSequence? (collections with null elements) 
+          , new OrderedListExpect<MutableString?>([],  "", name: "MutableString_Empty")
             {
                 { new EK(  OrderedCollectionType | AcceptsChars), "[]" }
               , { new EK(   AcceptsChars | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
@@ -444,7 +463,17 @@ public class StringCollectionsTestData
               , { new EK( CollectionCardinality  | AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
                        , Pretty), "[]" }
             }
-          , new OrderedListExpect<string?>(null,  "")
+          , new OrderedListExpect<CharArrayStringBuilder?>([],  "", name: "CharArrayStringBuilder_Empty")
+            {
+                { new EK(  OrderedCollectionType | AcceptsChars), "[]" }
+              , { new EK(   AcceptsChars | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
+              , { new EK(   AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
+              , { new EK( CollectionCardinality  | AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
+                       , CompactJson), "[]" }
+              , { new EK( CollectionCardinality  | AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
+                       , Pretty), "[]" }
+            }
+          , new OrderedListExpect<MutableString?>(null,  "MutableString_Null")
             {
                 { new EK( OrderedCollectionType | AcceptsChars | AlwaysWrites), "[]" }
               , { new EK(  AcceptsChars | AlwaysWrites), "null" }
@@ -452,7 +481,15 @@ public class StringCollectionsTestData
               , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
               , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, Pretty), "null" }
             }
-          , new OrderedListExpect<string?>(NullStringList.Value,  "", name: "All_NoFilter")
+          , new OrderedListExpect<CharArrayStringBuilder?>(null,  "CharArrayStringBuilder_Null")
+            {
+                { new EK( OrderedCollectionType | AcceptsChars | AlwaysWrites), "[]" }
+              , { new EK(  AcceptsChars | AlwaysWrites), "null" }
+              , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
+              , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
+              , { new EK(  AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, Pretty), "null" }
+            }
+          , new OrderedListExpect<CharArrayStringBuilder?>(NullCharArrayStringBuilderList.Value,  "", name: "All_NoFilter")
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -537,7 +574,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string?>(NullStringList.Value, name: "All_NullFmtString")
+          , new OrderedListExpect<MutableString?>(NullMutableStringList.Value, name: "All_NullFmtString")
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -622,7 +659,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string?>(NullStringList.Value,  "{0[..50]}", name: "All_LenCapped50")
+          , new OrderedListExpect<CharArrayStringBuilder?>(NullCharArrayStringBuilderList.Value,  "{0[..50]}", name: "All_LenCapped50")
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -705,7 +742,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string?>(NullStringList.Value,  "'{0,100}'", () => NullString_LenLt_100)
+          , new OrderedListExpect<MutableString?>(NullMutableStringList.Value,  "'{0,100}'", () => NullMutableString_LenLt_100)
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -752,7 +789,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string?>(NullStringList.Value,  "{0,0/ /_/}", () => NullString_First_5)
+          , new OrderedListExpect<CharArrayStringBuilder?>(NullCharArrayStringBuilderList.Value,  "{0,0/ /_/}", () => NullCharArrayStringBuilder_First_5)
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -799,7 +836,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string?>(NullStringList.Value,  "", () => NullString_Second_5)
+          , new OrderedListExpect<MutableString?>(NullMutableStringList.Value,  "", () => NullMutableString_Second_5)
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """
@@ -846,7 +883,7 @@ public class StringCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<string?>(NullStringList.Value,  "", () => NullString_Skip_Odd_Index)
+          , new OrderedListExpect<CharArrayStringBuilder?>(NullCharArrayStringBuilderList.Value,  "", () => NullCharArrayStringBuilder_Skip_Odd_Index)
             {
                 { new EK( AcceptsChars | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog), 
                     """

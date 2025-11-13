@@ -38,13 +38,16 @@ public abstract class KnownTypeMolder<T> : TypeMolder, ITypeBuilderComponentSour
     }
     
     public abstract void AppendOpening();
-    public abstract void AppendClosing();
+
+    public virtual void AppendClosing()
+    {
+        CompAccess.Sb.RemoveLastWhiteSpacedCommaIfFound();
+    }
 
     protected T Me => (T)(TypeMolder)this;
 
     public override StateExtractStringRange Complete()
     {
-        CompAccess.Sb.RemoveLastWhiteSpacedCommaIfFound();
         if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeEndFlag())
         {
             AppendClosing();

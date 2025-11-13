@@ -19,7 +19,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     {
         Initialize(externalTypeBuilder, typeBuilderPortableState);
 
-        ValueInComplexType          = isComplex && typeBuilderPortableState.Master.Style.AllowsUnstructured();
+        ValueInComplexType          = isComplex || typeBuilderPortableState.Master.Style.AllowsUnstructured();
         OnFinishedWithStringBuilder = FinishUsingStringBuilder;
 
         return this;
@@ -669,7 +669,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     if (prefixSuffixLength > 0)
                     {
                         StyleFormatter.FormatFieldContents(Sb,  "",0, formatString, formatFlags: formatFlags);
-                        return ConditionalValueTypeSuffix();
+                        return StyleTypeBuilder;
                     }
                 }
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
@@ -765,7 +765,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     if (prefixSuffixLength > 0)
                     {
                         StyleFormatter.FormatFieldContents(Sb, Array.Empty<char>(), 0, formatString,  formatFlags: formatFlags);
-                        return ConditionalValueTypeSuffix();
+                        return StyleTypeBuilder;
                     }
                 }
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
@@ -858,7 +858,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     if (prefixSuffixLength > 0)
                     {
                         StyleFormatter.FormatFieldContents(Sb,  "",0, formatString, formatFlags: formatFlags);
-                        return ConditionalValueTypeSuffix();
+                        return StyleTypeBuilder;
                     }
                 }
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
@@ -953,7 +953,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     if (prefixSuffixLength > 0)
                     {
                         StyleFormatter.FormatFieldContents(Sb, "",0, formatString, formatFlags: formatFlags);
-                        return ConditionalValueTypeSuffix();
+                        return StyleTypeBuilder;
                     }
                 }
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
@@ -1829,7 +1829,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                         if(addStartDblQt) Sb.Append("\"");
                         StyleFormatter.FormatFieldContents( Sb, "",0, formatString, formatFlags: formatFlags);
                         if(addEndDblQt) Sb.Append("\"");
-                        return ConditionalValueTypeSuffix();
+                        return StyleTypeBuilder;
                     }
                 }
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
@@ -1939,7 +1939,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                         if(addStartDblQt) Sb.Append("\"");
                         StyleFormatter.FormatFieldContents(Sb, ((ReadOnlySpan<char>)""),0, formatString, formatFlags: formatFlags);
                         if(addEndDblQt) Sb.Append("\"");
-                        return ConditionalValueTypeSuffix();
+                        return StyleTypeBuilder;
                     }
                 }
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
@@ -2096,7 +2096,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                         if(addStartDblQt) Sb.Append("\"");
                         StyleFormatter.FormatFieldContents( Sb, "",0, formatString, formatFlags: formatFlags);
                         if(addEndDblQt) Sb.Append("\"");
-                        return ConditionalValueTypeSuffix();
+                        return StyleTypeBuilder;
                     }
                 }
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
@@ -2204,7 +2204,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                         if(addStartDblQt) Sb.Append("\"");
                         StyleFormatter.FormatFieldContents( Sb, "",0, formatString, formatFlags: formatFlags);
                         if(addEndDblQt) Sb.Append("\"");
-                        return ConditionalValueTypeSuffix();
+                        return StyleTypeBuilder;
                     }
                 }
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;

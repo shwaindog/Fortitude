@@ -14,7 +14,7 @@ public class CharArrayTestData
     private static PositionUpdatingList<IStringLikeExpectation>? allCharArrayExpectations;
 
     public static PositionUpdatingList<IStringLikeExpectation> AllCharArrayExpectations => allCharArrayExpectations ??=
-        new PositionUpdatingList<IStringLikeExpectation>(typeof(StringTestData))
+        new PositionUpdatingList<IStringLikeExpectation>(typeof(CharArrayTestData))
         {
             // char[]
             new StringLikeExpect<char[], char[]>("".ToCharArray(), "", true, ['0'])

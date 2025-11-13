@@ -1521,7 +1521,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return any ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeq<TCharSeq>(Span<TCharSeq> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
