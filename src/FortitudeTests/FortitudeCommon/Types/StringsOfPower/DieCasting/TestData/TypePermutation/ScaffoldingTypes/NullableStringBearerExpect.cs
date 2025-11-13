@@ -8,10 +8,9 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
-
-
 
 public class NullableStringBearerExpect<TInput> : NullableStringBearerExpect<TInput, TInput>
     where TInput : struct, IStringBearer
@@ -20,8 +19,10 @@ public class NullableStringBearerExpect<TInput> : NullableStringBearerExpect<TIn
     public NullableStringBearerExpect(TInput? input, string? formatString = null
       , bool hasDefault = false, TInput? defaultValue = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
       , [CallerFilePath] string srcFile = ""
-      , [CallerLineNumber] int srcLine = 0) : base(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
+      , [CallerLineNumber] int srcLine = 0)
+        : base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
         FieldValueExpectation = new FieldExpect<TInput?>(Input, FormatString, HasDefault, DefaultValue);
     }
@@ -36,22 +37,23 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
     public override bool IsNullable => InputType.IsNullable();
- 
+
     // ReSharper disable twice ExplicitCallerInfoArgument
     public NullableStringBearerExpect(TInput? input, string? formatString = null
       , bool hasDefault = false, TDefault? defaultValue = null, FieldContentHandling contentHandling = DefaultCallerTypeFlags
-      , [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0)
-        : base(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
+      , string? name = null, [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0)
+        : base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
         // ReSharper disable twice ExplicitCallerInfoArgument
-        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, FormatString, HasDefault, DefaultValue, contentHandling, srcFile, srcLine);
+        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, FormatString, HasDefault, DefaultValue, contentHandling
+                                                                  , name, srcFile, srcLine);
     }
 
     public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null)
     {
         FieldValueExpectation.ClearExpectations();
         foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
-        condition |= ScaffoldingStringBuilderInvokeFlags.AcceptsSpanFormattable | ScaffoldingStringBuilderInvokeFlags.AcceptsChars | ScaffoldingStringBuilderInvokeFlags.AcceptsString;
+        condition |= AcceptsSpanFormattable | AcceptsChars | AcceptsString;
         var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, stringStyle, formatString);
         if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
         {
@@ -81,7 +83,8 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
             var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
             FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
             supportsStringDefaultValue.DefaultValue =
-                scaffoldEntry.ScaffoldingFlags.HasAnyOf(ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsValueOut | ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsStringOut)
+                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut |
+                                                        DefaultTreatedAsStringOut)
              && !InputType.IsSpanFormattableOrNullable()
                     ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();

@@ -474,20 +474,37 @@ public static class CharSpanExtensions
         return countWhiteSpace;
     }
 
-    public static int SplitCount(this ReadOnlySpan<char> stringAsSpan, char splitChar)
+    public static int SubSequenceOccurenceCount(this ReadOnlySpan<char> searchSpan, ReadOnlySpan<char> findSequence)
     {
-        var length        = stringAsSpan.Length;
-        int lastCharIndex = length - 1;
-        int countSplits   = 1;
+        var findLength  = findSequence.Length;
+        if (findLength == 0) return -1;
+        var searchLength  = searchSpan.Length;
+        int lastCharIndex = searchLength - findLength;
+        int foundCount   = 0;
         for (var i = 0; i < lastCharIndex; i++)
         {
-            var checkChar = stringAsSpan[i];
-            if (checkChar == splitChar)
+            var checkChar = searchSpan[i];
+            if (checkChar == findSequence[0])
             {
-                countSplits++;
+                var allSame = true;
+                for (int j = 1; j < findLength && i + j < lastCharIndex; j++)
+                {
+                    checkChar = searchSpan[i+j];
+                    var matchChar = searchSpan[j];
+                    if (checkChar != matchChar)
+                    {
+                        allSame = false;
+                        break;
+                    }
+                }
+                if (allSame)
+                {
+                    foundCount++;
+                    i = i + findLength - 1;
+                }
             }
         }
-        return countSplits;
+        return foundCount;
     }
 
     public static ReadOnlySpan<char> SplitAt(this ReadOnlySpan<char> stringAsSpan, char splitChar, int splitIndex)

@@ -6,6 +6,7 @@ using FortitudeCommon.Extensions;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.TestCollections;
 
 // ReSharper disable FormatStringProblem
 
@@ -19,7 +20,7 @@ public static class BoolCollectionsTestData
         new PositionUpdatingList<IOrderedListExpect>(typeof(BoolCollectionsTestData))
         {
         // bool Collections
-        new OrderedListExpect<bool>([],  "")
+        new OrderedListExpect<bool>([],  "", name: "Empty")
         {
             { new EK(  OrderedCollectionType | AcceptsStruct), "[]" }
           , { new EK(   AcceptsStruct | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
@@ -35,7 +36,7 @@ public static class BoolCollectionsTestData
           , { new EK(  AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
           , { new EK(  AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan  | AlwaysWrites, Pretty), "null" }
         }
-      , new OrderedListExpect<bool>(TestCollections.BoolList, "")
+      , new OrderedListExpect<bool>(BoolList, "", name: "All_NoFilter")
         {
             { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ true, true, false, true, false, false, false, true, true, false, false, true, true, true ]" }
@@ -62,7 +63,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool>(TestCollections.BoolList, "", () => TestCollections.Bool_First_8)
+      , new OrderedListExpect<bool>(BoolList, "", () => Bool_First_8)
         {
             { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -84,7 +85,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool>(TestCollections.BoolList, "", () => TestCollections.Bool_First_False)
+      , new OrderedListExpect<bool>(BoolList, "", () => Bool_First_False)
         {
             { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -99,7 +100,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool>(TestCollections.BoolList, "\"{0,10}\"")
+      , new OrderedListExpect<bool>(BoolList, "\"{0,10}\"", name: "PadAndDelimited")
         {
             { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -135,9 +136,27 @@ public static class BoolCollectionsTestData
                 """.Dos2Unix() 
             }
         }
+      , new OrderedListExpect<bool>(BoolList, "", () => Bool_Second_5)
+        {
+            { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
+                "[ false, false, true, true, false ]" }
+          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, CompactJson),
+                "[false,false,true,true,false]" }
+          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, Pretty),
+                """
+                [
+                  false,
+                  false,
+                  true,
+                  true,
+                  false
+                ]
+                """ 
+            }
+        }
         
         // bool? Collections
-      , new OrderedListExpect<bool?>([],  "")
+      , new OrderedListExpect<bool?>([],  "", name: "Empty")
         {
             { new EK(  OrderedCollectionType | AcceptsNullableStruct), "[]" }
          ,  { new EK(   AcceptsNullableStruct | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
@@ -153,7 +172,7 @@ public static class BoolCollectionsTestData
           , { new EK( CollectionCardinality  | AcceptsNullableStruct | AlwaysWrites, CompactJson), "null" }
           , { new EK( CollectionCardinality  | AcceptsNullableStruct | AlwaysWrites, Pretty), "null" }
         }
-      , new OrderedListExpect<bool?>(TestCollections.NullBoolList, "")
+      , new OrderedListExpect<bool?>(NullBoolList, "", name: "All_NoFilter")
         {
             { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -181,7 +200,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool?>(TestCollections.NullBoolList, "", () => TestCollections.NullBool_Skip_Odd_Index)
+      , new OrderedListExpect<bool?>(NullBoolList, "", () => NullBool_Skip_Odd_Index)
         {
             { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -202,7 +221,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool?>(TestCollections.NullBoolList, "", () => TestCollections.NullBool_First_False)
+      , new OrderedListExpect<bool?>(NullBoolList, "", () => NullBool_First_False)
         {
             { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -217,7 +236,7 @@ public static class BoolCollectionsTestData
                 """ 
             }
         }
-      , new OrderedListExpect<bool?>(TestCollections.NullBoolList, "\"{0,10}\"")
+      , new OrderedListExpect<bool?>(NullBoolList, "\"{0,10}\"", name: "PadAndDelimited")
         {
             { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
                   |  AllOutputConditionsMask, CompactLog),
@@ -251,6 +270,24 @@ public static class BoolCollectionsTestData
                   "      null"
                 ]
                 """.Dos2Unix() 
+            }
+        }
+      , new OrderedListExpect<bool?>(NullBoolList, "", () => NullBool_Second_5)
+        {
+            { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
+                "[ null, false, true, true, null ]" }
+          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, CompactJson),
+                "[null,false,true,true,null]" }
+          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, Pretty),
+                """
+                [
+                  null,
+                  false,
+                  true,
+                  true,
+                  null
+                ]
+                """ 
             }
         }
     };

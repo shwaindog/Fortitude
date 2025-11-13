@@ -47,8 +47,9 @@ public interface ITypedFormatExpectation<out T> : IFormatExpectation
 
 public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnumerable<KeyValuePair<EK, string>>, ICodeLocationAwareListItem
 {
-    private readonly string srcFile;
-    private readonly int    srcLine;
+    private readonly string  srcFile;
+    private readonly int     srcLine;
+    private readonly string? name;
 
     private static readonly IVersatileFLogger Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
@@ -57,13 +58,15 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
     // ReSharper disable once ConvertToPrimaryConstructor
     protected ExpectBase(TInput? input, string? formatString = null
       , FieldContentHandling valueContentHandling = DefaultCallerTypeFlags
+      , string? name = null
       , [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0)
     {
-        this.srcFile    = srcFile;
-        this.srcLine    = srcLine;
-        ContentHandling = valueContentHandling;
-        Input           = input;
-        FormatString    = formatString;
+        this.srcFile         = srcFile;
+        this.srcLine         = srcLine;
+        this.name = name;
+        ContentHandling      = valueContentHandling;
+        Input                = input;
+        FormatString         = formatString;
     }
 
     public virtual Type InputType => typeof(TInput);
@@ -73,6 +76,8 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
     public virtual Type CoreType => InputType.IfNullableGetUnderlyingTypeOrThis();
 
     public TInput? Input { get; set; }
+    
+    public string? Name => name;
 
     public string? FormatString { get; init; }
 
@@ -93,9 +98,16 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
                 if (Input == null) { result.Append("=null"); }
                 else
                 {
-                    result.Append(AsStringDelimiterOpen)
-                          .AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, "{0}", Input)
-                          .Append(AsStringDelimiterClose).Append("_").Append(FormatString);
+                    result.Append(AsStringDelimiterOpen);
+                    if (name != null)
+                    {
+                        result.Append(name);
+                    }
+                    else
+                    {
+                        result.Append(Input);
+                    }
+                    result.Append(AsStringDelimiterClose).Append("_").Append(FormatString);
                 }
 
                 return result.ToString();
@@ -183,6 +195,10 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         {
             sb.AppendLine();
             sb.Append(new Uri("file://" + new FileInfo(srcFile).FullName + ":" + srcLine)).AppendLine();
+        }
+        if (name != null)
+        {
+            sb.Append("Name").Append(": ").Append(name).Append(", ");
         }
         sb.Append(nameof(InputType)).Append(": ").Append(InputType.ShortNameInCSharpFormat()).Append(", ");
         sb.Append(nameof(Input)).Append(": ");

@@ -35,9 +35,12 @@ public class OrderedListExpect<TInputElement>
   , string? formatString = null
   , Expression<Func<OrderedCollectionPredicate<TInputElement>>>? elementFilterExpression = null
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
-    : OrderedListExpect<TInputElement, TInputElement>(inputList, formatString, elementFilterExpression, contentHandling, srcFile, srcLine);
+    : OrderedListExpect<TInputElement, TInputElement>
+        (inputList, formatString, elementFilterExpression, contentHandling
+       , name, srcFile, srcLine);
 
 public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TInputElement>?>, IOrderedListExpect
 {
@@ -50,9 +53,15 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
     public OrderedListExpect(List<TInputElement>? inputList, string? formatString = null
       , Expression<Func<OrderedCollectionPredicate<TFilterBase>>>? elementFilterExpression = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, formatString, contentHandling, srcFile, srcLine)
+        : base(inputList, formatString, contentHandling,
+               name
+            ?? ((elementFilterExpression?.Body as MemberExpression)?.Member?.Name)
+            ?? (inputList != null
+                   ? $"List<{typeof(TInputElement).ShortNameInCSharpFormat()}> {{ Count: {inputList?.Count ?? 0}}}"
+                   : null), srcFile, srcLine)
     {
         if (elementFilterExpression != null)
         {
@@ -72,10 +81,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
 
     public bool ContainsNullElements
     {
-        get
-        {
-            return Input?.Any(i => i == null) ?? false;
-        }
+        get { return Input?.Any(i => i == null) ?? false; }
     }
 
     public Type ElementType => elementType ??= typeof(TInputElement);
@@ -97,7 +103,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
             {
                 var result = new MutableString();
                 result.Append(base.ShortTestName);
-                if (filterName != null)
+                if (filterName != null && filterName != Name)
                 {
                     result.Append("_")
                           .Append(filterName)

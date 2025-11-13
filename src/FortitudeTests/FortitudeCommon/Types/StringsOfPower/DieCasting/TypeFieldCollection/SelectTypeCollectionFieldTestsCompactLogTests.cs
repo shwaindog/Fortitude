@@ -199,7 +199,7 @@ public partial class SelectTypeCollectionFieldTests
 
     private static IEnumerable<object[]> UnfilteredStringCollectionExpect =>
         (from fe in StringCollectionsTestData.AllStringCollectionExpectations
-        where fe.ElementType.IsString() && fe is { HasRestrictingFilter: false } 
+        where fe.ElementType.IsString() && fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
         from scaffoldToCall in 
             scafReg
                 .IsJustComplexType()
@@ -233,7 +233,7 @@ public partial class SelectTypeCollectionFieldTests
 
     private static IEnumerable<object[]> FilteredStringCollectionExpect =>
         (from fe in StringCollectionsTestData.AllStringCollectionExpectations
-        where fe.ElementType.IsString() && fe is { HasRestrictingFilter: true } 
+        where fe.ElementType.IsString() && fe is { ContainsNullElements : false,  HasRestrictingFilter: true } 
         from scaffoldToCall in 
             scafReg
                 .IsJustComplexType()

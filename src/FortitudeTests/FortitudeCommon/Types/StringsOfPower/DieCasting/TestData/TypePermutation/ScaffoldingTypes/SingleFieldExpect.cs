@@ -41,17 +41,19 @@ public class FieldExpect<TInput>
   , bool hasDefault = false
   , TInput? defaultValue = default
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
-    : FieldExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine);
+    : FieldExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine);
 
 public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldExpectation
 {
 
     // ReSharper disable twice ExplicitCallerInfoArgument
     public FieldExpect(TInput? input, string? formatString = null, bool hasDefault = false, TDefault? defaultValue = default
-     , FieldContentHandling contentHandling = DefaultCallerTypeFlags, [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0) :
-        base(input, formatString, contentHandling,  srcFile, srcLine)
+     , FieldContentHandling contentHandling = DefaultCallerTypeFlags, string? name = null
+      , [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0) :
+        base(input, formatString, contentHandling, name, srcFile, srcLine)
     {
         HasDefault   = hasDefault;
         DefaultValue = !typeof(TInput).IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>()

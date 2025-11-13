@@ -8,6 +8,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
@@ -20,9 +21,10 @@ public class StringBearerExpect<TInput>
   , bool hasDefault = false
   , TInput? defaultValue = default
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
-    : StringBearerExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
+    : StringBearerExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     where TInput : IStringBearer;
 
 
@@ -33,10 +35,13 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
     public StringBearerExpect(TInput? input, string? formatString = null
       , bool hasDefault = false, TDefault? defaultValue = default
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
       , [CallerFilePath] string srcFile = ""
-      , [CallerLineNumber] int srcLine = 0) : base(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
+      , [CallerLineNumber] int srcLine = 0) : base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
-        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, FormatString, HasDefault, DefaultValue, contentHandling, srcFile, srcLine);
+        FieldValueExpectation = 
+            new FieldExpect<TInput?, TDefault?>
+                (Input, FormatString, HasDefault, DefaultValue, contentHandling , name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TInput?> FieldValueExpectation { get; }
@@ -49,7 +54,7 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
     {
         FieldValueExpectation.ClearExpectations();
         foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
-        condition |= ScaffoldingStringBuilderInvokeFlags.AcceptsSpanFormattable | ScaffoldingStringBuilderInvokeFlags.AcceptsChars | ScaffoldingStringBuilderInvokeFlags.AcceptsString;
+        condition |= AcceptsSpanFormattable | AcceptsChars | AcceptsString;
         var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, stringStyle, formatString);
         if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
         {
@@ -77,7 +82,7 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
             var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
             FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
             supportsStringDefaultValue.DefaultValue =
-                scaffoldEntry.ScaffoldingFlags.HasAnyOf(ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsValueOut | ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsStringOut)
+                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
              && !InputType.IsSpanFormattableOrNullable()
                     ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();

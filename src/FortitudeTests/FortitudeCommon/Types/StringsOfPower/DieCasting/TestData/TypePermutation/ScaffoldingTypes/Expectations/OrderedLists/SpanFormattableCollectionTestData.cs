@@ -17,7 +17,7 @@ public class SpanFormattableCollectionTestData
         new PositionUpdatingList<IOrderedListExpect>(typeof(SpanFormattableCollectionTestData))
         {
         // float Collections (struct - json native)
-        new OrderedListExpect<float>([],  "")
+        new OrderedListExpect<float>([],  "", name: "Empty")
         {
             { new EK(  OrderedCollectionType | AcceptsSpanFormattable), "[]" }
           , { new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
@@ -33,7 +33,7 @@ public class SpanFormattableCollectionTestData
           , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
           , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan  | AlwaysWrites, Pretty), "null" }
         }
-      , new OrderedListExpect<float>(FloatList, "")
+      , new OrderedListExpect<float>(FloatList, "", name: "All_NoFilter")
         {
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                     |  AllOutputConditionsMask, CompactLog),
@@ -122,9 +122,28 @@ public class SpanFormattableCollectionTestData
                 """ 
             }
         }
+      , new OrderedListExpect<float>(FloatList, "", () => Float_Second_5)
+        {
+            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
+                    |  AllOutputConditionsMask, CompactLog),
+                "[ 10.873127, 18.849556, 16.30969, 25.132742, 21.746254 ]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+                "[10.873127,18.849556,16.30969,25.132742,21.746254]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+                """
+                [
+                  10.873127,
+                  18.849556,
+                  16.30969,
+                  25.132742,
+                  21.746254
+                ]
+                """ 
+            }
+        }
         
         // float? Collections (nullable struct - json native)
-      , new OrderedListExpect<float?>([],  "")
+      , new OrderedListExpect<float?>([],  "", name: "Empty")
         {
             { new EK(  OrderedCollectionType | AcceptsSpanFormattable), "[]" }
          ,  { new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
@@ -140,7 +159,7 @@ public class SpanFormattableCollectionTestData
           , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AlwaysWrites, CompactJson), "null" }
           , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AlwaysWrites, Pretty), "null" }
         }
-      , new OrderedListExpect<float?>(NullFloatList, "")
+      , new OrderedListExpect<float?>(NullFloatList, "", name: "All_NoFilter")
         {
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                    |  AllOutputConditionsMask, CompactLog),
@@ -165,7 +184,7 @@ public class SpanFormattableCollectionTestData
                   null,
                   15.707964
                   null,
-                  13.591409]
+                  13.591409
                 ]
                 """ 
             }
@@ -238,9 +257,28 @@ public class SpanFormattableCollectionTestData
                 """ 
             }
         }
+      , new OrderedListExpect<float?>(NullFloatList, "", () => NullFloat_Second_5)
+        {
+            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
+                    |  AllOutputConditionsMask, CompactLog),
+                "[ 9.424778, null, null, null, 8.154845 ]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+                "[9.424778,null,null,null,8.154845]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+                """
+                [
+                  9.424778,
+                  null,
+                  null,
+                  null,
+                  8.154845
+                ]
+                """ 
+            }
+        }
         
         // Version Collections (non null class - json as string)
-      , new OrderedListExpect<Version>([],  "")
+      , new OrderedListExpect<Version>([],  "", name: "Empty")
         {
             { new EK(  OrderedCollectionType | AcceptsSpanFormattable), "[]" }
           , { new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
@@ -256,7 +294,7 @@ public class SpanFormattableCollectionTestData
           , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
           , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan  | AlwaysWrites, Pretty), "null" }
         }
-      , new OrderedListExpect<Version>(VersionsList, "")
+      , new OrderedListExpect<Version>(VersionsList, "", name: "All_NoFilter")
         {
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                     |  AllOutputConditionsMask, CompactLog),
@@ -327,9 +365,27 @@ public class SpanFormattableCollectionTestData
                 """ 
             }
         }
+      , new OrderedListExpect<Version>(VersionsList, "", () => Version_Second_5)
+        {
+            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
+                    |  AllOutputConditionsMask, CompactLog),
+                "[ 8.3.3.3, 0.4, 16.0.0, 32.2563.1000000.1 ]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+                "[\"8.3.3.3\",\"0.4\",\"16.0.0\",\"32.2563.1000000.1\"]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+                """
+                [
+                  "8.3.3.3",
+                  "0.4",
+                  "16.0.0",
+                  "32.2563.1000000.1"
+                ]
+                """ 
+            }
+        }
         
         // Version Collections ( null class - json as string)
-      , new OrderedListExpect<Version?>([],  "")
+      , new OrderedListExpect<Version?>([],  "", name: "Empty")
         {
             { new EK(  OrderedCollectionType | AcceptsSpanFormattable), "[]" }
           , { new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
@@ -345,7 +401,7 @@ public class SpanFormattableCollectionTestData
           , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
           , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan  | AlwaysWrites, Pretty), "null" }
         }
-      , new OrderedListExpect<Version?>(NullVersionsList, "")
+      , new OrderedListExpect<Version?>(NullVersionsList, "", name: "All_NoFilter")
         {
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                     |  AllOutputConditionsMask, CompactLog),
@@ -419,6 +475,25 @@ public class SpanFormattableCollectionTestData
                 """
                 [
                   "16.0.0"
+                ]
+                """ 
+            }
+        }
+      , new OrderedListExpect<Version?>(NullVersionsList, "", () => NullVersion_Second_5)
+        {
+            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
+                    |  AllOutputConditionsMask, CompactLog),
+                "[ 2.1.123456, 8.3.3.3, null, null, null ]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+                "[\"2.1.123456\",\"8.3.3.3\",null,null,null]" }
+          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+                """
+                [
+                  "2.1.123456",
+                  "8.3.3.3",
+                  null,
+                  null,
+                  null
                 ]
                 """ 
             }

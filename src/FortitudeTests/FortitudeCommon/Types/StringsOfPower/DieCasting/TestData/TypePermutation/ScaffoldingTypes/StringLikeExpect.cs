@@ -28,9 +28,10 @@ public class StringLikeExpect<TInput> : StringLikeExpect<TInput, string>
       , int fromIndex = 0
       , int length = Int32.MaxValue
       , FieldContentHandling contentHandling = FieldContentHandling.DefaultCallerTypeFlags
+      , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(input, formatString, hasDefault, defaultValue, fromIndex, length, contentHandling, srcFile, srcLine) { }
+        : base(input, formatString, hasDefault, defaultValue, fromIndex, length, contentHandling, name, srcFile, srcLine) { }
 }
 
 public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, IStringLikeExpectation
@@ -45,9 +46,10 @@ public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, 
       , int fromIndex = 0
       , int length = Int32.MaxValue
       , FieldContentHandling contentHandling = FieldContentHandling.DefaultCallerTypeFlags
+      , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
+        : base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
         FromIndex = fromIndex;
         Length    = length;
