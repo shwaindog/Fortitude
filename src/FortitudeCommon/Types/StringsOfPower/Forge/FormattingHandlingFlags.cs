@@ -14,7 +14,7 @@ public enum FormattingHandlingFlags : ushort
   , EnsureFormattedDelimited = 0x_00_08
   , DisableAutoDelimiting    = 0x_00_10
   , AsStringContent          = 0x_00_20
-  , SkipAllEncoding          = 0x_00_40
+  , NoItemSeparator          = 0x_00_40
   , EncodeAsBase64           = 0x_00_80
   , AsciiEscapeEncoding      = 0x_01_00
   , JsonEncoding             = 0x_02_00

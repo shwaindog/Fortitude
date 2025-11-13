@@ -15,7 +15,7 @@ public enum FieldContentHandling : ulong
   , EnsureFormattedDelimited = 0x_00_08
   , DisableAutoDelimiting    = 0x_00_10
   , AsStringContent          = 0x_00_20
-  , SkipAllEncoding          = 0x_00_40
+  , NoItemSeparator          = 0x_00_40
   , EncodeAsBase64           = 0x_00_80
   , AsciiEscapeEncoding      = 0x_01_00
   , JsonEncoding             = 0x_02_00
@@ -28,60 +28,70 @@ public enum FieldContentHandling : ulong
   , AsValueContent           = 0x_80_00
 
     // Mold Additional
-  , EnsureLogFormatting         = 0x00_01_00_00
-  , EnsureJsonFormatting        = 0x00_02_00_00
-  , EnsureYamlFormatting        = 0x00_04_00_00 // Not implemented just reserving  
-  , EnsureMlFormatting          = 0x00_08_00_00 // Not implemented just reserving
-  , EnsureCompact               = 0x00_10_00_00  
-  , EnsurePretty                = 0x00_20_00_00  
-  , FormattingMask              = 0x00_2F_00_00 
-  , ExcludeWhenPretty           = 0x00_40_00_00
-  , ExcludeWhenCompact          = 0x00_80_00_00
-  , ExcludeWhenLogStyle         = 0x01_00_00_00
-  , ExcludeWhenJsonStyle        = 0x02_00_00_00
-  , ExcludeWhenYamlStyle        = 0x04_00_00_00 // Not implemented just reserving                                             
-  , ExcludeWhenXmlLStyle        = 0x08_00_00_00 // Not implemented just reserving          
-  , ExcludeMask                 = 0x0F_C0_00_00    
-  , ContentAllowAnyValueType    = 0x10_00_00_00
-  , NoPrettifying               = 0x20_00_00_00 
-  , NullBecomesEmpty            = 0x40_00_00_00 
+  , NoWhitespacesToNext      = 0x00_01_00_00
+  , NextOnSameLine           = 0x00_01_00_00
+  , NextEnsureNewLine        = 0x00_02_00_00
+  , NoFieldSeparator         = 0x00_04_00_00
+  , NullBecomesEmpty         = 0x00_08_00_00
+  , EnsureLogFormatting      = 0x00_10_00_00
+  , EnsureJsonFormatting     = 0x00_20_00_00
+  , EnsureYamlFormatting     = 0x00_40_00_00 // Not implemented just reserving  
+  , EnsureMlFormatting       = 0x00_80_00_00 // Not implemented just reserving
+  , EnsureDiagraphFormatting = 0x01_00_00_00 // Not implemented just reserving
+  , EnsureCompact            = 0x02_00_00_00
+  , EnsurePretty             = 0x04_00_00_00
+  , FormattingMask           = 0x07_F0_00_00
+  , AsEmbeddedContent        = 0x08_00_00_00
+
+  , ExcludeWhenPretty        = 0x01_00_00_00_00
+  , ExcludeWhenCompact       = 0x02_00_00_00_00
+  , ExcludeWhenLogStyle      = 0x04_00_00_00_00
+  , ExcludeWhenJsonStyle     = 0x08_00_00_00_00 // Not implemented just reserving  
+  , ExcludeWhenYamlStyle     = 0x10_00_00_00_00 // Not implemented just reserving                                             
+  , ExcludeWhenMlLStyle      = 0x20_00_00_00_00 // Not implemented just reserving          
+  , ExcludeWhenDiagraphStyle = 0x40_00_00_00_00
+  , ExcludeMask              = 0x4F_80_00_00_00
+  , LogSuppressTypeNames     = 0x80_00_00_00_00
+
+  , NoRevisitCheck              = 0x00_01_00_00_00_00_00
+  , ContentAllowAnyValueType    = 0x00_02_00_00_00_00_00
+  , ContentAllowNumber          = 0x00_04_00_00_00_00_00
+  , ContentAllowRawGraphNode    = 0x00_08_00_00_00_00_00
+  , ContentAllowText            = 0x00_10_00_00_00_00_00
+  , ValidateValueType           = 0x00_20_00_00_00_00_00
+  , ValidateNumber              = 0x00_40_00_00_00_00_00
+  , ValidateNotNull             = 0x00_80_00_00_00_00_00
+  , ValidateNotEmpty            = 0x01_00_00_00_00_00_00
+  , AsCollection                = 0x02_00_00_00_00_00_00
+  , ContentMismatchViolationOn  = 0x04_00_00_00_00_00_00
+  , ContentMismatchViolationOff = 0x08_00_00_00_00_00_00
+  , PrettyTreatAsCompact        = 0x10_00_00_00_00_00_00
+  , PrettyNewLinePerElement     = 0x20_00_00_00_00_00_00
+  , PrettyElementWrapAtWidth    = 0x40_00_00_00_00_00_00
+  , PrettyTextWrapAtWidth       = 0x80_00_00_00_00_00_00
     
-  , ContentAllowNumber          = 0x01_00_00_00_00 
-  , ContentAllowRawGraphNode    = 0x02_00_00_00_00 
-  , ContentAllowText            = 0x04_00_00_00_00 
-  , ValidateValueType           = 0x08_00_00_00_00 
-  , ValidateNumber              = 0x10_00_00_00_00 
-  , ValidateNotNull             = 0x20_00_00_00_00 
-  , ValidateNotEmpty            = 0x40_00_00_00_00 
-  , AsCollection                = 0x80_00_00_00_00
-    
-  , ContentMismatchViolationOn  = 0x00_01_00_00_00_00_00 
-  , ContentMismatchViolationOff = 0x00_02_00_00_00_00_00 
-  , PrettyTreatAsCompact        = 0x00_04_00_00_00_00_00 
-  , PrettyNewLinePerElement     = 0x00_08_00_00_00_00_00 
-  , PrettyElementWrapAtWidth    = 0x00_10_00_00_00_00_00
-  , TempAlwaysExclude           = 0x00_20_00_00_00_00_00
-  , ViolationThrowsException    = 0x00_40_00_00_00_00_00
-  , ViolationWritesAlert        = 0x00_80_00_00_00_00_00
-  , ViolationDebuggerBreak      = 0x01_00_00_00_00_00_00
+  , TempAlwaysExclude           = 0x01_00_00_00_00_00_00_00
+  , ViolationThrowsException    = 0x02_00_00_00_00_00_00_00
+  , ViolationWritesAlert        = 0x04_00_00_00_00_00_00_00
+  , ViolationDebuggerBreak      = 0x08_00_00_00_00_00_00_00   
 }
 
 public static class FieldContentHandlingExtensions
 {
     public const FieldContentHandling None = 0;
 
-    public static bool HasEnsureFormattedDelimitedFlag(this FieldContentHandling flags)     => (flags & EnsureFormattedDelimited) > 0;
-    public static bool HasAsStringContentFlag(this FieldContentHandling flags)              => (flags & AsStringContent) > 0;
-    public static bool DoesNotHaveAsStringContentFlag(this FieldContentHandling flags)      => (flags & AsStringContent) == 0;
-    public static bool HasAsValueContentFlag(this FieldContentHandling flags)               => (flags & AsValueContent) > 0;
-    public static bool DoesNotHaveAsValueContentFlag(this FieldContentHandling flags)       => (flags & AsValueContent) == 0;
-    
+    public static bool HasEnsureFormattedDelimitedFlag(this FieldContentHandling flags) => (flags & EnsureFormattedDelimited) > 0;
+    public static bool HasAsStringContentFlag(this FieldContentHandling flags)          => (flags & AsStringContent) > 0;
+    public static bool DoesNotHaveAsStringContentFlag(this FieldContentHandling flags)  => (flags & AsStringContent) == 0;
+    public static bool HasAsValueContentFlag(this FieldContentHandling flags)           => (flags & AsValueContent) > 0;
+    public static bool DoesNotHaveAsValueContentFlag(this FieldContentHandling flags)   => (flags & AsValueContent) == 0;
+
     public static bool IsUnspecifiedContent(this FieldContentHandling flags) =>
-        ! flags.IsSpecifiedContent();
-    
+        !flags.IsSpecifiedContent();
+
     public static bool IsSpecifiedContent(this FieldContentHandling flags) =>
         flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
-    
+
     public static bool HasNullBecomesEmptyFlag(this FieldContentHandling flags)             => (flags & NullBecomesEmpty) > 0;
     public static bool HasEnsureLogFormattingFlag(this FieldContentHandling flags)          => (flags & EnsureLogFormatting) > 0;
     public static bool HasEnsureJsonFormattingFlag(this FieldContentHandling flags)         => (flags & EnsureJsonFormatting) > 0;
@@ -92,7 +102,7 @@ public static class FieldContentHandlingExtensions
     public static bool HasExcludeWhenLogStyleFlag(this FieldContentHandling flags)          => (flags & ExcludeWhenLogStyle) > 0;
     public static bool HasExcludeWhenJsonStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenJsonStyle) > 0;
     public static bool HasExcludeWhenYamlStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenYamlStyle) > 0;
-    public static bool HasExcludeWhenXmlLStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenXmlLStyle) > 0;
+    public static bool HasExcludeWhenXmlLStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenMlLStyle) > 0;
     public static bool HasExcludeWhenPrettyFlag(this FieldContentHandling flags)            => (flags & ExcludeWhenPretty) > 0;
     public static bool HasExcludeWhenCompactFlag(this FieldContentHandling flags)           => (flags & ExcludeWhenCompact) > 0;
     public static bool HasDisableAddingAutoCallerTypeFlags(this FieldContentHandling flags) => (flags & NoAutoAddCallerTypeFlags) > 0;
@@ -123,6 +133,4 @@ public static class FieldContentHandlingExtensions
         }
         return existingStyle;
     }
-    
-    
 }

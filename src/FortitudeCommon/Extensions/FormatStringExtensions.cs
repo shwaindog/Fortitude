@@ -110,14 +110,13 @@ public readonly struct SplitJoinRange : ISpanFormattable
 
     public int ApplySplitJoin(Span<char> bufferWritten, ReadOnlySpan<char> original)
     {
-        var noSplitFound = true;
-        var splitSpan    = splitChars[..splitLength];
+        var splitSpan           = splitChars[..splitLength];
+        var splitOccurenceCount = -1;
         if (!IsNoSplitJoin)
         {
-            var splitAt = original.IndexOf(splitSpan);
-            noSplitFound = splitAt < 0;
+            splitOccurenceCount = original.SubSequenceOccurenceCount(splitSpan);
         }
-        if (IsNoSplitJoin || noSplitFound)
+        if (IsNoSplitJoin || splitOccurenceCount < 1)
         {
             var end = Math.Min(bufferWritten.Length, original.Length);
             for (int i = 0; i < end; i++)
@@ -126,7 +125,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
             }
             return end;
         }
-        Span<Range> splitRanges    = stackalloc Range[16];
+        Span<Range> splitRanges    = stackalloc Range[splitOccurenceCount+1];
         var         numberOfRanges = original.Split(splitRanges, splitSpan);
         splitRanges = splitRanges[..numberOfRanges];
         var boundRange = splitElementsRange.BoundRangeToLength(splitRanges.Length);

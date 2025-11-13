@@ -8,6 +8,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
@@ -24,11 +25,14 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
     public CloakedBearerExpect(TChildScaffoldType? input, string? formatString = null
       , bool hasDefault = false, TChildScaffoldType? defaultValue = default
       , FieldContentHandling contentHandling = FieldContentHandling.DefaultCallerTypeFlags
+      , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) : 
-        base(input, formatString, hasDefault, defaultValue, contentHandling, srcFile, srcLine)
+        base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
-        FieldValueExpectation = new FieldExpect<TChildScaffoldType>(Input, FormatString, HasDefault, DefaultValue);
+        FieldValueExpectation = 
+            new FieldExpect<TChildScaffoldType>
+                (Input, FormatString, HasDefault, DefaultValue, contentHandling, name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TChildScaffoldType?> FieldValueExpectation { get; }
@@ -45,7 +49,7 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
         foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
         if (Input is string || Input is char[] || Input is ICharSequence || Input is StringBuilder)
         {
-            condition |= ScaffoldingStringBuilderInvokeFlags.AcceptsChars | ScaffoldingStringBuilderInvokeFlags.AcceptsString | ScaffoldingStringBuilderInvokeFlags.AcceptsCharArray | ScaffoldingStringBuilderInvokeFlags.AcceptsCharSequence | ScaffoldingStringBuilderInvokeFlags.AcceptsStringBuilder;
+            condition |= AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder;
         }
         var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, stringStyle, formatString);
         if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
@@ -78,8 +82,8 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
             var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
             FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
             supportsStringDefaultValue.DefaultValue =
-                scaffoldEntry.ScaffoldingFlags.HasAnyOf(ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsValueOut 
-                                                      | ScaffoldingStringBuilderInvokeFlags.DefaultTreatedAsStringOut)
+                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut 
+                                                      | DefaultTreatedAsStringOut)
              && !InputType.IsSpanFormattableOrNullable()
                     ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();

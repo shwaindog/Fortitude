@@ -16,19 +16,22 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 
 
 public class CloakedOrderedListExpect<TInputElement> : CloakedOrderedListExpect<TInputElement, TInputElement, TInputElement>
+    where TInputElement : notnull
 {
     // ReSharper disable twice ExplicitCallerInfoArgument
     public CloakedOrderedListExpect(List<TInputElement?> inputList
       , PalantírReveal<TInputElement> valueRevealer
       ,  Expression<Func<OrderedCollectionPredicate<TInputElement?>>>? elementFilter = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) 
-        : base(inputList, valueRevealer, elementFilter, contentHandling, srcFile, srcLine) { }
+        : base(inputList, valueRevealer, elementFilter, contentHandling, name, srcFile, srcLine) { }
 }
 
 public class CloakedOrderedListExpect<TInputElement, TFilterBase, TRevealerBase> : OrderedListExpect<TInputElement, TFilterBase>
     where TInputElement : TFilterBase, TRevealerBase
+    where TRevealerBase : notnull
 {
     private readonly OrderedCollectionPredicate<TFilterBase>? elementPredicate = 
         ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
@@ -38,9 +41,10 @@ public class CloakedOrderedListExpect<TInputElement, TFilterBase, TRevealerBase>
     public CloakedOrderedListExpect(List<TInputElement?>? inputList, PalantírReveal<TRevealerBase> valueRevealer
       , Expression<Func<OrderedCollectionPredicate<TFilterBase?>>>? elementFilter = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, null, elementFilter, contentHandling, srcFile, srcLine) =>
+        : base(inputList, null, elementFilter, contentHandling, name, srcFile, srcLine) =>
         ValueRevealer    = valueRevealer;
 
 

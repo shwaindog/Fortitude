@@ -30,6 +30,7 @@ public static class TestCollections
     public static OrderedCollectionPredicate<bool> Bool_All_True       = (_, item) => EvaluateIsIncludedAndContinue(item);
     public static OrderedCollectionPredicate<bool> Bool_All_False      = (_, item) => EvaluateIsIncludedAndContinue(!item);
     public static OrderedCollectionPredicate<bool> Bool_First_8        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<bool> Bool_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<bool> Bool_Skip_Odd_Index = (count, _) => EvaluateIsIncludedAndContinue(((count -1) % 2) == 0, 1);
     public static OrderedCollectionPredicate<bool> Bool_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
     public static OrderedCollectionPredicate<bool> Bool_First_False    = (_, item) => First(!item);
@@ -39,6 +40,7 @@ public static class TestCollections
     public static OrderedCollectionPredicate<bool?> NullBool_All_True        = (_, item) => EvaluateIsIncludedAndContinue(item.HasValue && item.Value);
     public static OrderedCollectionPredicate<bool?> NullBool_All_NullOrFalse = (_, item) => EvaluateIsIncludedAndContinue(!item.HasValue || !item.Value);
     public static OrderedCollectionPredicate<bool?> NullBool_First_8         = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<bool?> NullBool_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<bool?> NullBool_Skip_Odd_Index  = (count, _) => EvaluateIsIncludedAndContinue(((count -1) % 2) == 0, 1);
     public static OrderedCollectionPredicate<bool?> NullBool_All             = (_, _) => EvaluateIsIncludedAndContinue(true);
     public static OrderedCollectionPredicate<bool?> NullBool_None            = (_, _) => EvaluateIsIncludedAndContinue(false);
@@ -56,13 +58,14 @@ public static class TestCollections
     public static PalantírReveal<float> FloatF2Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F2");
     public static PalantírReveal<float> FloatF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
 
-    public static OrderedCollectionPredicate<float>  Float_Lt_10          = (_, item) => EvaluateIsIncludedAndContinue(item < 10.0f);
-    public static OrderedCollectionPredicate<float>  Float_Gt_10          = (_, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
-    public static OrderedCollectionPredicate<float>  Float_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<float>  Float_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<float>  Float_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<float>  Float_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
-    public static OrderedCollectionPredicate<float> Float_First_Gt_10 = (_, item) => First(item > 10.0f);
+    public static OrderedCollectionPredicate<float> Float_Lt_10          = (_, item) => EvaluateIsIncludedAndContinue(item < 10.0f);
+    public static OrderedCollectionPredicate<float> Float_Gt_10          = (_, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
+    public static OrderedCollectionPredicate<float> Float_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<float> Float_Second_5      = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<float> Float_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<float> Float_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
+    public static OrderedCollectionPredicate<float> Float_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<float> Float_First_Gt_10    = (_, item) => First(item > 10.0f);
 
     public static OrderedCollectionPredicate<float> Float_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
 
@@ -70,6 +73,7 @@ public static class TestCollections
     public static OrderedCollectionPredicate<float?> NullFloat_Gt_10          = (_, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
     public static OrderedCollectionPredicate<float?> NullFloat_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<float?> NullFloat_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<float?> NullFloat_Second_5      = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<float?> NullFloat_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
     public static OrderedCollectionPredicate<float?> NullFloat_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
     public static OrderedCollectionPredicate<float?> NullFloat_First_Gt_10    = (_, item) => First(item is > 10.0f);
@@ -233,6 +237,7 @@ public static class TestCollections
     public static OrderedCollectionPredicate<Version> Version_MjrLt_10       = (_, item) => EvaluateIsIncludedAndContinue(item.Major < 10);
     public static OrderedCollectionPredicate<Version> Version_MjrGt_10       = (_, item) => EvaluateIsIncludedAndContinue(item.Major > 10);
     public static OrderedCollectionPredicate<Version> Version_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<Version> Version_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<Version> Version_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<Version> Version_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
     public static OrderedCollectionPredicate<Version> Version_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
@@ -242,10 +247,11 @@ public static class TestCollections
     public static OrderedCollectionPredicate<Version?> NullVersion_MjrLt_10       = (_, item) => EvaluateIsIncludedAndContinue(item?.Major < 10);
     public static OrderedCollectionPredicate<Version?> NullVersion_Gt_10          = (_, item) => EvaluateIsIncludedAndContinue(item?.Major > 10);
     public static OrderedCollectionPredicate<Version?> NullVersion_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<Version?> NullVersion_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<Version?> NullVersion_First_5        = (count, _) => EvaluateIsIncludedAndContinue(count <= 5);
+    public static OrderedCollectionPredicate<Version?> NullVersion_Second_5           = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<Version?> NullVersion_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
     public static OrderedCollectionPredicate<Version?> NullVersion_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
-    public static OrderedCollectionPredicate<Version?> NullVersion_First_MjrGt_10    = (_, item) => First(item?.Major is > 10);
+    public static OrderedCollectionPredicate<Version?> NullVersion_First_MjrGt_10 = (_, item) => First(item?.Major is > 10);
     public static OrderedCollectionPredicate<Version?> NullVersion_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
 
     public static string[] StringArray =
@@ -294,23 +300,25 @@ public static class TestCollections
     public static PalantírReveal<string> StringRevealer_Pad_20     = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0}|");
     public static PalantírReveal<string> StringRevealer_Pad_80 = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0,80}|");
 
-    public static OrderedCollectionPredicate<string> String_LenLt_100      = (_, item) => EvaluateIsIncludedAndContinue(item.Length < 100);
-    public static OrderedCollectionPredicate<string> String_LenGt_100      = (_, item) => EvaluateIsIncludedAndContinue(item.Length > 100);
-    public static OrderedCollectionPredicate<string> String_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<string> String_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<string> String_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<string> String_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<string> String_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item.Length < 100);
+    public static OrderedCollectionPredicate<string> String_LenGt_100       = (_, item) => EvaluateIsIncludedAndContinue(item.Length > 100);
+    public static OrderedCollectionPredicate<string> String_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<string> String_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<string> String_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<string> String_Skip_Odd_Index  = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
+    public static OrderedCollectionPredicate<string> String_All             = (_, _) => EvaluateIsIncludedAndContinue(true);
     public static OrderedCollectionPredicate<string> String_First_LenGt_100 = (_, item) => First(item.Length > 100);
-    public static OrderedCollectionPredicate<string> String_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
+    public static OrderedCollectionPredicate<string> String_None            = (_, _) => EvaluateIsIncludedAndContinue(false);
 
     public static OrderedCollectionPredicate<string?> NullString_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length < 100);
-    public static OrderedCollectionPredicate<string?> NullString_LenGt_100          = (_, item) => EvaluateIsIncludedAndContinue(item?.Length > 100);
-    public static OrderedCollectionPredicate<string?> NullString_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<string?> NullString_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<string?> NullString_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<string?> NullString_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
-    public static OrderedCollectionPredicate<string?> NullString_First_LenGt_100    = (_, item) => First(item?.Length is > 100);
-    public static OrderedCollectionPredicate<string?> NullString_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
+    public static OrderedCollectionPredicate<string?> NullString_LenGt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length > 100);
+    public static OrderedCollectionPredicate<string?> NullString_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<string?> NullString_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<string?> NullString_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<string?> NullString_Skip_Odd_Index  = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
+    public static OrderedCollectionPredicate<string?> NullString_All             = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<string?> NullString_First_LenGt_100 = (_, item) => First(item?.Length is > 100);
+    public static OrderedCollectionPredicate<string?> NullString_None            = (_, _) => EvaluateIsIncludedAndContinue(false);
     
     public static Lazy<List<char[]>> CharArrayList = new(() => StringArray.Select(s => s.ToCharArray()).ToList()); 
     public static Lazy<List<char[]?>> NullCharArrayList = new (() =>
